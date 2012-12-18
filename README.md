@@ -1,8 +1,8 @@
-quan·tize
-/'kwäntiz/
+quan-tize
 ===
-Verb
+Verb.
 Apply quantum theory to, in particular restrict the number of possible values of (a quantity) or states of (a system).
+
 
 Quantize (styled as QtZ or QuantiZe) is an insanely fast-paced, competitive twitch shooter based on ioquake3.
 
