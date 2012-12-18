@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // g_local.h -- local definitions for game module
 
+#pragma once
+
 #include "../qcommon/q_shared.h"
 #include "bg_public.h"
 #include "g_public.h"
@@ -43,14 +45,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SP_INTERMISSION_DELAY_TIME	5000
 
 // gentity->flags
-#define	FL_GODMODE				0x00000010
-#define	FL_NOTARGET				0x00000020
-#define	FL_TEAMSLAVE			0x00000400	// not the first on the team
-#define FL_NO_KNOCKBACK			0x00000800
-#define FL_DROPPED_ITEM			0x00001000
-#define FL_NO_BOTS				0x00002000	// spawn point not for bot use
-#define FL_NO_HUMANS			0x00004000	// spawn point just for bots
-#define FL_FORCE_GESTURE		0x00008000	// force gesture on client
+#define	FL_GODMODE				0x0001
+#define	FL_NOTARGET				0x0002
+#define	FL_TEAMSLAVE			0x0004	// not the first on the team
+#define FL_NO_KNOCKBACK			0x0008
+#define FL_DROPPED_ITEM			0x0010
+#define FL_NO_BOTS				0x0020	// spawn point not for bot use
+#define FL_NO_HUMANS			0x0040	// spawn point just for bots
+#define FL_FORCE_GESTURE		0x0080	// force gesture on client
+#define	FL_BOUNCE				0x0100	// for missiles
+#define	FL_BOUNCE_HALF			0x0200	// for missiles
+#define	FL_BOUNCE_SHRAPNEL		0x0400	// special shrapnel flag
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -62,10 +67,39 @@ typedef enum {
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
+typedef enum hitLocation_e {
+	HL_NONE=0,
+	HL_FOOT_RT,
+	HL_FOOT_LT,
+	HL_LEG_RT,
+	HL_LEG_LT,
+	HL_WAIST,
+	HL_BACK_RT,
+	HL_BACK_LT,
+	HL_BACK,
+	HL_CHEST_RT,
+	HL_CHEST_LT,
+	HL_CHEST,
+	HL_ARM_RT,
+	HL_ARM_LT,
+	HL_HAND_RT,
+	HL_HAND_LT,
+	HL_HEAD,
+	HL_GENERIC1,
+	HL_GENERIC2,
+	HL_GENERIC3,
+	HL_GENERIC4,
+	HL_GENERIC5,
+	HL_GENERIC6,
+	HL_MAX
+} hitLocation_t;
+
 //============================================================================
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
+
+#include "g_unlagged.h"
 
 struct gentity_s {
 	entityState_t	s;				// communicated by server to clients
@@ -151,6 +185,16 @@ struct gentity_s {
 	int			methodOfDeath;
 	int			splashMethodOfDeath;
 
+	//QtZ: Added
+	int			bounceCount;
+	int			dflags;
+	float		knockbackMulti;
+	float		knockbackMultiSelf;
+	float		knockbackDampVert; //special multiplier for dflags & DAMAGE_VERTICAL_KNOCKBACK
+
+	//RAZTODO: Location based damages
+	//int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
+
 	int			count;
 
 	gentity_t	*chain;
@@ -158,9 +202,6 @@ struct gentity_s {
 	gentity_t	*activator;
 	gentity_t	*teamchain;		// next entity in team
 	gentity_t	*teammaster;	// master of the team
-
-	int			kamikazeTime;
-	int			kamikazeShockTime;
 
 	int			watertype;
 	int			waterlevel;
@@ -308,11 +349,19 @@ struct gclient_s {
 	int			timeResidual;
 
 	gentity_t	*persistantPowerup;
-	int			portalID;
-	int			ammoTimes[WP_NUM_WEAPONS];
-	int			invulnerabilityTime;
 
 	char		*areabits;
+
+	//NT - client origin trails
+    int              trailHead;
+    clientTrail_t    trail[NUM_CLIENT_TRAILS];
+    clientTrail_t    saved;    // used to restore after time shift
+
+	struct qtz {
+		int			headshotCount;
+		int			airshotCount;
+		int			amazingCount;
+	} qtz;
 };
 
 
@@ -401,6 +450,9 @@ typedef struct {
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
 	int			portalSequence;
+
+	//QtZ: Added
+	int         frameStartTime;         //NT - actual time frame started
 } level_locals_t;
 
 
@@ -483,25 +535,30 @@ const char *BuildShaderStateConfig( void );
 // g_combat.c
 //
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
-qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod);
+void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_attacker, gentity_t *real_affector, vec3_t real_dir, vec3_t real_point, int real_damage, int real_dflags, int real_mod );
+qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod );
 int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir );
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientItems( gentity_t *self );
 void TossClientPersistantPowerups( gentity_t *self );
 void TossClientCubes( gentity_t *self );
+int G_GetHitLocation(gentity_t *target, vec3_t ppoint);
 
 // damage flags
+#define DAMAGE_NORMAL				0x00000000
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
 #define DAMAGE_NO_ARMOR				0x00000002	// armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
 #define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
+#define DAMAGE_VERTICAL_KNOCKBACK	0x00000020	// x/y knockback will be dampened by missile->knockbackDampVert
 
 //
 // g_missile.c
 //
 void G_RunMissile( gentity_t *ent );
+void G_ExplodeMissile( gentity_t *ent );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner);
 
 gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
@@ -528,6 +585,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 // g_misc.c
 //
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
+void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles );
 void DropPortalSource( gentity_t *ent );
 void DropPortalDestination( gentity_t *ent );
 
@@ -538,9 +596,6 @@ void DropPortalDestination( gentity_t *ent );
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void SnapVectorTowards( vec3_t v, vec3_t to );
-qboolean CheckGauntletAttack( gentity_t *ent );
-void Weapon_HookFree (gentity_t *ent);
-void Weapon_HookThink (gentity_t *ent);
 
 
 //
@@ -571,8 +626,7 @@ qboolean G_FilterPacket (char *from);
 //
 // g_weapon.c
 //
-void FireWeapon( gentity_t *ent );
-void G_StartKamikaze( gentity_t *ent );
+void FireWeapon( gentity_t *ent, int special );
 
 //
 // g_cmds.c
@@ -614,7 +668,6 @@ void G_RunClient( gentity_t *ent );
 //
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
-qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker );
 
 //
 // g_mem.c
@@ -714,10 +767,6 @@ extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_banIPs;
 extern	vmCvar_t	g_filterBan;
-extern	vmCvar_t	g_obeliskHealth;
-extern	vmCvar_t	g_obeliskRegenPeriod;
-extern	vmCvar_t	g_obeliskRegenAmount;
-extern	vmCvar_t	g_obeliskRespawnDelay;
 extern	vmCvar_t	g_cubeTimeout;
 extern	vmCvar_t	g_redteam;
 extern	vmCvar_t	g_blueteam;
@@ -729,6 +778,10 @@ extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
+
+#define XCVAR_PROTO
+	#include "g_xcvar.h"
+#undef XCVAR_PROTO
 
 void	trap_Print( const char *text );
 void	trap_Error( const char *text ) __attribute__((noreturn));

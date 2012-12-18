@@ -1,0 +1,17 @@
+Raz0r <mrrazish@gmail.com>
+- Project Lead
+- Programming
+- 2D Art / UI
+
+AstralSerpent <???>
+- Lead tester
+- Various contributions
+
+Ensiform <???>
+- Programming contributions
+
+
+Special thanks
+ioquake3 <QuakeNET/#ioquake3>
+Jedi Academy ctfpug community <QuakeNET/#jactf>
+JACoders regulars <ArloriaNET/#JACoders>

@@ -95,7 +95,6 @@ CG_LoadingClient
 */
 void CG_LoadingClient( int clientNum ) {
 	const char		*info;
-	char			*skin;
 	char			personality[MAX_QPATH];
 	char			model[MAX_QPATH];
 	char			iconName[MAX_QPATH];
@@ -104,22 +103,16 @@ void CG_LoadingClient( int clientNum ) {
 
 	if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
 		Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
-		skin = strrchr( model, '/' );
-		if ( skin ) {
-			*skin++ = '\0';
-		} else {
-			skin = "default";
-		}
 
-		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
+		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", model );
 		
 		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
 		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
-			Com_sprintf( iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin );
+			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", model );
 			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
 		}
 		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
-			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default" );
+			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", DEFAULT_MODEL );
 			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
 		}
 		if ( loadingPlayerIcons[loadingPlayerIconCount] ) {
@@ -176,10 +169,10 @@ void CG_DrawInformation( void ) {
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	if ( cg.infoScreenText[0] ) {
-		UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), 128-32, va("Loading... %s", cg.infoScreenText),
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	} else {
-		UI_DrawProportionalString( 320, 128-32, "Awaiting snapshot...",
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), 128-32, "Awaiting snapshot...",
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	}
 
@@ -193,14 +186,14 @@ void CG_DrawInformation( void ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
 		Q_CleanStr(buf);
-		UI_DrawProportionalString( 320, y, buf,
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), y, buf,
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
 
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-			UI_DrawProportionalString( 320, y, "Pure Server",
+			UI_DrawProportionalString( (SCREEN_WIDTH/2), y, "Pure Server",
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
 		}
@@ -208,7 +201,7 @@ void CG_DrawInformation( void ) {
 		// server-specific message of the day
 		s = CG_ConfigString( CS_MOTD );
 		if ( s[0] ) {
-			UI_DrawProportionalString( 320, y, s,
+			UI_DrawProportionalString( (SCREEN_WIDTH/2), y, s,
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
 		}
@@ -220,7 +213,7 @@ void CG_DrawInformation( void ) {
 	// map-specific message (long map name)
 	s = CG_ConfigString( CS_MESSAGE );
 	if ( s[0] ) {
-		UI_DrawProportionalString( 320, y, s,
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), y, s,
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
 	}
@@ -228,7 +221,7 @@ void CG_DrawInformation( void ) {
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-		UI_DrawProportionalString( 320, y, "CHEATS ARE ENABLED",
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), y, "CHEATS ARE ENABLED",
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
 	}
@@ -254,23 +247,17 @@ void CG_DrawInformation( void ) {
 	case GT_1FCTF:
 		s = "One Flag CTF";
 		break;
-	case GT_OBELISK:
-		s = "Overload";
-		break;
-	case GT_HARVESTER:
-		s = "Harvester";
-		break;
 	default:
 		s = "Unknown Gametype";
 		break;
 	}
-	UI_DrawProportionalString( 320, y, s,
+	UI_DrawProportionalString( (SCREEN_WIDTH/2), y, s,
 		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	y += PROP_HEIGHT;
 		
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-		UI_DrawProportionalString( 320, y, va( "timelimit %i", value ),
+		UI_DrawProportionalString( (SCREEN_WIDTH/2), y, va( "timelimit %i", value ),
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
 	}
@@ -278,7 +265,7 @@ void CG_DrawInformation( void ) {
 	if (cgs.gametype < GT_CTF ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-			UI_DrawProportionalString( 320, y, va( "fraglimit %i", value ),
+			UI_DrawProportionalString( (SCREEN_WIDTH/2), y, va( "fraglimit %i", value ),
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
 		}
@@ -287,7 +274,7 @@ void CG_DrawInformation( void ) {
 	if (cgs.gametype >= GT_CTF) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
-			UI_DrawProportionalString( 320, y, va( "capturelimit %i", value ),
+			UI_DrawProportionalString( (SCREEN_WIDTH/2), y, va( "capturelimit %i", value ),
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
 		}

@@ -157,6 +157,11 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 		if (*listlength >= listsize) break;
 		//
 		surf = *mark;
+
+		//QtZ: optimization from UrT, this surface has already been checked
+		if (surf->viewCount == tr.viewCount)
+			continue;
+
 		// check if the surface has NOIMPACT or NOMARKS set
 		if ( ( surf->shader->surfaceFlags & ( SURF_NOIMPACT | SURF_NOMARKS ) )
 			|| ( surf->shader->contentFlags & CONTENTS_FOG ) ) {

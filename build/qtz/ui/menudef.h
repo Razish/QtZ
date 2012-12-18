@@ -108,10 +108,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG	0x00000001
 #define CG_SHOW_RED_TEAM_HAS_BLUEFLAG	0x00000002
 #define CG_SHOW_ANYTEAMGAME				0x00000004
-#define CG_SHOW_HARVESTER                 0x00000008
-#define CG_SHOW_ONEFLAG                   0x00000010
+#define CG_SHOW_UNUSED13				0x00000008
+#define CG_SHOW_ONEFLAG					0x00000010
 #define CG_SHOW_CTF						0x00000020
-#define CG_SHOW_OBELISK                   0x00000040
+#define CG_SHOW_UNUSED12				0x00000040
 #define CG_SHOW_HEALTHCRITICAL			0x00000080
 #define CG_SHOW_SINGLEPLAYER			0x00000100
 #define CG_SHOW_TOURNAMENT				0x00000200
@@ -125,18 +125,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_SHOW_OTHERTEAMHASFLAG		0x00020000
 #define CG_SHOW_YOURTEAMHASENEMYFLAG	0x00040000
 #define CG_SHOW_ANYNONTEAMGAME			0x00080000
-#define CG_SHOW_UNUSED04				0x00100000
-#define CG_SHOW_UNUSED05				0x00200000
-#define CG_SHOW_UNUSED06				0x00400000
-#define CG_SHOW_UNUSED07				0x00800000
-#define CG_SHOW_UNUSED08				0x01000000
-#define CG_SHOW_UNUSED09				0x02000000
-#define CG_SHOW_UNUSED10				0x04000000
-#define CG_SHOW_UNUSED11				0x08000000
+#define CG_SHOW_UNUSED11				0x00100000
+#define CG_SHOW_UNUSED10				0x00200000
+#define CG_SHOW_UNUSED09				0x00400000
+#define CG_SHOW_UNUSED08				0x00800000
+#define CG_SHOW_UNUSED07				0x01000000
+#define CG_SHOW_UNUSED06				0x02000000
+#define CG_SHOW_UNUSED05				0x04000000
+#define CG_SHOW_UNUSED04				0x08000000
 #define CG_SHOW_2DONLY					0x10000000
-#define CG_SHOW_UNUSED12				0x20000000
-#define CG_SHOW_UNUSED13				0x40000000
-#define CG_SHOW_UNUSED14				0x80000000
+#define CG_SHOW_UNUSED03				0x20000000
+#define CG_SHOW_UNUSED02				0x40000000
+#define CG_SHOW_UNUSED01				0x80000000
 
 #define UI_SHOW_LEADER				0x00000001
 #define UI_SHOW_NOTLEADER			0x00000002
@@ -192,52 +192,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_RED_SCORE					28
 #define CG_RED_NAME						29
 #define CG_BLUE_NAME					30
-#define CG_HARVESTER_SKULLS				31	// only shows in harvester
-#define CG_ONEFLAG_STATUS				32
-#define CG_PLAYER_LOCATION				33
-#define CG_TEAM_COLOR					34
-#define CG_CTF_POWERUP					35
+#define CG_ONEFLAG_STATUS				31
+#define CG_PLAYER_LOCATION				32
+#define CG_TEAM_COLOR					33
+#define CG_CTF_POWERUP					34
 
-#define CG_AREA_POWERUP					36
-#define CG_AREA_LAGOMETER				37	// painted with old system
-#define CG_PLAYER_HASFLAG				38
-#define CG_GAME_TYPE					39	// not done
+#define CG_AREA_POWERUP					35
+#define CG_AREA_LAGOMETER				36	// painted with old system
+#define CG_PLAYER_HASFLAG				37
+#define CG_GAME_TYPE					38	// not done
 
-#define CG_SELECTEDPLAYER_ARMOR			40
-#define CG_SELECTEDPLAYER_HEALTH		41
-#define CG_PLAYER_STATUS				42
-#define CG_FRAGGED_MSG					43	// painted with old system
-#define CG_PROXMINED_MSG				44	// painted with old system
-#define CG_AREA_FPSINFO					45	// painted with old system
-#define CG_AREA_SYSTEMCHAT				46	// painted with old system
-#define CG_AREA_TEAMCHAT				47	// painted with old system
-#define CG_AREA_CHAT					48	// painted with old system
-#define CG_GAME_STATUS					49
-#define CG_KILLER						50
-#define CG_PLAYER_ARMOR_ICON2D			51
-#define CG_PLAYER_AMMO_ICON2D			52
-#define CG_ACCURACY						53
-#define CG_ASSISTS						54
-#define CG_DEFEND						55
-#define CG_EXCELLENT					56
-#define CG_IMPRESSIVE					57
-#define CG_PERFECT						58
-#define CG_GAUNTLET						59
-#define CG_SPECTATORS					60
-#define CG_TEAMINFO						61
-#define CG_VOICE_HEAD					62
-#define CG_VOICE_NAME					63
-#define CG_PLAYER_HASFLAG2D				64
-#define CG_HARVESTER_SKULLS2D			65	// only shows in harvester
-#define CG_CAPFRAGLIMIT					66
-#define CG_1STPLACE						67
-#define CG_2NDPLACE						68
-#define CG_CAPTURES						69
+#define CG_SELECTEDPLAYER_ARMOR			39
+#define CG_SELECTEDPLAYER_HEALTH		40
+#define CG_PLAYER_STATUS				41
+#define CG_FRAGGED_MSG					42	// painted with old system
+#define CG_AREA_FPSINFO					43	// painted with old system
+#define CG_AREA_SYSTEMCHAT				44	// painted with old system
+#define CG_AREA_TEAMCHAT				45	// painted with old system
+#define CG_AREA_CHAT					46	// painted with old system
+#define CG_GAME_STATUS					47
+#define CG_KILLER						48
+#define CG_PLAYER_ARMOR_ICON2D			49
+#define CG_PLAYER_AMMO_ICON2D			51
+#define CG_ACCURACY						52
+#define CG_ASSISTS						53
+#define CG_DEFEND						54
+#define CG_EXCELLENT					55
+#define CG_IMPRESSIVE					56
+#define CG_PERFECT						57
+#define CG_GAUNTLET						58
+#define CG_SPECTATORS					59
+#define CG_TEAMINFO						60
+#define CG_VOICE_HEAD					61
+#define CG_VOICE_NAME					62
+#define CG_PLAYER_HASFLAG2D				63
+#define CG_CAPFRAGLIMIT					64
+#define CG_1STPLACE						65
+#define CG_2NDPLACE						66
+#define CG_CAPTURES						67
 //QtZ: Added
-#define CG_FPS_INFO						70
-#define CG_PING_INFO					71
-#define CG_OBITUARY						72
-#define CG_ITEMPICKUP					73
+#define CG_FPS_INFO						68
+#define CG_PING_INFO					69
+#define CG_OBITUARY						70
+#define CG_ITEMPICKUP					71
 //~QtZ
 
 

@@ -705,7 +705,9 @@ static void SV_SendClientGameState( client_t *client ) {
 
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
-	client->state = CS_PRIMED;
+	//QtZ: Fix for donedl
+	if ( client->state == CS_CONNECTED )
+		client->state = CS_PRIMED;
 	client->pureAuthentic = 0;
 	client->gotCP = qfalse;
 
@@ -853,8 +855,9 @@ Downloads are finished
 ==================
 */
 static void SV_DoneDownload_f( client_t *cl ) {
-	if ( cl->state == CS_ACTIVE )
-		return;
+	//QtZ: We'll fix this further downstream so the client can still restart their FS =]
+//	if ( cl->state == CS_ACTIVE )
+//		return;
 
 	Com_DPrintf( "clientDownload: %s Done\n", cl->name);
 	// resend the game state to update any clients that entered during the download

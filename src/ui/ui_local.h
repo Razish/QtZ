@@ -619,7 +619,7 @@ typedef struct {
 #define UI_FONT_THRESHOLD		0.1
 #define MAX_DISPLAY_SERVERS		2048
 #define MAX_SERVERSTATUS_LINES	128
-#define MAX_SERVERSTATUS_TEXT	1024
+#define MAX_SERVERSTATUS_TEXT	2048 //1024
 #define MAX_FOUNDPLAYER_SERVERS	16
 #define TEAM_MEMBERS 5
 #define GAMES_ALL			0
@@ -630,9 +630,9 @@ typedef struct {
 #define MAPS_PER_TIER 3
 #define MAX_TIERS 16
 #define MAX_MODS 64
-#define MAX_DEMOS 512
+#define MAX_DEMOS 2048 //512
 #define MAX_MOVIES 256
-#define MAX_PLAYERMODELS 256
+#define MAX_PLAYERMODELS 1024 //256
 
 
 typedef struct {

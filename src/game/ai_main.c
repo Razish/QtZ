@@ -297,12 +297,6 @@ void BotReportStatus(bot_state_t *bs) {
 			else strcpy(flagstatus, S_COLOR_BLUE"F ");
 		}
 	}
-	else if (gametype == GT_HARVESTER) {
-		if (BotHarvesterCarryingCubes(bs)) {
-			if (BotTeam(bs) == TEAM_RED) Com_sprintf(flagstatus, sizeof(flagstatus), S_COLOR_RED"%2d", bs->inventory[INVENTORY_REDCUBE]);
-			else Com_sprintf(flagstatus, sizeof(flagstatus), S_COLOR_BLUE"%2d", bs->inventory[INVENTORY_BLUECUBE]);
-		}
-	}
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:
@@ -364,11 +358,6 @@ void BotReportStatus(bot_state_t *bs) {
 		case LTG_ATTACKENEMYBASE:
 		{
 			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: attacking the enemy base\n", netname, leader, flagstatus);
-			break;
-		}
-		case LTG_HARVEST:
-		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: harvesting\n", netname, leader, flagstatus);
 			break;
 		}
 		default:
@@ -443,12 +432,6 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 			strcpy(carrying, "F ");
 		}
 	}
-	else if (gametype == GT_HARVESTER) {
-		if (BotHarvesterCarryingCubes(bs)) {
-			if (BotTeam(bs) == TEAM_RED) Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_REDCUBE]);
-			else Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_BLUECUBE]);
-		}
-	}
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:
@@ -510,11 +493,6 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 		case LTG_ATTACKENEMYBASE:
 		{
 			Com_sprintf(action, sizeof(action), "attacking the enemy base");
-			break;
-		}
-		case LTG_HARVEST:
-		{
-			Com_sprintf(action, sizeof(action), "harvesting");
 			break;
 		}
 		default:
@@ -1376,8 +1354,6 @@ int BotAILoadMap( int restart ) {
 	return qtrue;
 }
 
-void ProximityMine_Trigger( gentity_t *trigger, gentity_t *other, trace_t *trace );
-
 /*
 ==================
 BotAIStartFrame
@@ -1482,7 +1458,7 @@ int BotAIStartFrame(int time) {
 				continue;
 			}
 			// do not update missiles
-			if (ent->s.eType == ET_MISSILE && ent->s.weapon != WP_GRAPPLING_HOOK) {
+			if (ent->s.eType == ET_MISSILE) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
@@ -1490,13 +1466,6 @@ int BotAIStartFrame(int time) {
 			if (ent->s.eType > ET_EVENTS) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
-			}
-			// never link prox mine triggers
-			if (ent->r.contents == CONTENTS_TRIGGER) {
-				if (ent->touch == ProximityMine_Trigger) {
-					trap_BotLibUpdateEntity(i, NULL);
-					continue;
-				}
 			}
 			//
 			memset(&state, 0, sizeof(bot_entitystate_t));

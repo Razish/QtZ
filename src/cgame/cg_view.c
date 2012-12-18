@@ -462,7 +462,149 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 
-static int CG_CalcFov( void ) {
+float zoomFov; //this has to be global client-side
+
+static int CG_CalcFovJA( void ) {
+	float	x;
+	float	phase;
+	float	v;
+	float	fov_x = cg_fov.value, fov_y;
+	int		inwater;
+	int		contents;
+//	float	cgFov = cg_fov.value;
+
+//	if (cgFov < 1)
+//		cgFov = cg_fov.value;
+//	if (cgFov > 360)
+//		cgFov = cg_fov.value;
+
+	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+		// if in intermission, use a fixed value
+		fov_x = 80;//90;
+	} else {
+		/*
+		if (cg.predictedPlayerState.zoomMode == 2)
+		{ //binoculars
+			if (zoomFov > 40.0f)
+			{
+				zoomFov -= cg.frametime * 0.075f;
+
+				if (zoomFov < 40.0f)
+				{
+					zoomFov = 40.0f;
+				}
+				else if (zoomFov > cgFov)
+				{
+					zoomFov = cgFov;
+				}
+			}
+
+			fov_x = zoomFov;
+		}
+		else */if (cg.zoomed)
+		{
+			if (zoomFov > fov_x)
+				zoomFov = fov_x;
+			zoomFov -= cg.frametime * cg_zoomTime.value;//0.075f;
+
+			if (zoomFov < cg_zoomFov.value)
+				zoomFov = cg_zoomFov.value;
+			else if (zoomFov > fov_x)
+				zoomFov = fov_x;
+			else
+			{// Still zooming
+				static int zoomSoundTime = 0;
+				if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
+				{
+					trap_S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
+					zoomSoundTime = cg.time + 300;
+				}
+			}
+
+			if (zoomFov < 5.0f)
+				zoomFov = 5.0f;		// hack to fix zoom during vid restart
+			fov_x = zoomFov;
+		}
+		else 
+		{
+			if (zoomFov > fov_x)
+				zoomFov = fov_x;
+			zoomFov += cg.frametime * cg_zoomTime.value;//0.075f;
+
+			if (zoomFov > fov_x)
+				zoomFov = fov_x;
+			else if (zoomFov < cg_zoomFov.value)
+				zoomFov = cg_zoomFov.value;
+			else
+			{
+				static int zoomSoundTime = 0;
+				if ( zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 )
+				{
+					trap_S_StartSound( cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
+					zoomSoundTime = cg.time + 300;
+				}
+			}
+
+			if (zoomFov > fov_x)
+				zoomFov = fov_x;
+			fov_x = zoomFov;
+			/*
+			zoomFov = cgFov;
+
+			f = ( cg.time - cg.predictedPlayerState.zoomTime ) / ZOOM_OUT_TIME;
+			if ( f > 1.0 ) 
+			{
+				fov_x = fov_x;
+			} 
+			else 
+			{
+				fov_x = cg_zoomFov.value + f * ( fov_x - cg_zoomFov.value );
+			}
+			*/
+		}
+	}
+
+	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
+	fov_y = atan2( cg.refdef.height, x );
+	fov_y = fov_y * 360 / M_PI;
+
+	// warp if underwater
+	contents = CG_PointContents( cg.refdef.vieworg, -1 );
+	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ){
+		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		v = WAVE_AMPLITUDE * sin( phase );
+		fov_x += v;
+		fov_y -= v;
+		inwater = qtrue;
+	}
+	else {
+		inwater = qfalse;
+	}
+
+#if defined(_XBOX) || defined(QTZ_WIDESCREEN_TEST)
+	if(cg.widescreen)
+		fov_x = fov_y * 1.77777f;
+#endif
+
+
+	// set it
+	cg.refdef.fov_x = fov_x;
+	cg.refdef.fov_y = fov_y;
+
+	if (cg.zoomed)
+	{
+		cg.zoomSensitivity = zoomFov/cg_fov.value;
+	}
+	else if ( !cg.zoomed ) {
+		cg.zoomSensitivity = 1;
+	} else {
+		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+	}
+
+	return inwater;
+}
+
+static int CG_CalcFovQ3( void ) {
 	float	x;
 	float	phase;
 	float	v;
@@ -597,6 +739,14 @@ static void CG_DamageBlendBlob( void ) {
 	trap_R_AddRefEntityToScene( &ent );
 }
 
+static int CG_CalcFov( void )
+{
+#if 1
+	return CG_CalcFovJA();
+#else
+	return CG_CalcFovQ3();
+#endif
+}
 
 /*
 ===============
@@ -683,6 +833,9 @@ static int CG_CalcViewValues( void ) {
 	if ( cg.hyperspace ) {
 		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
 	}
+
+	//QtZ: post process
+	cg.refdef.rdflags |= RDF_POSTPROCESS;
 
 	// field of view
 	return CG_CalcFov();

@@ -19,6 +19,9 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
+#pragma once
+
 //
 #include "../qcommon/q_shared.h"
 #include "../renderer/tr_types.h"
@@ -34,6 +37,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_FONT_THRESHOLD 0.1
 
 #define	POWERUP_BLINKS		5
+
+#define NULL_HANDLE ((qhandle_t) 0)
+#define NULL_SOUND ((sfxHandle_t) 0)
 
 #define	POWERUP_BLINK_TIME	1000
 #define	FADE_TIME			200
@@ -76,19 +82,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GIANT_WIDTH			32
 #define	GIANT_HEIGHT		48
 
-#define	NUM_CROSSHAIRS		10
+#define	NUM_CROSSHAIRS		16 //QtZ: Also in UI
 
-#define TEAM_OVERLAY_MAXNAME_WIDTH	12
-#define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
-
-#define	DEFAULT_MODEL			"sarge"
-#ifdef QTZRELIC
-#define	DEFAULT_TEAM_MODEL		"sarge"
-#define	DEFAULT_TEAM_HEAD		"sarge"
-#else
-#define	DEFAULT_TEAM_MODEL		"james"
-#define	DEFAULT_TEAM_HEAD		"*james"
-#endif // QTZRELIC
+#define TEAM_OVERLAY_MAXNAME_WIDTH	36
+#define TEAM_OVERLAY_MAXLOCATION_WIDTH	64
 
 #define DEFAULT_REDTEAM_NAME		"Stroggs"
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
@@ -222,9 +219,6 @@ typedef enum {
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-	LE_KAMIKAZE,
-	LE_INVULIMPACT,
-	LE_INVULJUICED,
 	LE_SHOWREFENTITY
 } leType_t;
 
@@ -333,8 +327,6 @@ typedef struct {
 	int				powerups;		// so can display quad/flag status
 
 	int				medkitUsageTime;
-	int				invulnerabilityStartTime;
-	int				invulnerabilityStopTime;
 
 	int				breathPuffTime;
 
@@ -342,9 +334,6 @@ typedef struct {
 	// can be deferred until you are dead, to prevent hitches in
 	// gameplay
 	char			modelName[MAX_QPATH];
-	char			skinName[MAX_QPATH];
-	char			headModelName[MAX_QPATH];
-	char			headSkinName[MAX_QPATH];
 	char			redTeam[MAX_TEAMNAME];
 	char			blueTeam[MAX_TEAMNAME];
 	qboolean		deferred;
@@ -400,6 +389,9 @@ typedef struct weaponInfo_s {
 	qhandle_t		missileModel;
 	sfxHandle_t		missileSound;
 	void			(*missileTrailFunc)( centity_t *, const struct weaponInfo_s *wi );
+	void			(*missileHitWallFunc)( centity_t *shooter, const struct weaponInfo_s *wi, vec3_t origin, vec3_t dir );
+	void			(*missileHitPlayerFunc)( centity_t *victim, const struct weaponInfo_s *wi, vec3_t origin, vec3_t dir );
+	void			(*fireFunc)( centity_t *cent, vec3_t start, vec3_t end );
 	float			missileDlight;
 	vec3_t			missileDlightColor;
 	int				missileRenderfx;
@@ -635,6 +627,14 @@ typedef struct {
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
 
+	vec3_t		lastFPFlashPoint;
+
+	struct {
+		linkedList_t	*itemPickupRoot;
+		linkedList_t	*obituaryRoot;
+		int				flagCarrierEntityNum;
+		int				crosshairDamageTime;
+	} qtz;
 } cg_t;
 
 
@@ -649,10 +649,6 @@ typedef struct {
 	qhandle_t	charsetPropB;
 	qhandle_t	whiteShader;
 
-	qhandle_t	redCubeModel;
-	qhandle_t	blueCubeModel;
-	qhandle_t	redCubeIcon;
-	qhandle_t	blueCubeIcon;
 	qhandle_t	redFlagModel;
 	qhandle_t	blueFlagModel;
 	qhandle_t	neutralFlagModel;
@@ -670,16 +666,6 @@ typedef struct {
 	qhandle_t	redFlagBaseModel;
 	qhandle_t	blueFlagBaseModel;
 	qhandle_t	neutralFlagBaseModel;
-
-	qhandle_t	overloadBaseModel;
-	qhandle_t	overloadTargetModel;
-	qhandle_t	overloadLightsModel;
-	qhandle_t	overloadEnergyModel;
-
-	qhandle_t	harvesterModel;
-	qhandle_t	harvesterRedSkin;
-	qhandle_t	harvesterBlueSkin;
-	qhandle_t	harvesterNeutralModel;
 
 	qhandle_t	armorModel;
 	qhandle_t	armorIcon;
@@ -750,13 +736,7 @@ typedef struct {
 	qhandle_t	quadShader;
 	qhandle_t	redQuadShader;
 	qhandle_t	quadWeaponShader;
-	qhandle_t	invisShader;
 	qhandle_t	regenShader;
-	qhandle_t	battleSuitShader;
-	qhandle_t	battleWeaponShader;
-	qhandle_t	hastePuffShader;
-	qhandle_t	redKamikazeShader;
-	qhandle_t	blueKamikazeShader;
 
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
@@ -776,20 +756,10 @@ typedef struct {
 	// special effects models
 	qhandle_t	teleportEffectModel;
 	qhandle_t	teleportEffectShader;
-	qhandle_t	kamikazeEffectModel;
-	qhandle_t	kamikazeShockWave;
-	qhandle_t	kamikazeHeadModel;
-	qhandle_t	kamikazeHeadTrail;
 	qhandle_t	guardPowerupModel;
-	qhandle_t	scoutPowerupModel;
-	qhandle_t	doublerPowerupModel;
-	qhandle_t	ammoRegenPowerupModel;
-	qhandle_t	invulnerabilityImpactModel;
-	qhandle_t	invulnerabilityJuicedModel;
 	qhandle_t	medkitUsageModel;
 	qhandle_t	dustPuffShader;
 	qhandle_t	heartShader;
-	qhandle_t	invulnerabilityPowerupModel;
 
 	// scoreboard headers
 	qhandle_t	scoreboardName;
@@ -828,18 +798,6 @@ typedef struct {
 	sfxHandle_t	sfx_chghit;
 	sfxHandle_t	sfx_chghitflesh;
 	sfxHandle_t	sfx_chghitmetal;
-	sfxHandle_t kamikazeExplodeSound;
-	sfxHandle_t kamikazeImplodeSound;
-	sfxHandle_t kamikazeFarSound;
-	sfxHandle_t useInvulnerabilitySound;
-	sfxHandle_t invulnerabilityImpactSound1;
-	sfxHandle_t invulnerabilityImpactSound2;
-	sfxHandle_t invulnerabilityImpactSound3;
-	sfxHandle_t invulnerabilityJuicedSound;
-	sfxHandle_t obeliskHitSound1;
-	sfxHandle_t obeliskHitSound2;
-	sfxHandle_t obeliskHitSound3;
-	sfxHandle_t	obeliskRespawnSound;
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
 
@@ -918,7 +876,6 @@ typedef struct {
 	sfxHandle_t	youHaveFlagSound;
 	sfxHandle_t	enemyTookTheFlagSound;
 	sfxHandle_t yourTeamTookTheFlagSound;
-	sfxHandle_t yourBaseIsUnderAttackSound;
 	sfxHandle_t holyShitSound;
 
 	// tournament sounds
@@ -940,10 +897,7 @@ typedef struct {
 	qhandle_t flagShaders[3];
 	sfxHandle_t	countPrepareTeamSound;
 
-	sfxHandle_t ammoregenSound;
-	sfxHandle_t doublerSound;
 	sfxHandle_t guardSound;
-	sfxHandle_t scoutSound;
 
 	qhandle_t cursor;
 	qhandle_t selectCursor;
@@ -959,6 +913,10 @@ typedef struct {
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
 
+	struct {
+		qhandle_t	brightModel;
+		qhandle_t	cooldownTic;
+	} qtz;
 } cgMedia_t;
 
 
@@ -1049,6 +1007,11 @@ typedef struct {
 	// media
 	cgMedia_t		media;
 
+	//Raz: serverinfo vars
+	struct {
+		unsigned int	cinfo;
+		char			serverName[256];
+	} qtz;
 } cgs_t;
 
 //==============================================================================
@@ -1163,11 +1126,16 @@ extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 extern	vmCvar_t		cg_obeliskRespawnDelay;
 
+#define XCVAR_PROTO
+	#include "cg_xcvar.h"
+#undef XCVAR_PROTO
+
 //
 // cg_main.c
 //
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
+const char *CG_Cvar_VariableString( const char *var_name );
 
 void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 void QDECL CG_Error( const char *msg, ... ) __attribute__ ((noreturn, format (printf, 1, 2)));
@@ -1210,6 +1178,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const float *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
+//QtZ: Added from JA
+void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader );
+void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader );
+//~QtZ
 void CG_DrawString( float x, float y, const char *string, 
 				   float charWidth, float charHeight, const float *modulate );
 
@@ -1331,7 +1303,7 @@ void CG_Weapon_f( void );
 void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
-void CG_FireWeapon( centity_t *cent );
+void CG_FireWeapon( centity_t *cent, int special );
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es );
@@ -1554,8 +1526,14 @@ void		trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float 
 int			trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 void		trap_R_RenderScene( const refdef_t *fd );
 void		trap_R_SetColor( const float *rgba );	// NULL = 1,1,1,1
-void		trap_R_DrawStretchPic( float x, float y, float w, float h, 
-			float s1, float t1, float s2, float t2, qhandle_t hShader );
+void		trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
+//QtZ: Added from JA
+// Does weird, barely controllable rotation behaviour
+void	trap_R_DrawRotatePic( float x, float y, float w, float h, float s1, float t1, float s2, float t2,float a, qhandle_t hShader );
+// rotates image around exact center point of passed in coords
+void	trap_R_DrawRotatePic2( float x, float y, float w, float h, float s1, float t1, float s2, float t2,float a, qhandle_t hShader );
+//~QtZ
+
 void		trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 int			trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, 
 					   float frac, const char *tagName );

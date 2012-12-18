@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
+#pragma once
+
+#include "bg_weapons.h"
+
 #define	GAME_VERSION		BASEGAME "-1"
 
 #define	DEFAULT_GRAVITY		800
@@ -38,7 +42,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11
 
-#define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
+#define	ITEM_MINS			{ -36.0f,	-36.0f,	  0.0f }		// item sizes are needed for client side pickup detection
+#define	ITEM_MAXS			{  36.0f,	 36.0f,	 96.0f }		// item sizes are needed for client side pickup detection
 
 #define	LIGHTNING_RANGE		768
 
@@ -98,14 +103,10 @@ typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament
 	GT_SINGLE_PLAYER,	// single player ffa
-
-	//-- team games go after this --
-
+	// team games
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
 	GT_1FCTF,
-	GT_OBELISK,
-	GT_HARVESTER,
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
@@ -189,6 +190,34 @@ typedef struct {
 	// these will be different functions during game and cgame
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+
+	struct {
+		//Wall jumping
+		qboolean	wallJumpEnable;
+		int			wallJumpDebounce;
+
+		//Bunnyhopping
+		qboolean	bunnyHopEnable;
+		int			bunnyHopDebounce;
+
+		//Double jump
+		qboolean	doubleJumpEnable;
+		int			doubleJumpPush;
+		int			doubleJumpDebounce;
+
+		//General physics
+		float		accelerate;
+		float		airaccelerate;
+		float		friction;
+		float		jumpVelocity;
+
+		//Air control
+		qboolean	airControlEnable; //master control for air control
+		float		airControl;
+		float		airControlStopAccelerate;
+		float		airControlWishspeed;
+		float		airControlStrafeAccelerate;
+	} qtz;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -237,48 +266,42 @@ typedef enum {
 
 
 // entityState_t->eFlags
-#define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
-#define EF_TICKING			0x00000002		// used to make players play the prox mine ticking sound
-#define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
-#define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
-#define EF_PLAYER_EVENT		0x00000010
-#define	EF_BOUNCE			0x00000010		// for missiles
-#define	EF_BOUNCE_HALF		0x00000020		// for missiles
-#define	EF_AWARD_GAUNTLET	0x00000040		// draw a gauntlet sprite
-#define	EF_NODRAW			0x00000080		// may have an event, but no model (unspawned items)
-#define	EF_FIRING			0x00000100		// for lightning gun
-#define	EF_KAMIKAZE			0x00000200
-#define	EF_MOVER_STOP		0x00000400		// will push otherwise
-#define EF_AWARD_CAP		0x00000800		// draw the capture sprite
-#define	EF_TALK				0x00001000		// draw a talk balloon
-#define	EF_CONNECTION		0x00002000		// draw a connection trouble sprite
-#define	EF_VOTED			0x00004000		// already cast a vote
-#define	EF_AWARD_IMPRESSIVE	0x00008000		// draw an impressive sprite
-#define	EF_AWARD_DEFEND		0x00010000		// draw a defend sprite
-#define	EF_AWARD_ASSIST		0x00020000		// draw a assist sprite
-#define EF_AWARD_DENIED		0x00040000		// denied
-#define EF_TEAMVOTED		0x00080000		// already cast a team vote
+#define	EF_DEAD				0x00001		// don't draw a foe marker over players with EF_DEAD
+#define EF_TICKING			0x00002		// used to make players play the prox mine ticking sound
+#define	EF_TELEPORT_BIT		0x00004		// toggled every time the origin abruptly changes
+#define	EF_AWARD_EXCELLENT	0x00008		// draw an excellent sprite
+#define EF_PLAYER_EVENT		0x00010		// for missiles
+#define	EF_AWARD_GAUNTLET	0x00020		// draw a gauntlet sprite
+#define	EF_NODRAW			0x00040		// may have an event, but no model (unspawned items)
+#define	EF_FIRING			0x00080		// for lightning gun
+#define	EF_MOVER_STOP		0x00100		// will push otherwise
+#define	EF_AWARD_CAP		0x00200		// draw the capture sprite
+#define EF_TALK				0x00400		// draw a talk balloon
+#define	EF_CONNECTION		0x00800		// draw a connection trouble sprite
+#define	EF_VOTED			0x01000		// already cast a vote
+#define	EF_AWARD_IMPRESSIVE	0x02000		// draw an impressive sprite
+#define	EF_AWARD_DEFEND		0x04000		// draw a defend sprite
+#define	EF_AWARD_ASSIST		0x08000		// draw a assist sprite
+#define	EF_AWARD_DENIED		0x10000		// denied
+#define EF_TEAMVOTED		0x20000		// already cast a team vote
+#define EF_NOT_USED_01		0x40000
+#define EF_NOT_USED_02		0x80000
 
 // NOTE: may not have more than 16
 typedef enum {
 	PW_NONE,
 
+	// regular
 	PW_QUAD,
-	PW_BATTLESUIT,
-	PW_HASTE,
-	PW_INVIS,
 	PW_REGEN,
-	PW_FLIGHT,
 
+	// persistent
+	PW_GUARD,
+
+	// team
 	PW_REDFLAG,
 	PW_BLUEFLAG,
 	PW_NEUTRALFLAG,
-
-	PW_SCOUT,
-	PW_GUARD,
-	PW_DOUBLER,
-	PW_AMMOREGEN,
-	PW_INVULNERABILITY,
 
 	PW_NUM_POWERUPS
 
@@ -286,42 +309,28 @@ typedef enum {
 
 typedef enum {
 	HI_NONE,
-
 	HI_TELEPORTER,
 	HI_MEDKIT,
-	HI_KAMIKAZE,
-	HI_PORTAL,
-	HI_INVULNERABILITY,
-
 	HI_NUM_HOLDABLE
 } holdable_t;
-
-
-typedef enum {
-	WP_NONE,
-
-	WP_GAUNTLET,
-	WP_MACHINEGUN,
-	WP_SHOTGUN,
-	WP_GRENADE_LAUNCHER,
-	WP_ROCKET_LAUNCHER,
-	WP_LIGHTNING,
-	WP_RAILGUN,
-	WP_PLASMAGUN,
-	WP_BFG,
-	WP_GRAPPLING_HOOK,
-	WP_NAILGUN,
-	WP_PROX_LAUNCHER,
-	WP_CHAINGUN,
-
-	WP_NUM_WEAPONS
-} weapon_t;
-
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
 #define	PLAYEREVENT_GAUNTLETREWARD		0x0002
 #define PLAYEREVENT_HOLYSHIT			0x0004
+#define PLAYEREVENT_AIRSHOT				0x0008
+#define PLAYEREVENT_AMAZING				0x0010
+#define PLAYEREVENT_HEADSHOT			0x0020
+#define PLAYEREVENT_UNUSED10			0x0040
+#define PLAYEREVENT_UNUSED09			0x0080
+#define PLAYEREVENT_UNUSED08			0x0100
+#define PLAYEREVENT_UNUSED07			0x0200
+#define PLAYEREVENT_UNUSED06			0x0400
+#define PLAYEREVENT_UNUSED05			0x0800
+#define PLAYEREVENT_UNUSED04			0x1000
+#define PLAYEREVENT_UNUSED03			0x2000
+#define PLAYEREVENT_UNUSED02			0x4000
+#define PLAYEREVENT_UNUSED01			0x8000
 
 // entityState_t->event values
 // entity events are for effects that take place relative
@@ -405,8 +414,7 @@ typedef enum {
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
 	EV_MISSILE_MISS_METAL,
-	EV_RAILTRAIL,
-	EV_SHOTGUN,
+	EV_HITSCANTRAIL,
 	EV_BULLET,				// otherEntity is the shooter
 
 	EV_PAIN,
@@ -416,20 +424,10 @@ typedef enum {
 	EV_OBITUARY,
 
 	EV_POWERUP_QUAD,
-	EV_POWERUP_BATTLESUIT,
 	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,			// gib a previously living player
 	EV_SCOREPLUM,			// score plum
-
-	EV_PROXIMITY_MINE_STICK,
-	EV_PROXIMITY_MINE_TRIGGER,
-	EV_KAMIKAZE,			// kamikaze explodes
-	EV_OBELISKEXPLODE,		// obelisk explodes
-	EV_OBELISKPAIN,			// obelisk is in pain
-	EV_INVUL_IMPACT,		// invulnerability sphere impact
-	EV_JUICED,				// invulnerability juiced effect
-	EV_LIGHTNINGBOLT,		// lightning bolt bounced of invulnerability sphere
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -439,8 +437,9 @@ typedef enum {
 	EV_TAUNT_FOLLOWME,
 	EV_TAUNT_GETFLAG,
 	EV_TAUNT_GUARDBASE,
-	EV_TAUNT_PATROL
+	EV_TAUNT_PATROL,
 
+	EV_NUM_EVENTS
 } entity_event_t;
 
 
@@ -451,14 +450,11 @@ typedef enum {
 	GTS_BLUE_RETURN,
 	GTS_RED_TAKEN,
 	GTS_BLUE_TAKEN,
-	GTS_REDOBELISK_ATTACKED,
-	GTS_BLUEOBELISK_ATTACKED,
 	GTS_REDTEAM_SCORED,
 	GTS_BLUETEAM_SCORED,
 	GTS_REDTEAM_TOOK_LEAD,
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED,
-	GTS_KAMIKAZE
 } global_team_sound_t;
 
 // animations
@@ -562,20 +558,12 @@ typedef enum {
 
 // means of death
 typedef enum {
+	//RAZMARK: ADDING NEW WEAPONS
 	MOD_UNKNOWN,
-	MOD_SHOTGUN,
-	MOD_GAUNTLET,
-	MOD_MACHINEGUN,
-	MOD_GRENADE,
-	MOD_GRENADE_SPLASH,
-	MOD_ROCKET,
-	MOD_ROCKET_SPLASH,
-	MOD_PLASMA,
-	MOD_PLASMA_SPLASH,
-	MOD_RAILGUN,
-	MOD_LIGHTNING,
-	MOD_BFG,
-	MOD_BFG_SPLASH,
+	MOD_QUANTIZER,
+	MOD_REPEATER,
+	MOD_MORTAR,
+	MOD_DIVERGENCE,
 	MOD_WATER,
 	MOD_SLIME,
 	MOD_LAVA,
@@ -585,12 +573,8 @@ typedef enum {
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
-	MOD_NAIL,
-	MOD_CHAINGUN,
-	MOD_PROXIMITY_MINE,
-	MOD_KAMIKAZE,
-	MOD_JUICED,
-	MOD_GRAPPLE
+
+	MOD_MAX
 } meansOfDeath_t;
 
 
@@ -611,7 +595,7 @@ typedef enum {
 	IT_TEAM
 } itemType_t;
 
-#define MAX_ITEM_MODELS 4
+#define MAX_ITEM_MODELS 2
 
 typedef struct gitem_s {
 	char		*classname;	// spawning name
@@ -703,26 +687,4 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define MAX_BOTS			1024
 #define MAX_BOTS_TEXT		8192
 
-
-// Kamikaze
-
-// 1st shockwave times
-#define KAMI_SHOCKWAVE_STARTTIME		0
-#define KAMI_SHOCKWAVEFADE_STARTTIME	1500
-#define KAMI_SHOCKWAVE_ENDTIME			2000
-// explosion/implosion times
-#define KAMI_EXPLODE_STARTTIME			250
-#define KAMI_IMPLODE_STARTTIME			2000
-#define KAMI_IMPLODE_ENDTIME			2250
-// 2nd shockwave times
-#define KAMI_SHOCKWAVE2_STARTTIME		2000
-#define KAMI_SHOCKWAVE2FADE_STARTTIME	2500
-#define KAMI_SHOCKWAVE2_ENDTIME			3000
-// radius of the models without scaling
-#define KAMI_SHOCKWAVEMODEL_RADIUS		88
-#define KAMI_BOOMSPHEREMODEL_RADIUS		72
-// maximum radius of the models during the effect
-#define KAMI_SHOCKWAVE_MAXRADIUS		1320
-#define KAMI_BOOMSPHERE_MAXRADIUS		720
-#define KAMI_SHOCKWAVE2_MAXRADIUS		704
-
+extern const animNumber_t weaponAnimations[WP_NUM_WEAPONS];

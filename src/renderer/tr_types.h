@@ -54,9 +54,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RF_SHADOW_PLANE		0x0100		// use refEntity->shadowPlane
 #define	RF_WRAP_FRAMES		0x0200		// mod the model frames by the maxframes to allow continuous
 
+//QtZ: From JA
+#define RF_FORCE_ENT_ALPHA	0x00400 // TODO: override shader alpha settings
+#define RF_RGB_TINT			0x00800 // override shader rgb settings
+
 // refdef flags
 #define RDF_NOWORLDMODEL	0x0001		// used for player configuration screen
 #define RDF_HYPERSPACE		0x0004		// teleportation effect
+#define RDF_POSTPROCESS		0x0008		// post processing
 
 typedef struct {
 	vec3_t		xyz;
@@ -74,15 +79,22 @@ typedef enum {
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
+	RT_ORIENTED_QUAD, //QtZ: Added from JA/EF
 	RT_BEAM,
-	RT_RAIL_CORE,
-	RT_RAIL_RINGS,
-	RT_LIGHTNING,
+	RT_ELECTRICITY,
 	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
+	//QtZ: Added from JA/EF
+	RT_LINE,
+	RT_ORIENTEDLINE,
+	RT_CYLINDER,
+	RT_ENT_CHAIN,
+	//~QtZ
 
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
+//QtZ: using JA's refEntity_t
+#if 0 // q3 refEntity_t
 typedef struct {
 	refEntityType_t	reType;
 	int			renderfx;
@@ -117,6 +129,150 @@ typedef struct {
 	float		radius;
 	float		rotation;
 } refEntity_t;
+#else
+typedef struct miniRefEntity_s 
+{
+	refEntityType_t		reType;
+	int					renderfx;
+
+	qhandle_t			hModel;				// opaque type outside refresh
+
+	// most recent data
+	vec3_t				axis[3];			// rotation vectors
+	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	vec3_t				origin;				// also used as MODEL_BEAM's "from"
+
+	// previous data for frame interpolation
+	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
+
+	// texturing
+	qhandle_t			customShader;		// use one image for the entire thing
+
+	// misc
+	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
+	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
+
+	// extra sprite information
+	float				radius;
+	float				rotation;			// size 2 for RT_CYLINDER or number of verts in RT_ELECTRICITY
+
+	// misc
+	float		shaderTime;			// subtracted from refdef time to control effect start times
+	int			frame;				// also used as MODEL_BEAM's diameter
+
+} miniRefEntity_t;
+
+#pragma warning (disable : 4201 )
+typedef struct {
+	// this stucture must remain identical as the miniRefEntity_t
+	//
+	//
+	refEntityType_t		reType;
+	int					renderfx;
+
+	qhandle_t			hModel;				// opaque type outside refresh
+
+	// most recent data
+	vec3_t				axis[3];			// rotation vectors
+	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	vec3_t				origin;				// also used as MODEL_BEAM's "from"
+
+	// previous data for frame interpolation
+	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
+
+	// texturing
+	qhandle_t			customShader;		// use one image for the entire thing
+
+	// misc
+	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
+	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
+
+	// extra sprite information
+	float				radius;
+	float				rotation;
+
+	// misc
+	float		shaderTime;			// subtracted from refdef time to control effect start times
+	int			frame;				// also used as MODEL_BEAM's diameter
+	//
+	//
+	// end miniRefEntity_t
+
+	//
+	//
+	// specific full refEntity_t data
+	//
+	//
+
+	// most recent data
+	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
+	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
+
+	// previous data for frame interpolation
+	int			oldframe;
+	float		backlerp;			// 0.0 = current, 1.0 = old
+
+	// texturing
+	int			skinNum;			// inline skin index
+	qhandle_t	customSkin;			// NULL for default skin
+
+	// texturing
+	union	
+	{
+		//		int			skinNum;		// inline skin index
+		//		ivec3_t		terxelCoords;	// coords of patch for RT_TERXELS	
+		struct
+		{
+			int		miniStart;
+			int		miniCount;
+		} uMini;
+	} uRefEnt;
+
+	// extra sprite information
+	union {
+		struct 
+		{
+			float rotation;
+			float radius;
+			byte  vertRGBA[4][4];
+		} sprite;
+		struct 
+		{
+			float width;
+			float width2;
+			float stscale;
+		} line;
+		struct	// that whole put-the-opening-brace-on-the-same-line-as-the-beginning-of-the-definition coding style is fecal
+		{
+			float	width;
+			vec3_t	control1;
+			vec3_t	control2;
+		} bezier;
+		struct
+		{
+			float width;
+			float width2;
+			float stscale;
+			float height;
+			float bias;
+			qboolean wrap;
+		} cylinder;
+		struct 
+		{
+			float width;
+			float deviation;
+			float stscale;
+			qboolean wrap;
+			qboolean taper;
+		} electricity;
+	} data;
+
+	float		endTime;
+	float		saberLength;
+
+} refEntity_t;
+#endif
+//~QtZ
 
 
 #define	MAX_RENDER_STRINGS			8
@@ -189,6 +345,7 @@ typedef struct {
 
 	int						maxTextureSize;			// queried from GL
 	int						numTextureUnits;		// multitexture ability
+	float					maxTextureFilterAnisotropy;
 
 	int						colorBits, depthBits, stencilBits;
 

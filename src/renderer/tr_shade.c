@@ -644,6 +644,7 @@ static void ProjectDlightTexture_scalar( void ) {
 		for ( i = 0 ; i < tess.numVertexes ; i++, texCoords += 2, colors += 4 ) {
 			int		clip = 0;
 			vec3_t	dist;
+			float *normal = tess.normal[i];
 			
 			VectorSubtract( origin, tess.xyz[i], dist );
 
@@ -682,9 +683,13 @@ static void ProjectDlightTexture_scalar( void ) {
 				} else {
 					dist[2] = Q_fabs(dist[2]);
 					if ( dist[2] < radius * 0.5f ) {
-						modulate = 1.0f;
+						//QtZ: adjusted
+					//	modulate = 1.0f;
+						modulate = ((floatColor[0]+floatColor[1]+floatColor[2])/3.0f)/255.0f;
 					} else {
-						modulate = 2.0f * (radius - dist[2]) * scale;
+						//QtZ: adjusted
+					//	modulate = 2.0f * (radius - dist[2]) * scale;
+						modulate = 0.2f * (radius - dist[2]) * scale;
 					}
 				}
 			}

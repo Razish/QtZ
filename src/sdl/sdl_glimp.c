@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 
 #include "../renderer/tr_local.h"
+#include "../client/client.h"
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
 
@@ -74,6 +75,12 @@ cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obta
 cvar_t *r_allowResize; // make window resizable
 cvar_t *r_centerWindow;
 cvar_t *r_sdlDriver;
+
+//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
+cvar_t *r_xpos;
+cvar_t *r_ypos;
+cvar_t *in_disableLockKeys = NULL;
+//~QtZ
 
 void (APIENTRYP qglActiveTextureARB) (GLenum texture);
 void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
@@ -664,14 +671,14 @@ static void GLimp_InitExtensions( void )
 	if ( GLimp_HaveExtension( "GL_EXT_texture_filter_anisotropic" ) )
 	{
 		if ( r_ext_texture_filter_anisotropic->integer ) {
-			qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, (GLint *)&maxAnisotropy );
-			if ( maxAnisotropy <= 0 ) {
+			qglGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat *)&glConfig.maxTextureFilterAnisotropy );
+			if ( glConfig.maxTextureFilterAnisotropy <= 0 ) {
 				ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
-				maxAnisotropy = 0;
+				glConfig.maxTextureFilterAnisotropy = 0;
 			}
 			else
 			{
-				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", maxAnisotropy );
+				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %.2f)\n", glConfig.maxTextureFilterAnisotropy );
 				textureFilterAnisotropic = qtrue;
 			}
 		}
@@ -703,15 +710,30 @@ void GLimp_Init( void )
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE );
 	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE );
 
+	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
+	r_xpos = ri.Cvar_Get( "r_xpos", "100", CVAR_ARCHIVE );
+	r_ypos = ri.Cvar_Get( "r_ypos", "100", CVAR_ARCHIVE );
+	in_disableLockKeys = Cvar_Get( "in_disableLockKeys", "0", CVAR_ARCHIVE );
+	//~QtZ
+
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
 	{
 		ri.Cvar_Set( "r_mode", va( "%d", R_MODE_FALLBACK ) );
 		ri.Cvar_Set( "r_fullscreen", "0" );
 		ri.Cvar_Set( "r_centerWindow", "0" );
 		ri.Cvar_Set( "com_abnormalExit", "0" );
+		//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
+		ri.Cvar_Set( "r_xpos", "100" );
+		ri.Cvar_Set( "r_ypos", "100" );
+		//~QtZ
 	}
 
 	ri.Sys_SetEnv( "SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "" );
+
+	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
+	ri.Sys_SetEnv( "SDL_VIDEO_WINDOW_POS", va( "%d,%d",r_xpos->integer, r_ypos->integer ) );
+	ri.Sys_SetEnv( "SDL_DISABLE_LOCK_KEYS", in_disableLockKeys->integer ? "1" : "" ); //putting this here because it needs vid_restart anyway
+	//~QtZ
 
 	ri.Sys_GLimpInit( );
 

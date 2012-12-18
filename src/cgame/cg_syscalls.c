@@ -291,6 +291,18 @@ void	trap_R_DrawStretchPic( float x, float y, float w, float h,
 	syscall( CG_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), hShader );
 }
 
+//QtZ: Added from JA
+void	trap_R_DrawRotatePic( float x, float y, float w, float h, float s1, float t1, float s2, float t2,float a, qhandle_t hShader ) 
+{
+	syscall( CG_R_DRAWROTATEPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), PASSFLOAT(a), hShader );
+}
+
+void	trap_R_DrawRotatePic2( float x, float y, float w, float h, float s1, float t1, float s2, float t2,float a, qhandle_t hShader ) 
+{
+	syscall( CG_R_DRAWROTATEPIC2, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), PASSFLOAT(a), hShader );
+}
+//~QtZ
+
 void	trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	syscall( CG_R_MODELBOUNDS, model, mins, maxs );
 }

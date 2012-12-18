@@ -366,11 +366,11 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+		//QtZ: Seamless teleporter
+		if ( ent->eType == ET_TELEPORT_TRIGGER && ent->generic1 )
 			cg.hyperspace = qtrue;
-		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
+		else if ( ent->eType == ET_PUSH_TRIGGER )
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
-		}
 	}
 
 	// if we didn't touch a jump pad this pmove frame
@@ -577,6 +577,25 @@ void CG_PredictPlayerState( void ) {
 		if ( cg_pmove.pmove_fixed ) {
 			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
 		}
+
+		//QtZ: set physics variables for pmove sequence
+		cg_pmove.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
+		cg_pmove.qtz.wallJumpDebounce			= qtz_phys_wallJumpDebounce.integer;
+		cg_pmove.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;
+		cg_pmove.qtz.bunnyHopDebounce			= qtz_phys_bunnyHopDebounce.integer;
+		cg_pmove.qtz.doubleJumpEnable			= qtz_phys_doubleJumpEnable.integer;
+		cg_pmove.qtz.doubleJumpPush				= qtz_phys_doubleJumpPush.integer;
+		cg_pmove.qtz.doubleJumpDebounce			= qtz_phys_doubleJumpDebounce.integer;
+		cg_pmove.qtz.accelerate					= qtz_phys_accelerate.value;
+		cg_pmove.qtz.airaccelerate				= qtz_phys_airaccelerate.value;
+		cg_pmove.qtz.friction					= qtz_phys_friction.value;
+		cg_pmove.qtz.jumpVelocity				= qtz_phys_jumpVelocity.value;
+		cg_pmove.qtz.airControlEnable			= qtz_phys_airControlEnable.integer;
+		cg_pmove.qtz.airControl					= qtz_phys_airControl.value;
+		cg_pmove.qtz.airControlStopAccelerate	= qtz_phys_airControlStopAccelerate.value;
+		cg_pmove.qtz.airControlWishspeed		= qtz_phys_airControlWishspeed.value;
+		cg_pmove.qtz.airControlStrafeAccelerate	= qtz_phys_airControlStrafeAccelerate.value;
+		//~QtZ
 
 		Pmove (&cg_pmove);
 

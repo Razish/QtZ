@@ -62,14 +62,14 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 
 #if 0
 		// adjust for wide screens
-		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
-			*x += 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * 640 / 480 ) );
+		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
+			*x += 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
 		}
 #endif
 
 	// scale for screen sizes
-	xscale = cls.glconfig.vidWidth / 640.0;
-	yscale = cls.glconfig.vidHeight / 480.0;
+	xscale = cls.glconfig.vidWidth / SCREEN_WIDTH;
+	yscale = cls.glconfig.vidHeight / SCREEN_HEIGHT;
 	if ( x ) {
 		*x *= xscale;
 	}
@@ -185,6 +185,32 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 					   cls.charSetShader );
 }
 
+/*
+** SCR_DrawSmallChar2
+** small chars are drawn at native screen resolution
+*/
+void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
+{
+	int row, col;
+	float frow, fcol;
+	float size = 1/16.0f;
+
+	ch &= 255;
+
+	if ( ch == ' ' || y < -SMALLCHAR_HEIGHT )
+		return;
+
+	row = ch>>4;
+	col = ch&15;
+
+	frow = row*size;
+	fcol = col*size;
+	
+	re.DrawStretchPic( x, y, SMALLCHAR_WIDTH*scale, SMALLCHAR_HEIGHT*scale,
+					   fcol, frow, 
+					   fcol + size, frow + size, 
+					   cls.charSetShader );
+}
 
 /*
 ==================
@@ -482,7 +508,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
 	if ( uiFullscreen || (clc.state != CA_ACTIVE && clc.state != CA_CINEMATIC) ) {
-		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
+		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
 			re.SetColor( g_color_table[0] );
 			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
 			re.SetColor( NULL );

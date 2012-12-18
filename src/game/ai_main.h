@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CTF
 
 #define MAX_ITEMS					256
+
 //bot flags
 #define BFL_STRAFERIGHT				1	//strafe to the right
 #define BFL_ATTACKED				2	//bot has attacked last ai frame
@@ -42,22 +43,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BFL_AVOIDRIGHT				16	//avoid obstacles by going to the right
 #define BFL_IDEALVIEWSET			32	//bot has ideal view angles set
 #define BFL_FIGHTSUICIDAL			64	//bot is in a suicidal fight
+
 //long term goal types
-#define LTG_TEAMHELP				1	//help a team mate
-#define LTG_TEAMACCOMPANY			2	//accompany a team mate
-#define LTG_DEFENDKEYAREA			3	//defend a key area
-#define LTG_GETFLAG					4	//get the enemy flag
-#define LTG_RUSHBASE				5	//rush to the base
-#define LTG_RETURNFLAG				6	//return the flag
-#define LTG_CAMP					7	//camp somewhere
-#define LTG_CAMPORDER				8	//ordered to camp somewhere
-#define LTG_PATROL					9	//patrol
-#define LTG_GETITEM					10	//get an item
-#define LTG_KILL					11	//kill someone
-#define LTG_HARVEST					12	//harvest skulls
-#define LTG_ATTACKENEMYBASE			13	//attack the enemy base
-#define LTG_MAKELOVE_UNDER			14
-#define LTG_MAKELOVE_ONTOP			15
+typedef enum botLongTermGoal_e {
+	LTG_NONE = 0,
+	LTG_TEAMHELP,			//help a team mate
+	LTG_TEAMACCOMPANY,		//accompany a team mate
+	LTG_DEFENDKEYAREA,		//defend a key area
+	LTG_GETFLAG,			//get the enemy flag
+	LTG_RUSHBASE,			//rush to the base
+	LTG_RETURNFLAG,			//return the flag
+	LTG_CAMP,				//camp somewhere
+	LTG_CAMPORDER,			//ordered to camp somewhere
+	LTG_PATROL,				//patrol
+	LTG_GETITEM,			//get an item
+	LTG_KILL,				//kill someone
+	LTG_ATTACKENEMYBASE,	//attack the enemy base
+	LTG_MAKELOVE_UNDER,
+	LTG_MAKELOVE_ONTOP,
+} botLongTermGoal_t;
+
 //some goal dedication times
 #define TEAM_HELP_TIME				60	//1 minute teamplay help time
 #define TEAM_ACCOMPANY_TIME			600	//10 minutes teamplay accompany time
@@ -68,7 +73,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEAM_GETITEM_TIME			60	//1 minute
 #define	TEAM_KILL_SOMEONE			180	//3 minute to kill someone
 #define TEAM_ATTACKENEMYBASE_TIME	600	//10 minutes
-#define TEAM_HARVEST_TIME			120	//2 minutes
 #define CTF_GETFLAG_TIME			600	//10 minutes ctf get flag time
 #define CTF_RUSHBASE_TIME			120	//2 minutes ctf rush base time
 #define CTF_RETURNFLAG_TIME			180	//3 minutes to return the flag
@@ -171,8 +175,6 @@ typedef struct bot_state_s
 	float check_time;								//time to check for nearby items
 	float stand_time;								//time the bot is standing still
 	float lastchat_time;							//time the bot last selected a chat
-	float kamikaze_time;							//time to check for kamikaze usage
-	float invulnerability_time;						//time to check for invulnerability usage
 	float standfindenemy_time;						//time to find enemy while standing
 	float attackstrafe_time;						//time the bot is strafing in one dir
 	float attackcrouch_time;						//time the bot will stop crouching
@@ -185,7 +187,6 @@ typedef struct bot_state_s
 	float defendaway_range;							//max travel time away from defend area
 	float rushbaseaway_time;						//time away from rushing to the base
 	float attackaway_time;							//time away from attacking the enemy base
-	float harvestaway_time;							//time away from harvesting
 	float ctfroam_time;								//time the bot is roaming in ctf
 	float killedenemy_time;							//time the bot killed the enemy
 	float arrive_time;								//time arrived (at companion)
@@ -202,10 +203,6 @@ typedef struct bot_state_s
 	vec3_t aimtarget;
 	vec3_t enemyvelocity;							//enemy velocity 0.5 secs ago during battle
 	vec3_t enemyorigin;								//enemy origin 0.5 secs ago during battle
-	//
-	int kamikazebody;								//kamikaze body
-	int proxmines[MAX_PROXMINES];
-	int numproxmines;
 	//
 	int character;									//the bot character
 	int ms;											//move state of the bot

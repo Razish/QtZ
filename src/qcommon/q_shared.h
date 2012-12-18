@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
+#define STANDALONE
 #define PRODUCT_NAME				"QtZ"
 #define PRODUCT_VERSION				"0.2 development"
 #define QTZ_VERSION					PRODUCT_NAME" "PRODUCT_VERSION
@@ -72,6 +73,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma warning(disable : 4220)		// varargs matches remaining parameters
 //#pragma intrinsic( memset, memcpy )
 #endif
+
+//QtZ: Add common headers here
+#include "../qcommon/linkedlist.h"
 
 //Ignore __attribute__ on non-gcc platforms
 #ifndef __GNUC__
@@ -229,6 +233,12 @@ typedef int		clipHandle_t;
 
 #define	MAX_SAY_TEXT	150
 
+#define DEFAULT_NAME			"Unnamed Soldier"
+
+#define	DEFAULT_MODEL			"nooblet"
+#define	DEFAULT_TEAM_MODEL		"nooblet"
+#define	DEFAULT_TEAM_HEAD		"*nooblet"
+
 // paramters for command buffer stuffing
 typedef enum {
 	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
@@ -343,8 +353,8 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
-#define	SCREEN_WIDTH		640
-#define	SCREEN_HEIGHT		480
+#define	SCREEN_WIDTH		(640.0f)
+#define	SCREEN_HEIGHT		(480.0f)
 
 #define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
 #define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
@@ -643,6 +653,16 @@ int		Q_rand( int *seed );
 float	Q_random( int *seed );
 float	Q_crandom( int *seed );
 
+void Rand_Init(int seed);
+float flrand(float min, float max);
+float Q_flrand(float min, float max);
+int irand(int min, int max);
+int Q_irand(int value1, int value2);
+float Q_powf ( float x, int y );
+
+void HSL2RGB( float h, float s, float l, float *r, float *g, float *b );
+void HSV2RGB( float h, float s, float v, float *r, float *g, float *b );
+
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
@@ -855,23 +875,18 @@ default values.
 ==========================================================
 */
 
-#define	CVAR_ARCHIVE		0x0001	// set to cause it to be saved to vars.rc
-					// used for system variables, not for player
-					// specific configurations
+#define CVAR_NONE			0x0001
+#define	CVAR_ARCHIVE		0x0001	// set to cause it to be saved to vars.rc - used for system variables, not for player specific configurations
 #define	CVAR_USERINFO		0x0002	// sent to server on connect or change
 #define	CVAR_SERVERINFO		0x0004	// sent in response to front end requests
 #define	CVAR_SYSTEMINFO		0x0008	// these cvars will be duplicated on all clients
-#define	CVAR_INIT		0x0010	// don't allow change from console at all,
-					// but can be set from the command line
-#define	CVAR_LATCH		0x0020	// will only change when C code next does
-					// a Cvar_Get(), so it can't be changed
-					// without proper initialization.  modified
-					// will be set, even though the value hasn't
-					// changed yet
-#define	CVAR_ROM		0x0040	// display only, cannot be set by user at all
+#define	CVAR_INIT			0x0010	// don't allow change from console at all, but can be set from the command line
+#define	CVAR_LATCH			0x0020	// will only change when C code next does a Cvar_Get(), so it can't be changed without proper initialization.
+									//	modified will be set, even though the value hasn't changed yet
+#define	CVAR_ROM			0x0040	// display only, cannot be set by user at all
 #define	CVAR_USER_CREATED	0x0080	// created by a set command
-#define	CVAR_TEMP		0x0100	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT		0x0200	// can not be changed if cheats are disabled
+#define	CVAR_TEMP			0x0100	// can be set even when cheats are disabled, but is not archived
+#define CVAR_CHEAT			0x0200	// can not be changed if cheats are disabled
 #define CVAR_NORESTART		0x0400	// do not clear when a cvar_restart is issued
 
 #define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
@@ -1170,6 +1185,14 @@ typedef struct playerState_s {
 	int			pmove_framecount;	// FIXME: don't transmit over the network
 	int			jumppad_frame;
 	int			entityEventSequence;
+
+	struct {
+		int			bunnyHopTime;
+		int			doubleJumpTime;
+		int			wallJumpTime;
+		int			weaponCooldown[MAX_WEAPONS];
+	} qtz;
+
 } playerState_t;
 
 
@@ -1388,6 +1411,13 @@ typedef enum _flag_status {
 
 
 #define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
+#define LERP2( a, b, w ) ( (a) + (w)*((b) - (a)) )
 #define LUMA( red, green, blue ) ( 0.2126f * ( red ) + 0.7152f * ( green ) + 0.0722f * ( blue ) )
+
+//QtZ: Generic string<->ID struct, used for cleaning up shader loading atm
+typedef struct stringToEnum_s {
+	const char *s;
+	unsigned int e;
+} stringToEnum_t;
 
 #endif	// __Q_SHARED_H

@@ -598,9 +598,9 @@ issues.
 #define	MAX_FILE_HANDLES	64
 
 #ifdef DEDICATED
-#	define Q3CONFIG_CFG "q3config_server.cfg"
+#	define Q3CONFIG_CFG PRODUCT_NAME "config_server.cfg"
 #else
-#	define Q3CONFIG_CFG "q3config.cfg"
+#	define Q3CONFIG_CFG PRODUCT_NAME "config.cfg"
 #endif
 
 qboolean FS_Initialized( void );
@@ -745,6 +745,9 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
+//QtZ: Centralized this, could opt for a cvar later
+#define CONSOLE_PROMPT_CHAR '>'
+
 #define	MAX_EDIT_LINE	256
 typedef struct {
 	int		cursor;
@@ -839,7 +842,7 @@ void		Com_StartupVariable( const char *match );
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
-
+extern  cvar_t	*in_numpadbug;
 extern	cvar_t	*com_developer;
 extern	cvar_t	*com_dedicated;
 extern	cvar_t	*com_speeds;

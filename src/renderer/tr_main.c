@@ -1011,27 +1011,32 @@ R_SpriteFogNum
 See if a sprite is inside a fog volume
 =================
 */
+//QtZ: Patched with https://github.com/dmead/jkaq3/commit/6a552ec589ed20f1f768ccb0af587aa09f3d3f77
 int R_SpriteFogNum( trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
+	float			radius;
 
 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
 		return 0;
 	}
 
-	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
+	if ( ent->e.reType == RT_ORIENTED_QUAD )
+		radius = ent->e.data.sprite.radius;
+	else
+		radius = ent->e.radius;
+
+	for ( i=1; i<tr.world->numfogs; i++ )
+	{
 		fog = &tr.world->fogs[i];
-		for ( j = 0 ; j < 3 ; j++ ) {
-			if ( ent->e.origin[j] - ent->e.radius >= fog->bounds[1][j] ) {
+		for ( j=0; j<3; j++ )
+		{
+			if ( ent->e.origin[j] - radius >= fog->bounds[1][j] ||
+				 ent->e.origin[j] + radius <= fog->bounds[0][j] )
 				break;
-			}
-			if ( ent->e.origin[j] + ent->e.radius <= fog->bounds[0][j] ) {
-				break;
-			}
 		}
-		if ( j == 3 ) {
+		if ( j == 3 )
 			return i;
-		}
 	}
 
 	return 0;
@@ -1224,10 +1229,16 @@ void R_AddEntitySurfaces (void) {
 		case RT_PORTALSURFACE:
 			break;		// don't draw anything
 		case RT_SPRITE:
+		//QtZ: From JA/EF
+		case RT_LINE:
+		case RT_ORIENTEDLINE:
+		case RT_CYLINDER:
+		case RT_ENT_CHAIN:
+		case RT_POLY:
+		case RT_ORIENTED_QUAD:
+		//~QtZ
 		case RT_BEAM:
-		case RT_LIGHTNING:
-		case RT_RAIL_CORE:
-		case RT_RAIL_RINGS:
+		case RT_ELECTRICITY:
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them

@@ -323,7 +323,7 @@ void RB_RenderFlare( flare_t *f ) {
 		distance = -f->eyeZ;
 
 	// calculate the flare size..
-	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/640.0f + 8 / distance );
+	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/SCREEN_WIDTH + 8 / distance );
 
 /*
  * This is an alternative to intensity scaling. It changes the size of the flare on screen instead
@@ -346,7 +346,7 @@ void RB_RenderFlare( flare_t *f ) {
  * The coefficient flareCoeff will determine the falloff speed with increasing distance.
  */
 
-	factor = distance + size * sqrt(flareCoeff);
+	factor = distance + size * sqrtf(flareCoeff);
 	
 	intensity = flareCoeff * size * size / (factor * factor);
 
@@ -373,7 +373,7 @@ void RB_RenderFlare( flare_t *f ) {
 	RB_BeginSurface( tr.flareShader, f->fogNum );
 
 	// FIXME: use quadstamp?
-	tess.xyz[tess.numVertexes][0] = f->windowX - size;
+	tess.xyz[tess.numVertexes][0] = f->windowX - size*r_flareWidth->value;
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
@@ -383,7 +383,7 @@ void RB_RenderFlare( flare_t *f ) {
 	tess.vertexColors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
-	tess.xyz[tess.numVertexes][0] = f->windowX - size;
+	tess.xyz[tess.numVertexes][0] = f->windowX - size*r_flareWidth->value;
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
@@ -393,7 +393,7 @@ void RB_RenderFlare( flare_t *f ) {
 	tess.vertexColors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
-	tess.xyz[tess.numVertexes][0] = f->windowX + size;
+	tess.xyz[tess.numVertexes][0] = f->windowX + size*r_flareWidth->value;
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
@@ -403,7 +403,7 @@ void RB_RenderFlare( flare_t *f ) {
 	tess.vertexColors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
-	tess.xyz[tess.numVertexes][0] = f->windowX + size;
+	tess.xyz[tess.numVertexes][0] = f->windowX + size*r_flareWidth->value;
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
@@ -463,7 +463,8 @@ void RB_RenderFlares (void) {
 	backEnd.currentEntity = &tr.worldEntity;
 	backEnd.or = backEnd.viewParms.world;
 
-//	RB_AddDlightFlares();
+	if ( r_flareDlights->integer )
+		RB_AddDlightFlares();
 
 	// perform z buffer readback on each flare in this view
 	draw = qfalse;

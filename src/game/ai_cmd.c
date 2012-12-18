@@ -101,11 +101,6 @@ void BotPrintTeamGoal(bot_state_t *bs) {
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna attack the enemy base for %1.0f secs\n", netname, t);
 			break;
 		}
-		case LTG_HARVEST:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna harvest for %1.0f secs\n", netname, t);
-			break;
-		}
 		case LTG_DEFENDKEYAREA:
 		{
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna defend a key area for %1.0f secs\n", netname, t);
@@ -881,10 +876,7 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	if (gametype == GT_CTF) {
 		BotMatch_GetFlag(bs, match);
 	}
-	else if (gametype == GT_1FCTF || gametype == GT_OBELISK || gametype == GT_HARVESTER) {
-		if (!redobelisk.areanum || !blueobelisk.areanum)
-			return;
-	}
+	//RAZTODO: 1FCTF?
 	else {
 		return;
 	}
@@ -916,48 +908,6 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 
 /*
 ==================
-BotMatch_Harvest
-==================
-*/
-void BotMatch_Harvest(bot_state_t *bs, bot_match_t *match) {
-	char netname[MAX_MESSAGE_SIZE];
-	int client;
-
-	if (gametype == GT_HARVESTER) {
-		if (!neutralobelisk.areanum || !redobelisk.areanum || !blueobelisk.areanum)
-			return;
-	}
-	else {
-		return;
-	}
-	//if not addressed to this bot
-	if (!BotAddressedToBot(bs, match)) return;
-	//
-	trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
-	//
-	client = FindClientByName(netname);
-	//
-	bs->decisionmaker = client;
-	bs->ordered = qtrue;
-	bs->order_time = FloatTime();
-	//set the time to send a message to the team mates
-	bs->teammessage_time = FloatTime() + 2 * random();
-	//set the ltg type
-	bs->ltgtype = LTG_HARVEST;
-	//set the team goal time
-	bs->teamgoal_time = FloatTime() + TEAM_HARVEST_TIME;
-	bs->harvestaway_time = 0;
-	//
-	BotSetTeamStatus(bs);
-	// remember last ordered task
-	BotRememberLastOrderedTask(bs);
-#ifdef DEBUG
-	BotPrintTeamGoal(bs);
-#endif //DEBUG
-}
-
-/*
-==================
 BotMatch_RushBase
 ==================
 */
@@ -969,10 +919,7 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-	else if (gametype == GT_1FCTF || gametype == GT_HARVESTER) {
-		if (!redobelisk.areanum || !blueobelisk.areanum)
-			return;
-	}
+	//RAZTODO: 1FCTF?
 	else {
 		return;
 	}
@@ -1429,11 +1376,6 @@ void BotMatch_WhatAreYouDoing(bot_state_t *bs, bot_match_t *match) {
 			BotAI_BotInitialChat(bs, "attackingenemybase", NULL);
 			break;
 		}
-		case LTG_HARVEST:
-		{
-			BotAI_BotInitialChat(bs, "harvesting", NULL);
-			break;
-		}
 		default:
 		{
 			BotAI_BotInitialChat(bs, "roaming", NULL);
@@ -1556,19 +1498,6 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 			) {
 			redtt = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
 			bluett = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
-			if (redtt < (redtt + bluett) * 0.4) {
-				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "red", NULL);
-			}
-			else if (bluett < (redtt + bluett) * 0.4) {
-				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "blue", NULL);
-			}
-			else {
-				BotAI_BotInitialChat(bs, "location", nearbyitems[bestitem], NULL);
-			}
-		}
-		else if (gametype == GT_OBELISK || gametype == GT_HARVESTER) {
-			redtt = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, redobelisk.areanum, TFL_DEFAULT);
-			bluett = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, blueobelisk.areanum, TFL_DEFAULT);
 			if (redtt < (redtt + bluett) * 0.4) {
 				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "red", NULL);
 			}
@@ -1814,19 +1743,13 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_GetFlag(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF & Obelisk & Harvester
+		//CTF & 1FCTF
 		case MSG_ATTACKENEMYBASE:
 		{
 			BotMatch_AttackEnemyBase(bs, &match);
 			break;
 		}
-		//Harvester
-		case MSG_HARVEST:
-		{
-			BotMatch_Harvest(bs, &match);
-			break;
-		}
-		//CTF & 1FCTF & Harvester
+		//CTF & 1FCTF
 		case MSG_RUSHBASE:				//ctf rush to the base
 		{
 			BotMatch_RushBase(bs, &match);
@@ -1838,7 +1761,7 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_ReturnFlag(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF & Obelisk & Harvester
+		//CTF & 1FCTF
 		case MSG_TASKPREFERENCE:
 		{
 			BotMatch_TaskPreference(bs, &match);
@@ -1909,7 +1832,7 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_StopTeamLeaderShip(bs, &match);
 			break;
 		}
-		case MSG_WHOISTEAMLAEDER:
+		case MSG_WHOISTEAMLEADER:
 		{
 			BotMatch_WhoIsTeamLeader(bs, &match);
 			break;

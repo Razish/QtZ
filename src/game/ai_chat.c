@@ -55,6 +55,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for the voice chats
 #include "../../build/qtz/ui/menudef.h"
 
+#include "bg_local.h"
+
 #define TIME_BETWEENCHATTING	25
 
 
@@ -276,29 +278,8 @@ BotWeaponNameForMeansOfDeath
 ==================
 */
 
-char *BotWeaponNameForMeansOfDeath(int mod) {
-	switch(mod) {
-		case MOD_SHOTGUN: return "Shotgun";
-		case MOD_GAUNTLET: return "Gauntlet";
-		case MOD_MACHINEGUN: return "Machinegun";
-		case MOD_GRENADE:
-		case MOD_GRENADE_SPLASH: return "Grenade Launcher";
-		case MOD_ROCKET:
-		case MOD_ROCKET_SPLASH: return "Rocket Launcher";
-		case MOD_PLASMA:
-		case MOD_PLASMA_SPLASH: return "Plasmagun";
-		case MOD_RAILGUN: return "Railgun";
-		case MOD_LIGHTNING: return "Lightning Gun";
-		case MOD_BFG:
-		case MOD_BFG_SPLASH: return "BFG10K";
-		case MOD_NAIL: return "Nailgun";
-		case MOD_CHAINGUN: return "Chaingun";
-		case MOD_PROXIMITY_MINE: return "Proximity Launcher";
-		case MOD_KAMIKAZE: return "Kamikaze";
-		case MOD_JUICED: return "Prox mine";
-		case MOD_GRAPPLE: return "Grapple";
-		default: return "[unknown weapon]";
-	}
+const char *BotWeaponNameForMeansOfDeath(int mod) {
+	return weaponNames[weaponFromMOD[mod]].longName;
 }
 
 /*
@@ -309,21 +290,9 @@ BotRandomWeaponName
 char *BotRandomWeaponName(void) {
 	int rnd;
 
-	rnd = random() * 11.9;
-	switch(rnd) {
-		case 0: return "Gauntlet";
-		case 1: return "Shotgun";
-		case 2: return "Machinegun";
-		case 3: return "Grenade Launcher";
-		case 4: return "Rocket Launcher";
-		case 5: return "Plasmagun";
-		case 6: return "Railgun";
-		case 7: return "Lightning Gun";
-		case 8: return "Nailgun";
-		case 9: return "Chaingun";
-		case 10: return "Proximity Launcher";
-		default: return "BFG10K";
-	}
+	//RAZMARK: Adding new weapons
+	rnd = random() * WP_NUM_WEAPONS-0.1;
+	return (char *)weaponNames[rnd].longName;
 }
 
 /*
@@ -370,12 +339,8 @@ int BotValidChatPosition(bot_state_t *bs) {
 	//if the bot is dead all positions are valid
 	if (BotIsDead(bs)) return qtrue;
 	//never start chatting with a powerup
-	if (bs->inventory[INVENTORY_QUAD] ||
-		bs->inventory[INVENTORY_ENVIRONMENTSUIT] ||
-		bs->inventory[INVENTORY_HASTE] ||
-		bs->inventory[INVENTORY_INVISIBILITY] ||
-		bs->inventory[INVENTORY_REGEN] ||
-		bs->inventory[INVENTORY_FLIGHT]) return qfalse;
+	if ( bs->inventory[INVENTORY_QUAD] || bs->inventory[INVENTORY_REGEN] )
+		return qfalse;
 	//must be on the ground
 	//if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE) return qfalse;
 	//do not chat if in lava or slime
@@ -593,6 +558,8 @@ int BotChat_Death(bot_state_t *bs) {
 			trap_EA_Command(bs->client, "vtaunt");
 			return qtrue;
 		}
+		//RAZTODO: redo bot chat
+#if 0
 		//
 		if (bs->botdeathtype == MOD_WATER)
 			BotAI_BotInitialChat(bs, "death_drown", BotRandomOpponentName(bs), NULL);
@@ -649,6 +616,7 @@ int BotChat_Death(bot_state_t *bs) {
 							NULL);
 			}
 		}
+#endif
 		bs->chatto = CHAT_ALL;
 	}
 	bs->lastchat_time = FloatTime();
@@ -693,6 +661,8 @@ int BotChat_Kill(bot_state_t *bs) {
 			trap_EA_Command(bs->client, "vtaunt");
 			return qfalse;			// don't wait
 		}
+		//RAZTODO: redo bot chatting
+#if 0
 		//
 		if (bs->enemydeathtype == MOD_GAUNTLET) {
 			BotAI_BotInitialChat(bs, "kill_gauntlet", name, NULL);
@@ -712,6 +682,7 @@ int BotChat_Kill(bot_state_t *bs) {
 		else {
 			BotAI_BotInitialChat(bs, "kill_praise", name, NULL);
 		}
+#endif
 	}
 	bs->lastchat_time = FloatTime();
 	return qtrue;
@@ -782,7 +753,7 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	if (!BotValidChatPosition(bs)) return qfalse;
 	//
 	ClientName(g_entities[bs->client].client->lasthurt_client, name, sizeof(name));
-	weap = BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_mod);
+	weap = (char*)BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_mod);
 	//
 	BotAI_BotInitialChat(bs, "hit_talking", name, weap, NULL);
 	bs->lastchat_time = FloatTime();
@@ -827,7 +798,7 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	if (EntityIsShooting(&entinfo)) return qfalse;
 	//
 	ClientName(lasthurt_client, name, sizeof(name));
-	weap = BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_mod);
+	weap = (char*)BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_mod);
 	//
 	BotAI_BotInitialChat(bs, "hit_nodeath", name, weap, NULL);
 	bs->lastchat_time = FloatTime();
@@ -865,7 +836,7 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	if (EntityIsShooting(&entinfo)) return qfalse;
 	//
 	ClientName(bs->enemy, name, sizeof(name));
-	weap = BotWeaponNameForMeansOfDeath(g_entities[bs->enemy].client->lasthurt_mod);
+	weap = (char*)BotWeaponNameForMeansOfDeath(g_entities[bs->enemy].client->lasthurt_mod);
 	//
 	BotAI_BotInitialChat(bs, "hit_nokill", name, weap, NULL);
 	bs->lastchat_time = FloatTime();
@@ -1156,7 +1127,7 @@ void BotChatTest(bot_state_t *bs) {
 		trap_BotEnterChat(bs->cs, 0, CHAT_ALL);
 	}
 	ClientName(g_entities[bs->client].client->lasthurt_client, name, sizeof(name));
-	weap = BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_client);
+	weap = (char*)BotWeaponNameForMeansOfDeath(g_entities[bs->client].client->lasthurt_client);
 	num = trap_BotNumInitialChats(bs->cs, "hit_talking");
 	for (i = 0; i < num; i++)
 	{

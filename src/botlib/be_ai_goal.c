@@ -89,6 +89,7 @@ typedef struct campspot_s
 } campspot_t;
 
 //FIXME: these are game specific
+//QTZFIXME: Globalise gametype names
 typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament
@@ -99,8 +100,6 @@ typedef enum {
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
 	GT_1FCTF,
-	GT_OBELISK,
-	GT_HARVESTER,
 	GT_MAX_GAME_TYPE
 } gametype_t;
 

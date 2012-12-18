@@ -1203,6 +1203,11 @@ netField_t	playerStateFields[] =
 { PSF(grapplePoint[1]), 0 },
 { PSF(grapplePoint[2]), 0 },
 { PSF(jumppad_ent), GENTITYNUM_BITS },
+//QtZ: Added
+{ PSF(qtz.bunnyHopTime), 16 },
+{ PSF(qtz.doubleJumpTime), 16 },
+{ PSF(qtz.wallJumpTime), 16 },
+//~QtZ
 { PSF(loopSound), 16 }
 };
 
@@ -1215,10 +1220,7 @@ MSG_WriteDeltaPlayerstate
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to ) {
 	int				i;
 	playerState_t	dummy;
-	int				statsbits;
-	int				persistantbits;
-	int				ammobits;
-	int				powerupbits;
+	int				statsbits=0, persistantbits=0, ammobits=0, powerupbits=0, cooldownbits=0;
 	int				numFields;
 	netField_t		*field;
 	int				*fromF, *toF;
@@ -1307,7 +1309,13 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		}
 	}
 
-	if (!statsbits && !persistantbits && !ammobits && !powerupbits) {
+	cooldownbits = 0;
+	for (i=0 ; i<MAX_WEAPONS ; i++) {
+		if ( to->qtz.weaponCooldown[i] != from->qtz.weaponCooldown[i] )
+			cooldownbits |= 1<<i;
+	}
+
+	if ( !statsbits && !persistantbits && !ammobits && !powerupbits && !cooldownbits ) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 		oldsize += 4;
 		return;
@@ -1320,9 +1328,9 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		for (i=0 ; i<MAX_STATS ; i++)
 			if (statsbits & (1<<i) )
 				MSG_WriteShort (msg, to->stats[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
+	else
+		MSG_WriteBits( msg, 0, 1 );	// no change
 
 
 	if ( persistantbits ) {
@@ -1331,9 +1339,9 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		for (i=0 ; i<MAX_PERSISTANT ; i++)
 			if (persistantbits & (1<<i) )
 				MSG_WriteShort (msg, to->persistant[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
+	else
+		MSG_WriteBits( msg, 0, 1 );	// no change
 
 
 	if ( ammobits ) {
@@ -1342,9 +1350,9 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		for (i=0 ; i<MAX_WEAPONS ; i++)
 			if (ammobits & (1<<i) )
 				MSG_WriteShort (msg, to->ammo[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
+	else
+		MSG_WriteBits( msg, 0, 1 );	// no change
 
 
 	if ( powerupbits ) {
@@ -1353,9 +1361,19 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		for (i=0 ; i<MAX_POWERUPS ; i++)
 			if (powerupbits & (1<<i) )
 				MSG_WriteLong( msg, to->powerups[i] );
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
+	else
+		MSG_WriteBits( msg, 0, 1 );	// no change
+
+	if ( cooldownbits ) {
+		MSG_WriteBits( msg, 1, 1 );	// changed
+		MSG_WriteBits( msg, cooldownbits, MAX_WEAPONS );
+		for (i=0 ; i<MAX_WEAPONS ; i++)
+			if (cooldownbits & (1<<i) )
+				MSG_WriteLong( msg, to->qtz.weaponCooldown[i] );
+	}
+	else
+		MSG_WriteBits( msg, 0, 1 );	// no change
 }
 
 
@@ -1488,6 +1506,17 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			for (i=0 ; i<MAX_POWERUPS ; i++) {
 				if (bits & (1<<i) ) {
 					to->powerups[i] = MSG_ReadLong(msg);
+				}
+			}
+		}
+
+		// parse cooldown
+		if ( MSG_ReadBits( msg, 1 ) ) {
+			LOG("PS_COOLDOWN");
+			bits = MSG_ReadBits (msg, MAX_WEAPONS);
+			for (i=0 ; i<MAX_WEAPONS ; i++) {
+				if (bits & (1<<i) ) {
+					to->qtz.weaponCooldown[i] = MSG_ReadLong(msg);
 				}
 			}
 		}

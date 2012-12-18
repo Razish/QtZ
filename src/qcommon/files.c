@@ -570,6 +570,7 @@ FS_Remove
 
 ===========
 */
+//RAZTODO: replace with code from http://q3defrag.org/files/dfengine/src/
 void FS_Remove( const char *osPath ) {
 	FS_CheckFilenameIsNotExecutable( osPath, __func__ );
 
@@ -1112,7 +1113,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
         
 	// make sure the q3key file is only readable by the quake3.exe at initialization
 	// any other time the key should only be accessed in memory using the provided functions
-	if(com_fullyInitialized && strstr(filename, "q3key"))
+	if(com_fullyInitialized && strstr(filename, PRODUCT_NAME"key"))
 	{
 	        if(file == NULL)
 	                return qfalse;
@@ -1222,7 +1223,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 						   !FS_IsExt(filename, ".bot", len) &&
 						   !FS_IsExt(filename, ".arena", len) &&
 						   !FS_IsExt(filename, ".menu", len) &&
-						   Q_stricmp(filename, "qagame.qvm") != 0 &&
+						   Q_stricmp(filename, "game.qvm") != 0 &&
 						   !strstr(filename, "levelshots"))
 						{
 							pak->referenced |= FS_GENERAL_REF;
@@ -3787,9 +3788,11 @@ void FS_InitFilesystem( void ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
+#ifndef _DEBUG
 	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
 	}
+#endif // _DEBUG
 
 	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
 	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
@@ -3822,6 +3825,7 @@ void FS_Restart( int checksumFeed ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
+#ifndef _DEBUG
 	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
 		// this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
 		// (for instance a TA demo server)
@@ -3837,6 +3841,7 @@ void FS_Restart( int checksumFeed ) {
 		}
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
 	}
+#endif // _DEBUG
 
 	if ( Q_stricmp(fs_gamedirvar->string, lastValidGame) ) {
 		// skip the q3config.cfg if "safe" is on the command line

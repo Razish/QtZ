@@ -535,12 +535,10 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			if ( touchlist[i] == clip->passEntityNum ) {
 				continue;	// don't clip against the pass entity
 			}
-			if ( touch->r.ownerNum == clip->passEntityNum ) {
-				continue;	// don't clip against own missiles
-			}
-			if ( touch->r.ownerNum == passOwnerNum ) {
-				continue;	// don't clip against other missiles from our owner
-			}
+			//QTZTODO: Missiles colliding with eachother from https://github.com/dmead/jkaq3/commit/1d1e1fefb04fab8ceb42537702d946c1a75f4812
+			if ( touch->r.ownerNum == clip->passEntityNum // don't clip against own missiles
+				|| touch->r.ownerNum == passOwnerNum ) // don't clip against other missiles from our owner
+				continue;
 		}
 
 		// if it doesn't have any brushes of a type we

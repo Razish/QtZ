@@ -112,47 +112,26 @@ BotVoiceChat_Offense
 ==================
 */
 void BotVoiceChat_Offense(bot_state_t *bs, int client, int mode) {
-	if ( gametype == GT_CTF
-		|| gametype == GT_1FCTF
-		) {
+	if ( gametype == GT_CTF || gametype == GT_1FCTF )
+	{
 		BotVoiceChat_GetFlag(bs, client, mode);
 		return;
 	}
-	if (gametype == GT_HARVESTER) {
-		//
-		bs->decisionmaker = client;
-		bs->ordered = qtrue;
-		bs->order_time = FloatTime();
-		//set the time to send a message to the team mates
-		bs->teammessage_time = FloatTime() + 2 * random();
-		//set the ltg type
-		bs->ltgtype = LTG_HARVEST;
-		//set the team goal time
-		bs->teamgoal_time = FloatTime() + TEAM_HARVEST_TIME;
-		bs->harvestaway_time = 0;
-		//
-		BotSetTeamStatus(bs);
-		// remember last ordered task
-		BotRememberLastOrderedTask(bs);
-	}
-	else
-	{
-		//
-		bs->decisionmaker = client;
-		bs->ordered = qtrue;
-		bs->order_time = FloatTime();
-		//set the time to send a message to the team mates
-		bs->teammessage_time = FloatTime() + 2 * random();
-		//set the ltg type
-		bs->ltgtype = LTG_ATTACKENEMYBASE;
-		//set the team goal time
-		bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
-		bs->attackaway_time = 0;
-		//
-		BotSetTeamStatus(bs);
-		// remember last ordered task
-		BotRememberLastOrderedTask(bs);
-	}
+	bs->decisionmaker = client;
+	bs->ordered = qtrue;
+	bs->order_time = FloatTime();
+	//set the time to send a message to the team mates
+	bs->teammessage_time = FloatTime() + 2 * random();
+	//set the ltg type
+	bs->ltgtype = LTG_ATTACKENEMYBASE;
+	//set the team goal time
+	bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
+	bs->attackaway_time = 0;
+	//
+	BotSetTeamStatus(bs);
+	// remember last ordered task
+	BotRememberLastOrderedTask(bs);
+
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -164,28 +143,20 @@ BotVoiceChat_Defend
 ==================
 */
 void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
-	if ( gametype == GT_OBELISK || gametype == GT_HARVESTER) {
-		//
-		switch(BotTeam(bs)) {
-			case TEAM_RED: memcpy(&bs->teamgoal, &redobelisk, sizeof(bot_goal_t)); break;
-			case TEAM_BLUE: memcpy(&bs->teamgoal, &blueobelisk, sizeof(bot_goal_t)); break;
-			default: return;
-		}
-	}
-	else
-		if (gametype == GT_CTF
-			|| gametype == GT_1FCTF
-			) {
-		//
-		switch(BotTeam(bs)) {
-			case TEAM_RED: memcpy(&bs->teamgoal, &ctf_redflag, sizeof(bot_goal_t)); break;
-			case TEAM_BLUE: memcpy(&bs->teamgoal, &ctf_blueflag, sizeof(bot_goal_t)); break;
-			default: return;
-		}
-	}
-	else {
+	if ( gametype != GT_CTF && gametype != GT_1FCTF )
+		return;
+	switch ( BotTeam( bs ) )
+	{
+	case TEAM_RED:
+		memcpy(&bs->teamgoal, &ctf_redflag, sizeof(bot_goal_t));
+		break;
+	case TEAM_BLUE:
+		memcpy(&bs->teamgoal, &ctf_blueflag, sizeof(bot_goal_t));
+		break;
+	default:
 		return;
 	}
+
 	//
 	bs->decisionmaker = client;
 	bs->ordered = qtrue;

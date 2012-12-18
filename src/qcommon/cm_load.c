@@ -414,7 +414,7 @@ void CMod_LoadBrushSides (lump_t *l)
 
 	in = (void *)(cmod_base + l->fileofs);
 	if ( l->filelen % sizeof(*in) ) {
-		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
+		Com_Error (ERR_DROP, "CMod_LoadBrushSides: funny lump size");
 	}
 	count = l->filelen / sizeof(*in);
 
@@ -427,6 +427,7 @@ void CMod_LoadBrushSides (lump_t *l)
 		num = LittleLong( in->planeNum );
 		out->plane = &cm.planes[num];
 		out->shaderNum = LittleLong( in->shaderNum );
+	//	out->drawSurfNum = LittleLong( in->drawSurfNum ); //QtZ: Future RBSP support?
 		if ( out->shaderNum < 0 || out->shaderNum >= cm.numShaders ) {
 			Com_Error( ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: %i", out->shaderNum );
 		}
@@ -627,8 +628,9 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 
 	if ( header.version != BSP_VERSION ) {
-		Com_Error (ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)"
-		, name, header.version, BSP_VERSION );
+#ifndef _DEBUG
+		Com_Error (ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION );
+#endif
 	}
 
 	cmod_base = (byte *)buf.i;

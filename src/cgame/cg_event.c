@@ -77,253 +77,79 @@ const char	*CG_PlaceString( int rank ) {
 CG_Obituary
 =============
 */
-static void CG_Obituary( entityState_t *ent ) {
-	int			mod;
-	int			target, attacker;
-	char		*message;
-	char		*message2;
-	const char	*targetInfo;
-	const char	*attackerInfo;
-	char		targetName[32];
-	char		attackerName[32];
-	gender_t	gender;
-	clientInfo_t	*ci;
+static void CG_Obituary( entityState_t *ent )
+{
+	int				mod = ent->eventParm, target = ent->otherEntityNum, attacker = ent->otherEntityNum2;
+	const char		*targetInfo = NULL, *attackerInfo = NULL;
+	char			targetName[32] = {0}, attackerName[32] = {0};
+	gender_t		gender = GENDER_NEUTER;
+	clientInfo_t	*ci = NULL;
 
-	target = ent->otherEntityNum;
-	attacker = ent->otherEntityNum2;
-	mod = ent->eventParm;
-
-	if ( target < 0 || target >= MAX_CLIENTS ) {
+	if ( target < 0 || target >= MAX_CLIENTS )
 		CG_Error( "CG_Obituary: target out of range" );
-	}
 	ci = &cgs.clientinfo[target];
 
-	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+	if ( attacker < 0 || attacker >= MAX_CLIENTS )
+	{
 		attacker = ENTITYNUM_WORLD;
 		attackerInfo = NULL;
-	} else {
+	}
+	else
 		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
-	}
 
-	targetInfo = CG_ConfigString( CS_PLAYERS + target );
-	if ( !targetInfo ) {
+	if ( !(targetInfo = CG_ConfigString( CS_PLAYERS + target )) )
 		return;
-	}
-	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2);
 	strcat( targetName, S_COLOR_WHITE );
 
-	message2 = "";
-
-	// check for single client messages
-
-	switch( mod ) {
-	case MOD_SUICIDE:
-		message = "suicides";
-		break;
-	case MOD_FALLING:
-		message = "cratered";
-		break;
-	case MOD_CRUSH:
-		message = "was squished";
-		break;
-	case MOD_WATER:
-		message = "sank like a rock";
-		break;
-	case MOD_SLIME:
-		message = "melted";
-		break;
-	case MOD_LAVA:
-		message = "does a back flip into the lava";
-		break;
-	case MOD_TARGET_LASER:
-		message = "saw the light";
-		break;
-	case MOD_TRIGGER_HURT:
-		message = "was in the wrong place";
-		break;
-	default:
-		message = NULL;
-		break;
-	}
-
-	if (attacker == target) {
-		gender = ci->gender;
-		switch (mod) {
-		case MOD_KAMIKAZE:
-			message = "goes out with a bang";
-			break;
-		case MOD_GRENADE_SPLASH:
-			if ( gender == GENDER_FEMALE )
-				message = "tripped on her own grenade";
-			else if ( gender == GENDER_NEUTER )
-				message = "tripped on its own grenade";
-			else
-				message = "tripped on his own grenade";
-			break;
-		case MOD_ROCKET_SPLASH:
-			if ( gender == GENDER_FEMALE )
-				message = "blew herself up";
-			else if ( gender == GENDER_NEUTER )
-				message = "blew itself up";
-			else
-				message = "blew himself up";
-			break;
-		case MOD_PLASMA_SPLASH:
-			if ( gender == GENDER_FEMALE )
-				message = "melted herself";
-			else if ( gender == GENDER_NEUTER )
-				message = "melted itself";
-			else
-				message = "melted himself";
-			break;
-		case MOD_BFG_SPLASH:
-			message = "should have used a smaller gun";
-			break;
-		case MOD_PROXIMITY_MINE:
-			if( gender == GENDER_FEMALE ) {
-				message = "found her prox mine";
-			} else if ( gender == GENDER_NEUTER ) {
-				message = "found its prox mine";
-			} else {
-				message = "found his prox mine";
-			}
-			break;
-		default:
-			if ( gender == GENDER_FEMALE )
-				message = "killed herself";
-			else if ( gender == GENDER_NEUTER )
-				message = "killed itself";
-			else
-				message = "killed himself";
-			break;
-		}
-	}
-
-	if (message) {
-		CG_Printf( "%s %s.\n", targetName, message);
-		return;
-	}
-
-	// check for kill messages from the current clientNum
-	if ( attacker == cg.snap->ps.clientNum ) {
-		char	*s;
-
-		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
-				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
-				cg.snap->ps.persistant[PERS_SCORE] );
-		} else {
-			s = va("You fragged %s", targetName );
-		}
-#ifdef QTZRELIC
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-#else
-		if (!(cg_singlePlayerActive.integer && cg_cameraOrbit.integer)) {
-			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		} 
-#endif // QTZRELIC
-
-		// print the text message as well
+	if ( attacker == cg.snap->ps.clientNum && attacker != target )
+	{// "You fragged" message, not for self
+		char *str = (cgs.gametype<GT_TEAM) ? va( "You fragged %s\n%s place with %i", targetName, CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] )
+											: va( "You fragged %s", targetName );
+		CG_CenterPrint( str, SCREEN_HEIGHT * 0.2f, BIGCHAR_WIDTH );
 	}
 
 	// check for double client messages
-	if ( !attackerInfo ) {
+	if ( !attackerInfo )
+	{
 		attacker = ENTITYNUM_WORLD;
 		strcpy( attackerName, "noname" );
-	} else {
+	}
+	else
+	{
 		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
 		strcat( attackerName, S_COLOR_WHITE );
 		// check for kill messages about the current clientNum
-		if ( target == cg.snap->ps.clientNum ) {
+		if ( target == cg.snap->ps.clientNum )
 			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
-		}
 	}
 
-	if ( attacker != ENTITYNUM_WORLD ) {
-		switch (mod) {
-		case MOD_GRAPPLE:
-			message = "was caught by";
-			break;
-		case MOD_GAUNTLET:
-			message = "was pummeled by";
-			break;
-		case MOD_MACHINEGUN:
-			message = "was machinegunned by";
-			break;
-		case MOD_SHOTGUN:
-			message = "was gunned down by";
-			break;
-		case MOD_GRENADE:
-			message = "ate";
-			message2 = "'s grenade";
-			break;
-		case MOD_GRENADE_SPLASH:
-			message = "was shredded by";
-			message2 = "'s shrapnel";
-			break;
-		case MOD_ROCKET:
-			message = "ate";
-			message2 = "'s rocket";
-			break;
-		case MOD_ROCKET_SPLASH:
-			message = "almost dodged";
-			message2 = "'s rocket";
-			break;
-		case MOD_PLASMA:
-			message = "was melted by";
-			message2 = "'s plasmagun";
-			break;
-		case MOD_PLASMA_SPLASH:
-			message = "was melted by";
-			message2 = "'s plasmagun";
-			break;
-		case MOD_RAILGUN:
-			message = "was railed by";
-			break;
-		case MOD_LIGHTNING:
-			message = "was electrocuted by";
-			break;
-		case MOD_BFG:
-		case MOD_BFG_SPLASH:
-			message = "was blasted by";
-			message2 = "'s BFG";
-			break;
-		case MOD_NAIL:
-			message = "was nailed by";
-			break;
-		case MOD_CHAINGUN:
-			message = "got lead poisoning from";
-			message2 = "'s Chaingun";
-			break;
-		case MOD_PROXIMITY_MINE:
-			message = "was too close to";
-			message2 = "'s Prox Mine";
-			break;
-		case MOD_KAMIKAZE:
-			message = "falls to";
-			message2 = "'s Kamikaze blast";
-			break;
-		case MOD_JUICED:
-			message = "was juiced by";
-			break;
-		case MOD_TELEFRAG:
-			message = "tried to invade";
-			message2 = "'s personal space";
-			break;
-		default:
-			message = "was killed by";
-			break;
-		}
+//	if ( attacker == target )
 
-		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
-				targetName, message, attackerName, message2);
-			return;
+	//RAZMARK: Adding new weapons
+	if ( attacker != ENTITYNUM_WORLD )
+	{
+		CG_Printf( "%s was killed by %s\n", targetName, attackerName );
+		//QTZTODO: Obituary HUD
+#if 0
+		if ( cg_newObituary.integer && weaponFromMOD[mod] != WP_NONE )
+		{
+			obituary_t *obituary = (obituary_t *)malloc( sizeof( obituary_t ) );
+			memset( obituary, 0, sizeof( obituary_t ) );
+
+			Q_strncpyz( obituary->targetName, targetName, sizeof( obituary->targetName ) );
+			obituary->mod = mod;
+			Q_strncpyz( obituary->attackerName, attackerName, sizeof( obituary->attackerName ) );
+			obituary->deathTime = cg.time;
+
+			LinkedList_PushObject( &cg.qtz.obituaryRoot, obituary );
 		}
+#endif
 	}
 
-	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	else // we don't know what it was
+		CG_Printf( "%s died\n", targetName );
 }
 
 //==========================================================================
@@ -373,15 +199,6 @@ static void CG_UseItem( centity_t *cent ) {
 		}
 		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.medkitSound );
 		break;
-
-	case HI_KAMIKAZE:
-		break;
-
-	case HI_PORTAL:
-		break;
-	case HI_INVULNERABILITY:
-		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.useInvulnerabilitySound );
-		break;
 	}
 
 }
@@ -393,14 +210,25 @@ CG_ItemPickup
 A new item was picked up this frame
 ================
 */
-static void CG_ItemPickup( int itemNum ) {
+static void CG_ItemPickup( int itemNum )
+{
+	//QTZTODO: Item pickup HUD
+#if 0
+	itemPickup_t *newItem = (itemPickup_t *)malloc( sizeof( itemPickup_t ) );
+	memset( newItem, 0, sizeof( itemPickup_t ) );
+
+	newItem->itemNum = itemNum;
+	newItem->pickupTime = cg.time;
+	LinkedList_PushObject( &cg.qtz.itemPickupRoot, newItem );
+#endif
+
 	cg.itemPickup = itemNum;
 	cg.itemPickupTime = cg.time;
 	cg.itemPickupBlendTime = cg.time;
 	// see if it should be the grabbed weapon
 	if ( bg_itemlist[itemNum].giType == IT_WEAPON ) {
 		// select it immediately
-		if ( cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_MACHINEGUN ) {
+		if ( cg_autoswitch.integer && bg_itemlist[itemNum].giTag > cg.predictedPlayerState.weapon ) {
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = bg_itemlist[itemNum].giTag;
 		}
@@ -726,17 +554,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.n_healthSound );
 			} else if (item->giType == IT_PERSISTANT_POWERUP) {
 				switch (item->giTag ) {
-					case PW_SCOUT:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.scoutSound );
-					break;
 					case PW_GUARD:
 						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.guardSound );
-					break;
-					case PW_DOUBLER:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.doublerSound );
-					break;
-					case PW_AMMOREGEN:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.ammoregenSound );
 					break;
 				}
 			} else {
@@ -790,7 +609,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");
-		CG_FireWeapon( cent );
+		//QtZ
+		CG_FireWeapon( cent, es->eventParm );
 		break;
 
 	case EV_USE_ITEM0:
@@ -890,45 +710,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
-	case EV_PROXIMITY_MINE_STICK:
-		DEBUGNAME("EV_PROXIMITY_MINE_STICK");
-		if( es->eventParm & SURF_FLESH ) {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimplSound );
-		} else 	if( es->eventParm & SURF_METALSTEPS ) {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpmSound );
-		} else {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpdSound );
-		}
-		break;
-
-	case EV_PROXIMITY_MINE_TRIGGER:
-		DEBUGNAME("EV_PROXIMITY_MINE_TRIGGER");
-		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbactvSound );
-		break;
-	case EV_KAMIKAZE:
-		DEBUGNAME("EV_KAMIKAZE");
-		CG_KamikazeEffect( cent->lerpOrigin );
-		break;
-	case EV_OBELISKEXPLODE:
-		DEBUGNAME("EV_OBELISKEXPLODE");
-		CG_ObeliskExplode( cent->lerpOrigin, es->eventParm );
-		break;
-	case EV_OBELISKPAIN:
-		DEBUGNAME("EV_OBELISKPAIN");
-		CG_ObeliskPain( cent->lerpOrigin );
-		break;
-	case EV_INVUL_IMPACT:
-		DEBUGNAME("EV_INVUL_IMPACT");
-		CG_InvulnerabilityImpact( cent->lerpOrigin, cent->currentState.angles );
-		break;
-	case EV_JUICED:
-		DEBUGNAME("EV_JUICED");
-		CG_InvulnerabilityJuiced( cent->lerpOrigin );
-		break;
-	case EV_LIGHTNINGBOLT:
-		DEBUGNAME("EV_LIGHTNINGBOLT");
-		CG_LightningBoltBeam(es->origin2, es->pos.trBase);
-		break;
 	case EV_SCOREPLUM:
 		DEBUGNAME("EV_SCOREPLUM");
 		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
@@ -955,10 +736,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
 		break;
 
-	case EV_RAILTRAIL:
-		DEBUGNAME("EV_RAILTRAIL");
-		cent->currentState.weapon = WP_RAILGUN;
-		
+	case EV_HITSCANTRAIL:
+		DEBUGNAME("EV_HITSCANTRAIL");
+		// assume this is the right weapon
+		//cent->currentState.weapon = WP_DIVERGENCE;
+
+		if ( es->clientNum == cg.clientNum /*&& RAZFIXME: Check for spectating?*/)
+		{//We don't need this event for ourself - the client draws its own weapon effects in CG_FireWeapon
+			return;
+		}
+#if 0
 		if(es->clientNum == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 		{
 			if(cg_drawGun.integer == 2)
@@ -966,7 +753,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			else if(cg_drawGun.integer == 3)
 				VectorMA(es->origin2, 4, cg.refdef.viewaxis[1], es->origin2);
 		}
-
+#endif
+		//RAZTODO: Calculate muzzle from es->clientNum
 		CG_RailTrail(ci, es->origin2, es->pos.trBase);
 
 		// if the end was on a nomark surface, don't make an explosion
@@ -985,11 +773,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_BULLET_HIT_FLESH:
 		DEBUGNAME("EV_BULLET_HIT_FLESH");
 		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
-		break;
-
-	case EV_SHOTGUN:
-		DEBUGNAME("EV_SHOTGUN");
-		CG_ShotgunFire( es );
 		break;
 
 	case EV_GENERAL_SOUND:
@@ -1083,17 +866,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						}
 					}
 					break;
-				case GTS_REDOBELISK_ATTACKED: // Overload: red obelisk is being attacked
-					if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-						CG_AddBufferedSound( cgs.media.yourBaseIsUnderAttackSound );
-					}
-					break;
-				case GTS_BLUEOBELISK_ATTACKED: // Overload: blue obelisk is being attacked
-					if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-						CG_AddBufferedSound( cgs.media.yourBaseIsUnderAttackSound );
-					}
-					break;
-
 				case GTS_REDTEAM_SCORED:
 					CG_AddBufferedSound(cgs.media.redScoredSound);
 					break;
@@ -1108,9 +880,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					break;
 				case GTS_TEAMS_ARE_TIED:
 					CG_AddBufferedSound( cgs.media.teamsTiedSound );
-					break;
-				case GTS_KAMIKAZE:
-					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
 					break;
 				default:
 					break;
@@ -1157,14 +926,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		trap_S_StartSound (NULL, es->number, CHAN_ITEM, cgs.media.quadSound );
 		break;
-	case EV_POWERUP_BATTLESUIT:
-		DEBUGNAME("EV_POWERUP_BATTLESUIT");
-		if ( es->number == cg.snap->ps.clientNum ) {
-			cg.powerupActive = PW_BATTLESUIT;
-			cg.powerupTime = cg.time;
-		}
-		trap_S_StartSound (NULL, es->number, CHAN_ITEM, cgs.media.protectSound );
-		break;
 	case EV_POWERUP_REGEN:
 		DEBUGNAME("EV_POWERUP_REGEN");
 		if ( es->number == cg.snap->ps.clientNum ) {
@@ -1179,9 +940,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		// don't play gib sound when using the kamikaze because it interferes
 		// with the kamikaze sound, downside is that the gib sound will also
 		// not be played when someone is gibbed while just carrying the kamikaze
-		if ( !(es->eFlags & EF_KAMIKAZE) ) {
-			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
-		}
+		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
 		CG_GibPlayer( cent->lerpOrigin );
 		break;
 

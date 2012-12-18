@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-
+#pragma once
 
 #define	CMD_BACKUP			64	
 #define	CMD_MASK			(CMD_BACKUP - 1)
@@ -119,6 +119,12 @@ typedef enum {
 	CG_R_RENDERSCENE,
 	CG_R_SETCOLOR,
 	CG_R_DRAWSTRETCHPIC,
+
+	//QtZ: Added from JA
+	CG_R_DRAWROTATEPIC,
+	CG_R_DRAWROTATEPIC2,
+	//~QtZ
+
 	CG_R_MODELBOUNDS,
 	CG_R_LERPTAG,
 	CG_GETGLCONFIG,

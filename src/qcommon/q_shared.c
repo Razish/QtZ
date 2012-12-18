@@ -920,6 +920,10 @@ int Q_PrintStrlen( const char *string ) {
 			p += 2;
 			continue;
 		}
+		// Cgg - repeated escape codes (^^) were broken
+		if ( *p == Q_COLOR_ESCAPE && *(p+1) == Q_COLOR_ESCAPE )
+			p++;
+		// !Cgg
 		p++;
 		len++;
 	}
@@ -931,20 +935,25 @@ int Q_PrintStrlen( const char *string ) {
 char *Q_CleanStr( char *string ) {
 	char*	d;
 	char*	s;
-	int		c;
 
 	s = string;
 	d = string;
-	while ((c = *s) != 0 ) {
+	// Cgg - repeated escape codes (^^) were broken
+	while (*s) {
 		if ( Q_IsColorString( s ) ) {
-			s++;
-		}		
-		else if ( c >= 0x20 && c <= 0x7E ) {
-			*d++ = c;
+			s += 2;
+			continue;
 		}
+
+		if (*s == Q_COLOR_ESCAPE && *(s+1) == Q_COLOR_ESCAPE)
+			s++;
+
+		if (*s >= 0x20 && *s <= 0x7E)
+			*d++ = *s;
 		s++;
 	}
 	*d = '\0';
+	// !Cgg
 
 	return string;
 }

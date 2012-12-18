@@ -175,19 +175,14 @@ float CL_KeyState( kbutton_t *key ) {
 		key->downtime = com_frameTime;
 	}
 
-#if 0
-	if (msec) {
-		Com_Printf ("%i ", msec);
-	}
+#if 1
+	if ( in_mouseDebug->integer == 4 ) //msec )
+		Com_Printf ("%i msec ", msec);
 #endif
 
 	val = (float)msec / frame_msec;
-	if ( val < 0 ) {
-		val = 0;
-	}
-	if ( val > 1 ) {
-		val = 1;
-	}
+	if ( val < 0.0f )	val = 0.0f;
+	if ( val > 1.0f )	val = 1.0f;
 
 	return val;
 }
@@ -290,21 +285,35 @@ Moves the local angle positions
 ================
 */
 void CL_AdjustAngles( void ) {
-	float	speed;
+	float	speed, keystateRight=1.0f, keystateLeft=1.0f, keystateLookUp=1.0f, keystateLookDown=1.0f;
 	
-	if ( in_speed.active ) {
+	if ( in_speed.active )
 		speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-	} else {
+	else
 		speed = 0.001 * cls.frametime;
-	}
+
+	keystateRight		= CL_KeyState( &in_right );
+	keystateLeft		= CL_KeyState( &in_left );
+	keystateLookUp		= CL_KeyState( &in_lookup );
+	keystateLookDown	= CL_KeyState( &in_lookdown );
+
+	if ( in_mouseDebug->integer == 3 )
+		Com_Printf( "CL_AdjustAngles: r/l/u/d %f/%f/%f/%f\n", keystateRight, keystateLeft, keystateLookUp, keystateLookDown );
+
+	if ( in_mouseDebug->integer == 3 )
+		Com_Printf( "CL_AdjustAngles: cl.viewangles (%.2f %.2f) -> ", cl.viewangles[YAW], cl.viewangles[PITCH] );
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-		cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		cl.viewangles[YAW] -= speed * cl_yawspeed->value * keystateRight;
+		cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState( &in_left );
 	}
 
-	cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-	cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
+	cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * keystateLookUp;
+	cl.viewangles[PITCH] += speed * cl_pitchspeed->value * keystateLookDown;
+
+	if ( in_mouseDebug->integer == 3 )
+		Com_Printf( "(%.2f %.2f)\n", cl.viewangles[YAW], cl.viewangles[PITCH] );
+
 }
 
 /*
@@ -450,7 +459,7 @@ void CL_MouseMove(usercmd_t *cmd)
 	if (mx == 0.0f && my == 0.0f)
 		return;
 	
-	if (cl_mouseAccel->value != 0.0f)
+	if (cl_mouseAccel->value > 0.0f)
 	{
 		if(cl_mouseAccelStyle->integer == 0)
 		{
@@ -498,6 +507,12 @@ void CL_MouseMove(usercmd_t *cmd)
 	mx *= cl.cgameSensitivity;
 	my *= cl.cgameSensitivity;
 
+	if ( in_mouseDebug->integer > 2 )
+		Com_Printf( "CL_MouseMove: mx my (%.2f, %.2f)\n", mx, my );
+
+	if ( in_mouseDebug->integer == 3 )
+		Com_Printf( "CL_MouseMove: cl.viewangles (%.2f %.2f) -> ", cl.viewangles[YAW], cl.viewangles[PITCH] );
+
 	// add mouse X/Y movement to cmd
 	if(in_strafe.active)
 		cmd->rightmove = ClampChar(cmd->rightmove + m_side->value * mx);
@@ -508,6 +523,9 @@ void CL_MouseMove(usercmd_t *cmd)
 		cl.viewangles[PITCH] += m_pitch->value * my;
 	else
 		cmd->forwardmove = ClampChar(cmd->forwardmove - m_forward->value * my);
+
+	if ( in_mouseDebug->integer == 3 )
+		Com_Printf( "(%.2f %.2f)\n", cl.viewangles[YAW], cl.viewangles[PITCH] );
 }
 
 
@@ -634,9 +652,15 @@ void CL_CreateNewCommands( void ) {
 
 	// if running less than 5fps, truncate the extra time to prevent
 	// unexpected moves after a hitch
-	if ( frame_msec > 200 ) {
+	if ( frame_msec > 200 )
 		frame_msec = 200;
-	}
+
+	//QtZ: Force at-least 1 msec frametime
+	//		this avoids CL_KeyState returning bogus values resulting in #IND cl.viewangles[]
+	if ( frame_msec < 1 )
+		frame_msec = 1;
+	//~QtZ
+
 	old_com_frameTime = com_frameTime;
 
 

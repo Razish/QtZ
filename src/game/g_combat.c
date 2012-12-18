@@ -24,6 +24,163 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
+{
+	vec3_t	point, point_dir;
+	vec3_t	forward, right, up;
+	vec3_t	tangles, tcenter;
+	float	tradius;
+	float	udot, fdot, rdot;
+	int		Vertical, Forward, Lateral;
+	int		HitLoc;
+
+	// Get target forward, right and up.
+	// Ignore player's pitch and roll.
+	if ( target->client )
+		VectorSet( tangles, 0, target->r.currentAngles[YAW], 0 );
+
+	AngleVectors( tangles, forward, right, up );
+
+	// Get center of target.
+	VectorAdd( target->r.absmin, target->r.absmax, tcenter );
+	VectorScale( tcenter, 0.5f, tcenter );
+
+	// Get radius width of target.
+	tradius = (	fabsf( target->r.maxs[0] ) +
+				fabsf( target->r.maxs[1] ) +
+				fabsf( target->r.mins[0] ) +
+				fabsf( target->r.mins[1] ) ) / 4.0f;
+
+	// Get impact point.
+	if ( ppoint && !VectorCompare( ppoint, vec3_origin ) )
+		VectorCopy( ppoint, point );
+	else
+		return HL_NONE;
+
+/*
+//get impact dir
+	if(pdir && !VectorCompare(pdir, vec3_origin))
+	{
+		VectorCopy(pdir, dir);
+	}
+	else
+	{
+		return;
+	}
+
+//put point at controlled distance from center
+	VectorSubtract(point, tcenter, tempvec);
+	tempvec[2] = 0;
+	hdist = VectorLength(tempvec);
+
+	VectorMA(point, hdist - tradius, dir, point);
+	//now a point on the surface of a cylinder with a radius of tradius
+*/	
+	VectorSubtract( point, tcenter, point_dir );
+	VectorNormalize( point_dir );
+
+	// Get bottom to top (vertical) position index
+	udot = DotProduct( up, point_dir );
+		 if ( udot >  0.800 )	Vertical = 4;
+	else if ( udot >  0.400 )	Vertical = 3;
+	else if ( udot > -0.333 )	Vertical = 2;
+	else if ( udot > -0.666 )	Vertical = 1;
+	else						Vertical = 0;
+
+	// Get back to front (forward) position index.
+	fdot = DotProduct( forward, point_dir );
+		 if ( fdot >  0.666 )	Forward = 4;
+	else if ( fdot >  0.333 )	Forward = 3;
+	else if ( fdot > -0.333 )	Forward = 2;
+	else if ( fdot > -0.666 )	Forward = 1;
+	else						Forward = 0;
+
+	// Get left to right (lateral) position index.
+	rdot = DotProduct( right, point_dir );
+		 if ( rdot >  0.666 )	Lateral = 4;
+	else if ( rdot >  0.333 )	Lateral = 3;
+	else if ( rdot > -0.333 )	Lateral = 2;
+	else if ( rdot > -0.666 )	Lateral = 1;
+	else						Lateral = 0;
+
+	HitLoc = Vertical*25 + Forward*5 + Lateral;
+
+	if ( HitLoc <= 10 )
+	{//Feet
+		if ( rdot > 0 )		return HL_FOOT_RT;
+		else				return HL_FOOT_LT;
+	}
+
+	else if ( HitLoc <= 50 )
+	{//Legs
+		if ( rdot > 0 )		return HL_LEG_RT;
+		else				return HL_LEG_LT;
+	}
+
+	else if ( HitLoc == 56 || HitLoc == 60 || HitLoc == 61 || HitLoc == 65 || HitLoc == 66 || HitLoc == 70 )
+	{//Hands
+		if ( rdot > 0 )		return HL_HAND_RT;
+		else				return HL_HAND_LT;
+	}
+
+	else if ( HitLoc == 83 || HitLoc == 87 || HitLoc == 88 || HitLoc == 92 || HitLoc == 93 || HitLoc == 97 )
+	{//Arms
+		if ( rdot > 0 )		return HL_ARM_RT;
+		else				return HL_ARM_LT;
+	}
+
+	else if ( (HitLoc >= 107 && HitLoc <= 109) || (HitLoc >= 112 && HitLoc <= 114) || (HitLoc >= 117 && HitLoc <= 119) )
+	{//Head
+		return HL_HEAD;
+	}
+
+	else
+	{
+		if ( udot < 0.3f )
+			return HL_WAIST;
+
+		else if ( fdot < 0.0f )
+		{
+				 if ( rdot >  0.4f )	return HL_BACK_RT;
+			else if ( rdot < -0.4f )	return HL_BACK_LT;
+			else if ( fdot <  0.0f )	return HL_BACK;
+		}
+		else
+		{
+				 if ( rdot >  0.3f )	return HL_CHEST_RT;
+			else if ( rdot < -0.3f )	return HL_CHEST_LT;
+			else if ( fdot <  0.0f)		return HL_CHEST;
+		}
+	}
+
+	return HL_NONE;
+}
+
+char *hitLocName[HL_MAX] = {
+	"none",					//HL_NONE = 0,
+	"right foot",			//HL_FOOT_RT,
+	"left foot",			//HL_FOOT_LT,
+	"right leg",			//HL_LEG_RT,
+	"left leg",				//HL_LEG_LT,
+	"waist",				//HL_WAIST,
+	"back right shoulder",	//HL_BACK_RT,
+	"back left shoulder",	//HL_BACK_LT,
+	"back",					//HL_BACK,
+	"front right shouler",	//HL_CHEST_RT,
+	"front left shoulder",	//HL_CHEST_LT,
+	"chest",				//HL_CHEST,
+	"right arm",			//HL_ARM_RT,
+	"left arm",				//HL_ARM_LT,
+	"right hand",			//HL_HAND_RT,
+	"left hand",			//HL_HAND_LT,
+	"head",					//HL_HEAD
+	"generic1",				//HL_GENERIC1,
+	"generic2",				//HL_GENERIC2,
+	"generic3",				//HL_GENERIC3,
+	"generic4",				//HL_GENERIC4,
+	"generic5",				//HL_GENERIC5,
+	"generic6"				//HL_GENERIC6
+};
 
 /*
 ============
@@ -87,7 +244,7 @@ void TossClientItems( gentity_t *self ) {
 	// weapon that isn't the mg or gauntlet.  Without this, a client
 	// can pick up a weapon, be killed, and not drop the weapon because
 	// their weapon change hasn't completed yet and they are still holding the MG.
-	if ( weapon == WP_MACHINEGUN || weapon == WP_GRAPPLING_HOOK ) {
+	{//if ( weapon == WP_MACHINEGUN || weapon == WP_GRAPPLING_HOOK ) {
 		if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
 			weapon = self->client->pers.cmd.weapon;
 		}
@@ -96,8 +253,9 @@ void TossClientItems( gentity_t *self ) {
 		}
 	}
 
-	if ( weapon > WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK && 
-		self->client->ps.ammo[ weapon ] ) {
+	//RAZMARK: ADDING NEW WEAPONS
+	if ( weapon > WP_QUANTIZER && self->client->ps.ammo[weapon] )
+	{
 		// find the item type for this weapon
 		item = BG_FindItemForWeapon( weapon );
 
@@ -125,58 +283,6 @@ void TossClientItems( gentity_t *self ) {
 		}
 	}
 }
-
-/*
-=================
-TossClientCubes
-=================
-*/
-extern gentity_t	*neutralObelisk;
-
-void TossClientCubes( gentity_t *self ) {
-	gitem_t		*item;
-	gentity_t	*drop;
-	vec3_t		velocity;
-	vec3_t		angles;
-	vec3_t		origin;
-
-	self->client->ps.generic1 = 0;
-
-	// this should never happen but we should never
-	// get the server to crash due to skull being spawned in
-	if (!G_EntitiesFree()) {
-		return;
-	}
-
-	if( self->client->sess.sessionTeam == TEAM_RED ) {
-		item = BG_FindItem( "Red Cube" );
-	}
-	else {
-		item = BG_FindItem( "Blue Cube" );
-	}
-
-	angles[YAW] = (float)(level.time % 360);
-	angles[PITCH] = 0;	// always forward
-	angles[ROLL] = 0;
-
-	AngleVectors( angles, velocity, NULL, NULL );
-	VectorScale( velocity, 150, velocity );
-	velocity[2] += 200 + crandom() * 50;
-
-	if( neutralObelisk ) {
-		VectorCopy( neutralObelisk->s.pos.trBase, origin );
-		origin[2] += 44;
-	} else {
-		VectorClear( origin ) ;
-	}
-
-	drop = LaunchItem( item, origin, velocity );
-
-	drop->nextthink = level.time + g_cubeTimeout.integer * 1000;
-	drop->think = G_FreeEntity;
-	drop->spawnflags = self->client->sess.sessionTeam;
-}
-
 
 /*
 =================
@@ -232,24 +338,6 @@ GibEntity
 ==================
 */
 void GibEntity( gentity_t *self, int killer ) {
-	gentity_t *ent;
-	int i;
-
-	//if this entity still has kamikaze
-	if (self->s.eFlags & EF_KAMIKAZE) {
-		// check if there is a kamikaze timer around for this owner
-		for (i = 0; i < MAX_GENTITIES; i++) {
-			ent = &g_entities[i];
-			if (!ent->inuse)
-				continue;
-			if (ent->activator != self)
-				continue;
-			if (strcmp(ent->classname, "kamikaze timer"))
-				continue;
-			G_FreeEntity(ent);
-			break;
-		}
-	}
 	G_AddEvent( self, EV_GIB_PLAYER, killer );
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
@@ -275,21 +363,15 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char	*modNames[] = {
+//RAZMARK: Adding new weapons
+char	*modNames[MOD_MAX] = {
 	"MOD_UNKNOWN",
-	"MOD_SHOTGUN",
-	"MOD_GAUNTLET",
-	"MOD_MACHINEGUN",
-	"MOD_GRENADE",
-	"MOD_GRENADE_SPLASH",
-	"MOD_ROCKET",
-	"MOD_ROCKET_SPLASH",
-	"MOD_PLASMA",
-	"MOD_PLASMA_SPLASH",
-	"MOD_RAILGUN",
-	"MOD_LIGHTNING",
-	"MOD_BFG",
-	"MOD_BFG_SPLASH",
+
+	"MOD_QUANTIZER",
+	"MOD_REPEATER",
+	"MOD_MORTAR",
+	"MOD_DIVERGENCE",
+
 	"MOD_WATER",
 	"MOD_SLIME",
 	"MOD_LAVA",
@@ -299,41 +381,7 @@ char	*modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
-	"MOD_NAIL",
-	"MOD_CHAINGUN",
-	"MOD_PROXIMITY_MINE",
-	"MOD_KAMIKAZE",
-	"MOD_JUICED",
-	"MOD_GRAPPLE"
 };
-
-/*
-==================
-Kamikaze_DeathActivate
-==================
-*/
-void Kamikaze_DeathActivate( gentity_t *ent ) {
-	G_StartKamikaze(ent);
-	G_FreeEntity(ent);
-}
-
-/*
-==================
-Kamikaze_DeathTimer
-==================
-*/
-void Kamikaze_DeathTimer( gentity_t *self ) {
-	gentity_t *ent;
-
-	ent = G_Spawn();
-	ent->classname = "kamikaze timer";
-	VectorCopy(self->s.pos.trBase, ent->s.pos.trBase);
-	ent->r.svFlags |= SVF_NOCLIENT;
-	ent->think = Kamikaze_DeathActivate;
-	ent->nextthink = level.time + 5 * 1000;
-
-	ent->activator = self;
-}
 
 /*
 ==================
@@ -345,6 +393,7 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 	vec3_t		dir;
 	char		*classname;
 
+	//RAZTODO: plz2rewrite
 	// if this player was carrying a flag
 	if ( self->client->ps.powerups[PW_REDFLAG] ||
 		self->client->ps.powerups[PW_BLUEFLAG] ||
@@ -387,39 +436,6 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 
 /*
 ==================
-CheckAlmostScored
-==================
-*/
-void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
-	gentity_t	*ent;
-	vec3_t		dir;
-	char		*classname;
-
-	// if the player was carrying cubes
-	if ( self->client->ps.generic1 ) {
-		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
-			classname = "team_redobelisk";
-		}
-		else {
-			classname = "team_blueobelisk";
-		}
-		ent = G_Find(NULL, FOFS(classname), classname);
-		// if we found the destination obelisk
-		if ( ent ) {
-			// if the player was *very* close
-			VectorSubtract( self->client->ps.origin, ent->s.origin, dir );
-			if ( VectorLength(dir) < 200 ) {
-				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				if ( attacker->client ) {
-					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				}
-			}
-		}
-	}
-}
-
-/*
-==================
 player_die
 ==================
 */
@@ -441,12 +457,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
-	// check for a player that almost brought in cubes
-	CheckAlmostScored( self, attacker );
 
-	if (self->client && self->client->hook) {
-		Weapon_HookFree(self->client->hook);
-	}
 	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
 		self->client->ps.eFlags &= ~EF_TICKING;
 		self->activator->think = G_FreeEntity;
@@ -500,7 +511,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		} else {
 			AddScore( attacker, self->r.currentOrigin, 1 );
 
-			if( meansOfDeath == MOD_GAUNTLET ) {
+			if( meansOfDeath == MOD_QUANTIZER ) {
 				
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
@@ -553,9 +564,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	TossClientItems( self );
 	TossClientPersistantPowerups( self );
-	if( g_gametype.integer == GT_HARVESTER ) {
-		TossClientCubes( self );
-	}
 
 	Cmd_Score_f( self );		// show scores
 	// send updated scores to any clients that are following this one,
@@ -606,9 +614,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		GibEntity( self, killer );
 	} else {
 		// normal death
-		static int i;
+		static int deathAnim;
 
-		switch ( i ) {
+		switch ( deathAnim ) {
 		case 0:
 			anim = BOTH_DEATH1;
 			break;
@@ -632,17 +640,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->ps.torsoAnim = 
 			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 
-		G_AddEvent( self, EV_DEATH1 + i, killer );
+		G_AddEvent( self, EV_DEATH1 + deathAnim, killer );
 
 		// the body can still be gibbed
 		self->die = body_die;
 
 		// globally cycle through the different death animations
-		i = ( i + 1 ) % 3;
-
-		if (self->s.eFlags & EF_KAMIKAZE) {
-			Kamikaze_DeathTimer( self );
-		}
+		deathAnim = ( deathAnim + 1 ) % 3;
 	}
 
 	trap_LinkEntity (self);
@@ -724,44 +728,6 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 }
 
 /*
-================
-G_InvulnerabilityEffect
-================
-*/
-int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir ) {
-	gentity_t	*impact;
-	vec3_t		intersections[2], vec;
-	int			n;
-
-	if ( !targ->client ) {
-		return qfalse;
-	}
-	VectorCopy(dir, vec);
-	VectorInverse(vec);
-	// sphere model radius = 42 units
-	n = RaySphereIntersections( targ->client->ps.origin, 42, point, vec, intersections);
-	if (n > 0) {
-		impact = G_TempEntity( targ->client->ps.origin, EV_INVUL_IMPACT );
-		VectorSubtract(intersections[0], targ->client->ps.origin, vec);
-		vectoangles(vec, impact->s.angles);
-		impact->s.angles[0] += 90;
-		if (impact->s.angles[0] > 360)
-			impact->s.angles[0] -= 360;
-		if ( impactpoint ) {
-			VectorCopy( intersections[0], impactpoint );
-		}
-		if ( bouncedir ) {
-			VectorCopy( vec, bouncedir );
-			VectorNormalize( bouncedir );
-		}
-		return qtrue;
-	}
-	else {
-		return qfalse;
-	}
-}
-
-/*
 ============
 T_Damage
 
@@ -785,14 +751,27 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
-			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
+//- Raz
+//	NOTE: This function is recursive for partially reflected friendly fire
+//		In that case:	targ == the traitor
+//						inflictor == the traitor
+//						attacker == the traitor
+//	I've also added an 'affector', which will be the missile entity for weapons so I can apply per-missile knockback multipliers
+//		This is to aid the quantizer movement and rocket jumping tricks
+void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_attacker, gentity_t *real_affector,
+			   vec3_t real_dir, vec3_t real_point, int real_damage, int real_dflags, int real_mod ) {
 	gclient_t	*client;
 	int			take;
 	int			asave;
 	int			knockback;
 	int			max;
-	vec3_t		bouncedir, impactpoint;
+	gentity_t *targ=real_targ, *inflictor=real_inflictor, *attacker=real_attacker, *affector=real_affector;
+	vec3_t dir, point;
+	int damage=real_damage, dflags=real_dflags, mod=real_mod;
+	if ( real_dir )
+		VectorCopy( real_dir, dir );
+	if ( real_point )
+		VectorCopy( real_point, point );
 
 	if (!targ->takedamage) {
 		return;
@@ -800,17 +779,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
-	if ( level.intermissionQueued ) {
+	if ( level.intermissionQueued )
 		return;
-	}
-	if ( targ->client && mod != MOD_JUICED) {
-		if ( targ->client->invulnerabilityTime > level.time) {
-			if ( dir && point ) {
-				G_InvulnerabilityEffect( targ, dir, point, impactpoint, bouncedir );
-			}
-			return;
-		}
-	}
+
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
@@ -825,16 +796,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		return;
 	}
-	if( g_gametype.integer == GT_OBELISK && CheckObeliskAttack( targ, attacker ) ) {
-		return;
-	}
+
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if ( attacker->client && attacker != targ ) {
 		max = attacker->client->ps.stats[STAT_MAX_HEALTH];
-		if( bg_itemlist[attacker->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			max /= 2;
-		}
 		damage = damage * max / 100;
 	}
 
@@ -846,13 +812,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if ( !dir ) {
-		dflags |= DAMAGE_NO_KNOCKBACK;
-	} else {
-		VectorNormalize(dir);
-	}
+	//QtZ
+	if ( !real_dir )
+		VectorSet( dir, flrand( 0.0f, 0.2f ), flrand( 0.0f, 0.2f ), 0.7f );
+	else
+		VectorNormalize( dir );
 
-	knockback = damage;
+	//Raz: Added for Quantizer
+	if ( affector /*!damage && affector && !affector->splashDamage && affector->splashRadius*/ )
+		knockback = affector->splashDamage;
+	else
+		knockback = damage;
 	if ( knockback > 200 ) {
 		knockback = 200;
 	}
@@ -863,6 +833,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		knockback = 0;
 	}
 
+	//Raz: Quantizer/RL extra knockback
+	if ( affector )
+	{
+		if ( attacker->client && attacker->s.eType == ET_PLAYER && OnSameTeam( attacker, targ ) )
+			knockback *= affector->knockbackMultiSelf;
+		else
+			knockback *= affector->knockbackMulti;
+	}
+
 	// figure momentum add, even if the damage won't be taken
 	if ( knockback && targ->client ) {
 		vec3_t	kvel;
@@ -870,7 +849,26 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		mass = 200;
 
+		if ( g_debugDamage.integer )
+			Com_Printf( " \nDirectional knockback: %.2f, %.2f, %.2f\n", dir[0], dir[1], dir[2] );
+
 		VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
+
+		if ( g_debugDamage.integer )
+			Com_Printf( "Scaled knockback: %.2f, %.2f, %.2f\n", kvel[0], kvel[1], kvel[2] );
+
+		if ( affector
+			&& (affector->dflags & DAMAGE_VERTICAL_KNOCKBACK)
+			&& affector->knockbackDampVert != 0.0f
+			&& attacker != targ )
+		{//Attacking someone else with a DAMAGE_VERTICAL_KNOCKBACK flag, dampen the x/y knockback
+			kvel[0] *= affector->knockbackDampVert;
+			kvel[1] *= affector->knockbackDampVert;
+		}
+
+		if ( g_debugDamage.integer )
+			Com_Printf( "Final knockback: %.2f, %.2f, %.2f\n \n", kvel[0], kvel[1], kvel[2] );
+
 		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
 
 		// set the timer so that the other client can't cancel
@@ -890,21 +888,33 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	//QtZ: Moved this up here to bypass friendly fire checks
+	//	add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
+	if ( attacker->client && targ != attacker && targ->health > 0
+			&& targ->s.eType != ET_MISSILE
+			&& targ->s.eType != ET_GENERAL
+			&& client) {
+		if ( OnSameTeam( targ, attacker ) ) {
+			attacker->client->ps.persistant[PERS_HITS]--;
+		} else {
+			attacker->client->ps.persistant[PERS_HITS]++;
+		}
+		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
+	}
+
 	// check for completely getting out of the damage
 	if ( !(dflags & DAMAGE_NO_PROTECTION) ) {
 
 		// if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
 		// if the attacker was on the same team
-		if ( mod != MOD_JUICED && targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker)  ) {
-			if ( !g_friendlyFire.integer ) {
+		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
+			if ( !g_friendlyFire.integer )
 				return;
-			}
-		}
-		if (mod == MOD_PROXIMITY_MINE) {
-			if (inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent)) {
-				return;
-			}
-			if (targ == attacker) {
+			else if ( g_friendlyFire.integer == 2 )
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, real_damage*g_friendlyFireScale.value, real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
+			else if ( g_friendlyFire.integer == 3 )
+			{
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, real_damage*g_friendlyFireScale.value, real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
 				return;
 			}
 		}
@@ -915,37 +925,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	// battlesuit protects from all radius damage (but takes knockback)
-	// and protects 50% against all damage
-	if ( client && client->ps.powerups[PW_BATTLESUIT] ) {
-		G_AddEvent( targ, EV_POWERUP_BATTLESUIT, 0 );
-		if ( ( dflags & DAMAGE_RADIUS ) || ( mod == MOD_FALLING ) ) {
-			return;
-		}
-		damage *= 0.5;
-	}
-
-	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if ( attacker->client && client
-			&& targ != attacker && targ->health > 0
-			&& targ->s.eType != ET_MISSILE
-			&& targ->s.eType != ET_GENERAL) {
-		if ( OnSameTeam( targ, attacker ) ) {
-			attacker->client->ps.persistant[PERS_HITS]--;
-		} else {
-			attacker->client->ps.persistant[PERS_HITS]++;
-		}
-		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
-	}
-
 	// always give half damage if hurting self
 	// calculated after knockback, so rocket jumping works
-	if ( targ == attacker) {
+	//Raz: Only do this if it's not a recursive reflected friendly-fire call, in which case targ==inflictor
+	if ( targ == attacker && targ != inflictor ) {
+//	if ( targ == attacker) {
 		damage *= 0.5;
 	}
 
+	//RAZFIXME: Do something better with this..?
 	if ( damage < 1 ) {
-		damage = 1;
+	//	damage = 1;
 	}
 	take = damage;
 
@@ -954,23 +944,26 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	take -= asave;
 
 	if ( g_debugDamage.integer ) {
-		G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
-			targ->health, take, asave );
+		char *tmp = va( "^3G_Damage(): ^7Hit ^5%2i ^7(^1%3i^7/^2%3i^7) for %3i (^1%3i^7/^2%3i^7)",
+			targ->s.number,
+			targ->health,
+			targ->client ? targ->client->ps.stats[STAT_ARMOR] : 0,
+			damage,
+			take,
+			asave );
+		trap_SendServerCommand( attacker-g_entities, va( "chat \"%s\"", tmp ) );
+		G_Printf( tmp );
 	}
 
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
 	if ( client ) {
-		if ( attacker ) {
-			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
-		} else {
-			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
-		}
-		client->damage_armor += asave;
-		client->damage_blood += take;
-		client->damage_knockback += knockback;
-		if ( dir ) {
+		client->ps.persistant[PERS_ATTACKER]	= attacker ? attacker->s.number : ENTITYNUM_WORLD;
+		client->damage_armor					+= asave;
+		client->damage_blood					+= take;
+		client->damage_knockback				+= knockback;
+		if ( real_dir ) {
 			VectorCopy ( dir, client->damage_from );
 			client->damage_fromWorld = qfalse;
 		} else {
@@ -980,7 +973,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF ) {
+	if( g_gametype.integer == GT_CTF) {
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 
@@ -1078,8 +1071,8 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 G_RadiusDamage
 ============
 */
-qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-					 gentity_t *ignore, int mod) {
+qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod )
+{
 	float		points, dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];
@@ -1135,7 +1128,8 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
 			dir[2] += 24;
-			G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+			//QtZ: The affector here is the missile, so I can apply knockback multipliers for the quantizer and such
+			G_Damage (ent, NULL, attacker, missile, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 		}
 	}
 

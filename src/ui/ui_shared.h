@@ -39,6 +39,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_COLOR_RANGES 10
 #define MAX_OPEN_MENUS 16
 
+//QtZ: The UI needs this too :S...
+#define	NUM_CROSSHAIRS		16
+
 #define WINDOW_MOUSEOVER			0x00000001	// mouse is over it, non exclusive
 #define WINDOW_HASFOCUS				0x00000002	// has cursor focus, exclusive
 #define WINDOW_VISIBLE				0x00000004	// is visible
@@ -103,7 +106,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SLIDER_HEIGHT 16.0
 #define SLIDER_THUMB_WIDTH 12.0
 #define SLIDER_THUMB_HEIGHT 20.0
-#define	NUM_CROSSHAIRS			10
 
 typedef struct {
   const char *command;

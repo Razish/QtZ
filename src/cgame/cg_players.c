@@ -310,148 +310,12 @@ static qboolean	CG_FileExists(const char *filename) {
 CG_FindClientModelFile
 ==========================
 */
-static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *base, const char *ext ) {
-	char *team, *charactersFolder;
-	int i;
+static qboolean	CG_FindClientModelFile( char *filename, int length, const char *modelName, const char *base, const char *ext ) {
+	//"models/players/mymodel/lower.skin"
+	Com_sprintf( filename, length, "models/players/%s/%s.%s", modelName, base, ext );
 
-	if ( cgs.gametype >= GT_TEAM ) {
-		switch ( ci->team ) {
-			case TEAM_BLUE: {
-				team = "blue";
-				break;
-			}
-			default: {
-				team = "red";
-				break;
-			}
-		}
-	}
-	else {
-		team = "default";
-	}
-	charactersFolder = "";
-	while(1) {
-		for ( i = 0; i < 2; i++ ) {
-			if ( i == 0 && teamName && *teamName ) {
-				//								"models/players/characters/james/stroggs/lower_lily_red.skin"
-				Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s_%s.%s", charactersFolder, modelName, teamName, base, skinName, team, ext );
-			}
-			else {
-				//								"models/players/characters/james/lower_lily_red.skin"
-				Com_sprintf( filename, length, "models/players/%s%s/%s_%s_%s.%s", charactersFolder, modelName, base, skinName, team, ext );
-			}
-			if ( CG_FileExists( filename ) ) {
-				return qtrue;
-			}
-			if ( cgs.gametype >= GT_TEAM ) {
-				if ( i == 0 && teamName && *teamName ) {
-					//								"models/players/characters/james/stroggs/lower_red.skin"
-					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, team, ext );
-				}
-				else {
-					//								"models/players/characters/james/lower_red.skin"
-					Com_sprintf( filename, length, "models/players/%s%s/%s_%s.%s", charactersFolder, modelName, base, team, ext );
-				}
-			}
-			else {
-				if ( i == 0 && teamName && *teamName ) {
-					//								"models/players/characters/james/stroggs/lower_lily.skin"
-					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, skinName, ext );
-				}
-				else {
-					//								"models/players/characters/james/lower_lily.skin"
-					Com_sprintf( filename, length, "models/players/%s%s/%s_%s.%s", charactersFolder, modelName, base, skinName, ext );
-				}
-			}
-			if ( CG_FileExists( filename ) ) {
-				return qtrue;
-			}
-			if ( !teamName || !*teamName ) {
-				break;
-			}
-		}
-		// if tried the heads folder first
-		if ( charactersFolder[0] ) {
-			break;
-		}
-		charactersFolder = "characters/";
-	}
-
-	return qfalse;
-}
-
-/*
-==========================
-CG_FindClientHeadFile
-==========================
-*/
-static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t *ci, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext ) {
-	char *team, *headsFolder;
-	int i;
-
-	if ( cgs.gametype >= GT_TEAM ) {
-		switch ( ci->team ) {
-			case TEAM_BLUE: {
-				team = "blue";
-				break;
-			}
-			default: {
-				team = "red";
-				break;
-			}
-		}
-	}
-	else {
-		team = "default";
-	}
-
-	if ( headModelName[0] == '*' ) {
-		headsFolder = "heads/";
-		headModelName++;
-	}
-	else {
-		headsFolder = "";
-	}
-	while(1) {
-		for ( i = 0; i < 2; i++ ) {
-			if ( i == 0 && teamName && *teamName ) {
-				Com_sprintf( filename, length, "models/players/%s%s/%s/%s%s_%s.%s", headsFolder, headModelName, headSkinName, teamName, base, team, ext );
-			}
-			else {
-				Com_sprintf( filename, length, "models/players/%s%s/%s/%s_%s.%s", headsFolder, headModelName, headSkinName, base, team, ext );
-			}
-			if ( CG_FileExists( filename ) ) {
-				return qtrue;
-			}
-			if ( cgs.gametype >= GT_TEAM ) {
-				if ( i == 0 &&  teamName && *teamName ) {
-					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, team, ext );
-				}
-				else {
-					Com_sprintf( filename, length, "models/players/%s%s/%s_%s.%s", headsFolder, headModelName, base, team, ext );
-				}
-			}
-			else {
-				if ( i == 0 && teamName && *teamName ) {
-					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, headSkinName, ext );
-				}
-				else {
-					Com_sprintf( filename, length, "models/players/%s%s/%s_%s.%s", headsFolder, headModelName, base, headSkinName, ext );
-				}
-			}
-			if ( CG_FileExists( filename ) ) {
-				return qtrue;
-			}
-			if ( !teamName || !*teamName ) {
-				break;
-			}
-		}
-		// if tried the heads folder first
-		if ( headsFolder[0] ) {
-			break;
-		}
-		headsFolder = "heads/";
-	}
+	if ( CG_FileExists( filename ) )
+		return qtrue;
 
 	return qfalse;
 }
@@ -461,56 +325,32 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 CG_RegisterClientSkin
 ==========================
 */
-static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName ) {
-	char filename[MAX_QPATH];
+static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName )
+{
+	char filename[MAX_QPATH]={0};
 
-	/*
-	Com_sprintf( filename, sizeof( filename ), "models/players/%s/%slower_%s.skin", modelName, teamName, skinName );
-	ci->legsSkin = trap_R_RegisterSkin( filename );
-	if (!ci->legsSkin) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%slower_%s.skin", modelName, teamName, skinName );
+	//lower
+	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "lower", "skin" ) )
 		ci->legsSkin = trap_R_RegisterSkin( filename );
-		if (!ci->legsSkin) {
-			Com_Printf( "Leg skin load failure: %s\n", filename );
-		}
-	}
-
-
-	Com_sprintf( filename, sizeof( filename ), "models/players/%s/%supper_%s.skin", modelName, teamName, skinName );
-	ci->torsoSkin = trap_R_RegisterSkin( filename );
-	if (!ci->torsoSkin) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%supper_%s.skin", modelName, teamName, skinName );
-		ci->torsoSkin = trap_R_RegisterSkin( filename );
-		if (!ci->torsoSkin) {
-			Com_Printf( "Torso skin load failure: %s\n", filename );
-		}
-	}
-	*/
-	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, teamName, modelName, skinName, "lower", "skin" ) ) {
-		ci->legsSkin = trap_R_RegisterSkin( filename );
-	}
-	if (!ci->legsSkin) {
+	if ( !ci->legsSkin )
 		Com_Printf( "Leg skin load failure: %s\n", filename );
-	}
 
-	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, teamName, modelName, skinName, "upper", "skin" ) ) {
+	//torso
+	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "upper", "skin" ) )
 		ci->torsoSkin = trap_R_RegisterSkin( filename );
-	}
-	if (!ci->torsoSkin) {
+	if ( !ci->torsoSkin )
 		Com_Printf( "Torso skin load failure: %s\n", filename );
-	}
 
-	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headModelName, headSkinName, "head", "skin" ) ) {
+	//head
+	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "head", "skin" ) )
 		ci->headSkin = trap_R_RegisterSkin( filename );
-	}
-	if (!ci->headSkin) {
+	if ( !ci->headSkin )
 		Com_Printf( "Head skin load failure: %s\n", filename );
-	}
 
 	// if any skins failed to load
-	if ( !ci->legsSkin || !ci->torsoSkin || !ci->headSkin ) {
+	if ( !ci->legsSkin || !ci->torsoSkin || !ci->headSkin )
 		return qfalse;
-	}
+
 	return qtrue;
 }
 
@@ -519,96 +359,57 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, c
 CG_RegisterClientModelname
 ==========================
 */
-static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName, const char *teamName ) {
-	char	filename[MAX_QPATH];
-	const char		*headName;
-	char newTeamName[MAX_QPATH];
+static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName )
+{
+	char filename[MAX_QPATH]={0};
+	char newTeamName[MAX_QPATH]={0};
 
-	if ( headModelName[0] == '\0' ) {
-		headName = modelName;
-	}
-	else {
-		headName = headModelName;
-	}
+	//legs
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
 	ci->legsModel = trap_R_RegisterModel( filename );
-	if ( !ci->legsModel ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/lower.md3", modelName );
-		ci->legsModel = trap_R_RegisterModel( filename );
-		if ( !ci->legsModel ) {
-			Com_Printf( "Failed to load model file %s\n", filename );
-			return qfalse;
-		}
+	if ( !ci->legsModel )
+	{
+		Com_Printf( "Failed to load model file %s\n", filename );
+		return qfalse;
 	}
 
+	//torso
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
 	ci->torsoModel = trap_R_RegisterModel( filename );
-	if ( !ci->torsoModel ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/upper.md3", modelName );
-		ci->torsoModel = trap_R_RegisterModel( filename );
-		if ( !ci->torsoModel ) {
-			Com_Printf( "Failed to load model file %s\n", filename );
-			return qfalse;
-		}
+	if ( !ci->torsoModel )
+	{
+		Com_Printf( "Failed to load model file %s\n", filename );
+		return qfalse;
 	}
 
-	if( headName[0] == '*' ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", &headModelName[1], &headModelName[1] );
-	}
-	else {
-		Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headName );
-	}
+	//head
+	Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
 	ci->headModel = trap_R_RegisterModel( filename );
-	// if the head model could not be found and we didn't load from the heads folder try to load from there
-	if ( !ci->headModel && headName[0] != '*' ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", headModelName, headModelName );
-		ci->headModel = trap_R_RegisterModel( filename );
-	}
-	if ( !ci->headModel ) {
+	if ( !ci->headModel )
+	{
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
 	}
 
 	// if any skins failed to load, return failure
-	if ( !CG_RegisterClientSkin( ci, teamName, modelName, skinName, headName, headSkinName ) ) {
-		if ( teamName && *teamName) {
-			Com_Printf( "Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName, headName, headSkinName );
-			if( ci->team == TEAM_BLUE ) {
-				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_BLUETEAM_NAME);
-			}
-			else {
-				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_REDTEAM_NAME);
-			}
-			if ( !CG_RegisterClientSkin( ci, newTeamName, modelName, skinName, headName, headSkinName ) ) {
-				Com_Printf( "Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName, headSkinName );
-				return qfalse;
-			}
-		} else {
-			Com_Printf( "Failed to load skin file: %s : %s, %s : %s\n", modelName, skinName, headName, headSkinName );
-			return qfalse;
-		}
+	if ( !CG_RegisterClientSkin( ci, modelName ) )
+	{
+		Com_Printf( "Failed to load skin file: %s\n", modelName );
+		return qfalse;
 	}
 
 	// load the animations
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
 	if ( !CG_ParseAnimationFile( filename, ci ) ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/animation.cfg", modelName );
-		if ( !CG_ParseAnimationFile( filename, ci ) ) {
-			Com_Printf( "Failed to load animation file %s\n", filename );
-			return qfalse;
-		}
-	}
-
-	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin" ) ) {
-		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
-	}
-	else if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "tga" ) ) {
-		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
-	}
-
-	if ( !ci->modelIcon ) {
+		Com_Printf( "Failed to load animation file %s\n", filename );
 		return qfalse;
 	}
+
+	if ( CG_FindClientModelFile( filename, sizeof(filename), modelName, "icon", "tga" ) )
+		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
+
+	if ( !ci->modelIcon )
+		return qfalse;
 
 	return qtrue;
 }
@@ -653,42 +454,16 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	const char	*dir, *fallback;
 	int			i, modelloaded;
 	const char	*s;
-	char		teamname[MAX_QPATH];
-
-	teamname[0] = 0;
-	if( cgs.gametype >= GT_TEAM) {
-		if( ci->team == TEAM_BLUE ) {
-			Q_strncpyz(teamname, cg_blueTeamName.string, sizeof(teamname) );
-		} else {
-			Q_strncpyz(teamname, cg_redTeamName.string, sizeof(teamname) );
-		}
-	}
-	if( teamname[0] ) {
-		strcat( teamname, "/" );
-	}
 	modelloaded = qtrue;
-	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname ) ) {
-		if ( cg_buildScript.integer ) {
-			CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
-		}
 
-		// fall back to default team name
-		if( cgs.gametype >= GT_TEAM) {
-			// keep skin name
-			if( ci->team == TEAM_BLUE ) {
-				Q_strncpyz(teamname, DEFAULT_BLUETEAM_NAME, sizeof(teamname) );
-			} else {
-				Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname) );
-			}
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname ) ) {
-				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
-			}
-		} else {
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname ) ) {
-				CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
-			}
-		}
-		modelloaded = qfalse;
+	if ( !CG_RegisterClientModelname( ci, ci->modelName ) )
+	{
+		if ( cg_buildScript.integer )
+			CG_Error( "CG_RegisterClientModelname( %s ) failed", ci->modelName );
+		else if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL ) )
+			CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
+
+			modelloaded = qfalse;
 	}
 
 	ci->newAnims = qfalse;
@@ -704,30 +479,28 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	dir = ci->modelName;
 	fallback = (cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
 
-	for ( i = 0 ; i < MAX_CUSTOM_SOUNDS ; i++ ) {
+	for ( i=0; i<MAX_CUSTOM_SOUNDS; i++ )
+	{
 		s = cg_customSoundNames[i];
-		if ( !s ) {
+		if ( !s )
 			break;
-		}
+
 		ci->sounds[i] = 0;
 		// if the model didn't load use the sounds of the default model
-		if (modelloaded) {
+		if (modelloaded)
 			ci->sounds[i] = trap_S_RegisterSound( va("sound/player/%s/%s", dir, s + 1), qfalse );
-		}
-		if ( !ci->sounds[i] ) {
+		if ( !ci->sounds[i] )
 			ci->sounds[i] = trap_S_RegisterSound( va("sound/player/%s/%s", fallback, s + 1), qfalse );
-		}
 	}
 
 	ci->deferred = qfalse;
 
 	// reset any existing players and bodies, because they might be in bad
 	// frames for this new model
-	for ( i = 0 ; i < MAX_GENTITIES ; i++ ) {
-		if ( cg_entities[i].currentState.clientNum == clientNum
-			&& cg_entities[i].currentState.eType == ET_PLAYER ) {
+	for ( i=0; i<MAX_GENTITIES; i++ )
+	{
+		if ( cg_entities[i].currentState.clientNum == clientNum && cg_entities[i].currentState.eType == ET_PLAYER )
 			CG_ResetPlayerEntity( &cg_entities[i] );
-		}
 	}
 }
 
@@ -772,17 +545,13 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 		if ( match->deferred ) {
 			continue;
 		}
-		if ( !Q_stricmp( ci->modelName, match->modelName )
-			&& !Q_stricmp( ci->skinName, match->skinName )
-			&& !Q_stricmp( ci->headModelName, match->headModelName )
-			&& !Q_stricmp( ci->headSkinName, match->headSkinName ) 
-			&& !Q_stricmp( ci->blueTeam, match->blueTeam ) 
-			&& !Q_stricmp( ci->redTeam, match->redTeam )
-			&& (cgs.gametype < GT_TEAM || ci->team == match->team) ) {
-			// this clientinfo is identical, so use its handles
-
+		if ( !Q_stricmp( ci->modelName, match->modelName ) &&
+//			 !Q_stricmp( ci->headModelName, match->headModelName ) &&
+			 !Q_stricmp( ci->blueTeam, match->blueTeam ) &&
+			 !Q_stricmp( ci->redTeam, match->redTeam ) &&
+			 (cgs.gametype < GT_TEAM || ci->team == match->team) )
+		{// this clientinfo is identical, so use its handles
 			ci->deferred = qfalse;
-
 			CG_CopyClientInfoModel( match, ci );
 
 			return qtrue;
@@ -812,10 +581,8 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 		if ( !match->infoValid || match->deferred ) {
 			continue;
 		}
-		if ( Q_stricmp( ci->skinName, match->skinName ) ||
-			 Q_stricmp( ci->modelName, match->modelName ) ||
+		if ( Q_stricmp( ci->modelName, match->modelName ) ||
 //			 Q_stricmp( ci->headModelName, match->headModelName ) ||
-//			 Q_stricmp( ci->headSkinName, match->headSkinName ) ||
 			 (cgs.gametype >= GT_TEAM && ci->team != match->team) ) {
 			continue;
 		}
@@ -829,10 +596,6 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 		for ( i = 0 ; i < cgs.maxclients ; i++ ) {
 			match = &cgs.clientinfo[ i ];
 			if ( !match->infoValid || match->deferred ) {
-				continue;
-			}
-			if ( Q_stricmp( ci->skinName, match->skinName ) ||
-				(cgs.gametype >= GT_TEAM && ci->team != match->team) ) {
 				continue;
 			}
 			ci->deferred = qtrue;
@@ -876,7 +639,6 @@ void CG_NewClientInfo( int clientNum ) {
 	clientInfo_t newInfo;
 	const char	*configstring;
 	const char	*v;
-	char		*slash;
 
 	ci = &cgs.clientinfo[clientNum];
 
@@ -947,22 +709,25 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-	if ( cg_forceModel.integer ) {
+#if 0 //Q3 style
+	if ( cg_forceModel.integer )
+	{
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
 		char *skin;
 
-		if( cgs.gametype >= GT_TEAM ) {
+		if( cgs.gametype >= GT_TEAM )
+		{
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-		} else {
+		}
+		else {
 			trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
-			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
+			if ( (skin = strchr( modelStr, '/' )) == NULL )
 				skin = "default";
-			} else {
+			else
 				*skin++ = 0;
-			}
 
 			Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
 			Q_strncpyz( newInfo.modelName, modelStr, sizeof( newInfo.modelName ) );
@@ -988,9 +753,19 @@ void CG_NewClientInfo( int clientNum ) {
 			*slash = 0;
 		}
 	}
+#else
+	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) )
+		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel.string, sizeof( newInfo.modelName ) );
+	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceTeamModel.string, "none" ) )
+		Q_strncpyz( newInfo.modelName, cg_forceTeamModel.string, sizeof( newInfo.modelName ) );
+	else
+		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
+#endif
 
+#if 0
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
+#if 0 //Q3 style
 	if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -1032,26 +807,82 @@ void CG_NewClientInfo( int clientNum ) {
 			*slash = 0;
 		}
 	}
+#else
+	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) ) {
+		char *skin;
+		char modelName[MAX_QPATH];
+
+		Q_strncpyz( modelName, cg_forceEnemyModel.string, sizeof( modelName ) );
+
+		if ( (skin = strchr( modelName, '/' )) == NULL)
+			skin = "default";
+		else
+			*skin++ = 0;
+
+		Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
+		Q_strncpyz( newInfo.headModelName, modelName, sizeof( newInfo.headModelName ) );
+
+		if ( cgs.gametype >= GT_TEAM ) {
+			// keep skin name
+			slash = strchr( v, '/' );
+			if ( slash )
+				Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
+		}
+	}
+	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceTeamModel.string, "none" ) ) {
+		char *skin;
+		char modelName[MAX_QPATH];
+
+		Q_strncpyz( modelName, cg_forceTeamModel.string, sizeof( modelName ) );
+
+		if ( (skin = strchr( modelName, '/' )) == NULL)
+			skin = "default";
+		else
+			*skin++ = 0;
+
+		Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
+		Q_strncpyz( newInfo.headModelName, modelName, sizeof( newInfo.headModelName ) );
+
+		if ( cgs.gametype >= GT_TEAM ) {
+			// keep skin name
+			slash = strchr( v, '/' );
+			if ( slash )
+				Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
+		}
+	}
+	else
+	{
+		Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
+
+		if ( !(slash=strchr( newInfo.headModelName, '/' )) )
+			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
+		else {
+			Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
+			*slash = 0;
+		}
+	}
+#endif
+#endif // don't use head models for now :D
 
 	// scan for an existing clientinfo that matches this modelname
 	// so we can avoid loading checks if possible
-	if ( !CG_ScanForExistingClientInfo( &newInfo ) ) {
-		qboolean	forceDefer;
-
-		forceDefer = trap_MemoryRemaining() < 4000000;
+	if ( !CG_ScanForExistingClientInfo( &newInfo ) )
+	{
+		qboolean forceDefer = !!(trap_MemoryRemaining() < 4000000);
 
 		// if we are defering loads, just have it pick the first valid
-		if ( forceDefer || (cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading ) ) {
-			// keep whatever they had if it won't violate team skins
+		if ( forceDefer || (cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading ) )
+		{// keep whatever they had if it won't violate team skins
 			CG_SetDeferredClientInfo( clientNum, &newInfo );
-			// if we are low on memory, leave them with this model
-			if ( forceDefer ) {
+			
+			if ( forceDefer )
+			{// if we are low on memory, leave them with this model
 				CG_Printf( "Memory is low. Using deferred model.\n" );
 				newInfo.deferred = qfalse;
 			}
-		} else {
-			CG_LoadClientInfo( clientNum, &newInfo );
 		}
+		else
+			CG_LoadClientInfo( clientNum, &newInfo );
 	}
 
 	// replace whatever was there with the new one
@@ -1078,7 +909,7 @@ void CG_LoadDeferredPlayers( void ) {
 	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
 		if ( ci->infoValid && ci->deferred ) {
 			// if we are low on memory, leave it deferred
-			if ( trap_MemoryRemaining() < 4000000 ) {
+			if ( trap_MemoryRemaining() < 0x400000 ) { // < 4 Mb
 				CG_Printf( "Memory is low. Using deferred model.\n" );
 				ci->deferred = qfalse;
 				continue;
@@ -1246,11 +1077,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		return;
 	}
 
-	if ( cent->currentState.powerups & ( 1 << PW_HASTE ) ) {
-		speedScale = 1.5;
-	} else {
-		speedScale = 1;
-	}
+	speedScale = 1;
 
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -1493,45 +1320,6 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 /*
 ===============
-CG_HasteTrail
-===============
-*/
-static void CG_HasteTrail( centity_t *cent ) {
-	localEntity_t	*smoke;
-	vec3_t			origin;
-	int				anim;
-
-	if ( cent->trailTime > cg.time ) {
-		return;
-	}
-	anim = cent->pe.legs.animationNumber & ~ANIM_TOGGLEBIT;
-	if ( anim != LEGS_RUN && anim != LEGS_BACK ) {
-		return;
-	}
-
-	cent->trailTime += 100;
-	if ( cent->trailTime < cg.time ) {
-		cent->trailTime = cg.time;
-	}
-
-	VectorCopy( cent->lerpOrigin, origin );
-	origin[2] -= 16;
-
-	smoke = CG_SmokePuff( origin, vec3_origin, 
-				  8, 
-				  1, 1, 1, 1,
-				  500, 
-				  cg.time,
-				  0,
-				  0,
-				  cgs.media.hastePuffShader );
-
-	// use the optimized local entity add
-	smoke->leType = LE_SCALE_FADE;
-}
-
-/*
-===============
 CG_BreathPuffs
 ===============
 */
@@ -1652,6 +1440,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	vec3_t		angles, dir;
 	int			legsAnim, flagAnim, updateangles;
 	float		angle, d;
+	float		flagScale = cg_flagScale.value;
 
 	// show the flag pole model
 	memset( &pole, 0, sizeof(pole) );
@@ -1660,6 +1449,14 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	pole.shadowPlane = torso->shadowPlane;
 	pole.renderfx = torso->renderfx;
 	CG_PositionEntityOnTag( &pole, torso, torso->hModel, "tag_flag" );
+
+	//QtZ: Scale flag models on players
+	VectorScale( pole.axis[0], flagScale, pole.axis[0] );
+	VectorScale( pole.axis[1], flagScale, pole.axis[1] );
+	VectorScale( pole.axis[2], flagScale, pole.axis[2] );
+	pole.nonNormalizedAxes = qtrue;
+	//!QtZ
+
 	trap_R_AddRefEntityToScene( &pole );
 
 	// show the flag model
@@ -1753,73 +1550,14 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	AnglesToAxis( angles, flag.axis );
 	CG_PositionRotatedEntityOnTag( &flag, &pole, pole.hModel, "tag_flag" );
 
+	//QtZ: Scale flag models on players
+	VectorScale( pole.axis[0], flagScale, pole.axis[0] );
+	VectorScale( pole.axis[1], flagScale, pole.axis[1] );
+	VectorScale( pole.axis[2], flagScale, pole.axis[2] );
+	pole.nonNormalizedAxes = qtrue;
+	//!QtZ
+
 	trap_R_AddRefEntityToScene( &flag );
-}
-
-
-/*
-===============
-CG_PlayerTokens
-===============
-*/
-static void CG_PlayerTokens( centity_t *cent, int renderfx ) {
-	int			tokens, i, j;
-	float		angle;
-	refEntity_t	ent;
-	vec3_t		dir, origin;
-	skulltrail_t *trail;
-	trail = &cg.skulltrails[cent->currentState.number];
-	tokens = cent->currentState.generic1;
-	if ( !tokens ) {
-		trail->numpositions = 0;
-		return;
-	}
-
-	if ( tokens > MAX_SKULLTRAIL ) {
-		tokens = MAX_SKULLTRAIL;
-	}
-
-	// add skulls if there are more than last time
-	for (i = 0; i < tokens - trail->numpositions; i++) {
-		for (j = trail->numpositions; j > 0; j--) {
-			VectorCopy(trail->positions[j-1], trail->positions[j]);
-		}
-		VectorCopy(cent->lerpOrigin, trail->positions[0]);
-	}
-	trail->numpositions = tokens;
-
-	// move all the skulls along the trail
-	VectorCopy(cent->lerpOrigin, origin);
-	for (i = 0; i < trail->numpositions; i++) {
-		VectorSubtract(trail->positions[i], origin, dir);
-		if (VectorNormalize(dir) > 30) {
-			VectorMA(origin, 30, dir, trail->positions[i]);
-		}
-		VectorCopy(trail->positions[i], origin);
-	}
-
-	memset( &ent, 0, sizeof( ent ) );
-	if( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_BLUE ) {
-		ent.hModel = cgs.media.redCubeModel;
-	} else {
-		ent.hModel = cgs.media.blueCubeModel;
-	}
-	ent.renderfx = renderfx;
-
-	VectorCopy(cent->lerpOrigin, origin);
-	for (i = 0; i < trail->numpositions; i++) {
-		VectorSubtract(origin, trail->positions[i], ent.axis[0]);
-		ent.axis[0][2] = 0;
-		VectorNormalize(ent.axis[0]);
-		VectorSet(ent.axis[2], 0, 0, 1);
-		CrossProduct(ent.axis[0], ent.axis[2], ent.axis[1]);
-
-		VectorCopy(trail->positions[i], ent.origin);
-		angle = (((cg.time + 500 * MAX_SKULLTRAIL - 500 * i) / 16) & 255) * (M_PI * 2) / 255;
-		ent.origin[2] += sin(angle) * 10;
-		trap_R_AddRefEntityToScene( &ent );
-		VectorCopy(trail->positions[i], origin);
-	}
 }
 
 
@@ -1840,11 +1578,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
-	}
-
-	// flight plays a looped sound
-	if ( powerups & ( 1 << PW_FLIGHT ) ) {
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flightSound );
 	}
 
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
@@ -1879,11 +1612,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
-	}
-
-	// haste leaves smoke trails
-	if ( powerups & ( 1 << PW_HASTE ) ) {
-		CG_HasteTrail( cent );
 	}
 }
 
@@ -2000,11 +1728,6 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	*shadowPlane = 0;
 
 	if ( cg_shadows.integer == 0 ) {
-		return qfalse;
-	}
-
-	// no shadows when invisible
-	if ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) {
 		return qfalse;
 	}
 
@@ -2138,39 +1861,46 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
+	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
+	vec4_t colour = { 1.0f };
 
-	if ( state->powerups & ( 1 << PW_INVIS ) ) {
-		ent->customShader = cgs.media.invisShader;
+	if ( ci->team != cg.predictedPlayerState.persistant[PERS_TEAM] && (cg_forceEnemyModelHue.value || cg_forceEnemyModelSat.value || cg_forceEnemyModelLum.value) )
+	{
+		if ( cg_brightModels.integer == 1 )
+			HSV2RGB( cg_forceEnemyModelHue.value/360.f, cg_forceEnemyModelSat.value, cg_forceEnemyModelLum.value, &colour[0], &colour[1], &colour[2] );
+		else if ( cg_brightModels.integer == 2 )
+			HSL2RGB( cg_forceEnemyModelHue.value/360.f, cg_forceEnemyModelSat.value, cg_forceEnemyModelLum.value, &colour[0], &colour[1], &colour[2] );
+		colour[3] = cg_forceEnemyModelAlpha.value;
+	}
+	else if ( ci->team == cg.predictedPlayerState.persistant[PERS_TEAM] && (cg_forceTeamModelHue.value || cg_forceTeamModelSat.value || cg_forceTeamModelLum.value) )
+	{
+		if ( cg_brightModels.integer == 1 )
+			HSV2RGB( cg_forceTeamModelHue.value/360.0f, cg_forceTeamModelSat.value, cg_forceTeamModelLum.value, &colour[0], &colour[1], &colour[2] );
+		else if ( cg_brightModels.integer == 2 )
+			HSL2RGB( cg_forceTeamModelHue.value/360.0f, cg_forceTeamModelSat.value, cg_forceTeamModelLum.value, &colour[0], &colour[1], &colour[2] );
+		colour[3] = cg_forceTeamModelAlpha.value;
+	}
+	if ( cg_brightModels.integer == 1 )
+	{
+		ent->shaderRGBA[0] = colour[0]*255;
+		ent->shaderRGBA[1] = colour[1]*255;
+		ent->shaderRGBA[2] = colour[2]*255;
+	//	ent->shaderRGBA[3] = colour[3]*255;
+	}
+
+	trap_R_AddRefEntityToScene( ent );
+
+	if ( state->powerups & ( 1 << PW_QUAD ) )
+	{
+		if (team == TEAM_RED)
+			ent->customShader = cgs.media.redQuadShader;
+		else
+			ent->customShader = cgs.media.quadShader;
 		trap_R_AddRefEntityToScene( ent );
-	} else {
-		/*
-		if ( state->eFlags & EF_KAMIKAZE ) {
-			if (team == TEAM_BLUE)
-				ent->customShader = cgs.media.blueKamikazeShader;
-			else
-				ent->customShader = cgs.media.redKamikazeShader;
-			trap_R_AddRefEntityToScene( ent );
-		}
-		else {*/
-			trap_R_AddRefEntityToScene( ent );
-		//}
-
-		if ( state->powerups & ( 1 << PW_QUAD ) )
-		{
-			if (team == TEAM_RED)
-				ent->customShader = cgs.media.redQuadShader;
-			else
-				ent->customShader = cgs.media.quadShader;
-			trap_R_AddRefEntityToScene( ent );
-		}
-		if ( state->powerups & ( 1 << PW_REGEN ) ) {
-			if ( ( ( cg.time / 100 ) % 10 ) == 1 ) {
-				ent->customShader = cgs.media.regenShader;
-				trap_R_AddRefEntityToScene( ent );
-			}
-		}
-		if ( state->powerups & ( 1 << PW_BATTLESUIT ) ) {
-			ent->customShader = cgs.media.battleSuitShader;
+	}
+	if ( state->powerups & ( 1 << PW_REGEN ) ) {
+		if ( ( ( cg.time / 100 ) % 10 ) == 1 ) {
+			ent->customShader = cgs.media.regenShader;
 			trap_R_AddRefEntityToScene( ent );
 		}
 	}
@@ -2237,12 +1967,10 @@ void CG_Player( centity_t *cent ) {
 	int				renderfx;
 	qboolean		shadow;
 	float			shadowPlane;
-	refEntity_t		skull;
 	refEntity_t		powerup;
 	int				t;
 	float			c;
-	float			angle;
-	vec3_t			dir, angles;
+	vec3_t			angles;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -2297,9 +2025,6 @@ void CG_Player( centity_t *cent ) {
 	}
 
 	renderfx |= RF_LIGHTING_ORIGIN;			// use the same origin for all
-	if( cgs.gametype == GT_HARVESTER ) {
-		CG_PlayerTokens( cent, renderfx );
-	}
 
 	//
 	// add the legs
@@ -2340,178 +2065,12 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team );
 
-	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
-
-		memset( &skull, 0, sizeof(skull) );
-
-		VectorCopy( cent->lerpOrigin, skull.lightingOrigin );
-		skull.shadowPlane = shadowPlane;
-		skull.renderfx = renderfx;
-
-		if ( cent->currentState.eFlags & EF_DEAD ) {
-			// one skull bobbing above the dead body
-			angle = ((cg.time / 7) & 255) * (M_PI * 2) / 255;
-			if (angle > M_PI * 2)
-				angle -= (float)M_PI * 2;
-			dir[0] = sin(angle) * 20;
-			dir[1] = cos(angle) * 20;
-			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
-			dir[2] = 15 + sin(angle) * 8;
-			VectorAdd(torso.origin, dir, skull.origin);
-			
-			dir[2] = 0;
-			VectorCopy(dir, skull.axis[1]);
-			VectorNormalize(skull.axis[1]);
-			VectorSet(skull.axis[2], 0, 0, 1);
-			CrossProduct(skull.axis[1], skull.axis[2], skull.axis[0]);
-
-			skull.hModel = cgs.media.kamikazeHeadModel;
-			trap_R_AddRefEntityToScene( &skull );
-			skull.hModel = cgs.media.kamikazeHeadTrail;
-			trap_R_AddRefEntityToScene( &skull );
-		}
-		else {
-			// three skulls spinning around the player
-			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
-			dir[0] = cos(angle) * 20;
-			dir[1] = sin(angle) * 20;
-			dir[2] = cos(angle) * 20;
-			VectorAdd(torso.origin, dir, skull.origin);
-
-			angles[0] = sin(angle) * 30;
-			angles[1] = (angle * 180 / M_PI) + 90;
-			if (angles[1] > 360)
-				angles[1] -= 360;
-			angles[2] = 0;
-			AnglesToAxis( angles, skull.axis );
-
-			/*
-			dir[2] = 0;
-			VectorInverse(dir);
-			VectorCopy(dir, skull.axis[1]);
-			VectorNormalize(skull.axis[1]);
-			VectorSet(skull.axis[2], 0, 0, 1);
-			CrossProduct(skull.axis[1], skull.axis[2], skull.axis[0]);
-			*/
-
-			skull.hModel = cgs.media.kamikazeHeadModel;
-			trap_R_AddRefEntityToScene( &skull );
-			// flip the trail because this skull is spinning in the other direction
-			VectorInverse(skull.axis[1]);
-			skull.hModel = cgs.media.kamikazeHeadTrail;
-			trap_R_AddRefEntityToScene( &skull );
-
-			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255 + M_PI;
-			if (angle > M_PI * 2)
-				angle -= (float)M_PI * 2;
-			dir[0] = sin(angle) * 20;
-			dir[1] = cos(angle) * 20;
-			dir[2] = cos(angle) * 20;
-			VectorAdd(torso.origin, dir, skull.origin);
-
-			angles[0] = cos(angle - 0.5 * M_PI) * 30;
-			angles[1] = 360 - (angle * 180 / M_PI);
-			if (angles[1] > 360)
-				angles[1] -= 360;
-			angles[2] = 0;
-			AnglesToAxis( angles, skull.axis );
-
-			/*
-			dir[2] = 0;
-			VectorCopy(dir, skull.axis[1]);
-			VectorNormalize(skull.axis[1]);
-			VectorSet(skull.axis[2], 0, 0, 1);
-			CrossProduct(skull.axis[1], skull.axis[2], skull.axis[0]);
-			*/
-
-			skull.hModel = cgs.media.kamikazeHeadModel;
-			trap_R_AddRefEntityToScene( &skull );
-			skull.hModel = cgs.media.kamikazeHeadTrail;
-			trap_R_AddRefEntityToScene( &skull );
-
-			angle = ((cg.time / 3) & 255) * (M_PI * 2) / 255 + 0.5 * M_PI;
-			if (angle > M_PI * 2)
-				angle -= (float)M_PI * 2;
-			dir[0] = sin(angle) * 20;
-			dir[1] = cos(angle) * 20;
-			dir[2] = 0;
-			VectorAdd(torso.origin, dir, skull.origin);
-			
-			VectorCopy(dir, skull.axis[1]);
-			VectorNormalize(skull.axis[1]);
-			VectorSet(skull.axis[2], 0, 0, 1);
-			CrossProduct(skull.axis[1], skull.axis[2], skull.axis[0]);
-
-			skull.hModel = cgs.media.kamikazeHeadModel;
-			trap_R_AddRefEntityToScene( &skull );
-			skull.hModel = cgs.media.kamikazeHeadTrail;
-			trap_R_AddRefEntityToScene( &skull );
-		}
-	}
-
 	if ( cent->currentState.powerups & ( 1 << PW_GUARD ) ) {
 		memcpy(&powerup, &torso, sizeof(torso));
 		powerup.hModel = cgs.media.guardPowerupModel;
 		powerup.frame = 0;
 		powerup.oldframe = 0;
 		powerup.customSkin = 0;
-		trap_R_AddRefEntityToScene( &powerup );
-	}
-	if ( cent->currentState.powerups & ( 1 << PW_SCOUT ) ) {
-		memcpy(&powerup, &torso, sizeof(torso));
-		powerup.hModel = cgs.media.scoutPowerupModel;
-		powerup.frame = 0;
-		powerup.oldframe = 0;
-		powerup.customSkin = 0;
-		trap_R_AddRefEntityToScene( &powerup );
-	}
-	if ( cent->currentState.powerups & ( 1 << PW_DOUBLER ) ) {
-		memcpy(&powerup, &torso, sizeof(torso));
-		powerup.hModel = cgs.media.doublerPowerupModel;
-		powerup.frame = 0;
-		powerup.oldframe = 0;
-		powerup.customSkin = 0;
-		trap_R_AddRefEntityToScene( &powerup );
-	}
-	if ( cent->currentState.powerups & ( 1 << PW_AMMOREGEN ) ) {
-		memcpy(&powerup, &torso, sizeof(torso));
-		powerup.hModel = cgs.media.ammoRegenPowerupModel;
-		powerup.frame = 0;
-		powerup.oldframe = 0;
-		powerup.customSkin = 0;
-		trap_R_AddRefEntityToScene( &powerup );
-	}
-	if ( cent->currentState.powerups & ( 1 << PW_INVULNERABILITY ) ) {
-		if ( !ci->invulnerabilityStartTime ) {
-			ci->invulnerabilityStartTime = cg.time;
-		}
-		ci->invulnerabilityStopTime = cg.time;
-	}
-	else {
-		ci->invulnerabilityStartTime = 0;
-	}
-	if ( (cent->currentState.powerups & ( 1 << PW_INVULNERABILITY ) ) ||
-		cg.time - ci->invulnerabilityStopTime < 250 ) {
-
-		memcpy(&powerup, &torso, sizeof(torso));
-		powerup.hModel = cgs.media.invulnerabilityPowerupModel;
-		powerup.customSkin = 0;
-		// always draw
-		powerup.renderfx &= ~RF_THIRD_PERSON;
-		VectorCopy(cent->lerpOrigin, powerup.origin);
-
-		if ( cg.time - ci->invulnerabilityStartTime < 250 ) {
-			c = (float) (cg.time - ci->invulnerabilityStartTime) / 250;
-		}
-		else if (cg.time - ci->invulnerabilityStopTime < 250 ) {
-			c = (float) (250 - (cg.time - ci->invulnerabilityStopTime)) / 250;
-		}
-		else {
-			c = 1;
-		}
-		VectorSet( powerup.axis[0], c, 0, 0 );
-		VectorSet( powerup.axis[1], 0, c, 0 );
-		VectorSet( powerup.axis[2], 0, 0, c );
 		trap_R_AddRefEntityToScene( &powerup );
 	}
 

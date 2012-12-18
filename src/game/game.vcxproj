@@ -315,6 +315,8 @@
     <ClCompile Include=".\g_weapon.c" />
     <ClCompile Include="..\qcommon\q_math.c" />
     <ClCompile Include="..\qcommon\q_shared.c" />
+    <ClCompile Include="bg_weapons.c" />
+    <ClCompile Include="g_unlagged.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include=".\ai_chat.h" />
@@ -344,6 +346,8 @@
     <ClInclude Include="..\qcommon\q_shared.h" />
     <ClInclude Include="..\qcommon\surfaceflags.h" />
     <ClInclude Include=".\syn.h" />
+    <ClInclude Include="bg_weapons.h" />
+    <ClInclude Include="g_unlagged.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

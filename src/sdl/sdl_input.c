@@ -26,6 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <SDL.h>
 #endif
 
+//QtZ: Raw mouse input from https://github.com/runaos/iodfe/commit/977f61eca82e9c06869b647d752bf9bf2684b877
+#ifdef _WIN32
+	#ifdef USE_LOCAL_HEADERS
+		#include "SDL_syswm.h"
+	#else
+		#include <SDL_syswm.h>
+	#endif
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +57,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 static cvar_t *in_keyboardDebug     = NULL;
+cvar_t *in_mouseDebug = NULL; //QtZ: ran into a bug where we ended up with bogus viewangles, trying to track it down..
+							// UPDATE: was a peculiar case of ~1msec frametime being truncated to 0msec, x / frame_msec resulting in #IND viewangles
 
 static SDL_Joystick *stick = NULL;
 
@@ -71,6 +82,126 @@ static cvar_t *in_joystickUseAnalog = NULL;
 static int vidRestartTime = 0;
 
 #define CTRL(a) ((a)-'a'+1)
+
+//QtZ: Raw mouse input
+#ifdef _WIN32
+
+static WNDPROC SDLWindowProc = NULL;
+static qboolean mouseRaw;
+
+/*
+Doing that because I couldn't get to RAWINPUT through SDL_SYSWMEVENT //run
+http://lists.libsdl.org/pipermail/sdl-libsdl.org/2005-February/048704.html
+*/
+
+static LONG WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_INPUT:
+		if ( mouseRaw )
+		{
+			RAWINPUT ri;
+			unsigned int i = sizeof(ri);
+			
+			GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, &ri, &i, sizeof(RAWINPUTHEADER) );
+			
+			if ( mouseActive )
+			{
+				for ( i=0; i<5; i++ )
+				{
+						 if ( ri.data.mouse.ulButtons & ( 1 << (i*2+0) ) )
+						Com_QueueEvent( 0, SE_KEY, K_MOUSE1+i, qtrue, 0, NULL );
+					else if ( ri.data.mouse.ulButtons & ( 1 << (i*2+1) ) )
+						Com_QueueEvent( 0, SE_KEY, K_MOUSE1+i, qfalse, 0, NULL );
+				}
+				if ( ri.data.mouse.lLastX || ri.data.mouse.lLastY )
+				{
+					if ( in_mouseDebug->integer == 2 )
+						Com_Printf( "WM_INPUT: %d %d\n", ri.data.mouse.lLastX, ri.data.mouse.lLastY );
+					Com_QueueEvent( 0, SE_MOUSE, ri.data.mouse.lLastX, ri.data.mouse.lLastY, 0, NULL );
+				}
+			}
+
+			if ( ri.data.mouse.usButtonFlags & RI_MOUSE_WHEEL )
+			{
+				for ( i=0; i<abs( (signed short)ri.data.mouse.usButtonData )/WHEEL_DELTA; i++ )
+				{
+					Com_QueueEvent( 0, SE_KEY, (signed short)ri.data.mouse.usButtonData < 0 ? K_MWHEELDOWN : K_MWHEELUP, qtrue, 0, NULL );
+					Com_QueueEvent( 0, SE_KEY, (signed short)ri.data.mouse.usButtonData < 0 ? K_MWHEELDOWN : K_MWHEELUP, qfalse, 0, NULL );
+				}
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+	return CallWindowProc( SDLWindowProc, hWnd, uMsg, wParam, lParam );
+}
+
+/*
+============================================================
+
+RAW INPUT MOUSE
+(Cgg)
+
+============================================================
+*/
+
+qboolean IN_InitRawMouse( void ) {
+	RAWINPUTDEVICE dev = {
+		1,  // usUsagePage - generic desktop controls
+		2,  // usUsage - mouse
+		0,  // dwFlags
+		NULL };  // hwndTarget
+
+	// http://www.usb.org/developers/devclass_docs/Hut1_12.pdf
+	if ( !SDLWindowProc ) {
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION(&wmInfo.version);
+		SDL_GetWMInfo(&wmInfo);
+		SDLWindowProc = (WNDPROC)GetWindowLongPtr(wmInfo.window, GWLP_WNDPROC); 
+		SetWindowLongPtr(wmInfo.window, GWLP_WNDPROC, (LONG_PTR)RawWndProc);
+	}
+
+	if ( !RegisterRawInputDevices(&dev, 1, sizeof(dev)) )
+	{
+		Com_Printf( "Raw input registration failed. (0x%lx)\n", GetLastError() );
+		return qfalse;
+	}
+
+	if ( com_developer->integer || in_mouseDebug->integer )
+		Com_Printf( "Registered for raw input.\n" );
+
+	mouseRaw = qtrue;
+	return qtrue;
+}
+
+qboolean IN_ShutdownRawMouse( void ) {
+	RAWINPUTDEVICE dev = {
+		1,  // usUsagePage - generic desktop controls
+		2,  // usUsage - mouse
+		RIDEV_REMOVE,  // dwFlags
+		NULL  // hwndTarget
+	};
+	if (!RegisterRawInputDevices(&dev, 1, sizeof(dev))) {
+		Com_Printf("Mouse release failed. (0x%lx)\n", GetLastError());
+		return qfalse;
+	}
+	mouseRaw = qfalse;
+	Com_DPrintf("Released raw input mouse.\n");
+	if(SDLWindowProc){
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION(&wmInfo.version);
+		SDL_GetWMInfo(&wmInfo);
+		SetWindowLongPtr(wmInfo.window, GWLP_WNDPROC, (LONG_PTR)SDLWindowProc);
+		SDLWindowProc = NULL;
+	}
+	return qtrue;
+}
+
+#endif
 
 /*
 ===============
@@ -950,6 +1081,13 @@ static void IN_ProcessEvents( void )
 			case SDL_ACTIVEEVENT:
 				if (e.active.state & SDL_APPINPUTFOCUS) {
 					Cvar_SetValue( "com_unfocused",	!e.active.gain);
+					//QtZ: Raw mouse input
+					#ifdef _WIN32
+						if (e.active.gain && in_mouse->integer == 3) {  //raw input stops working on winxp after losing focus. (why?)
+							IN_ShutdownRawMouse();
+							IN_InitRawMouse();
+						}
+					#endif
 				}
 				if (e.active.state & SDL_APPACTIVE) {
 					Cvar_SetValue( "com_minimized", !e.active.gain);
@@ -1035,6 +1173,7 @@ void IN_Init( void )
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
 	in_keyboardDebug = Cvar_Get( "in_keyboardDebug", "0", CVAR_ARCHIVE );
+	in_mouseDebug = Cvar_Get( "in_mouseDebug", "0", CVAR_ARCHIVE );
 
 	// mouse variables
 	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
@@ -1051,6 +1190,22 @@ void IN_Init( void )
 	SDL_EnableUNICODE( 1 );
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 	keyRepeatEnabled = qtrue;
+
+	//QtZ: Raw mouse input
+	#ifdef _WIN32
+		if (mouseRaw)
+			IN_ShutdownRawMouse();
+		if (in_mouse->integer == 3 && IN_InitRawMouse())
+		{
+			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+		} else {
+			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_ENABLE);
+			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_ENABLE);
+		}
+	#endif
 
 	mouseAvailable = ( in_mouse->value != 0 );
 	IN_DeactivateMouse( );
@@ -1072,6 +1227,11 @@ IN_Shutdown
 */
 void IN_Shutdown( void )
 {
+	//QtZ: Raw mouse input
+	#ifdef _WIN32
+		IN_ShutdownRawMouse( );
+	#endif
+
 	IN_DeactivateMouse( );
 	mouseAvailable = qfalse;
 

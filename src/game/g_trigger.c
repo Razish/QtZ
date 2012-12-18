@@ -221,9 +221,6 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 	if ( activator->client->ps.pm_type != PM_NORMAL ) {
 		return;
 	}
-	if ( activator->client->ps.powerups[PW_FLIGHT] ) {
-		return;
-	}
 
 	VectorCopy (self->s.origin2, activator->client->ps.velocity);
 
@@ -290,7 +287,10 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
-	TeleportPlayer( other, dest->s.origin, dest->s.angles );
+	if ( self->s.generic1 )
+		TeleportPlayerSeamless( other, dest->s.origin, dest->s.angles );
+	else
+		TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
 
 
@@ -307,11 +307,15 @@ void SP_trigger_teleport( gentity_t *self ) {
 
 	// unlike other triggers, we need to send this one to the client
 	// unless is a spectator trigger
-	if ( self->spawnflags & 1 ) {
+	if ( self->spawnflags & 1 )
 		self->r.svFlags |= SVF_NOCLIENT;
-	} else {
+	else
 		self->r.svFlags &= ~SVF_NOCLIENT;
-	}
+
+	//QtZ: Seamless teleporter
+	if ( (self->spawnflags & 2) )
+		self->s.generic1 = qtrue;
+	//~QtZ
 
 	// make sure the client precaches this sound
 	G_SoundIndex("sound/world/jumppad.wav");
@@ -377,7 +381,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		dflags = DAMAGE_NO_PROTECTION;
 	else
 		dflags = 0;
-	G_Damage (other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
+	G_Damage (other, self, self, NULL, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
 }
 
 void SP_trigger_hurt( gentity_t *self ) {

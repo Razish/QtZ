@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-#define	MAX_CMD_BUFFER	16384
+//QtZ: 16k -> 64k
+#define	MAX_CMD_BUFFER	0x10000 //16384
 #define	MAX_CMD_LINE	1024
 
 typedef struct {
@@ -844,9 +845,29 @@ void Cmd_List_f (void)
 Cmd_CompleteCfgName
 ==================
 */
+extern const char *completionString;
 void Cmd_CompleteCfgName( char *args, int argNum ) {
-	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
+	if ( argNum == 2 )
+	{
+		//QtZ: Attempt to traverse directories for tab completion
+		//	This allows things like /exec cfg/phys_<TAB>
+		//	default behaviour will only search "/" of the FS, not any subdirectories
+		int i=0;
+		char *s = args, *token=s;
+		const char *pos=NULL;
+
+		for ( i=0; i<argNum; i++ )
+			s = COM_Parse( &token );
+
+		if ( (pos=Q_stristr( s, "/" )) )
+		{
+			char realdir[MAX_QPATH]={0};
+			Q_strncpyz( realdir, s, /*strlen(s)-*/(pos-s)+1 );
+			completionString = pos+1;
+			Field_CompleteFilename( realdir, "cfg", qfalse, qtrue );
+		}
+		else
+			Field_CompleteFilename( "", "cfg", qfalse, qtrue );
 	}
 }
 

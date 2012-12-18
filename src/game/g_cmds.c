@@ -253,8 +253,7 @@ void Cmd_Give_f (gentity_t *ent)
 
 	if (give_all || Q_stricmp(name, "weapons") == 0)
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - 
-			( 1 << WP_GRAPPLING_HOOK ) - ( 1 << WP_NONE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << (WP_NUM_WEAPONS+1))  - ( 1 << WP_NONE );
 		if (!give_all)
 			return;
 	}
@@ -1124,20 +1123,11 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 		who = g_entities + ent->client->lastkilled_client;
 		if (who->client) {
 			// who is the person I just killed
-			if (who->client->lasthurt_mod == MOD_GAUNTLET) {
-				if (!(who->r.svFlags & SVF_BOT)) {
-					G_Voice( ent, who, SAY_TELL, VOICECHAT_KILLGAUNTLET, qfalse );	// and I killed them with a gauntlet
-				}
-				if (!(ent->r.svFlags & SVF_BOT)) {
-					G_Voice( ent, ent, SAY_TELL, VOICECHAT_KILLGAUNTLET, qfalse );
-				}
-			} else {
-				if (!(who->r.svFlags & SVF_BOT)) {
-					G_Voice( ent, who, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );	// and I killed them with something else
-				}
-				if (!(ent->r.svFlags & SVF_BOT)) {
-					G_Voice( ent, ent, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );
-				}
+			if (!(who->r.svFlags & SVF_BOT)) {
+				G_Voice( ent, who, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );	// and I killed them with something else
+			}
+			if (!(ent->r.svFlags & SVF_BOT)) {
+				G_Voice( ent, ent, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );
 			}
 			ent->client->lastkilled_client = -1;
 			return;
@@ -1228,6 +1218,7 @@ void Cmd_Where_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos(ent->r.currentOrigin) ) );
 }
 
+//RAZTODO: externalise gametype names
 static const char *gameNames[] = {
 	"Free For All",
 	"Tournament",
@@ -1235,8 +1226,6 @@ static const char *gameNames[] = {
 	"Team Deathmatch",
 	"Capture the Flag",
 	"One Flag CTF",
-	"Overload",
-	"Harvester"
 };
 
 /*
@@ -1694,7 +1683,6 @@ void ClientCommand( int clientNum ) {
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime) {
-		Cmd_Say_f (ent, qfalse, qtrue);
 		return;
 	}
 

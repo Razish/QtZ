@@ -394,6 +394,8 @@ extern	cvar_t	*cl_mouseAccelOffset;
 extern	cvar_t	*cl_mouseAccelStyle;
 extern	cvar_t	*cl_showMouseRate;
 
+extern	cvar_t	*in_mouseDebug;
+
 extern	cvar_t	*m_pitch;
 extern	cvar_t	*m_yaw;
 extern	cvar_t	*m_forward;
@@ -573,6 +575,7 @@ void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noCol
 void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape );	// ignores embedded color control characters
 void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
 void	SCR_DrawSmallChar( int x, int y, int ch );
+void	SCR_DrawSmallChar2( int x, int y, int ch, float scale );
 
 
 //

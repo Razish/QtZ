@@ -75,17 +75,12 @@ static const int numNetSources = ARRAY_LEN( netSources );
 
 static const serverFilter_t serverFilters[] = {
 	{"All", "" },
-	{"Quake 3 Arena", "" },
-	{"Team Arena", BASETA },
-	{"Rocket Arena", "arena" },
-	{"Alliance", "alliance20" },
-	{"Weapons Factory Arena", "wfa" },
-	{"OSP", "osp" },
+	{"QtZ", "qtz" },
 };
 
 static const int numServerFilters = ARRAY_LEN( serverFilters );
 
-
+//QTZFIXME: Globalise gametype names
 static const char *teamArenaGameTypes[] = {
 	"FFA",
 	"TOURNAMENT",
@@ -93,8 +88,6 @@ static const char *teamArenaGameTypes[] = {
 	"TEAM DM",
 	"CTF",
 	"1FCTF",
-	"OVERLOAD",
-	"HARVESTER"
 };
 
 static int const numTeamArenaGameTypes = ARRAY_LEN( teamArenaGameTypes );
@@ -219,9 +212,9 @@ void AssetCache( void ) {
 	uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
 	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
-	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
-	}
+	//QtZ: New composite crosshair style
+	for ( n=0; n<NUM_CROSSHAIRS; n++ )
+		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/hud/crosshair_bit%i", (1<<n)) );
 
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
@@ -1025,11 +1018,6 @@ static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int text
 static void UI_SetCapFragLimits(qboolean uiVars) {
 	int cap = 5;
 	int frag = 10;
-	if (uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_OBELISK) {
-		cap = 4;
-	} else if (uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_HARVESTER) {
-		cap = 15;
-	}
 	if (uiVars) {
 		trap_Cvar_Set("ui_captureLimit", va("%d", cap));
 		trap_Cvar_Set("ui_fragLimit", va("%d", frag));
@@ -1297,7 +1285,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
   	viewangles[ROLL]  = 0;
   	VectorClear( moveangles );
     UI_PlayerInfo_SetModel( &info, model, head, team);
-    UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse );
+    UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_QUANTIZER, qfalse );
 //		UI_RegisterClientModelname( &info, model, head, team);
     updateModel = qfalse;
   }
@@ -1440,7 +1428,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
   	viewangles[ROLL]  = 0;
   	VectorClear( moveangles );
     UI_PlayerInfo_SetModel( &info2, model, headmodel, "");
-    UI_PlayerInfo_SetInfo( &info2, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse );
+    UI_PlayerInfo_SetInfo( &info2, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_QUANTIZER, qfalse );
 		UI_RegisterClientModelname( &info2, model, headmodel, team);
     updateOpponentModel = qfalse;
   }
@@ -5016,11 +5004,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	trap_GetGlconfig( &uiInfo.uiDC.glconfig );
 
 	// for 640x480 virtualized screen
-	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/480.0);
-	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0/640.0);
-	if ( uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640 ) {
+	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/SCREEN_HEIGHT);
+	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0/SCREEN_WIDTH);
+	if ( uiInfo.uiDC.glconfig.vidWidth * SCREEN_HEIGHT > uiInfo.uiDC.glconfig.vidHeight * SCREEN_WIDTH ) {
 		// wide screen
-		uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * (640.0/480.0) ) );
+		uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * (SCREEN_WIDTH/SCREEN_HEIGHT) ) );
 	}
 	else {
 		// no wide screen
@@ -5083,7 +5071,7 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	String_Init();
   
-	uiInfo.uiDC.cursor	= trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	uiInfo.uiDC.cursor	= trap_R_RegisterShaderNoMip( "cursor" );
 	uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 
 	AssetCache();
@@ -5400,7 +5388,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	downloadCount = trap_Cvar_VariableValue( "cl_downloadCount" );
 	downloadTime = trap_Cvar_VariableValue( "cl_downloadTime" );
 
-	leftWidth = 320;
+	leftWidth = (SCREEN_WIDTH/2.0f);
 
 	UI_SetColor(colorWhite);
 	Text_PaintCenter(centerPoint, yStart + 112, scale, colorWhite, dlText, 0);
@@ -5478,7 +5466,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	}
 
 	if (!overlay) {
-		centerPoint = 320;
+		centerPoint = (SCREEN_WIDTH/2.0f);
 		yStart = 130;
 		scale = 0.5f;
 	} else {
@@ -5793,7 +5781,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_captureLimit, "ui_captureLimit", "5", 0},
 	{ &ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
-	{ &ui_findPlayer, "ui_findPlayer", "Sarge", CVAR_ARCHIVE},
+	{ &ui_findPlayer, "ui_findPlayer", DEFAULT_NAME, CVAR_ARCHIVE},
 	{ &ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE},
 	{ &ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{ &ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},

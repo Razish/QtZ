@@ -296,6 +296,11 @@
     <ClCompile Include=".\ui_shared.c" />
     <ClCompile Include=".\ui_syscalls.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ui_local.h" />
+    <ClInclude Include="ui_public.h" />
+    <ClInclude Include="ui_shared.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

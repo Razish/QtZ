@@ -203,6 +203,7 @@ void *R_GetCommandBuffer( int bytes ) {
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
+		ri.Error( ERR_FATAL, "R_GetCommandBuffer: exceeded MAX_RENDER_COMMANDS(%i)", MAX_RENDER_COMMANDS );
 		return NULL;
 	}
 
@@ -293,6 +294,44 @@ void RE_StretchPic ( float x, float y, float w, float h,
 	cmd->s2 = s2;
 	cmd->t2 = t2;
 }
+
+//QtZ: Added from JA/EF
+/*
+=============
+RE_RotatedPic
+=============
+*/
+void RE_RotatedPic( float x, float y, float w, float h,
+					float s1, float t1, float s2, float t2, float angle, qboolean centered, qhandle_t hShader ) {
+	stretchPicCommand_t *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
+	}
+	cmd->commandId = RC_ROTATED_PIC;
+	cmd->shader = R_GetShaderByHandle( hShader );
+	cmd->x = x;
+	cmd->y = y;
+	cmd->w = w;
+	cmd->h = h;
+
+	// fixup
+	cmd->w /= 2;
+	cmd->h /= 2;
+	cmd->x += cmd->w;
+	cmd->y += cmd->h;
+	cmd->w = sqrt( ( cmd->w * cmd->w ) + ( cmd->h * cmd->h ) );
+	cmd->h = cmd->w;
+
+	cmd->angle = angle;
+	cmd->centered = centered;
+	cmd->s1 = s1;
+	cmd->t1 = t1;
+	cmd->s2 = s2;
+	cmd->t2 = t2;
+}
+//~QtZ
 
 #define MODE_RED_CYAN	1
 #define MODE_RED_BLUE	2

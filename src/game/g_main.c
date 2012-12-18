@@ -81,10 +81,6 @@ vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
-vmCvar_t	g_obeliskHealth;
-vmCvar_t	g_obeliskRegenPeriod;
-vmCvar_t	g_obeliskRegenAmount;
-vmCvar_t	g_obeliskRespawnDelay;
 vmCvar_t	g_cubeTimeout;
 vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
@@ -92,6 +88,10 @@ vmCvar_t	g_singlePlayer;
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
+
+#define XCVAR_DECL
+	#include "g_xcvar.h"
+#undef XCVAR_DECL
 
 static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -155,11 +155,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
-	{ &g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse },
-	{ &g_obeliskRegenPeriod, "g_obeliskRegenPeriod", "1", 0, 0, qfalse },
-	{ &g_obeliskRegenAmount, "g_obeliskRegenAmount", "15", 0, 0, qfalse },
-	{ &g_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO, 0, qfalse },
-
 	{ &g_cubeTimeout, "g_cubeTimeout", "30", 0, 0, qfalse },
 	{ &g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
 	{ &g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
@@ -173,8 +168,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse}
+	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 
+	#define XCVAR_LIST
+		#include "g_xcvar.h"
+	#undef XCVAR_LIST
 };
 
 static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );

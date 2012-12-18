@@ -352,6 +352,8 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 		return;
 	}
 
+	ri.Printf( PRINT_DEVELOPER, "^5RE_RegisterFont: Registering font %s(%i)\n", fontName, pointSize );
+
 	if (pointSize <= 0) {
 		pointSize = 12;
 	}

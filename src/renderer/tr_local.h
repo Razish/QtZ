@@ -1000,6 +1000,10 @@ typedef struct {
 	float					sawToothTable[FUNCTABLE_SIZE];
 	float					inverseSawToothTable[FUNCTABLE_SIZE];
 	float					fogTable[FOG_TABLE_SIZE];
+
+	//QtZ: Added
+	qboolean				allowCompression; //can be disabled per-shader. lightmaps are never compressed
+	//~QtZ
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
@@ -1023,10 +1027,8 @@ extern cvar_t	*r_flareFade;
 // coefficient for the flare intensity falloff function.
 #define FLARE_STDCOEFF "150"
 extern cvar_t	*r_flareCoeff;
-
-extern cvar_t	*r_railWidth;
-extern cvar_t	*r_railCoreWidth;
-extern cvar_t	*r_railSegmentLength;
+extern cvar_t	*r_flareWidth;
+extern cvar_t	*r_flareDlights;
 
 extern cvar_t	*r_ignore;				// used for debugging anything
 extern cvar_t	*r_verbose;				// used for verbose debug spew
@@ -1249,6 +1251,7 @@ image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicm
 
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
+image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrapClampMode );
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
@@ -1595,7 +1598,9 @@ RENDERER BACK END COMMAND QUEUE
 =============================================================
 */
 
-#define	MAX_RENDER_COMMANDS	0x40000
+#define	MAX_RENDER_COMMANDS	0x80000
+
+//QTZTODO: Union for RC_ commands instead of 9001 structs?
 
 typedef struct {
 	byte	cmds[MAX_RENDER_COMMANDS];
@@ -1636,6 +1641,10 @@ typedef struct {
 	float	w, h;
 	float	s1, t1;
 	float	s2, t2;
+	//QtZ: From JA/EF
+	float	angle;
+	qboolean centered; //only for RotatePic2, else will be rotated around the top-right point :S
+	//~QtZ
 } stretchPicCommand_t;
 
 typedef struct {
@@ -1681,6 +1690,11 @@ typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
+
+	//QtZ:Added from JA/EF
+	RC_ROTATED_PIC,
+	//~QtZ
+
 	RC_DRAW_SURFS,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
@@ -1731,8 +1745,10 @@ void R_SyncRenderThread( void );
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
 
 void RE_SetColor( const float *rgba );
-void RE_StretchPic ( float x, float y, float w, float h, 
-					  float s1, float t1, float s2, float t2, qhandle_t hShader );
+void RE_StretchPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
+//QtZ: Added from JA/EF
+void RE_RotatedPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float angle, qboolean centered, qhandle_t hShader );
+//~QtZ
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,

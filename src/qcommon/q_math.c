@@ -1040,3 +1040,177 @@ float Q_acos(float c) {
 	return angle;
 }
 #endif
+
+//Raz: Added from Jedi Academy
+
+// This is the VC libc version of rand() without multiple seeds per thread or 12 levels
+// of subroutine calls.
+// Both calls have been designed to minimise the inherent number of float <--> int 
+// conversions and the additional math required to get the desired value.
+// eg the typical tint = (rand() * 255) / 32768
+// becomes tint = irand(0, 255)
+
+static unsigned long	holdrand = 0x89abcdef;
+
+void Rand_Init(int seed)
+{
+	holdrand = seed;
+}
+
+// Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
+
+float flrand(float min, float max)
+{
+	float	result;
+
+	holdrand = (holdrand * 214013L) + 2531011L;
+	result = (float)(holdrand >> 17);						// 0 - 32767 range
+	result = ((result * (max - min)) / 32768.0F) + min;
+
+	return(result);
+}
+float Q_flrand(float min, float max)
+{
+	return flrand(min,max);
+}
+
+// Returns an integer min <= x <= max (ie inclusive)
+
+int irand(int min, int max)
+{
+	int		result;
+
+	assert((max - min) < 32768);
+
+	max++;
+	holdrand = (holdrand * 214013L) + 2531011L;
+	result = holdrand >> 17;
+	result = ((result * (max - min)) >> 15) + min;
+	return(result);
+}
+
+int Q_irand(int value1, int value2)
+{
+	return irand(value1, value2);
+}
+
+float Q_powf ( float x, int y )
+{
+	float r = x;
+	for ( y--; y>0; y-- )
+		r = r * r;
+	return r;
+}
+
+void HSL2RGB( float h, float s, float l, float *r, float *g, float *b )
+{
+	double tr, tg, tb;
+	double v;
+
+	tr = l;
+	tg = l;
+	tb = l;
+	v = (l <= 0.5f) ? (l * (1.0f + (l*2))) : (l + l - l * l);
+    if (v > 0) {
+		double m;
+		double sv;
+		int sextant;
+		double fract, vsf, mid1, mid2;
+
+		m = l + l - v;
+		sv = (v - m ) / v;
+		h *= 5.0f;
+		sextant = floor(h);
+		fract = h - sextant;
+		vsf = v * sv * fract;
+		mid1 = m + vsf;
+		mid2 = v - vsf;
+		switch (sextant)
+		{
+			case 0:
+			default:
+				tr = v;
+				tg = mid1;
+				tb = m;
+				break;
+			case 1:
+				tr = mid2;
+				tg = v;
+				tb = m;
+				break;
+			case 2:
+				tr = m;
+				tg = v;
+				tb = mid1;
+				break;
+			case 3:
+				tr = m;
+				tg = mid2;
+				tb = v;
+				break;
+			case 4:
+				tr = mid1;
+				tg = m;
+				tb = v;
+				break;
+			case 5:
+				tr = v;
+				tg = m;
+				tb = mid2;
+				break;
+          }
+    }
+    *r = tr;
+    *g = tg;
+	*b = tb;
+}
+
+void HSV2RGB( float h, float s, float v, float *r, float *g, float *b )
+{
+	int i;
+	float f;
+	float p, q, t;
+
+	h *= 5;
+
+	i = floor( h );
+	f = h - i;
+
+	p = v * ( 1 - s );
+	q = v * ( 1 - s * f );
+	t = v * ( 1 - s * ( 1 - f ) );
+
+	switch ( i )
+	{
+	case 0:
+		*r = v;
+		*g = t;
+		*b = p;
+		break;
+	case 1:
+		*r = q;
+		*g = v;
+		*b = p;
+		break;
+	case 2:
+		*r = p;
+		*g = v;
+		*b = t;
+		break;
+	case 3:
+		*r = p;
+		*g = q;
+		*b = v;
+		break;
+	case 4:
+		*r = t;
+		*g = p;
+		*b = v;
+		break;
+	case 5:
+		*r = v;
+		*g = p;
+		*b = q;
+		break;
+	}
+}

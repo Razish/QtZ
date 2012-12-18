@@ -35,12 +35,9 @@ float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
 float	pm_swimScale = 0.50f;
 
-float	pm_accelerate = 10.0f;
-float	pm_airaccelerate = 1.0f;
 float	pm_wateraccelerate = 4.0f;
 float	pm_flyaccelerate = 8.0f;
 
-float	pm_friction = 6.0f;
 float	pm_waterfriction = 1.0f;
 float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
@@ -197,7 +194,7 @@ static void PM_Friction( void ) {
 			// if getting knocked back, no friction
 			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 				control = speed < pm_stopspeed ? pm_stopspeed : speed;
-				drop += control*pm_friction*pml.frametime;
+				drop += control * pm->qtz.friction * pml.frametime;
 			}
 		}
 	}
@@ -205,11 +202,6 @@ static void PM_Friction( void ) {
 	// apply water friction even if just wading
 	if ( pm->waterlevel ) {
 		drop += speed*pm_waterfriction*pm->waterlevel*pml.frametime;
-	}
-
-	// apply flying friction
-	if ( pm->ps->powerups[PW_FLIGHT]) {
-		drop += speed*pm_flightfriction*pml.frametime;
 	}
 
 	if ( pm->ps->pm_type == PM_SPECTATOR) {
@@ -244,17 +236,14 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 
 	currentspeed = DotProduct (pm->ps->velocity, wishdir);
 	addspeed = wishspeed - currentspeed;
-	if (addspeed <= 0) {
+	if ( addspeed <= 0.0f )
 		return;
-	}
-	accelspeed = accel*pml.frametime*wishspeed;
-	if (accelspeed > addspeed) {
+	accelspeed = accel * wishspeed * pml.frametime;
+	if (accelspeed > addspeed)
 		accelspeed = addspeed;
-	}
 	
-	for (i=0 ; i<3 ; i++) {
-		pm->ps->velocity[i] += accelspeed*wishdir[i];	
-	}
+	for ( i=0; i<3; i++ )
+		pm->ps->velocity[i] += accelspeed * wishdir[i];	
 #else
 	// proper way (avoids strafe jump maxspeed bug), but feels bad
 	vec3_t		wishVelocity;
@@ -287,24 +276,18 @@ without getting a sqrt(2) distortion in speed.
 ============
 */
 static float PM_CmdScale( usercmd_t *cmd ) {
-	int		max;
+	int		max = abs( cmd->forwardmove );
 	float	total;
 	float	scale;
 
-	max = abs( cmd->forwardmove );
-	if ( abs( cmd->rightmove ) > max ) {
-		max = abs( cmd->rightmove );
-	}
-	if ( abs( cmd->upmove ) > max ) {
-		max = abs( cmd->upmove );
-	}
-	if ( !max ) {
-		return 0;
-	}
+	if ( abs( cmd->rightmove ) > max )	max = abs( cmd->rightmove );
+	if ( abs( cmd->upmove ) > max )		max = abs( cmd->upmove );
 
-	total = sqrt( cmd->forwardmove * cmd->forwardmove
-		+ cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
-	scale = (float)pm->ps->speed * max / ( 127.0 * total );
+	if ( !max )
+		return 0;
+
+	total = sqrt( cmd->forwardmove*cmd->forwardmove + cmd->rightmove*cmd->rightmove + cmd->upmove*cmd->upmove );
+	scale = (float)pm->ps->speed * max / ( 127.0f * total );
 
 	return scale;
 }
@@ -319,33 +302,21 @@ to the facing dir
 ================
 */
 static void PM_SetMovementDir( void ) {
-	if ( pm->cmd.forwardmove || pm->cmd.rightmove ) {
-		if ( pm->cmd.rightmove == 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 0;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 1;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove == 0 ) {
-			pm->ps->movementDir = 2;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 3;
-		} else if ( pm->cmd.rightmove == 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 4;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 5;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove == 0 ) {
-			pm->ps->movementDir = 6;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 7;
-		}
-	} else {
-		// if they aren't actively going directly sideways,
-		// change the animation to the diagonal so they
-		// don't stop too crooked
-		if ( pm->ps->movementDir == 2 ) {
-			pm->ps->movementDir = 1;
-		} else if ( pm->ps->movementDir == 6 ) {
-			pm->ps->movementDir = 7;
-		} 
+	if ( pm->cmd.forwardmove || pm->cmd.rightmove )
+	{
+			 if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 0;
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 1;
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 2;
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 3;
+		else if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 4;
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 5;
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 6;
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 7;
+	}
+	else
+	{//if they aren't actively going directly sideways, change the animation to the diagonal so they don't stop too crooked
+			 if ( pm->ps->movementDir == 2 )	pm->ps->movementDir = 1;
+		else if ( pm->ps->movementDir == 6 )	pm->ps->movementDir = 7;
 	}
 }
 
@@ -356,18 +327,57 @@ PM_CheckJump
 =============
 */
 static qboolean PM_CheckJump( void ) {
-	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+	qboolean didWallJump = qfalse;
+	if ( pm->ps->pm_flags & PMF_RESPAWNED )
 		return qfalse;		// don't allow jump until all buttons are up
-	}
 
-	if ( pm->cmd.upmove < 10 ) {
-		// not holding jump
+	//not holding jump
+	if ( pm->cmd.upmove < 10 )
+		return qfalse;
+
+	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
+	{//Jump off walls if we're in the air and it's been 1.25 seconds since we did it last.
+		if ( pm->qtz.wallJumpEnable
+			&& !(pm->ps->pm_flags & PMF_JUMP_HELD)
+			&& pm->cmd.forwardmove > 0
+			&& pm->ps->velocity[2] > -256
+			&& !pm->ps->qtz.wallJumpTime )
+		{//debouncer finished, pressing jump, not falling too far
+			vec3_t	forward, back;
+			vec3_t mins={ -0.5f, -0.5f, -0.5f }, maxs={ 0.5f, 0.5f, 0.5f };
+			vec3_t angs = { 0.0f, pm->ps->viewangles[YAW], 0.0f };
+			trace_t	trace;
+
+			//This will only use our yaw angle - we'll offset the pitch later to get a boost up
+			AngleVectors( angs, forward, NULL, NULL );
+			VectorMA( pm->ps->origin, -36, forward, back );
+			pm->trace( &trace, pm->ps->origin, mins, maxs, back, pm->ps->clientNum, pm->tracemask );
+
+			if ( trace.fraction < 1.0f )
+			{//wall behind us, jump off it
+				angs[0] = -30.0f; //aim up a bit
+				AngleVectors( angs, forward, NULL, NULL );
+				//push up to ~360 ups, based on how close we are to the wall
+				VectorMA( pm->ps->velocity, pm->qtz.jumpVelocity + ( (pm->qtz.jumpVelocity/2.0f) * (1.5f * ( 1.0f-trace.fraction )) ), forward, pm->ps->velocity );
+				pm->ps->qtz.wallJumpTime = pm->qtz.wallJumpDebounce;//1250;
+
+				goto dojump;
+			}
+		}
+		pm->cmd.upmove = 0;
 		return qfalse;
 	}
 
-	// must wait for jump to be released
-	if ( pm->ps->pm_flags & PMF_JUMP_HELD ) {
-		// clear upmove so cmdscale doesn't lower running speed
+dojump:
+	if ( pm->qtz.bunnyHopEnable && !pm->ps->qtz.bunnyHopTime )
+	{//debouncer finished (so we can't gain ludicrous speed on ramps)
+	//	vec3_t angs;
+	//	AngleVectors( pm->ps->viewangles, angs, NULL, NULL );
+	//	VectorMA( pm->ps->velocity, 26.0f, angs, pm->ps->velocity );
+		pm->ps->qtz.bunnyHopTime = pm->qtz.bunnyHopDebounce;//400;
+	}
+	else if ( pm->ps->pm_flags & PMF_JUMP_HELD )
+	{// must wait for jump to be released. clear upmove so cmdscale doesn't lower running speed
 		pm->cmd.upmove = 0;
 		return qfalse;
 	}
@@ -377,7 +387,16 @@ static qboolean PM_CheckJump( void ) {
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	pm->ps->velocity[2] = JUMP_VELOCITY;
+	pm->ps->velocity[2] = pm->qtz.jumpVelocity;
+
+	if ( pm->qtz.doubleJumpEnable )
+	{
+		if ( pm->ps->qtz.doubleJumpTime > 0 && !pm->ps->qtz.wallJumpTime )
+			pm->ps->velocity[2] += pm->qtz.doubleJumpPush;
+
+		pm->ps->qtz.doubleJumpTime = pm->qtz.doubleJumpDebounce;//400;
+	}
+
 	PM_AddEvent( EV_JUMP );
 
 	if ( pm->cmd.forwardmove >= 0 ) {
@@ -595,14 +614,46 @@ PM_AirMove
 
 ===================
 */
-static void PM_AirMove( void ) {
+void PM_AirControl( vec3_t wishdir, float wishspeed )
+{
+	float	zspeed, speed, dot, k;
+	int		i;
+
+	if ( (pm->ps->movementDir && pm->ps->movementDir != 4) || wishspeed == 0.0 ) 
+		return; // can't control movement if not moveing forward or backward
+
+	zspeed = pm->ps->velocity[2];
+	pm->ps->velocity[2] = 0;
+	speed = VectorNormalize( pm->ps->velocity );
+
+	dot = DotProduct( pm->ps->velocity, wishdir );
+	k = 32; 
+	k *= pm->qtz.airControl * dot * dot * pml.frametime;
+	
+	
+	if ( dot > 0.0f )
+	{	// we can't change direction while slowing down
+		for ( i=0; i<2; i++ )
+			pm->ps->velocity[i] = pm->ps->velocity[i]*speed + wishdir[i]*k;
+		VectorNormalize( pm->ps->velocity );
+	}
+	
+	for ( i=0; i<2; i++ ) 
+		pm->ps->velocity[i] *=speed;
+
+	pm->ps->velocity[2] = zspeed;
+}
+
+static void PM_AirMove( void )
+{
 	int			i;
-	vec3_t		wishvel;
-	float		fmove, smove;
-	vec3_t		wishdir;
-	float		wishspeed;
-	float		scale;
+	vec3_t		wishvel, wishdir;
+	float		fmove, smove, wishspeed, scale;
 	usercmd_t	cmd;
+
+	//QtZ: From JA, added so we can jump off walls
+	if ( pm->ps->pm_type != PM_SPECTATOR && pm->qtz.wallJumpEnable )
+		PM_CheckJump();
 
 	PM_Friction();
 
@@ -618,28 +669,40 @@ static void PM_AirMove( void ) {
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
-	VectorNormalize (pml.forward);
-	VectorNormalize (pml.right);
+	VectorNormalize( pml.forward );
+	VectorNormalize( pml.right );
 
-	for ( i = 0 ; i < 2 ; i++ ) {
+	for ( i=0; i<2; i++ )
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
-	}
 	wishvel[2] = 0;
 
-	VectorCopy (wishvel, wishdir);
-	wishspeed = VectorNormalize(wishdir);
+	VectorCopy( wishvel, wishdir );
+	wishspeed = VectorNormalize( wishdir );
 	wishspeed *= scale;
 
-	// not on ground, so little effect on velocity
-	PM_Accelerate (wishdir, wishspeed, pm_airaccelerate);
-
-	// we may have a ground plane that is very steep, even
-	// though we don't have a groundentity
-	// slide along the steep plane
-	if ( pml.groundPlane ) {
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
-			pm->ps->velocity, OVERCLIP );
+	if ( pm->qtz.airControlEnable )
+	{
+		float wishspeed2 = wishspeed, accel = 0.0f;
+		if ( DotProduct( pm->ps->velocity, wishdir ) < 0.0f )
+			accel = pm->qtz.airControlStopAccelerate;
+		else
+			accel = pm->qtz.airaccelerate;
+		if ( pm->ps->movementDir == 2 || pm->ps->movementDir == 6 )
+		{
+			if (wishspeed > pm->qtz.airControlWishspeed)
+				wishspeed = pm->qtz.airControlWishspeed;	
+			accel = pm->qtz.airControlStrafeAccelerate;
+		}
+		PM_Accelerate( wishdir, wishspeed, accel );
+		PM_AirControl( wishdir, wishspeed2 );
 	}
+	else // not on ground, so little effect on velocity
+		PM_Accelerate( wishdir, wishspeed, pm->qtz.airaccelerate );
+
+	// we may have a ground plane that is very steep. Even though we don't
+	//	have a groundentity, slide along the steep plane
+	if ( pml.groundPlane )
+		PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP );
 
 #if 0
 	//ZOID:  If we are on the grapple, try stair-stepping
@@ -651,7 +714,7 @@ static void PM_AirMove( void ) {
 		PM_SlideMove ( qtrue );
 #endif
 
-	PM_StepSlideMove ( qtrue );
+	PM_StepSlideMove( qtrue );
 }
 
 /*
@@ -767,9 +830,9 @@ static void PM_WalkMove( void ) {
 	// when a player gets hit, they temporarily lose
 	// full control, which allows them to be moved a bit
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		accelerate = pm_airaccelerate;
+		accelerate = pm->qtz.airaccelerate;
 	} else {
-		accelerate = pm_accelerate;
+		accelerate = pm->qtz.accelerate;
 	}
 
 	PM_Accelerate (wishdir, wishspeed, accelerate);
@@ -858,7 +921,7 @@ static void PM_NoclipMove( void ) {
 	{
 		drop = 0;
 
-		friction = pm_friction*1.5;	// extra friction
+		friction = pm->qtz.friction * 1.5f;	// extra friction
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
 		drop += control*friction*pml.frametime;
 
@@ -885,7 +948,7 @@ static void PM_NoclipMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	PM_Accelerate( wishdir, wishspeed, pm_accelerate );
+	PM_Accelerate( wishdir, wishspeed, pm->qtz.accelerate );
 
 	// move
 	VectorMA (pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
@@ -1247,20 +1310,6 @@ static void PM_CheckDuck (void)
 {
 	trace_t	trace;
 
-	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
-		if ( pm->ps->pm_flags & PMF_INVULEXPAND ) {
-			// invulnerability sphere has a 42 units radius
-			VectorSet( pm->mins, -42, -42, -42 );
-			VectorSet( pm->maxs, 42, 42, 42 );
-		}
-		else {
-			VectorSet( pm->mins, -15, -15, MINS_Z );
-			VectorSet( pm->maxs, 15, 15, 16 );
-		}
-		pm->ps->pm_flags |= PMF_DUCKED;
-		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
-		return;
-	}
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
 
 	pm->mins[0] = -15;
@@ -1330,9 +1379,6 @@ static void PM_Footsteps( void ) {
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
 
-		if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
-			PM_ContinueLegsAnim( LEGS_IDLECR );
-		}
 		// airborne leaves position in cycle intact, but doesn't advance
 		if ( pm->waterlevel > 1 ) {
 			PM_ContinueLegsAnim( LEGS_SWIM );
@@ -1513,15 +1559,20 @@ PM_TorsoAnimation
 
 ==============
 */
-static void PM_TorsoAnimation( void ) {
-	if ( pm->ps->weaponstate == WEAPON_READY ) {
-		if ( pm->ps->weapon == WP_GAUNTLET ) {
-			PM_ContinueTorsoAnim( TORSO_STAND2 );
-		} else {
-			PM_ContinueTorsoAnim( TORSO_STAND );
-		}
-		return;
-	}
+//RAZMARK: ADDING NEW WEAPONS
+const animNumber_t weaponAnimations[WP_NUM_WEAPONS] = {
+	TORSO_STAND2,	//WP_NONE
+
+	TORSO_STAND,	// WP_QUANTIZER
+	TORSO_STAND,	// WP_REPEATER
+	TORSO_STAND,	// WP_MORTAR
+	TORSO_STAND,	// WP_DIVERGENCE
+};
+
+static void PM_TorsoAnimation( void )
+{
+	if ( pm->ps->weaponstate == WEAPON_READY )
+		PM_ContinueTorsoAnim( weaponAnimations[pm->ps->weapon] );
 }
 
 
@@ -1532,18 +1583,43 @@ PM_Weapon
 Generates weapon events and modifes the weapon counter
 ==============
 */
+int PM_GetWeaponChargeTime( void )
+{
+	return pm->ps->qtz.weaponCooldown[pm->ps->weapon];
+}
+
+//Decrease the timers for all our weapons despite not having them out
+void PM_DecreaseWeaponChargeTimes( void )
+{
+	weapon_t wp;
+	for ( wp=WP_NONE; wp<WP_NUM_WEAPONS; wp++ )
+	{
+		if ( pm->ps->qtz.weaponCooldown[wp] < weaponData[wp].maxFireTime )
+			pm->ps->qtz.weaponCooldown[wp] += pml.msec;
+		if ( pm->ps->qtz.weaponCooldown[wp] > weaponData[wp].maxFireTime )
+			pm->ps->qtz.weaponCooldown[wp] = weaponData[wp].maxFireTime;
+	}
+}
+
+void PM_IncreaseWeaponChargeTime( int addTime )
+{
+	pm->ps->qtz.weaponCooldown[pm->ps->weapon] += addTime;
+}
+
+void PM_DecreaseWeaponChargeTime( int addTime )
+{
+	pm->ps->qtz.weaponCooldown[pm->ps->weapon] -= addTime;
+}
+
+void PM_SetWeaponChargeTime( int weaponTime )
+{
+	pm->ps->qtz.weaponCooldown[pm->ps->weapon] = weaponTime;
+}
+
 static void PM_Weapon( void ) {
-	int		addTime;
-
 	// don't allow attack until all buttons are up
-	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+	if ( (pm->ps->pm_flags & PMF_RESPAWNED) || pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR )
 		return;
-	}
-
-	// ignore if spectator
-	if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		return;
-	}
 
 	// check for dead player
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
@@ -1570,14 +1646,15 @@ static void PM_Weapon( void ) {
 
 
 	// make weapon function
-	if ( pm->ps->weaponTime > 0 ) {
+	if ( pm->ps->weaponTime > 0 )
 		pm->ps->weaponTime -= pml.msec;
-	}
+	PM_DecreaseWeaponChargeTimes(); //QtZ
 
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
-	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+	//QtZ
+	{//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}
@@ -1593,13 +1670,13 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	//QtZ
+	if ( PM_GetWeaponChargeTime() < weaponData[pm->ps->weapon].fireTime )
+		return;
+
 	if ( pm->ps->weaponstate == WEAPON_RAISING ) {
 		pm->ps->weaponstate = WEAPON_READY;
-		if ( pm->ps->weapon == WP_GAUNTLET ) {
-			PM_StartTorsoAnim( TORSO_STAND2 );
-		} else {
-			PM_StartTorsoAnim( TORSO_STAND );
-		}
+		PM_StartTorsoAnim( weaponAnimations[pm->ps->weapon] );
 		return;
 	}
 
@@ -1611,17 +1688,7 @@ static void PM_Weapon( void ) {
 	}
 
 	// start the animation even if out of ammo
-	if ( pm->ps->weapon == WP_GAUNTLET ) {
-		// the guantlet only "fires" when it actually hits something
-		if ( !pm->gauntletHit ) {
-			pm->ps->weaponTime = 0;
-			pm->ps->weaponstate = WEAPON_READY;
-			return;
-		}
-		PM_StartTorsoAnim( TORSO_ATTACK2 );
-	} else {
-		PM_StartTorsoAnim( TORSO_ATTACK );
-	}
+	PM_StartTorsoAnim( TORSO_ATTACK );
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 
@@ -1638,64 +1705,11 @@ static void PM_Weapon( void ) {
 	}
 
 	// fire weapon
-	PM_AddEvent( EV_FIRE_WEAPON );
+	//QtZ
+	//PM_AddEvent( EV_FIRE_WEAPON );
+	BG_AddPredictableEventToPlayerstate( EV_FIRE_WEAPON, PM_GetWeaponChargeTime(), pm->ps );
 
-	switch( pm->ps->weapon ) {
-	default:
-	case WP_GAUNTLET:
-		addTime = 400;
-		break;
-	case WP_LIGHTNING:
-		addTime = 50;
-		break;
-	case WP_SHOTGUN:
-		addTime = 1000;
-		break;
-	case WP_MACHINEGUN:
-		addTime = 100;
-		break;
-	case WP_GRENADE_LAUNCHER:
-		addTime = 800;
-		break;
-	case WP_ROCKET_LAUNCHER:
-		addTime = 800;
-		break;
-	case WP_PLASMAGUN:
-		addTime = 100;
-		break;
-	case WP_RAILGUN:
-		addTime = 1500;
-		break;
-	case WP_BFG:
-		addTime = 200;
-		break;
-	case WP_GRAPPLING_HOOK:
-		addTime = 400;
-		break;
-	case WP_NAILGUN:
-		addTime = 1000;
-		break;
-	case WP_PROX_LAUNCHER:
-		addTime = 800;
-		break;
-	case WP_CHAINGUN:
-		addTime = 30;
-		break;
-	}
-
-	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
-		addTime /= 1.5;
-	}
-	else
-	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
-		addTime /= 1.3;
-  }
-  else
-	if ( pm->ps->powerups[PW_HASTE] ) {
-		addTime /= 1.3;
-	}
-
-	pm->ps->weaponTime += addTime;
+	PM_SetWeaponChargeTime( 0 );
 }
 
 /*
@@ -1756,24 +1770,44 @@ static void PM_DropTimers( void ) {
 		if ( pml.msec >= pm->ps->pm_time ) {
 			pm->ps->pm_flags &= ~PMF_ALL_TIMES;
 			pm->ps->pm_time = 0;
-		} else {
-			pm->ps->pm_time -= pml.msec;
 		}
+		else
+			pm->ps->pm_time -= pml.msec;
 	}
 
-	// drop animation counter
+	// legs animation timer
 	if ( pm->ps->legsTimer > 0 ) {
 		pm->ps->legsTimer -= pml.msec;
-		if ( pm->ps->legsTimer < 0 ) {
+		if (pm->ps->legsTimer < 0)
 			pm->ps->legsTimer = 0;
-		}
 	}
 
+	// torso animation timer
 	if ( pm->ps->torsoTimer > 0 ) {
 		pm->ps->torsoTimer -= pml.msec;
-		if ( pm->ps->torsoTimer < 0 ) {
+		if (pm->ps->torsoTimer < 0)
 			pm->ps->torsoTimer = 0;
-		}
+	}
+
+	// wall jump debounce
+	if ( pm->ps->qtz.wallJumpTime > 0 ) {
+		pm->ps->qtz.wallJumpTime -= pml.msec;
+		if (pm->ps->qtz.wallJumpTime < 0)
+			pm->ps->qtz.wallJumpTime = 0;
+	}
+
+	// bunny hop debounce
+	if ( pm->ps->qtz.bunnyHopTime > 0 ) {
+		pm->ps->qtz.bunnyHopTime -= pml.msec;
+		if (pm->ps->qtz.bunnyHopTime < 0)
+			pm->ps->qtz.bunnyHopTime = 0;
+	}
+
+	// double jump debounce
+	if ( pm->ps->qtz.doubleJumpTime > 0 ) {
+		pm->ps->qtz.doubleJumpTime -= pml.msec;
+		if (pm->ps->qtz.doubleJumpTime < 0)
+			pm->ps->qtz.doubleJumpTime = 0;
 	}
 }
 
@@ -1959,13 +1993,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	PM_DropTimers();
 
-	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
-		PM_InvulnerabilityMove();
-	} else
-	if ( pm->ps->powerups[PW_FLIGHT] ) {
-		// flight powerup doesn't allow jump and has different friction
-		PM_FlyMove();
-	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
+	if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
 		PM_GrappleMove();
 		// We can wiggle a bit
 		PM_AirMove();
@@ -2001,6 +2029,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
+	//RAZTODO: ;o
 	trap_SnapVector( pm->ps->velocity );
 }
 

@@ -150,19 +150,19 @@ static qboolean ParseVector( char **text, int count, float *v ) {
 NameToAFunc
 ===============
 */
+stringToEnum_t alphaTestKeywords[] = {
+	{ "GT0",	GLS_ATEST_GT_0 },
+	{ "LT128",	GLS_ATEST_LT_80 },
+	{ "GE128",	GLS_ATEST_GE_80 }
+};
+static const unsigned int numAlphaTestKeywords = ARRAY_LEN( alphaTestKeywords );
 static unsigned NameToAFunc( const char *funcname )
 {	
-	if ( !Q_stricmp( funcname, "GT0" ) )
+	int i=0;
+	for ( i=0; i<numAlphaTestKeywords; i++ )
 	{
-		return GLS_ATEST_GT_0;
-	}
-	else if ( !Q_stricmp( funcname, "LT128" ) )
-	{
-		return GLS_ATEST_LT_80;
-	}
-	else if ( !Q_stricmp( funcname, "GE128" ) )
-	{
-		return GLS_ATEST_GE_80;
+		if ( !Q_stricmp( funcname, alphaTestKeywords[i].s ) )
+			return alphaTestKeywords[i].e;
 	}
 
 	ri.Printf( PRINT_WARNING, "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname, shader.name );
@@ -175,43 +175,25 @@ static unsigned NameToAFunc( const char *funcname )
 NameToSrcBlendMode
 ===============
 */
+stringToEnum_t srcBlendFuncKeywords[] = {
+	{ "GL_ONE",					GLS_SRCBLEND_ONE },
+	{ "GL_ZERO",				GLS_SRCBLEND_ZERO },
+	{ "GL_DST_COLOR",			GLS_SRCBLEND_DST_COLOR },
+	{ "GL_ONE_MINUS_DST_COLOR",	GLS_SRCBLEND_ONE_MINUS_DST_COLOR },
+	{ "GL_SRC_ALPHA",			GLS_SRCBLEND_SRC_ALPHA },
+	{ "GL_ONE_MINUS_SRC_ALPHA",	GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA },
+	{ "GL_DST_ALPHA",			GLS_SRCBLEND_DST_ALPHA },
+	{ "GL_ONE_MINUS_DST_ALPHA",	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA },
+	{ "GL_SRC_ALPHA_SATURATE",	GLS_SRCBLEND_ALPHA_SATURATE }
+};
+static const unsigned int numSrcBlendFuncKeywords = ARRAY_LEN( srcBlendFuncKeywords );
 static int NameToSrcBlendMode( const char *name )
 {
-	if ( !Q_stricmp( name, "GL_ONE" ) )
+	int i=0;
+	for ( i=0; i<numSrcBlendFuncKeywords; i++ )
 	{
-		return GLS_SRCBLEND_ONE;
-	}
-	else if ( !Q_stricmp( name, "GL_ZERO" ) )
-	{
-		return GLS_SRCBLEND_ZERO;
-	}
-	else if ( !Q_stricmp( name, "GL_DST_COLOR" ) )
-	{
-		return GLS_SRCBLEND_DST_COLOR;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_DST_COLOR" ) )
-	{
-		return GLS_SRCBLEND_ONE_MINUS_DST_COLOR;
-	}
-	else if ( !Q_stricmp( name, "GL_SRC_ALPHA" ) )
-	{
-		return GLS_SRCBLEND_SRC_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_SRC_ALPHA" ) )
-	{
-		return GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_DST_ALPHA" ) )
-	{
-		return GLS_SRCBLEND_DST_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_DST_ALPHA" ) )
-	{
-		return GLS_SRCBLEND_ONE_MINUS_DST_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_SRC_ALPHA_SATURATE" ) )
-	{
-		return GLS_SRCBLEND_ALPHA_SATURATE;
+		if ( !Q_stricmp( name, srcBlendFuncKeywords[i].s ) )
+			return srcBlendFuncKeywords[i].e;
 	}
 
 	ri.Printf( PRINT_WARNING, "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n", name, shader.name );
@@ -223,42 +205,27 @@ static int NameToSrcBlendMode( const char *name )
 NameToDstBlendMode
 ===============
 */
+stringToEnum_t dstBlendFuncKeywords[] = {
+	{ "GL_ONE",					GLS_DSTBLEND_ONE },
+	{ "GL_ZERO",				GLS_DSTBLEND_ZERO },
+	{ "GL_SRC_ALPHA",			GLS_DSTBLEND_SRC_ALPHA },
+	{ "GL_ONE_MINUS_SRC_ALPHA",	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA },
+	{ "GL_DST_ALPHA",			GLS_DSTBLEND_DST_ALPHA },
+	{ "GL_ONE_MINUS_DST_ALPHA",	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA },
+	{ "GL_SRC_COLOR",			GLS_DSTBLEND_SRC_COLOR },
+	{ "GL_ONE_MINUS_SRC_COLOR",	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR }
+};
+static const unsigned int numDstBlendFuncKeywords = ARRAY_LEN( dstBlendFuncKeywords );
 static int NameToDstBlendMode( const char *name )
 {
-	if ( !Q_stricmp( name, "GL_ONE" ) )
+	int i=0;
+	for ( i=0; i<numDstBlendFuncKeywords; i++ )
 	{
-		return GLS_DSTBLEND_ONE;
-	}
-	else if ( !Q_stricmp( name, "GL_ZERO" ) )
-	{
-		return GLS_DSTBLEND_ZERO;
-	}
-	else if ( !Q_stricmp( name, "GL_SRC_ALPHA" ) )
-	{
-		return GLS_DSTBLEND_SRC_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_SRC_ALPHA" ) )
-	{
-		return GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_DST_ALPHA" ) )
-	{
-		return GLS_DSTBLEND_DST_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_DST_ALPHA" ) )
-	{
-		return GLS_DSTBLEND_ONE_MINUS_DST_ALPHA;
-	}
-	else if ( !Q_stricmp( name, "GL_SRC_COLOR" ) )
-	{
-		return GLS_DSTBLEND_SRC_COLOR;
-	}
-	else if ( !Q_stricmp( name, "GL_ONE_MINUS_SRC_COLOR" ) )
-	{
-		return GLS_DSTBLEND_ONE_MINUS_SRC_COLOR;
+		if ( !Q_stricmp( name, dstBlendFuncKeywords[i].s ) )
+			return dstBlendFuncKeywords[i].e;
 	}
 
-	ri.Printf( PRINT_WARNING, "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n", name, shader.name );
+	ri.Printf( PRINT_WARNING, "WARNING: NameToDstBlendMode unknown blend mode '%s' in shader '%s', substituting GL_ONE\n", name, shader.name );
 	return GLS_DSTBLEND_ONE;
 }
 
@@ -267,31 +234,22 @@ static int NameToDstBlendMode( const char *name )
 NameToGenFunc
 ===============
 */
+stringToEnum_t genFuncKeywords[] = {
+	{ "sin",				GF_SIN },
+	{ "square",				GF_SQUARE },
+	{ "triangle",			GF_TRIANGLE },
+	{ "sawtooth",			GF_SAWTOOTH },
+	{ "inversesawtooth",	GF_INVERSE_SAWTOOTH },
+	{ "noise",				GF_NOISE }
+};
+static const unsigned int numGenFuncKeywords = ARRAY_LEN( genFuncKeywords );
 static genFunc_t NameToGenFunc( const char *funcname )
 {
-	if ( !Q_stricmp( funcname, "sin" ) )
+	int i=0;
+	for ( i=0; i<numGenFuncKeywords; i++ )
 	{
-		return GF_SIN;
-	}
-	else if ( !Q_stricmp( funcname, "square" ) )
-	{
-		return GF_SQUARE;
-	}
-	else if ( !Q_stricmp( funcname, "triangle" ) )
-	{
-		return GF_TRIANGLE;
-	}
-	else if ( !Q_stricmp( funcname, "sawtooth" ) )
-	{
-		return GF_SAWTOOTH;
-	}
-	else if ( !Q_stricmp( funcname, "inversesawtooth" ) )
-	{
-		return GF_INVERSE_SAWTOOTH;
-	}
-	else if ( !Q_stricmp( funcname, "noise" ) )
-	{
-		return GF_NOISE;
+		if ( !Q_stricmp( funcname, genFuncKeywords[i].s ) )
+			return (genFunc_t)genFuncKeywords[i].e;
 	}
 
 	ri.Printf( PRINT_WARNING, "WARNING: invalid genfunc name '%s' in shader '%s'\n", funcname, shader.name );
@@ -624,6 +582,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				stage->bundle[0].image[0] = tr.whiteImage;
 				continue;
 			}
+#if 0
 			else if ( !Q_stricmp( token, "$lightmap" ) )
 			{
 				stage->bundle[0].isLightmap = qtrue;
@@ -634,6 +593,27 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				}
 				continue;
 			}
+#else
+			else if ( !Q_stricmp( token, "$lightmap" ) )
+			{
+				stage->bundle[0].isLightmap = qtrue;
+				//27 fix: a stage with SURF_NOLIGHTMAP shouldn't be referencing $lightmap
+				if ( shader.lightmapIndex < 0 || shader.surfaceFlags & SURF_NOLIGHTMAP )
+				{
+					stage->bundle[0].image[0] = tr.whiteImage;
+
+					if ( shader.lightmapIndex >=0 && shader.surfaceFlags & SURF_NOLIGHTMAP )
+					{
+						ri.Printf( PRINT_WARNING, "WARNING: conflicting use of NOLIGHTMAP and a $LIGHTMAP stage in shader '%s'\n", shader.name );
+					}
+				} else
+				{
+					
+					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+				}
+				continue;
+			}
+#endif
 			else
 			{
 				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
@@ -1276,6 +1256,30 @@ static void ParseSkyParms( char **text ) {
 ParseSort
 =================
 */
+stringToEnum_t sortKeywords[] = {
+	{ "portal",		SS_PORTAL },
+	{ "sky",		SS_ENVIRONMENT },
+	{ "opaque",		SS_OPAQUE },
+	{ "decal",		SS_DECAL },
+	{ "seeThrough",	SS_SEE_THROUGH },
+	{ "banner",		SS_BANNER },
+	{ "additive",	SS_BLEND1 },
+	{ "nearest",	SS_NEAREST },
+	{ "underwater",	SS_UNDERWATER }
+};
+float NameToSort( const char *name )
+{
+	int i=0;
+	for ( i=0; i<ARRAY_LEN( sortKeywords ); i++ )
+	{
+		if ( !Q_stricmp( name, sortKeywords[i].s ) )
+			return (float)sortKeywords[i].e;
+	}
+
+	//Special case for arbitrary sorting
+	return atof( name );
+}
+
 void ParseSort( char **text ) {
 	char	*token;
 
@@ -1285,27 +1289,7 @@ void ParseSort( char **text ) {
 		return;
 	}
 
-	if ( !Q_stricmp( token, "portal" ) ) {
-		shader.sort = SS_PORTAL;
-	} else if ( !Q_stricmp( token, "sky" ) ) {
-		shader.sort = SS_ENVIRONMENT;
-	} else if ( !Q_stricmp( token, "opaque" ) ) {
-		shader.sort = SS_OPAQUE;
-	}else if ( !Q_stricmp( token, "decal" ) ) {
-		shader.sort = SS_DECAL;
-	} else if ( !Q_stricmp( token, "seeThrough" ) ) {
-		shader.sort = SS_SEE_THROUGH;
-	} else if ( !Q_stricmp( token, "banner" ) ) {
-		shader.sort = SS_BANNER;
-	} else if ( !Q_stricmp( token, "additive" ) ) {
-		shader.sort = SS_BLEND1;
-	} else if ( !Q_stricmp( token, "nearest" ) ) {
-		shader.sort = SS_NEAREST;
-	} else if ( !Q_stricmp( token, "underwater" ) ) {
-		shader.sort = SS_UNDERWATER;
-	} else {
-		shader.sort = atof( token );
-	}
+	shader.sort = NameToSort( token );
 }
 
 
@@ -1404,6 +1388,8 @@ static qboolean ParseShader( char **text )
 
 	s = 0;
 
+	tr.allowCompression = qtrue;
+
 	token = COM_ParseExt( text, qtrue );
 	if ( token[0] != '{' )
 	{
@@ -1423,6 +1409,7 @@ static qboolean ParseShader( char **text )
 		// end of shader definition
 		if ( token[0] == '}' )
 		{
+			tr.allowCompression = qtrue;
 			break;
 		}
 		// stage definition
@@ -1448,7 +1435,7 @@ static qboolean ParseShader( char **text )
 			continue;
 		}
 		// sun parms
-		else if ( !Q_stricmp( token, "q3map_sun" ) ) {
+		else if ( !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "sun" ) ) {
 			float	a, b;
 
 			token = COM_ParseExt( text, qfalse );
@@ -1519,6 +1506,16 @@ static qboolean ParseShader( char **text )
 			shader.polygonOffset = qtrue;
 			continue;
 		}
+
+		//QtZ: Disable texture compression if the shader says so :D
+		// From https://github.com/dmead/jkaq3/commit/96b8e24db552e383fd6d1cb046ebb315d76b6b13
+		else if ( !Q_stricmp( token, "noTC" ) )
+		{
+			tr.allowCompression = qfalse;
+			continue;
+		}
+		//~QtZ
+
 		// entityMergable, allowing sprite surfaces from multiple entities
 		// to be merged into one batch.  This is a savings for smoke
 		// puffs and blood, but can't be used for anything where the
@@ -1576,17 +1573,11 @@ static qboolean ParseShader( char **text )
 			}
 
 			if ( !Q_stricmp( token, "none" ) || !Q_stricmp( token, "twosided" ) || !Q_stricmp( token, "disable" ) )
-			{
 				shader.cullType = CT_TWO_SIDED;
-			}
 			else if ( !Q_stricmp( token, "back" ) || !Q_stricmp( token, "backside" ) || !Q_stricmp( token, "backsided" ) )
-			{
 				shader.cullType = CT_BACK_SIDED;
-			}
 			else
-			{
 				ri.Printf( PRINT_WARNING, "WARNING: invalid cull parm '%s' in shader '%s'\n", token, shader.name );
-			}
 			continue;
 		}
 		// sort
@@ -1883,49 +1874,57 @@ static void FixRenderCommandList( int newShader ) {
 			switch ( *(const int *)curCmd ) {
 			case RC_SET_COLOR:
 				{
-				const setColorCommand_t *sc_cmd = (const setColorCommand_t *)curCmd;
-				curCmd = (const void *)(sc_cmd + 1);
-				break;
+					const setColorCommand_t *sc_cmd = (const setColorCommand_t *)curCmd;
+					curCmd = (const void *)(sc_cmd + 1);
+					break;
 				}
 			case RC_STRETCH_PIC:
 				{
-				const stretchPicCommand_t *sp_cmd = (const stretchPicCommand_t *)curCmd;
-				curCmd = (const void *)(sp_cmd + 1);
-				break;
+					const stretchPicCommand_t *sp_cmd = (const stretchPicCommand_t *)curCmd;
+					curCmd = (const void *)(sp_cmd + 1);
+					break;
 				}
+				//QtZ: Added from JA/EF
+			case RC_ROTATED_PIC:
+				{
+					const stretchPicCommand_t *sp_cmd = (const stretchPicCommand_t *)curCmd;
+					curCmd = (const void *)(sp_cmd + 1);
+					break;
+				}
+				//~QtZ
 			case RC_DRAW_SURFS:
 				{
-				int i;
-				drawSurf_t	*drawSurf;
-				shader_t	*shader;
-				int			fogNum;
-				int			entityNum;
-				int			dlightMap;
-				int			sortedIndex;
-				const drawSurfsCommand_t *ds_cmd =  (const drawSurfsCommand_t *)curCmd;
+					int i;
+					drawSurf_t	*drawSurf;
+					shader_t	*shader;
+					int			fogNum;
+					int			entityNum;
+					int			dlightMap;
+					int			sortedIndex;
+					const drawSurfsCommand_t *ds_cmd =  (const drawSurfsCommand_t *)curCmd;
 
-				for( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ ) {
-					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap );
-                    sortedIndex = (( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1));
-					if( sortedIndex >= newShader ) {
-						sortedIndex++;
-						drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
+					for( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ ) {
+						R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap );
+						sortedIndex = (( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1));
+						if( sortedIndex >= newShader ) {
+							sortedIndex++;
+							drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
+						}
 					}
-				}
-				curCmd = (const void *)(ds_cmd + 1);
-				break;
+					curCmd = (const void *)(ds_cmd + 1);
+					break;
 				}
 			case RC_DRAW_BUFFER:
 				{
-				const drawBufferCommand_t *db_cmd = (const drawBufferCommand_t *)curCmd;
-				curCmd = (const void *)(db_cmd + 1);
-				break;
+					const drawBufferCommand_t *db_cmd = (const drawBufferCommand_t *)curCmd;
+					curCmd = (const void *)(db_cmd + 1);
+					break;
 				}
 			case RC_SWAP_BUFFERS:
 				{
-				const swapBuffersCommand_t *sb_cmd = (const swapBuffersCommand_t *)curCmd;
-				curCmd = (const void *)(sb_cmd + 1);
-				break;
+					const swapBuffersCommand_t *sb_cmd = (const swapBuffersCommand_t *)curCmd;
+					curCmd = (const void *)(sb_cmd + 1);
+					break;
 				}
 			case RC_END_OF_LIST:
 			default:
@@ -2879,6 +2878,9 @@ Finds and loads all .shader files, combining them into
 a single large text block that can be scanned for shader names
 =====================
 */
+
+//QTZTODO: Optimised shader fetching from iodfe
+
 #define	MAX_SHADER_FILES	4096
 static void ScanAndLoadShaderFiles( void )
 {

@@ -168,6 +168,21 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+
+	//QtZ: Added
+	cgs.qtz.cinfo = atoi( Info_ValueForKey( info, "qtz_cinfo" ) );
+	Q_strncpyz( cgs.qtz.serverName, Info_ValueForKey( info, "sv_hostname" ), sizeof( cgs.qtz.serverName ) );
+
+	trap_Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "qtz_delagHitscan" ) ) ) );
+	//QTZFIXME: Physics HUD/UI alerts
+#if 0
+	trap_Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.qtz.cinfo & CINFO_CPMAIRCONTROL) ) );
+	trap_Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.qtz.cinfo & CINFO_CPMDOUBLEJUMP) ) );
+	trap_Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.qtz.cinfo & CINFO_BUNNYHOP) ) );
+	trap_Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.qtz.cinfo & CINFO_WALLJUMP) ) );
+#endif
+	trap_Cvar_Set( "ui_about_svfps",		va( "%i", atoi( Info_ValueForKey( info, "sv_fps" ) ) ) );
+	trap_Cvar_Set( "ui_about_speed",		va( "%i", atoi( Info_ValueForKey( info, "g_speed" ) ) ) );
 }
 
 /*
@@ -185,14 +200,11 @@ static void CG_ParseWarmup( void ) {
 	cg.warmupCount = -1;
 
 	if ( warmup == 0 && cg.warmup ) {
-
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
-		if (cgs.gametype >= GT_CTF && cgs.gametype <= GT_HARVESTER) {
+		if ( cgs.gametype >= GT_TEAM )
 			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
-		} else
-		{
+		else
 			trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
-		}
 	}
 
 	cg.warmup = warmup;
@@ -475,10 +487,10 @@ static void CG_MapRestart( void ) {
 
 #define MAX_VOICEFILESIZE	16384
 #define MAX_VOICEFILES		8
-#define MAX_VOICECHATS		64
-#define MAX_VOICESOUNDS		64
-#define MAX_CHATSIZE		64
-#define MAX_HEADMODELS		64
+#define MAX_VOICECHATS		192
+#define MAX_VOICESOUNDS		192
+#define MAX_CHATSIZE		192
+#define MAX_VOICEMODELS		256
 
 typedef struct voiceChat_s
 {
@@ -496,14 +508,14 @@ typedef struct voiceChatList_s
 	voiceChat_t voiceChats[MAX_VOICECHATS];
 } voiceChatList_t;
 
-typedef struct headModelVoiceChat_s
+typedef struct modelVoiceChat_s
 {
-	char headmodel[64];
+	char model[64];
 	int voiceChatNum;
-} headModelVoiceChat_t;
+} modelVoiceChat_t;
 
 voiceChatList_t voiceChatLists[MAX_VOICEFILES];
-headModelVoiceChat_t headModelVoiceChat[MAX_HEADMODELS];
+modelVoiceChat_t modelVoiceChat[MAX_VOICEMODELS];
 
 /*
 =================
@@ -700,7 +712,7 @@ CG_VoiceChatListForClient
 voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
 	clientInfo_t *ci;
 	int voiceChatNum, i, j, k, gender;
-	char filename[MAX_QPATH], headModelName[MAX_QPATH];
+	char filename[MAX_QPATH], modelName[MAX_QPATH];
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		clientNum = 0;
@@ -708,42 +720,27 @@ voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
 	ci = &cgs.clientinfo[ clientNum ];
 
 	for ( k = 0; k < 2; k++ ) {
-		if ( k == 0 ) {
-			if (ci->headModelName[0] == '*') {
-				Com_sprintf( headModelName, sizeof(headModelName), "%s/%s", ci->headModelName+1, ci->headSkinName );
-			}
-			else {
-				Com_sprintf( headModelName, sizeof(headModelName), "%s/%s", ci->headModelName, ci->headSkinName );
-			}
-		}
-		else {
-			if (ci->headModelName[0] == '*') {
-				Com_sprintf( headModelName, sizeof(headModelName), "%s", ci->headModelName+1 );
-			}
-			else {
-				Com_sprintf( headModelName, sizeof(headModelName), "%s", ci->headModelName );
-			}
-		}
+		Com_sprintf( modelName, sizeof(modelName), "%s", ci->modelName );
 		// find the voice file for the head model the client uses
-		for ( i = 0; i < MAX_HEADMODELS; i++ ) {
-			if (!Q_stricmp(headModelVoiceChat[i].headmodel, headModelName)) {
+		for ( i = 0; i < MAX_VOICEMODELS; i++ ) {
+			if (!Q_stricmp(modelVoiceChat[i].model, modelName)) {
 				break;
 			}
 		}
-		if (i < MAX_HEADMODELS) {
-			return &voiceChatLists[headModelVoiceChat[i].voiceChatNum];
+		if (i < MAX_VOICEMODELS) {
+			return &voiceChatLists[modelVoiceChat[i].voiceChatNum];
 		}
 		// find a <headmodelname>.vc file
-		for ( i = 0; i < MAX_HEADMODELS; i++ ) {
-			if (!strlen(headModelVoiceChat[i].headmodel)) {
-				Com_sprintf(filename, sizeof(filename), "scripts/%s.vc", headModelName);
+		for ( i = 0; i < MAX_VOICEMODELS; i++ ) {
+			if (!strlen(modelVoiceChat[i].model)) {
+				Com_sprintf(filename, sizeof(filename), "scripts/%s.vc", modelName);
 				voiceChatNum = CG_HeadModelVoiceChats(filename);
 				if (voiceChatNum == -1)
 					break;
-				Com_sprintf(headModelVoiceChat[i].headmodel, sizeof ( headModelVoiceChat[i].headmodel ),
-							"%s", headModelName);
-				headModelVoiceChat[i].voiceChatNum = voiceChatNum;
-				return &voiceChatLists[headModelVoiceChat[i].voiceChatNum];
+				Com_sprintf(modelVoiceChat[i].model, sizeof ( modelVoiceChat[i].model ),
+							"%s", modelName);
+				modelVoiceChat[i].voiceChatNum = voiceChatNum;
+				return &voiceChatLists[modelVoiceChat[i].voiceChatNum];
 			}
 		}
 	}
@@ -754,11 +751,11 @@ voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
 			if (strlen(voiceChatLists[i].name)) {
 				if (voiceChatLists[i].gender == gender) {
 					// store this head model with voice chat for future reference
-					for ( j = 0; j < MAX_HEADMODELS; j++ ) {
-						if (!strlen(headModelVoiceChat[j].headmodel)) {
-							Com_sprintf(headModelVoiceChat[j].headmodel, sizeof ( headModelVoiceChat[j].headmodel ),
-									"%s", headModelName);
-							headModelVoiceChat[j].voiceChatNum = i;
+					for ( j = 0; j < MAX_VOICEMODELS; j++ ) {
+						if (!strlen(modelVoiceChat[j].model)) {
+							Com_sprintf(modelVoiceChat[j].model, sizeof ( modelVoiceChat[j].model ),
+									"%s", modelName);
+							modelVoiceChat[j].voiceChatNum = i;
 							break;
 						}
 					}
@@ -772,11 +769,11 @@ voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
 		gender = GENDER_MALE;
 	}
 	// store this head model with voice chat for future reference
-	for ( j = 0; j < MAX_HEADMODELS; j++ ) {
-		if (!strlen(headModelVoiceChat[j].headmodel)) {
-			Com_sprintf(headModelVoiceChat[j].headmodel, sizeof ( headModelVoiceChat[j].headmodel ),
-					"%s", headModelName);
-			headModelVoiceChat[j].voiceChatNum = 0;
+	for ( j = 0; j < MAX_VOICEMODELS; j++ ) {
+		if (!strlen(modelVoiceChat[j].model)) {
+			Com_sprintf(modelVoiceChat[j].model, sizeof ( modelVoiceChat[j].model ),
+					"%s", modelName);
+			modelVoiceChat[j].voiceChatNum = 0;
 			break;
 		}
 	}

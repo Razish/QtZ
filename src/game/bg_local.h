@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	STEPSIZE		18
 
-#define	JUMP_VELOCITY	270
-
 #define	TIMER_LAND		130
 #define	TIMER_GESTURE	(34*66+50)
 
@@ -61,12 +59,9 @@ extern	float	pm_stopspeed;
 extern	float	pm_duckScale;
 extern	float	pm_swimScale;
 
-extern	float	pm_accelerate;
-extern	float	pm_airaccelerate;
 extern	float	pm_wateraccelerate;
 extern	float	pm_flyaccelerate;
 
-extern	float	pm_friction;
 extern	float	pm_waterfriction;
 extern	float	pm_flightfriction;
 
@@ -79,4 +74,4 @@ void PM_AddEvent( int newEvent );
 qboolean	PM_SlideMove( qboolean gravity );
 void		PM_StepSlideMove( qboolean gravity );
 
-
+extern int weaponFromMOD[MOD_MAX];

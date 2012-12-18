@@ -33,8 +33,8 @@ Adjusted for resolution and screen aspect ratio
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 #if 0
 	// adjust for wide screens
-	if ( cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640 ) {
-		*x += 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * 640 / 480 ) );
+	if ( cgs.glconfig.vidWidth * SCREEN_HEIGHT > cgs.glconfig.vidHeight * SCREEN_WIDTH ) {
+		*x += 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
 	}
 #endif
 	// scale for screen sizes
@@ -110,6 +110,35 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
+//QtZ: Added from JA
+/*
+================
+CG_DrawRotatePic
+
+Coordinates are 640*480 virtual values
+A width of 0 will draw with the original image width
+rotates around the upper right corner of the passed in point
+=================
+*/
+void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
+	CG_AdjustFrom640( &x, &y, &width, &height );
+	trap_R_DrawRotatePic( x, y, width, height, 0, 0, 1, 1, angle, hShader );
+}
+
+/*
+================
+CG_DrawRotatePic2
+
+Coordinates are 640*480 virtual values
+A width of 0 will draw with the original image width
+Actually rotates around the center point of the passed in coordinates
+=================
+*/
+void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
+	CG_AdjustFrom640( &x, &y, &width, &height );
+	trap_R_DrawRotatePic2( x, y, width, height, 0, 0, 1, 1, angle, hShader );
+}
+//~QtZ
 
 
 /*

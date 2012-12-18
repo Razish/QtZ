@@ -144,36 +144,6 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 
 		break;
 
-	case PW_SCOUT:
-		clientNum = other->client->ps.clientNum;
-		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
-		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
-		}
-		other->client->pers.maxHealth = handicap;
-		other->client->ps.stats[STAT_ARMOR] = 0;
-		break;
-
-	case PW_DOUBLER:
-		clientNum = other->client->ps.clientNum;
-		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
-		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
-		}
-		other->client->pers.maxHealth = handicap;
-		break;
-	case PW_AMMOREGEN:
-		clientNum = other->client->ps.clientNum;
-		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
-		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
-		}
-		other->client->pers.maxHealth = handicap;
-		memset(other->client->ammoTimes, 0, sizeof(other->client->ammoTimes));
-		break;
 	default:
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
@@ -193,10 +163,6 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
-
-	if( ent->item->giTag == HI_KAMIKAZE ) {
-		other->client->ps.eFlags |= EF_KAMIKAZE;
-	}
 
 	return RESPAWN_HOLDABLE;
 }
@@ -258,9 +224,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
 	Add_Ammo( other, ent->item->giTag, quantity );
-
-	if (ent->item->giTag == WP_GRAPPLING_HOOK)
-		other->client->ps.ammo[ent->item->giTag] = -1; // unlimited ammo
 
 	// team deathmatch has slow weapon respawns
 	if ( g_gametype.integer == GT_TEAM ) {
@@ -370,31 +333,8 @@ void RespawnItem( gentity_t *ent ) {
 
 	if ( ent->item->giType == IT_POWERUP ) {
 		// play powerup spawn sound to all clients
-		gentity_t	*te;
-
-		// if the powerup respawn sound should Not be global
-		if (ent->speed) {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GENERAL_SOUND );
-		}
-		else {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_SOUND );
-		}
+		gentity_t *te = G_TempEntity( ent->s.pos.trBase, ent->speed ? EV_GENERAL_SOUND : EV_GLOBAL_SOUND );
 		te->s.eventParm = G_SoundIndex( "sound/items/poweruprespawn.wav" );
-		te->r.svFlags |= SVF_BROADCAST;
-	}
-
-	if ( ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_KAMIKAZE ) {
-		// play powerup spawn sound to all clients
-		gentity_t	*te;
-
-		// if the powerup respawn sound should Not be global
-		if (ent->speed) {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GENERAL_SOUND );
-		}
-		else {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_SOUND );
-		}
-		te->s.eventParm = G_SoundIndex( "sound/items/kamikazerespawn.wav" );
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 
@@ -555,6 +495,7 @@ Spawns an item and tosses it forward
 */
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	gentity_t	*dropped;
+	vec3_t mins=ITEM_MINS, maxs=ITEM_MAXS;
 
 	dropped = G_Spawn();
 
@@ -564,8 +505,8 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped->classname = item->classname;
 	dropped->item = item;
-	VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
-	VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+	VectorCopy( mins, dropped->r.mins );
+	VectorCopy( maxs, dropped->r.maxs );
 	dropped->r.contents = CONTENTS_TRIGGER;
 
 	dropped->touch = Touch_Item;
@@ -575,7 +516,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	dropped->s.pos.trTime = level.time;
 	VectorCopy( velocity, dropped->s.pos.trDelta );
 
-	dropped->s.eFlags |= EF_BOUNCE_HALF;
+	dropped->flags |= FL_BOUNCE_HALF;
 	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
@@ -639,9 +580,10 @@ free fall from their spawn points
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
+	vec3_t mins=ITEM_MINS, maxs=ITEM_MAXS;
 
-	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
-	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
+	VectorCopy( mins, ent->r.mins );
+	VectorCopy( maxs, ent->r.maxs );
 
 	ent->s.eType = ET_ITEM;
 	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
@@ -737,46 +679,6 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_neutralflag in map\n" );
 		}
 	}
-
-	if( g_gametype.integer == GT_OBELISK ) {
-		gentity_t	*ent;
-
-		// check for the two obelisks
-		ent = NULL;
-		ent = G_Find( ent, FOFS(classname), "team_redobelisk" );
-		if( !ent ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_redobelisk in map\n" );
-		}
-
-		ent = NULL;
-		ent = G_Find( ent, FOFS(classname), "team_blueobelisk" );
-		if( !ent ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_blueobelisk in map\n" );
-		}
-	}
-
-	if( g_gametype.integer == GT_HARVESTER ) {
-		gentity_t	*ent;
-
-		// check for all three obelisks
-		ent = NULL;
-		ent = G_Find( ent, FOFS(classname), "team_redobelisk" );
-		if( !ent ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_redobelisk in map\n" );
-		}
-
-		ent = NULL;
-		ent = G_Find( ent, FOFS(classname), "team_blueobelisk" );
-		if( !ent ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_blueobelisk in map\n" );
-		}
-
-		ent = NULL;
-		ent = G_Find( ent, FOFS(classname), "team_neutralobelisk" );
-		if( !ent ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_neutralobelisk in map\n" );
-		}
-	}
 }
 
 /*
@@ -788,14 +690,8 @@ void ClearRegisteredItems( void ) {
 	memset( itemRegistered, 0, sizeof( itemRegistered ) );
 
 	// players always start with the base weapon
-	RegisterItem( BG_FindItemForWeapon( WP_MACHINEGUN ) );
-	RegisterItem( BG_FindItemForWeapon( WP_GAUNTLET ) );
-#ifdef MISSIONPACK
-	if( g_gametype.integer == GT_HARVESTER ) {
-		RegisterItem( BG_FindItem( "Red Cube" ) );
-		RegisterItem( BG_FindItem( "Blue Cube" ) );
-	}
-#endif
+	//RAZMARK: Adding new weapons
+	RegisterItem( BG_FindItemForWeapon( WP_QUANTIZER ) );
 }
 
 /*

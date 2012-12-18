@@ -28,7 +28,7 @@ cvar_t		*cvar_vars = NULL;
 cvar_t		*cvar_cheats;
 int			cvar_modifiedFlags;
 
-#define	MAX_CVARS	1024
+#define	MAX_CVARS	2048 //1024
 cvar_t		cvar_indexes[MAX_CVARS];
 int			cvar_numIndexes;
 
@@ -745,6 +745,7 @@ Handles variable inspection and changing from the console
 */
 qboolean Cvar_Command( void ) {
 	cvar_t	*v;
+	char *args = Cmd_Args();
 
 	// check variables
 	v = Cvar_FindVar (Cmd_Argv(0));
@@ -759,7 +760,10 @@ qboolean Cvar_Command( void ) {
 	}
 
 	// set the value if forcing isn't required
-	Cvar_Set2 (v->name, Cmd_Args(), qfalse);
+	if ( args[0] == '!' )
+		Cvar_Set2( v->name, va( "%i", !(v->integer) ), qfalse );
+	else
+		Cvar_Set2 (v->name, args, qfalse);
 	return qtrue;
 }
 

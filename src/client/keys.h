@@ -33,10 +33,10 @@ extern	qkey_t		keys[MAX_KEYS];
 // NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
 void Field_KeyDownEvent( field_t *edit, int key );
 void Field_CharEvent( field_t *edit, int ch );
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color );
+void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color );
 
-#define		COMMAND_HISTORY		32
+#define		COMMAND_HISTORY		64
 extern	field_t	historyEditLines[COMMAND_HISTORY];
 
 extern	field_t	g_consoleField;

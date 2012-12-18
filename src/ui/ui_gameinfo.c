@@ -187,12 +187,6 @@ void UI_LoadArenas( void ) {
 			if( strstr( type, "oneflag" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_1FCTF);
 			}
-			if( strstr( type, "overload" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_OBELISK);
-			}
-			if( strstr( type, "harvester" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_HARVESTER);
-			}
 		} else {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
 		}
@@ -315,5 +309,5 @@ char *UI_GetBotNameByNumber( int num ) {
 	if (info) {
 		return Info_ValueForKey( info, "name" );
 	}
-	return "Sarge";
+	return DEFAULT_MODEL;
 }

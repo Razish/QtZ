@@ -580,6 +580,16 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_R_DRAWSTRETCHPIC:
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
 		return 0;
+
+	//QtZ: Added from JA/EF
+	case CG_R_DRAWROTATEPIC:
+		re.DrawRotatedPic( /*x*/VMF(1), /*y*/VMF(2), /*w*/VMF(3), /*h*/VMF(4), /*s1*/VMF(5), /*t1*/VMF(6), /*s2*/VMF(7), /*t2*/VMF(8), /*angle*/VMF(9), /*centered*/qfalse, /*hShader*/args[10] );
+		return 0;
+	case CG_R_DRAWROTATEPIC2:
+		re.DrawRotatedPic( /*x*/VMF(1), /*y*/VMF(2), /*w*/VMF(3), /*h*/VMF(4), /*s1*/VMF(5), /*t1*/VMF(6), /*s2*/VMF(7), /*t2*/VMF(8), /*angle*/VMF(9), /*centered*/qtrue, /*hShader*/args[10] );
+		return 0;
+	//~QtZ
+
 	case CG_R_MODELBOUNDS:
 		re.ModelBounds( args[1], VMA(2), VMA(3) );
 		return 0;
@@ -896,6 +906,13 @@ void CL_FirstSnapshot( void ) {
 	cl.oldServerTime = cl.snap.serverTime;
 
 	clc.timeDemoBaseTime = cl.snap.serverTime;
+
+	//QtZ: Raw mouse input
+	#ifdef _WIN32
+		if (Cvar_VariableIntegerValue("in_mouse") == 3) {
+			Cbuf_AddText( "in_restart;" );
+		}
+	#endif
 
 	// if this is the first frame of active play,
 	// execute the contents of activeAction now

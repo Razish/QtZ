@@ -174,9 +174,6 @@ void SP_team_CTF_blueplayer( gentity_t *ent );
 void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
-void SP_team_blueobelisk( gentity_t *ent );
-void SP_team_redobelisk( gentity_t *ent );
-void SP_team_neutralobelisk( gentity_t *ent );
 void SP_item_botroam( gentity_t *ent ) { }
 
 spawn_t	spawns[] = {
@@ -245,9 +242,6 @@ spawn_t	spawns[] = {
 	{"team_CTF_redspawn", SP_team_CTF_redspawn},
 	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
-	{"team_redobelisk", SP_team_redobelisk},
-	{"team_blueobelisk", SP_team_blueobelisk},
-	{"team_neutralobelisk", SP_team_neutralobelisk},
 	{"item_botroam", SP_item_botroam},
 
 	{NULL, 0}
@@ -394,7 +388,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester"};
+	//RAZTODO: externalise gametype names
+	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "tournament", "single", "team", "ctf", "oneflag" };
 
 	// get the next free entity
 	ent = G_Spawn();

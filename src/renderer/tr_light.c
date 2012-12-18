@@ -311,10 +311,8 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		&& tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
 	} else {
-		ent->ambientLight[0] = ent->ambientLight[1] = 
-			ent->ambientLight[2] = tr.identityLight * 150;
-		ent->directedLight[0] = ent->directedLight[1] = 
-			ent->directedLight[2] = tr.identityLight * 150;
+		ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
+		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
 		VectorCopy( tr.sunDirection, ent->lightDir );
 	}
 
@@ -325,6 +323,17 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		ent->ambientLight[1] += tr.identityLight * 32;
 		ent->ambientLight[2] += tr.identityLight * 32;
 	}
+
+	//RAZTODO: RF_RGB_TINT
+	//	Or just rgbgen entity shaders..?
+#if 0
+	if ( ent->e.renderfx & RF_RGB_TINT )
+	{
+		ent->ambientLight[0] = ent->e.shaderRGBA[0];
+		ent->ambientLight[1] = ent->e.shaderRGBA[1];
+		ent->ambientLight[2] = ent->e.shaderRGBA[2];
+	}
+#endif
 
 	//
 	// modify the light by dynamic lights

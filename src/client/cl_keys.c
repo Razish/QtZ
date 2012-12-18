@@ -309,8 +309,7 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor,
-		qboolean noColorEscape ) {
+void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape, float *color ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -348,10 +347,13 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 
 	// draw it
 	if ( size == SMALLCHAR_WIDTH ) {
-		float	color[4];
+		vec4_t	defaultcolor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		vec4_t	shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 
-		color[0] = color[1] = color[2] = color[3] = 1.0;
-		SCR_DrawSmallStringExt( x, y, str, color, qfalse, noColorEscape );
+		//drop shadow
+		SCR_DrawSmallStringExt( x+1, y+1, str, shadowColour, qfalse, noColorEscape );
+
+		SCR_DrawSmallStringExt( x, y, str, color ? color : defaultcolor, qfalse, noColorEscape );
 	} else {
 		// draw big string with drop shadow
 		SCR_DrawBigString( x, y, str, 1.0, noColorEscape );
@@ -382,14 +384,14 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape ) 
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color ) 
 {
-	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape );
+	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape ) 
+void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color ) 
 {
-	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape );
+	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
 /*
@@ -474,6 +476,53 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 			break;
 	}
 
+	//QtZ: Fix the broken numpad with SDL (From iodfe)
+	if ( in_numpadbug->integer )
+	{
+		switch ( key )
+		{
+		case K_KP_INS:
+			Field_CharEvent( edit, '0' );
+			break;
+		case K_KP_END:
+			Field_CharEvent( edit, '1' );
+			break;
+		case K_KP_DOWNARROW:
+			Field_CharEvent( edit, '2' );
+			break;
+		case K_KP_PGDN:
+			Field_CharEvent( edit, '3' );
+			break;
+		case K_KP_LEFTARROW:
+			Field_CharEvent( edit, '4' );
+			break;
+		case K_KP_5:
+			Field_CharEvent( edit, '5' );
+			break;
+		case K_KP_RIGHTARROW:
+			Field_CharEvent( edit, '6' );
+			break;
+		case K_KP_HOME:
+			Field_CharEvent( edit, '7' );
+			break;
+		case K_KP_UPARROW:
+			Field_CharEvent( edit, '8' );
+			break;
+		case K_KP_PGUP:
+			Field_CharEvent( edit, '9' );
+			break;
+		case K_KP_DEL:
+			Field_CharEvent( edit, '.' );
+			break;
+		case K_KP_SLASH:
+			Field_CharEvent( edit, '/' );
+			break;
+		default:
+			break;
+		}
+	}
+	//~QtZ
+
 	// Change scroll if cursor is no longer visible
 	if ( edit->cursor < edit->scroll ) {
 		edit->scroll = edit->cursor;
@@ -489,6 +538,10 @@ Field_CharEvent
 */
 void Field_CharEvent( field_t *edit, int ch ) {
 	int		len;
+
+	// QtZ: Someone is trying to enter in an alt code
+	if( keys[K_ALT].down && isdigit(ch) )
+		return;
 
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
 		Field_Paste( edit );
@@ -585,6 +638,10 @@ void Console_Key (int key) {
 
 	// enter finishes the line
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
+
+		//QtZ: Added
+		Field_AutoComplete(&g_consoleField);
+
 		// if not in the game explicitly prepend a slash if needed
 		if ( clc.state != CA_ACTIVE &&
 				g_consoleField.buffer[0] &&
@@ -597,8 +654,9 @@ void Console_Key (int key) {
 			g_consoleField.cursor++;
 		}
 
-		Com_Printf ( "]%s\n", g_consoleField.buffer );
+		Com_Printf ( "%c%s\n", CONSOLE_PROMPT_CHAR, g_consoleField.buffer );
 
+#ifdef CONSOLE_OLD_INPUT
 		// leading slash is an explicit command
 		if ( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' ) {
 			Cbuf_AddText( g_consoleField.buffer+1 );	// valid command
@@ -613,6 +671,13 @@ void Console_Key (int key) {
 				Cbuf_AddText ("\n");
 			}
 		}
+#else
+		if ( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' )
+			Cbuf_AddText( g_consoleField.buffer+1 );
+		else
+			Cbuf_AddText( g_consoleField.buffer );
+		Cbuf_AddText ("\n");
+#endif
 
 		// copy line to history buffer
 		historyEditLines[nextHistoryLine % COMMAND_HISTORY] = g_consoleField;
@@ -640,7 +705,7 @@ void Console_Key (int key) {
 
 	// command history (ctrl-p ctrl-n for unix style)
 
-	if ( (key == K_MWHEELUP && keys[K_SHIFT].down) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
+	if ( (key == K_MWHEELUP && keys[K_SHIFT].down) || ( key == K_UPARROW ) || //( key == K_KP_UPARROW ) || //QtZ: K_KP_UPARROW writes 8, ignore it
 		 ( ( tolower(key) == 'p' ) && keys[K_CTRL].down ) ) {
 		if ( nextHistoryLine - historyLine < COMMAND_HISTORY 
 			&& historyLine > 0 ) {
@@ -650,7 +715,7 @@ void Console_Key (int key) {
 		return;
 	}
 
-	if ( (key == K_MWHEELDOWN && keys[K_SHIFT].down) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
+	if ( (key == K_MWHEELDOWN && keys[K_SHIFT].down) || ( key == K_DOWNARROW ) || //( key == K_KP_DOWNARROW ) || //QtZ: K_KP_DOWNARROW writes 2, ignore it
 		 ( ( tolower(key) == 'n' ) && keys[K_CTRL].down ) ) {
 		historyLine++;
 		if (historyLine >= nextHistoryLine) {
@@ -1393,7 +1458,7 @@ void Key_SetCatcher( int catcher ) {
 
 // This must not exceed MAX_CMD_LINE
 #define			MAX_CONSOLE_SAVE_BUFFER	1024
-#define			CONSOLE_HISTORY_FILE    "q3history"
+#define			CONSOLE_HISTORY_FILE    PRODUCT_NAME"history"
 static char	consoleSaveBuffer[ MAX_CONSOLE_SAVE_BUFFER ];
 static int	consoleSaveBufferSize = 0;
 

@@ -34,85 +34,88 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MTCONTEXT_CTF					256
 
 //message types
-#define MSG_NEWLEADER					1		//new leader
-#define MSG_ENTERGAME					2		//enter game message
-#define MSG_HELP						3		//help someone
-#define MSG_ACCOMPANY					4		//accompany someone
-#define MSG_DEFENDKEYAREA				5		//defend a key area
-#define MSG_RUSHBASE					6		//everyone rush to base
-#define MSG_GETFLAG						7		//get the enemy flag
-#define MSG_STARTTEAMLEADERSHIP			8		//someone wants to become the team leader
-#define MSG_STOPTEAMLEADERSHIP			9		//someone wants to stop being the team leader
-#define MSG_WHOISTEAMLAEDER				10		//who is the team leader
-#define MSG_WAIT						11		//wait for someone
-#define MSG_WHATAREYOUDOING				12		//what are you doing?
-#define MSG_JOINSUBTEAM					13		//join a sub-team
-#define MSG_LEAVESUBTEAM				14		//leave a sub-team
-#define MSG_CREATENEWFORMATION			15		//create a new formation
-#define MSG_FORMATIONPOSITION			16		//tell someone his/her position in a formation
-#define MSG_FORMATIONSPACE				17		//set the formation intervening space
-#define MSG_DOFORMATION					18		//form a known formation
-#define MSG_DISMISS						19		//dismiss commanded team mates
-#define MSG_CAMP						20		//camp somewhere
-#define MSG_CHECKPOINT					21		//remember a check point
-#define MSG_PATROL						22		//patrol between certain keypoints
-#define MSG_LEADTHEWAY					23		//lead the way
-#define MSG_GETITEM						24		//get an item
-#define MSG_KILL						25		//kill someone
-#define MSG_WHEREAREYOU					26		//where is someone
-#define MSG_RETURNFLAG					27		//return the flag
-#define MSG_WHATISMYCOMMAND				28		//ask the team leader what to do
-#define MSG_WHICHTEAM					29		//ask which team a bot is in
-#define MSG_TASKPREFERENCE				30		//tell your teamplay task preference
-#define MSG_ATTACKENEMYBASE				31		//attack the enemy base
-#define MSG_HARVEST						32		//go harvest
-#define MSG_SUICIDE						33		//order to suicide
-//
-#define MSG_ME							100
-#define MSG_EVERYONE					101
-#define MSG_MULTIPLENAMES				102
-#define MSG_NAME						103
-#define MSG_PATROLKEYAREA				104
-#define MSG_MINUTES						105
-#define MSG_SECONDS						106
-#define MSG_FOREVER						107
-#define MSG_FORALONGTIME				108
-#define MSG_FORAWHILE					109
-//
-#define MSG_CHATALL						200
-#define MSG_CHATTEAM					201
-#define MSG_CHATTELL					202
-//
-#define MSG_CTF							300		//ctf message
+typedef enum botMsgType_e {
+	MSG_NONE = 0,
+	MSG_NEWLEADER,				//new leader
+	MSG_ENTERGAME,				//enter game message
+	MSG_HELP,					//help someone
+	MSG_ACCOMPANY,				//accompany someone
+	MSG_DEFENDKEYAREA,			//defend a key area
+	MSG_RUSHBASE,				//everyone rush to base
+	MSG_GETFLAG,				//get the enemy flag
+	MSG_STARTTEAMLEADERSHIP,	//someone wants to become the team leader
+	MSG_STOPTEAMLEADERSHIP,		//someone wants to stop being the team leader
+	MSG_WHOISTEAMLEADER,		//who is the team leader
+	MSG_WAIT,					//wait for someone
+	MSG_WHATAREYOUDOING,		//what are you doing?
+	MSG_JOINSUBTEAM,			//join a sub-team
+	MSG_LEAVESUBTEAM,			//leave a sub-team
+	MSG_CREATENEWFORMATION,		//create a new formation
+	MSG_FORMATIONPOSITION,		//tell someone his/her position in a formation
+	MSG_FORMATIONSPACE,			//set the formation intervening space
+	MSG_DOFORMATION,			//form a known formation
+	MSG_DISMISS,				//dismiss commanded team mates
+	MSG_CAMP,					//camp somewhere
+	MSG_CHECKPOINT,				//remember a check point
+	MSG_PATROL,					//patrol between certain keypoints
+	MSG_LEADTHEWAY,				//lead the way
+	MSG_GETITEM,				//get an item
+	MSG_KILL,					//kill someone
+	MSG_WHEREAREYOU,			//where is someone
+	MSG_RETURNFLAG,				//return the flag
+	MSG_WHATISMYCOMMAND,		//ask the team leader what to do
+	MSG_WHICHTEAM,				//ask which team a bot is in
+	MSG_TASKPREFERENCE,			//tell your teamplay task preference
+	MSG_ATTACKENEMYBASE,		//attack the enemy base
+	MSG_SUICIDE,				//order to suicide
+
+	MSG_ME = 100,
+	MSG_EVERYONE,
+	MSG_MULTIPLENAMES,
+	MSG_NAME,
+	MSG_PATROLKEYAREA,
+	MSG_MINUTES,
+	MSG_SECONDS,
+	MSG_FOREVER,
+	MSG_FORALONGTIME,
+	MSG_FORAWHILE,
+
+	MSG_CHATALL = 200,
+	MSG_CHATTEAM,
+	MSG_CHATTELL,
+
+	MSG_CTF = 300,				//ctf message
+} botMsgType_t;
 
 //command sub types
-#define ST_SOMEWHERE					0
-#define ST_NEARITEM						1
-#define ST_ADDRESSED					2
-#define ST_METER						4
-#define ST_FEET							8
-#define ST_TIME							16
-#define ST_HERE							32
-#define ST_THERE						64
-#define ST_I							128
-#define ST_MORE							256
-#define ST_BACK							512
-#define ST_REVERSE						1024
-#define ST_SOMEONE						2048
-#define ST_GOTFLAG						4096
-#define ST_CAPTUREDFLAG					8192
-#define ST_RETURNEDFLAG					16384
-#define ST_TEAM							32768
-#define ST_1FCTFGOTFLAG					65535
-//ctf task preferences
-#define ST_DEFENDER						1
-#define ST_ATTACKER						2
-#define ST_ROAMER						4
+#define ST_SOMEWHERE		0x00001
+#define ST_NEARITEM			0x00002
+#define ST_ADDRESSED		0x00004
+#define ST_METER			0x00008
+#define ST_FEET				0x00010
+#define ST_TIME				0x00020
+#define ST_HERE				0x00040
+#define ST_THERE			0x00080
+#define ST_I				0x00100
+#define ST_MORE				0x00200
+#define ST_BACK				0x00400
+#define ST_REVERSE			0x00800
+#define ST_SOMEONE			0x01000
+#define ST_GOTFLAG			0x02000
+#define ST_CAPTUREDFLAG		0x04000
+#define ST_RETURNEDFLAG		0x08000
+#define ST_TEAM				0x10000
+#define ST_1FCTFGOTFLAG		0x20000
 
+//ctf task preferences
+#define ST_DEFENDER			0x0001
+#define ST_ATTACKER			0x0002
+#define ST_ROAMER			0x0004
 
 //word replacement variables
 #define THE_ENEMY						7
 #define THE_TEAM						7
+
 //team message variables
 #define NETNAME							0
 #define PLACE							1

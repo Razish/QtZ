@@ -400,8 +400,6 @@ just like the existing corpse to leave behind.
 =============
 */
 void CopyToBodyQue( gentity_t *ent ) {
-	gentity_t	*e;
-	int i;
 	gentity_t		*body;
 	int			contents;
 
@@ -419,22 +417,6 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 	body->s = ent->s;
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
-	if ( ent->s.eFlags & EF_KAMIKAZE ) {
-		body->s.eFlags |= EF_KAMIKAZE;
-
-		// check if there is a kamikaze timer around for this owner
-		for (i = 0; i < MAX_GENTITIES; i++) {
-			e = &g_entities[i];
-			if (!e->inuse)
-				continue;
-			if (e->activator != ent)
-				continue;
-			if (strcmp(e->classname, "kamikaze timer"))
-				continue;
-			e->activator = body;
-			break;
-		}
-	}
 	body->s.powerups = 0;	// clear powerups
 	body->s.loopSound = 0;	// clear lava burning
 	body->s.number = body - g_entities;
@@ -1108,9 +1090,6 @@ void ClientSpawn(gentity_t *ent) {
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
 
-	// always clear the kamikaze flag
-	ent->s.eFlags &= ~EF_KAMIKAZE;
-
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
@@ -1176,16 +1155,12 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
-	if ( g_gametype.integer == GT_TEAM ) {
-		client->ps.ammo[WP_MACHINEGUN] = 50;
-	} else {
-		client->ps.ammo[WP_MACHINEGUN] = 100;
-	}
-
-	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
-	client->ps.ammo[WP_GAUNTLET] = -1;
-	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+	//RAZMARK: ADDING NEW WEAPONS
+	do { i = Q_irand( WP_NONE+1, WP_NUM_WEAPONS-1 ); } while ( i == WP_QUANTIZER );
+	client->ps.stats[STAT_WEAPONS] = (1<<i)|(1<<WP_QUANTIZER);
+	client->ps.ammo[WP_QUANTIZER] = -1;
+	client->ps.ammo[i] = weaponData[i].ammoMax*0.75f;
+	client->ps.weapon = i;
 
 	// health will count down towards max_health
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
@@ -1214,7 +1189,7 @@ void ClientSpawn(gentity_t *ent) {
 		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 			G_KillBox(ent);
 			// force the base weapon up
-			client->ps.weapon = WP_MACHINEGUN;
+			client->ps.weapon = WP_NONE+1;
 			client->ps.weaponstate = WEAPON_READY;
 			// fire the targets of the spawn point
 			G_UseTargets(spawnPoint, ent);
@@ -1297,9 +1272,6 @@ void ClientDisconnect( int clientNum ) {
 		// Especially important for stuff like CTF flags
 		TossClientItems( ent );
 		TossClientPersistantPowerups( ent );
-		if( g_gametype.integer == GT_HARVESTER ) {
-			TossClientCubes( ent );
-		}
 
 	}
 

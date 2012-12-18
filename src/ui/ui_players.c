@@ -80,71 +80,25 @@ tryagain:
 	}
 
 	if( pi->weaponModel == 0 ) {
-		if( weaponNum == WP_MACHINEGUN ) {
+		if( weaponNum == WP_QUANTIZER ) {
 			weaponNum = WP_NONE;
 			goto tryagain;
 		}
-		weaponNum = WP_MACHINEGUN;
+		weaponNum = WP_QUANTIZER;
 		goto tryagain;
 	}
 
-	if ( weaponNum == WP_MACHINEGUN || weaponNum == WP_GAUNTLET || weaponNum == WP_BFG ) {
-		strcpy( path, item->world_model[0] );
-		COM_StripExtension(path, path, sizeof(path));
-		strcat( path, "_barrel.md3" );
-		pi->barrelModel = trap_R_RegisterModel( path );
-	}
+	strcpy( path, item->world_model[0] );
+	COM_StripExtension(path, path, sizeof(path));
+	strcat( path, "_barrel.md3" );
+	pi->barrelModel = trap_R_RegisterModel( path );
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_flash.md3" );
 	pi->flashModel = trap_R_RegisterModel( path );
 
-	switch( weaponNum ) {
-	case WP_GAUNTLET:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_MACHINEGUN:
-		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
-		break;
-
-	case WP_SHOTGUN:
-		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
-		break;
-
-	case WP_GRENADE_LAUNCHER:
-		MAKERGB( pi->flashDlightColor, 1, 0.7f, 0.5f );
-		break;
-
-	case WP_ROCKET_LAUNCHER:
-		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
-		break;
-
-	case WP_LIGHTNING:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_RAILGUN:
-		MAKERGB( pi->flashDlightColor, 1, 0.5f, 0 );
-		break;
-
-	case WP_PLASMAGUN:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_BFG:
-		MAKERGB( pi->flashDlightColor, 1, 0.7f, 1 );
-		break;
-
-	case WP_GRAPPLING_HOOK:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	default:
-		MAKERGB( pi->flashDlightColor, 1, 1, 1 );
-		break;
-	}
+	MAKERGB( pi->flashDlightColor, 1, 1, 1 );
 }
 
 
@@ -742,7 +696,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refdef.width = w;
 	refdef.height = h;
 
-	refdef.fov_x = (int)((float)refdef.width / uiInfo.uiDC.xscale / 640.0f * 90.0f);
+	refdef.fov_x = (int)((float)refdef.width / uiInfo.uiDC.xscale / SCREEN_WIDTH * 90.0f);
 	xx = refdef.width / uiInfo.uiDC.xscale / tan( refdef.fov_x / 360 * M_PI );
 	refdef.fov_y = atan2( refdef.height / uiInfo.uiDC.yscale, xx );
 	refdef.fov_y *= ( 360 / (float)M_PI );
@@ -834,7 +788,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	//
 	// add the spinning barrel
 	//
-	if ( pi->realWeapon == WP_MACHINEGUN || pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
+	{//if ( pi->realWeapon == WP_MACHINEGUN || pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
 		vec3_t	angles;
 
 		memset( &barrel, 0, sizeof(barrel) );
@@ -845,10 +799,6 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		angles[YAW] = 0;
 		angles[PITCH] = 0;
 		angles[ROLL] = UI_MachinegunSpinAngle( pi );
-		if( pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
-			angles[PITCH] = angles[ROLL];
-			angles[ROLL] = 0;
-		}
 		AnglesToAxis( angles, barrel.axis );
 
 		UI_PositionRotatedEntityOnTag( &barrel, &gun, pi->weaponModel, "tag_barrel");
@@ -1251,7 +1201,7 @@ UI_PlayerInfo_SetModel
 void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *headmodel, char *teamName ) {
 	memset( pi, 0, sizeof(*pi) );
 	UI_RegisterClientModelname( pi, model, headmodel, teamName );
-	pi->weapon = WP_MACHINEGUN;
+	pi->weapon = WP_QUANTIZER;
 	pi->currentWeapon = pi->weapon;
 	pi->lastWeapon = pi->weapon;
 	pi->pendingWeapon = -1;
@@ -1345,21 +1295,11 @@ void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_
 
 	// torso animation
 	if ( torsoAnim == TORSO_STAND || torsoAnim == TORSO_STAND2 ) {
-		if ( weaponNum == WP_NONE || weaponNum == WP_GAUNTLET ) {
-			torsoAnim = TORSO_STAND2;
-		}
-		else {
-			torsoAnim = TORSO_STAND;
-		}
+		torsoAnim = TORSO_STAND;
 	}
 
 	if ( torsoAnim == TORSO_ATTACK || torsoAnim == TORSO_ATTACK2 ) {
-		if ( weaponNum == WP_NONE || weaponNum == WP_GAUNTLET ) {
-			torsoAnim = TORSO_ATTACK2;
-		}
-		else {
-			torsoAnim = TORSO_ATTACK;
-		}
+		torsoAnim = TORSO_ATTACK;
 		pi->muzzleFlashTime = dp_realtime + UI_TIMER_MUZZLE_FLASH;
 		//FIXME play firing sound here
 	}

@@ -484,13 +484,7 @@ Upload32
 ===============
 */
 extern qboolean charSet;
-static void Upload32( unsigned *data, 
-						  int width, int height, 
-						  qboolean mipmap, 
-						  qboolean picmip, 
-							qboolean lightMap,
-						  int *format, 
-						  int *pUploadWidth, int *pUploadHeight )
+static void Upload32( unsigned *data, int width, int height, qboolean mipmap, qboolean picmip, qboolean lightMap, int *format, int *pUploadWidth, int *pUploadHeight, qboolean noTC )
 {
 	int			samples;
 	unsigned	*scaledBuffer = NULL;
@@ -624,11 +618,11 @@ static void Upload32( unsigned *data,
 			}
 			else
 			{
-				if ( glConfig.textureCompression == TC_S3TC_ARB )
+				if ( !noTC && glConfig.textureCompression == TC_S3TC_ARB )
 				{
 					internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 				}
-				else if ( glConfig.textureCompression == TC_S3TC )
+				else if ( !noTC && glConfig.textureCompression == TC_S3TC )
 				{
 					internalFormat = GL_RGB4_S3TC;
 				}
@@ -742,8 +736,8 @@ done:
 	if (mipmap)
 	{
 		if ( textureFilterAnisotropic )
-			qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-					(GLint)Com_Clamp( 1, maxAnisotropy, r_ext_max_anisotropy->integer ) );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				(GLfloat)Com_Clamp( 1.0f, glConfig.maxTextureFilterAnisotropy, r_ext_max_anisotropy->value ) );
 
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
@@ -778,13 +772,18 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
 	long		hash;
+	qboolean	noTC = qfalse;
 
 	if (strlen(name) >= MAX_QPATH ) {
 		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long", name);
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
 		isLightmap = qtrue;
+		noTC = qtrue;
 	}
+
+	if( !r_ext_compressed_textures->value || !tr.allowCompression )
+		noTC = qtrue;
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit");
@@ -822,7 +821,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 								isLightmap,
 								&image->internalFormat,
 								&image->uploadWidth,
-								&image->uploadHeight );
+								&image->uploadHeight, noTC );
 
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
@@ -832,6 +831,49 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	if ( image->TMU == 1 ) {
 		GL_SelectTexture( 0 );
 	}
+
+	hash = generateHashValue(name);
+	image->next = hashTable[hash];
+	hashTable[hash] = image;
+
+	return image;
+}
+
+image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrapClampMode ) {
+	image_t		*image;
+	long		hash;
+	qboolean	noTC = qfalse;
+
+	if (strlen(name) >= MAX_QPATH )
+		ri.Error (ERR_DROP, "R_CreateBlankImage: \"%s\" is too long", name);
+
+	if( !r_ext_compressed_textures->value || tr.allowCompression == qfalse )
+		noTC = qtrue;
+
+	if ( tr.numImages == MAX_DRAWIMAGES )
+		ri.Error( ERR_DROP, "R_CreateBlankImage: MAX_DRAWIMAGES hit");
+
+	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
+	image->texnum = 1024 + tr.numImages;
+	tr.numImages++;
+
+	image->mipmap = qfalse;
+	image->allowPicmip = qfalse;
+
+	strcpy (image->imgName, name);
+
+	image->width = width;
+	image->height = height;
+	image->wrapClampMode = glWrapClampMode;
+	image->TMU = 0;
+
+	if ( qglActiveTextureARB )
+		GL_SelectTexture( image->TMU );
+
+	//this actually binds texture ID 0, lols
+	GL_Bind(image);
+	//usually uploads here
+	qglBindTexture( GL_TEXTURE_2D, 0 );
 
 	hash = generateHashValue(name);
 	image->next = hashTable[hash];
@@ -1007,30 +1049,41 @@ R_CreateDlightImage
 */
 #define	DLIGHT_SIZE	16
 static void R_CreateDlightImage( void ) {
-	int		x,y;
-	byte	data[DLIGHT_SIZE][DLIGHT_SIZE][4];
-	int		b;
+	int width=DLIGHT_SIZE, height=DLIGHT_SIZE;
+	char *buf = NULL;
 
-	// make a centered inverse-square falloff blob for dynamic lighting
-	for (x=0 ; x<DLIGHT_SIZE ; x++) {
-		for (y=0 ; y<DLIGHT_SIZE ; y++) {
-			float	d;
+	R_LoadImage( "gfx/2d/dlight", &buf, &width, &height );
 
-			d = ( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x ) +
-				( DLIGHT_SIZE/2 - 0.5f - y ) * ( DLIGHT_SIZE/2 - 0.5f - y );
-			b = 4000 / d;
-			if (b > 255) {
-				b = 255;
-			} else if ( b < 75 ) {
-				b = 0;
-			}
-			data[y][x][0] = 
-			data[y][x][1] = 
-			data[y][x][2] = b;
-			data[y][x][3] = 255;			
-		}
+	if ( buf )
+	{//File exists
+		tr.dlightImage = R_CreateImage("*dlight", buf, width, height, qfalse, qfalse, GL_CLAMP/*matches JA*/ );
+		ri.Free( buf );
 	}
-	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+	else
+	{//dlight image doesn't exist, fall back to Q3's procedurally generated method
+		int		x, y, b;
+		byte	data[DLIGHT_SIZE][DLIGHT_SIZE][4] = { 0 };
+
+		Com_DPrintf( "Failed to load dlight texture, procedurally generating..\n" );
+
+		// make a centered inverse-square falloff blob for dynamic lighting
+		for ( x=0; x<DLIGHT_SIZE; x++ )
+		{
+			for ( y=0; y<DLIGHT_SIZE; y++ )
+			{
+				float d =	( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x ) +
+							( DLIGHT_SIZE/2 - 0.5f - y ) * ( DLIGHT_SIZE/2 - 0.5f - y );
+
+				b = 4000 / d;
+				if ( b > 255 )		b = 255;
+				else if ( b < 75 )	b = 0;
+
+				data[y][x][0] = data[y][x][1] = data[y][x][2] = b;
+				data[y][x][3] = 255;
+			}
+		}
+		tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+	}
 }
 
 
@@ -1134,34 +1187,53 @@ R_CreateDefaultImage
 ==================
 */
 #define	DEFAULT_SIZE	16
+#define DEVELOPER_SIZE	256
 static void R_CreateDefaultImage( void ) {
-	int		x;
-	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	int x=0, y=0, size=0;
+	union { byte regular[DEFAULT_SIZE][DEFAULT_SIZE][4]; byte developer[DEVELOPER_SIZE][DEVELOPER_SIZE][4]; } data;
 
-	// the default image will be a box, to allow you to see the mapping coordinates
-	Com_Memset( data, 32, sizeof( data ) );
-	for ( x = 0 ; x < DEFAULT_SIZE ; x++ ) {
-		data[0][x][0] =
-		data[0][x][1] =
-		data[0][x][2] =
-		data[0][x][3] = 255;
+	if ( com_developer->integer )
+	{// developers will see rainbow textures
+		size = DEVELOPER_SIZE;
 
-		data[x][0][0] =
-		data[x][0][1] =
-		data[x][0][2] =
-		data[x][0][3] = 255;
+		for ( x=0; x<DEVELOPER_SIZE; x++ )
+		{
+			for ( y=0; y<DEVELOPER_SIZE; y++ )
+			{
+				float r,g,b;
+				HSL2RGB( (float)x/(float)DEVELOPER_SIZE, 1.0f, 0.5f, &r, &g, &b );
+				data.developer[x][y][0] = r*255.0f;
+				data.developer[x][y][1] = g*255.0f;
+				data.developer[x][y][2] = b*255.0f;
 
-		data[DEFAULT_SIZE-1][x][0] =
-		data[DEFAULT_SIZE-1][x][1] =
-		data[DEFAULT_SIZE-1][x][2] =
-		data[DEFAULT_SIZE-1][x][3] = 255;
-
-		data[x][DEFAULT_SIZE-1][0] =
-		data[x][DEFAULT_SIZE-1][1] =
-		data[x][DEFAULT_SIZE-1][2] =
-		data[x][DEFAULT_SIZE-1][3] = 255;
+				data.developer[x][y][3] = 255;
+			}
+		}
+		// create the white borders
+		for ( x=0; x<size; x++ )
+		{
+			data.developer[0][x][0]			= data.developer[0][x][1]		= data.developer[0][x][2]		= data.developer[0][x][3] = 255;
+			data.developer[x][0][0]			= data.developer[x][0][1]		= data.developer[x][0][2]		= data.developer[x][0][3] = 255;
+			data.developer[size-1][x][0]	= data.developer[size-1][x][1]	= data.developer[size-1][x][2]	= data.developer[size-1][x][3] = 255;
+			data.developer[x][size-1][0]	= data.developer[x][size-1][1]	= data.developer[x][size-1][2]	= data.developer[x][size-1][3] = 255;
+		}
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
+	else
+	{// otherwise use a dark grey texture so it's not as obvious
+		size = DEFAULT_SIZE;
+
+		Com_Memset( &data, 32, sizeof( data ) );
+
+		// create the white borders
+		for ( x=0; x<size; x++ )
+		{
+			data.regular[0][x][0]		= data.regular[0][x][1]			= data.regular[0][x][2]			= data.regular[0][x][3] = 255;
+			data.regular[x][0][0]		= data.regular[x][0][1]			= data.regular[x][0][2]			= data.regular[x][0][3] = 255;
+			data.regular[size-1][x][0]	= data.regular[size-1][x][1]	= data.regular[size-1][x][2]	= data.regular[size-1][x][3] = 255;
+			data.regular[x][size-1][0]	= data.regular[x][size-1][1]	= data.regular[x][size-1][2]	= data.regular[x][size-1][3] = 255;
+		}
+	}
+	tr.defaultImage = R_CreateImage("*default", (byte *)&data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
 }
 
 /*

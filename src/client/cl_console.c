@@ -412,10 +412,7 @@ void CL_ConsolePrint( char *txt ) {
 	}
 	
 	if (!con.initialized) {
-		con.color[0] = 
-		con.color[1] = 
-		con.color[2] =
-		con.color[3] = 1.0f;
+		MAKERGBA( con.color, 0.5f, 0.666666f, 1.0f, 1.0f );
 		con.linewidth = -1;
 		Con_CheckResize ();
 		con.initialized = qtrue;
@@ -508,10 +505,9 @@ void Con_DrawInput (void) {
 
 	re.SetColor( con.color );
 
-	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']' );
+	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, CONSOLE_PROMPT_CHAR );
 
-	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
-		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
+	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue, con.color );
 }
 
 
@@ -572,6 +568,7 @@ void Con_DrawNotify (void)
 	}
 
 	// draw the chat line
+	//QTZTODO: Redo the chatbox and such
 	if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE )
 	{
 		if (chat_team)
@@ -585,8 +582,7 @@ void Con_DrawNotify (void)
 			skip = 5;
 		}
 
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue );
+		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue, NULL );
 
 		v += BIGCHAR_HEIGHT;
 	}
@@ -608,7 +604,7 @@ void Con_DrawSolidConsole( float frac ) {
 	int				lines;
 //	qhandle_t		conShader;
 	int				currentColor;
-	vec4_t			color;
+	vec4_t			color = { 0.5f, 0.666f, 1.0f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 
 	lines = cls.glconfig.vidHeight * frac;
 	if (lines <= 0)
@@ -630,23 +626,19 @@ void Con_DrawSolidConsole( float frac ) {
 		SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
 	}
 
-	color[0] = 1;
-	color[1] = 0;
-	color[2] = 0;
-	color[3] = 1;
-	SCR_FillRect( 0, y, SCREEN_WIDTH, 2, color );
+	SCR_FillRect( 0, y, SCREEN_WIDTH, 3, shadowColour );
+	SCR_FillRect( 0, y+1, SCREEN_WIDTH, 1, color );
 
 
 	// draw the version number
-
-	re.SetColor( g_color_table[ColorIndex(COLOR_RED)] );
-
 	i = strlen( QTZ_VERSION );
 
-	for (x=0 ; x<i ; x++) {
-		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
-			lines - SMALLCHAR_HEIGHT, QTZ_VERSION[x] );
-	}
+	re.SetColor( shadowColour );
+	for ( x=0; x<i; x++ )
+		SCR_DrawSmallChar2( (cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f)+1.0f, (lines - SMALLCHAR_HEIGHT*1.3f)+1.0f, QTZ_VERSION[x], 1.125f );
+	re.SetColor( color );
+	for ( x=0; x<i; x++ )
+		SCR_DrawSmallChar2( cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f, lines - SMALLCHAR_HEIGHT*1.3f, QTZ_VERSION[x], 1.125f );
 
 
 	// draw the text

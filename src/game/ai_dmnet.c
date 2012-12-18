@@ -195,7 +195,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 	if (BotGoForAir(bs, tfl, ltg, range)) return qtrue;
 	// if the bot is carrying a flag or cubes
 	if (BotCTFCarryingFlag(bs)
-		|| Bot1FCTFCarryingFlag(bs) || BotHarvesterCarryingCubes(bs)
+		|| Bot1FCTFCarryingFlag(bs)
 		) {
 		//if the bot is just a few secs away from the base 
 		if (trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
@@ -917,117 +917,6 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			return BotGetItemLongTermGoal(bs, tfl, goal);
 		}
 	}
-	else if (gametype == GT_OBELISK) {
-		if (bs->ltgtype == LTG_ATTACKENEMYBASE &&
-				bs->attackaway_time < FloatTime()) {
-
-			//check for bot typing status message
-			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
-				BotAI_BotInitialChat(bs, "attackenemybase_start", NULL);
-				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
-				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
-				bs->teammessage_time = 0;
-			}
-			switch(BotTeam(bs)) {
-				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
-				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
-				default: bs->ltgtype = 0; return qfalse;
-			}
-			//if the bot no longer wants to attack the obelisk
-			if (BotFeelingBad(bs) > 50) {
-				return BotGetItemLongTermGoal(bs, tfl, goal);
-			}
-			//if touching the obelisk
-			if (trap_BotTouchingGoal(bs->origin, goal)) {
-				bs->attackaway_time = FloatTime() + 3 + 5 * random();
-			}
-			// or very close to the obelisk
-			VectorSubtract(bs->origin, goal->origin, dir);
-			if (VectorLengthSquared(dir) < Square(60)) {
-				bs->attackaway_time = FloatTime() + 3 + 5 * random();
-			}
-			//quit rushing after 2 minutes
-			if (bs->teamgoal_time < FloatTime()) {
-				bs->ltgtype = 0;
-			}
-			BotAlternateRoute(bs, goal);
-			//just move towards the obelisk
-			return qtrue;
-		}
-	}
-	else if (gametype == GT_HARVESTER) {
-		//if rushing to the base
-		if (bs->ltgtype == LTG_RUSHBASE) {
-			switch(BotTeam(bs)) {
-				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
-				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
-				default: BotGoHarvest(bs); return qfalse;
-			}
-			//if not carrying any cubes
-			if (!BotHarvesterCarryingCubes(bs)) {
-				BotGoHarvest(bs);
-				return qfalse;
-			}
-			//quit rushing after 2 minutes
-			if (bs->teamgoal_time < FloatTime()) {
-				BotGoHarvest(bs);
-				return qfalse;
-			}
-			//if touching the base flag the bot should loose the enemy flag
-			if (trap_BotTouchingGoal(bs->origin, goal)) {
-				BotGoHarvest(bs);
-				return qfalse;
-			}
-			BotAlternateRoute(bs, goal);
-			return qtrue;
-		}
-		//attack the enemy base
-		if (bs->ltgtype == LTG_ATTACKENEMYBASE &&
-				bs->attackaway_time < FloatTime()) {
-			//check for bot typing status message
-			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
-				BotAI_BotInitialChat(bs, "attackenemybase_start", NULL);
-				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
-				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
-				bs->teammessage_time = 0;
-			}
-			switch(BotTeam(bs)) {
-				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
-				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
-				default: bs->ltgtype = 0; return qfalse;
-			}
-			//quit rushing after 2 minutes
-			if (bs->teamgoal_time < FloatTime()) {
-				bs->ltgtype = 0;
-			}
-			//if touching the base flag the bot should loose the enemy flag
-			if (trap_BotTouchingGoal(bs->origin, goal)) {
-				bs->attackaway_time = FloatTime() + 2 + 5 * random();
-			}
-			return qtrue;
-		}
-		//harvest cubes
-		if (bs->ltgtype == LTG_HARVEST &&
-			bs->harvestaway_time < FloatTime()) {
-			//check for bot typing status message
-			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
-				BotAI_BotInitialChat(bs, "harvest_start", NULL);
-				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
-				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
-				bs->teammessage_time = 0;
-			}
-			memcpy(goal, &neutralobelisk, sizeof(bot_goal_t));
-			//
-			if (bs->teamgoal_time < FloatTime()) {
-				bs->ltgtype = 0;
-			}
-			//
-			if (trap_BotTouchingGoal(bs->origin, goal)) {
-				bs->harvestaway_time = FloatTime() + 4 + 3 * random();
-			}
-			return qtrue;
-		}
-	}
 	//normal goal stuff
 	return BotGetItemLongTermGoal(bs, tfl, goal);
 }
@@ -1289,29 +1178,16 @@ BotSelectActivateWeapon
 ==================
 */
 int BotSelectActivateWeapon(bot_state_t *bs) {
+	//RAZMARK: Adding new weapons
 	//
-	if (bs->inventory[INVENTORY_MACHINEGUN] > 0 && bs->inventory[INVENTORY_BULLETS] > 0)
-		return WEAPONINDEX_MACHINEGUN;
-	else if (bs->inventory[INVENTORY_SHOTGUN] > 0 && bs->inventory[INVENTORY_SHELLS] > 0)
-		return WEAPONINDEX_SHOTGUN;
-	else if (bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 0)
-		return WEAPONINDEX_PLASMAGUN;
-	else if (bs->inventory[INVENTORY_LIGHTNING] > 0 && bs->inventory[INVENTORY_LIGHTNINGAMMO] > 0)
-		return WEAPONINDEX_LIGHTNING;
-	else if (bs->inventory[INVENTORY_CHAINGUN] > 0 && bs->inventory[INVENTORY_BELT] > 0)
-		return WEAPONINDEX_CHAINGUN;
-	else if (bs->inventory[INVENTORY_NAILGUN] > 0 && bs->inventory[INVENTORY_NAILS] > 0)
-		return WEAPONINDEX_NAILGUN;
-	else if (bs->inventory[INVENTORY_PROXLAUNCHER] > 0 && bs->inventory[INVENTORY_MINES] > 0)
-		return WEAPONINDEX_PROXLAUNCHER;
-	else if (bs->inventory[INVENTORY_GRENADELAUNCHER] > 0 && bs->inventory[INVENTORY_GRENADES] > 0)
-		return WEAPONINDEX_GRENADE_LAUNCHER;
-	else if (bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 0)
-		return WEAPONINDEX_RAILGUN;
-	else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
-		return WEAPONINDEX_ROCKET_LAUNCHER;
-	else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		return WEAPONINDEX_BFG;
+	if (bs->inventory[INVENTORY_QUANTIZER] > 0 )
+		return WP_QUANTIZER;
+	if (bs->inventory[INVENTORY_REPEATER] > 0 && bs->inventory[INVENTORY_AMMOREPEATER] > 0)
+		return WP_REPEATER;
+	if (bs->inventory[INVENTORY_MORTAR] > 0 && bs->inventory[INVENTORY_AMMOMORTAR] > 0)
+		return WP_MORTAR;
+	if (bs->inventory[INVENTORY_DIVERGENCE] > 0 && bs->inventory[INVENTORY_AMMODIVERGENCE] > 0)
+		return WP_DIVERGENCE;
 	else {
 		return -1;
 	}
@@ -1325,103 +1201,8 @@ BotClearPath
 ==================
 */
 void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
-	int i, bestmine;
-	float dist, bestdist;
-	vec3_t target, dir;
-	bsp_trace_t bsptrace;
-	entityState_t state;
-
-	// if there is a dead body wearing kamikze nearby
-	if (bs->kamikazebody) {
-		// if the bot's view angles and weapon are not used for movement
-		if ( !(moveresult->flags & (MOVERESULT_MOVEMENTVIEW | MOVERESULT_MOVEMENTWEAPON)) ) {
-			//
-			BotAI_GetEntityState(bs->kamikazebody, &state);
-			VectorCopy(state.pos.trBase, target);
-			target[2] += 8;
-			VectorSubtract(target, bs->eye, dir);
-			vectoangles(dir, moveresult->ideal_viewangles);
-			//
-			moveresult->weapon = BotSelectActivateWeapon(bs);
-			if (moveresult->weapon == -1) {
-				// FIXME: run away!
-				moveresult->weapon = 0;
-			}
-			if (moveresult->weapon) {
-				//
-				moveresult->flags |= MOVERESULT_MOVEMENTWEAPON | MOVERESULT_MOVEMENTVIEW;
-				// if holding the right weapon
-				if (bs->cur_ps.weapon == moveresult->weapon) {
-					// if the bot is pretty close with its aim
-					if (InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles)) {
-						//
-						BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, target, bs->entitynum, MASK_SHOT);
-						// if the mine is visible from the current position
-						if (bsptrace.fraction >= 1.0 || bsptrace.ent == state.number) {
-							// shoot at the mine
-							trap_EA_Attack(bs->client);
-						}
-					}
-				}
-			}
-		}
-	}
 	if (moveresult->flags & MOVERESULT_BLOCKEDBYAVOIDSPOT) {
 		bs->blockedbyavoidspot_time = FloatTime() + 5;
-	}
-	// if blocked by an avoid spot and the view angles and weapon are used for movement
-	if (bs->blockedbyavoidspot_time > FloatTime() &&
-		!(moveresult->flags & (MOVERESULT_MOVEMENTVIEW | MOVERESULT_MOVEMENTWEAPON)) ) {
-		bestdist = 300;
-		bestmine = -1;
-		for (i = 0; i < bs->numproxmines; i++) {
-			BotAI_GetEntityState(bs->proxmines[i], &state);
-			VectorSubtract(state.pos.trBase, bs->origin, dir);
-			dist = VectorLength(dir);
-			if (dist < bestdist) {
-				bestdist = dist;
-				bestmine = i;
-			}
-		}
-		if (bestmine != -1) {
-			//
-			// state->generic1 == TEAM_RED || state->generic1 == TEAM_BLUE
-			//
-			// deactivate prox mines in the bot's path by shooting
-			// rockets or plasma cells etc. at them
-			BotAI_GetEntityState(bs->proxmines[bestmine], &state);
-			VectorCopy(state.pos.trBase, target);
-			target[2] += 2;
-			VectorSubtract(target, bs->eye, dir);
-			vectoangles(dir, moveresult->ideal_viewangles);
-			// if the bot has a weapon that does splash damage
-			if (bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 0)
-				moveresult->weapon = WEAPONINDEX_PLASMAGUN;
-			else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
-				moveresult->weapon = WEAPONINDEX_ROCKET_LAUNCHER;
-			else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-				moveresult->weapon = WEAPONINDEX_BFG;
-			else {
-				moveresult->weapon = 0;
-			}
-			if (moveresult->weapon) {
-				//
-				moveresult->flags |= MOVERESULT_MOVEMENTWEAPON | MOVERESULT_MOVEMENTVIEW;
-				// if holding the right weapon
-				if (bs->cur_ps.weapon == moveresult->weapon) {
-					// if the bot is pretty close with its aim
-					if (InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles)) {
-						//
-						BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, target, bs->entitynum, MASK_SHOT);
-						// if the mine is visible from the current position
-						if (bsptrace.fraction >= 1.0 || bsptrace.ent == state.number) {
-							// shoot at the mine
-							trap_EA_Attack(bs->client);
-						}
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -1881,10 +1662,6 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		else if (gametype == GT_1FCTF) {
 			if (Bot1FCTFCarryingFlag(bs))
 				range = 50;
-		}
-		else if (gametype == GT_HARVESTER) {
-			if (BotHarvesterCarryingCubes(bs))
-				range = 80;
 		}
 		//
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
@@ -2399,10 +2176,6 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		else if (gametype == GT_1FCTF) {
 			if (Bot1FCTFCarryingFlag(bs))
 				range = 50;
-		}
-		else if (gametype == GT_HARVESTER) {
-			if (BotHarvesterCarryingCubes(bs))
-				range = 80;
 		}
 		//
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {

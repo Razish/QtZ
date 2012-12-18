@@ -97,7 +97,6 @@ Check for lava / slime contents and drowning
 =============
 */
 void P_WorldEffects( gentity_t *ent ) {
-	qboolean	envirosuit;
 	int			waterlevel;
 
 	if ( ent->client->noclip ) {
@@ -107,17 +106,10 @@ void P_WorldEffects( gentity_t *ent ) {
 
 	waterlevel = ent->waterlevel;
 
-	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
-
 	//
 	// check for drowning
 	//
 	if ( waterlevel == 3 ) {
-		// envirosuit give air
-		if ( envirosuit ) {
-			ent->client->airOutTime = level.time + 10000;
-		}
-
 		// if out of air, start drowning
 		if ( ent->client->airOutTime < level.time) {
 			// drown!
@@ -131,8 +123,7 @@ void P_WorldEffects( gentity_t *ent ) {
 				// don't play a normal pain sound
 				ent->pain_debounce_time = level.time + 200;
 
-				G_Damage (ent, NULL, NULL, NULL, NULL, 
-					ent->damage, DAMAGE_NO_ARMOR, MOD_WATER);
+				G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, ent->damage, DAMAGE_NO_ARMOR, MOD_WATER );
 			}
 		}
 	} else {
@@ -143,24 +134,15 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for sizzle damage (move to pmove?)
 	//
-	if (waterlevel && 
-		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
-		if (ent->health > 0
-			&& ent->pain_debounce_time <= level.time	) {
+	if (waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
+	{
+		if (ent->health > 0 && ent->pain_debounce_time <= level.time )
+		{
+			if (ent->watertype & CONTENTS_LAVA)
+				G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, 30*waterlevel, 0, MOD_LAVA );
 
-			if ( envirosuit ) {
-				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
-			} else {
-				if (ent->watertype & CONTENTS_LAVA) {
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						30*waterlevel, 0, MOD_LAVA);
-				}
-
-				if (ent->watertype & CONTENTS_SLIME) {
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						10*waterlevel, 0, MOD_SLIME);
-				}
-			}
+			if (ent->watertype & CONTENTS_SLIME)
+				G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, 10*waterlevel, 0, MOD_SLIME );
 		}
 	}
 }
@@ -291,6 +273,19 @@ void	G_TouchTriggers( gentity_t *ent ) {
 
 		memset( &trace, 0, sizeof(trace) );
 
+		//QtZ: Seamless teleporter
+		if ( hit->s.eType == ET_TELEPORT_TRIGGER && hit->s.generic1 )
+		{//Must be within half a unit to actually teleport
+			vec3_t newMins = { -0.25f, -0.25f, -0.25f }, newMaxs = { 0.25f, 0.25f, 0.25f };
+		
+			VectorAdd( ent->client->ps.origin, ent->r.mins, newMins );
+			VectorAdd( ent->client->ps.origin, ent->r.maxs, newMaxs );
+
+			if ( !trap_EntityContact( newMins, newMaxs, hit ) )
+				continue;
+		}
+		//~QtZ
+
 		if ( hit->touch ) {
 			hit->touch (hit, ent, &trace);
 		}
@@ -391,7 +386,6 @@ Actions that happen once a second
 */
 void ClientTimerActions( gentity_t *ent, int msec ) {
 	gclient_t	*client;
-	int			maxHealth;
 
 	client = ent->client;
 	client->timeResidual += msec;
@@ -399,95 +393,17 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	while ( client->timeResidual >= 1000 ) {
 		client->timeResidual -= 1000;
 
-		// regenerate
-#ifdef QTZRELIC
-		if ( client->ps.powerups[PW_REGEN] ) {
-			if ( ent->health < client->ps.stats[STAT_MAX_HEALTH]) {
-				ent->health += 15;
-				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
-					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			} else if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2) {
-				ent->health += 5;
-				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			}
-#else
-		if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			maxHealth = client->ps.stats[STAT_MAX_HEALTH] / 2;
-		}
-		else if ( client->ps.powerups[PW_REGEN] ) {
-			maxHealth = client->ps.stats[STAT_MAX_HEALTH];
-		}
-		else {
-			maxHealth = 0;
-		}
-		if( maxHealth ) {
-			if ( ent->health < maxHealth ) {
-				ent->health += 15;
-				if ( ent->health > maxHealth * 1.1 ) {
-					ent->health = maxHealth * 1.1;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			} else if ( ent->health < maxHealth * 2) {
-				ent->health += 5;
-				if ( ent->health > maxHealth * 2 ) {
-					ent->health = maxHealth * 2;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			}
-#endif // QTZRELIC
-		} else {
-			// count down health when over max
-			if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
-				ent->health--;
-			}
-		}
+		// count down health when over max
+		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] )
+			ent->health--;
 
 		// count down armor when over max
 		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
-	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
-		int w, max, inc, t, i;
-    int weapList[]={WP_MACHINEGUN,WP_SHOTGUN,WP_GRENADE_LAUNCHER,WP_ROCKET_LAUNCHER,WP_LIGHTNING,WP_RAILGUN,WP_PLASMAGUN,WP_BFG,WP_NAILGUN,WP_PROX_LAUNCHER,WP_CHAINGUN};
-    int weapCount = ARRAY_LEN( weapList );
-		//
-    for (i = 0; i < weapCount; i++) {
-		  w = weapList[i];
 
-		  switch(w) {
-			  case WP_MACHINEGUN:		  max = 50;		inc = 4;	t = 1000;	break;
-			  case WP_SHOTGUN:			  max = 10;		inc = 1;	t = 1500;	break;
-			  case WP_GRENADE_LAUNCHER:	  max = 10;		inc = 1;	t = 2000;	break;
-			  case WP_ROCKET_LAUNCHER:	  max = 10;		inc = 1;	t = 1750;	break;
-			  case WP_LIGHTNING:		  max = 50;		inc = 5;	t = 1500;	break;
-			  case WP_RAILGUN:			  max = 10;		inc = 1;	t = 1750;	break;
-			  case WP_PLASMAGUN:		  max = 50;		inc = 5;	t = 1500;	break;
-			  case WP_BFG:				  max = 10;		inc = 1;	t = 4000;	break;
-			  case WP_NAILGUN:			  max = 10;		inc = 1;	t = 1250;	break;
-			  case WP_PROX_LAUNCHER:	  max = 5;		inc = 1;	t = 2000;	break;
-			  case WP_CHAINGUN:			  max = 100;	inc = 5;	t = 1000;	break;
-			  default:					  max = 0;		inc = 0;	t = 1000;	break;
-		  }
-		  client->ammoTimes[w] += msec;
-		  if ( client->ps.ammo[w] >= max ) {
-			  client->ammoTimes[w] = 0;
-		  }
-		  if ( client->ammoTimes[w] >= t ) {
-			  while ( client->ammoTimes[w] >= t )
-				  client->ammoTimes[w] -= t;
-			  client->ps.ammo[w] += inc;
-			  if ( client->ps.ammo[w] > max ) {
-				  client->ps.ammo[w] = max;
-			  }
-		  }
-    }
-	}
+	//RAZTODO: Ammo regen?
 }
 
 /*
@@ -520,14 +436,11 @@ but any server game effects are handled here
 ================
 */
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
-	int		i, j;
+	int		i;
 	int		event;
 	gclient_t *client;
 	int		damage;
-	vec3_t	origin, angles;
 //	qboolean	fired;
-	gitem_t *item;
-	gentity_t *drop;
 
 	client = ent->client;
 
@@ -552,86 +465,23 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				damage = 5;
 			}
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
-			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, damage, 0, MOD_FALLING);
 			break;
 
 		case EV_FIRE_WEAPON:
-			FireWeapon( ent );
+			//QtZ
+		//	FireWeapon( ent );
+			FireWeapon( ent, ent->client->ps.eventParms[ i & (MAX_PS_EVENTS-1) ] );
 			break;
 
-		case EV_USE_ITEM1:		// teleporter
-			// drop flags in CTF
-			item = NULL;
-			j = 0;
-
-			if ( ent->client->ps.powerups[ PW_REDFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_REDFLAG );
-				j = PW_REDFLAG;
-			} else if ( ent->client->ps.powerups[ PW_BLUEFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_BLUEFLAG );
-				j = PW_BLUEFLAG;
-			} else if ( ent->client->ps.powerups[ PW_NEUTRALFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-				j = PW_NEUTRALFLAG;
-			}
-
-			if ( item ) {
-				drop = Drop_Item( ent, item, 0 );
-				// decide how many seconds it has left
-				drop->count = ( ent->client->ps.powerups[ j ] - level.time ) / 1000;
-				if ( drop->count < 1 ) {
-					drop->count = 1;
-				}
-
-				ent->client->ps.powerups[ j ] = 0;
-			}
-
-			if ( g_gametype.integer == GT_HARVESTER ) {
-				if ( ent->client->ps.generic1 > 0 ) {
-					if ( ent->client->sess.sessionTeam == TEAM_RED ) {
-						item = BG_FindItem( "Blue Cube" );
-					} else {
-						item = BG_FindItem( "Red Cube" );
-					}
-					if ( item ) {
-						for ( j = 0; j < ent->client->ps.generic1; j++ ) {
-							drop = Drop_Item( ent, item, 0 );
-							if ( ent->client->sess.sessionTeam == TEAM_RED ) {
-								drop->spawnflags = TEAM_BLUE;
-							} else {
-								drop->spawnflags = TEAM_RED;
-							}
-						}
-					}
-					ent->client->ps.generic1 = 0;
-				}
-			}
-			SelectSpawnPoint( ent->client->ps.origin, origin, angles, qfalse );
-			TeleportPlayer( ent, origin, angles );
-			break;
-
-		case EV_USE_ITEM2:		// medkit
+		case EV_USE_ITEM1: // medkit
 			ent->health = ent->client->ps.stats[STAT_MAX_HEALTH] + 25;
-
 			break;
 
-		case EV_USE_ITEM3:		// kamikaze
-			// make sure the invulnerability is off
-			ent->client->invulnerabilityTime = 0;
-			// start the kamikze
-			G_StartKamikaze( ent );
-			break;
-
-		case EV_USE_ITEM4:		// portal
-			if( ent->client->portalID ) {
-				DropPortalSource( ent );
-			}
-			else {
-				DropPortalDestination( ent );
-			}
-			break;
-		case EV_USE_ITEM5:		// invulnerability
-			ent->client->invulnerabilityTime = level.time + 10000;
+		case EV_USE_ITEM2:
+		case EV_USE_ITEM3:
+		case EV_USE_ITEM4:
+		case EV_USE_ITEM5:
 			break;
 
 		default:
@@ -819,20 +669,6 @@ void ClientThink_real( gentity_t *ent ) {
 	// set speed
 	client->ps.speed = g_speed.value;
 
-	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
-		client->ps.speed *= 1.5;
-	}
-	else
-	if ( client->ps.powerups[PW_HASTE] ) {
-		client->ps.speed *= 1.3;
-	}
-
-	// Let go of the hook if we aren't firing
-	if ( client->ps.weapon == WP_GRAPPLING_HOOK &&
-		client->hook && !( ucmd->buttons & BUTTON_ATTACK ) ) {
-		Weapon_HookFree(client->hook);
-	}
-
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 
@@ -840,10 +676,13 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// check for the hit-scan gauntlet, don't let the action
 	// go through as an attack unless it actually hits something
+	//RAZFIXME: new weapon cooldown approach :/
+#if 0
 	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
 		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
 		pm.gauntletHit = CheckGauntletAttack( ent );
 	}
+#endif
 
 	if ( ent->flags & FL_FORCE_GESTURE ) {
 		ent->flags &= ~FL_FORCE_GESTURE;
@@ -851,30 +690,6 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// check for invulnerability expansion before doing the Pmove
-	if (client->ps.powerups[PW_INVULNERABILITY] ) {
-		if ( !(client->ps.pm_flags & PMF_INVULEXPAND) ) {
-			vec3_t mins = { -42, -42, -42 };
-			vec3_t maxs = { 42, 42, 42 };
-			vec3_t oldmins, oldmaxs;
-
-			VectorCopy (ent->r.mins, oldmins);
-			VectorCopy (ent->r.maxs, oldmaxs);
-			// expand
-			VectorCopy (mins, ent->r.mins);
-			VectorCopy (maxs, ent->r.maxs);
-			trap_LinkEntity(ent);
-			// check if this would get anyone stuck in this player
-			if ( !StuckInOtherClient(ent) ) {
-				// set flag so the expanded size will be set in PM_CheckDuck
-				client->ps.pm_flags |= PMF_INVULEXPAND;
-			}
-			// set back
-			VectorCopy (oldmins, ent->r.mins);
-			VectorCopy (oldmaxs, ent->r.maxs);
-			trap_LinkEntity(ent);
-		}
-	}
-
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
 	if ( pm.ps->pm_type == PM_DEAD ) {
@@ -893,6 +708,25 @@ void ClientThink_real( gentity_t *ent ) {
 
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
+
+	//QtZ: set physics variables for pmove sequence
+	pm.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
+	pm.qtz.wallJumpDebounce				= qtz_phys_wallJumpDebounce.integer;
+	pm.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;
+	pm.qtz.bunnyHopDebounce				= qtz_phys_bunnyHopDebounce.integer;
+	pm.qtz.doubleJumpEnable				= qtz_phys_doubleJumpEnable.integer;
+	pm.qtz.doubleJumpPush				= qtz_phys_doubleJumpPush.integer;
+	pm.qtz.doubleJumpDebounce			= qtz_phys_doubleJumpDebounce.integer;
+	pm.qtz.accelerate					= qtz_phys_accelerate.value;
+	pm.qtz.airaccelerate				= qtz_phys_airaccelerate.value;
+	pm.qtz.friction						= qtz_phys_friction.value;
+	pm.qtz.jumpVelocity					= qtz_phys_jumpVelocity.value;
+	pm.qtz.airControlEnable				= qtz_phys_airControlEnable.integer;
+	pm.qtz.airControl					= qtz_phys_airControl.value;
+	pm.qtz.airControlStopAccelerate		= qtz_phys_airControlStopAccelerate.value;
+	pm.qtz.airControlWishspeed			= qtz_phys_airControlWishspeed.value;
+	pm.qtz.airControlStrafeAccelerate	= qtz_phys_airControlStrafeAccelerate.value;
+	//~QtZ
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
@@ -1091,18 +925,6 @@ void ClientEndFrame( gentity_t *ent ) {
 	// set powerup for player animation
 	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 		ent->client->ps.powerups[PW_GUARD] = level.time;
-	}
-	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
-		ent->client->ps.powerups[PW_SCOUT] = level.time;
-	}
-	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_DOUBLER ) {
-		ent->client->ps.powerups[PW_DOUBLER] = level.time;
-	}
-	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
-		ent->client->ps.powerups[PW_AMMOREGEN] = level.time;
-	}
-	if ( ent->client->invulnerabilityTime > level.time ) {
-		ent->client->ps.powerups[PW_INVULNERABILITY] = level.time;
 	}
 
 	// save network bandwidth

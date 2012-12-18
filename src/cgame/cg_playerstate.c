@@ -35,6 +35,8 @@ If the ammo has gone low enough to generate the warning, play a sound
 ==============
 */
 void CG_CheckAmmo( void ) {
+	//RAZTODO: CG_CheckAmmo
+#if 0
 	int		i;
 	int		total;
 	int		previous;
@@ -77,6 +79,7 @@ void CG_CheckAmmo( void ) {
 	if ( cg.lowAmmoWarning != previous ) {
 		trap_S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND );
 	}
+#endif
 }
 
 /*
