@@ -713,7 +713,7 @@ void GLimp_Init( void )
 	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
 	r_xpos = ri.Cvar_Get( "r_xpos", "100", CVAR_ARCHIVE );
 	r_ypos = ri.Cvar_Get( "r_ypos", "100", CVAR_ARCHIVE );
-	in_disableLockKeys = Cvar_Get( "in_disableLockKeys", "0", CVAR_ARCHIVE );
+	in_disableLockKeys = ri.Cvar_Get( "in_disableLockKeys", "0", CVAR_ARCHIVE );
 	//~QtZ
 
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )

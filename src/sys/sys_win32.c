@@ -275,7 +275,9 @@ const char *Sys_Dirname( char *path )
 	Q_strncpyz( dir, path, sizeof( dir ) );
 	length = strlen( dir ) - 1;
 
-	while( length > 0 && dir[ length ] != '\\' )
+	//QtZ: This was causing issues with modular renderer not loading.
+	//	path was "C:\Projects\qtz\src\../build/qtz.x86.exe"
+	while( length > 0 && (dir[ length ] != '\\' && dir[ length ] != '/') )
 		length--;
 
 	dir[ length ] = '\0';

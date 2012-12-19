@@ -23,6 +23,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+#ifdef USE_LOCAL_HEADERS
+#	include "SDL.h"
+#else
+#	include <SDL.h>
+#endif
+
+//QtZ: Raw mouse input from https://github.com/runaos/iodfe/commit/977f61eca82e9c06869b647d752bf9bf2684b877
+#ifdef _WIN32
+	#ifdef USE_LOCAL_HEADERS
+		#include "SDL_syswm.h"
+	#else
+		#include <SDL_syswm.h>
+	#endif
+#endif
+
 glconfig_t  glConfig;
 qboolean    textureFilterAnisotropic = qfalse;
 int         maxAnisotropy = 0;
@@ -1255,7 +1270,7 @@ void R_Init( void ) {
 
 	// print info
 	//QtZ: Only print GFX info if running developer mode
-	if ( com_developer->integer )
+	if ( ri.Cvar_VariableIntegerValue( "com_developer" ) )
 		GfxInfo_f();
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
@@ -1320,7 +1335,7 @@ GetRefAPI
 @@@@@@@@@@@@@@@@@@@@@
 */
 #ifdef USE_RENDERER_DLOPEN
-Q_EXPORT refexport_t QDECL *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #else
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #endif
@@ -1379,6 +1394,38 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+
+	//QtZ: I'm terrible and made it so only renderers have some SDL things
+	re.SDL_EnableKeyRepeat		= SDL_EnableKeyRepeat;
+	re.SDL_EnableUNICODE		= SDL_EnableUNICODE;
+	re.SDL_EventState			= SDL_EventState;
+	re.SDL_GetAppState			= SDL_GetAppState;
+	re.SDL_GetKeyName			= SDL_GetKeyName;
+	re.SDL_GetKeyState			= SDL_GetKeyState;
+	re.SDL_GetWMInfo			= SDL_GetWMInfo;
+	re.SDL_Init					= SDL_Init;
+	re.SDL_JoystickClose		= SDL_JoystickClose;
+	re.SDL_JoystickEventState	= SDL_JoystickEventState;
+	re.SDL_JoystickGetAxis		= SDL_JoystickGetAxis;
+	re.SDL_JoystickGetBall		= SDL_JoystickGetBall;
+	re.SDL_JoystickGetButton	= SDL_JoystickGetButton;
+	re.SDL_JoystickGetHat		= SDL_JoystickGetHat;
+	re.SDL_JoystickName			= SDL_JoystickName;
+	re.SDL_JoystickNumAxes		= SDL_JoystickNumAxes;
+	re.SDL_JoystickNumHats		= SDL_JoystickNumHats;
+	re.SDL_JoystickNumButtons	= SDL_JoystickNumButtons;
+	re.SDL_JoystickNumBalls		= SDL_JoystickNumBalls;
+	re.SDL_JoystickOpen			= SDL_JoystickOpen;
+	re.SDL_JoystickUpdate		= SDL_JoystickUpdate;
+	re.SDL_NumJoysticks			= SDL_NumJoysticks;
+	re.SDL_PumpEvents			= SDL_PumpEvents;
+	re.SDL_PeepEvents			= SDL_PeepEvents;
+	re.SDL_PollEvent			= SDL_PollEvent;
+	re.SDL_QuitSubSystem		= SDL_QuitSubSystem;
+	re.SDL_ShowCursor			= SDL_ShowCursor;
+	re.SDL_WarpMouse			= SDL_WarpMouse;
+	re.SDL_WasInit				= SDL_WasInit;
+	re.SDL_WM_GrabInput			= SDL_WM_GrabInput;
 
 	return &re;
 }

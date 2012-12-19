@@ -1064,7 +1064,7 @@ static void R_CreateDlightImage( void ) {
 		int		x, y, b;
 		byte	data[DLIGHT_SIZE][DLIGHT_SIZE][4] = { 0 };
 
-		Com_DPrintf( "Failed to load dlight texture, procedurally generating..\n" );
+		ri.Printf( PRINT_DEVELOPER, "Failed to load dlight texture, procedurally generating..\n" );
 
 		// make a centered inverse-square falloff blob for dynamic lighting
 		for ( x=0; x<DLIGHT_SIZE; x++ )
@@ -1192,7 +1192,7 @@ static void R_CreateDefaultImage( void ) {
 	int x=0, y=0, size=0;
 	union { byte regular[DEFAULT_SIZE][DEFAULT_SIZE][4]; byte developer[DEVELOPER_SIZE][DEVELOPER_SIZE][4]; } data;
 
-	if ( com_developer->integer )
+	if ( ri.Cvar_VariableIntegerValue( "com_developer" ) )
 	{// developers will see rainbow textures
 		size = DEVELOPER_SIZE;
 

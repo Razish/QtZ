@@ -23,6 +23,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __TR_PUBLIC_H
 
 #include "tr_types.h"
+#ifdef USE_LOCAL_HEADERS
+#	include "SDL.h"
+#else
+#	include <SDL.h>
+#endif
+
+//QtZ: Raw mouse input from https://github.com/runaos/iodfe/commit/977f61eca82e9c06869b647d752bf9bf2684b877
+#ifdef _WIN32
+	#ifdef USE_LOCAL_HEADERS
+		#include "SDL_syswm.h"
+	#else
+		#include <SDL_syswm.h>
+	#endif
+#endif
 
 #define	REF_API_VERSION		8
 
@@ -101,6 +115,37 @@ typedef struct {
 	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+
+	int				(*SDL_EnableKeyRepeat)(int delay, int interval);
+	int				(*SDL_EnableUNICODE)(int enable);
+	Uint8			(*SDL_EventState)(Uint8 type, int state);
+	Uint8			(*SDL_GetAppState)(void);
+	char *			(*SDL_GetKeyName)(SDLKey key);
+	Uint8 *			(*SDL_GetKeyState)(int *numkeys);
+	int				(*SDL_GetWMInfo)(SDL_SysWMinfo *info);
+	int				(*SDL_Init)(Uint32 flags);
+	void			(*SDL_JoystickClose)(SDL_Joystick *joystick);
+	int				(*SDL_JoystickEventState)(int state);
+	Sint16			(*SDL_JoystickGetAxis)(SDL_Joystick *joystick, int axis);
+	int				(*SDL_JoystickGetBall)(SDL_Joystick *joystick, int ball, int *dx, int *dy);
+	Uint8			(*SDL_JoystickGetButton)(SDL_Joystick *joystick, int button);
+	Uint8			(*SDL_JoystickGetHat)(SDL_Joystick *joystick, int hat);
+	const char *	(*SDL_JoystickName)(int device_index);
+	int				(*SDL_JoystickNumAxes)(SDL_Joystick *joystick);
+	int				(*SDL_JoystickNumHats)(SDL_Joystick *joystick);
+	int				(*SDL_JoystickNumButtons)(SDL_Joystick *joystick);
+	int				(*SDL_JoystickNumBalls)(SDL_Joystick *joystick);
+	SDL_Joystick *	(*SDL_JoystickOpen)(int device_index);
+	void			(*SDL_JoystickUpdate)(void);
+	int				(*SDL_NumJoysticks)(void);
+	void			(*SDL_PumpEvents)(void);
+	int				(*SDL_PeepEvents)(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask);
+	int				(*SDL_PollEvent)(SDL_Event *event);
+	void			(*SDL_QuitSubSystem)(Uint32 flags);
+	int				(*SDL_ShowCursor)(int toggle);
+	void			(*SDL_WarpMouse)(Uint16 x, Uint16 y);
+	Uint32			(*SDL_WasInit)(Uint32 flags);
+	SDL_GrabMode	(*SDL_WM_GrabInput)(SDL_GrabMode mode);
 } refexport_t;
 
 //
