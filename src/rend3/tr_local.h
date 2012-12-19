@@ -27,7 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
-#include "tr_public.h"
+#include "../renderer/tr_public.h"
+#include "tr_ext_public.h"
 #include "qgl.h"
 #include "iqm.h"
 
@@ -312,6 +313,7 @@ typedef struct {
 	acff_t			adjustColorsForFog;
 
 	qboolean		isDetail;
+	qboolean		isGlow;	//QtZ: dynamic glow
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -865,10 +867,10 @@ typedef struct {
 
 // the renderer front end should never modify glstate_t
 typedef struct {
-	int			currenttextures[2];
+	int			currenttextures[4]; //QtZ: 4 TMU
 	int			currenttmu;
 	qboolean	finishCalled;
-	int			texEnv[2];
+	int			texEnv[4];
 	int			faceCulling;
 	unsigned long	glStateBits;
 } glstate_t;
@@ -1000,6 +1002,50 @@ typedef struct {
 	float					sawToothTable[FUNCTABLE_SIZE];
 	float					inverseSawToothTable[FUNCTABLE_SIZE];
 	float					fogTable[FOG_TABLE_SIZE];
+
+	//QtZ: Post processing
+	struct {
+		qboolean	loaded;
+		float		bloomSize;	//Raz: These will generally be vidWidth/vidHeight, but there is an option to use a custom size.
+		float		glowSize;	// Same as above
+		int			bloomSteps;
+		vec4_t		grading;	// per-map colour grading
+	} postprocessing;
+
+	struct {
+		framebuffer_t *scene;
+
+		framebuffer_t *glow; // dynamic glow. surfaces to be glowed are rendered to an RGB8 texture at half resolution, blurred, and composited with the scene
+		framebuffer_t *glowDownscale[NUM_GLOW_DOWNSCALE_FBOS];
+		framebuffer_t *glowBlur[2]; // separable horizontal/vertical blurs
+		framebuffer_t *glowComposite;
+
+		framebuffer_t *tonemapping;
+		framebuffer_t *luminance[NUM_LUMINANCE_FBOS];
+
+		framebuffer_t *brightPass;
+		framebuffer_t *bloomDownscale[NUM_BLOOM_DOWNSCALE_FBOS];
+		framebuffer_t *bloomBlur[2]; // separable horizontal/vertical blurs
+		framebuffer_t *bloom;
+
+		framebuffer_t *final;
+	} framebuffers;
+
+	struct {
+		glslProgram_t *glow; // dynamic glow. surfaces to be glowed are rendered to an RGB8 texture at quarter resolution, blurred, and composited with the scene
+		glslProgram_t *gaussianBlur3x3[2]; // separable horizontal/vertical blurs
+
+		glslProgram_t *downscaleLuminance;
+		glslProgram_t *luminance;
+		glslProgram_t *tonemapping;
+
+		glslProgram_t *brightPass;
+		glslProgram_t *gaussianBlur6x6[2]; // separable horizontal/vertical blurs
+		glslProgram_t *bloom;
+
+		glslProgram_t *final;
+	} glsl;
+	//~QtZ
 
 	//QtZ: Added
 	qboolean				allowCompression; //can be disabled per-shader. lightmaps are never compressed
@@ -1149,6 +1195,34 @@ extern	cvar_t	*r_saveFontData;
 
 extern cvar_t	*r_marksOnTriangleMeshes;
 
+//QtZ: Post processing
+extern cvar_t *r_postprocess_enable;
+extern cvar_t *r_postprocess_glow;
+extern cvar_t *r_postprocess_glowMulti;
+extern cvar_t *r_postprocess_glowSat;
+extern cvar_t *r_postprocess_glowSize;
+extern cvar_t *r_postprocess_glowBlurStyle;
+extern cvar_t *r_postprocess_hdr;
+extern cvar_t *r_postprocess_hdrOperator;
+extern cvar_t *r_postprocess_hdrKeyStyle;
+extern cvar_t *r_postprocess_hdrLightAdaptRods;
+extern cvar_t *r_postprocess_hdrLightAdaptCones;
+extern cvar_t *r_postprocess_brightPassThres;
+extern cvar_t *r_postprocess_brightPassStyle;
+extern cvar_t *r_postprocess_bloom;
+extern cvar_t *r_postprocess_bloomMulti;
+extern cvar_t *r_postprocess_bloomSat;
+extern cvar_t *r_postprocess_bloomSceneMulti;
+extern cvar_t *r_postprocess_bloomSceneSat;
+extern cvar_t *r_postprocess_bloomStyle;
+extern cvar_t *r_postprocess_bloomSize;
+extern cvar_t *r_postprocess_bloomSteps;
+extern cvar_t *r_postprocess_bloomBlurStyle;
+extern cvar_t *r_postprocess_finalPass;
+extern cvar_t *r_postprocess_userVec1;
+extern cvar_t *r_postprocess_debugFBOs;
+//~QtZ
+
 //====================================================================
 
 float R_NoiseGet4f( float x, float y, float z, float t );
@@ -1274,6 +1348,10 @@ skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 int R_ComputeLOD( trRefEntity_t *ent );
 
 const void *RB_TakeVideoFrameCmd( const void *data );
+//QtZ: Post processing
+const void *RB_PostProcessCmd( const void *data );
+//~QtZ
+
 
 //
 // tr_shader.c
@@ -1368,6 +1446,7 @@ void RB_BeginSurface(shader_t *shader, int fogNum );
 void RB_EndSurface(void);
 void RB_CheckOverflow( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
+void RB_SetGL2D (void);
 
 void RB_StageIteratorGeneric( void );
 void RB_StageIteratorSky( void );
@@ -1686,6 +1765,13 @@ typedef struct
 	int commandId;
 } clearDepthCommand_t;
 
+//QtZ: Post processing
+typedef struct
+{
+	int commandId;
+} postProcessCommand_t;
+//~QtZ
+
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
@@ -1701,7 +1787,10 @@ typedef enum {
 	RC_SCREENSHOT,
 	RC_VIDEOFRAME,
 	RC_COLORMASK,
-	RC_CLEARDEPTH
+	RC_CLEARDEPTH,
+	//QtZ: Post processing
+	RC_POSTPROCESS,
+	//~QtZ
 } renderCommand_t;
 
 
@@ -1743,6 +1832,12 @@ void R_ShutdownCommandBuffers( void );
 void R_SyncRenderThread( void );
 
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
+
+//QtZ: Post processing
+void RE_PostProcess( void );
+void RB_PostProcess( void );
+void R_PostProcessReload_f( void );
+//~QtZ
 
 void RE_SetColor( const float *rgba );
 void RE_StretchPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );

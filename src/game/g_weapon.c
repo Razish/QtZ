@@ -204,7 +204,7 @@ void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	self->nextthink = level.time;
 }
 
-#define QUANTIZER_DAMAGE (13)
+#define QUANTIZER_DAMAGE (8)
 #define QUANTIZER_VELOCITY (4200)
 #define QUANTIZER_LIFE (10000)
 #define QUANTIZER_SPLASHDAMAGE (15) //(11)
@@ -225,9 +225,9 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 	missile->damage = QUANTIZER_DAMAGE;
 	missile->splashDamage = QUANTIZER_SPLASHDAMAGE;
 	missile->splashRadius = QUANTIZER_SPLASHRADIUS;
-	missile->knockbackMulti = 5.8f;//8.0f;
-	missile->knockbackMultiSelf = 5.9f;
-	missile->knockbackDampVert = 0.6f;
+	missile->knockbackMulti = 5.0f;
+	missile->knockbackMultiSelf = 5.0f;
+	missile->knockbackDampVert = 4.0f;
 	missile->dflags = DAMAGE_VERTICAL_KNOCKBACK;
 	missile->methodOfDeath = MOD_QUANTIZER;
 	missile->splashMethodOfDeath = MOD_QUANTIZER;
@@ -266,10 +266,10 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 }
 
 
-#define MORTAR_DAMAGE (35)
+#define MORTAR_DAMAGE (40)
 #define MORTAR_VELOCITY (1400)
 #define MORTAR_LIFE (10000)
-#define MORTAR_SPLASHDAMAGE (20)
+#define MORTAR_SPLASHDAMAGE (35)
 #define MORTAR_SPLASHRADIUS (160)
 #define MORTAR_SIZE (4.0f)
 static void WP_Mortar_Fire( gentity_t *ent, int special )
@@ -288,9 +288,9 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 	missile->damage = MORTAR_DAMAGE;
 	missile->splashDamage = MORTAR_SPLASHDAMAGE;
 	missile->splashRadius = MORTAR_SPLASHRADIUS;
-	missile->knockbackMulti = 2.0f;
+	missile->knockbackMulti = 3.0f;
 	missile->knockbackMultiSelf = 1.65f;
-	missile->knockbackDampVert = 0.67f;
+	missile->knockbackDampVert = 0.85f;
 	missile->dflags |= DAMAGE_VERTICAL_KNOCKBACK;
 	missile->methodOfDeath = MOD_MORTAR;
 	missile->splashMethodOfDeath = MOD_MORTAR;
