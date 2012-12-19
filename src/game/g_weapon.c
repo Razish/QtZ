@@ -209,7 +209,7 @@ void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 #define QUANTIZER_LIFE (10000)
 #define QUANTIZER_SPLASHDAMAGE (15) //(11)
 #define QUANTIZER_SPLASHRADIUS (64)
-#define QUANTIZER_SIZE (5.0f)
+#define QUANTIZER_SIZE (6.0f)
 static void WP_Quantizer_Fire( gentity_t *ent, int special )
 {
 	gentity_t *missile = NULL;
@@ -242,7 +242,7 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 #define REPEATER_DAMAGE (7)
 #define REPEATER_VELOCITY (8000)
 #define REPEATER_LIFE (10000)
-#define REPEATER_SIZE (9.0f)
+#define REPEATER_SIZE (3.0f)
 static void WP_Repeater_Fire( gentity_t *ent, int special )
 {
 	gentity_t *missile = NULL;
@@ -266,12 +266,12 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 }
 
 
-#define MORTAR_DAMAGE (75)
+#define MORTAR_DAMAGE (35)
 #define MORTAR_VELOCITY (1400)
 #define MORTAR_LIFE (10000)
-#define MORTAR_SPLASHDAMAGE (55)
+#define MORTAR_SPLASHDAMAGE (20)
 #define MORTAR_SPLASHRADIUS (160)
-#define MORTAR_SIZE (7.0f)
+#define MORTAR_SIZE (4.0f)
 static void WP_Mortar_Fire( gentity_t *ent, int special )
 {
 	gentity_t *missile = NULL;
@@ -309,6 +309,7 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 }
 
 
+// see bg_weapons.h for balance reasoning
 #define DIVERGENCE_DAMAGE (115)
 #define DIVERGENCE_HEADSHOT_MULTIPLIER (1.65f)
 #define DIVERGENCE_TRACES (3)
@@ -408,7 +409,6 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 			ignore = tr.entityNum;
 			memset( &tr, 0, sizeof( tr ) );
 			traces--;
-		//	headshot = qfalse;
 			headshotMulti = 1.0f;
 			hitLoc = HL_NONE;
 			continue;

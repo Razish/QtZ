@@ -756,8 +756,8 @@ void CG_NewClientInfo( int clientNum ) {
 #else
 	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel.string, sizeof( newInfo.modelName ) );
-	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceTeamModel.string, "none" ) )
-		Q_strncpyz( newInfo.modelName, cg_forceTeamModel.string, sizeof( newInfo.modelName ) );
+	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel.string, "none" ) )
+		Q_strncpyz( newInfo.modelName, cg_forceAllyModel.string, sizeof( newInfo.modelName ) );
 	else
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
 #endif
@@ -1862,30 +1862,26 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
-	vec4_t colour = { 1.0f };
+	struct { float r; float g; float b; float a; } color;
 
-	if ( ci->team != cg.predictedPlayerState.persistant[PERS_TEAM] && (cg_forceEnemyModelHue.value || cg_forceEnemyModelSat.value || cg_forceEnemyModelLum.value) )
+	if ( ci->team != cg.predictedPlayerState.persistant[PERS_TEAM] )
 	{
-		if ( cg_brightModels.integer == 1 )
-			HSV2RGB( cg_forceEnemyModelHue.value/360.f, cg_forceEnemyModelSat.value, cg_forceEnemyModelLum.value, &colour[0], &colour[1], &colour[2] );
-		else if ( cg_brightModels.integer == 2 )
-			HSL2RGB( cg_forceEnemyModelHue.value/360.f, cg_forceEnemyModelSat.value, cg_forceEnemyModelLum.value, &colour[0], &colour[1], &colour[2] );
-		colour[3] = cg_forceEnemyModelAlpha.value;
+		if ( sscanf( cg_forceEnemyModelColor.string, "%f %f %f %f", &color.r, &color.g, &color.b, &color.a ) != 4 ) {
+			color.r = 0; color.g = 255; color.g = 0; color.a = 255;
+		}
 	}
-	else if ( ci->team == cg.predictedPlayerState.persistant[PERS_TEAM] && (cg_forceTeamModelHue.value || cg_forceTeamModelSat.value || cg_forceTeamModelLum.value) )
+	else
 	{
-		if ( cg_brightModels.integer == 1 )
-			HSV2RGB( cg_forceTeamModelHue.value/360.0f, cg_forceTeamModelSat.value, cg_forceTeamModelLum.value, &colour[0], &colour[1], &colour[2] );
-		else if ( cg_brightModels.integer == 2 )
-			HSL2RGB( cg_forceTeamModelHue.value/360.0f, cg_forceTeamModelSat.value, cg_forceTeamModelLum.value, &colour[0], &colour[1], &colour[2] );
-		colour[3] = cg_forceTeamModelAlpha.value;
+		if ( sscanf( cg_forceAllyModelColor.string, "%f %f %f %f", &color.r, &color.g, &color.b, &color.a ) != 4 ) {
+			color.r = 0; color.g = 255; color.g = 0; color.a = 255;
+		}
 	}
-	if ( cg_brightModels.integer == 1 )
+	if ( cg_brightModels.integer )
 	{
-		ent->shaderRGBA[0] = colour[0]*255;
-		ent->shaderRGBA[1] = colour[1]*255;
-		ent->shaderRGBA[2] = colour[2]*255;
-	//	ent->shaderRGBA[3] = colour[3]*255;
+		ent->shaderRGBA[0] = color.r*255;
+		ent->shaderRGBA[1] = color.g*255;
+		ent->shaderRGBA[2] = color.b*255;
+		ent->shaderRGBA[3] = color.a*255;
 	}
 
 	trap_R_AddRefEntityToScene( ent );
@@ -1899,7 +1895,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		trap_R_AddRefEntityToScene( ent );
 	}
 	if ( state->powerups & ( 1 << PW_REGEN ) ) {
-		if ( ( ( cg.time / 100 ) % 10 ) == 1 ) {
+		if ( ((cg.time/100) % 10) == 1 ) {
 			ent->customShader = cgs.media.regenShader;
 			trap_R_AddRefEntityToScene( ent );
 		}

@@ -1233,7 +1233,7 @@ static void R_CreateDefaultImage( void ) {
 			data.regular[x][size-1][0]	= data.regular[x][size-1][1]	= data.regular[x][size-1][2]	= data.regular[x][size-1][3] = 255;
 		}
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)&data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
+	tr.defaultImage = R_CreateImage("*default", (byte *)&data, size, size, qtrue, qfalse, GL_REPEAT );
 }
 
 /*
