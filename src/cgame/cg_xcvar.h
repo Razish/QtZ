@@ -15,7 +15,7 @@ XCVAR_DEF( cg_smoothCamera,						"0",					CVAR_ARCHIVE			)
 
 XCVAR_DEF( cg_crosshairColour,					"1 1 1",				CVAR_ARCHIVE			)
 XCVAR_DEF( cg_crosshairFeedbackColour,			"1 0 0",				CVAR_ARCHIVE			)
-XCVAR_DEF( cg_crosshairFeedbackTime,			"1000",					CVAR_ARCHIVE			)
+XCVAR_DEF( cg_crosshairFeedbackTime,			"200",					CVAR_ARCHIVE			)
 XCVAR_DEF( cg_crosshairCooldownTics,			"16",					CVAR_ARCHIVE			)
 XCVAR_DEF( cg_crosshairCooldownSpread,			"16",					CVAR_ARCHIVE			)
 XCVAR_DEF( cg_crosshairCooldownWeapons,			"27",					CVAR_ARCHIVE			)
