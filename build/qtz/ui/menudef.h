@@ -20,13 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-/* Moved this to cgame/ui, we're now abusing the precompiler!
-#if !defined(SCREEN_WIDTH) && !defined(SCREEN_HEIGHT)
-	#define SCREEN_WIDTH 640.0
-	#define SCREEN_HEIGHT 480.0
-#endif
-*/
-
 #define ITEM_TYPE_TEXT			0	// simple text
 #define ITEM_TYPE_BUTTON		1	// button, basically text with a border
 #define ITEM_TYPE_RADIOBUTTON	2	// toggle button, may be grouped

@@ -1704,8 +1704,8 @@ void R_LoadEntities( lump_t *l ) {
 	p = (char *)(fileBase + l->fileofs);
 
 	// store for reference by the cgame
-	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
-	strcpy( w->entityString, p );
+	w->entityString = (char *)ri.Hunk_Alloc( l->filelen + 1, h_low );
+	Q_strncpyz( w->entityString, p, l->filelen+1 );
 	w->entityParsePoint = w->entityString;
 
 	token = COM_ParseExt( &p, qtrue );
@@ -1758,8 +1758,13 @@ void R_LoadEntities( lump_t *l ) {
 			continue;
 		}
 		// check for a different grid size
-		if (!Q_stricmp(keyname, "gridsize")) {
-			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+		if ( !Q_stricmp( keyname, "gridsize" ) )
+		{
+			if ( sscanf( value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] ) != 3 )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: invalid argument count for gridsize '%s'", value );
+				VectorSet( w->lightGridSize, 64.0f, 64.0f, 128.0f );
+			}
 			continue;
 		}
 	}

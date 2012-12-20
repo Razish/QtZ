@@ -225,9 +225,9 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 	missile->damage = QUANTIZER_DAMAGE;
 	missile->splashDamage = QUANTIZER_SPLASHDAMAGE;
 	missile->splashRadius = QUANTIZER_SPLASHRADIUS;
-	missile->knockbackMulti = 5.0f;
+	missile->knockbackMulti = 4.0f;
 	missile->knockbackMultiSelf = 5.0f;
-	missile->knockbackDampVert = 4.0f;
+	missile->knockbackDampVert = 0.45f;
 	missile->dflags = DAMAGE_VERTICAL_KNOCKBACK;
 	missile->methodOfDeath = MOD_QUANTIZER;
 	missile->splashMethodOfDeath = MOD_QUANTIZER;

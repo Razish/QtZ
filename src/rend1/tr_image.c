@@ -796,7 +796,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image->mipmap = mipmap;
 	image->allowPicmip = allowPicmip;
 
-	strcpy (image->imgName, name);
+	Q_strncpyz( image->imgName, name, sizeof( image->imgName ) );
 
 	image->width = width;
 	image->height = height;
@@ -860,7 +860,7 @@ image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrap
 	image->mipmap = qfalse;
 	image->allowPicmip = qfalse;
 
-	strcpy (image->imgName, name);
+	Q_strncpyz( image->imgName, name, sizeof( image->imgName ) );
 
 	image->width = width;
 	image->height = height;

@@ -1705,7 +1705,7 @@ void R_LoadEntities( lump_t *l ) {
 
 	// store for reference by the cgame
 	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
-	strcpy( w->entityString, p );
+	Q_strncpyz( w->entityString, p, l->filelen+1 );
 	w->entityParsePoint = w->entityString;
 
 	token = COM_ParseExt( &p, qtrue );
@@ -1759,8 +1759,13 @@ void R_LoadEntities( lump_t *l ) {
 		}
 
 		// check for a different grid size
-		if (!Q_stricmp(keyname, "gridsize")) {
-			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+		if ( !Q_stricmp( keyname, "gridsize" ) )
+		{
+			if ( sscanf( value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] ) != 3 )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: invalid argument count for gridsize '%s'", value );
+				VectorSet( w->lightGridSize, 64.0f, 64.0f, 128.0f );
+			}
 			continue;
 		}
 
@@ -1769,7 +1774,13 @@ void R_LoadEntities( lump_t *l ) {
 		//		makes a bit more sense to avoid HDR edge cases
 		if ( !Q_stricmp( keyname, "qtzGrading" ) )
 		{
-			sscanf( value, "%f %f %f %f", &tr.postprocessing.grading[0], &tr.postprocessing.grading[1], &tr.postprocessing.grading[2], &tr.postprocessing.grading[3] );
+			vec4_t tmp = {0.0f};
+			if ( sscanf( value, "%f %f %f %f", &tmp[0], &tmp[1], &tmp[2], &tmp[3] ) != 4 )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: invalid argument count for qtzGrading '%s'", value );
+			}
+			else
+				Vector4Copy( tmp, tr.postprocessing.grading );
 			continue;
 		}
 		//~QtZ

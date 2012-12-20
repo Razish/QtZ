@@ -327,7 +327,6 @@ PM_CheckJump
 =============
 */
 static qboolean PM_CheckJump( void ) {
-	qboolean didWallJump = qfalse;
 	if ( pm->ps->pm_flags & PMF_RESPAWNED )
 		return qfalse;		// don't allow jump until all buttons are up
 
@@ -345,8 +344,10 @@ static qboolean PM_CheckJump( void ) {
 		{//debouncer finished, pressing jump, not falling too far
 			vec3_t	forward, back;
 			vec3_t mins={ -0.5f, -0.5f, -0.5f }, maxs={ 0.5f, 0.5f, 0.5f };
-			vec3_t angs = { 0.0f, pm->ps->viewangles[YAW], 0.0f };
+			vec3_t angs = { 0.0f, 0.0f, 0.0f };
 			trace_t	trace;
+
+			angs[YAW] = pm->ps->viewangles[YAW];
 
 			//This will only use our yaw angle - we'll offset the pitch later to get a boost up
 			AngleVectors( angs, forward, NULL, NULL );

@@ -113,7 +113,7 @@ typedef struct {
 
 	long				samplesPerPixel;				// defaults to 2
 	byte*				gray;
-	unsigned int		xsize, ysize, maxsize, minsize;
+	long				xsize, ysize, maxsize, minsize;
 
 	qboolean			half, smootheddouble, inMemory;
 	long				normalBuffer0;
@@ -1329,7 +1329,7 @@ Fetch and decompress the pending frame
 
 e_status CIN_RunCinematic (int handle)
 {
-	int	start = 0;
+	unsigned int	start = 0;
 	int     thisTime = 0;
 
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
@@ -1603,6 +1603,9 @@ void CIN_DrawCinematic (int handle) {
 void CL_PlayCinematic_f(void) {
 	char	*arg, *s;
 	int bits = CIN_system;
+
+	//QtZ: Ugly but shhh let's just ignore this for now
+	return;
 
 	Com_DPrintf("CL_PlayCinematic_f\n");
 	if (clc.state == CA_CINEMATIC) {

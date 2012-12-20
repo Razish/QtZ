@@ -1307,7 +1307,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	refEntity_t		hand;
 	centity_t		*cent;
 	clientInfo_t	*ci;
-	float			fovOffset = 0.0f;
 	vec3_t			angles;
 	weaponInfo_t	*weapon;
 	float	cgFov = cg_fov.value;
@@ -1452,7 +1451,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	x = 320 - count * 20;
+	x = (SCREEN_WIDTH/2) - count * 20;
 	y = 380;
 
 	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ ) {

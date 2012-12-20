@@ -82,7 +82,6 @@ static void CG_Obituary( entityState_t *ent )
 	int				mod = ent->eventParm, target = ent->otherEntityNum, attacker = ent->otherEntityNum2;
 	const char		*targetInfo = NULL, *attackerInfo = NULL;
 	char			targetName[32] = {0}, attackerName[32] = {0};
-	gender_t		gender = GENDER_NEUTER;
 	clientInfo_t	*ci = NULL;
 
 	if ( target < 0 || target >= MAX_CLIENTS )

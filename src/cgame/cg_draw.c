@@ -1525,7 +1525,7 @@ static void CG_DrawReward( void ) {
 
 	if (count) {
 		y = 4;
-		x = 320 - count * ICON_SIZE;
+		x = (SCREEN_WIDTH/2) - count * ICON_SIZE;
 		for ( i = 0 ; i < count ; i++ ) {
 			CG_DrawPic( x, y, (ICON_SIZE*2)-4, (ICON_SIZE*2)-4, cg.rewardShader[0] );
 			x += (ICON_SIZE*2);
@@ -1899,37 +1899,12 @@ static void CG_DrawCrosshair(void)
 	float		x = cg_crosshairX.value, y = cg_crosshairY.value, w = cg_crosshairSize.value, h = cg_crosshairSize.value, f = 0.0f;
 	int			i = 0;
 	vec4_t		finalColour = { 1.0 };
-	static int lastCalculateTime = 0;
-	static vec3_t baseHSL = { 1.0f };
-	static vec3_t feedbackHSL = { 1.0f };
+	vec3_t		baseRGB = { 1.0f }, feedbackRGB = { 1.0f };
 
-	if ( cg.time - lastCalculateTime > 1500 )
-	{
-		char buf[32] = { 0 }, *s = &buf[0], *token=NULL;
-		float values[3] = { 1.0f };
-
-		//Base colour
-		s = &buf[0];
-		token = NULL;
-		trap_Cvar_VariableStringBuffer( "cg_crosshairColour", buf, sizeof( buf ) );
-		for ( i=0; i<3; i++ )
-		{
-			token = COM_ParseExt( &s, qfalse );
-			baseHSL[i] = atof( token );
-		}
-
-		//Feedback colour
-		s = &buf[0];
-		token = NULL;
-		trap_Cvar_VariableStringBuffer( "cg_crosshairFeedbackColour", buf, sizeof( buf ) );
-		for ( i=0; i<3; i++ )
-		{
-			token = COM_ParseExt( &s, qfalse );
-			feedbackHSL[i] = atof( token );
-		}
-
-		lastCalculateTime = cg.time;
-	}
+	if ( sscanf( cg_crosshairColour.string, "%f %f %f", &baseRGB[0], &baseRGB[1], &baseRGB[2] ) != 3 )
+		VectorSet( baseRGB, 1.0f, 1.0f, 1.0f );
+	if ( sscanf( cg_crosshairFeedbackColour.string, "%f %f %f", &feedbackRGB[0], &feedbackRGB[1], &feedbackRGB[2] ) != 3 )
+		VectorSet( feedbackRGB, 1.0f, 0.0f, 0.0f );
 
 	if ( !cg_drawCrosshair.integer
 		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
@@ -1970,10 +1945,9 @@ static void CG_DrawCrosshair(void)
 //	else if ( cg.qtz.crosshairDamageTime > cg.time - cg_crosshairFeedbackTime.integer )
 	{//QtZ: Colour crosshair if we recently hit someone (Damage feedback)
 		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.qtz.crosshairDamageTime) / cg_crosshairFeedbackTime.value );
-		float hue = LERP2( feedbackHSL[0], baseHSL[0], point );
-		float sat = LERP2( feedbackHSL[1], baseHSL[1], point );
-		float lum = LERP2( feedbackHSL[2], baseHSL[2], point );
-		HSV2RGB( hue/360.0f, sat, lum, &finalColour[0], &finalColour[1], &finalColour[2] );
+		finalColour[0] = LERP2( feedbackRGB[0], baseRGB[0], point );
+		finalColour[1] = LERP2( feedbackRGB[1], baseRGB[1], point );
+		finalColour[2] = LERP2( feedbackRGB[2], baseRGB[2], point );
 		finalColour[3] = 1.0f;
 	}
 	trap_R_SetColor( finalColour );
@@ -2170,12 +2144,12 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
-	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
+	CG_DrawBigString((SCREEN_WIDTH/2) - 9 * 8, 440, "SPECTATOR", 1.0F);
 	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+		CG_DrawBigString((SCREEN_WIDTH/2) - 15 * 8, 460, "waiting to play", 1.0F);
 	}
 	else if ( cgs.gametype >= GT_TEAM ) {
-		CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+		CG_DrawBigString((SCREEN_WIDTH/2) - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
 	}
 }
 
@@ -2480,8 +2454,8 @@ static void CG_DrawWarmup( void ) {
 			s = va( "%s vs %s", ci1->name, ci2->name );
 #ifdef QTZRELIC
 			w = CG_DrawStrlen( s );
-			if ( w > 640 / GIANT_WIDTH ) {
-				cw = 640 / w;
+			if ( w > SCREEN_WIDTH / GIANT_WIDTH ) {
+				cw = SCREEN_WIDTH / w;
 			} else {
 				cw = GIANT_WIDTH;
 			}
@@ -2681,7 +2655,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawUpperRight(stereoFrame);
 #else
 	if (!cg_paused.integer) {
-		CG_DrawUpperRight(stereoFrame);
+	//	CG_DrawUpperRight(stereoFrame);
 	}
 #endif // QTZRELIC
 

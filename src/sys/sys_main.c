@@ -168,7 +168,7 @@ qboolean Sys_WritePIDFile( void )
 	if( ( f = fopen( pidFile, "r" ) ) != NULL )
 	{
 		char  pidBuffer[ 64 ] = { 0 };
-		int   pid;
+		unsigned int pid;
 
 		pid = fread( pidBuffer, sizeof( char ), sizeof( pidBuffer ) - 1, f );
 		fclose( f );

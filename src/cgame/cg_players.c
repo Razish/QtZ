@@ -362,7 +362,6 @@ CG_RegisterClientModelname
 static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName )
 {
 	char filename[MAX_QPATH]={0};
-	char newTeamName[MAX_QPATH]={0};
 
 	//legs
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
@@ -1864,7 +1863,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
 	struct { float r; float g; float b; float a; } color;
 
-	if ( ci->team != cg.predictedPlayerState.persistant[PERS_TEAM] )
+	if ( (cgs.gametype < GT_TEAM && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAM && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
 	{
 		if ( sscanf( cg_forceEnemyModelColor.string, "%f %f %f %f", &color.r, &color.g, &color.b, &color.a ) != 4 ) {
 			color.r = 0; color.g = 255; color.g = 0; color.a = 255;

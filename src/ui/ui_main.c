@@ -5077,6 +5077,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	AssetCache();
 
 	//QtZ: Add new defines/macros for the menu system
+	//RAZTODO: normalise screen coords :/
 	trap_PC_AddGlobalDefine( va( "SCREEN_WIDTH %.2f", SCREEN_WIDTH ) );
 	trap_PC_AddGlobalDefine( va( "SCREEN_HEIGHT %.2f", SCREEN_HEIGHT ) );
 	//~QtZ

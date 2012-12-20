@@ -146,8 +146,10 @@ void FX_Divergence_Fire( centity_t *cent, vec3_t start, vec3_t end )
 					particleShader = trap_R_RegisterShaderNoMip( "gfx/effects/caustic1" ),
 					muzzleShader = trap_R_RegisterShaderNoMip( "gfx/efx/wp/divergence/muzzle" )/*,
 					muzzleEffect = cgs.effects.weapons.divergenceMuzzleNeutral*/;
-	vec4_t color1 = { ci->color1[0], ci->color1[1], ci->color1[2], 1.0f },
-			color2 = { ci->color2[0], ci->color2[1], ci->color2[2], 1.0f };
+	vec4_t color1 = { 1.0f }, color2 = { 1.0f };
+
+	VectorCopy( ci->color1, color1 ); color1[3] = 1.0f;
+	VectorCopy( ci->color2, color2 ); color2[3] = 1.0f;
 
 	AngleVectors( cent->lerpAngles, fwd, NULL, NULL );
 

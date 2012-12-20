@@ -737,7 +737,7 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 	
 	retval = _vsnprintf(str, size, format, ap);
 
-	if(retval < 0 || retval == size)
+	if(retval < 0 || retval == (signed)size)
 	{
 		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
 		// which states that the return value must be the number of
@@ -1299,7 +1299,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	if (!value || !strlen(value))
 		return;
 
-	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
+	Com_sprintf( newi, sizeof( newi ), "\\%s\\%s", key, value );
 
 	if (strlen(newi) + strlen(s) >= MAX_INFO_STRING)
 	{
@@ -1307,8 +1307,8 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 		return;
 	}
 
-	strcat (newi, s);
-	strcpy (s, newi);
+	Q_strcat( newi, sizeof( newi ), s );
+	Q_strncpyz( s, newi, MAX_INFO_STRING );
 }
 
 /*
@@ -1348,7 +1348,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 		return;
 	}
 
-	strcat (s, newi);
+	Q_strcat( s, MAX_INFO_STRING, newi );
 }
 
 

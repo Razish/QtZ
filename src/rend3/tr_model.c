@@ -51,7 +51,7 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 
 	numLoaded = 0;
 
-	strcpy(filename, name);
+	Q_strncpyz( filename, name, sizeof( filename ) );
 
 	fext = strchr(filename, '.');
 	if(!fext)

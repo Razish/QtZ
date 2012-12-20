@@ -369,7 +369,7 @@ void SCR_DrawDemoRecording( void ) {
 	pos = FS_FTell( clc.demofile );
 	sprintf( string, "RECORDING %s: %ik", clc.demoName, pos / 1024 );
 
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue, qfalse );
+	SCR_DrawStringExt( (SCREEN_WIDTH/2) - strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue, qfalse );
 }
 
 
@@ -408,7 +408,7 @@ void SCR_DrawVoipMeter( void ) {
 	buffer[i] = '\0';
 
 	sprintf( string, "VoIP: [%s]", buffer );
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
+	SCR_DrawStringExt( (SCREEN_WIDTH/2) - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
 }
 #endif
 

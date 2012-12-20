@@ -836,7 +836,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	//Raz: Quantizer/RL extra knockback
 	if ( affector )
 	{
-		if ( attacker->client && attacker->s.eType == ET_PLAYER && OnSameTeam( attacker, targ ) )
+		if ( attacker->client && attacker->s.eType == ET_PLAYER && (attacker==targ || OnSameTeam( attacker, targ )) )
 			knockback *= affector->knockbackMultiSelf;
 		else
 			knockback *= affector->knockbackMulti;
@@ -860,7 +860,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 		if ( affector
 			&& (affector->dflags & DAMAGE_VERTICAL_KNOCKBACK)
 			&& affector->knockbackDampVert != 0.0f
-			&& attacker != targ )
+			)//&& attacker != targ )
 		{//Attacking someone else with a DAMAGE_VERTICAL_KNOCKBACK flag, dampen the x/y knockback
 			kvel[0] *= affector->knockbackDampVert;
 			kvel[1] *= affector->knockbackDampVert;
