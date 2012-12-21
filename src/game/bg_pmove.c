@@ -328,6 +328,7 @@ PM_CheckJump
 =============
 */
 static qboolean PM_CheckJump( void ) {
+	float dot = 0.0f;
 	if ( pm->ps->pm_flags & PMF_RESPAWNED )
 		return qfalse;		// don't allow jump until all buttons are up
 
@@ -360,7 +361,7 @@ static qboolean PM_CheckJump( void ) {
 				angs[0] = -17.0f; //aim up a bit
 				AngleVectors( angs, forward, NULL, NULL );
 				//push up to ~360 ups, based on how close we are to the wall
-				VectorMA( pm->ps->velocity, pm->qtz.jumpVelocity + ( (pm->qtz.jumpVelocity/16.0f) * ( 1.0f-trace.fraction) ), forward, pm->ps->velocity );
+				VectorMA( pm->ps->velocity, (pm->qtz.jumpVelocity/2.0f) + ( (pm->qtz.jumpVelocity/2.0f) * ( 1.0f-trace.fraction) ), forward, pm->ps->velocity );
 				pm->ps->qtz.wallJumpTime = pm->qtz.wallJumpDebounce;//1250;
 
 				goto dojump;
@@ -390,6 +391,9 @@ dojump:
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	pm->ps->velocity[2] = pm->qtz.jumpVelocity;
+	dot = DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal );
+	if ( dot > 0.0f && dot < pm->qtz.jumpVelocity )
+		pm->ps->velocity[2] += pm->qtz.jumpVelocity-dot;
 
 	if ( pm->qtz.doubleJumpEnable )
 	{
@@ -805,7 +809,7 @@ static void PM_WalkMove( void ) {
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-	wishvel[2] = 0;
+//	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
@@ -846,7 +850,7 @@ static void PM_WalkMove( void ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else {
 		// don't reset the z velocity for slopes
-		pm->ps->velocity[2] = 0;
+	//	pm->ps->velocity[2] = 0;
 	}
 
 	vel = VectorLength(pm->ps->velocity);
