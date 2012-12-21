@@ -777,7 +777,7 @@ static float CG_DrawFPS( float y ) {
 	vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
 	char *tmp = NULL;
-	int maxFPS = atoi( CG_Cvar_VariableString( "com_maxFPS" ) );
+	int maxFPS = (int)(1000.0f/atof( CG_Cvar_VariableString( "com_frametime" ) ));
 
 	if ( !cg_drawFPS.integer && !cg_debugHUD.integer )
 		return y;

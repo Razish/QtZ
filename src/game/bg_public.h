@@ -154,6 +154,7 @@ typedef enum {
 #define PMF_FOLLOW			4096	// spectate following another player
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
+#define PMF_LANDED			32768
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -165,7 +166,7 @@ typedef struct {
 	// command (in)
 	usercmd_t	cmd;
 	int			tracemask;			// collide against these types of surfaces
-	int			debugLevel;			// if set, diagnostic output will be printed
+//	int			debugLevel;			// if set, diagnostic output will be printed
 	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
 	qboolean	gauntletHit;		// true if a gauntlet attack would actually hit something
 

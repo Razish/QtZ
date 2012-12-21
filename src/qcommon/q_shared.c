@@ -339,7 +339,7 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
+const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 	int c;
 
 	while( (c = *data) <= ' ') {
@@ -360,6 +360,8 @@ int COM_Compress( char *data_p ) {
 	char *in, *out;
 	int c;
 	qboolean newline = qfalse, whitespace = qfalse;
+
+	assert( data_p );
 
 	in = out = data_p;
 	if (in) {
@@ -425,11 +427,11 @@ int COM_Compress( char *data_p ) {
 	return out - data_p;
 }
 
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
+char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
-	char *data;
+	const char *data;
 
 	data = *data_p;
 	len = 0;
@@ -525,6 +527,138 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 
 	*data_p = ( char * ) data;
 	return com_token;
+}
+
+#if 0
+// no longer used
+/*
+===============
+COM_ParseInfos
+===============
+*/
+int COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] ) {
+	char	*token;
+	int		count;
+	char	key[MAX_TOKEN_CHARS];
+
+	count = 0;
+
+	while ( 1 ) {
+		token = COM_Parse( &buf );
+		if ( !token[0] ) {
+			break;
+		}
+		if ( strcmp( token, "{" ) ) {
+			Com_Printf( "Missing { in info file\n" );
+			break;
+		}
+
+		if ( count == max ) {
+			Com_Printf( "Max infos exceeded\n" );
+			break;
+		}
+
+		infos[count][0] = 0;
+		while ( 1 ) {
+			token = COM_ParseExt( &buf, qtrue );
+			if ( !token[0] ) {
+				Com_Printf( "Unexpected end of info file\n" );
+				break;
+			}
+			if ( !strcmp( token, "}" ) ) {
+				break;
+			}
+			Q_strncpyz( key, token, sizeof( key ) );
+
+			token = COM_ParseExt( &buf, qfalse );
+			if ( !token[0] ) {
+				strcpy( token, "<NULL>" );
+			}
+			Info_SetValueForKey( infos[count], key, token );
+		}
+		count++;
+	}
+
+	return count;
+}
+#endif
+
+/*
+===============
+COM_ParseString
+===============
+*/
+qboolean COM_ParseString( const char **data, const char **s ) 
+{
+//	*s = COM_ParseExt( data, qtrue );
+	*s = COM_ParseExt( data, qfalse );
+	if ( s[0] == 0 ) 
+	{
+		Com_Printf("unexpected EOF\n");
+		return qtrue;
+	}
+	return qfalse;
+}
+
+/*
+===============
+COM_ParseInt
+===============
+*/
+qboolean COM_ParseInt( const char **data, int *i ) 
+{
+	const char	*token;
+
+	token = COM_ParseExt( data, qfalse );
+	if ( token[0] == 0 ) 
+	{
+		Com_Printf( "unexpected EOF\n" );
+		return qtrue;
+	}
+
+	*i = atoi( token );
+	return qfalse;
+}
+
+/*
+===============
+COM_ParseFloat
+===============
+*/
+qboolean COM_ParseFloat( const char **data, float *f ) 
+{
+	const char	*token;
+
+	token = COM_ParseExt( data, qfalse );
+	if ( token[0] == 0 ) 
+	{
+		Com_Printf( "unexpected EOF\n" );
+		return qtrue;
+	}
+
+	*f = atof( token );
+	return qfalse;
+}
+
+/*
+===============
+COM_ParseVec4
+===============
+*/
+qboolean COM_ParseVec4( const char **buffer, vec4_t *c) 
+{
+	int i;
+	float f;
+
+	for (i = 0; i < 4; i++) 
+	{
+		if (COM_ParseFloat(buffer, &f)) 
+		{
+			return qtrue;
+		}
+		(*c)[i] = f;
+	}
+	return qfalse;
 }
 
 /*

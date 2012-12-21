@@ -456,7 +456,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( ent->s.eType != ET_PLAYER ) {
 				break;		// not in the player model
 			}
-			if ( g_dmflags.integer & DF_NO_FALLING ) {
+			if ( dmflags.integer & DF_NO_FALLING ) {
 				break;
 			}
 			if ( event == EV_FALL_FAR ) {
@@ -703,8 +703,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	pm.trace = trap_Trace;
 	pm.pointcontents = trap_PointContents;
-	pm.debugLevel = g_debugMove.integer;
-	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
+	pm.noFootsteps = !!(dmflags.integer & DF_NO_FOOTSTEPS);
 
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
@@ -730,7 +729,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
-		if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
+		if (level.intermissionQueued != 0 && ui_singlePlayerActive.integer) {
 			if ( level.time - level.intermissionQueued >= 1000  ) {
 				pm.cmd.buttons = 0;
 				pm.cmd.forwardmove = 0;
@@ -802,8 +801,8 @@ void ClientThink_real( gentity_t *ent ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
-			if ( g_forcerespawn.integer > 0 && 
-				( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
+			if ( g_forceRespawn.integer > 0 && 
+				( level.time - client->respawnTime ) > g_forceRespawn.integer * 1000 ) {
 				ClientRespawn( ent );
 				return;
 			}

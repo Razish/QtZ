@@ -229,39 +229,40 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-#if 1
-	// q2 style
-	int			i;
-	float		addspeed, accelspeed, currentspeed;
+	if ( (pm->ps->pm_flags & PMF_LANDED) && pm->ps->pm_time && pm->ps->groundEntityNum != ENTITYNUM_NONE )
+	{// proper way (avoids strafe jump maxspeed bug), but feels bad
+		vec3_t		wishVelocity;
+		vec3_t		pushDir;
+		float		pushLen;
+		float		canPush;
 
-	currentspeed = DotProduct (pm->ps->velocity, wishdir);
-	addspeed = wishspeed - currentspeed;
-	if ( addspeed <= 0.0f )
-		return;
-	accelspeed = accel * wishspeed * pml.frametime;
-	if (accelspeed > addspeed)
-		accelspeed = addspeed;
-	
-	for ( i=0; i<3; i++ )
-		pm->ps->velocity[i] += accelspeed * wishdir[i];	
-#else
-	// proper way (avoids strafe jump maxspeed bug), but feels bad
-	vec3_t		wishVelocity;
-	vec3_t		pushDir;
-	float		pushLen;
-	float		canPush;
+		VectorScale( wishdir, wishspeed, wishVelocity );
+		VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
+		pushLen = VectorNormalize( pushDir );
 
-	VectorScale( wishdir, wishspeed, wishVelocity );
-	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
-	pushLen = VectorNormalize( pushDir );
+		canPush = accel*pml.frametime*wishspeed;
+		if (canPush > pushLen) {
+			canPush = pushLen;
+		}
 
-	canPush = accel*pml.frametime*wishspeed;
-	if (canPush > pushLen) {
-		canPush = pushLen;
+		VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
 	}
+	else
+	{// q2 style
+		int			i;
+		float		addspeed, accelspeed, currentspeed;
 
-	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
-#endif
+		currentspeed = DotProduct (pm->ps->velocity, wishdir);
+		addspeed = wishspeed - currentspeed;
+		if ( addspeed <= 0.0f )
+			return;
+		accelspeed = accel * wishspeed * pml.frametime;
+		if (accelspeed > addspeed)
+			accelspeed = addspeed;
+		
+		for ( i=0; i<3; i++ )
+			pm->ps->velocity[i] += accelspeed * wishdir[i];	
+	}
 }
 
 
@@ -356,10 +357,10 @@ static qboolean PM_CheckJump( void ) {
 
 			if ( trace.fraction < 1.0f )
 			{//wall behind us, jump off it
-				angs[0] = -30.0f; //aim up a bit
+				angs[0] = -17.0f; //aim up a bit
 				AngleVectors( angs, forward, NULL, NULL );
 				//push up to ~360 ups, based on how close we are to the wall
-				VectorMA( pm->ps->velocity, pm->qtz.jumpVelocity + ( (pm->qtz.jumpVelocity/2.0f) * (1.5f * ( 1.0f-trace.fraction )) ), forward, pm->ps->velocity );
+				VectorMA( pm->ps->velocity, pm->qtz.jumpVelocity + ( (pm->qtz.jumpVelocity/16.0f) * ( 1.0f-trace.fraction) ), forward, pm->ps->velocity );
 				pm->ps->qtz.wallJumpTime = pm->qtz.wallJumpDebounce;//1250;
 
 				goto dojump;
@@ -804,7 +805,7 @@ static void PM_WalkMove( void ) {
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
+	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
@@ -845,7 +846,7 @@ static void PM_WalkMove( void ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else {
 		// don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
+		pm->ps->velocity[2] = 0;
 	}
 
 	vel = VectorLength(pm->ps->velocity);
@@ -1086,10 +1087,6 @@ static int PM_CorrectAllSolid( trace_t *trace ) {
 	int			i, j, k;
 	vec3_t		point;
 
-	if ( pm->debugLevel ) {
-		Com_Printf("%i:allsolid\n", c_pmove);
-	}
-
 	// jitter around
 	for (i = -1; i <= 1; i++) {
 		for (j = -1; j <= 1; j++) {
@@ -1133,9 +1130,6 @@ static void PM_GroundTraceMissed( void ) {
 
 	if ( pm->ps->groundEntityNum != ENTITYNUM_NONE ) {
 		// we just transitioned into freefall
-		if ( pm->debugLevel ) {
-			Com_Printf("%i:lift\n", c_pmove);
-		}
 
 		// if they aren't in a jumping animation and the ground is a ways away, force into it
 		// if we didn't do the trace, the player would be backflipping down staircases
@@ -1192,9 +1186,6 @@ static void PM_GroundTrace( void ) {
 
 	// check if getting thrown off the ground
 	if ( pm->ps->velocity[2] > 0 && DotProduct( pm->ps->velocity, trace.plane.normal ) > 10 ) {
-		if ( pm->debugLevel ) {
-			Com_Printf("%i:kickoff\n", c_pmove);
-		}
 		// go into jump animation
 		if ( pm->cmd.forwardmove >= 0 ) {
 			PM_ForceLegsAnim( LEGS_JUMP );
@@ -1212,9 +1203,6 @@ static void PM_GroundTrace( void ) {
 	
 	// slopes that are too steep will not be considered onground
 	if ( trace.plane.normal[2] < MIN_WALK_NORMAL ) {
-		if ( pm->debugLevel ) {
-			Com_Printf("%i:steep\n", c_pmove);
-		}
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
@@ -1235,11 +1223,11 @@ static void PM_GroundTrace( void ) {
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
 		// just hit the ground
-		if ( pm->debugLevel ) {
-			Com_Printf("%i:Land\n", c_pmove);
-		}
-		
 		PM_CrashLand();
+
+		//QtZ: Different physics apply as you land, can change direction much quicker
+		pm->ps->pm_flags |= PMF_LANDED;
+		pm->ps->pm_time = 500;
 
 		// don't do landing time if we were just going down a slope
 		if ( pml.previous_velocity[2] < -200 ) {

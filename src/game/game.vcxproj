@@ -348,6 +348,7 @@
     <ClInclude Include=".\syn.h" />
     <ClInclude Include="bg_weapons.h" />
     <ClInclude Include="g_unlagged.h" />
+    <ClInclude Include="g_xcvar.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

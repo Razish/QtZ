@@ -1680,6 +1680,7 @@ void CG_LoadHudMenu( void ) {
 	cgDC.getValue = &CG_GetValue;
 	cgDC.ownerDrawVisible = &CG_OwnerDrawVisible;
 	cgDC.runScript = &CG_RunMenuScript;
+	cgDC.deferScript = &CG_DeferMenuScript;
 	cgDC.getTeamColor = &CG_GetTeamColor;
 	cgDC.setCVar = trap_Cvar_Set;
 	cgDC.getCVarString = trap_Cvar_VariableStringBuffer;

@@ -1422,7 +1422,7 @@ static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vec4_t color, qhandle_
 	unsigned short frameTime;
 	vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
-	int maxFPS = atoi( CG_Cvar_VariableString( "com_maxFPS" ) );
+	int maxFPS = (int)(1000.0f/atof( CG_Cvar_VariableString( "com_frametime" ) ));
 
 	if ( !cg_drawFPS.integer && !cg_debugHUD.integer )
 		return;
@@ -1792,6 +1792,9 @@ void CG_ShowResponseHead(void) {
 void CG_RunMenuScript(char **args) {
 }
 
+qboolean CG_DeferMenuScript (char **args) {
+	return qfalse;
+}
 
 void CG_GetTeamColor(vec4_t *color) {
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {

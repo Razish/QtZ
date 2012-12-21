@@ -3118,6 +3118,60 @@ static void UI_Update(const char *name) {
 	}
 }
 
+/*
+===============
+UI_DeferMenuScript
+
+Return true if the menu script should be deferred for later
+===============
+*/
+static qboolean UI_DeferMenuScript ( char **args )
+{
+	const char* name;
+
+	// Whats the reason for being deferred?
+	if (!String_Parse( (char**)args, &name)) 
+	{
+		return qfalse;
+	}
+
+	// Handle the custom cases
+	if ( !Q_stricmp ( name, "VideoSetup" ) )
+	{
+		const char* warningMenuName;
+		qboolean	deferred;
+
+		// No warning menu specified
+		if ( !String_Parse( (char**)args, &warningMenuName) )
+		{
+			return qfalse;
+		}
+
+		// Defer if the video options were modified
+		deferred = trap_Cvar_VariableValue ( "ui_r_modified" ) ? qtrue : qfalse;
+
+		if ( deferred )
+		{
+			// Open the warning menu
+			Menus_OpenByName(warningMenuName);
+		}
+
+		return deferred;
+	}
+	else if ( !Q_stricmp ( name, "RulesBackout" ) )
+	{
+		qboolean deferred;
+		
+		deferred = trap_Cvar_VariableValue ( "ui_rules_backout" ) ? qtrue : qfalse ;
+
+		trap_Cvar_Set ( "ui_rules_backout", "0" );
+
+		return deferred;
+	}
+
+	return qfalse;
+}
+
 static void UI_RunMenuScript(char **args) {
 	const char *name, *name2;
 	char buff[1024];
@@ -5038,6 +5092,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.getValue = &UI_GetValue;
 	uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
 	uiInfo.uiDC.runScript = &UI_RunMenuScript;
+	uiInfo.uiDC.deferScript = &UI_DeferMenuScript;
 	uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
 	uiInfo.uiDC.setCVar = trap_Cvar_Set;
 	uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;

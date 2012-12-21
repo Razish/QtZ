@@ -1227,6 +1227,7 @@ void CG_SelectNextPlayer( void );
 float CG_GetValue(int ownerDraw);
 qboolean CG_OwnerDrawVisible(int flags);
 void CG_RunMenuScript(char **args);
+qboolean CG_DeferMenuScript(char **args);
 void CG_ShowResponseHead( void );
 void CG_SetPrintString(int type, const char *p);
 void CG_InitTeamChat( void );

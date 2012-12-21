@@ -725,10 +725,14 @@ void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
 char	*COM_Parse( char **data_p );
-char	*COM_ParseExt( char **data_p, qboolean allowLineBreak );
+char	*COM_ParseExt( const char **data_p, qboolean allowLineBreaks );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+qboolean COM_ParseString( const char **data, const char **s );
+qboolean COM_ParseInt( const char **data, int *i );
+qboolean COM_ParseFloat( const char **data, float *f );
+qboolean COM_ParseVec4( const char **buffer, vec4_t *c);
 //int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 
 #define MAX_TOKENLENGTH		1024

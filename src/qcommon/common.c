@@ -62,7 +62,9 @@ cvar_t	*com_dedicated;
 cvar_t	*com_timescale;
 cvar_t	*com_fixedtime;
 cvar_t	*com_journal;
-cvar_t	*com_maxfps;
+cvar_t	*com_frametime;
+cvar_t	*com_frametimeUnfocused;
+cvar_t	*com_frametimeMinimized;
 cvar_t	*com_altivec;
 cvar_t	*com_timedemo;
 cvar_t	*com_sv_running;
@@ -81,9 +83,7 @@ cvar_t  *sv_packetdelay;
 cvar_t	*com_cameraMode;
 cvar_t	*com_ansiColor;
 cvar_t	*com_unfocused;
-cvar_t	*com_maxfpsUnfocused;
 cvar_t	*com_minimized;
-cvar_t	*com_maxfpsMinimized;
 cvar_t	*com_abnormalExit;
 cvar_t	*com_standalone;
 cvar_t	*com_gamename;
@@ -2735,7 +2735,9 @@ void Com_Init( char *commandLine ) {
 	// init commands and vars
 	//
 	com_altivec = Cvar_Get ("com_altivec", "1", CVAR_ARCHIVE);
-	com_maxfps = Cvar_Get ("com_maxfps", "125", CVAR_ARCHIVE);
+	com_frametime = Cvar_Get ("com_frametime", "8", CVAR_ARCHIVE);
+	com_frametimeUnfocused = Cvar_Get( "com_frametimeUnfocused", "40", CVAR_ARCHIVE );
+	com_frametimeMinimized = Cvar_Get( "com_frametimeMinimized", "40", CVAR_ARCHIVE );
 	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE);
 
 	com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
@@ -2757,9 +2759,7 @@ void Com_Init( char *commandLine ) {
 	com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE );
 
 	com_unfocused = Cvar_Get( "com_unfocused", "0", CVAR_ROM );
-	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE );
 	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
-	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE );
 	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
 	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
 	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
@@ -3103,12 +3103,12 @@ void Com_Frame( void ) {
 			minMsec = SV_FrameMsec();
 		else
 		{
-			if(com_minimized->integer && com_maxfpsMinimized->integer > 0)
-				minMsec = 1000 / com_maxfpsMinimized->integer;
-			else if(com_unfocused->integer && com_maxfpsUnfocused->integer > 0)
-				minMsec = 1000 / com_maxfpsUnfocused->integer;
-			else if(com_maxfps->integer > 0)
-				minMsec = 1000 / com_maxfps->integer;
+			if ( com_minimized->integer && com_frametimeMinimized->integer > 0 )
+				minMsec = com_frametimeMinimized->integer;
+			else if ( com_unfocused->integer && com_frametimeUnfocused->integer > 0 )
+				minMsec = com_frametimeUnfocused->integer;
+			else if ( com_frametime->integer > 0 )
+				minMsec = com_frametime->integer;
 			else
 				minMsec = 1;
 			

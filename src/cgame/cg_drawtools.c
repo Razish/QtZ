@@ -190,8 +190,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
-		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars ) {
+void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;

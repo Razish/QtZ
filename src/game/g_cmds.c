@@ -107,7 +107,7 @@ CheatsOk
 ==================
 */
 qboolean	CheatsOk( gentity_t *ent ) {
-	if ( !g_cheats.integer ) {
+	if ( !sv_cheats.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Cheats are not enabled on this server.\n\"");
 		return qfalse;
 	}
@@ -893,7 +893,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	// echo the text to the console
-	if ( g_dedicated.integer ) {
+	if ( dedicated.integer ) {
 		G_Printf( "%s%s\n", name, text);
 	}
 
@@ -1019,7 +1019,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 	}
 
 	// echo the text to the console
-	if ( g_dedicated.integer ) {
+	if ( dedicated.integer ) {
 		G_Printf( "voice: %s %s\n", ent->client->pers.netname, id);
 	}
 
@@ -1574,7 +1574,7 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 	char		buffer[MAX_TOKEN_CHARS];
 	int			i;
 
-	if ( !g_cheats.integer ) {
+	if ( !sv_cheats.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Cheats are not enabled on this server.\n\"");
 		return;
 	}

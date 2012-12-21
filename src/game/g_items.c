@@ -225,11 +225,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 
 	Add_Ammo( other, ent->item->giTag, quantity );
 
-	// team deathmatch has slow weapon respawns
-	if ( g_gametype.integer == GT_TEAM ) {
-		return g_weaponTeamRespawn.integer;
-	}
-
 	return g_weaponRespawn.integer;
 }
 

@@ -297,6 +297,7 @@
     <ClCompile Include=".\ui_syscalls.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\build\qtz\ui\menudef.h" />
     <ClInclude Include="ui_local.h" />
     <ClInclude Include="ui_public.h" />
     <ClInclude Include="ui_shared.h" />

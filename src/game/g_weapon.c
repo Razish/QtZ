@@ -457,7 +457,7 @@ FireWeapon
 */
 void FireWeapon( gentity_t *ent, int special )
 {
-	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadfactor.value : 1.0f;
+	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadFactor.value : 1.0f;
 
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	ent->client->accuracy_shots++;
