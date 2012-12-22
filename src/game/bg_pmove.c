@@ -391,9 +391,13 @@ dojump:
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	pm->ps->velocity[2] = pm->qtz.jumpVelocity;
-	dot = DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal );
-	if ( dot > 0.0f && dot < pm->qtz.jumpVelocity )
-		pm->ps->velocity[2] += pm->qtz.jumpVelocity-dot;
+
+	if ( pm->qtz.rampJumpEnable )
+	{
+		dot = DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal );
+		if ( dot > 0.0f && dot < pm->qtz.jumpVelocity )
+			pm->ps->velocity[2] += pm->qtz.jumpVelocity-dot; //Raz: We may want to simply do vel = MA(vel, jumpVel, normal)
+	}
 
 	if ( pm->qtz.doubleJumpEnable )
 	{
@@ -859,9 +863,11 @@ static void PM_WalkMove( void ) {
 	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
 		pm->ps->velocity, OVERCLIP );
 
-	// don't decrease velocity when going up or down a slope
-	VectorNormalize(pm->ps->velocity);
-	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+	if ( pm->qtz.overbounce )
+	{// don't decrease velocity when going up or down a slope
+		VectorNormalize(pm->ps->velocity);
+		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+	}
 
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
@@ -2022,8 +2028,8 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
-	//RAZTODO: ;o
-	trap_SnapVector( pm->ps->velocity );
+	if ( pm->qtz.snapVec )
+		trap_SnapVector( pm->ps->velocity );
 }
 
 

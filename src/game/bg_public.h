@@ -193,26 +193,32 @@ typedef struct {
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
 
 	struct {
-		//Wall jumping
+		qboolean	snapVec;
+		qboolean	overbounce;
+
+		// ramp jump (similar to q2/cpma, not the same)
+		qboolean	rampJumpEnable;
+
+		// wall jumping
 		qboolean	wallJumpEnable;
 		int			wallJumpDebounce;
 
-		//Bunnyhopping
+		// bunnyhopping / autohop
 		qboolean	bunnyHopEnable;
 		int			bunnyHopDebounce;
 
-		//Double jump
+		// double jump (cpm style)
 		qboolean	doubleJumpEnable;
 		int			doubleJumpPush;
 		int			doubleJumpDebounce;
 
-		//General physics
+		// general physics
 		float		accelerate;
 		float		airaccelerate;
 		float		friction;
 		float		jumpVelocity;
 
-		//Air control
+		// air control (cpm style)
 		qboolean	airControlEnable; //master control for air control
 		float		airControl;
 		float		airControlStopAccelerate;

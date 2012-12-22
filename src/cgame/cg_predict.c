@@ -579,6 +579,9 @@ void CG_PredictPlayerState( void ) {
 		}
 
 		//QtZ: set physics variables for pmove sequence
+		cg_pmove.qtz.snapVec					= qtz_phys_snapVec.integer;
+		cg_pmove.qtz.overbounce					= qtz_phys_overbounce.integer;
+		cg_pmove.qtz.rampJumpEnable				= qtz_phys_rampJumpEnable.integer;
 		cg_pmove.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
 		cg_pmove.qtz.wallJumpDebounce			= qtz_phys_wallJumpDebounce.integer;
 		cg_pmove.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;

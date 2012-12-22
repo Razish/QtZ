@@ -1223,7 +1223,7 @@ void ClientSpawn(gentity_t *ent) {
 	ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtz_phys_snapVec.integer );
 }
 
 

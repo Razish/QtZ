@@ -26,6 +26,9 @@ XCVAR_DEF( g_bounceMissileStyle,				"0",				qfalse,	CVAR_ARCHIVE )
 XCVAR_DEF( qtz_cinfo,							"0",				qfalse,	CVAR_SERVERINFO )
 
 //Physics - must match cg_xcvar.h
+XCVAR_DEF( qtz_phys_snapVec,					"0",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )
+XCVAR_DEF( qtz_phys_overbounce,					"0",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )
+XCVAR_DEF( qtz_phys_rampJumpEnable,				"1",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )
 XCVAR_DEF( qtz_phys_wallJumpEnable,				"1",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )
 XCVAR_DEF( qtz_phys_wallJumpDebounce,			"900",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )
 XCVAR_DEF( qtz_phys_bunnyHopEnable,				"1",				qtrue,	CVAR_ARCHIVE|CVAR_SYSTEMINFO )

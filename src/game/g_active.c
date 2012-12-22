@@ -709,6 +709,9 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pmove_msec = pmove_msec.integer;
 
 	//QtZ: set physics variables for pmove sequence
+	pm.qtz.snapVec						= qtz_phys_snapVec.integer;
+	pm.qtz.overbounce					= qtz_phys_overbounce.integer;
+	pm.qtz.rampJumpEnable				= qtz_phys_rampJumpEnable.integer;
 	pm.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
 	pm.qtz.wallJumpDebounce				= qtz_phys_wallJumpDebounce.integer;
 	pm.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;
@@ -748,10 +751,10 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->eventTime = level.time;
 	}
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtz_phys_snapVec.integer );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtz_phys_snapVec.integer );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -961,10 +964,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// set the latest infor
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtz_phys_snapVec.integer );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtz_phys_snapVec.integer );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
