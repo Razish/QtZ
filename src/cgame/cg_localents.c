@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define	MAX_LOCAL_ENTITIES	512
+#define	MAX_LOCAL_ENTITIES	2048
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
@@ -59,6 +59,7 @@ CG_FreeLocalEntity
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
 		CG_Error( "CG_FreeLocalEntity: not active" );
+		return;
 	}
 
 	// remove from the doubly linked active list
@@ -246,6 +247,12 @@ void CG_AddFragment( localEntity_t *le ) {
 	vec3_t	newOrigin;
 	trace_t	trace;
 
+	if (le->forceAlpha)
+	{
+		le->refEntity.renderfx |= RF_FORCE_ENT_ALPHA;
+		le->refEntity.shaderRGBA[3] = le->forceAlpha;
+	}
+
 	if ( le->pos.trType == TR_STATIONARY ) {
 		// sink into the ground if near the removal time
 		int		t;
@@ -303,16 +310,19 @@ void CG_AddFragment( localEntity_t *le ) {
 		return;
 	}
 
-	// leave a mark
-	CG_FragmentBounceMark( le, &trace );
+	if (!trace.startsolid)
+	{
+		// leave a mark
+		CG_FragmentBounceMark( le, &trace );
 
-	// do a bouncy sound
-	CG_FragmentBounceSound( le, &trace );
+		// do a bouncy sound
+		CG_FragmentBounceSound( le, &trace );
 
-	// reflect the velocity on the trace plane
-	CG_ReflectVelocity( le, &trace );
+		// reflect the velocity on the trace plane
+		CG_ReflectVelocity( le, &trace );
 
-	trap_R_AddRefEntityToScene( &le->refEntity );
+		trap_R_AddRefEntityToScene( &le->refEntity );
+	}
 }
 
 /*
@@ -344,6 +354,33 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	re->shaderRGBA[3] = le->color[3] * c;
 
 	trap_R_AddRefEntityToScene( re );
+}
+
+static void CG_AddFadeScaleModel( localEntity_t *le )
+{
+	refEntity_t	*ent = &le->refEntity;
+
+	float frac = ( cg.time - le->startTime )/((float)( le->endTime - le->startTime ));
+
+	frac *= frac * frac; // yes, this is completely ridiculous...but it causes the shell to grow slowly then "explode" at the end
+
+	ent->nonNormalizedAxes = qtrue;
+
+	AxisCopy( axisDefault, ent->axis );
+
+	VectorScale( ent->axis[0], le->radius * frac, ent->axis[0] );
+	VectorScale( ent->axis[1], le->radius * frac, ent->axis[1] );
+	VectorScale( ent->axis[2], le->radius * 0.5f * frac, ent->axis[2] );
+
+	frac = 1.0f - frac;
+
+	ent->shaderRGBA[0] = le->color[0] * frac;
+	ent->shaderRGBA[1] = le->color[1] * frac;
+	ent->shaderRGBA[2] = le->color[2] * frac;
+	ent->shaderRGBA[3] = le->color[3] * frac;
+
+	// add the entity
+	trap_R_AddRefEntityToScene( ent );
 }
 
 /*
@@ -388,6 +425,43 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( re );
 }
 
+/*
+==================
+CG_AddPuff
+==================
+*/
+static void CG_AddPuff( localEntity_t *le ) {
+	refEntity_t	*re;
+	float		c;
+	vec3_t		delta;
+	float		len;
+
+	re = &le->refEntity;
+
+	// fade / grow time
+	c = ( le->endTime - cg.time ) / (float)( le->endTime - le->startTime );
+
+	re->shaderRGBA[0] = le->color[0] * c;
+	re->shaderRGBA[1] = le->color[1] * c;
+	re->shaderRGBA[2] = le->color[2] * c;
+
+	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+		re->radius = le->radius * ( 1.0 - c ) + 8;
+	}
+
+	BG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
+	len = VectorLength( delta );
+	if ( len < le->radius ) {
+		CG_FreeLocalEntity( le );
+		return;
+	}
+
+	trap_R_AddRefEntityToScene( re );
+}
 
 /*
 ===================
@@ -634,8 +708,70 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 }
 
+#if 0
+/*
+===================
+CG_AddOLine
 
+For forcefields/other rectangular things
+===================
+*/
+void CG_AddOLine( localEntity_t *le )
+{
+	refEntity_t	*re;
+	float		frac, alpha;
 
+	re = &le->refEntity;
+
+	frac = (cg.time - le->startTime) / ( float ) ( le->endTime - le->startTime );
+	if ( frac > 1 ) 
+		frac = 1.0;	// can happen during connection problems
+	else if (frac < 0)
+		frac = 0.0;
+
+	// Use the liferate to set the scale over time.
+	re->data.line.width = le->data.line.width + (le->data.line.dwidth * frac);
+	if (re->data.line.width <= 0)
+	{
+		CG_FreeLocalEntity( le );
+		return;
+	}
+
+	// We will assume here that we want additive transparency effects.
+	alpha = le->alpha + (le->dalpha * frac);
+	re->shaderRGBA[0] = 0xff * alpha;
+	re->shaderRGBA[1] = 0xff * alpha;
+	re->shaderRGBA[2] = 0xff * alpha;
+	re->shaderRGBA[3] = 0xff * alpha;	// Yes, we could apply c to this too, but fading the color is better for lines.
+
+	re->shaderTexCoord[0] = 1;
+	re->shaderTexCoord[1] = 1;
+
+	re->rotation = 90;
+
+	re->reType = RT_ORIENTEDLINE;
+
+	trap_R_AddRefEntityToScene( re );
+}
+#endif
+
+/*
+===================
+CG_AddLine
+
+for beams and the like.
+===================
+*/
+void CG_AddLine( localEntity_t *le )
+{
+	refEntity_t	*re;
+
+	re = &le->refEntity;
+
+	re->reType = RT_LINE;
+
+	trap_R_AddRefEntityToScene( re );
+}
 
 //==============================================================================
 
@@ -676,8 +812,16 @@ void CG_AddLocalEntities( void ) {
 			CG_AddExplosion( le );
 			break;
 
+		case LE_FADE_SCALE_MODEL:
+			CG_AddFadeScaleModel( le );
+			break;
+
 		case LE_FRAGMENT:			// gibs and brass
 			CG_AddFragment( le );
+			break;
+
+		case LE_PUFF:
+			CG_AddPuff( le );
 			break;
 
 		case LE_MOVE_SCALE_FADE:		// water bubbles
@@ -700,13 +844,19 @@ void CG_AddLocalEntities( void ) {
 			CG_AddScorePlum( le );
 			break;
 
+#if 0
+		case LE_OLINE:
+			CG_AddOLine( le );
+			break;
+#endif
+
 		case LE_SHOWREFENTITY:
 			CG_AddRefEntity( le );
+			break;
+
+		case LE_LINE:					// oriented lines for FX
+			CG_AddLine( le );
 			break;
 		}
 	}
 }
-
-
-
-

@@ -266,6 +266,62 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 }
 
 
+#define SPLICER_DAMAGE (3)
+#define SPLICER_SIZE (0.5f)
+
+void WP_Splicer_Fire( gentity_t *ent, int special ) {
+	trace_t		trace;
+	vec3_t		start = { 0.0f }, end = { 0.0f }, mins = { -SPLICER_SIZE }, maxs = { SPLICER_SIZE };
+	gentity_t	*traceEnt=NULL, *tent=NULL;
+	int			damage = SPLICER_DAMAGE * s_quadFactor;
+	int			range = weaponData[WP_SPLICER].range;
+
+	// time to compensate for lag
+	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
+
+	//Start at eye position
+	VectorCopy( ent->client->ps.origin, start );
+	start[2] += ent->client->ps.viewheight;
+
+	VectorMA( start, range, forward, end );
+
+	trap_Trace( &trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+
+	if ( trace.entityNum == ENTITYNUM_NONE )
+	{
+		if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+			G_UnTimeShiftAllClients( ent );
+		return;
+	}
+
+	traceEnt = &g_entities[trace.entityNum];
+
+	//RAZTODO: headshots? does it matter?
+
+	if ( traceEnt->takedamage )
+			G_Damage( traceEnt, ent, ent, NULL, forward, trace.endpos, damage, 0, MOD_SPLICER );
+
+	if ( traceEnt->takedamage && traceEnt->client )
+	{
+		tent = G_TempEntity( trace.endpos, EV_MISSILE_HIT );
+		tent->s.otherEntityNum = traceEnt->s.number;
+		tent->s.eventParm = DirToByte( trace.plane.normal );
+		tent->s.weapon = ent->s.weapon;
+		if ( LogAccuracyHit( traceEnt, ent ) )
+			ent->client->accuracy_hits++;
+	}
+	else if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
+	{
+		tent = G_TempEntity( trace.endpos, EV_MISSILE_MISS );
+		tent->s.eventParm = DirToByte( trace.plane.normal );
+	}
+
+	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+		G_UnTimeShiftAllClients( ent );
+}
+
+
 #define MORTAR_DAMAGE (40)
 #define MORTAR_VELOCITY (1400)
 #define MORTAR_LIFE (10000)
@@ -274,8 +330,9 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 #define MORTAR_SIZE (4.0f)
 static void WP_Mortar_Fire( gentity_t *ent, int special )
 {
-	gentity_t *missile = NULL;
-	vec3_t dir = { 0.0f }, angs = { 0.0f };
+	gentity_t	*missile = NULL;
+	vec3_t		dir = { 0.0f }, angs = { 0.0f };
+	int			damage = MORTAR_DAMAGE * s_quadFactor;
 
 	vectoangles( forward, angs );
 	angs[PITCH] -= 9.5f;
@@ -285,7 +342,7 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 	missile->think = G_ExplodeMissile;
 	missile->classname = "mortar_proj";
 	missile->s.weapon = WP_MORTAR;
-	missile->damage = MORTAR_DAMAGE;
+	missile->damage = damage;
 	missile->splashDamage = MORTAR_SPLASHDAMAGE;
 	missile->splashRadius = MORTAR_SPLASHRADIUS;
 	missile->knockbackMulti = 3.0f;
@@ -314,6 +371,7 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 #define DIVERGENCE_HEADSHOT_MULTIPLIER (1.65f)
 #define DIVERGENCE_TRACES (3)
 #define DIVERGENCE_RANGE (8192)
+#define DIVERGENCE_SIZE (0.5f)
 
 qboolean G_CanDisruptify( gentity_t *ent )
 {
@@ -326,10 +384,10 @@ qboolean G_CanDisruptify( gentity_t *ent )
 static void WP_Divergence_Fire( gentity_t *ent, int special )
 {
 	qboolean render_impact = qtrue;
-	vec3_t start = { 0.0f }, end = { 0.0f }, mins = { -0.5f }, maxs = { 0.5f };
+	vec3_t start = { 0.0f }, end = { 0.0f }, mins = { -DIVERGENCE_SIZE }, maxs = { DIVERGENCE_SIZE };
 	trace_t tr = { 0 };
 	gentity_t *traceEnt = NULL, *tent = NULL;
-	float shotRange = DIVERGENCE_RANGE;
+	int range = weaponData[WP_DIVERGENCE].range;
 	int ignore = ent->s.number, traces = DIVERGENCE_TRACES;
 	float headshotMulti = 1.0f;
 	float damage = ((float)special/weaponData[WP_DIVERGENCE].maxFireTime)*(float)DIVERGENCE_DAMAGE;
@@ -337,7 +395,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	int hits = 0;
 
 	// time to compensate for lag
-	if ( qtz_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
 
 	//Start at eye position
@@ -346,7 +404,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 
 	while ( traces )
 	{
-		VectorMA( start, shotRange, forward, end );
+		VectorMA( start, range, forward, end );
 		trap_Trace( &tr, start, mins, maxs, end, ignore, MASK_SHOT );
 
 		traceEnt = &g_entities[tr.entityNum];
@@ -376,7 +434,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 			if ( !OnSameTeam( ent, traceEnt ) && g_enableHeadshots.integer && G_GetHitLocation( traceEnt, tr.endpos ) == HL_HEAD )
 			{
 				headshot = qtrue;
-				ent->client->qtz.headshotCount++;
+				ent->client->tracking.headshotCount++;
 				headshotMulti = DIVERGENCE_HEADSHOT_MULTIPLIER;
 			}
 
@@ -390,7 +448,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 					/*&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE*/ )
 				{
 					airshot = qtrue;
-					ent->client->qtz.airshotCount++;
+					ent->client->tracking.airshotCount++;
 				}
 
 				if ( preHealth > 0 && traceEnt->health <= 0 && G_CanDisruptify( traceEnt ) )
@@ -400,7 +458,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 					if ( hits > 1 || VectorLength( dir ) > 2560.0f )
 					{
 						amazing = qtrue;
-						ent->client->qtz.amazingCount++;
+						ent->client->tracking.amazingCount++;
 					}
 				}
 			}
@@ -446,7 +504,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	if ( amazing )
 		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AMAZING;
 
-	if ( qtz_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_UnTimeShiftAllClients( ent );
 }
 
@@ -475,6 +533,9 @@ void FireWeapon( gentity_t *ent, int special )
 		break;
 	case WP_REPEATER:
 		WP_Repeater_Fire( ent, special );
+		break;
+	case WP_SPLICER:
+		WP_Splicer_Fire( ent, special );
 		break;
 	case WP_MORTAR:
 		WP_Mortar_Fire( ent, special );

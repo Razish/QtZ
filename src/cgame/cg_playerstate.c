@@ -268,9 +268,9 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 
 				cg.predictableEvents[ i & (MAX_PREDICTED_EVENTS-1) ] = event;
 
-				if ( cg_showmiss.integer ) {
+				#ifdef _DEBUG
 					CG_Printf("WARNING: changed predicted event\n");
-				}
+				#endif
 			}
 		}
 	}
@@ -320,7 +320,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 		}
 #endif
-		cg.qtz.crosshairDamageTime = cg.time;
+		cg.crosshairDamageTime = cg.time;
 	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
 		trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
 	}

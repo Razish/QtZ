@@ -822,16 +822,6 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 	}
 #endif // QTZRELIC
-	/*
-	s = Info_ValueForKey( userinfo, "cg_pmove_fixed" );
-	if ( !*s || atoi( s ) == 0 ) {
-		client->pers.pmoveFixed = qfalse;
-	}
-	else {
-		client->pers.pmoveFixed = qtrue;
-	}
-	*/
-
 	// team task (0 = none, 1 = offence, 2 = defence)
 	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
 	// team Leader (1 = leader, 0 is normal player)
@@ -1223,7 +1213,7 @@ void ClientSpawn(gentity_t *ent) {
 	ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtz_phys_snapVec.integer );
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, pm_snapVec.integer );
 }
 
 

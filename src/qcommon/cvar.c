@@ -436,6 +436,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	var->modificationCount = 1;
 	var->value = atof (var->string);
 	var->integer = atoi(var->string);
+	var->boolean = (qboolean)!!(var->integer);
 	var->resetString = CopyString( var_value );
 	var->validate = qfalse;
 
@@ -612,6 +613,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	var->string = CopyString(value);
 	var->value = atof (var->string);
 	var->integer = atoi (var->string);
+	var->boolean = (qboolean)!!(var->integer);
 
 	return var;
 }
@@ -1273,6 +1275,7 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 
 	vmCvar->value = cv->value;
 	vmCvar->integer = cv->integer;
+	vmCvar->boolean = cv->boolean;
 }
 
 /*

@@ -43,6 +43,7 @@ typedef enum weapon_e {
 
 	WP_QUANTIZER,
 	WP_REPEATER,
+	WP_SPLICER,
 	WP_MORTAR,
 	WP_DIVERGENCE,
 	WP_NUM_WEAPONS

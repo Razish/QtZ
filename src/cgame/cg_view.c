@@ -184,28 +184,10 @@ Sets the coordinates of the rendered window
 =================
 */
 static void CG_CalcVrect (void) {
-	int		size;
-
-	// the intermission should allways be full screen
-	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
-		size = 100;
-	} else {
-		// bound normal viewsize
-		if (cg_viewsize.integer < 30) {
-			trap_Cvar_Set ("cg_viewsize","30");
-			size = 30;
-		} else if (cg_viewsize.integer > 100) {
-			trap_Cvar_Set ("cg_viewsize","100");
-			size = 100;
-		} else {
-			size = cg_viewsize.integer;
-		}
-
-	}
-	cg.refdef.width = cgs.glconfig.vidWidth*size/100;
+	cg.refdef.width = cgs.glconfig.vidWidth;
 	cg.refdef.width &= ~1;
 
-	cg.refdef.height = cgs.glconfig.vidHeight*size/100;
+	cg.refdef.height = cgs.glconfig.vidHeight;
 	cg.refdef.height &= ~1;
 
 	cg.refdef.x = (cgs.glconfig.vidWidth - cg.refdef.width)/2;
@@ -222,6 +204,8 @@ CG_OffsetThirdPersonView
 ===============
 */
 #define	FOCUS_DISTANCE	512
+#define THIRDPERSON_ANGLE (0.0f)
+#define THIRDPERSON_RANGE (80.0f)
 static void CG_OffsetThirdPersonView( void ) {
 	vec3_t		forward, right, up;
 	vec3_t		view;
@@ -258,15 +242,15 @@ static void CG_OffsetThirdPersonView( void ) {
 
 	AngleVectors( cg.refdefViewAngles, forward, right, up );
 
-	forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-	sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
-	VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
-	VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
+	forwardScale = cos( THIRDPERSON_ANGLE / 180 * M_PI );
+	sideScale = sin( THIRDPERSON_ANGLE / 180 * M_PI );
+	VectorMA( view, -THIRDPERSON_RANGE * forwardScale, forward, view );
+	VectorMA( view, -THIRDPERSON_RANGE * sideScale, right, view );
 
 	// trace a ray from the origin to the viewpoint to make sure the view isn't
 	// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
 
-	if (!cg_cameraMode.integer) {
+	if (!com_cameraMode.integer) {
 		CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
 
 		if ( trace.fraction != 1.0 ) {
@@ -290,7 +274,7 @@ static void CG_OffsetThirdPersonView( void ) {
 		focusDist = 1;	// should never happen
 	}
 	cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
-	cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
+	cg.refdefViewAngles[YAW] -= THIRDPERSON_ANGLE;
 }
 
 
@@ -385,7 +369,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	// make sure the bob is visible even at low speeds
 	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
-	if ( cg_viewBobEnable.integer )
+	if ( cg_viewBobEnable.boolean )
 	{
 		delta = cg.bobfracsin * viewBob.pitch * speed;
 		if ( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
@@ -715,10 +699,6 @@ static void CG_DamageBlendBlob( void ) {
 	int			maxTime;
 	refEntity_t		ent;
 
-	if (!cg_blood.integer) {
-		return;
-	}
-
 	if ( !cg.damageValue ) {
 		return;
 	}
@@ -816,12 +796,6 @@ static int CG_CalcViewValues( void ) {
 	VectorCopy( ps->origin, cg.refdef.vieworg );
 	VectorCopy( ps->viewangles, cg.refdefViewAngles );
 
-	if (cg_cameraOrbit.integer) {
-		if (cg.time > cg.nextOrbitTime) {
-			cg.nextOrbitTime = cg.time + cg_cameraOrbitDelay.integer;
-			cg_thirdPersonAngle.value += cg_cameraOrbit.value;
-		}
-	}
 	// add error decay
 	if ( cg_errorDecay.value > 0 ) {
 		int		t;
@@ -966,7 +940,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	CG_PredictPlayerState();
 
 	// decide on third person view
-	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
+	cg.renderingThirdPerson = qfalse;//cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
@@ -1013,29 +987,23 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		cg.oldTime = cg.time;
 		CG_AddLagometerFrameInfo();
 	}
-	if (cg_timescale.value != cg_timescaleFadeEnd.value) {
-		if (cg_timescale.value < cg_timescaleFadeEnd.value) {
-			cg_timescale.value += cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (cg_timescale.value > cg_timescaleFadeEnd.value)
-				cg_timescale.value = cg_timescaleFadeEnd.value;
+	if (timescale.value != cg_timescaleFadeEnd.value) {
+		if (timescale.value < cg_timescaleFadeEnd.value) {
+			timescale.value += cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
+			if (timescale.value > cg_timescaleFadeEnd.value)
+				timescale.value = cg_timescaleFadeEnd.value;
 		}
 		else {
-			cg_timescale.value -= cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (cg_timescale.value < cg_timescaleFadeEnd.value)
-				cg_timescale.value = cg_timescaleFadeEnd.value;
+			timescale.value -= cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
+			if (timescale.value < cg_timescaleFadeEnd.value)
+				timescale.value = cg_timescaleFadeEnd.value;
 		}
 		if (cg_timescaleFadeSpeed.value) {
-			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
+			trap_Cvar_Set("timescale", va("%f", timescale.value));
 		}
 	}
 
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
-
-	if ( cg_stats.integer ) {
-		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
-	}
-
-
 }
 

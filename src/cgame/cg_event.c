@@ -132,7 +132,7 @@ static void CG_Obituary( entityState_t *ent )
 		CG_Printf( "%s was killed by %s\n", targetName, attackerName );
 		//QTZTODO: Obituary HUD
 #if 0
-		if ( cg_newObituary.integer && weaponFromMOD[mod] != WP_NONE )
+		if ( cg_newObituary.boolean && weaponFromMOD[mod] != WP_NONE )
 		{
 			obituary_t *obituary = (obituary_t *)malloc( sizeof( obituary_t ) );
 			memset( obituary, 0, sizeof( obituary_t ) );
@@ -142,7 +142,7 @@ static void CG_Obituary( entityState_t *ent )
 			Q_strncpyz( obituary->attackerName, attackerName, sizeof( obituary->attackerName ) );
 			obituary->deathTime = cg.time;
 
-			LinkedList_PushObject( &cg.qtz.obituaryRoot, obituary );
+			LinkedList_PushObject( &cg.obituaryRoot, obituary );
 		}
 #endif
 	}
@@ -218,7 +218,7 @@ static void CG_ItemPickup( int itemNum )
 
 	newItem->itemNum = itemNum;
 	newItem->pickupTime = cg.time;
-	LinkedList_PushObject( &cg.qtz.itemPickupRoot, newItem );
+	LinkedList_PushObject( &cg.itemPickupRoot, newItem );
 #endif
 
 	cg.itemPickup = itemNum;
@@ -227,7 +227,7 @@ static void CG_ItemPickup( int itemNum )
 	// see if it should be the grabbed weapon
 	if ( bg_itemlist[itemNum].giType == IT_WEAPON ) {
 		// select it immediately
-		if ( cg_autoswitch.integer && bg_itemlist[itemNum].giTag > cg.predictedPlayerState.weapon ) {
+		if ( cg_autoswitch.boolean && bg_itemlist[itemNum].giTag > cg.predictedPlayerState.weapon ) {
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = bg_itemlist[itemNum].giTag;
 		}
@@ -330,7 +330,7 @@ An entity has an event value
 also called by CG_CheckPlayerstateEvents
 ==============
 */
-#define	DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
+#define	DEBUGNAME(x) if(cg_debugEvents.boolean){CG_Printf(x"\n");}
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
 	int				event;
@@ -342,7 +342,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	es = &cent->currentState;
 	event = es->event & ~EV_EVENT_BITS;
 
-	if ( cg_debugEvents.integer ) {
+	if ( cg_debugEvents.boolean ) {
 		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
 	}
 
@@ -363,35 +363,35 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_FOOTSTEP:
 		DEBUGNAME("EV_FOOTSTEP");
-		if (cg_footsteps.integer) {
+		if (cg_footsteps.boolean) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ ci->footsteps ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_METAL:
 		DEBUGNAME("EV_FOOTSTEP_METAL");
-		if (cg_footsteps.integer) {
+		if (cg_footsteps.boolean) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ FOOTSTEP_METAL ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSPLASH:
 		DEBUGNAME("EV_FOOTSPLASH");
-		if (cg_footsteps.integer) {
+		if (cg_footsteps.boolean) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
 	case EV_FOOTWADE:
 		DEBUGNAME("EV_FOOTWADE");
-		if (cg_footsteps.integer) {
+		if (cg_footsteps.boolean) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
 	case EV_SWIM:
 		DEBUGNAME("EV_SWIM");
-		if (cg_footsteps.integer) {
+		if (cg_footsteps.boolean) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
@@ -442,10 +442,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			break;
 		}
 		// if we are interpolating, we don't need to smooth steps
-		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ||
-			cg_nopredict.integer || cg_synchronousClients.integer ) {
+		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || bg_synchronousClients.boolean )
 			break;
-		}
+
 		// check for stepping up before a previous step is completed
 		delta = cg.time - cg.stepTime;
 		if (delta < STEP_TIME) {
@@ -477,7 +476,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						  1000, 
 						  cg.time, 0,
 						  LEF_PUFF_DONT_SCALE, 
-						  cgs.media.smokePuffShader );
+						  0/*cgs.media.smokePuffShader*/ );
 		}
 
 		// boing sound at origin, jump sound on player
@@ -700,15 +699,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.respawnSound );
 		break;
 
-	case EV_GRENADE_BOUNCE:
-		DEBUGNAME("EV_GRENADE_BOUNCE");
-		if ( rand() & 1 ) {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.hgrenb1aSound );
-		} else {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.hgrenb2aSound );
-		}
-		break;
-
 	case EV_SCOREPLUM:
 		DEBUGNAME("EV_SCOREPLUM");
 		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
@@ -754,24 +744,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 #endif
 		//RAZTODO: Calculate muzzle from es->clientNum
-		CG_RailTrail(ci, es->origin2, es->pos.trBase);
+		//RAZFIXME: Make sure this works
+	//	CG_RailTrail(ci, es->origin2, es->pos.trBase);
 
 		// if the end was on a nomark surface, don't make an explosion
 		if ( es->eventParm != 255 ) {
 			ByteToDir( es->eventParm, dir );
 			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
 		}
-		break;
-
-	case EV_BULLET_HIT_WALL:
-		DEBUGNAME("EV_BULLET_HIT_WALL");
-		ByteToDir( es->eventParm, dir );
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD );
-		break;
-
-	case EV_BULLET_HIT_FLESH:
-		DEBUGNAME("EV_BULLET_HIT_FLESH");
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
 		break;
 
 	case EV_GENERAL_SOUND:

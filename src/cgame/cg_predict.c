@@ -433,7 +433,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// non-predicting local movement will grab the latest angles
-	if ( cg_nopredict.integer || cg_synchronousClients.integer ) {
+	if ( bg_synchronousClients.integer ) {
 		CG_InterpolatePlayerState( qtrue );
 		return;
 	}
@@ -465,9 +465,9 @@ void CG_PredictPlayerState( void ) {
 	trap_GetUserCmd( cmdNum, &oldestCmd );
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime 
 		&& oldestCmd.serverTime < cg.time ) {	// special check for map_restart
-		if ( cg_showmiss.integer ) {
+		#ifdef _DEBUG
 			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
-		}
+		#endif
 		return;
 	}
 
@@ -486,15 +486,12 @@ void CG_PredictPlayerState( void ) {
 		cg.physicsTime = cg.snap->serverTime;
 	}
 
-	if ( pmove_msec.integer < 8 ) {
-		trap_Cvar_Set("pmove_msec", "8");
+	if ( pm_frametime.integer < 8 ) {
+		trap_Cvar_Set("pm_frametime", "8");
 	}
-	else if (pmove_msec.integer > 33) {
-		trap_Cvar_Set("pmove_msec", "33");
+	else if (pm_frametime.integer > 33) {
+		trap_Cvar_Set("pm_frametime", "33");
 	}
-
-	cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
-	cg_pmove.pmove_msec = pmove_msec.integer;
 
 	// run cmds
 	moved = qfalse;
@@ -502,9 +499,8 @@ void CG_PredictPlayerState( void ) {
 		// get the command
 		trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
 
-		if ( cg_pmove.pmove_fixed ) {
+		if ( pm_fixed.boolean )
 			PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
-		}
 
 		// don't do anything if the time is before the snapshot player time
 		if ( cg_pmove.cmd.serverTime <= cg.predictedPlayerState.commandTime ) {
@@ -528,26 +524,27 @@ void CG_PredictPlayerState( void ) {
 			if ( cg.thisFrameTeleport ) {
 				// a teleport will not cause an error decay
 				VectorClear( cg.predictedError );
-				if ( cg_showmiss.integer ) {
+				#ifdef _DEBUG
 					CG_Printf( "PredictionTeleport\n" );
-				}
+				#endif
 				cg.thisFrameTeleport = qfalse;
 			} else {
 				vec3_t adjusted, new_angles;
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
 				cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted, cg.predictedPlayerState.viewangles, new_angles);
 
-				if ( cg_showmiss.integer ) {
+				#ifdef _DEBUG
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
 						CG_Printf("prediction error\n");
 					}
-				}
+				#endif
+
 				VectorSubtract( oldPlayerState.origin, adjusted, delta );
 				len = VectorLength( delta );
 				if ( len > 0.1 ) {
-					if ( cg_showmiss.integer ) {
+					#ifdef _DEBUG
 						CG_Printf("Prediction miss: %f\n", len);
-					}
+					#endif
 					if ( cg_errorDecay.integer ) {
 						int		t;
 						float	f;
@@ -557,9 +554,10 @@ void CG_PredictPlayerState( void ) {
 						if ( f < 0 ) {
 							f = 0;
 						}
-						if ( f > 0 && cg_showmiss.integer ) {
-							CG_Printf("Double prediction decay: %f\n", f);
-						}
+						#ifdef _DEBUG
+							if ( f > 0 )
+								CG_Printf("Double prediction decay: %f\n", f);
+						#endif
 						VectorScale( cg.predictedError, f, cg.predictedError );
 					} else {
 						VectorClear( cg.predictedError );
@@ -574,33 +572,10 @@ void CG_PredictPlayerState( void ) {
 		// when it actually inflicts damage
 		cg_pmove.gauntletHit = qfalse;
 
-		if ( cg_pmove.pmove_fixed ) {
-			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
-		}
+		if ( pm_fixed.boolean )
+			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pm_frametime.integer-1) / pm_frametime.integer) * pm_frametime.integer;
 
-		//QtZ: set physics variables for pmove sequence
-		cg_pmove.qtz.snapVec					= qtz_phys_snapVec.integer;
-		cg_pmove.qtz.overbounce					= qtz_phys_overbounce.integer;
-		cg_pmove.qtz.rampJumpEnable				= qtz_phys_rampJumpEnable.integer;
-		cg_pmove.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
-		cg_pmove.qtz.wallJumpDebounce			= qtz_phys_wallJumpDebounce.integer;
-		cg_pmove.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;
-		cg_pmove.qtz.bunnyHopDebounce			= qtz_phys_bunnyHopDebounce.integer;
-		cg_pmove.qtz.doubleJumpEnable			= qtz_phys_doubleJumpEnable.integer;
-		cg_pmove.qtz.doubleJumpPush				= qtz_phys_doubleJumpPush.integer;
-		cg_pmove.qtz.doubleJumpDebounce			= qtz_phys_doubleJumpDebounce.integer;
-		cg_pmove.qtz.accelerate					= qtz_phys_accelerate.value;
-		cg_pmove.qtz.airaccelerate				= qtz_phys_airaccelerate.value;
-		cg_pmove.qtz.friction					= qtz_phys_friction.value;
-		cg_pmove.qtz.jumpVelocity				= qtz_phys_jumpVelocity.value;
-		cg_pmove.qtz.airControlEnable			= qtz_phys_airControlEnable.integer;
-		cg_pmove.qtz.airControl					= qtz_phys_airControl.value;
-		cg_pmove.qtz.airControlStopAccelerate	= qtz_phys_airControlStopAccelerate.value;
-		cg_pmove.qtz.airControlWishspeed		= qtz_phys_airControlWishspeed.value;
-		cg_pmove.qtz.airControlStrafeAccelerate	= qtz_phys_airControlStrafeAccelerate.value;
-		//~QtZ
-
-		Pmove (&cg_pmove);
+		Pmove( &cg_pmove );
 
 		moved = qtrue;
 
@@ -611,37 +586,29 @@ void CG_PredictPlayerState( void ) {
 		//CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
 	}
 
-	if ( cg_showmiss.integer > 1 ) {
-		CG_Printf( "[%i : %i] ", cg_pmove.cmd.serverTime, cg.time );
-	}
-
-	if ( !moved ) {
-		if ( cg_showmiss.integer ) {
-			CG_Printf( "not moved\n" );
-		}
+	if ( !moved )
 		return;
-	}
 
 	// adjust for the movement of the groundentity
 	CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
 		cg.predictedPlayerState.groundEntityNum, 
 		cg.physicsTime, cg.time, cg.predictedPlayerState.origin, cg.predictedPlayerState.viewangles, cg.predictedPlayerState.viewangles);
 
-	if ( cg_showmiss.integer ) {
+	#ifdef _DEBUG
 		if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {
 			CG_Printf("WARNING: dropped event\n");
 		}
-	}
+	#endif
 
 	// fire events and other transition triggered things
 	CG_TransitionPlayerState( &cg.predictedPlayerState, &oldPlayerState );
 
-	if ( cg_showmiss.integer ) {
+	#ifdef _DEBUG
 		if (cg.eventSequence > cg.predictedPlayerState.eventSequence) {
 			CG_Printf("WARNING: double event\n");
 			cg.eventSequence = cg.predictedPlayerState.eventSequence;
 		}
-	}
+	#endif
 }
 
 

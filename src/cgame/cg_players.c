@@ -457,12 +457,10 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 
 	if ( !CG_RegisterClientModelname( ci, ci->modelName ) )
 	{
-		if ( cg_buildScript.integer )
-			CG_Error( "CG_RegisterClientModelname( %s ) failed", ci->modelName );
-		else if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL ) )
+		if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL ) )
 			CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
 
-			modelloaded = qfalse;
+		modelloaded = qfalse;
 	}
 
 	ci->newAnims = qfalse;
@@ -709,7 +707,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// model
 	v = Info_ValueForKey( configstring, "model" );
 #if 0 //Q3 style
-	if ( cg_forceModel.integer )
+	if ( cg_forceModel.boolean )
 	{
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -765,7 +763,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
 #if 0 //Q3 style
-	if ( cg_forceModel.integer ) {
+	if ( cg_forceModel.boolean ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
@@ -867,10 +865,10 @@ void CG_NewClientInfo( int clientNum ) {
 	// so we can avoid loading checks if possible
 	if ( !CG_ScanForExistingClientInfo( &newInfo ) )
 	{
-		qboolean forceDefer = !!(trap_MemoryRemaining() < 4000000);
+		qboolean forceDefer = (qboolean)!!(trap_MemoryRemaining() < 4000000);
 
 		// if we are defering loads, just have it pick the first valid
-		if ( forceDefer || (cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading ) )
+		if ( forceDefer || (cg_deferPlayers.integer && !cg.loading ) )
 		{// keep whatever they had if it won't violate team skins
 			CG_SetDeferredClientInfo( clientNum, &newInfo );
 			
@@ -949,10 +947,6 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + anim->initialLerp;
-
-	if ( cg_debugAnim.integer ) {
-		CG_Printf( "Anim: %i\n", newAnimation );
-	}
 }
 
 /*
@@ -966,12 +960,6 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale ) {
 	int			f, numFrames;
 	animation_t	*anim;
-
-	// debugging tool to get no animations
-	if ( cg_animSpeed.integer == 0 ) {
-		lf->oldFrame = lf->frame = lf->backlerp = 0;
-		return;
-	}
 
 	// see if the animation sequence is switching
 	if ( newAnimation != lf->animationNumber || !lf->animation ) {
@@ -1024,9 +1012,6 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 		}
 		if ( cg.time > lf->frameTime ) {
 			lf->frameTime = cg.time;
-			if ( cg_debugAnim.integer ) {
-				CG_Printf( "Clamp lf->frameTime\n");
-			}
 		}
 	}
 
@@ -1070,11 +1055,6 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	float			speedScale;
 
 	clientNum = cent->currentState.clientNum;
-
-	if ( cg_noPlayerAnims.integer ) {
-		*legsOld = *legs = *torsoOld = *torso = 0;
-		return;
-	}
 
 	speedScale = 1;
 
@@ -1329,9 +1309,6 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 
 	ci = &cgs.clientinfo[ cent->currentState.number ];
 
-	if (!cg_enableBreath.integer) {
-		return;
-	}
 	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson) {
 		return;
 	}
@@ -1349,7 +1326,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	VectorSet( up, 0, 0, 8 );
 	VectorMA(head->origin, 8, head->axis[0], origin);
 	VectorMA(origin, -4, head->axis[2], origin);
-	CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
+	CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, 0/*cgs.media.shotgunSmokePuffShader*/ );
 	ci->breathPuffTime = cg.time + 2000;
 }
 
@@ -1362,9 +1339,6 @@ static void CG_DustTrail( centity_t *cent ) {
 	int				anim;
 	vec3_t end, vel;
 	trace_t tr;
-
-	if (!cg_enableDust.integer)
-		return;
 
 	if ( cent->dustTrailTime > cg.time ) {
 		return;
@@ -1702,9 +1676,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	if ( !(cent->currentState.eFlags & EF_DEAD) && 
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM) {
-		if (cg_drawFriend.integer) {
-			CG_PlayerFloatSprite( cent, cgs.media.friendShader );
-		}
+		CG_PlayerFloatSprite( cent, cgs.media.friendShader );
 		return;
 	}
 }
@@ -1875,12 +1847,9 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			color.r = 0; color.g = 255; color.g = 0; color.a = 255;
 		}
 	}
-	if ( cg_brightModels.integer )
+	if ( cg_brightModels.boolean )
 	{
-		ent->shaderRGBA[0] = color.r*255;
-		ent->shaderRGBA[1] = color.g*255;
-		ent->shaderRGBA[2] = color.b*255;
-		ent->shaderRGBA[3] = color.a*255;
+		MAKERGBA( ent->shaderRGBA, color.r*255, color.g*255, color.b*255, color.a*255 );
 	}
 
 	trap_R_AddRefEntityToScene( ent );
@@ -1988,7 +1957,7 @@ void CG_Player( centity_t *cent ) {
 		if (!cg.renderingThirdPerson) {
 			renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 		} else {
-			if (cg_cameraMode.integer) {
+			if (com_cameraMode.integer) {
 				return;
 			}
 		}
@@ -2161,9 +2130,4 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->pe.torso.yawing = qfalse;
 	cent->pe.torso.pitchAngle = cent->rawAngles[PITCH];
 	cent->pe.torso.pitching = qfalse;
-
-	if ( cg_debugPosition.integer ) {
-		CG_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle );
-	}
 }
-

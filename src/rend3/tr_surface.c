@@ -185,6 +185,7 @@ static void RB_SurfaceSprite( void ) {
 
 
 //QtZ: From JA/EF
+#if 0
  /*
  +==============
  +RB_SurfaceOrientedSprite
@@ -750,6 +751,7 @@ void RB_SurfaceElectricity(void)
 		RB_Line(segstartpos, segendpos, linedirection, left, prevend, 0, e->data.electricity.stscale, e);
 	}
 }
+#endif
 //~QtZ
 
 /*
@@ -1668,15 +1670,24 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 		RB_SurfaceBeam();
 		break;
 	//QtZ: From JA/EF
+#if 0
 	case RT_ORIENTED_QUAD:
 		RB_SurfaceOrientedSprite();
 		break;
+#endif
 	case RT_LINE:
+#if 0
 		RB_SurfaceLine();
+#else
+		RB_SurfaceRailCore();
+#endif
 		break;
+#if 0
 	case RT_ORIENTEDLINE:
 		RB_SurfaceOrientedLine();
 		break;
+#endif
+
 #if 0
 	case RT_LINE2:
 		RB_SurfaceLine2();
@@ -1685,11 +1696,18 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 		RB_SurfaceBezier();
 		break;
 #endif
+
+#if 0
 	case RT_CYLINDER:
 		RB_SurfaceCylinder();
 		break;
+#endif
 	case RT_ELECTRICITY:
+#if 0
 		RB_SurfaceElectricity();
+#else
+		RB_SurfaceLightningBolt();
+#endif
 		break;
 	//~QtZ
 	default:

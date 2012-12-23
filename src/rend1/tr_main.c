@@ -1021,9 +1021,11 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 		return 0;
 	}
 
+#if 0
 	if ( ent->e.reType == RT_ORIENTED_QUAD )
 		radius = ent->e.data.sprite.radius;
 	else
+#endif
 		radius = ent->e.radius;
 
 	for ( i=1; i<tr.world->numfogs; i++ )
@@ -1231,9 +1233,11 @@ void R_AddEntitySurfaces (void) {
 		case RT_SPRITE:
 		//QtZ: From JA/EF
 		case RT_LINE:
+#if 0
 		case RT_ORIENTEDLINE:
 		case RT_CYLINDER:
 		case RT_ENT_CHAIN:
+#endif
 		case RT_POLY:
 		case RT_ORIENTED_QUAD:
 		//~QtZ

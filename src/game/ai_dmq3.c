@@ -1338,6 +1338,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	//weapons
 	bs->inventory[INVENTORY_QUANTIZER]	= !!(bs->cur_ps.stats[STAT_WEAPONS] & (1<<WP_QUANTIZER));
 	bs->inventory[INVENTORY_REPEATER]	= !!(bs->cur_ps.stats[STAT_WEAPONS] & (1<<WP_REPEATER));
+	bs->inventory[INVENTORY_SPLICER]	= !!(bs->cur_ps.stats[STAT_WEAPONS] & (1<<WP_SPLICER));
 	bs->inventory[INVENTORY_MORTAR]		= !!(bs->cur_ps.stats[STAT_WEAPONS] & (1<<WP_MORTAR));
 	bs->inventory[INVENTORY_DIVERGENCE]	= !!(bs->cur_ps.stats[STAT_WEAPONS] & (1<<WP_DIVERGENCE));
 
@@ -1703,8 +1704,8 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 	if (bs->inventory[INVENTORY_DIVERGENCE] > 0 &&
 			bs->inventory[INVENTORY_AMMODIVERGENCE] > 5) return qtrue;
 	//if the bot can use the lightning gun
-	if (bs->inventory[INVENTORY_REPEATER] > 0 &&
-			bs->inventory[INVENTORY_AMMOREPEATER] > 50) return qtrue;
+	if (bs->inventory[INVENTORY_SPLICER] > 0 &&
+			bs->inventory[INVENTORY_AMMOSPLICER] > 50) return qtrue;
 	return qfalse;
 }
 
@@ -2473,7 +2474,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 //	if ( wi.number == WP_MACHINEGUN )
 //		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
 
-	aim_accuracy = 0.33f;
+	aim_accuracy = 0.46f;
 
 	//
 	if (aim_accuracy <= 0) aim_accuracy = 0.0001f;

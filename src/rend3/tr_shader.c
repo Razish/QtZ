@@ -2889,6 +2889,7 @@ a single large text block that can be scanned for shader names
 
 //QTZTODO: Optimised shader fetching from iodfe
 
+#define SHADER_PATH "shaders"
 #define	MAX_SHADER_FILES	4096
 static void ScanAndLoadShaderFiles( void )
 {
@@ -2902,7 +2903,7 @@ static void ScanAndLoadShaderFiles( void )
 
 	long sum = 0, summand;
 	// scan for shader files
-	shaderFiles = ri.FS_ListFiles( "scripts", ".shader", &numShaderFiles );
+	shaderFiles = ri.FS_ListFiles( SHADER_PATH, ".shader", &numShaderFiles );
 
 	if ( !shaderFiles || !numShaderFiles )
 	{
@@ -2919,7 +2920,7 @@ static void ScanAndLoadShaderFiles( void )
 	{
 		char filename[MAX_QPATH];
 
-		Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+		Com_sprintf( filename, sizeof( filename ), SHADER_PATH"/%s", shaderFiles[i] );
 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
 		summand = ri.FS_ReadFile( filename, (void **)&buffers[i] );
 		

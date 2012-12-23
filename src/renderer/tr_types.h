@@ -85,16 +85,16 @@ typedef enum {
 	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
 	//QtZ: Added from JA/EF
 	RT_LINE,
-	RT_ORIENTEDLINE,
-	RT_CYLINDER,
-	RT_ENT_CHAIN,
+//	RT_ORIENTEDLINE,
+//	RT_CYLINDER,
+//	RT_ENT_CHAIN,
 	//~QtZ
 
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
 //QtZ: using JA's refEntity_t
-#if 0 // q3 refEntity_t
+#if 1 // q3 refEntity_t
 typedef struct {
 	refEntityType_t	reType;
 	int			renderfx;

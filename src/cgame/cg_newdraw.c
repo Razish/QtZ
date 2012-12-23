@@ -605,13 +605,13 @@ static void CG_DrawBlueScore(rectDef_t *rect, float scale, vec4_t color, qhandle
 	CG_Text_Paint(rect->x + rect->w - value, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 }
 
-// FIXME: team name support
+//QTZTODO: team name support
 static void CG_DrawRedName(rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_redTeamName.string , 0, 0, textStyle);
+//	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_redTeamName.string , 0, 0, textStyle);
 }
 
 static void CG_DrawBlueName(rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_blueTeamName.string, 0, 0, textStyle);
+//	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_blueTeamName.string, 0, 0, textStyle);
 }
 
 static void CG_DrawBlueFlagName(rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
@@ -1119,9 +1119,9 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 		float max = *maxX;
 		float useScale;
 		fontInfo_t *font = &cgDC.Assets.textFont;
-		if (scale <= cg_smallFont.value) {
+		if (scale <= ui_smallFont.value) {
 			font = &cgDC.Assets.smallFont;
-		} else if (scale > cg_bigFont.value) {
+		} else if (scale > ui_bigFont.value) {
 			font = &cgDC.Assets.bigFont;
 		}
 		useScale = scale * font->glyphScale;
@@ -1424,7 +1424,7 @@ static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vec4_t color, qhandle_
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
 	int maxFPS = (int)(1000.0f/atof( CG_Cvar_VariableString( "com_frametime" ) ));
 
-	if ( !cg_drawFPS.integer && !cg_debugHUD.integer )
+	if ( !cg_drawFPS.boolean && !cg_debugHUD.boolean )
 		return;
 
 	// don't use serverTime, because that will be drifting to
@@ -1461,7 +1461,7 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vec4_t color, qhandle
 	vec4_t pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = MIN( cg.snap->ping / BAD_PING, 1.0f );
 
-	if ( !cg_drawPing.integer && cg_debugHUD.integer )
+	if ( !cg_drawPing.boolean && cg_debugHUD.boolean )
 		return;
 
 	pingColour[0] = pingGood[0] + point*(pingBad[0] - pingGood[0]);
@@ -1822,7 +1822,7 @@ void CG_DrawPickupItem( void )
 
 	trap_R_SetColor( NULL );
 
-	if ( cg_debugHUD.integer )
+	if ( cg_debugHUD.boolean )
 	{
 		int itemNum = 0;
 		count = 5;
@@ -1883,7 +1883,7 @@ void CG_DrawObituary( void )
 
 	trap_R_SetColor( NULL );
 
-	if ( cg_debugHUD.integer )
+	if ( cg_debugHUD.boolean )
 	{
 		char *attackerName = "AttackerName";
 		char *targetName = "TargetName";
@@ -1951,7 +1951,7 @@ void CG_DrawFlagCarrierName( void )
 	vec2_t screenPos = { 0.0f, 0.0f };
 	char text[] = "FLAG CARRIER";
 
-	if ( (cgs.gametype < GT_CTF || !cg_drawFlagCarrier.integer || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD.integer )
+	if ( (cgs.gametype < GT_CTF || !cg_drawFlagCarrier.boolean || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD.integer )
 		return;
 
 	VectorCopy( cg_entities[cg.q3p.flagCarrierEntityNum].lerpOrigin, worldPos );

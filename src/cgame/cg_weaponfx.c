@@ -31,7 +31,7 @@ void FX_Quantizer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon,
 //	REPEATER
 //================================
 
-void FX_Repeater_Missile(  centity_t *cent, const struct weaponInfo_s *weapon )
+void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 {
 	vec3_t forward = { 0.0f };
 
@@ -50,6 +50,112 @@ void FX_Repeater_HitWall(  centity_t *cent, const struct weaponInfo_s *weapon, v
 void FX_Repeater_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vec3_t origin, vec3_t dir )
 {
 //	trap_FX_PlayEffectID( cgs.effects.weapons.repeaterHitPlayerEffect, origin, dir, -1, -1 );
+}
+
+
+void FX_Splicer_Beam( centity_t *cent, vec3_t start, vec3_t end ) {
+	trace_t  trace;
+	refEntity_t  beam;
+	vec3_t   forward;
+	vec3_t   muzzlePoint, endPoint;
+	int      anim;
+	int		range = weaponData[WP_SPLICER].range;
+
+	if ( cent->currentState.weapon != WP_SPLICER )
+		return;
+
+	memset( &beam, 0, sizeof( beam ) );
+
+	if ( cent->currentState.number == cg.predictedPlayerState.clientNum && cg_delagHitscan.integer )
+	{// unlagged
+		// always shoot straight forward from our current position
+		AngleVectors( cg.predictedPlayerState.viewangles, forward, NULL, NULL );
+		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+	}
+	else if ((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
+	{// CPMA  "true" lightning
+		vec3_t angle;
+		int i;
+		// unlagged
+		vec3_t viewangles;
+		VectorCopy( cg.predictedPlayerState.viewangles, viewangles );
+		// ~unlagged
+
+		for (i = 0; i < 3; i++) {
+			float a = cent->lerpAngles[i] - viewangles[i];
+			if (a > 180) {
+				a -= 360;
+			}
+			if (a < -180) {
+				a += 360;
+			}
+
+			angle[i] = viewangles[i] + a * (1.0 - cg_trueLightning.value);
+			if (angle[i] < 0) {
+				angle[i] += 360;
+			}
+			if (angle[i] > 360) {
+				angle[i] -= 360;
+			}
+		}
+
+		AngleVectors(angle, forward, NULL, NULL );
+		// unlagged
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint );
+//		VectorCopy(cent->lerpOrigin, muzzlePoint );
+//		VectorCopy(cg.refdef.vieworg, muzzlePoint );
+	} else {
+		// !CPMA
+		AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+		VectorCopy(cent->lerpOrigin, muzzlePoint );
+	}
+
+	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR )
+		muzzlePoint[2] += CROUCH_VIEWHEIGHT;
+	else
+		muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
+
+	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
+
+	// project forward by the lightning range
+	VectorMA( muzzlePoint, range, forward, endPoint );
+
+	// see if it hit a wall
+	CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, cent->currentState.number, MASK_SHOT );
+
+	// this is the endpoint
+	VectorCopy( trace.endpos, beam.oldorigin );
+
+	// use the provided origin, even though it may be slightly
+	// different than the muzzle origin
+	VectorCopy( start, beam.origin );
+
+	beam.reType = RT_ELECTRICITY;
+	beam.customShader = cgs.media.weapons.splicerCore;
+	trap_R_AddRefEntityToScene( &beam );
+
+	// add the impact flare if it hit something
+	if ( trace.fraction < 1.0 ) {
+		refEntity_t flare;
+
+		flare.reType = RT_SPRITE;
+		flare.radius = 6.0f;
+		flare.customShader = cgs.media.weapons.splicerFlare;
+		VectorCopy( trace.endpos, flare.origin );
+
+		trap_R_AddRefEntityToScene( &flare );
+	}
+}
+
+void FX_Splicer_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vec3_t origin, vec3_t dir )
+{
+//	trap_FX_PlayEffectID( cgs.effects.weapons.splicerHitWallEffect, origin, dir, -1, -1 );
+}
+
+void FX_Splicer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vec3_t origin, vec3_t dir )
+{
+//	trap_FX_PlayEffectID( cgs.effects.weapons.splicerHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
@@ -91,8 +197,7 @@ void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	VectorScale( ent.axis[1],  scale, ent.axis[1] );
 	VectorScale( ent.axis[2], -scale, ent.axis[2] );
 
-
-	ent.hModel = cgs.media.ringFlashModel; //RAZTODO: mortar projectile model
+	ent.hModel = cgs.media.weapons.mortarProjectile; //RAZTODO: mortar projectile model
 
 	VectorSet( ent.shaderRGBA, 128, 43, 255 );
 	ent.shaderRGBA[3] = 48;
@@ -135,74 +240,41 @@ void FX_Mortar_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, ve
 
 void FX_Divergence_Fire( centity_t *cent, vec3_t start, vec3_t end )
 {
-	vec3_t axis[36], move, move2, next_move, vec, temp, fwd;
-	float  len;
-	int    i, j, skip;
-
 	localEntity_t	*leCore = CG_AllocLocalEntity(),	*leGlow = CG_AllocLocalEntity(),	*leMuzzle = CG_AllocLocalEntity();
 	refEntity_t		*reCore = &leCore->refEntity,		*reGlow = &leGlow->refEntity,		*reMuzzle = &leMuzzle->refEntity;
 	clientInfo_t	*ci = &cgs.clientinfo[cent->currentState.number];
-	int				trailShader = trap_R_RegisterShaderNoMip( "divergenceCore" ),
-					particleShader = trap_R_RegisterShaderNoMip( "gfx/effects/caustic1" ),
-					muzzleShader = trap_R_RegisterShaderNoMip( "gfx/efx/wp/divergence/muzzle" )/*,
-					muzzleEffect = cgs.effects.weapons.divergenceMuzzleNeutral*/;
-	vec4_t color1 = { 1.0f }, color2 = { 1.0f };
+	int				trailShader = trap_R_RegisterShader( "divergenceCore" ),
+					particleShader = trap_R_RegisterShader( "gfx/effects/caustic1" ),
+					muzzleShader = trap_R_RegisterShader( "gfx/efx/wp/divergence/muzzle" );
+	vec4_t color = { 1.0f };
+	float			trailTime = 750.0f;
 
-	VectorCopy( ci->color1, color1 ); color1[3] = 1.0f;
-	VectorCopy( ci->color2, color2 ); color2[3] = 1.0f;
-
-	AngleVectors( cent->lerpAngles, fwd, NULL, NULL );
+	VectorCopy( ci->color1, color ); color[3] = 1.0f;
 
 	if ( cgs.gametype >= GT_TEAM )
 	{
 		if ( ci->team == TEAM_RED )
-		{
-			VectorSet( color1, 1.0f, 0.0f, 0.0f );
-			VectorSet( color2, 1.0f, 0.0f, 0.0f );
-		//	muzzleEffect = cgs.effects.weapons.divergenceMuzzleRed;
-		}
+			VectorSet( color, 1.0f, 0.0f, 0.0f );
 		else if ( ci->team == TEAM_BLUE )
-		{
-			VectorSet( color1, 0.0f, 0.0f, 1.0f );
-			VectorSet( color2, 0.0f, 0.0f, 1.0f );
-		//	muzzleEffect = cgs.effects.weapons.divergenceMuzzleBlue;
-		}
+			VectorSet( color, 0.0f, 0.0f, 1.0f );
 		else
-		{
-			VectorSet( color1, 0.0f, 0.878431f, 1.0f );
-			VectorSet( color2, 0.0f, 1.0f, 1.0f );
-		}
+			VectorSet( color, 0.0f, 0.878431f, 1.0f );
 	}
  
-#define RADIUS   4
-#define ROTATION 1
-#define SPACING  5
- 
-	start[2] -= 4;
-	VectorCopy (start, move);
-	VectorSubtract (end, start, vec);
-	len = VectorNormalize (vec);
-	PerpendicularVector(temp, vec);
-	for (i = 0 ; i < 36; i++)
-		RotatePointAroundVector(axis[i], vec, temp, i * 10);//banshee 2.4 was 10
-
-//	CG_RailTrail( ci, start, end );
-
 	//MUZZLE
 	leMuzzle->leFlags = LEF_PUFF_DONT_SCALE;
 	leMuzzle->leType = LE_FADE_RGB;//LE_SCALE_FADE;
 	leMuzzle->startTime = cg.time;
-	leMuzzle->endTime = cg.time + 1200;
+	leMuzzle->endTime = cg.time + trailTime;
 	leMuzzle->lifeRate = 1.0 / (leMuzzle->endTime - leMuzzle->startTime);
 
-	reMuzzle->shaderTime = cg.time / 1200.0f;
+	reMuzzle->shaderTime = cg.time / trailTime;
 	reMuzzle->reType = RT_SPRITE;
 	reMuzzle->radius = 5.8f;
 	reMuzzle->customShader = muzzleShader;
-//	reMuzzle->renderfx |= RF_RGB_TINT;
 
-	reMuzzle->shaderRGBA[0] = color2[0]*255;	reMuzzle->shaderRGBA[1] = color2[1]*255;	reMuzzle->shaderRGBA[2] = color2[2]*255;	reMuzzle->shaderRGBA[3] = color2[3]*255;
-	VectorSet( leMuzzle->color, color2[0]*0.75, color2[1]*0.75, color2[2]*0.75 );
+	reMuzzle->shaderRGBA[0] = color[0]*255;	reMuzzle->shaderRGBA[1] = color[1]*255;	reMuzzle->shaderRGBA[2] = color[2]*255;	reMuzzle->shaderRGBA[3] = color[3]*255;
+	VectorSet( leMuzzle->color, color[0]*0.75, color[1]*0.75, color[2]*0.75 );
 	leMuzzle->color[3] = 1.0f;
 
 	VectorCopy( start, reMuzzle->origin );
@@ -213,92 +285,42 @@ void FX_Divergence_Fire( centity_t *cent, vec3_t start, vec3_t end )
 	//Glow
 	leGlow->leType = LE_FADE_RGB;
 	leGlow->startTime = cg.time;
-	leGlow->endTime = cg.time + 1600;
+	leGlow->endTime = cg.time + (trailTime*1.33333f);
 	leGlow->lifeRate = 1.0 / (leGlow->endTime - leGlow->startTime);
-	reGlow->shaderTime = cg.time / 1600.0f;
-	reGlow->reType = RT_LINE;//RT_RAIL_CORE;
+	reGlow->shaderTime = cg.time / (trailTime*1.33333f);
+	reGlow->reType = RT_LINE;
 	reGlow->radius = 3.0f;
 	reGlow->customShader = trailShader;
 	VectorCopy(start, reGlow->origin);
 	VectorCopy(end, reGlow->oldorigin);
-		reGlow->shaderRGBA[0] = color1[0]*255;
-		reGlow->shaderRGBA[1] = color1[1]*255;
-		reGlow->shaderRGBA[2] = color1[2]*255;
-		reGlow->shaderRGBA[3] = color1[3]*255;
-	VectorSet( leGlow->color, color1[0]*0.75, color1[1]*0.75, color1[2]*0.75 );
-	leGlow->color[3] = 1.0f;
+	reGlow->shaderRGBA[0] = color[0] * 255;
+	reGlow->shaderRGBA[1] = color[1] * 255;
+	reGlow->shaderRGBA[2] = color[2] * 255;
+	reGlow->shaderRGBA[3] = 255;
+	leGlow->color[0] = color[0] * 0.75;
+	leGlow->color[1] = color[1] * 0.75;
+	leGlow->color[2] = color[2] * 0.75;
+	leGlow->color[3] = 0.7f;
 
 	//Core
 	leCore->leType = LE_FADE_RGB;
 	leCore->startTime = cg.time;
-	leCore->endTime = cg.time + 1600;
+	leCore->endTime = cg.time + (trailTime*1.33333f);
 	leCore->lifeRate = 1.0 / (leCore->endTime - leCore->startTime);
-	reCore->shaderTime = cg.time / 1600.0f;
-	reCore->reType = RT_LINE;//RT_RAIL_CORE;
-	reCore->radius = 1.0f;
+	reCore->shaderTime = cg.time / (trailTime*1.33333f);
+	reCore->reType = RT_LINE;
+	reCore->radius = 1.5f;
 	reCore->customShader = trailShader;
 	VectorCopy(start, reCore->origin);
 	VectorCopy(end, reCore->oldorigin);
-		reCore->shaderRGBA[0] = 255;
-		reCore->shaderRGBA[1] = 255;
-		reCore->shaderRGBA[2] = 255;
-		reCore->shaderRGBA[3] = 255;
-	VectorSet( leCore->color, 1.0f, 1.0f, 1.0f );
-	leCore->color[3] = 0.6f;
+	reCore->shaderRGBA[0] = 255;
+	reCore->shaderRGBA[1] = 255;
+	reCore->shaderRGBA[2] = 255;
+	reCore->shaderRGBA[3] = 255;
+	leCore->color[0] = 1.0f;
+	leCore->color[1] = 1.0f;
+	leCore->color[2] = 1.0f;
+	leCore->color[3] = 1.0f;
 
 	AxisClear( reCore->axis );
-
-	VectorMA(move, 20, vec, move);
-	VectorCopy(move, next_move);
-	VectorScale (vec, SPACING, vec);
-
-	skip = -1;
-
-	j = 18;
-	for ( i=0; i<len; i+=SPACING )
-	{
-		if ( i != skip )
-		{
-			localEntity_t *le = CG_AllocLocalEntity();
-			refEntity_t *re = &le->refEntity;
-
-			skip = i + SPACING;
-			le->leFlags = LEF_PUFF_DONT_SCALE;
-			le->leType = LE_MOVE_SCALE_FADE;
-			le->startTime = cg.time;
-			le->endTime = cg.time + (i>>1) + 600;
-			le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
-			re->shaderTime = cg.time / 2000.0f;
-			re->reType = RT_SPRITE;
-			re->radius = 1.8f;
-			re->customShader = particleShader;
-//			re->renderfx |= RF_RGB_TINT;
-
-				re->shaderRGBA[0] = color2[0]*255;
-				re->shaderRGBA[1] = color2[1]*255;
-				re->shaderRGBA[2] = color2[2]*255;
-				re->shaderRGBA[3] = color2[3]*255;
-
-			VectorSet( le->color, color2[0]*0.75, color2[1]*0.75, color2[2]*0.75 );
-			le->color[3] = 1.0f;
-
-			le->pos.trType = TR_LINEAR;
-			le->pos.trTime = cg.time;
-
-			VectorCopy( move, move2);
-			VectorMA(move2, RADIUS , axis[j], move2);
-			VectorCopy(move2, le->pos.trBase);
-
-			le->pos.trDelta[0] = axis[j][0]*6;
-			le->pos.trDelta[1] = axis[j][1]*6;
-			le->pos.trDelta[2] = axis[j][2]*6;
-		}
-
-		VectorAdd (move, vec, move);
-
-		j = j + ROTATION < 36 ? j + ROTATION : (j + ROTATION) % 36;
-	}
-
-//	trap_FX_PlayEffectID( muzzleEffect, start, fwd, -1, -1 );
 }

@@ -271,12 +271,6 @@ qboolean CG_DrawOldScoreboard( void ) {
 	int lineHeight;
 	int topBorderSize, bottomBorderSize;
 
-	// don't draw amuthing if the menu or console is up
-	if ( cg_paused.integer ) {
-		cg.deferredPlayerLoading = 0;
-		return qfalse;
-	}
-
 	if ( cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
 		cg.deferredPlayerLoading = 0;
 		return qfalse;

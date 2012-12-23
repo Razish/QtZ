@@ -213,20 +213,24 @@ typedef enum {
 	LE_MARK,
 	LE_EXPLOSION,
 	LE_SPRITE_EXPLOSION,
+	LE_FADE_SCALE_MODEL,
 	LE_FRAGMENT,
+	LE_PUFF,
 	LE_MOVE_SCALE_FADE,
 	LE_FALL_SCALE_FADE,
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-	LE_SHOWREFENTITY
+//	LE_OLINE,
+	LE_SHOWREFENTITY,
+	LE_LINE
 } leType_t;
 
 typedef enum {
-	LEF_PUFF_DONT_SCALE  = 0x0001,			// do not scale size over time
-	LEF_TUMBLE			 = 0x0002,			// tumble over time, used for ejecting shells
-	LEF_SOUND1			 = 0x0004,			// sound 1 for kamikaze
-	LEF_SOUND2			 = 0x0008			// sound 2 for kamikaze
+	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
+	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
+	LEF_FADE_RGB		= 0x0004,			// explicitly fade
+	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
 } leFlag_t;
 
 typedef enum {
@@ -256,6 +260,12 @@ typedef struct localEntity_s {
 	trajectory_t	angles;
 
 	float			bounceFactor;		// 0.0 = no bounce, 1.0 = perfect
+	int				bounceSound;		// optional sound index to play upon bounce
+
+	float			alpha;
+	float			dalpha;
+
+	int				forceAlpha;
 
 	float			color[4];
 
@@ -266,6 +276,79 @@ typedef struct localEntity_s {
 
 	leMarkType_t		leMarkType;		// mark to leave on fragment impact
 	leBounceSoundType_t	leBounceSoundType;
+
+	union {
+		struct {
+			float radius;
+			float dradius;
+			vec3_t startRGB;
+			vec3_t dRGB;
+		} sprite;
+		struct {
+			float width;
+			float dwidth;
+			float length;
+			float dlength;
+			vec3_t startRGB;
+			vec3_t dRGB;
+		} trail;
+		struct {
+			float width;
+			float dwidth;
+			// Below are bezier specific.
+			vec3_t			control1;				// initial position of control points
+			vec3_t			control2;
+			vec3_t			control1_velocity;		// initial velocity of control points
+			vec3_t			control2_velocity;
+			vec3_t			control1_acceleration;	// constant acceleration of control points
+			vec3_t			control2_acceleration;
+		} line;
+		struct {
+			float width;
+			float dwidth;
+			float width2;
+			float dwidth2;
+			vec3_t startRGB;
+			vec3_t dRGB;
+		} line2;
+		struct {
+			float width;
+			float dwidth;
+			float width2;
+			float dwidth2;
+			float height;
+			float dheight;
+		} cylinder;
+		struct {
+			float width;
+			float dwidth;
+		} electricity;
+		struct
+		{
+			// fight the power! open and close brackets in the same column!
+			float radius;
+			float dradius;
+			qboolean (*thinkFn)(struct localEntity_s *le);
+			vec3_t	dir;	// magnitude is 1, but this is oldpos - newpos right before the
+							//particle is sent to the renderer
+			// may want to add something like particle::localEntity_s *le (for the particle's think fn)
+		} particle;
+		struct
+		{
+			qboolean	dontDie;
+			vec3_t		dir;
+			float		variance;
+			int			delay;
+			int			nextthink;
+			qboolean	(*thinkFn)(struct localEntity_s *le);
+			int			data1;
+			int			data2;
+		} spawner;
+		struct
+		{
+			float radius;
+		} fragment;
+	} data;
 
 	refEntity_t		refEntity;		
 } localEntity_t;
@@ -627,14 +710,12 @@ typedef struct {
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
 
-	vec3_t		lastFPFlashPoint;
+	vec3_t			lastFPFlashPoint;
 
-	struct {
-		linkedList_t	*itemPickupRoot;
-		linkedList_t	*obituaryRoot;
-		int				flagCarrierEntityNum;
-		int				crosshairDamageTime;
-	} qtz;
+	linkedList_t	*itemPickupRoot;
+	linkedList_t	*obituaryRoot;
+	int				flagCarrierEntityNum;
+	int				crosshairDamageTime;
 } cg_t;
 
 
@@ -688,14 +769,6 @@ typedef struct {
 
 	qhandle_t	smoke2;
 
-	qhandle_t	machinegunBrassModel;
-	qhandle_t	shotgunBrassModel;
-
-	qhandle_t	railRingsShader;
-	qhandle_t	railCoreShader;
-
-	qhandle_t	lightningShader;
-
 	qhandle_t	friendShader;
 
 	qhandle_t	balloonShader;
@@ -704,19 +777,11 @@ typedef struct {
 	qhandle_t	selectShader;
 	qhandle_t	viewBloodShader;
 	qhandle_t	tracerShader;
-	qhandle_t	crosshairShader[NUM_CROSSHAIRS];
 	qhandle_t	lagometerShader;
 	qhandle_t	backTileShader;
 	qhandle_t	noammoShader;
 
-	qhandle_t	smokePuffShader;
-	qhandle_t	smokePuffRageProShader;
-	qhandle_t	shotgunSmokePuffShader;
-	qhandle_t	plasmaBallShader;
-	qhandle_t	waterBubbleShader;
 	qhandle_t	bloodTrailShader;
-	qhandle_t	nailPuffShader;
-	qhandle_t	blueProxMine;
 
 	qhandle_t	numberShaders[11];
 
@@ -738,19 +803,6 @@ typedef struct {
 	qhandle_t	quadWeaponShader;
 	qhandle_t	regenShader;
 
-	// weapon effect models
-	qhandle_t	bulletFlashModel;
-	qhandle_t	ringFlashModel;
-	qhandle_t	dishFlashModel;
-	qhandle_t	lightningExplosionModel;
-
-	// weapon effect shaders
-	qhandle_t	railExplosionShader;
-	qhandle_t	plasmaExplosionShader;
-	qhandle_t	bulletExplosionShader;
-	qhandle_t	rocketExplosionShader;
-	qhandle_t	grenadeExplosionShader;
-	qhandle_t	bfgExplosionShader;
 	qhandle_t	bloodExplosionShader;
 
 	// special effects models
@@ -782,22 +834,6 @@ typedef struct {
 	sfxHandle_t	useNothingSound;
 	sfxHandle_t	wearOffSound;
 	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
-	sfxHandle_t	sfx_lghit1;
-	sfxHandle_t	sfx_lghit2;
-	sfxHandle_t	sfx_lghit3;
-	sfxHandle_t	sfx_ric1;
-	sfxHandle_t	sfx_ric2;
-	sfxHandle_t	sfx_ric3;
-	//sfxHandle_t	sfx_railg;
-	sfxHandle_t	sfx_rockexp;
-	sfxHandle_t	sfx_plasmaexp;
-	sfxHandle_t	sfx_proxexp;
-	sfxHandle_t	sfx_nghit;
-	sfxHandle_t	sfx_nghitflesh;
-	sfxHandle_t	sfx_nghitmetal;
-	sfxHandle_t	sfx_chghit;
-	sfxHandle_t	sfx_chghitflesh;
-	sfxHandle_t	sfx_chghitmetal;
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
 
@@ -906,17 +942,28 @@ typedef struct {
 	sfxHandle_t	regenSound;
 	sfxHandle_t	protectSound;
 	sfxHandle_t	n_healthSound;
-	sfxHandle_t	hgrenb1aSound;
-	sfxHandle_t	hgrenb2aSound;
 	sfxHandle_t	wstbimplSound;
 	sfxHandle_t	wstbimpmSound;
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
 
+	//QtZ: Added
+	qhandle_t	brightModel;
+
+	// crosshair media
 	struct {
-		qhandle_t	brightModel;
 		qhandle_t	cooldownTic;
-	} qtz;
+		qhandle_t	images[NUM_CROSSHAIRS];
+	} crosshair;
+
+	// weapon media
+	struct {
+		qhandle_t	divergenceCore;
+		qhandle_t	splicerCore;
+		qhandle_t	splicerFlare;
+		qhandle_t	mortarProjectile;
+	} weapons;
+
 } cgMedia_t;
 
 
@@ -1007,11 +1054,13 @@ typedef struct {
 	// media
 	cgMedia_t		media;
 
-	//Raz: serverinfo vars
+	//QtZ: Added
+
+	// server data
 	struct {
 		unsigned int	cinfo;
-		char			serverName[256];
-	} qtz;
+		char			hostname[MAX_CVAR_VALUE_STRING];
+	} server;
 } cgs_t;
 
 //==============================================================================
@@ -1022,103 +1071,6 @@ extern	centity_t		cg_entities[MAX_GENTITIES];
 extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
 extern	itemInfo_t		cg_items[MAX_ITEMS];
 extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
-
-extern	vmCvar_t		cg_centertime;
-extern	vmCvar_t		cg_runpitch;
-extern	vmCvar_t		cg_runroll;
-extern	vmCvar_t		cg_swingSpeed;
-extern	vmCvar_t		cg_shadows;
-extern	vmCvar_t		cg_gibs;
-extern	vmCvar_t		cg_drawTimer;
-extern	vmCvar_t		cg_drawFPS;
-extern	vmCvar_t		cg_drawSnapshot;
-extern	vmCvar_t		cg_draw3dIcons;
-extern	vmCvar_t		cg_drawIcons;
-extern	vmCvar_t		cg_drawAmmoWarning;
-extern	vmCvar_t		cg_drawCrosshair;
-extern	vmCvar_t		cg_drawCrosshairNames;
-extern	vmCvar_t		cg_drawRewards;
-extern	vmCvar_t		cg_drawTeamOverlay;
-extern	vmCvar_t		cg_teamOverlayUserinfo;
-extern	vmCvar_t		cg_crosshairX;
-extern	vmCvar_t		cg_crosshairY;
-extern	vmCvar_t		cg_crosshairSize;
-extern	vmCvar_t		cg_crosshairHealth;
-extern	vmCvar_t		cg_drawStatus;
-extern	vmCvar_t		cg_draw2D;
-extern	vmCvar_t		cg_animSpeed;
-extern	vmCvar_t		cg_debugAnim;
-extern	vmCvar_t		cg_debugPosition;
-extern	vmCvar_t		cg_debugEvents;
-extern	vmCvar_t		cg_railTrailTime;
-extern	vmCvar_t		cg_errorDecay;
-extern	vmCvar_t		cg_nopredict;
-extern	vmCvar_t		cg_noPlayerAnims;
-extern	vmCvar_t		cg_showmiss;
-extern	vmCvar_t		cg_footsteps;
-extern	vmCvar_t		cg_addMarks;
-extern	vmCvar_t		cg_brassTime;
-extern	vmCvar_t		cg_gun_frame;
-extern	vmCvar_t		cg_drawGun;
-extern	vmCvar_t		cg_viewsize;
-extern	vmCvar_t		cg_tracerChance;
-extern	vmCvar_t		cg_tracerWidth;
-extern	vmCvar_t		cg_tracerLength;
-extern	vmCvar_t		cg_autoswitch;
-extern	vmCvar_t		cg_ignore;
-extern	vmCvar_t		cg_simpleItems;
-extern	vmCvar_t		cg_fov;
-extern	vmCvar_t		cg_zoomFov;
-extern	vmCvar_t		cg_thirdPersonRange;
-extern	vmCvar_t		cg_thirdPersonAngle;
-extern	vmCvar_t		cg_thirdPerson;
-extern	vmCvar_t		cg_lagometer;
-extern	vmCvar_t		cg_drawAttacker;
-extern	vmCvar_t		cg_synchronousClients;
-extern	vmCvar_t		cg_teamChatTime;
-extern	vmCvar_t		cg_teamChatHeight;
-extern	vmCvar_t		cg_stats;
-extern	vmCvar_t 		cg_forceModel;
-extern	vmCvar_t 		cg_buildScript;
-extern	vmCvar_t		cg_paused;
-extern	vmCvar_t		cg_blood;
-extern	vmCvar_t		cg_predictItems;
-extern	vmCvar_t		cg_deferPlayers;
-extern	vmCvar_t		cg_drawFriend;
-extern	vmCvar_t		cg_teamChatsOnly;
-extern	vmCvar_t		cg_noVoiceChats;
-extern	vmCvar_t		cg_noVoiceText;
-extern  vmCvar_t		cg_scorePlum;
-extern	vmCvar_t		cg_smoothClients;
-extern	vmCvar_t		pmove_fixed;
-extern	vmCvar_t		pmove_msec;
-//extern	vmCvar_t		cg_pmove_fixed;
-extern	vmCvar_t		cg_cameraOrbit;
-extern	vmCvar_t		cg_cameraOrbitDelay;
-extern	vmCvar_t		cg_timescaleFadeEnd;
-extern	vmCvar_t		cg_timescaleFadeSpeed;
-extern	vmCvar_t		cg_timescale;
-extern	vmCvar_t		cg_cameraMode;
-extern  vmCvar_t		cg_smallFont;
-extern  vmCvar_t		cg_bigFont;
-extern	vmCvar_t		cg_noTaunt;
-extern	vmCvar_t		cg_noProjectileTrail;
-extern	vmCvar_t		cg_oldRail;
-extern	vmCvar_t		cg_oldRocket;
-extern	vmCvar_t		cg_oldPlasma;
-extern	vmCvar_t		cg_trueLightning;
-
-extern	vmCvar_t		cg_redTeamName;
-extern	vmCvar_t		cg_blueTeamName;
-extern	vmCvar_t		cg_currentSelectedPlayer;
-extern	vmCvar_t		cg_currentSelectedPlayerName;
-extern	vmCvar_t		cg_singlePlayer;
-extern	vmCvar_t		cg_enableDust;
-extern	vmCvar_t		cg_enableBreath;
-extern	vmCvar_t		cg_singlePlayerActive;
-extern  vmCvar_t		cg_recordSPDemo;
-extern  vmCvar_t		cg_recordSPDemoName;
-extern	vmCvar_t		cg_obeliskRespawnDelay;
 
 #define XCVAR_PROTO
 	#include "cg_xcvar.h"
@@ -1301,11 +1253,7 @@ void CG_RegisterItemVisuals( int itemNum );
 void CG_FireWeapon( centity_t *cent, int special );
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
-void CG_ShotgunFire( entityState_t *es );
-void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
-void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end );
-void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team );
 void CG_DrawWeaponSelect( void );
@@ -1334,23 +1282,7 @@ void	CG_AddLocalEntities( void );
 //
 // cg_effects.c
 //
-localEntity_t *CG_SmokePuff( const vec3_t p, 
-				   const vec3_t vel, 
-				   float radius,
-				   float r, float g, float b, float a,
-				   float duration,
-				   int startTime,
-				   int fadeInTime,
-				   int leFlags,
-				   qhandle_t hShader );
-void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 void CG_SpawnEffect( vec3_t org );
-void CG_KamikazeEffect( vec3_t org );
-void CG_ObeliskExplode( vec3_t org, int entityNum );
-void CG_ObeliskPain( vec3_t org );
-void CG_InvulnerabilityImpact( vec3_t org, vec3_t angles );
-void CG_InvulnerabilityJuiced( vec3_t org );
-void CG_LightningBoltBeam( vec3_t start, vec3_t end );
 void CG_ScorePlum( int client, vec3_t org, int score );
 
 void CG_GibPlayer( vec3_t playerOrigin );
@@ -1358,9 +1290,8 @@ void CG_BigExplode( vec3_t playerOrigin );
 
 void CG_Bleed( vec3_t origin, int entityNum );
 
-localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
-								qhandle_t hModel, qhandle_t shader, int msec,
-								qboolean isSprite );
+localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir, qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite );
+localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel, float radius, float r, float g, float b, float a, float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader );
 
 //
 // cg_snapshot.c

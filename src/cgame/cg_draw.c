@@ -51,9 +51,9 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 //	const unsigned char *s = text;
 	const char *s = text;
 	fontInfo_t *font = &cgDC.Assets.textFont;
-	if (scale <= cg_smallFont.value) {
+	if (scale <= ui_smallFont.value) {
 		font = &cgDC.Assets.smallFont;
-	} else if (scale > cg_bigFont.value) {
+	} else if (scale > ui_bigFont.value) {
 		font = &cgDC.Assets.bigFont;
 	}
 	useScale = scale * font->glyphScale;
@@ -88,9 +88,9 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 //	const unsigned char *s = text;
 	const char *s = text;
 	fontInfo_t *font = &cgDC.Assets.textFont;
-	if (scale <= cg_smallFont.value) {
+	if (scale <= ui_smallFont.value) {
 		font = &cgDC.Assets.smallFont;
-	} else if (scale > cg_bigFont.value) {
+	} else if (scale > ui_bigFont.value) {
 		font = &cgDC.Assets.bigFont;
 	}
 	useScale = scale * font->glyphScale;
@@ -132,9 +132,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	glyphInfo_t *glyph;
 	float useScale;
 	fontInfo_t *font = &cgDC.Assets.textFont;
-	if (scale <= cg_smallFont.value) {
+	if (scale <= ui_smallFont.value) {
 		font = &cgDC.Assets.smallFont;
-	} else if (scale > cg_bigFont.value) {
+	} else if (scale > ui_bigFont.value) {
 		font = &cgDC.Assets.bigFont;
 	}
 	useScale = scale * font->glyphScale;
@@ -271,7 +271,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 	refdef_t		refdef;
 	refEntity_t		ent;
 
-	if ( !cg_draw3dIcons.integer || !cg_drawIcons.integer ) {
+	if ( !cg_draw3dIcons.boolean || !cg_drawIcons.boolean ) {
 		return;
 	}
 
@@ -321,7 +321,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 
 	ci = &cgs.clientinfo[ clientNum ];
 
-	if ( cg_draw3dIcons.integer ) {
+	if ( cg_draw3dIcons.boolean ) {
 		cm = ci->headModel;
 		if ( !cm ) {
 			return;
@@ -342,7 +342,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 		VectorAdd( origin, ci->headOffset, origin );
 
 		CG_Draw3DModel( x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles );
-	} else if ( cg_drawIcons.integer ) {
+	} else if ( cg_drawIcons.boolean ) {
 		CG_DrawPic( x, y, w, h, ci->modelIcon );
 	}
 
@@ -366,7 +366,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 	vec3_t			mins, maxs;
 	qhandle_t		handle;
 
-	if ( !force2D && cg_draw3dIcons.integer ) {
+	if ( !force2D && cg_draw3dIcons.boolean ) {
 
 		VectorClear( angles );
 
@@ -395,7 +395,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 			return;
 		}
 		CG_Draw3DModel( x, y, w, h, handle, 0, origin, angles );
-	} else if ( cg_drawIcons.integer ) {
+	} else if ( cg_drawIcons.boolean ) {
 		gitem_t *item;
 
 		if( team == TEAM_RED ) {
@@ -536,7 +536,7 @@ static void CG_DrawStatusBar( void ) {
 		{ 0.5f, 0.5f, 0.5f, 1.0f },     // weapon firing
 		{ 1.0f, 1.0f, 1.0f, 1.0f } };   // health > 100
 
-	if ( cg_drawStatus.integer == 0 ) {
+	if ( !cg_drawStatus.boolean ) {
 		return;
 	}
 
@@ -599,7 +599,7 @@ static void CG_DrawStatusBar( void ) {
 			trap_R_SetColor( NULL );
 
 			// if we didn't draw a 3D icon, draw a 2D icon for ammo
-			if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+			if ( !cg_draw3dIcons.boolean && cg_drawIcons.boolean ) {
 				qhandle_t	icon;
 
 				icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
@@ -640,7 +640,7 @@ static void CG_DrawStatusBar( void ) {
 		CG_DrawField (370, 432, 3, value);
 		trap_R_SetColor( NULL );
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
-		if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+		if ( !cg_draw3dIcons.boolean && cg_drawIcons.boolean ) {
 			CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
 		}
 
@@ -779,7 +779,7 @@ static float CG_DrawFPS( float y ) {
 	char *tmp = NULL;
 	int maxFPS = (int)(1000.0f/atof( CG_Cvar_VariableString( "com_frametime" ) ));
 
-	if ( !cg_drawFPS.integer && !cg_debugHUD.integer )
+	if ( !cg_drawFPS.boolean && !cg_debugHUD.boolean )
 		return y;
 
 	// don't use serverTime, because that will be drifting to
@@ -808,7 +808,7 @@ static float CG_DrawFPS( float y ) {
 	fpsColour[2] = fpsBad[2] + point*(fpsGood[2] - fpsBad[2]);
 
 	tmp = va( "%3i FPS", fps );
-	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, cg_smallFont.value, 0 ), y, tmp, fpsColour );
+	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), y, tmp, fpsColour );
 
 	return y-14.0f;
 }
@@ -820,7 +820,7 @@ static float CG_DrawPing( float y )
 	float point = MIN( cg.snap->ping / 300.0f, 1.0f );
 	char *tmp = NULL;
 
-	if ( !cg_drawPing.integer && cg_debugHUD.integer )
+	if ( !cg_drawPing.boolean && cg_debugHUD.boolean )
 		return y;
 
 	pingColour[0] = pingGood[0] + point*(pingBad[0] - pingGood[0]);
@@ -828,7 +828,7 @@ static float CG_DrawPing( float y )
 	pingColour[2] = pingGood[2] + point*(pingBad[2] - pingGood[2]);
 
 	tmp = va( "%3i ping", cg.snap->ping );
-	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, cg_smallFont.value, 0 ), y, tmp, pingColour );
+	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), y, tmp, pingColour );
 	return y-14.0f;
 }
 
@@ -878,7 +878,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	gitem_t	*item;
 	int ret_y, count;
 
-	if ( !cg_drawTeamOverlay.integer ) {
+	if ( !cg_drawTeamOverlay.boolean ) {
 		return y;
 	}
 
@@ -1049,16 +1049,16 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
 	} 
-	if ( cg_drawSnapshot.integer ) {
+	if ( cg_drawSnapshot.boolean ) {
 		y = CG_DrawSnapshot( y );
 	}
-	if (cg_drawFPS.integer && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
+	if (cg_drawFPS.boolean && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
 		y = CG_DrawFPS( y );
 	}
-	if ( cg_drawTimer.integer ) {
+	if ( cg_drawTimer.boolean ) {
 		y = CG_DrawTimer( y );
 	}
-	if ( cg_drawAttacker.integer ) {
+	if ( cg_drawAttacker.boolean ) {
 		y = CG_DrawAttacker( y );
 	}
 
@@ -1497,7 +1497,7 @@ static void CG_DrawReward( void ) {
 	float	x, y;
 	char	buf[32];
 
-	if ( !cg_drawRewards.integer ) {
+	if ( !cg_drawRewards.boolean ) {
 		return;
 	}
 
@@ -1673,7 +1673,7 @@ static void CG_DrawLagometer( void ) {
 	int		color;
 	float	vscale;
 
-	if ( !cg_lagometer.integer || cgs.localServer ) {
+	if ( !cg_lagometer.boolean || cgs.localServer ) {
 		CG_DrawDisconnect();
 		return;
 	}
@@ -1766,7 +1766,7 @@ static void CG_DrawLagometer( void ) {
 
 	trap_R_SetColor( NULL );
 
-	if ( cg_nopredict.integer || cg_synchronousClients.integer ) {
+	if ( bg_synchronousClients.boolean ) {
 		CG_DrawBigString( x, y, "snc", 1.0 );
 	}
 
@@ -1896,7 +1896,7 @@ CG_DrawCrosshair
 */
 static void CG_DrawCrosshair(void)
 {
-	float		x = cg_crosshairX.value, y = cg_crosshairY.value, w = cg_crosshairSize.value, h = cg_crosshairSize.value, f = 0.0f;
+	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize.value, h = cg_crosshairSize.value, f = 0.0f;
 	int			i = 0;
 	vec4_t		finalColour = { 1.0 };
 	vec3_t		baseRGB = { 1.0f }, feedbackRGB = { 1.0f };
@@ -1909,7 +1909,7 @@ static void CG_DrawCrosshair(void)
 	if ( !cg_drawCrosshair.integer
 		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
 	//	|| cg.renderingThirdPerson
-		|| (cg.zoomed && cg_crosshairDisableZoomed.integer ) //zoom mask?
+		|| (cg.zoomed && cg_crosshairDisableZoomed.boolean ) //zoom mask?
 		)
 		return;
 
@@ -1919,7 +1919,7 @@ static void CG_DrawCrosshair(void)
 		//QTZTODO: Per weapon tics? tics for ammo?
 		for ( i=0; i<cg_crosshairCooldownTics.integer; i++ )
 		{
-			float cooldown = MIN( cg.predictedPlayerState.qtz.weaponCooldown[cg.predictedPlayerState.weapon], weaponData[cg.predictedPlayerState.weapon].fireTime );
+			float cooldown = MIN( cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], weaponData[cg.predictedPlayerState.weapon].fireTime );
 			float cdmax = 1.0f - (cooldown / weaponData[cg.predictedPlayerState.weapon].fireTime);
 			float inc = RAD2DEG(M_PI*2)/cg_crosshairCooldownTics.value;
 			float angle = inc*i;
@@ -1933,18 +1933,18 @@ static void CG_DrawCrosshair(void)
 
 			trap_R_SetColor( colour );
 			if ( angle/360.0f < cdmax )
-				CG_DrawRotatePic2( cx, cy, 8, 8, angle-90.0f, cgs.media.qtz.cooldownTic );
+				CG_DrawRotatePic2( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic );
 		}
 		trap_R_SetColor( NULL );
 	}
 
 	// set color based on health
-	if ( cg_crosshairHealth.integer )
+	if ( cg_crosshairHealth.boolean )
 		CG_ColorForHealth( finalColour );
 
 //	else if ( cg.qtz.crosshairDamageTime > cg.time - cg_crosshairFeedbackTime.integer )
 	{//QtZ: Colour crosshair if we recently hit someone (Damage feedback)
-		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.qtz.crosshairDamageTime) / cg_crosshairFeedbackTime.value );
+		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.crosshairDamageTime) / cg_crosshairFeedbackTime.value );
 		finalColour[0] = LERP2( feedbackRGB[0], baseRGB[0], point );
 		finalColour[1] = LERP2( feedbackRGB[1], baseRGB[1], point );
 		finalColour[2] = LERP2( feedbackRGB[2], baseRGB[2], point );
@@ -1964,7 +1964,7 @@ static void CG_DrawCrosshair(void)
 	}
 
 	// pulse the size of the crosshair for damage feedback
-	f = cg.time - cg.qtz.crosshairDamageTime;
+	f = cg.time - cg.crosshairDamageTime;
 	if ( f > 0 && f < cg_crosshairFeedbackTime.value ) {
 		f /= cg_crosshairFeedbackTime.value;
 		w *= ( 1 + f );
@@ -1978,7 +1978,7 @@ static void CG_DrawCrosshair(void)
 	for ( i=0; i<NUM_CROSSHAIRS; i++ )
 	{
 		if ( cg_drawCrosshair.integer & (1<<i) )
-			trap_R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshairShader[i] );
+			trap_R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshair.images[i] );
 	}
 //	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 //		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
@@ -2028,7 +2028,7 @@ static void CG_DrawCrosshair3D(void)
 	if (ca < 0) {
 		ca = 0;
 	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	hShader = cgs.media.crosshair.images[ ca % NUM_CROSSHAIRS ];
 
 	// Use a different method rendering the crosshair so players don't see two of them when
 	// focusing their eyes at distant objects with high stereo separation
@@ -2106,7 +2106,7 @@ static void CG_DrawCrosshairNames( void ) {
 	if ( !cg_drawCrosshair.integer ) {
 		return;
 	}
-	if ( !cg_drawCrosshairNames.integer ) {
+	if ( !cg_drawCrosshairNames.boolean ) {
 		return;
 	}
 	if ( cg.renderingThirdPerson ) {
@@ -2231,11 +2231,6 @@ static qboolean CG_DrawScoreboard( void ) {
 
 	if (menuScoreboard) {
 		menuScoreboard->window.flags &= ~WINDOW_FORCED;
-	}
-	if (cg_paused.integer) {
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
 	}
 
 	// should never happen in Team Arena
@@ -2591,7 +2586,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		return;
 	}
 
-	if ( cg_draw2D.integer == 0 ) {
+	if ( !cg_draw2D.boolean ) {
 		return;
 	}
 
@@ -2619,7 +2614,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 #ifdef QTZRELIC
 			CG_DrawStatusBar();
 #else
-			if ( cg_drawStatus.integer ) {
+			if ( cg_drawStatus.boolean ) {
 				Menu_PaintAll();
 				CG_DrawTimedMenus();
 			}
@@ -2651,13 +2646,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 //	y = CG_DrawFPS( y );
 //	y = CG_DrawPing( y );
 
-#ifdef QTZRELIC
-	CG_DrawUpperRight(stereoFrame);
-#else
-	if (!cg_paused.integer) {
-	//	CG_DrawUpperRight(stereoFrame);
-	}
-#endif // QTZRELIC
+
+//	CG_DrawUpperRight(stereoFrame);
 
 	if ( !CG_DrawFollow() ) {
 		CG_DrawWarmup();

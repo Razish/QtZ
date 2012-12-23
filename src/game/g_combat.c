@@ -364,6 +364,7 @@ char	*modNames[MOD_MAX] = {
 
 	"MOD_QUANTIZER",
 	"MOD_REPEATER",
+	"MOD_SPLICER",
 	"MOD_MORTAR",
 	"MOD_DIVERGENCE",
 

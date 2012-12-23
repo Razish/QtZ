@@ -913,6 +913,7 @@ struct cvar_s {
 	int				modificationCount;	// incremented each time the cvar is changed
 	float			value;				// atof( string )
 	int				integer;			// atoi( string )
+	qboolean		boolean;
 	qboolean	validate;
 	qboolean	integral;
 	float			min;
@@ -936,6 +937,7 @@ typedef struct {
 	int			modificationCount;
 	float		value;
 	int			integer;
+	qboolean	boolean;
 	char		string[MAX_CVAR_VALUE_STRING];
 } vmCvar_t;
 
@@ -1190,13 +1192,10 @@ typedef struct playerState_s {
 	int			jumppad_frame;
 	int			entityEventSequence;
 
-	struct {
-		int			bunnyHopTime;
-		int			doubleJumpTime;
-		int			wallJumpTime;
-		int			weaponCooldown[MAX_WEAPONS];
-	} qtz;
-
+	int			bunnyHopTime;
+	int			doubleJumpTime;
+	int			wallJumpTime;
+	int			weaponCooldown[MAX_WEAPONS];
 } playerState_t;
 
 

@@ -183,48 +183,10 @@ typedef struct {
 
 	float		xyspeed;
 
-	// for fixed msec Pmove
-	int			pmove_fixed;
-	int			pmove_msec;
-
 	// callbacks to test the world
 	// these will be different functions during game and cgame
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
-
-	struct {
-		qboolean	snapVec;
-		qboolean	overbounce;
-
-		// ramp jump (similar to q2/cpma, not the same)
-		qboolean	rampJumpEnable;
-
-		// wall jumping
-		qboolean	wallJumpEnable;
-		int			wallJumpDebounce;
-
-		// bunnyhopping / autohop
-		qboolean	bunnyHopEnable;
-		int			bunnyHopDebounce;
-
-		// double jump (cpm style)
-		qboolean	doubleJumpEnable;
-		int			doubleJumpPush;
-		int			doubleJumpDebounce;
-
-		// general physics
-		float		accelerate;
-		float		airaccelerate;
-		float		friction;
-		float		jumpVelocity;
-
-		// air control (cpm style)
-		qboolean	airControlEnable; //master control for air control
-		float		airControl;
-		float		airControlStopAccelerate;
-		float		airControlWishspeed;
-		float		airControlStrafeAccelerate;
-	} qtz;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -409,14 +371,9 @@ typedef enum {
 	EV_PLAYER_TELEPORT_IN,
 	EV_PLAYER_TELEPORT_OUT,
 
-	EV_GRENADE_BOUNCE,		// eventParm will be the soundindex
-
 	EV_GENERAL_SOUND,
 	EV_GLOBAL_SOUND,		// no attenuation
 	EV_GLOBAL_TEAM_SOUND,
-
-	EV_BULLET_HIT_FLESH,
-	EV_BULLET_HIT_WALL,
 
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
@@ -569,6 +526,7 @@ typedef enum {
 	MOD_UNKNOWN,
 	MOD_QUANTIZER,
 	MOD_REPEATER,
+	MOD_SPLICER,
 	MOD_MORTAR,
 	MOD_DIVERGENCE,
 	MOD_WATER,
@@ -664,7 +622,6 @@ typedef enum {
 	ET_PUSH_TRIGGER,
 	ET_TELEPORT_TRIGGER,
 	ET_INVISIBLE,
-	ET_GRAPPLE,				// grapple hooked on wall
 	ET_TEAM,
 
 	ET_EVENTS				// any of the EV_* events can be added freestanding

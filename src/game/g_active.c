@@ -616,15 +616,15 @@ void ClientThink_real( gentity_t *ent ) {
 		msec = 200;
 	}
 
-	if ( pmove_msec.integer < 8 ) {
-		trap_Cvar_Set("pmove_msec", "8");
+	if ( pm_frametime.integer < 8 ) {
+		trap_Cvar_Set("pm_frametime", "8");
 	}
-	else if (pmove_msec.integer > 33) {
-		trap_Cvar_Set("pmove_msec", "33");
+	else if (pm_frametime.integer > 33) {
+		trap_Cvar_Set("pm_frametime", "33");
 	}
 
-	if ( pmove_fixed.integer || client->pers.pmoveFixed ) {
-		ucmd->serverTime = ((ucmd->serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
+	if ( pm_fixed.integer ) {
+		ucmd->serverTime = ((ucmd->serverTime + pm_frametime.integer-1) / pm_frametime.integer) * pm_frametime.integer;
 		//if (ucmd->serverTime - client->ps.commandTime <= 0)
 		//	return;
 	}
@@ -705,31 +705,6 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pointcontents = trap_PointContents;
 	pm.noFootsteps = !!(dmflags.integer & DF_NO_FOOTSTEPS);
 
-	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
-	pm.pmove_msec = pmove_msec.integer;
-
-	//QtZ: set physics variables for pmove sequence
-	pm.qtz.snapVec						= qtz_phys_snapVec.integer;
-	pm.qtz.overbounce					= qtz_phys_overbounce.integer;
-	pm.qtz.rampJumpEnable				= qtz_phys_rampJumpEnable.integer;
-	pm.qtz.wallJumpEnable				= qtz_phys_wallJumpEnable.integer;
-	pm.qtz.wallJumpDebounce				= qtz_phys_wallJumpDebounce.integer;
-	pm.qtz.bunnyHopEnable				= qtz_phys_bunnyHopEnable.integer;
-	pm.qtz.bunnyHopDebounce				= qtz_phys_bunnyHopDebounce.integer;
-	pm.qtz.doubleJumpEnable				= qtz_phys_doubleJumpEnable.integer;
-	pm.qtz.doubleJumpPush				= qtz_phys_doubleJumpPush.integer;
-	pm.qtz.doubleJumpDebounce			= qtz_phys_doubleJumpDebounce.integer;
-	pm.qtz.accelerate					= qtz_phys_accelerate.value;
-	pm.qtz.airaccelerate				= qtz_phys_airaccelerate.value;
-	pm.qtz.friction						= qtz_phys_friction.value;
-	pm.qtz.jumpVelocity					= qtz_phys_jumpVelocity.value;
-	pm.qtz.airControlEnable				= qtz_phys_airControlEnable.integer;
-	pm.qtz.airControl					= qtz_phys_airControl.value;
-	pm.qtz.airControlStopAccelerate		= qtz_phys_airControlStopAccelerate.value;
-	pm.qtz.airControlWishspeed			= qtz_phys_airControlWishspeed.value;
-	pm.qtz.airControlStrafeAccelerate	= qtz_phys_airControlStrafeAccelerate.value;
-	//~QtZ
-
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
 		if (level.intermissionQueued != 0 && ui_singlePlayerActive.integer) {
@@ -751,10 +726,10 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->eventTime = level.time;
 	}
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtz_phys_snapVec.integer );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.integer );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtz_phys_snapVec.integer );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.integer );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -964,10 +939,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// set the latest infor
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtz_phys_snapVec.integer );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.integer );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtz_phys_snapVec.integer );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.integer );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 

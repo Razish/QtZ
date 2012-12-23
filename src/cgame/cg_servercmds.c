@@ -170,16 +170,16 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
 
 	//QtZ: Added
-	cgs.qtz.cinfo = atoi( Info_ValueForKey( info, "qtz_cinfo" ) );
-	Q_strncpyz( cgs.qtz.serverName, Info_ValueForKey( info, "sv_hostname" ), sizeof( cgs.qtz.serverName ) );
+	cgs.server.cinfo = atoi( Info_ValueForKey( info, "qtz_cinfo" ) );
+	Q_strncpyz( cgs.server.hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof( cgs.server.hostname ) );
 
-	trap_Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "qtz_delagHitscan" ) ) ) );
+	trap_Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "g_delagHitscan" ) ) ) );
 	//QTZFIXME: Physics HUD/UI alerts
 #if 0
-	trap_Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.qtz.cinfo & CINFO_CPMAIRCONTROL) ) );
-	trap_Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.qtz.cinfo & CINFO_CPMDOUBLEJUMP) ) );
-	trap_Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.qtz.cinfo & CINFO_BUNNYHOP) ) );
-	trap_Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.qtz.cinfo & CINFO_WALLJUMP) ) );
+	trap_Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMAIRCONTROL) ) );
+	trap_Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMDOUBLEJUMP) ) );
+	trap_Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.server.cinfo & CINFO_BUNNYHOP) ) );
+	trap_Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.server.cinfo & CINFO_WALLJUMP) ) );
 #endif
 	trap_Cvar_Set( "ui_about_svfps",		va( "%i", atoi( Info_ValueForKey( info, "sv_fps" ) ) ) );
 	trap_Cvar_Set( "ui_about_speed",		va( "%i", atoi( Info_ValueForKey( info, "g_speed" ) ) ) );
@@ -369,13 +369,7 @@ static void CG_AddToTeamChat( const char *str ) {
 	int len;
 	char *p, *ls;
 	int lastcolor;
-	int chatHeight;
-
-	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT) {
-		chatHeight = cg_teamChatHeight.integer;
-	} else {
-		chatHeight = TEAMCHAT_HEIGHT;
-	}
+	int chatHeight = TEAMCHAT_HEIGHT;
 
 	if (chatHeight <= 0 || cg_teamChatTime.integer <= 0) {
 		// team chat disabled, dump into normal chat
@@ -444,10 +438,6 @@ require a reload of all the media
 ===============
 */
 static void CG_MapRestart( void ) {
-	if ( cg_showmiss.integer ) {
-		CG_Printf( "CG_MapRestart\n" );
-	}
-
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
 	CG_ClearParticles ();
@@ -475,12 +465,6 @@ static void CG_MapRestart( void ) {
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
-	}
-	if (cg_singlePlayerActive.integer) {
-		trap_Cvar_Set("ui_matchStartTime", va("%i", cg.time));
-		if (cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string) {
-			trap_SendConsoleCommand(va("set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string));
-		}
 	}
 	trap_Cvar_Set("cg_thirdPerson", "0");
 }
@@ -529,13 +513,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	char **p, *ptr;
 	char *token;
 	voiceChat_t *voiceChats;
-	qboolean compress;
 	sfxHandle_t sound;
-
-	compress = qtrue;
-	if (cg_buildScript.integer) {
-		compress = qfalse;
-	}
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( !f ) {
@@ -598,7 +576,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 			}
 			if (!Q_stricmp(token, "}"))
 				break;
-			sound = trap_S_RegisterSound( token, compress );
+			sound = trap_S_RegisterSound( token, qtrue );
 			voiceChats[voiceChatList->numVoiceChats].sounds[voiceChats[voiceChatList->numVoiceChats].numSounds] = sound;
 			token = COM_ParseExt(p, qtrue);
 			if (!token || token[0] == 0) {
@@ -805,21 +783,20 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 		return;
 	}
 
-	if ( !cg_noVoiceChats.integer ) {
-		trap_S_StartLocalSound( vchat->snd, CHAN_VOICE);
-		if (vchat->clientNum != cg.snap->ps.clientNum) {
-			int orderTask = CG_ValidOrder(vchat->cmd);
-			if (orderTask > 0) {
-				cgs.acceptOrderTime = cg.time + 5000;
-				Q_strncpyz(cgs.acceptVoice, vchat->cmd, sizeof(cgs.acceptVoice));
-				cgs.acceptTask = orderTask;
-				cgs.acceptLeader = vchat->clientNum;
-			}
-			// see if this was an order
-			CG_ShowResponseHead();
+	trap_S_StartLocalSound( vchat->snd, CHAN_VOICE);
+	if (vchat->clientNum != cg.snap->ps.clientNum) {
+		int orderTask = CG_ValidOrder(vchat->cmd);
+		if (orderTask > 0) {
+			cgs.acceptOrderTime = cg.time + 5000;
+			Q_strncpyz(cgs.acceptVoice, vchat->cmd, sizeof(cgs.acceptVoice));
+			cgs.acceptTask = orderTask;
+			cgs.acceptLeader = vchat->clientNum;
 		}
+		// see if this was an order
+		CG_ShowResponseHead();
 	}
-	if (!vchat->voiceOnly && !cg_noVoiceText.integer) {
+
+	if (!vchat->voiceOnly) {
 		CG_AddToTeamChat( vchat->message );
 		CG_Printf( "%s\n", vchat->message );
 	}

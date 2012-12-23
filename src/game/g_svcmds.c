@@ -360,9 +360,6 @@ void	Svcmd_EntityList_f (void) {
 		case ET_INVISIBLE:
 			G_Printf("ET_INVISIBLE        ");
 			break;
-		case ET_GRAPPLE:
-			G_Printf("ET_GRAPPLE          ");
-			break;
 		default:
 			G_Printf("%3i                 ", check->s.eType);
 			break;

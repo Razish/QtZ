@@ -59,8 +59,10 @@ gitem_t	bg_itemlist[] =
 	{	"item_health_mega",			"sound/item_pickup.wav",		{ "models/powerups/health/mega.md3",	NULL },									"icons/health_mega",			"Mega Health",			100,		IT_HEALTH,				0,						"",			"" },
 
 	// weapons
+	//RAZMARK: adding new weapons
 	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
 	{	"weapon_repeater",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_repeater",		"Repeater",				120,		IT_WEAPON,				WP_REPEATER,			"",			"" },
+	{	"weapon_splicer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_splicer",			"Splicer",				100,		IT_WEAPON,				WP_SPLICER,				"",			"" },
 	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			IT_WEAPON,				WP_MORTAR,				"",			"" },
 	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
 
@@ -480,14 +482,9 @@ char *eventnames[EV_NUM_EVENTS] = {
 	"EV_PLAYER_TELEPORT_IN",
 	"EV_PLAYER_TELEPORT_OUT",
 
-	"EV_GRENADE_BOUNCE",		// eventParm will be the soundindex
-
 	"EV_GENERAL_SOUND",
 	"EV_GLOBAL_SOUND",		// no attenuation
 	"EV_GLOBAL_TEAM_SOUND",
-
-	"EV_BULLET_HIT_FLESH",
-	"EV_BULLET_HIT_WALL",
 
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",
@@ -746,6 +743,7 @@ int weaponFromMOD[MOD_MAX] = {
 	WP_NONE,
 	WP_QUANTIZER,
 	WP_REPEATER,
+	WP_SPLICER,
 	WP_MORTAR,
 	WP_DIVERGENCE,
 	WP_NONE,

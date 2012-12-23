@@ -1179,18 +1179,12 @@ BotSelectActivateWeapon
 */
 int BotSelectActivateWeapon(bot_state_t *bs) {
 	//RAZMARK: Adding new weapons
-	//
-	if (bs->inventory[INVENTORY_QUANTIZER] > 0 )
-		return WP_QUANTIZER;
-	if (bs->inventory[INVENTORY_REPEATER] > 0 && bs->inventory[INVENTORY_AMMOREPEATER] > 0)
-		return WP_REPEATER;
-	if (bs->inventory[INVENTORY_MORTAR] > 0 && bs->inventory[INVENTORY_AMMOMORTAR] > 0)
-		return WP_MORTAR;
-	if (bs->inventory[INVENTORY_DIVERGENCE] > 0 && bs->inventory[INVENTORY_AMMODIVERGENCE] > 0)
-		return WP_DIVERGENCE;
-	else {
-		return -1;
-	}
+	if ( bs->inventory[INVENTORY_QUANTIZER] > 0 )													return WP_QUANTIZER;
+	if ( bs->inventory[INVENTORY_REPEATER] > 0 && bs->inventory[INVENTORY_AMMOREPEATER] > 0 )		return WP_REPEATER;
+	if ( bs->inventory[INVENTORY_SPLICER] > 0 && bs->inventory[INVENTORY_AMMOSPLICER] > 0 )			return WP_SPLICER;
+	if ( bs->inventory[INVENTORY_MORTAR] > 0 && bs->inventory[INVENTORY_AMMOMORTAR] > 0 )			return WP_MORTAR;
+	if ( bs->inventory[INVENTORY_DIVERGENCE] > 0 && bs->inventory[INVENTORY_AMMODIVERGENCE] > 0 )	return WP_DIVERGENCE;
+	else																							return -1;
 }
 
 /*

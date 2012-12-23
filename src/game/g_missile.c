@@ -25,17 +25,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MISSILE_PRESTEP_TIME	50
 
 //Raz: Fixing this in several ways. Some communities like the 'broken' behaviour.
-//	qtz_randFix 0 == Same as basejka. Broken on Linux, fine on Windows
-//	qtz_randFix 1 == Use proper behaviour of RAND_MAX. Fine on Linux, fine on Windows
-//	qtz_randFix 2 == Intentionally break RAND_MAX. Broken on Linux, broken on Windows.
+//	g_randFix 0 == Broken on Linux, fine on Windows
+//	g_randFix 1 == Fine on Linux, fine on Windows
+//	g_randFix 2 == Broken on Linux, broken on Windows.
 float RandFloat(float min, float max) {
 	int randActual = rand();
 	float randMax = 32768.0f;
 #ifdef _WIN32
-	if ( qtz_randFix.integer == 2 )
+	if ( g_randFix.integer == 2 )
 		randActual = (randActual<<16)|randActual;
 #elif defined(__GCC__)
-	if ( qtz_randFix.integer == 1 )
+	if ( g_randFix.integer == 1 )
 		randMax = RAND_MAX;
 #endif
 	return ((randActual * (max - min)) / randMax) + min;
@@ -288,7 +288,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		(ent->bounceCount > 0 || ent->bounceCount == -5) &&
 		( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
 		G_BounceMissile( ent, trace );
-		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+	//	G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 		return;
 	}
 
