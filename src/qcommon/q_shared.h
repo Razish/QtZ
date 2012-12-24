@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define STANDALONE
 #define PRODUCT_NAME				"QtZ"
-#define PRODUCT_VERSION				"0.2 development"
+#define PRODUCT_VERSION				"0.3 development"
 #define QTZ_VERSION					PRODUCT_NAME" "PRODUCT_VERSION
 #define BASEGAME					"qtz"
 #define CLIENT_WINDOW_TITLE     	"QuantiZe ["PRODUCT_VERSION"]"
@@ -879,7 +879,7 @@ default values.
 ==========================================================
 */
 
-#define CVAR_NONE			0x0001
+#define CVAR_NONE			0x0000
 #define	CVAR_ARCHIVE		0x0001	// set to cause it to be saved to vars.rc - used for system variables, not for player specific configurations
 #define	CVAR_USERINFO		0x0002	// sent to server on connect or change
 #define	CVAR_SERVERINFO		0x0004	// sent in response to front end requests
@@ -909,6 +909,7 @@ struct cvar_s {
 	char			*resetString;		// cvar_restart will reset to this value
 	char			*latchedString;		// for CVAR_LATCH vars
 	int				flags;
+	char			*description;
 	qboolean	modified;			// set each time the cvar is changed
 	int				modificationCount;	// incremented each time the cvar is changed
 	float			value;				// atof( string )

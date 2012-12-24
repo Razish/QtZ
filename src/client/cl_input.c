@@ -1010,8 +1010,8 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-voiprecord", IN_VoipRecordUp);
 #endif
 
-	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);
+	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0, "Use delta encoding (recommended)" );
+	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0, "Show graph for mouse movement" );
 }
 
 /*

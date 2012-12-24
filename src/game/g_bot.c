@@ -160,7 +160,7 @@ static void G_LoadArenas( void ) {
 
 	g_numArenas = 0;
 
-	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
+	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM, NULL );
 	if( *arenasFile.string ) {
 		G_LoadArenasFromFile(arenasFile.string);
 	}
@@ -895,7 +895,7 @@ static void G_LoadBots( void ) {
 
 	g_numBots = 0;
 
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL );
 	if( *botsFile.string ) {
 		G_LoadBotsFromFile(botsFile.string);
 	}
@@ -967,7 +967,7 @@ void G_InitBots( qboolean restart ) {
 	G_LoadBots();
 	G_LoadArenas();
 
-	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
+	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO, NULL );
 
 	if( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		trap_GetServerinfo( serverinfo, sizeof(serverinfo) );

@@ -38,8 +38,9 @@ typedef struct {
 	char		*cvarName;
 	char		*defaultString;
 	int			cvarFlags;
-	int			modificationCount;  // for tracking changes
+	char		*description;
 	qboolean	trackChange;	    // track this variable, and announce if changed
+	int			modificationCount;  // for tracking changes
 } cvarTable_t;
 
 #define XCVAR_DECL
@@ -196,7 +197,7 @@ void G_RegisterCvars( void ) {
 
 	for ( i=0, cv=gameCvarTable; i<gameCvarTableSize; i++, cv++ )
 	{
-		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
+		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
 		if ( cv->vmCvar )
 			cv->modificationCount = cv->vmCvar->modificationCount;
 	}

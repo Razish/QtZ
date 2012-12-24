@@ -37,9 +37,9 @@ int demo_protocols[] =
 #define MAX_NUM_ARGVS	50
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
-#define MIN_COMHUNKMEGS		56
-#define DEF_COMHUNKMEGS		64
-#define DEF_COMZONEMEGS		24
+#define MIN_COMHUNKMEGS		64
+#define DEF_COMHUNKMEGS		256
+#define DEF_COMZONEMEGS		64
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
@@ -73,7 +73,6 @@ cvar_t	*com_logfile;		// 1 = buffer log, 2 = flush after each print
 cvar_t	*com_pipefile;
 cvar_t	*com_showtrace;
 cvar_t	*com_version;
-cvar_t	*com_blood;
 cvar_t	*com_buildScript;	// for automated data building scripts
 cvar_t	*com_introPlayed;
 cvar_t	*cl_paused;
@@ -88,9 +87,6 @@ cvar_t	*com_abnormalExit;
 cvar_t	*com_standalone;
 cvar_t	*com_gamename;
 cvar_t	*com_protocol;
-#ifdef LEGACY_PROTOCOL
-cvar_t	*com_legacyprotocol;
-#endif
 cvar_t	*com_basegame;
 cvar_t  *com_homepath;
 cvar_t	*com_busyWait;
@@ -383,9 +379,9 @@ command lines.
 
 All of these are valid:
 
-quake3 +set test blah +map test
-quake3 set test blah+map test
-quake3 set test blah + map test
+qtz +set test blah +map test
+qtz set test blah+map test
+qtz set test blah + map test
 
 ============================================================================
 */
@@ -474,7 +470,7 @@ void Com_StartupVariable( const char *match ) {
 		if(!match || !strcmp(s, match))
 		{
 			if(Cvar_Flags(s) == CVAR_NONEXISTENT)
-				Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED);
+				Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED, NULL);
 			else
 				Cvar_Set2(s, Cmd_Argv(2), qfalse);
 		}
@@ -1429,7 +1425,7 @@ void Com_InitZoneMemory( void ) {
 	// configure the memory manager.
 
 	// allocate the random block zone
-	cv = Cvar_Get( "com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_LATCH | CVAR_ARCHIVE );
+	cv = Cvar_Get( "com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_LATCH|CVAR_ARCHIVE, NULL );
 
 	if ( cv->integer < DEF_COMZONEMEGS ) {
 		s_zoneTotal = 1024 * 1024 * DEF_COMZONEMEGS;
@@ -1542,7 +1538,7 @@ void Com_InitHunkMemory( void ) {
 	}
 
 	// allocate the stack based hunk allocator
-	cv = Cvar_Get( "com_hunkMegs", DEF_COMHUNKMEGS_S, CVAR_LATCH | CVAR_ARCHIVE );
+	cv = Cvar_Get( "com_hunkMegs", DEF_COMHUNKMEGS_S, CVAR_LATCH|CVAR_ARCHIVE, NULL );
 
 	// if we are not dedicated min allocation is 56, otherwise min is 1
 	if (com_dedicated && com_dedicated->integer) {
@@ -1899,7 +1895,7 @@ Com_InitJournaling
 */
 void Com_InitJournaling( void ) {
 	Com_StartupVariable( "journal" );
-	com_journal = Cvar_Get ("journal", "0", CVAR_INIT);
+	com_journal = Cvar_Get( "journal", "0", CVAR_INIT, NULL );
 	if ( !com_journal->integer ) {
 		return;
 	}
@@ -2675,14 +2671,14 @@ void Com_Init( char *commandLine ) {
 	Cmd_Init ();
 
 	// get the developer cvar set as early as possible
-	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
+	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP, "Enable developer features for debugging/testing" );
 
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
-	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
-	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
-	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
+	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM, NULL);
+	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT, NULL);
+	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT, NULL);
 	
 	if(!com_basegame->string[0])
 		Cvar_ForceReset("com_basegame");
@@ -2718,10 +2714,10 @@ void Com_Init( char *commandLine ) {
 
   // get dedicated here for proper hunk megs initialization
 #ifdef DEDICATED
-	com_dedicated = Cvar_Get ("dedicated", "1", CVAR_INIT);
+	com_dedicated = Cvar_Get ("dedicated", "1", CVAR_INIT, NULL);
 	Cvar_CheckRange( com_dedicated, 1, 2, qtrue );
 #else
-	com_dedicated = Cvar_Get ("dedicated", "0", CVAR_LATCH);
+	com_dedicated = Cvar_Get ("dedicated", "0", CVAR_LATCH, NULL);
 	Cvar_CheckRange( com_dedicated, 0, 2, qtrue );
 #endif
 	// allocate the stack based hunk allocator
@@ -2734,53 +2730,37 @@ void Com_Init( char *commandLine ) {
 	//
 	// init commands and vars
 	//
-	com_altivec = Cvar_Get ("com_altivec", "1", CVAR_ARCHIVE);
-	com_frametime = Cvar_Get ("com_frametime", "8", CVAR_ARCHIVE);
-	com_frametimeUnfocused = Cvar_Get( "com_frametimeUnfocused", "40", CVAR_ARCHIVE );
-	com_frametimeMinimized = Cvar_Get( "com_frametimeMinimized", "40", CVAR_ARCHIVE );
-	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE);
-
-	com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
-
-	com_timescale = Cvar_Get ("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO );
-	com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);
-	com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
-	com_speeds = Cvar_Get ("com_speeds", "0", 0);
-	com_timedemo = Cvar_Get ("timedemo", "0", CVAR_CHEAT);
-	com_cameraMode = Cvar_Get ("com_cameraMode", "0", CVAR_CHEAT);
-
-	cl_paused = Cvar_Get ("cl_paused", "0", CVAR_ROM);
-	sv_paused = Cvar_Get ("sv_paused", "0", CVAR_ROM);
-	cl_packetdelay = Cvar_Get ("cl_packetdelay", "0", CVAR_CHEAT);
-	sv_packetdelay = Cvar_Get ("sv_packetdelay", "0", CVAR_CHEAT);
-	com_sv_running = Cvar_Get ("sv_running", "0", CVAR_ROM);
-	com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM);
-	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
-	com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE );
-
-	com_unfocused = Cvar_Get( "com_unfocused", "0", CVAR_ROM );
-	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
-	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
-	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
-	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
-
-	in_numpadbug = Cvar_Get("in_numpadbug", "0", CVAR_ARCHIVE);
-
-	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
-
+	com_altivec				= Cvar_Get( "com_altivec",				"1",								CVAR_ARCHIVE,				NULL );
+	com_frametime			= Cvar_Get( "com_frametime",			"8",								CVAR_ARCHIVE,				NULL );
+	com_frametimeUnfocused	= Cvar_Get( "com_frametimeUnfocused",	"40",								CVAR_ARCHIVE,				NULL );
+	com_frametimeMinimized	= Cvar_Get( "com_frametimeMinimized",	"40",								CVAR_ARCHIVE,				NULL );
+	com_logfile				= Cvar_Get( "logfile",					"0",								CVAR_TEMP,					NULL );
+	com_timescale			= Cvar_Get( "timescale",				"1",								CVAR_CHEAT|CVAR_SYSTEMINFO,	NULL );
+	com_fixedtime			= Cvar_Get( "fixedtime",				"0",								CVAR_CHEAT,					NULL );
+	com_showtrace			= Cvar_Get( "com_showtrace",			"0",								CVAR_CHEAT,					NULL );
+	com_speeds				= Cvar_Get( "com_speeds",				"0",								CVAR_NONE,					NULL );
+	com_timedemo			= Cvar_Get( "timedemo",					"0",								CVAR_CHEAT,					NULL );
+	com_cameraMode			= Cvar_Get( "com_cameraMode",			"0",								CVAR_CHEAT,					NULL );
+	cl_paused				= Cvar_Get( "cl_paused",				"0",								CVAR_ROM,					NULL );
+	sv_paused				= Cvar_Get( "sv_paused",				"0",								CVAR_ROM,					NULL );
+	cl_packetdelay			= Cvar_Get( "cl_packetdelay",			"0",								CVAR_CHEAT,					NULL );
+	sv_packetdelay			= Cvar_Get( "sv_packetdelay",			"0",								CVAR_CHEAT,					NULL );
+	com_sv_running			= Cvar_Get( "sv_running",				"0",								CVAR_ROM,					NULL );
+	com_cl_running			= Cvar_Get( "cl_running",				"0",								CVAR_ROM,					NULL );
+	com_buildScript			= Cvar_Get( "com_buildScript",			"0",								CVAR_NONE,					NULL );
+	com_ansiColor			= Cvar_Get( "com_ansiColor",			"0",								CVAR_ARCHIVE,				NULL );
+	com_unfocused			= Cvar_Get( "com_unfocused",			"0",								CVAR_ROM,					NULL );
+	com_minimized			= Cvar_Get( "com_minimized",			"0",								CVAR_ROM,					NULL );
+	com_abnormalExit		= Cvar_Get( "com_abnormalExit",			"0",								CVAR_ROM,					NULL );
+	com_busyWait			= Cvar_Get( "com_busyWait",				"0",								CVAR_ARCHIVE,				NULL );
+							  Cvar_Get( "com_errorMessage",			"",									CVAR_ROM|CVAR_NORESTART,	NULL );
+	in_numpadbug			= Cvar_Get( "in_numpadbug",				"0",								CVAR_ARCHIVE,				NULL );
+	com_introPlayed			= Cvar_Get( "com_introplayed",			"0",								CVAR_ARCHIVE,				NULL );
 	s = va("%s %s %s", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
-	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
-	com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);
-	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
-#ifdef LEGACY_PROTOCOL
-	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
-
-	// Keep for compatibility with old mods / mods that haven't updated yet.
-	if(com_legacyprotocol->integer > 0)
-		Cvar_Get("protocol", com_legacyprotocol->string, CVAR_ROM);
-	else
-#endif
-		Cvar_Get("protocol", com_protocol->string, CVAR_ROM);
+	com_version				= Cvar_Get( "version",					s,									CVAR_ROM|CVAR_SERVERINFO,	NULL );
+	com_gamename			= Cvar_Get( "com_gamename",				GAMENAME_FOR_MASTER,				CVAR_SERVERINFO|CVAR_INIT,	NULL );
+	com_protocol			= Cvar_Get( "com_protocol",				va("%i", PROTOCOL_VERSION),			CVAR_SERVERINFO|CVAR_INIT,	NULL );
+							  Cvar_Get( "protocol",					com_protocol->string,				CVAR_ROM,					NULL );
 
 	Sys_Init();
 
@@ -2848,7 +2828,7 @@ void Com_Init( char *commandLine ) {
 	Com_Printf ("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 
-	com_pipefile = Cvar_Get( "com_pipefile", "", CVAR_ARCHIVE|CVAR_LATCH );
+	com_pipefile = Cvar_Get( "com_pipefile", "", CVAR_ARCHIVE|CVAR_LATCH, NULL );
 	if( com_pipefile->string[0] )
 	{
 		pipefile = FS_FCreateOpenPipeFile( com_pipefile->string );
@@ -3177,7 +3157,7 @@ void Com_Frame( void ) {
 	// but before the client tries to auto-connect
 	if ( com_dedicated->modified ) {
 		// get the latched value
-		Cvar_Get( "dedicated", "0", 0 );
+		Cvar_Get( "dedicated", "0", 0, NULL );
 		com_dedicated->modified = qfalse;
 		if ( !com_dedicated->integer ) {
 			SV_Shutdown( "dedicated set to 0" );

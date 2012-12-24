@@ -1338,7 +1338,7 @@ int BotAILoadMap( int restart ) {
 	vmCvar_t	mapname;
 
 	if (!restart) {
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM, NULL );
 		trap_BotLibLoadMap( mapname.string );
 	}
 
@@ -1618,18 +1618,18 @@ BotAISetup
 int BotAISetup( int restart ) {
 	int			errnum;
 
-	trap_Cvar_Register(&bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_memorydump, "bot_memorydump", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_saveroutingcache, "bot_saveroutingcache", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_pause, "bot_pause", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_report, "bot_report", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_testsolid, "bot_testsolid", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_testclusters, "bot_testclusters", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_developer, "bot_developer", "0", CVAR_CHEAT);
-	trap_Cvar_Register(&bot_interbreedchar, "bot_interbreedchar", "", 0);
-	trap_Cvar_Register(&bot_interbreedbots, "bot_interbreedbots", "10", 0);
-	trap_Cvar_Register(&bot_interbreedcycle, "bot_interbreedcycle", "20", 0);
-	trap_Cvar_Register(&bot_interbreedwrite, "bot_interbreedwrite", "", 0);
+	trap_Cvar_Register( &bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_memorydump, "bot_memorydump", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_saveroutingcache, "bot_saveroutingcache", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_pause, "bot_pause", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_report, "bot_report", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_testsolid, "bot_testsolid", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_testclusters, "bot_testclusters", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_developer, "bot_developer", "0", CVAR_CHEAT, NULL);
+	trap_Cvar_Register( &bot_interbreedchar, "bot_interbreedchar", "", 0, NULL);
+	trap_Cvar_Register( &bot_interbreedbots, "bot_interbreedbots", "10", 0, NULL);
+	trap_Cvar_Register( &bot_interbreedcycle, "bot_interbreedcycle", "20", 0, NULL);
+	trap_Cvar_Register( &bot_interbreedwrite, "bot_interbreedwrite", "", 0, NULL);
 
 	//if the game is restarted for a tournament
 	if (restart) {

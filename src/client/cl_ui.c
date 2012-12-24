@@ -723,7 +723,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return Sys_Milliseconds();
 
 	case UI_CVAR_REGISTER:
-		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4] ); 
+		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], VMA(5) ); 
 		return 0;
 
 	case UI_CVAR_UPDATE:
@@ -747,10 +747,6 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_CVAR_RESET:
 		Cvar_Reset( VMA(1) );
-		return 0;
-
-	case UI_CVAR_CREATE:
-		Cvar_Get( VMA(1), VMA(2), args[3] );
 		return 0;
 
 	case UI_CVAR_INFOSTRINGBUFFER:

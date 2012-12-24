@@ -305,9 +305,10 @@ Cvar_Get
 
 If the variable already exists, the value will not be set unless CVAR_ROM
 The flags will be or'ed in if the variable exists.
+You can pass NULL for the description.
 ============
 */
-cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
+cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags, const char *description ) {
 	cvar_t	*var;
 	long	hash;
 	int	index;
@@ -341,6 +342,13 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			var->flags &= ~CVAR_USER_CREATED;
 			Z_Free( var->resetString );
 			var->resetString = CopyString( var_value );
+
+			if ( description )
+			{
+				if ( var->description )
+					Z_Free( var->description );
+				var->description = CopyString( description );
+			}
 
 			if(flags & CVAR_ROM)
 			{
@@ -386,8 +394,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			Z_Free( var->resetString );
 			var->resetString = CopyString( var_value );
 		} else if ( var_value[0] && strcmp( var->resetString, var_value ) ) {
-			Com_DPrintf( "Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n",
-				var_name, var->resetString, var_value );
+			Com_DPrintf( "Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n", var_name, var->resetString, var_value );
 		}
 		// if we have a latched string, take that value now
 		if ( var->latchedString ) {
@@ -432,6 +439,8 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
+	if ( description )
+		var->description = CopyString( description );
 	var->modified = qtrue;
 	var->modificationCount = 1;
 	var->value = atof (var->string);
@@ -469,7 +478,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 ============
 Cvar_Print
 
-Prints the value, default, and latched string of the given variable
+Prints the value, default, latched string and description of the given variable
 ============
 */
 void Cvar_Print( cvar_t *v ) {
@@ -487,9 +496,11 @@ void Cvar_Print( cvar_t *v ) {
 
 	Com_Printf ("\n");
 
-	if ( v->latchedString ) {
+	if ( v->latchedString )
 		Com_Printf( "latched: \"%s\"\n", v->latchedString );
-	}
+
+	if ( v->description )
+		Com_Printf( "description: \"%s\"\n", v->description );
 }
 
 /*
@@ -521,9 +532,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		}
 		// create it
 		if ( !force ) {
-			return Cvar_Get( var_name, value, CVAR_USER_CREATED );
+			return Cvar_Get( var_name, value, CVAR_USER_CREATED, NULL );
 		} else {
-			return Cvar_Get (var_name, value, 0);
+			return Cvar_Get (var_name, value, CVAR_NONE, NULL );
 		}
 	}
 
@@ -1034,14 +1045,11 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 {
 	cvar_t *next = cv->next;
 
-	if(cv->name)
-		Z_Free(cv->name);
-	if(cv->string)
-		Z_Free(cv->string);
-	if(cv->latchedString)
-		Z_Free(cv->latchedString);
-	if(cv->resetString)
-		Z_Free(cv->resetString);
+	if ( cv->name )				Z_Free( cv->name );
+	if ( cv->string )			Z_Free( cv->string );
+	if ( cv->latchedString )	Z_Free( cv->latchedString );
+	if ( cv->resetString )		Z_Free( cv->resetString );
+	if ( cv->description )		Z_Free( cv->description );
 
 	if(cv->prev)
 		cv->prev->next = cv->next;
@@ -1218,7 +1226,7 @@ Cvar_Register
 basically a slightly modified Cvar_Get for the interpreted modules
 =====================
 */
-void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags)
+void Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags, const char *description )
 {
 	cvar_t	*cv;
 
@@ -1227,12 +1235,11 @@ void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultVal
 	// flags. Unfortunately some historical game code (including single player
 	// baseq3) sets both flags. We unset CVAR_ROM for such cvars.
 	if ((flags & (CVAR_ARCHIVE | CVAR_ROM)) == (CVAR_ARCHIVE | CVAR_ROM)) {
-		Com_DPrintf( S_COLOR_YELLOW "WARNING: Unsetting CVAR_ROM cvar '%s', "
-			"since it is also CVAR_ARCHIVE\n", varName );
+		Com_DPrintf( S_COLOR_YELLOW "WARNING: Unsetting CVAR_ROM cvar '%s', since it is also CVAR_ARCHIVE\n", varName );
 		flags &= ~CVAR_ROM;
 	}
 
-	cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED);
+	cv = Cvar_Get( varName, defaultValue, flags|CVAR_VM_CREATED, description );
 
 	if (!vmCvar)
 		return;
@@ -1268,9 +1275,7 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 	}
 	vmCvar->modificationCount = cv->modificationCount;
 	if ( strlen(cv->string)+1 > MAX_CVAR_VALUE_STRING ) 
-	  Com_Error( ERR_DROP, "Cvar_Update: src %s length %u exceeds MAX_CVAR_VALUE_STRING",
-		     cv->string, 
-		     (unsigned int) strlen(cv->string));
+	  Com_Error( ERR_DROP, "Cvar_Update: src %s length %u exceeds MAX_CVAR_VALUE_STRING", cv->string, (unsigned int)strlen( cv->string ) );
 	Q_strncpyz( vmCvar->string, cv->string,  MAX_CVAR_VALUE_STRING ); 
 
 	vmCvar->value = cv->value;
@@ -1307,7 +1312,7 @@ void Cvar_Init (void)
 	Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
 	Com_Memset(hashTable, '\0', sizeof(hashTable));
 
-	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO );
+	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM|CVAR_SYSTEMINFO, "Indicates whether cheats are enabled or not" );
 
 	Cmd_AddCommand ("print", Cvar_Print_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);

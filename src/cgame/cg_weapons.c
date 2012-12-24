@@ -537,7 +537,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 		if ( weaponNum == WP_DIVERGENCE )
 		{
-			float cdPoint = MIN(cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], weaponData[cg.predictedPlayerState.weapon].maxFireTime) / weaponData[cg.predictedPlayerState.weapon].maxFireTime;
+			float cdPoint = MIN(cg.predictedPlayerState.weaponCooldown[weaponNum], weaponData[weaponNum].maxFireTime) / weaponData[weaponNum].maxFireTime;
 			vec3_t flashColour = { 0.0f, 0.878431f, 1.0f };
 
 			if ( cgs.gametype >= GT_TEAM )

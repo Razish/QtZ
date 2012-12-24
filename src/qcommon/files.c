@@ -1057,11 +1057,6 @@ qboolean FS_IsDemoExt(const char *filename, int namelen)
 		if(protocol == com_protocol->integer)
 			return qtrue;
 
-#ifdef LEGACY_PROTOCOL
-                if(protocol == com_legacyprotocol->integer)
-                        return qtrue;
-#endif
-
 		for(index = 0; demo_protocols[index]; index++)
 		{
 			if(demo_protocols[index] == protocol)
@@ -3150,15 +3145,15 @@ static void FS_Startup( const char *gameName )
 
 	fs_packFiles = 0;
 
-	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
-	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED );
-	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
+	fs_debug		= Cvar_Get( "fs_debug",		"0",						CVAR_NONE,					NULL );
+	fs_basepath		= Cvar_Get( "fs_basepath",	Sys_DefaultInstallPath(),	CVAR_INIT|CVAR_PROTECTED,	NULL );
+	fs_basegame		= Cvar_Get( "fs_basegame",	"",							CVAR_INIT,					NULL );
 	homePath = Sys_DefaultHomePath();
-	if (!homePath || !homePath[0]) {
+	if (!homePath || !homePath[0])
 		homePath = fs_basepath->string;
-	}
-	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
-	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
+
+	fs_homepath		= Cvar_Get( "fs_homepath",	homePath,					CVAR_INIT|CVAR_PROTECTED,	NULL );
+	fs_gamedirvar	= Cvar_Get( "fs_game",		"",							CVAR_INIT|CVAR_SYSTEMINFO,	NULL );
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {

@@ -427,7 +427,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
 	case CG_CVAR_REGISTER:
-		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4] ); 
+		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], VMA(5) ); 
 		return 0;
 	case CG_CVAR_UPDATE:
 		Cvar_Update( VMA(1) );

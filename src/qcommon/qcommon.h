@@ -229,10 +229,6 @@ typedef struct {
 	int			challenge;
 	int		lastSentTime;
 	int		lastSentSize;
-
-#ifdef LEGACY_PROTOCOL
-	qboolean	compat;
-#endif
 } netchan_t;
 
 void Netchan_Init( int qport );
@@ -498,13 +494,13 @@ modules of the program.
 
 */
 
-cvar_t *Cvar_Get( const char *var_name, const char *value, int flags );
+cvar_t *Cvar_Get( const char *var_name, const char *value, int flags, const char *description );
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
 // if value is "", the value will not override a previously set value.
 
-void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
+void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags, const char *description );
 // basically a slightly modified Cvar_Get for the interpreted modules
 
 void	Cvar_Update( vmCvar_t *vmCvar );
@@ -850,7 +846,6 @@ extern	cvar_t	*com_timescale;
 extern	cvar_t	*com_sv_running;
 extern	cvar_t	*com_cl_running;
 extern	cvar_t	*com_version;
-extern	cvar_t	*com_blood;
 extern	cvar_t	*com_buildScript;		// for building release pak files
 extern	cvar_t	*com_journal;
 extern	cvar_t	*com_cameraMode;
@@ -871,9 +866,6 @@ extern	cvar_t	*sv_packetdelay;
 
 extern	cvar_t	*com_gamename;
 extern	cvar_t	*com_protocol;
-#ifdef LEGACY_PROTOCOL
-extern	cvar_t	*com_legacyprotocol;
-#endif
 
 // com_speeds times
 extern	int		time_game;

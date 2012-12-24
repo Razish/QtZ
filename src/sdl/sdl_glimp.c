@@ -705,15 +705,15 @@ of OpenGL
 */
 void GLimp_Init( void )
 {
-	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
-	r_sdlDriver = ri.Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
-	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE );
-	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE );
+	r_allowSoftwareGL	= ri.Cvar_Get( "r_allowSoftwareGL",		"0",	CVAR_LATCH,		NULL );
+	r_sdlDriver			= ri.Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL );
+	r_allowResize		= ri.Cvar_Get( "r_allowResize",			"0",	CVAR_ARCHIVE,	NULL );
+	r_centerWindow		= ri.Cvar_Get( "r_centerWindow",		"0",	CVAR_ARCHIVE,	NULL );
 
 	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
-	r_xpos = ri.Cvar_Get( "r_xpos", "100", CVAR_ARCHIVE );
-	r_ypos = ri.Cvar_Get( "r_ypos", "100", CVAR_ARCHIVE );
-	in_disableLockKeys = ri.Cvar_Get( "in_disableLockKeys", "0", CVAR_ARCHIVE );
+	r_xpos				= ri.Cvar_Get( "r_xpos",				"100",	CVAR_ARCHIVE,	NULL );
+	r_ypos				= ri.Cvar_Get( "r_ypos",				"100",	CVAR_ARCHIVE,	NULL );
+	in_disableLockKeys	= ri.Cvar_Get( "in_disableLockKeys",	"0",	CVAR_ARCHIVE,	NULL );
 	//~QtZ
 
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
@@ -738,13 +738,13 @@ void GLimp_Init( void )
 	ri.Sys_GLimpInit( );
 
 	// Create the window and set up the context
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer))
+	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->boolean, r_noborder->boolean))
 		goto success;
 
 	// Try again, this time in a platform specific "safe mode"
 	ri.Sys_GLimpSafeInit( );
 
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse))
+	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->boolean, qfalse))
 		goto success;
 
 	// Finally, try the default screen resolution
@@ -789,7 +789,7 @@ success:
 	// initialize extensions
 	GLimp_InitExtensions( );
 
-	ri.Cvar_Get( "r_availableModes", "", CVAR_ROM );
+	ri.Cvar_Get( "r_availableModes", "", CVAR_ROM, NULL );
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
 	ri.IN_Init( );

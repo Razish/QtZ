@@ -5187,7 +5187,7 @@ void _UI_Init( qboolean inGameLoad ) {
 		trap_Cvar_Set("ui_TeamArenaFirstRun", "1");
 	}
 
-	trap_Cvar_Register(NULL, "debug_protocol", "", 0 );
+	trap_Cvar_Register(NULL, "debug_protocol", "", 0, NULL );
 
 	trap_Cvar_Set("ui_actualNetGameType", va("%d", ui_netGameType.integer));
 }
@@ -5604,6 +5604,8 @@ typedef struct {
 	int			cvarFlags;
 } cvarTable_t;
 
+//QTZFIXME: clean up UI cvars. really.
+
 vmCvar_t	ui_ffa_fraglimit;
 vmCvar_t	ui_ffa_timelimit;
 
@@ -5845,7 +5847,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
-
 };
 
 static int		cvarTableSize = ARRAY_LEN( cvarTable );
@@ -5861,7 +5862,7 @@ void UI_RegisterCvars( void ) {
 	cvarTable_t	*cv;
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
+		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, NULL );
 	}
 }
 

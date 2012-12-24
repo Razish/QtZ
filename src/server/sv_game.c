@@ -300,7 +300,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_MILLISECONDS:
 		return Sys_Milliseconds();
 	case G_CVAR_REGISTER:
-		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4] ); 
+		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], VMA(5) ); 
 		return 0;
 	case G_CVAR_UPDATE:
 		Cvar_Update( VMA(1) );
@@ -922,7 +922,7 @@ void SV_InitGameProgs( void ) {
 	//FIXME these are temp while I make bots run in vm
 	extern int	bot_enable;
 
-	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
+	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL );
 	if ( var ) {
 		bot_enable = var->integer;
 	}

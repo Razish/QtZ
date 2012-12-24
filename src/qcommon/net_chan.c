@@ -71,9 +71,9 @@ Netchan_Init
 */
 void Netchan_Init( int port ) {
 	port &= 0xffff;
-	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	showpackets		= Cvar_Get( "showpackets",	"0",			CVAR_TEMP,	NULL );
+	showdrop		= Cvar_Get( "showdrop",		"0",			CVAR_TEMP,	NULL );
+	qport			= Cvar_Get( "net_qport",	va("%i", port),	CVAR_INIT,	NULL );
 }
 
 /*
@@ -93,10 +93,6 @@ void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int 
 	chan->incomingSequence = 0;
 	chan->outgoingSequence = 1;
 	chan->challenge = challenge;
-
-#ifdef LEGACY_PROTOCOL
-	chan->compat = compat;
-#endif
 }
 
 /*
@@ -123,10 +119,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
 
-#ifdef LEGACY_PROTOCOL
-	if(!chan->compat)
-#endif
-		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	// copy the reliable message to the packet first
 	fragmentLength = FRAGMENT_SIZE;
@@ -204,10 +197,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	if(chan->sock == NS_CLIENT)
 		MSG_WriteShort(&send, qport->integer);
 
-#ifdef LEGACY_PROTOCOL
-	if(!chan->compat)
-#endif
-		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	chan->outgoingSequence++;
 
@@ -266,9 +256,6 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		MSG_ReadShort( msg );
 	}
 
-#ifdef LEGACY_PROTOCOL
-	if(!chan->compat)
-#endif
 	{
 		int checksum = MSG_ReadLong(msg);
 

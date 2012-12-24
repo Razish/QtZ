@@ -55,8 +55,8 @@ int trap_Milliseconds( void ) {
 	return syscall( UI_MILLISECONDS ); 
 }
 
-void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
-	syscall( UI_CVAR_REGISTER, cvar, var_name, value, flags );
+void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags, const char *description ) {
+	syscall( UI_CVAR_REGISTER, cvar, var_name, value, flags, description );
 }
 
 void trap_Cvar_Update( vmCvar_t *cvar ) {
@@ -83,10 +83,6 @@ void trap_Cvar_SetValue( const char *var_name, float value ) {
 
 void trap_Cvar_Reset( const char *name ) {
 	syscall( UI_CVAR_RESET, name ); 
-}
-
-void trap_Cvar_Create( const char *var_name, const char *var_value, int flags ) {
-	syscall( UI_CVAR_CREATE, var_name, var_value, flags );
 }
 
 void trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize ) {

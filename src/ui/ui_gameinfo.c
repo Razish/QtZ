@@ -140,7 +140,7 @@ void UI_LoadArenas( void ) {
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
 
-	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
+	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM, NULL );
 	if( *arenasFile.string ) {
 		UI_LoadArenasFromFile(arenasFile.string);
 	}
@@ -245,7 +245,7 @@ void UI_LoadBots( void ) {
 
 	ui_numBots = 0;
 
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL );
 	if( *botsFile.string ) {
 		UI_LoadBotsFromFile(botsFile.string);
 	}

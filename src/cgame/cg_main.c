@@ -94,6 +94,7 @@ typedef struct {
 	char		*cvarName;
 	char		*defaultString;
 	int			cvarFlags;
+	char		*description;
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
@@ -115,7 +116,7 @@ void CG_RegisterCvars( void ) {
 	char		var[MAX_TOKEN_CHARS];
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
+		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
 	}
 
 	// see if we are also running the server on this machine
@@ -125,10 +126,10 @@ void CG_RegisterCvars( void ) {
 	forceEnemyModelCnt = cg_forceEnemyModel.modificationCount;
 	forceAllyModelCnt = cg_forceAllyModel.modificationCount;
 
-	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+	trap_Cvar_Register( NULL, "model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
+	trap_Cvar_Register( NULL, "headmodel",		DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
+	trap_Cvar_Register( NULL, "team_model",		DEFAULT_TEAM_MODEL,	CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
+	trap_Cvar_Register( NULL, "team_headmodel",	DEFAULT_TEAM_HEAD,	CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
 }
 
 /*																																			

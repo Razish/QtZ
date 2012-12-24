@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_local.h"
 #include "snd_codec.h"
 
-#define DEF_COMSOUNDMEGS "8"
+#define DEF_COMSOUNDMEGS "16"
 
 /*
 ===============================================================================
@@ -79,7 +79,7 @@ void SND_setup(void) {
 	cvar_t	*cv;
 	int scs;
 
-	cv = Cvar_Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE );
+	cv = Cvar_Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH|CVAR_ARCHIVE, "Amount of memory allocated for sounds (in MB)" );
 
 	scs = (cv->integer*1536);
 

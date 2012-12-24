@@ -2416,20 +2416,18 @@ qboolean S_AL_Init( soundInterface_t *si )
 	}
 
 	// New console variables
-	s_alPrecache = Cvar_Get( "s_alPrecache", "1", CVAR_ARCHIVE );
-	s_alGain = Cvar_Get( "s_alGain", "1.0", CVAR_ARCHIVE );
-	s_alSources = Cvar_Get( "s_alSources", "96", CVAR_ARCHIVE );
-	s_alDopplerFactor = Cvar_Get( "s_alDopplerFactor", "1.0", CVAR_ARCHIVE );
-	s_alDopplerSpeed = Cvar_Get( "s_alDopplerSpeed", "2200", CVAR_ARCHIVE );
-	s_alMinDistance = Cvar_Get( "s_alMinDistance", "120", CVAR_CHEAT );
-	s_alMaxDistance = Cvar_Get("s_alMaxDistance", "1024", CVAR_CHEAT);
-	s_alRolloff = Cvar_Get( "s_alRolloff", "2", CVAR_CHEAT);
-	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
-
-	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
-
-	s_alInputDevice = Cvar_Get( "s_alInputDevice", "", CVAR_ARCHIVE | CVAR_LATCH );
-	s_alDevice = Cvar_Get("s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH);
+	s_alPrecache		= Cvar_Get( "s_alPrecache",			"1",				CVAR_ARCHIVE,				NULL );
+	s_alGain			= Cvar_Get( "s_alGain",				"1.0",				CVAR_ARCHIVE,				NULL );
+	s_alSources			= Cvar_Get( "s_alSources",			"96",				CVAR_ARCHIVE,				NULL );
+	s_alDopplerFactor	= Cvar_Get( "s_alDopplerFactor",	"1.0",				CVAR_ARCHIVE,				NULL );
+	s_alDopplerSpeed	= Cvar_Get( "s_alDopplerSpeed",		"2200",				CVAR_ARCHIVE,				NULL );
+	s_alMinDistance		= Cvar_Get( "s_alMinDistance",		"120",				CVAR_CHEAT,					NULL );
+	s_alMaxDistance		= Cvar_Get( "s_alMaxDistance",		"1024",				CVAR_CHEAT,					NULL );
+	s_alRolloff			= Cvar_Get( "s_alRolloff",			"2",				CVAR_CHEAT,					NULL );
+	s_alGraceDistance	= Cvar_Get( "s_alGraceDistance",	"512",				CVAR_CHEAT,					NULL );
+	s_alDriver			= Cvar_Get( "s_alDriver",			ALDRIVER_DEFAULT,	CVAR_ARCHIVE|CVAR_LATCH,	NULL );
+	s_alInputDevice		= Cvar_Get( "s_alInputDevice",		"",					CVAR_ARCHIVE|CVAR_LATCH,	NULL );
+	s_alDevice			= Cvar_Get( "s_alDevice",			"",					CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 
 	// Load QAL
 	if( !QAL_Init( s_alDriver->string ) )
@@ -2502,7 +2500,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 		else
 			devicelist = "";
 
-		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
+		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART, NULL);
 	}
 
 	alDevice = qalcOpenDevice(device);
@@ -2543,7 +2541,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	// !!! FIXME: some of these alcCaptureOpenDevice() values should be cvars.
 	// !!! FIXME: add support for capture device enumeration.
 	// !!! FIXME: add some better error reporting.
-	s_alCapture = Cvar_Get( "s_alCapture", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	s_alCapture = Cvar_Get( "s_alCapture", "1", CVAR_ARCHIVE | CVAR_LATCH, NULL );
 	if (!s_alCapture->integer)
 	{
 		Com_Printf("OpenAL capture support disabled by user ('+set s_alCapture 1' to enable)\n");
@@ -2590,7 +2588,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 				inputdevicelist += curlen + 1;
 			}
 
-			s_alAvailableInputDevices = Cvar_Get("s_alAvailableInputDevices", inputdevicenames, CVAR_ROM | CVAR_NORESTART);
+			s_alAvailableInputDevices = Cvar_Get("s_alAvailableInputDevices", inputdevicenames, CVAR_ROM | CVAR_NORESTART, NULL);
 
 			// !!! FIXME: 8000Hz is what Speex narrowband mode needs, but we
 			// !!! FIXME:  should probably open the capture device after

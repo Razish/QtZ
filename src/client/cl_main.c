@@ -63,6 +63,7 @@ cvar_t	*rcon_client_password;
 cvar_t	*rconAddress;
 
 cvar_t	*cl_timeout;
+cvar_t	*cl_maxPing;
 cvar_t	*cl_maxpackets;
 cvar_t	*cl_packetdup;
 cvar_t	*cl_timeNudge;
@@ -734,24 +735,14 @@ void CL_Record_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv(1);
 		Q_strncpyz( demoName, s, sizeof( demoName ) );
-#ifdef LEGACY_PROTOCOL
-		if(clc.compat)
-			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_legacyprotocol->integer);
-		else
-#endif
-			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
+		Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
 	} else {
 		int		number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
 			CL_DemoFilename( number, demoName );
-#ifdef LEGACY_PROTOCOL
-			if(clc.compat)
-				Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_legacyprotocol->integer);
-			else
-#endif
-				Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
+			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
 
 			if (!FS_FileExists(name))
 				break;	// file doesn't exist
@@ -1000,41 +991,20 @@ static int CL_WalkDemoExt(char *arg, char *name, int *demofile)
 {
 	int i = 0;
 	*demofile = 0;
-
-#ifdef LEGACY_PROTOCOL
-	if(com_legacyprotocol->integer > 0)
-	{
-		Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_legacyprotocol->integer);
-		FS_FOpenFileRead(name, demofile, qtrue);
-		
-		if (*demofile)
-		{
-			Com_Printf("Demo file: %s\n", name);
-			return com_legacyprotocol->integer;
-		}
-	}
 	
-	if(com_protocol->integer != com_legacyprotocol->integer)
-#endif
-	{
-		Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_protocol->integer);
-		FS_FOpenFileRead(name, demofile, qtrue);
+	Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_protocol->integer);
+	FS_FOpenFileRead(name, demofile, qtrue);
 
-		if (*demofile)
-		{
-			Com_Printf("Demo file: %s\n", name);
-			return com_protocol->integer;
-		}
+	if (*demofile)
+	{
+		Com_Printf("Demo file: %s\n", name);
+		return com_protocol->integer;
 	}
 
 	Com_Printf("Not found: %s\n", name);
 
 	while(demo_protocols[i])
 	{
-#ifdef LEGACY_PROTOCOL
-		if(demo_protocols[i] == com_legacyprotocol->integer)
-			continue;
-#endif
 		if(demo_protocols[i] == com_protocol->integer)
 			continue;
 	
@@ -1111,11 +1081,7 @@ void CL_PlayDemo_f( void ) {
 				break;
 		}
 
-		if(demo_protocols[i] || protocol == com_protocol->integer
-#ifdef LEGACY_PROTOCOL
-		   || protocol == com_legacyprotocol->integer
-#endif
-		  )
+		if(demo_protocols[i] || protocol == com_protocol->integer)
 		{
 			Com_sprintf(name, sizeof(name), "demos/%s", arg);
 			FS_FOpenFileRead(name, &clc.demofile, qtrue);
@@ -1149,13 +1115,6 @@ void CL_PlayDemo_f( void ) {
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( clc.servername, Cmd_Argv(1), sizeof( clc.servername ) );
-
-#ifdef LEGACY_PROTOCOL
-	if(protocol <= com_legacyprotocol->integer)
-		clc.compat = qtrue;
-	else
-		clc.compat = qfalse;
-#endif
 
 	// read demo messages until connected
 	while ( clc.state >= CA_CONNECTED && clc.state < CA_PRIMED ) {
@@ -2345,15 +2304,7 @@ void CL_CheckForResend( void ) {
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		
-#ifdef LEGACY_PROTOCOL
-		if(com_legacyprotocol->integer == com_protocol->integer)
-			clc.compat = qtrue;
-
-		if(clc.compat)
-			Info_SetValueForKey(info, "protocol", va("%i", com_legacyprotocol->integer));
-		else
-#endif
-			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
+		Info_SetValueForKey( info, "protocol", va("%i", com_protocol->integer) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
 		
@@ -2600,52 +2551,15 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			
 			if(ver != com_protocol->integer)
 			{
-#ifdef LEGACY_PROTOCOL
-				if(com_legacyprotocol->integer > 0)
-				{
-					// Server is ioq3 but has a different protocol than we do.
-					// Fall back to idq3 protocol.
-					clc.compat = qtrue;
+				Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, we have %d. "
+					   "Trying anyways.\n", ver, com_protocol->integer);
+			}
+		}
 
-					Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, "
-						   "we have %d. Trying legacy protocol %d.\n",
-						   ver, com_protocol->integer, com_legacyprotocol->integer);
-				}
-				else
-#endif
-				{
-					Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, we have %d. "
-						   "Trying anyways.\n", ver, com_protocol->integer);
-				}
-			}
-		}
-#ifdef LEGACY_PROTOCOL
-		else
-			clc.compat = qtrue;
-		
-		if(clc.compat)
+		if(!*c || challenge != clc.challenge)
 		{
-			if(!NET_CompareAdr(from, clc.serverAddress))
-			{
-				// This challenge response is not coming from the expected address.
-				// Check whether we have a matching client challenge to prevent
-				// connection hi-jacking.
-			
-				if(!*c || challenge != clc.challenge)
-				{
-					Com_DPrintf("Challenge response received from unexpected source. Ignored.\n");
-					return;
-				}
-			}
-		}
-		else
-#endif
-		{
-			if(!*c || challenge != clc.challenge)
-			{
-				Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
-				return;
-			}
+			Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
+			return;
 		}
 
 		// start sending challenge response instead of challenge request packets
@@ -2676,34 +2590,23 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-#ifdef LEGACY_PROTOCOL
-		if(!clc.compat)
-#endif
-		{
-			c = Cmd_Argv(1);
+		c = Cmd_Argv(1);
 
-			if(*c)
-				challenge = atoi(c);
-			else
-			{
-				Com_Printf("Bad connectResponse received. Ignored.\n");
-				return;
-			}
+		if(*c)
+			challenge = atoi(c);
+		else
+		{
+			Com_Printf("Bad connectResponse received. Ignored.\n");
+			return;
+		}
 			
-			if(challenge != clc.challenge)
-			{
-				Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
-				return;
-			}
+		if(challenge != clc.challenge)
+		{
+			Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
+			return;
 		}
 
-#ifdef LEGACY_PROTOCOL
-		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
-			      clc.challenge, clc.compat);
-#else
-		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
-			      clc.challenge, qfalse);
-#endif
+		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"), clc.challenge, qfalse);
 
 		clc.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
@@ -3169,7 +3072,7 @@ void CL_InitRef( void ) {
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
 #ifdef USE_RENDERER_DLOPEN
-	cl_renderer = Cvar_Get("cl_renderer", "rend1", CVAR_ARCHIVE | CVAR_LATCH);
+	cl_renderer = Cvar_Get( "cl_renderer", "rend1", CVAR_ARCHIVE|CVAR_LATCH, "Controls which renderer to use" );
 
 	Com_sprintf(dllName, sizeof(dllName), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
 
@@ -3405,9 +3308,9 @@ CL_Init
 void CL_Init( void ) {
 	Com_Printf( "----- Client Initialization -----\n" );
 
-	Con_Init ();
+	Con_Init();
 
-	if(!com_fullyInitialized)
+	if ( !com_fullyInitialized )
 	{
 		CL_ClearState();
 		clc.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
@@ -3421,185 +3324,162 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
+	cl_noprint					= Cvar_Get( "cl_noprint",					"0",				CVAR_NONE,					"Enable or disable printing to the console" );
+	cl_conXOffset				= Cvar_Get( "cl_conXOffset",				"0",				CVAR_NONE,					"Horizontal offset for console text" );
 #ifdef UPDATE_SERVER_NAME
-	cl_motd = Cvar_Get ("cl_motd", "1", 0);
+	cl_motd						= Cvar_Get( "cl_motd",						"1",				CVAR_NONE,					"Show a \"Message of the Day\" from the update server" );
 #endif
+	cl_motdString				= Cvar_Get( "cl_motdString",				"",					CVAR_ROM,					"Last received MotD" );
+	cl_timeout					= Cvar_Get( "cl_timeout",					"200",				CVAR_NONE,					"Disconnect from a server if you haven't received an update in the specified time (in seconds)" );
+	cl_maxPing					= Cvar_Get( "cl_maxPing",					"800",				CVAR_ARCHIVE,				"Ignore servers with a higher ping than this" );
+	cl_timeNudge				= Cvar_Get( "cl_timeNudge",					"0",				CVAR_NONE,					"Offset the interpolation of entities between snapshots (use negative values)" );
+	cl_shownet					= Cvar_Get( "cl_shownet",					"0",				CVAR_NONE,					"Show incoming network traffic" );
+	cl_showSend					= Cvar_Get( "cl_showSend",					"0",				CVAR_NONE,					"Show outgoing network traffic" );
+	cl_showTimeDelta			= Cvar_Get( "cl_showTimeDelta",				"0",				CVAR_NONE,					"Show delta information between snapshots" );
+	cl_freezeDemo				= Cvar_Get( "cl_freezeDemo",				"0",				CVAR_NONE,					"Lock a demo in place for single frame advances" );
+	cl_activeAction				= Cvar_Get( "activeAction",					"",					CVAR_NONE,					"Inserted in the command buffer in the first frame of gameplay (for scripting timedemos)" );
 
-	cl_timeout = Cvar_Get ("cl_timeout", "200", 0);
+	cl_timedemo					= Cvar_Get( "timedemo",						"0",				CVAR_NONE,					"Use deterministic time samples when playing back a demo (for benchmarking)" );
+	cl_timedemoLog				= Cvar_Get( "cl_timedemoLog",				"",					CVAR_ARCHIVE,				"Write results of a timedemo to this file" );
+	cl_autoRecordDemo			= Cvar_Get( "cl_autoRecordDemo",			"0",				CVAR_ARCHIVE,				"Automatically record a demo of each game" );
+	cl_aviFrameRate				= Cvar_Get( "cl_aviFrameRate",				"25",				CVAR_ARCHIVE,				"Frame rate for recording AVI videos" );
+	cl_aviMotionJpeg			= Cvar_Get( "cl_aviMotionJpeg",				"1",				CVAR_ARCHIVE,				"Use MJPG encoding for AVI videos" );
+	cl_forceavidemo				= Cvar_Get( "cl_forceavidemo",				"0",				CVAR_NONE,					"Record demo to AVI video" );
 
-	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
-	cl_showSend = Cvar_Get ("cl_showSend", "0", CVAR_TEMP );
-	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_freezeDemo = Cvar_Get ("cl_freezeDemo", "0", CVAR_TEMP );
-	rcon_client_password = Cvar_Get ("rconPassword", "", CVAR_TEMP );
-	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
+	rconAddress					= Cvar_Get( "rconAddress",					"",					CVAR_NONE,					"Use this address when sending RCON commands" );
+	rcon_client_password		= Cvar_Get( "rconPassword",					"",					CVAR_NONE,					"Use this password when sending RCON commands" );
 
-	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
-	cl_timedemoLog = Cvar_Get ("cl_timedemoLog", "", CVAR_ARCHIVE);
-	cl_autoRecordDemo = Cvar_Get ("cl_autoRecordDemo", "0", CVAR_ARCHIVE);
-	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", CVAR_ARCHIVE);
-	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
-	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", 0);
+	cl_yawspeed					= Cvar_Get( "cl_yawspeed",					"140",				CVAR_ARCHIVE,				"Turning speed for +left/+right" );
+	cl_pitchspeed				= Cvar_Get( "cl_pitchspeed",				"140",				CVAR_ARCHIVE,				"Turning speed for +lookup/+lookdown" );
+	cl_anglespeedkey			= Cvar_Get( "cl_anglespeedkey",				"1.5",				CVAR_NONE,					"Turning speed when holding the +speed key" );
 
-	rconAddress = Cvar_Get ("rconAddress", "", 0);
+	cl_maxpackets				= Cvar_Get( "cl_maxpackets",				"63",				CVAR_ARCHIVE,				"How many usercmd packets to send per second" );
+	cl_packetdup				= Cvar_Get( "cl_packetdup",					"1",				CVAR_ARCHIVE,				"Duplicate outgoing packets to compensate for packetloss" );
 
-	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE);
-	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE);
-	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", 0);
-
-	cl_maxpackets = Cvar_Get ("cl_maxpackets", "63", CVAR_ARCHIVE );
-	cl_packetdup = Cvar_Get ("cl_packetdup", "1", CVAR_ARCHIVE );
-
-	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE);
-	cl_sensitivity = Cvar_Get ("sensitivity", "5", CVAR_ARCHIVE);
-	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE);
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE );
-
-	// 0: legacy mouse acceleration
-	// 1: new implementation
-	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE );
+	cl_run						= Cvar_Get( "cl_run",						"1",				CVAR_ARCHIVE,				"Invert behaviour of walking key" );
+	cl_freelook					= Cvar_Get( "cl_freelook",					"1",				CVAR_ARCHIVE,				"Allow changing of view angles" );
+	cl_sensitivity				= Cvar_Get( "sensitivity",					"1",				CVAR_ARCHIVE,				"Look sensitivity" );
+	cl_mouseAccel				= Cvar_Get( "cl_mouseAccel",				"0",				CVAR_ARCHIVE,				"Mouse acceleration" );
+	cl_mouseAccelStyle			= Cvar_Get( "cl_mouseAccelStyle",			"0",				CVAR_ARCHIVE,				"Acceleration style to use (0 = legacy, 1 = QL)" );
 	// offset for the power function (for style 1, ignored otherwise)
-	// this should be set to the max rate value
-	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE );
-	Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, qfalse);
+	//	this should be set to the max rate value
+	cl_mouseAccelOffset			= Cvar_Get( "cl_mouseAccelOffset",			"5",				CVAR_ARCHIVE,				"Offset for mouse acceleration power function" );
+	Cvar_CheckRange( cl_mouseAccelOffset, 0.001f, 50000.0f, qfalse );
+	m_pitch						= Cvar_Get( "m_pitch",						"0.11",				CVAR_ARCHIVE,				"Mouse pitch sensitivity" );
+	m_yaw						= Cvar_Get( "m_yaw",						"0.11",				CVAR_ARCHIVE,				"Mouse yaw sensitivity" );
+	m_forward					= Cvar_Get( "m_forward",					"0.25",				CVAR_ARCHIVE,				NULL );
+	m_side						= Cvar_Get( "m_side",						"0.25",				CVAR_ARCHIVE,				NULL );
+#ifdef MACOS_X
+	m_filter					= Cvar_Get( "m_filter",						"1",				CVAR_ARCHIVE,				NULL );
+#else
+	m_filter					= Cvar_Get( "m_filter",						"0",				CVAR_ARCHIVE,				NULL );
+#endif
+	cl_showMouseRate			= Cvar_Get( "cl_showmouserate",				"0",				CVAR_NONE,					"Show mouse input data" );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+	// joystick cvars
+	j_pitch						= Cvar_Get( "j_pitch",						"0.022",			CVAR_ARCHIVE,				NULL );
+	j_yaw						= Cvar_Get( "j_yaw",						"-0.022",			CVAR_ARCHIVE,				NULL );
+	j_forward					= Cvar_Get( "j_forward",					"-0.25",			CVAR_ARCHIVE,				NULL );
+	j_side						= Cvar_Get( "j_side",						"0.25",				CVAR_ARCHIVE,				NULL );
+	j_up						= Cvar_Get( "j_up",							"1",				CVAR_ARCHIVE,				NULL );
+	j_pitch_axis				= Cvar_Get( "j_pitch_axis",					"3",				CVAR_ARCHIVE,				NULL );
+	Cvar_CheckRange( j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
+	j_yaw_axis					= Cvar_Get( "j_yaw_axis",					"4",				CVAR_ARCHIVE,				NULL );
+	Cvar_CheckRange( j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
+	j_forward_axis				= Cvar_Get( "j_forward_axis",				"1",				CVAR_ARCHIVE,				NULL );
+	Cvar_CheckRange( j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
+	j_side_axis					= Cvar_Get( "j_side_axis",					"0",				CVAR_ARCHIVE,				NULL );
+	Cvar_CheckRange( j_side_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
+	j_up_axis					= Cvar_Get( "j_up_axis",					"2",				CVAR_ARCHIVE,				NULL );
+	Cvar_CheckRange( j_up_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
 
-	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE);
+	cl_allowDownload			= Cvar_Get( "cl_allowDownload",				"0",				CVAR_ARCHIVE,				"Allow downloading missing files from server" );
 #ifdef USE_CURL_DLOPEN
-	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
+	cl_cURLLib					= Cvar_Get( "cl_cURLLib",					DEFAULT_CURL_LIB,	CVAR_ARCHIVE,				NULL );
 #endif
 
-	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-#ifdef MACOS_X
-	// In game video is REALLY slow in Mac OS X right now due to driver slowness
-	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "0", CVAR_ARCHIVE);
+#ifdef MACOS_X	
+	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"0",				CVAR_ARCHIVE,				NULL ); // In game video is REALLY slow in Mac OS X right now due to driver slowness
 #else
-	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "1", CVAR_ARCHIVE);
+	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"1",				CVAR_ARCHIVE,				NULL );
 #endif
 
-	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", 0);
-
-	// init autoswitch so the ui will have it correctly even
-	// if the cgame hasn't been started
-	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
-
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE);
-	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE);
-	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE);
-#ifdef MACOS_X
-	// Input is jittery on OS X w/o this
-	m_filter = Cvar_Get ("m_filter", "1", CVAR_ARCHIVE);
-#else
-	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE);
-#endif
-
-	j_pitch =        Cvar_Get ("j_pitch",        "0.022", CVAR_ARCHIVE);
-	j_yaw =          Cvar_Get ("j_yaw",          "-0.022", CVAR_ARCHIVE);
-	j_forward =      Cvar_Get ("j_forward",      "-0.25", CVAR_ARCHIVE);
-	j_side =         Cvar_Get ("j_side",         "0.25", CVAR_ARCHIVE);
-	j_up =           Cvar_Get ("j_up",           "1", CVAR_ARCHIVE);
-
-	j_pitch_axis =   Cvar_Get ("j_pitch_axis",   "3", CVAR_ARCHIVE);
-	j_yaw_axis =     Cvar_Get ("j_yaw_axis",     "4", CVAR_ARCHIVE);
-	j_forward_axis = Cvar_Get ("j_forward_axis", "1", CVAR_ARCHIVE);
-	j_side_axis =    Cvar_Get ("j_side_axis",    "0", CVAR_ARCHIVE);
-	j_up_axis =      Cvar_Get ("j_up_axis",      "2", CVAR_ARCHIVE);
-
-	Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-
-	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
-
-	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );
-
-	cl_lanForcePackets = Cvar_Get ("cl_lanForcePackets", "1", CVAR_ARCHIVE);
-
-	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE);
-
-	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
-
-	// userinfo
-	Cvar_Get ("name", DEFAULT_NAME, CVAR_USERINFO | CVAR_ARCHIVE );
-	cl_rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("snaps", "40", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("model", "sarge", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("g_redTeam", "Stroggs", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("g_blueTeam", "Pagans", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
-
-	Cvar_Get ("password", "", CVAR_USERINFO);
-	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
-
+	cl_serverStatusResendTime	= Cvar_Get( "cl_serverStatusResendTime",	"750",				CVAR_NONE,					NULL );
+	cl_lanForcePackets			= Cvar_Get( "cl_lanForcePackets",			"1",				CVAR_ARCHIVE,				NULL );
+	cl_guidServerUniq			= Cvar_Get( "cl_guidServerUniq",			"1",				CVAR_ARCHIVE,				"Generate a unique cl_guid for each server" );
+	cl_consoleKeys				= Cvar_Get( "cl_consoleKeys",				"~ ` 0x7e 0x60",	CVAR_ARCHIVE,				"Valid keys for opening the console" );
 #ifdef USE_MUMBLE
-	cl_useMumble = Cvar_Get ("cl_useMumble", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	cl_mumbleScale = Cvar_Get ("cl_mumbleScale", "0.0254", CVAR_ARCHIVE);
+	cl_useMumble				= Cvar_Get( "cl_useMumble",					"0",				CVAR_ARCHIVE|CVAR_LATCH,	NULL );
+	cl_mumbleScale				= Cvar_Get( "cl_mumbleScale",				"0.0254",			CVAR_ARCHIVE,				NULL );
 #endif
 
 #ifdef USE_VOIP
-	cl_voipSend = Cvar_Get ("cl_voipSend", "0", 0);
-	cl_voipSendTarget = Cvar_Get ("cl_voipSendTarget", "spatial", 0);
-	cl_voipGainDuringCapture = Cvar_Get ("cl_voipGainDuringCapture", "0.2", CVAR_ARCHIVE);
-	cl_voipCaptureMult = Cvar_Get ("cl_voipCaptureMult", "2.0", CVAR_ARCHIVE);
-	cl_voipUseVAD = Cvar_Get ("cl_voipUseVAD", "0", CVAR_ARCHIVE);
-	cl_voipVADThreshold = Cvar_Get ("cl_voipVADThreshold", "0.25", CVAR_ARCHIVE);
-	cl_voipShowMeter = Cvar_Get ("cl_voipShowMeter", "1", CVAR_ARCHIVE);
+	cl_voipSend					= Cvar_Get( "cl_voipSend",					"0",				CVAR_NONE,					NULL );
+	cl_voipSendTarget			= Cvar_Get( "cl_voipSendTarget",			"spatial",			CVAR_NONE,					NULL );
+	cl_voipGainDuringCapture	= Cvar_Get( "cl_voipGainDuringCapture",		"0.2",				CVAR_ARCHIVE,				NULL );
+	cl_voipCaptureMult			= Cvar_Get( "cl_voipCaptureMult",			"2.0",				CVAR_ARCHIVE,				NULL );
+	cl_voipUseVAD				= Cvar_Get( "cl_voipUseVAD",				"0",				CVAR_ARCHIVE,				NULL );
+	cl_voipVADThreshold			= Cvar_Get( "cl_voipVADThreshold",			"0.25",				CVAR_ARCHIVE,				NULL );
+	cl_voipShowMeter			= Cvar_Get( "cl_voipShowMeter",				"1",				CVAR_ARCHIVE,				NULL );
 
 	// This is a protocol version number.
-	cl_voip = Cvar_Get ("cl_voip", "1", CVAR_USERINFO | CVAR_ARCHIVE);
+	cl_voip						= Cvar_Get( "cl_voip",						"1",				CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
 	Cvar_CheckRange( cl_voip, 0, 1, qtrue );
 #endif
 
 
-	// cgame might not be initialized before menu is used
-	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE );
-	// Make sure cg_stereoSeparation is zero as that variable is deprecated and should not be used anymore.
-	Cvar_Get ("cg_stereoSeparation", "0", CVAR_ROM);
+
+	// init autoswitch so the ui will have it correctly even
+	// if the cgame hasn't been started
+	Cvar_Get( "cg_autoswitch",				"1",		CVAR_ARCHIVE, "Automatically switch to picked up weapons" );
+
+	// userinfo
+				Cvar_Get( "name",				DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+	cl_rate =	Cvar_Get( "rate",				"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "snaps",				"40",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "model",				DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "headmodel",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "team_model",			DEFAULT_TEAM_MODEL,	CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "team_headmodel",		DEFAULT_TEAM_HEAD,	CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "g_redTeam",			"Stroggs",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL );
+				Cvar_Get( "g_blueTeam",			"Pagans",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL );
+				Cvar_Get( "color1",				"4",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "color2",				"5",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "handicap",			"100",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "teamtask",			"0",				CVAR_USERINFO,					NULL );
+				Cvar_Get( "sex",				"male",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL );
+				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
 
 	//
 	// register our commands
 	//
-	Cmd_AddCommand ("cmd", CL_ForwardToServer_f);
-	Cmd_AddCommand ("configstrings", CL_Configstrings_f);
-	Cmd_AddCommand ("clientinfo", CL_Clientinfo_f);
-	Cmd_AddCommand ("snd_restart", CL_Snd_Restart_f);
-	Cmd_AddCommand ("vid_restart", CL_Vid_Restart_f);
-	Cmd_AddCommand ("disconnect", CL_Disconnect_f);
-	Cmd_AddCommand ("record", CL_Record_f);
-	Cmd_AddCommand ("demo", CL_PlayDemo_f);
+	Cmd_AddCommand( "cmd", CL_ForwardToServer_f );
+	Cmd_AddCommand( "configstrings", CL_Configstrings_f );
+	Cmd_AddCommand( "clientinfo", CL_Clientinfo_f );
+	Cmd_AddCommand( "snd_restart", CL_Snd_Restart_f );
+	Cmd_AddCommand( "vid_restart", CL_Vid_Restart_f );
+	Cmd_AddCommand( "disconnect", CL_Disconnect_f );
+	Cmd_AddCommand( "record", CL_Record_f );
+	Cmd_AddCommand( "demo", CL_PlayDemo_f );
 	Cmd_SetCommandCompletionFunc( "demo", CL_CompleteDemoName );
-	Cmd_AddCommand ("cinematic", CL_PlayCinematic_f);
-	Cmd_AddCommand ("stoprecord", CL_StopRecord_f);
-	Cmd_AddCommand ("connect", CL_Connect_f);
-	Cmd_AddCommand ("reconnect", CL_Reconnect_f);
-	Cmd_AddCommand ("localservers", CL_LocalServers_f);
-	Cmd_AddCommand ("globalservers", CL_GlobalServers_f);
-	Cmd_AddCommand ("rcon", CL_Rcon_f);
+	Cmd_AddCommand( "cinematic", CL_PlayCinematic_f );
+	Cmd_AddCommand( "stoprecord", CL_StopRecord_f );
+	Cmd_AddCommand( "connect", CL_Connect_f );
+	Cmd_AddCommand( "reconnect", CL_Reconnect_f );
+	Cmd_AddCommand( "localservers", CL_LocalServers_f );
+	Cmd_AddCommand( "globalservers", CL_GlobalServers_f );
+	Cmd_AddCommand( "rcon", CL_Rcon_f );
 	Cmd_SetCommandCompletionFunc( "rcon", CL_CompleteRcon );
-	Cmd_AddCommand ("ping", CL_Ping_f );
-	Cmd_AddCommand ("serverstatus", CL_ServerStatus_f );
-	Cmd_AddCommand ("showip", CL_ShowIP_f );
-	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
-	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
-	Cmd_AddCommand ("model", CL_SetModel_f );
-	Cmd_AddCommand ("video", CL_Video_f );
-	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
+	Cmd_AddCommand( "ping", CL_Ping_f );
+	Cmd_AddCommand( "serverstatus", CL_ServerStatus_f );
+	Cmd_AddCommand( "showip", CL_ShowIP_f );
+	Cmd_AddCommand( "fs_openedList", CL_OpenedPK3List_f );
+	Cmd_AddCommand( "fs_referencedList", CL_ReferencedPK3List_f );
+	Cmd_AddCommand( "model", CL_SetModel_f );
+	Cmd_AddCommand( "video", CL_Video_f );
+	Cmd_AddCommand( "stopvideo", CL_StopVideo_f );
 	CL_InitRef();
 
 	SCR_Init ();
@@ -3609,7 +3489,7 @@ void CL_Init( void ) {
 	Cvar_Set( "cl_running", "1" );
 
 	CL_GenerateQKey();
-	Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM );
+	Cvar_Get( "cl_guid", "", CVAR_USERINFO|CVAR_ROM, "Unique ID" );
 	CL_UpdateGUID( NULL, 0 );
 
 	Com_Printf( "----- Client Initialization Complete -----\n" );
@@ -3745,13 +3625,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// if this isn't the correct gamename, ignore it
 	gamename = Info_ValueForKey( infoString, "gamename" );
 
-#ifdef LEGACY_PROTOCOL
-	// gamename is optional for legacy protocol
-	if (com_legacyprotocol->integer && !*gamename)
-		gameMismatch = qfalse;
-	else
-#endif
-		gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
+	gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
 
 	if (gameMismatch)
 	{
@@ -3762,11 +3636,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
 
-	if(prot != com_protocol->integer
-#ifdef LEGACY_PROTOCOL
-	   && prot != com_legacyprotocol->integer
-#endif
-	  )
+	if(prot != com_protocol->integer)
 	{
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
 		return;
@@ -4187,7 +4057,7 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 	{
 		// check for timeout
 		time = Sys_Milliseconds() - cl_pinglist[n].start;
-		maxPing = Cvar_VariableIntegerValue( "cl_maxPing" );
+		maxPing = cl_maxPing->integer;
 		if( maxPing < 100 ) {
 			maxPing = 100;
 		}

@@ -358,18 +358,11 @@ void CL_SystemInfoChanged( void ) {
 	}
 
 #ifdef USE_VOIP
-#ifdef LEGACY_PROTOCOL
-	if(clc.compat)
+	s = Info_ValueForKey( systemInfo, "sv_voip" );
+	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
 		clc.voipEnabled = qfalse;
 	else
-#endif
-	{
-		s = Info_ValueForKey( systemInfo, "sv_voip" );
-		if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
-			clc.voipEnabled = qfalse;
-		else
-			clc.voipEnabled = atoi(s);
-	}
+		clc.voipEnabled = atoi(s);
 #endif
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
@@ -411,7 +404,7 @@ void CL_SystemInfoChanged( void ) {
 		}
 
 		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)
-			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM);
+			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM, NULL );
 		else
 		{
 			// If this cvar may not be modified by a server discard the value.

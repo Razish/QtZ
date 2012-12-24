@@ -57,8 +57,8 @@ int		trap_Milliseconds( void ) {
 	return syscall( CG_MILLISECONDS ); 
 }
 
-void	trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
-	syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, flags );
+void	trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags, const char *description ) {
+	syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, flags, description );
 }
 
 void	trap_Cvar_Update( vmCvar_t *vmCvar ) {
