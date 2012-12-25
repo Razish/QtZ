@@ -1633,6 +1633,14 @@ static void CG_DrawDisconnect( void ) {
 	const char		*s;
 	int			w;
 
+	//OSP: dont draw if a demo and we're running at a different timescale
+	if ( cg.demoPlayback && timescale.value != 1.0f )
+		return;
+
+	//ydnar: don't draw if the server is respawning
+//	if ( cg.serverRespawning )
+//		return;
+
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	trap_GetUserCmd( cmdNum, &cmd );

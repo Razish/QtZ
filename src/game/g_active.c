@@ -317,6 +317,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
 
+		//OSP: dead players are frozen too, in a timeout
+		if ( level.pause.state != PAUSE_NONE )
+			client->ps.pm_type = PM_FREEZE;
+		else if ( client->noclip )
+			client->ps.pm_type = PM_NOCLIP;
+
 		// set up for pmove
 		memset (&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
@@ -616,13 +622,6 @@ void ClientThink_real( gentity_t *ent ) {
 		msec = 200;
 	}
 
-	if ( pm_frametime.integer < 8 ) {
-		trap_Cvar_Set("pm_frametime", "8");
-	}
-	else if (pm_frametime.integer > 33) {
-		trap_Cvar_Set("pm_frametime", "33");
-	}
-
 	if ( pm_fixed.integer ) {
 		ucmd->serverTime = ((ucmd->serverTime + pm_frametime.integer-1) / pm_frametime.integer) * pm_frametime.integer;
 		//if (ucmd->serverTime - client->ps.commandTime <= 0)
@@ -656,7 +655,21 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 	}
 
-	if ( client->noclip ) {
+	//OSP: pause
+	if ( /*(client->ps.eFlags & EF_VIEWING_CAMERA ) || */level.pause.state != PAUSE_NONE ) {
+		ucmd->buttons = 0;
+		ucmd->forwardmove = 0;
+		ucmd->rightmove = 0;
+		ucmd->upmove = 0;
+
+		// freeze player (RELOAD_FAILED still allowed to move/look)
+		if ( level.pause.state != PAUSE_NONE ) {
+			client->ps.pm_type = PM_FREEZE;
+		/*} else if ( (client->ps.eFlags & EF_VIEWING_CAMERA) ) {
+			VectorClear( client->ps.velocity );
+			client->ps.pm_type = PM_FREEZE;*/
+		}
+	} else if ( client->noclip ) {
 		client->ps.pm_type = PM_NOCLIP;
 	} else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 		client->ps.pm_type = PM_DEAD;
@@ -694,6 +707,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.cmd = *ucmd;
 	if ( pm.ps->pm_type == PM_DEAD ) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+		pm.ps->eFlags |= EF_DEAD;
 	}
 	else if ( ent->r.svFlags & SVF_BOT ) {
 		pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
@@ -747,7 +761,9 @@ void ClientThink_real( gentity_t *ent ) {
 	ent->watertype = pm.watertype;
 
 	// execute client events
-	ClientEvents( ent, oldEventSequence );
+	//OSP: pause
+	if ( level.pause.state == PAUSE_NONE )
+		ClientEvents( ent, oldEventSequence );
 
 	// link entity now, after any personal teleporters have been used
 	trap_LinkEntity (ent);
@@ -794,7 +810,9 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// perform once-a-second actions
-	ClientTimerActions( ent, msec );
+	//OSP: pause
+	if ( level.pause.state == PAUSE_NONE )
+		ClientTimerActions( ent, msec );
 }
 
 /*
@@ -837,6 +855,9 @@ SpectatorClientEndFrame
 */
 void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
+
+	//OSP: specs periodically get score updates for useful demo playback info
+	DeathmatchScoreboardMessage( ent );
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -892,16 +913,39 @@ void ClientEndFrame( gentity_t *ent ) {
 		return;
 	}
 
-	// turn off any expired powerups
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-		if ( ent->client->ps.powerups[ i ] < level.time ) {
-			ent->client->ps.powerups[ i ] = 0;
-		}
+	for ( i=0; i<MAX_POWERUPS; i++ )
+	{// turn off any expired powerups
+
+		//OSP: If we're paused, update powerup timers accordingly.
+		// Make sure we dont let stuff like CTF flags expire.
+		if ( ent->client->ps.powerups[i] == 0 )
+			continue;
+
+		if ( level.pause.state != PAUSE_NONE && ent->client->ps.powerups[i] != INT_MAX )
+			ent->client->ps.powerups[i] += level.time - level.previousTime;
+
+		if ( ent->client->ps.powerups[i] < level.time )
+			ent->client->ps.powerups[i] = 0;
 	}
 
 	// set powerup for player animation
 	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 		ent->client->ps.powerups[PW_GUARD] = level.time;
+	}
+
+	//OSP: If we're paused, make sure other timers stay in sync
+	if ( level.pause.state != PAUSE_NONE ) {
+		int time_delta = level.time - level.previousTime;
+
+		ent->client->airOutTime += time_delta;
+		ent->client->inactivityTime += time_delta;
+//		ent->client->pers.connectTime += time_delta; //RAZTODO: ClientConnect security
+		ent->client->pers.enterTime += time_delta;
+		ent->client->pers.teamState.lastreturnedflag += time_delta;
+		ent->client->pers.teamState.lasthurtcarrier += time_delta;
+		ent->client->pers.teamState.lastfraggedcarrier += time_delta;
+		ent->client->respawnTime += time_delta;
+		ent->pain_debounce_time += time_delta;
 	}
 
 	// save network bandwidth

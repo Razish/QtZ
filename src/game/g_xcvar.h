@@ -89,6 +89,8 @@ XCVAR_DEF( timelimit,						"10",				qtrue,	CVAR_SERVERINFO|CVAR_ARCHIVE|CVAR_NOR
 XCVAR_DEF( capturelimit,					"0",				qtrue,	CVAR_SERVERINFO|CVAR_ARCHIVE|CVAR_NORESTART,	NULL )
 XCVAR_DEF( g_warmup,						"300",				qfalse,	CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_doWarmup,						"1",				qtrue,	CVAR_SERVERINFO|CVAR_ARCHIVE,					NULL )
+XCVAR_DEF( g_pauseTime,						"120",				qtrue,	CVAR_ARCHIVE,									"How long a match will be paused for" )
+XCVAR_DEF( g_unpauseTime,					"5",				qtrue,	CVAR_ARCHIVE,									"How long a match takes to unpause" )
 
 XCVAR_DEF( g_redteam,						"Red",				qtrue,	CVAR_ARCHIVE|CVAR_SERVERINFO,					NULL )
 XCVAR_DEF( g_blueteam,						"Blue",				qtrue,	CVAR_ARCHIVE|CVAR_SERVERINFO,					NULL )

@@ -460,10 +460,10 @@ Cmd_Kill_f
 =================
 */
 void Cmd_Kill_f( gentity_t *ent ) {
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return;
-	}
-	if (ent->health <= 0) {
+	//OSP: pause
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR
+		|| ent->health <= 0
+		|| level.pause.state != PAUSE_NONE ) {
 		return;
 	}
 	ent->flags &= ~FL_GODMODE;

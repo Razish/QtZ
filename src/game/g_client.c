@@ -1232,6 +1232,9 @@ server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
+	gentity_t   *flag = NULL;
+	gitem_t     *item = NULL;
+	vec3_t launchvel;
 	int			i;
 
 	// cleanup if we are kicking a bot that
@@ -1261,8 +1264,39 @@ void ClientDisconnect( int clientNum ) {
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 		TossClientItems( ent );
-		TossClientPersistantPowerups( ent );
+	//	TossClientPersistantPowerups( ent );
 
+		//OSP: New code for tossing flags
+		if ( ent->client->ps.powerups[PW_REDFLAG] ) {
+			item = BG_FindItem( "Red Flag" );
+			if ( !item ) {
+				item = BG_FindItem( "Objective" );
+			}
+
+			ent->client->ps.powerups[PW_REDFLAG] = 0;
+		}
+		if ( ent->client->ps.powerups[PW_BLUEFLAG] ) {
+			item = BG_FindItem( "Blue Flag" );
+			if ( !item ) {
+				item = BG_FindItem( "Objective" );
+			}
+
+			ent->client->ps.powerups[PW_BLUEFLAG] = 0;
+		}
+
+		if ( item ) {
+			//OSP: fix for suicide drop exploit through walls/gates
+			launchvel[0] = 0;    //crandom()*20;
+			launchvel[1] = 0;    //crandom()*20;
+			launchvel[2] = 0;    //10+random()*10;
+
+			flag = LaunchItem( item, ent->r.currentOrigin,launchvel );
+			flag->s.modelindex2 = ent->s.otherEntityNum2;    // JPW NERVE FIXME set player->otherentitynum2 with old modelindex2 from flag and restore here
+			flag->message = ent->message;       // DHM - Nerve :: also restore item name
+			// Clear out player's temp copies
+			ent->s.otherEntityNum2 = 0;
+			ent->message = NULL;
+		}
 	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );

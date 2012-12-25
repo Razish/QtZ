@@ -772,6 +772,10 @@ void CG_NextWeapon_f( void ) {
 	if ( !cg.snap || (cg.snap->ps.pm_flags & PMF_FOLLOW) || cg.predictedPlayerState.pm_type == PM_SPECTATOR )
 		return;
 
+	//OSP: pause
+	if ( cg.snap->ps.pm_type == PM_FREEZE )
+		return;
+
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
@@ -797,6 +801,10 @@ void CG_PrevWeapon_f( void ) {
 	int		original;
 
 	if ( !cg.snap || (cg.snap->ps.pm_flags & PMF_FOLLOW) || cg.predictedPlayerState.pm_type == PM_SPECTATOR )
+		return;
+
+	//OSP: pause
+	if ( cg.snap->ps.pm_type == PM_FREEZE )
 		return;
 
 	cg.weaponSelectTime = cg.time;
@@ -835,6 +843,10 @@ void CG_Weapon_f( void ) {
 	char	args[128] = {0};
 
 	if ( !cg.snap || (cg.snap->ps.pm_flags & PMF_FOLLOW) || cg.predictedPlayerState.pm_type == PM_SPECTATOR )
+		return;
+
+	//OSP: pause
+	if ( cg.snap->ps.pm_type == PM_FREEZE )
 		return;
 
 	trap_Args( args, sizeof( args ) );

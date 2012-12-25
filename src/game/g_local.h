@@ -452,6 +452,12 @@ typedef struct {
 
 	//QtZ: Added
 	int         frameStartTime;         //NT - actual time frame started
+	struct {
+		int state;		//OSP: paused state of the match
+		int time;
+	} pause;
+	int			timeCurrent;			//		Real game clock
+	int			timeDelta;				//		Offset from internal clock - used to calculate real match time
 } level_locals_t;
 
 
@@ -558,15 +564,6 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint);
 void G_RunMissile( gentity_t *ent );
 void G_ExplodeMissile( gentity_t *ent );
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner);
-
-gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
-gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
-gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir);
-gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir);
-gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir);
-gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up );
-gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
-
 
 //
 // g_mover.c
@@ -730,6 +727,10 @@ extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
 #define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
+
+#define PAUSE_NONE			0x00    // Match is NOT paused.
+#define PAUSE_PAUSED		0x01    // Match is paused, counting down
+#define PAUSE_UNPAUSING		0x02    // Pause is about to expire
 
 #define XCVAR_PROTO
 	#include "g_xcvar.h"

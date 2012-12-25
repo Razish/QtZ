@@ -450,54 +450,67 @@ qboolean	ConsoleCommand( void ) {
 
 	trap_Argv( 0, cmd, sizeof( cmd ) );
 
-	if ( Q_stricmp (cmd, "entitylist") == 0 ) {
+	if ( !Q_stricmp( cmd, "entitylist" ) ) {
 		Svcmd_EntityList_f();
 		return qtrue;
 	}
 
-	if ( Q_stricmp (cmd, "forceteam") == 0 ) {
+	if ( !Q_stricmp( cmd, "forceteam" ) ) {
 		Svcmd_ForceTeam_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "game_memory") == 0) {
+	if ( !Q_stricmp( cmd, "game_memory" ) ) {
 		Svcmd_GameMem_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "addbot") == 0) {
+	if ( !Q_stricmp( cmd, "addbot" ) ) {
 		Svcmd_AddBot_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "botlist") == 0) {
+	if ( !Q_stricmp( cmd, "botlist" ) ) {
 		Svcmd_BotList_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "abort_podium") == 0) {
+	if ( !Q_stricmp( cmd, "abort_podium" ) ) {
 		Svcmd_AbortPodium_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "addip") == 0) {
+	if ( !Q_stricmp( cmd, "addip" ) ) {
 		Svcmd_AddIP_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "removeip") == 0) {
+	if ( !Q_stricmp( cmd, "removeip" ) ) {
 		Svcmd_RemoveIP_f();
 		return qtrue;
 	}
 
-	if (Q_stricmp (cmd, "listip") == 0) {
+	if ( !Q_stricmp( cmd, "listip" ) ) {
 		trap_SendConsoleCommand( EXEC_NOW, "g_banIPs\n" );
 		return qtrue;
 	}
 
-	if (dedicated.integer) {
-		if (Q_stricmp (cmd, "say") == 0) {
-			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
+	//OSP: pause
+	if ( !Q_stricmp( cmd, "pause" ) ) {
+		if ( level.pause.state == PAUSE_NONE ) {
+			level.pause.state = PAUSE_PAUSED;
+			level.pause.time = level.time + g_pauseTime.integer*1000;
+		}
+		else if ( level.pause.state == PAUSE_PAUSED ) {
+			level.pause.state = PAUSE_UNPAUSING;
+			level.pause.time = level.time + g_unpauseTime.integer*1000;
+		}
+		return qtrue;
+	}
+
+	if ( dedicated.boolean ) {
+		if ( !Q_stricmp( cmd, "say" ) ) {
+			trap_SendServerCommand( -1, va( "print \"server: %s\n\"", ConcatArgs( 1 ) ) );
 			return qtrue;
 		}
 	}

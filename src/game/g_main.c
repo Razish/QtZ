@@ -1564,6 +1564,10 @@ Runs thinking code for this frame if necessary
 void G_RunThink (gentity_t *ent) {
 	float	thinktime;
 
+	//OSP: If paused, push nextthink
+	if ( level.pause.state != PAUSE_NONE && ent-g_entities >= sv_maxclients.integer && ent->nextthink > level.time )
+		ent->nextthink += level.time - level.previousTime;
+
 	thinktime = ent->nextthink;
 	if (thinktime <= 0) {
 		return;
@@ -1589,15 +1593,40 @@ Advances the non-player objects in the world
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
+	static int lastMsgTime = 0;
 
 	// if we are waiting for the level to restart, do nothing
-	if ( level.restarted ) {
+	if ( level.restarted )
 		return;
-	}
 
 	level.framenum++;
 	level.previousTime = level.time;
 	level.time = levelTime;
+
+	//OSP: pause
+	if ( level.pause.state == PAUSE_PAUSED )
+	{
+		static int lastMsgTime = 0;
+		if ( lastMsgTime < level.time-500 ) {
+			trap_SendServerCommand( -1, va( "cp \"Match has been paused.\n%.0f seconds remaining\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
+			lastMsgTime = level.time;
+		}
+
+		if ( level.time > level.pause.time - (g_unpauseTime.integer*1000) )
+			level.pause.state = PAUSE_UNPAUSING;
+	}
+	if ( level.pause.state == PAUSE_UNPAUSING )
+	{
+		if ( lastMsgTime < level.time-500 ) {
+			trap_SendServerCommand( -1, va( "cp \"MATCH IS UNPAUSING\nin %.0f...\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
+			lastMsgTime = level.time;
+		}
+
+		if ( level.time > level.pause.time ) {
+			level.pause.state = PAUSE_NONE;
+			trap_SendServerCommand( -1, "cp \"Fight!\n\"" );
+		}
+	}
 
 	// get any cvar changes
 	G_UpdateCvars();
@@ -1643,7 +1672,14 @@ void G_RunFrame( int levelTime ) {
 		}
 
 		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
+			//OSP: pausing
+			if ( level.pause.state == PAUSE_NONE )
+				G_RunMissile( ent );
+			else
+			{// During a pause, gotta keep track of stuff in the air
+				ent->s.pos.trTime += level.time - level.previousTime;
+				G_RunThink( ent );
+			}
 			continue;
 		}
 
