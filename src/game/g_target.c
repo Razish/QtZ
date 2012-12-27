@@ -278,7 +278,7 @@ void target_laser_think (gentity_t *self) {
 	VectorCopy (tr.endpos, self->s.origin2);
 
 	trap_LinkEntity( self );
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.time + (1000/sv_fps.integer);
 }
 
 void target_laser_on (gentity_t *self)
@@ -336,7 +336,7 @@ void SP_target_laser (gentity_t *self)
 {
 	// let everything else get spawned before we start firing
 	self->think = target_laser_start;
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.time + (1000/sv_fps.integer);
 }
 
 

@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define INFINITE			1000000
 
-#define	FRAMETIME			100					// msec
+//#define	FRAMETIME			100					// msec
 #define	CARNAGE_REWARD_TIME	3000
 #define REWARD_SPRITE_TIME	2000
 
@@ -191,9 +191,6 @@ struct gentity_s {
 	float		knockbackMulti;
 	float		knockbackMultiSelf;
 	float		knockbackDampVert; //special multiplier for dflags & DAMAGE_VERTICAL_KNOCKBACK
-
-	//RAZTODO: Location based damages
-	//int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
 
 	int			count;
 
@@ -352,9 +349,11 @@ struct gclient_s {
 	char		*areabits;
 
 	//NT - client origin trails
-    int              trailHead;
-    clientTrail_t    trail[NUM_CLIENT_TRAILS];
-    clientTrail_t    saved;    // used to restore after time shift
+	struct {
+		int				trailHead;
+		clientTrail_t	trail[NUM_CLIENT_TRAILS];
+		clientTrail_t	saved; // used to restore after time shift
+	} unlagged;
 
 	struct {
 		int			headshotCount;

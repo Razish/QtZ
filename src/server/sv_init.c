@@ -661,7 +661,7 @@ void SV_Init (void)
 	// server vars
 	sv_rconPassword			= Cvar_Get( "rconPassword",					"",					CVAR_TEMP,						NULL );
 	sv_privatePassword		= Cvar_Get( "sv_privatePassword",			"",					CVAR_TEMP,						NULL );
-	sv_fps					= Cvar_Get( "sv_fps",						"40",				CVAR_TEMP,						NULL );
+	sv_fps					= Cvar_Get( "sv_fps",						"40",				CVAR_ARCHIVE,						NULL );
 	sv_timeout				= Cvar_Get( "sv_timeout",					"200",				CVAR_TEMP,						NULL );
 	sv_zombietime			= Cvar_Get( "sv_zombietime",				"2",				CVAR_TEMP,						NULL );
 							  Cvar_Get( "nextmap",						"",					CVAR_TEMP,						NULL );

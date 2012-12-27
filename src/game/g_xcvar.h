@@ -15,11 +15,13 @@ XCVAR_DEF( qtz_version,						QTZ_VERSION,		qfalse,	CVAR_SERVERINFO,								NULL 
 XCVAR_DEF( gamename,						GAMEVERSION,		qfalse, CVAR_SERVERINFO|CVAR_ROM,						NULL )
 XCVAR_DEF( gamedate,						__DATE__,			qfalse,	CVAR_SERVERINFO|CVAR_ROM,						NULL )
 XCVAR_DEF( ui_singlePlayerActive,			"",					qfalse,	CVAR_ROM,										NULL )
+XCVAR_DEF( sv_fps,							"40",				qtrue,	CVAR_ARCHIVE,									NULL )
 
 //RAZTODO: ClientConnect/ClientUserinfoChanged from modbase/JA++	
 XCVAR_DEF( g_antiFakePlayer,				"1",				qfalse,	CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_randFix,						"1",				qfalse,	CVAR_ARCHIVE,									NULL )
-XCVAR_DEF( g_delagHitscan,					"1",				qfalse,	CVAR_SERVERINFO,								NULL )
+XCVAR_DEF( g_delagHitscan,					"1",				qtrue,	CVAR_SERVERINFO,								NULL )
+XCVAR_DEF( g_delagHistory,					"1000",				qtrue,	CVAR_ARCHIVE,									"How far back to store client positions for ping compensation" )
 XCVAR_DEF( g_friendlyFireScale,				"1.0",				qfalse,	CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_enableHeadshots,				"1",				qfalse,	CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_bounceMissileStyle,			"0",				qfalse,	CVAR_ARCHIVE,									NULL )

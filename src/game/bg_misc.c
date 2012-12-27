@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "bg_public.h"
 
+#ifdef PROJECT_GAME
+	#include "g_local.h"
+#endif
+
 /*QUAKED item_***** ( 0 0 0 ) (-16 -16 -16) (16 16 16) suspended
 DO NOT USE THIS CLASS, IT JUST HOLDS GENERAL INFORMATION.
 The suspended flag will allow items to hang in the air, otherwise they are dropped to the next surface.
@@ -664,6 +668,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
+#ifdef PROJECT_GAME
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
 	int		i;
 
@@ -687,7 +692,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	// set the time for linear prediction
 	s->pos.trTime = time;
 	// set maximum extra polation time
-	s->pos.trDuration = 50; // 1000 / sv_fps (default = 20)
+	s->pos.trDuration = 1000/sv_fps.integer; // 1000 / sv_fps (default = 20)
 
 	s->apos.trType = TR_INTERPOLATE;
 	VectorCopy( ps->viewangles, s->apos.trBase );
@@ -735,6 +740,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->loopSound = ps->loopSound;
 	s->generic1 = ps->generic1;
 }
+#endif
 
 // MOD-weapon mapping array.
 //RAZMARK: ADDING NEW WEAPONS

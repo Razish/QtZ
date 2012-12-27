@@ -766,7 +766,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
-	ent->nextthink = level.time + FRAMETIME * 2;
+	ent->nextthink = level.time + (1000/sv_fps.integer) * 2;
 	ent->think = FinishSpawningItem;
 
 	ent->physicsBounce = 0.50;		// items are bouncy

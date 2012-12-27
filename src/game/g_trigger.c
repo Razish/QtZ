@@ -68,7 +68,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
 		ent->touch = 0;
-		ent->nextthink = level.time + FRAMETIME;
+		ent->nextthink = level.time + (1000/sv_fps.integer);
 		ent->think = G_FreeEntity;
 	}
 }
@@ -96,7 +96,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( ent->random >= ent->wait && ent->wait >= 0 ) {
-		ent->random = ent->wait - FRAMETIME;
+		ent->random = ent->wait - (1000/sv_fps.integer);
 		G_Printf( "trigger_multiple has random >= wait\n" );
 	}
 
@@ -208,7 +208,7 @@ void SP_trigger_push( gentity_t *self ) {
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.time + (1000/sv_fps.integer);
 	trap_LinkEntity (self);
 }
 
@@ -252,7 +252,7 @@ void SP_target_push( gentity_t *self ) {
 		VectorCopy( self->s.origin, self->r.absmin );
 		VectorCopy( self->s.origin, self->r.absmax );
 		self->think = AimAtTarget;
-		self->nextthink = level.time + FRAMETIME;
+		self->nextthink = level.time + (1000/sv_fps.integer);
 	}
 	self->use = Use_target_push;
 }
@@ -369,7 +369,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( self->spawnflags & 16 ) {
 		self->timestamp = level.time + 1000;
 	} else {
-		self->timestamp = level.time + FRAMETIME;
+		self->timestamp = level.time + (1000/sv_fps.integer);
 	}
 
 	// play sound
@@ -453,12 +453,12 @@ void SP_func_timer( gentity_t *self ) {
 	self->think = func_timer_think;
 
 	if ( self->random >= self->wait ) {
-		self->random = self->wait - FRAMETIME;
+		self->random = self->wait - (1000/sv_fps.integer);
 		G_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {
-		self->nextthink = level.time + FRAMETIME;
+		self->nextthink = level.time + (1000/sv_fps.integer);
 		self->activator = self;
 	}
 
