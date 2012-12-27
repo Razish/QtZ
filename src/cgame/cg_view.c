@@ -151,10 +151,6 @@ static void CG_AddTestModel (void) {
 
 	// if testing a gun, set the origin relative to the view origin
 	if ( cg.testGun ) {
-		struct { float x; float y; float z; } pos;
-		if ( sscanf( cg_gunAlign.string, "%f %f %f", &pos.x, &pos.y, &pos.z ) != 3 )
-			pos.x = pos.y = pos.z = 0.0f;
-
 		VectorCopy( cg.refdef.vieworg, cg.testModelEntity.origin );
 		VectorCopy( cg.refdef.viewaxis[0], cg.testModelEntity.axis[0] );
 		VectorCopy( cg.refdef.viewaxis[1], cg.testModelEntity.axis[1] );
@@ -162,9 +158,9 @@ static void CG_AddTestModel (void) {
 
 		// allow the position to be adjusted
 		for (i=0 ; i<3 ; i++) {
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * pos.x;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * pos.y;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * pos.z;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg.gunAlign.basePos.x;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg.gunAlign.basePos.y;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg.gunAlign.basePos.z;
 		}
 	}
 
@@ -306,14 +302,6 @@ static void CG_OffsetFirstPersonView( void ) {
 	float			f;
 	vec3_t			predictedVelocity;
 	int				timeDelta;
-	struct { float pitch; float roll; float up; int fall; } viewBob;
-
-	if ( sscanf( cg_viewBob.string, "%f %f %f %i", &viewBob.pitch, &viewBob.roll, &viewBob.up, &viewBob.fall ) != 4 ) {
-		viewBob.pitch = 0.002f;
-		viewBob.roll = 0.002f;
-		viewBob.up = 0.005f;
-		viewBob.fall = 0;
-	}
 	
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
@@ -371,11 +359,11 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	if ( cg_viewBobEnable.boolean )
 	{
-		delta = cg.bobfracsin * viewBob.pitch * speed;
+		delta = cg.bobfracsin * cg.viewBob[0] * speed;
 		if ( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
 			delta *= 3;		// crouching
 		angles[PITCH] += delta;
-		delta = cg.bobfracsin * viewBob.roll * speed;
+		delta = cg.bobfracsin * cg.viewBob[1] * speed;
 		if ( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
 			delta *= 3;		// crouching accentuates roll
 		if ( cg.bobcycle & 1 )
@@ -395,7 +383,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	}
 
 	// add bob height
-	bob = cg.bobfracsin * cg.xyspeed * viewBob.up;
+	bob = cg.bobfracsin * cg.xyspeed * cg.viewBob[2];
 	if (bob > 6) {
 		bob = 6;
 	}
@@ -404,7 +392,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 
 	// add fall height
-	if ( viewBob.fall )
+	if ( cg.viewBobFall )
 	{
 		delta = cg.time - cg.landTime;
 		if ( delta < LAND_DEFLECT_TIME ) {

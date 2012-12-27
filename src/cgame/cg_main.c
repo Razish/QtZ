@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
-int forceEnemyModelCnt = -1;
-int forceAllyModelCnt = -1;
-
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
@@ -85,6 +82,126 @@ centity_t			cg_entities[MAX_GENTITIES];
 weaponInfo_t		cg_weapons[MAX_WEAPONS];
 itemInfo_t			cg_items[MAX_ITEMS];
 
+
+// ********************************
+// VMCVAR callback functions
+
+static void CG_ForceModelUpdate( void ) {
+	int i=0;
+
+	for ( i=0; i<MAX_CLIENTS; i++ ) {
+		const char *clientInfo = CG_ConfigString( CS_PLAYERS+i );
+		if ( !clientInfo[0] )
+			continue;
+
+		CG_NewClientInfo( i );
+	}
+}
+
+static void CG_ForceColorUpdate( void ) {
+	int *color = NULL;
+	int i=0;
+	
+	// enemy color
+	color = cg.forceModel.enemyColor;
+	if ( sscanf( cg_forceEnemyModelColor.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
+		MAKERGB( color, 0, 255, 0 );
+	}
+	for ( i=0; i<3; i++ )
+		color[i] &= 0xFF;
+
+	// ally color
+	color = cg.forceModel.allyColor;
+	if ( sscanf( cg_forceAllyModelColor.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
+		MAKERGB( color, 127, 127, 127 );
+	}
+	for ( i=0; i<3; i++ )
+		color[i] &= 0xFF;
+}
+
+static void CG_XHairColorUpdate( void ) {
+	int *color = NULL;
+	int i=0;
+	
+	// base color
+	color = cg.crosshair.baseColor;
+	if ( sscanf( cg_crosshairColour.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
+		MAKERGB( color, 0, 255, 0 );
+	}
+	for ( i=0; i<3; i++ )
+		color[i] &= 0xFF;
+
+	// feedback color
+	color = cg.crosshair.feedbackColor;
+	if ( sscanf( cg_crosshairFeedbackColour.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
+		MAKERGB( color, 127, 127, 127 );
+	}
+	for ( i=0; i<3; i++ )
+		color[i] &= 0xFF;
+}
+
+static void CG_GunAlignUpdate( void ) {
+	vector3 *v = NULL;
+
+	// base position (x, y, z)
+	v = &cg.gunAlign.basePos;
+	if ( sscanf( cg_gunAlign.string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
+		v->x = v->y = v->z = 0.0f;
+	}
+
+	// zoom position (x, y, z)
+	v = &cg.gunAlign.zoomPos;
+	if ( sscanf( cg_gunZoomAlign.string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
+		v->x = -2.0f;
+		v->y = 4.0f;
+		v->z = 2.35f;
+	}
+}
+
+static void CG_ViewVarsUpdate( void ) {
+	angle3 *a = NULL;
+	number *n = NULL;
+	qboolean *b = NULL;
+
+	// viewmodel bobbing (pitch, yaw, roll)
+	a = &cg.gunBob;
+	if ( sscanf( cg_gunBob.string, "%f %f %f", &a->pitch, &a->yaw, &a->roll ) != 3 ) {
+		a->pitch = 0.005f;
+		a->yaw = 0.01f;
+		a->roll = 0.005f;
+	}
+
+	// viewmodel drifting (pitch, yaw, roll, speed)
+	a = &cg.gunIdleDrift;
+	n = &cg.gunIdleDriftSpeed;
+	if ( sscanf( cg_gunIdleDrift.string, "%f %f %f %f", &a->pitch, &a->yaw, &a->roll, n ) != 4 ) {
+		a->pitch = 0.01f;
+		a->yaw = 0.01f;
+		a->roll = 0.01f;
+		*n = 0.004f;
+	}
+
+	// view bobbing (pitch, roll, up, fall)
+	n = &cg.viewBob[0];
+	b = &cg.viewBobFall;
+	if ( sscanf( cg_viewBob.string, "%f %f %f %i", &n[0], &n[1], &n[2], b ) != 4 ) {
+		n[0] = 0.002f;
+		n[1] = 0.002f;
+		n[2] = 0.005f;
+		*b = qtrue;
+	}
+}
+
+// If team overlay is on, ask for updates from the server.
+// If it's off, let the server know so we don't receive it
+static void CG_TeamOverlayUpdate( void ) {
+	if ( cg_drawTeamOverlay.boolean )
+		trap_Cvar_Set( "teamoverlay", "1" );
+	else
+		trap_Cvar_Set( "teamoverlay", "0" );
+}
+
+
 #define XCVAR_DECL
 	#include "cg_xcvar.h"
 #undef XCVAR_DECL
@@ -93,6 +210,7 @@ typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
 	char		*defaultString;
+	void		(*update)( void );
 	int			cvarFlags;
 	char		*description;
 } cvarTable_t;
@@ -103,7 +221,7 @@ static cvarTable_t cvarTable[] = {
 #undef XCVAR_LIST
 };
 
-static int  cvarTableSize = ARRAY_LEN( cvarTable );
+static const int cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 =================
@@ -115,40 +233,18 @@ void CG_RegisterCvars( void ) {
 	cvarTable_t	*cv;
 	char		var[MAX_TOKEN_CHARS];
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
+		if ( cv->update )
+			cv->update();
 	}
 
 	// see if we are also running the server on this machine
 	trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
 	cgs.localServer = atoi( var );
 
-	forceEnemyModelCnt = cg_forceEnemyModel.modificationCount;
-	forceAllyModelCnt = cg_forceAllyModel.modificationCount;
-
 	trap_Cvar_Register( NULL, "model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
-	trap_Cvar_Register( NULL, "headmodel",		DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
 	trap_Cvar_Register( NULL, "team_model",		DEFAULT_TEAM_MODEL,	CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
-	trap_Cvar_Register( NULL, "team_headmodel",	DEFAULT_TEAM_HEAD,	CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
-}
-
-/*																																			
-===================
-CG_ForceModelChange
-===================
-*/
-static void CG_ForceModelChange( void ) {
-	int		i;
-
-	for (i=0 ; i<MAX_CLIENTS ; i++) {
-		const char		*clientInfo;
-
-		clientInfo = CG_ConfigString( CS_PLAYERS+i );
-		if ( !clientInfo[0] ) {
-			continue;
-		}
-		CG_NewClientInfo( i );
-	}
 }
 
 /*
@@ -160,29 +256,13 @@ void CG_UpdateCvars( void ) {
 	int			i;
 	cvarTable_t	*cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
+		int modCount = cv->vmCvar->modificationCount;
 		trap_Cvar_Update( cv->vmCvar );
-	}
-
-	// check for modications here
-
-	// If team overlay is on, ask for updates from the server.  If it's off,
-	// let the server know so we don't receive it
-	if ( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount ) {
-		drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
-
-		if ( cg_drawTeamOverlay.integer > 0 )
-			trap_Cvar_Set( "teamoverlay", "1" );
-		else
-			trap_Cvar_Set( "teamoverlay", "0" );
-	}
-
-	// if force model changed
-	if ( forceEnemyModelCnt != cg_forceEnemyModel.modificationCount || forceAllyModelCnt != cg_forceAllyModel.modificationCount )
-	{
-		forceEnemyModelCnt = cg_forceEnemyModel.modificationCount;
-		forceAllyModelCnt = cg_forceAllyModel.modificationCount;
-		CG_ForceModelChange();
+		if ( cv->vmCvar->modificationCount > modCount ) {
+			if ( cv->update )
+				cv->update();
+		}
 	}
 }
 

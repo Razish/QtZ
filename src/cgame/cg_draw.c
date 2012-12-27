@@ -1907,12 +1907,6 @@ static void CG_DrawCrosshair(void)
 	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize.value, h = cg_crosshairSize.value, f = 0.0f;
 	int			i = 0;
 	vec4_t		finalColour = { 1.0 };
-	vec3_t		baseRGB = { 1.0f }, feedbackRGB = { 1.0f };
-
-	if ( sscanf( cg_crosshairColour.string, "%f %f %f", &baseRGB[0], &baseRGB[1], &baseRGB[2] ) != 3 )
-		VectorSet( baseRGB, 1.0f, 1.0f, 1.0f );
-	if ( sscanf( cg_crosshairFeedbackColour.string, "%f %f %f", &feedbackRGB[0], &feedbackRGB[1], &feedbackRGB[2] ) != 3 )
-		VectorSet( feedbackRGB, 1.0f, 0.0f, 0.0f );
 
 	if ( !cg_drawCrosshair.integer
 		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
@@ -1952,10 +1946,10 @@ static void CG_DrawCrosshair(void)
 
 //	else if ( cg.qtz.crosshairDamageTime > cg.time - cg_crosshairFeedbackTime.integer )
 	{//QtZ: Colour crosshair if we recently hit someone (Damage feedback)
-		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.crosshairDamageTime) / cg_crosshairFeedbackTime.value );
-		finalColour[0] = LERP2( feedbackRGB[0], baseRGB[0], point );
-		finalColour[1] = LERP2( feedbackRGB[1], baseRGB[1], point );
-		finalColour[2] = LERP2( feedbackRGB[2], baseRGB[2], point );
+		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.crosshair.damageTime) / cg_crosshairFeedbackTime.value );
+		finalColour[0] = LERP2( cg.crosshair.feedbackColor[0]/255.0f, cg.crosshair.baseColor[0]/255.0f, point );
+		finalColour[1] = LERP2( cg.crosshair.feedbackColor[1]/255.0f, cg.crosshair.baseColor[1]/255.0f, point );
+		finalColour[2] = LERP2( cg.crosshair.feedbackColor[2]/255.0f, cg.crosshair.baseColor[2]/255.0f, point );
 		finalColour[3] = 1.0f;
 	}
 	trap_R_SetColor( finalColour );
@@ -1971,13 +1965,15 @@ static void CG_DrawCrosshair(void)
 		h *= ( 1 + f );
 	}
 
+#if 0 // no longer doing this
 	// pulse the size of the crosshair for damage feedback
-	f = cg.time - cg.crosshairDamageTime;
+	f = cg.time - cg.crosshair.damageTime;
 	if ( f > 0 && f < cg_crosshairFeedbackTime.value ) {
 		f /= cg_crosshairFeedbackTime.value;
 		w *= ( 1 + f );
 		h *= ( 1 + f );
 	}
+#endif
 
 	x = cg.refdef.x + 0.5 * (SCREEN_WIDTH - w);
 	y = cg.refdef.y + 0.5 * (SCREEN_HEIGHT - h);

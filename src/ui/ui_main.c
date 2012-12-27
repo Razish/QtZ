@@ -1262,7 +1262,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 
 	  if (trap_Cvar_VariableValue("ui_Q3Model")) {
 	  strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("headmodel"));
+		strcpy(head, UI_Cvar_VariableString("model"));
 		if (!q3Model) {
 			q3Model = qtrue;
 			updateModel = qtrue;
@@ -1272,7 +1272,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 
 		strcpy(team, UI_Cvar_VariableString("ui_teamName"));
 		strcpy(model, UI_Cvar_VariableString("team_model"));
-		strcpy(head, UI_Cvar_VariableString("team_headmodel"));
+		strcpy(head, UI_Cvar_VariableString("team_model"));
 		if (q3Model) {
 			q3Model = qfalse;
 			updateModel = qtrue;
@@ -4455,13 +4455,11 @@ static void UI_FeederSelection(float feederID, int index) {
 	index = actual;
     if (index >= 0 && index < uiInfo.characterCount) {
 		trap_Cvar_Set( "team_model", uiInfo.characterList[index].base);
-		trap_Cvar_Set( "team_headmodel", va("*%s", uiInfo.characterList[index].name)); 
 		updateModel = qtrue;
     }
   } else if (feederID == FEEDER_Q3HEADS) {
     if (index >= 0 && index < uiInfo.q3HeadCount) {
       trap_Cvar_Set( "model", uiInfo.q3HeadNames[index]);
-      trap_Cvar_Set( "headmodel", uiInfo.q3HeadNames[index]);
 			updateModel = qtrue;
 		}
   } else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {

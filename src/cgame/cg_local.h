@@ -429,15 +429,8 @@ typedef struct {
 	footstep_t		footsteps;
 	gender_t		gender;			// from model
 
-	qhandle_t		legsModel;
-	qhandle_t		legsSkin;
-
-	qhandle_t		torsoModel;
-	qhandle_t		torsoSkin;
-
-	qhandle_t		headModel;
-	qhandle_t		headSkin;
-
+	qhandle_t		legsModel, torsoModel, headModel;
+	qhandle_t		legsSkin, torsoSkin, headSkin;
 	qhandle_t		modelIcon;
 
 	animation_t		animations[MAX_TOTALANIMATIONS];
@@ -715,7 +708,26 @@ typedef struct {
 	linkedList_t	*itemPickupRoot;
 	linkedList_t	*obituaryRoot;
 	int				flagCarrierEntityNum;
-	int				crosshairDamageTime;
+
+	struct {
+		int		damageTime;
+		int		baseColor[3], feedbackColor[3];
+	} crosshair;
+
+	struct {
+		int		enemyColor[3], allyColor[3];
+	} forceModel;
+
+	struct {
+		vector3		basePos, zoomPos;
+	} gunAlign;
+
+	angle3 gunBob; // pitch, yaw, roll
+	angle3 gunIdleDrift; // pitch, yaw, roll
+	number gunIdleDriftSpeed; // speed
+
+	number viewBob[3]; // pitch, roll, up
+	qboolean viewBobFall; // fall
 } cg_t;
 
 

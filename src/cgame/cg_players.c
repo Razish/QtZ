@@ -706,160 +706,12 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-#if 0 //Q3 style
-	if ( cg_forceModel.boolean )
-	{
-		// forcemodel makes everyone use a single model
-		// to prevent load hitches
-		char modelStr[MAX_QPATH];
-		char *skin;
-
-		if( cgs.gametype >= GT_TEAM )
-		{
-			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
-			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-		}
-		else {
-			trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
-			if ( (skin = strchr( modelStr, '/' )) == NULL )
-				skin = "default";
-			else
-				*skin++ = 0;
-
-			Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
-			Q_strncpyz( newInfo.modelName, modelStr, sizeof( newInfo.modelName ) );
-		}
-
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name
-			slash = strchr( v, '/' );
-			if ( slash ) {
-				Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-			}
-		}
-	} else {
-		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
-
-		slash = strchr( newInfo.modelName, '/' );
-		if ( !slash ) {
-			// modelName didn not include a skin name
-			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-		} else {
-			Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-			// truncate modelName
-			*slash = 0;
-		}
-	}
-#else
 	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel.string, sizeof( newInfo.modelName ) );
 	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel.string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceAllyModel.string, sizeof( newInfo.modelName ) );
 	else
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
-#endif
-
-#if 0
-	// head model
-	v = Info_ValueForKey( configstring, "hmodel" );
-#if 0 //Q3 style
-	if ( cg_forceModel.boolean ) {
-		// forcemodel makes everyone use a single model
-		// to prevent load hitches
-		char modelStr[MAX_QPATH];
-		char *skin;
-
-		if( cgs.gametype >= GT_TEAM ) {
-			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_HEAD, sizeof( newInfo.headModelName ) );
-			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-		} else {
-			trap_Cvar_VariableStringBuffer( "headmodel", modelStr, sizeof( modelStr ) );
-			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
-				skin = "default";
-			} else {
-				*skin++ = 0;
-			}
-
-			Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
-			Q_strncpyz( newInfo.headModelName, modelStr, sizeof( newInfo.headModelName ) );
-		}
-
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name
-			slash = strchr( v, '/' );
-			if ( slash ) {
-				Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
-			}
-		}
-	} else {
-		Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
-
-		slash = strchr( newInfo.headModelName, '/' );
-		if ( !slash ) {
-			// modelName didn not include a skin name
-			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-		} else {
-			Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
-			// truncate modelName
-			*slash = 0;
-		}
-	}
-#else
-	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) ) {
-		char *skin;
-		char modelName[MAX_QPATH];
-
-		Q_strncpyz( modelName, cg_forceEnemyModel.string, sizeof( modelName ) );
-
-		if ( (skin = strchr( modelName, '/' )) == NULL)
-			skin = "default";
-		else
-			*skin++ = 0;
-
-		Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
-		Q_strncpyz( newInfo.headModelName, modelName, sizeof( newInfo.headModelName ) );
-
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name
-			slash = strchr( v, '/' );
-			if ( slash )
-				Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
-		}
-	}
-	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceTeamModel.string, "none" ) ) {
-		char *skin;
-		char modelName[MAX_QPATH];
-
-		Q_strncpyz( modelName, cg_forceTeamModel.string, sizeof( modelName ) );
-
-		if ( (skin = strchr( modelName, '/' )) == NULL)
-			skin = "default";
-		else
-			*skin++ = 0;
-
-		Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
-		Q_strncpyz( newInfo.headModelName, modelName, sizeof( newInfo.headModelName ) );
-
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name
-			slash = strchr( v, '/' );
-			if ( slash )
-				Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-		}
-	}
-	else
-	{
-		Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
-
-		if ( !(slash=strchr( newInfo.headModelName, '/' )) )
-			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-		else {
-			Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
-			*slash = 0;
-		}
-	}
-#endif
-#endif // don't use head models for now :D
 
 	// scan for an existing clientinfo that matches this modelname
 	// so we can avoid loading checks if possible
@@ -1833,23 +1685,15 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
-	struct { float r; float g; float b; float a; } color;
+	int *color = NULL;
 
 	if ( (cgs.gametype < GT_TEAM && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAM && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
-	{
-		if ( sscanf( cg_forceEnemyModelColor.string, "%f %f %f %f", &color.r, &color.g, &color.b, &color.a ) != 4 ) {
-			color.r = 0; color.g = 255; color.g = 0; color.a = 255;
-		}
-	}
+		color = cg.forceModel.enemyColor;
 	else
-	{
-		if ( sscanf( cg_forceAllyModelColor.string, "%f %f %f %f", &color.r, &color.g, &color.b, &color.a ) != 4 ) {
-			color.r = 0; color.g = 255; color.g = 0; color.a = 255;
-		}
-	}
-	if ( cg_brightModels.boolean )
-	{
-		MAKERGBA( ent->shaderRGBA, color.r*255, color.g*255, color.b*255, color.a*255 );
+		color = cg.forceModel.allyColor;
+
+	if ( cg_brightModels.boolean ) {
+		MAKERGB( ent->shaderRGBA, color[0], color[1], color[2] );
 	}
 
 	trap_R_AddRefEntityToScene( ent );

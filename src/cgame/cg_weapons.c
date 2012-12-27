@@ -265,16 +265,9 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 	if ( cg_gunBobEnable.integer )
 	{// gun angles from bobbing
-		struct { float pitch; float yaw; float roll; } gunBob;
-		if ( sscanf( cg_gunBob.string, "%f %f %f", &gunBob.pitch, &gunBob.yaw, &gunBob.roll ) != 3 )
-		{
-			gunBob.pitch = 0.005f;
-			gunBob.yaw = 0.01f;
-			gunBob.roll = 0.005f;
-		}
-		angles[PITCH]	+= scale * cg.bobfracsin * gunBob.pitch;
-		angles[YAW]		+= scale * cg.bobfracsin * gunBob.yaw;
-		angles[ROLL]	+= scale * cg.bobfracsin * gunBob.roll;
+		angles[PITCH]	+= scale * cg.bobfracsin * cg.gunBob.pitch;
+		angles[YAW]		+= scale * cg.bobfracsin * cg.gunBob.yaw;
+		angles[ROLL]	+= scale * cg.bobfracsin * cg.gunBob.roll;
 
 		// drop the weapon when landing
 		delta = cg.time - cg.landTime;
@@ -289,19 +282,11 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 	if ( cg_gunIdleDriftEnable.integer )
 	{// idle drift
-		struct { float pitch; float yaw; float roll; float speed; } gunIdleDrift;
-		if ( sscanf( cg_gunIdleDrift.string, "%f %f %f %f", &gunIdleDrift.pitch, &gunIdleDrift.yaw, &gunIdleDrift.roll, &gunIdleDrift.speed ) != 4 )
-		{
-			gunIdleDrift.pitch = 0.01f;
-			gunIdleDrift.yaw = 0.01f;
-			gunIdleDrift.roll = 0.01f;
-			gunIdleDrift.speed = 0.001f;
-		}
 		scale = cg.xyspeed + 40;
-		fracsin = sin( cg.time * gunIdleDrift.speed );
-		angles[PITCH]	+= scale * fracsin * gunIdleDrift.pitch;
-		angles[YAW]		+= scale * fracsin * gunIdleDrift.yaw;
-		angles[ROLL]	+= scale * fracsin * gunIdleDrift.roll;
+		fracsin = sin( cg.time * cg.gunIdleDriftSpeed );
+		angles[PITCH]	+= scale * fracsin * cg.gunIdleDrift.pitch;
+		angles[YAW]		+= scale * fracsin * cg.gunIdleDrift.yaw;
+		angles[ROLL]	+= scale * fracsin * cg.gunIdleDrift.roll;
 	}
 }
 
@@ -568,10 +553,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	vec3_t			angles;
 	weaponInfo_t	*weapon;
 	float	cgFov = cg_fov.value;
-	struct { float x; float y; float z; } pos;
-
-	if ( sscanf( cg_gunAlign.string, "%f %f %f", &pos.x, &pos.y, &pos.z ) != 3 )
-		pos.x = pos.y = pos.z = 0.0f;
+	int i=0;
 
 	if (cgFov < 1)
 		cgFov = 1;
@@ -622,26 +604,18 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	CG_CalculateWeaponPosition( hand.origin, angles );
 
 	{
-		vec3_t gunLerp = { 0.0f };
+		vector3 gunLerp = { 0.0f };
 		float point = 1.0f + (zoomFov-cg_zoomFov.value)/(cgFov-cg_zoomFov.value) * -1.0f;
-		struct { float x; float y; float z; } gunAlign;
-		struct { float x; float y; float z; } gunZoomAlign;
-
-		if ( sscanf( cg_gunAlign.string, "%f %f %f", &gunAlign.x, &gunAlign.y, &gunAlign.z ) != 3 )
-			gunAlign.x = gunAlign.y = gunAlign.z = 0.0f;
-
-		if ( sscanf( cg_gunZoomAlign.string, "%f %f %f", &gunZoomAlign.x, &gunZoomAlign.y, &gunZoomAlign.z ) != 3 )
-			gunZoomAlign.x = gunZoomAlign.y = gunZoomAlign.z = 0.0f;
 
 		//lerp from base position to zoom position by how far we've zoomed
-		gunLerp[0] = gunAlign.x + point*(gunZoomAlign.x - gunAlign.x);
-		gunLerp[1] = gunAlign.y + point*(gunZoomAlign.y - gunAlign.y);
-		gunLerp[2] = gunAlign.z + point*(gunZoomAlign.z - gunAlign.z);
+		gunLerp.x = cg.gunAlign.basePos.x + point*(cg.gunAlign.zoomPos.x - cg.gunAlign.basePos.x);
+		gunLerp.y = cg.gunAlign.basePos.y + point*(cg.gunAlign.zoomPos.y - cg.gunAlign.basePos.y);
+		gunLerp.z = cg.gunAlign.basePos.z + point*(cg.gunAlign.zoomPos.z - cg.gunAlign.basePos.z);
 
 		//now offset to hand position
-		VectorMA( hand.origin, gunLerp[0], cg.refdef.viewaxis[0], hand.origin );
-		VectorMA( hand.origin, gunLerp[1], cg.refdef.viewaxis[1], hand.origin );
-		VectorMA( hand.origin, gunLerp[2], cg.refdef.viewaxis[2], hand.origin );
+		VectorMA( hand.origin, gunLerp.x, cg.refdef.viewaxis[i], hand.origin );
+		VectorMA( hand.origin, gunLerp.y, cg.refdef.viewaxis[i], hand.origin );
+		VectorMA( hand.origin, gunLerp.z, cg.refdef.viewaxis[i], hand.origin );
 	}
 
 	AnglesToAxis( angles, hand.axis );
