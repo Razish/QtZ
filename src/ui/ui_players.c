@@ -873,6 +873,7 @@ static qboolean	UI_FindClientHeadFile( char *filename, int length, const char *t
 	char *team, *headsFolder;
 	int i;
 
+	//QTZTODO: clean this up :S
 	team = "default";
 
 	if ( headModelName[0] == '*' ) {

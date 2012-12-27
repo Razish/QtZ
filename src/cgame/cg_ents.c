@@ -649,11 +649,10 @@ CG_CalcEntityLerpPositions
 
 ===============
 */
-static void CG_CalcEntityLerpPositions( centity_t *cent ) {
-
-	// if this player does not want to see extrapolated players
-	if ( !cg_smoothClients.boolean ) {
-		// make sure the clients use TR_INTERPOLATE
+static void CG_CalcEntityLerpPositions( centity_t *cent )
+{
+	if ( !cg_smoothClients.boolean )
+	{// if this player does not want to see extrapolated players, make sure the clients use TR_INTERPOLATE
 		if ( cent->currentState.number < MAX_CLIENTS ) {
 			cent->currentState.pos.trType = TR_INTERPOLATE;
 			cent->nextState.pos.trType = TR_INTERPOLATE;
@@ -665,10 +664,8 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 		return;
 	}
 
-	// first see if we can interpolate between two snaps for
-	// linear extrapolated clients
-	if ( cent->interpolate && cent->currentState.pos.trType == TR_LINEAR_STOP &&
-											cent->currentState.number < MAX_CLIENTS) {
+	if ( cent->interpolate && cent->currentState.pos.trType == TR_LINEAR_STOP && cent->currentState.number < MAX_CLIENTS )
+	{// first see if we can interpolate between two snaps for linear extrapolated clients
 		CG_InterpolateEntityPosition( cent );
 		return;
 	}
@@ -677,12 +674,9 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
 	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 
-	// adjust for riding a mover if it wasn't rolled into the predicted
-	// player state
-	if ( cent != &cg.predictedPlayerEntity ) {
-		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, 
-		cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles, cent->lerpAngles);
-	}
+	// adjust for riding a mover if it wasn't rolled into the predicted playerstate
+	if ( cent != &cg.predictedPlayerEntity )
+		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles, cent->lerpAngles );
 }
 
 /*

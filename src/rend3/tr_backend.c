@@ -997,7 +997,6 @@ const void *RB_RotatedPic( const void *data ) {
 	tess.xyz[ numVerts ][0] = cmd->x + ( cos( angle ) * cmd->w );
 	tess.xyz[ numVerts ][1] = cmd->y + ( sin( angle ) * cmd->h );
 	tess.xyz[ numVerts ][2] = 0;
-	tess.xyz[ numVerts ][3] = 1; //RAZTEST
 
 	tess.texCoords[ numVerts ][0][0] = cmd->s1;
 	tess.texCoords[ numVerts ][0][1] = cmd->t1;
@@ -1006,7 +1005,6 @@ const void *RB_RotatedPic( const void *data ) {
 	tess.xyz[ numVerts + 1 ][0] = cmd->x + ( cos( angle ) * cmd->w );
 	tess.xyz[ numVerts + 1 ][1] = cmd->y + ( sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 1 ][2] = 0;
-	tess.xyz[ numVerts + 1 ][3] = 1; //RAZTEST
 
 	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
 	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
@@ -1015,7 +1013,6 @@ const void *RB_RotatedPic( const void *data ) {
 	tess.xyz[ numVerts + 2 ][0] = cmd->x + ( cos( angle ) * cmd->w );
 	tess.xyz[ numVerts + 2 ][1] = cmd->y + ( sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 2 ][2] = 0;
-	tess.xyz[ numVerts + 2 ][3] = 1; //RAZTEST
 
 	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
 	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
@@ -1024,7 +1021,6 @@ const void *RB_RotatedPic( const void *data ) {
 	tess.xyz[ numVerts + 3 ][0] = cmd->x + ( cos( angle ) * cmd->w );
 	tess.xyz[ numVerts + 3 ][1] = cmd->y + ( sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 3 ][2] = 0;
-	tess.xyz[ numVerts + 3 ][3] = 1; //RAZTEST
 
 	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
 	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
