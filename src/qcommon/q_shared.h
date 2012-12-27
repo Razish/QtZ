@@ -237,7 +237,6 @@ typedef int		clipHandle_t;
 
 #define	DEFAULT_MODEL			"nooblet"
 #define	DEFAULT_TEAM_MODEL		"nooblet"
-#define	DEFAULT_TEAM_HEAD		"*nooblet"
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -340,6 +339,15 @@ typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
+typedef float number;
+typedef struct { number x, y; } vector2;
+typedef struct { number x, y, z; } vector3;
+typedef struct { number x, y, z, w; } vector4;
+
+typedef struct { number pitch, yaw, roll; } angle3;
+typedef struct { number r, g, b; } color3;
+typedef struct { number r, g, b, a; } color4;
+
 typedef	int	fixed4_t;
 typedef	int	fixed8_t;
 typedef	int	fixed16_t;
@@ -383,26 +391,30 @@ extern	vec4_t		colorDkGrey;
 #define Q_COLOR_ESCAPE	'^'
 #define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
 
-#define COLOR_BLACK	'0'
-#define COLOR_RED	'1'
-#define COLOR_GREEN	'2'
+#define COLOR_BLACK		'0'
+#define COLOR_RED		'1'
+#define COLOR_GREEN		'2'
 #define COLOR_YELLOW	'3'
-#define COLOR_BLUE	'4'
-#define COLOR_CYAN	'5'
+#define COLOR_BLUE		'4'
+#define COLOR_CYAN		'5'
 #define COLOR_MAGENTA	'6'
-#define COLOR_WHITE	'7'
-#define ColorIndex(c)	(((c) - '0') & 0x07)
+#define COLOR_WHITE		'7'
+#define COLOR_GREY		'8'
+#define COLOR_ORANGE	'9'
+#define ColorIndex(c)	(((c) - '0') & 0xF)
 
-#define S_COLOR_BLACK	"^0"
-#define S_COLOR_RED	"^1"
-#define S_COLOR_GREEN	"^2"
-#define S_COLOR_YELLOW	"^3"
-#define S_COLOR_BLUE	"^4"
-#define S_COLOR_CYAN	"^5"
-#define S_COLOR_MAGENTA	"^6"
-#define S_COLOR_WHITE	"^7"
+#define S_COLOR_BLACK		"^0"
+#define S_COLOR_RED			"^1"
+#define S_COLOR_GREEN		"^2"
+#define S_COLOR_YELLOW		"^3"
+#define S_COLOR_BLUE		"^4"
+#define S_COLOR_CYAN		"^5"
+#define S_COLOR_MAGENTA		"^6"
+#define S_COLOR_WHITE		"^7"
+#define S_COLOR_GREY		"^8"
+#define S_COLOR_ORANGE		"^9"
 
-extern vec4_t	g_color_table[8];
+extern vec4_t	g_color_table[10];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
