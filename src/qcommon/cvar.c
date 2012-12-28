@@ -439,6 +439,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags, const 
 		
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
+	//QTZTODO: tokens
 	if ( description )
 		var->description = CopyString( description );
 	var->modified = qtrue;
@@ -622,6 +623,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	Z_Free (var->string);	// free the old value string
 	
 	var->string = CopyString(value);
+	//QTZTODO: tokens
 	var->value = atof (var->string);
 	var->integer = atoi (var->string);
 	var->boolean = (qboolean)!!(var->integer);

@@ -604,7 +604,7 @@ static void CG_DrawBlueScore(rectDef_t *rect, float scale, vec4_t color, qhandle
 	CG_Text_Paint(rect->x + rect->w - value, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 }
 
-//QTZTODO: team name support
+//QTZTODO: team name support? set by server =]
 static void CG_DrawRedName(rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
 //	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_redTeamName.string , 0, 0, textStyle);
 }
@@ -1460,7 +1460,7 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vec4_t color, qhandle
 	vec4_t pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = MIN( cg.snap->ping / BAD_PING, 1.0f );
 
-	if ( !cg_drawPing.boolean && cg_debugHUD.boolean )
+	if ( !cg_drawPing.boolean && !cg_debugHUD.boolean )
 		return;
 
 	pingColour[0] = pingGood[0] + point*(pingBad[0] - pingGood[0]);
@@ -1468,6 +1468,44 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vec4_t color, qhandle
 	pingColour[2] = pingGood[2] + point*(pingBad[2] - pingGood[2]);
 
 	CG_Text_Paint( rect->x, rect->y, scale, pingColour, va( "%i ping", cg.snap->ping ), 0, 0, textStyle );
+}
+
+static void CG_DrawTimer( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle )
+{
+	vec_t *timeColour = NULL;
+	int msec=0, secs=0, mins=0, limitSec=cgs.timelimit*60;
+
+	if ( !cg_drawTimer.boolean && !cg_debugHUD.boolean && !cg.intermissionStarted )
+		return;
+
+	msec = cg.time-cgs.levelStartTime;
+	secs = msec/1000;
+	mins = secs/60;
+
+	timeColour = colorWhite;
+	if ( cgs.timelimit ) {
+		// final minute
+		if ( secs >= limitSec-60 )
+			timeColour = colorRed;
+		// last quarter
+		else if ( secs >= limitSec-(limitSec/4) )
+			timeColour = colorOrange;
+		// half way
+		else if ( secs >= limitSec/2 )
+			timeColour = colorYellow;
+	}
+
+	if ( cgs.timelimit && cg_drawTimer.integer == 2 )
+	{// count down
+		msec = limitSec*1000 - (msec);
+		secs = msec/1000;
+		mins = secs/60;
+	}
+
+	secs %= 60;
+	msec %= 1000;
+
+	CG_Text_Paint( rect->x, rect->y, scale, timeColour, va( "%i:%02i", mins, secs ), 0, 0, textStyle );
 }
 //~QtZ
 	
@@ -1639,20 +1677,38 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 			CG_DrawNewTeamInfo(&rect, text_x, text_y, scale, color, shader);
 		}
 		break;
+
 	case CG_CAPFRAGLIMIT:
 		CG_DrawCapFragLimit(&rect, scale, color, shader, textStyle);
 		break;
+
 	case CG_1STPLACE:
 		CG_Draw1stPlace(&rect, scale, color, shader, textStyle);
 		break;
+
 	case CG_2NDPLACE:
 		CG_Draw2ndPlace(&rect, scale, color, shader, textStyle);
 		break;
+
+		//QtZ: Added
 	case CG_FPS_INFO:
 		CG_DrawFPSInfo( &rect, scale, color, shader, textStyle );
 		break;
+
 	case CG_PING_INFO:
 		CG_DrawPingInfo( &rect, scale, color, shader, textStyle );
+		break;
+
+	case CG_OBITUARY:
+		//QTZTODO: Obituary HUD
+		break;
+
+	case CG_ITEMPICKUP:
+		//QTZTODO: Item pickup HUD
+		break;
+
+	case CG_TIMER:
+		CG_DrawTimer( &rect, scale, color, shader, textStyle );
 		break;
 	default:
 		break;

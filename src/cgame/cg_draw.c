@@ -1033,37 +1033,6 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //#endif
 }
 
-
-/*
-=====================
-CG_DrawUpperRight
-
-=====================
-*/
-static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
-{
-	float	y;
-
-	y = 0;
-
-	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
-		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
-	} 
-	if ( cg_drawSnapshot.boolean ) {
-		y = CG_DrawSnapshot( y );
-	}
-	if (cg_drawFPS.boolean && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
-		y = CG_DrawFPS( y );
-	}
-	if ( cg_drawTimer.boolean ) {
-		y = CG_DrawTimer( y );
-	}
-	if ( cg_drawAttacker.boolean ) {
-		y = CG_DrawAttacker( y );
-	}
-
-}
-
 /*
 ===========================================================================================
 
@@ -2647,15 +2616,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawLagometer();
 
 	y = SCREEN_HEIGHT-SMALLCHAR_HEIGHT;
-//	y = CG_DrawFPS( y );
-//	y = CG_DrawPing( y );
 
-
-//	CG_DrawUpperRight(stereoFrame);
-
-	if ( !CG_DrawFollow() ) {
+	if ( !CG_DrawFollow() )
 		CG_DrawWarmup();
-	}
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();

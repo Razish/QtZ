@@ -631,6 +631,10 @@ void DeathmatchScoreboardMessage( gentity_t *ent );
 //
 // g_main.c
 //
+void G_InitGame( int levelTime, int randomSeed, int restart );
+void G_RunFrame( int levelTime );
+void G_ShutdownGame( int restart );
+void CheckExitRules( void );
 void MoveClientToIntermission( gentity_t *ent );
 void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
@@ -727,6 +731,7 @@ extern	gentity_t		g_entities[MAX_GENTITIES];
 
 #define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
 
+//OSP: pause
 #define PAUSE_NONE			0x00    // Match is NOT paused.
 #define PAUSE_PAUSED		0x01    // Match is paused, counting down
 #define PAUSE_UNPAUSING		0x02    // Pause is about to expire

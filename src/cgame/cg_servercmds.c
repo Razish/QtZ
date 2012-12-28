@@ -152,6 +152,7 @@ and whenever the server updates any serverinfo flagged cvars
 void CG_ParseServerinfo( void ) {
 	const char	*info;
 	char	*mapname;
+	int i;
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
@@ -160,7 +161,13 @@ void CG_ParseServerinfo( void ) {
 	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
 	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
-	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
+
+	//QtZ: So we can play the "1 minute warning" etc sounds if timelimit is changed during play
+	i = atoi( Info_ValueForKey( info, "timelimit" ) );
+	if ( cgs.timelimit != i )
+		cg.timelimitWarnings &= ~(1|2);
+	cgs.timelimit = i;
+
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );

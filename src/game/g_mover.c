@@ -397,7 +397,7 @@ void G_RunMover( gentity_t *ent ) {
 
 	// if stationary at one of the positions, don't move anything
 	if ( ent->s.pos.trType != TR_STATIONARY || ent->s.apos.trType != TR_STATIONARY ) {
-		//OSP: pausing
+		//OSP: pause
 		if ( level.pause.state == PAUSE_NONE )
 			G_MoverTeam( ent );
 		else

@@ -318,6 +318,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		client->ps.speed = 400;	// faster than normal
 
 		//OSP: dead players are frozen too, in a timeout
+		//OSP: pause
 		if ( level.pause.state != PAUSE_NONE )
 			client->ps.pm_type = PM_FREEZE;
 		else if ( client->noclip )
@@ -656,26 +657,17 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	//OSP: pause
-	if ( /*(client->ps.eFlags & EF_VIEWING_CAMERA ) || */level.pause.state != PAUSE_NONE ) {
+	if ( level.pause.state != PAUSE_NONE ) {
 		ucmd->buttons = 0;
-		ucmd->forwardmove = 0;
-		ucmd->rightmove = 0;
-		ucmd->upmove = 0;
-
-		// freeze player (RELOAD_FAILED still allowed to move/look)
-		if ( level.pause.state != PAUSE_NONE ) {
-			client->ps.pm_type = PM_FREEZE;
-		/*} else if ( (client->ps.eFlags & EF_VIEWING_CAMERA) ) {
-			VectorClear( client->ps.velocity );
-			client->ps.pm_type = PM_FREEZE;*/
-		}
-	} else if ( client->noclip ) {
-		client->ps.pm_type = PM_NOCLIP;
-	} else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
-		client->ps.pm_type = PM_DEAD;
-	} else {
-		client->ps.pm_type = PM_NORMAL;
+		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
+		client->ps.pm_type = PM_FREEZE;
 	}
+	else if ( client->noclip )
+		client->ps.pm_type = PM_NOCLIP;
+	else if ( client->ps.stats[STAT_HEALTH] <= 0 )
+		client->ps.pm_type = PM_DEAD;
+	else
+		client->ps.pm_type = PM_NORMAL;
 
 	client->ps.gravity = g_gravity.value;
 
@@ -916,8 +908,9 @@ void ClientEndFrame( gentity_t *ent ) {
 	for ( i=0; i<MAX_POWERUPS; i++ )
 	{// turn off any expired powerups
 
-		//OSP: If we're paused, update powerup timers accordingly.
-		// Make sure we dont let stuff like CTF flags expire.
+		//OSP: pause
+		//	If we're paused, update powerup timers accordingly.
+		//	Make sure we dont let stuff like CTF flags expire.
 		if ( ent->client->ps.powerups[i] == 0 )
 			continue;
 
@@ -933,7 +926,8 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.powerups[PW_GUARD] = level.time;
 	}
 
-	//OSP: If we're paused, make sure other timers stay in sync
+	//OSP: pause
+	//	If we're paused, make sure other timers stay in sync
 	if ( level.pause.state != PAUSE_NONE ) {
 		int time_delta = level.time - level.previousTime;
 
@@ -946,6 +940,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->pers.teamState.lastfraggedcarrier += time_delta;
 		ent->client->respawnTime += time_delta;
 		ent->pain_debounce_time += time_delta;
+	//	level.warmupTime += time_delta;
 	}
 
 	// save network bandwidth

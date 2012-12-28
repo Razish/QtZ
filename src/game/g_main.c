@@ -56,12 +56,6 @@ static cvarTable_t gameCvarTable[] = {
 static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
 
-void G_InitGame( int levelTime, int randomSeed, int restart );
-void G_RunFrame( int levelTime );
-void G_ShutdownGame( int restart );
-void CheckExitRules( void );
-
-
 /*
 ================
 vmMain
@@ -1564,7 +1558,8 @@ Runs thinking code for this frame if necessary
 void G_RunThink (gentity_t *ent) {
 	float	thinktime;
 
-	//OSP: If paused, push nextthink
+	//OSP: pause
+	//	If paused, push nextthink
 	if ( level.pause.state != PAUSE_NONE && ent-g_entities >= sv_maxclients.integer && ent->nextthink > level.time )
 		ent->nextthink += level.time - level.previousTime;
 
@@ -1604,9 +1599,28 @@ void G_RunFrame( int levelTime ) {
 	level.time = levelTime;
 
 	//OSP: pause
+	if ( level.pause.state != PAUSE_NONE )
+	{
+		static int lastCSTime = 0;
+		int dt = level.time-level.previousTime;
+
+		// compensate for timelimit and warmup time
+		if ( level.warmupTime > 0 )
+			level.warmupTime += dt;
+		level.startTime += dt;
+
+		// client needs to do the same, just adjust the configstrings periodically
+		//QTZFIXME: maybe just send a reliable command for pause/unpause and let the client
+		//	handle start/end times there?
+		if ( lastCSTime < level.time - 500 ) {
+			lastCSTime += 500;
+			trap_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
+			if ( level.warmupTime > 0 )
+				trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime ) );
+		}
+	}
 	if ( level.pause.state == PAUSE_PAUSED )
 	{
-		static int lastMsgTime = 0;
 		if ( lastMsgTime < level.time-500 ) {
 			trap_SendServerCommand( -1, va( "cp \"Match has been paused.\n%.0f seconds remaining\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
 			lastMsgTime = level.time;
@@ -1672,7 +1686,7 @@ void G_RunFrame( int levelTime ) {
 		}
 
 		if ( ent->s.eType == ET_MISSILE ) {
-			//OSP: pausing
+			//OSP: pause
 			if ( level.pause.state == PAUSE_NONE )
 				G_RunMissile( ent );
 			else
