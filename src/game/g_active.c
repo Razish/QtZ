@@ -732,10 +732,10 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->eventTime = level.time;
 	}
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.integer );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.integer );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -978,10 +978,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// set the latest infor
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.integer );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.integer );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 

@@ -1171,16 +1171,19 @@ void ClientSpawn(gentity_t *ent) {
 		// move players to intermission
 		MoveClientToIntermission(ent);
 	}
+
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
 	ClientThink( ent-g_entities );
+
 	// run the presend to set anything else
-	ClientEndFrame( ent );
+	if ( ent->client->sess.spectatorState != SPECTATOR_FOLLOW )
+		ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, pm_snapVec.integer );
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, pm_snapVec.boolean );
 }
 
 
