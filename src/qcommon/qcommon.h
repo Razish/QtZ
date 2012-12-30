@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-//#define	PRE_RELEASE_DEMO
-
 //============================================================================
 
 //
@@ -261,7 +259,8 @@ extern int demo_protocols[];
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME	"master.quake3arena.com"
+	//QTZTODO: Master server :>
+	#define MASTER_SERVER_NAME	"master.quake3arena.com"
 #endif
 
 #ifndef STANDALONE

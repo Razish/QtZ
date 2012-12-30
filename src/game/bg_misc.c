@@ -762,3 +762,12 @@ int weaponFromMOD[MOD_MAX] = {
 	WP_NONE,
 	WP_NONE,
 };
+
+const char *gametypeNames[GT_NUM_GAMETYPES] = {
+	"Deathmatch",
+	"Tournament",
+	// team games
+	"Team Deathmatch",
+	"Capture The Flag",
+	"One Flag Capture The Flag"
+};

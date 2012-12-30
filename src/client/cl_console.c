@@ -258,7 +258,6 @@ void Con_CheckResize (void)
 		con.linewidth = width;
 		con.totallines = CON_TEXTSIZE / con.linewidth;
 		for(i=0; i<CON_TEXTSIZE; i++)
-
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 	}
 	else
@@ -279,7 +278,6 @@ void Con_CheckResize (void)
 
 		Com_Memcpy (tbuf, con.text, CON_TEXTSIZE * sizeof(short));
 		for(i=0; i<CON_TEXTSIZE; i++)
-
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 
 
@@ -551,8 +549,8 @@ void Con_DrawNotify (void)
 			if ( ( text[x] & 0xff ) == ' ' ) {
 				continue;
 			}
-			if ( ( (text[x]>>8)&7 ) != currentColor ) {
-				currentColor = (text[x]>>8)&7;
+			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
+				currentColor = (text[x]>>8)&Q_COLORBITS;
 				re.SetColor( g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );

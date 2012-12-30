@@ -2810,9 +2810,6 @@ void Com_Init( char *commandLine ) {
 
 	CL_StartHunkUsers( qfalse );
 
-	// make sure single player is off by default
-	Cvar_Set("ui_singlePlayerActive", "0");
-
 	//QtZ: Raw mouse input
 	#ifdef _WIN32
 		if (Cvar_VariableIntegerValue("in_mouse") == 3) {

@@ -158,8 +158,6 @@ void CG_ParseServerinfo( void ) {
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
-	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
-	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 
 	//QtZ: So we can play the "1 minute warning" etc sounds if timelimit is changed during play
@@ -167,6 +165,12 @@ void CG_ParseServerinfo( void ) {
 	if ( cgs.timelimit != i )
 		cg.timelimitWarnings &= ~(1|2);
 	cgs.timelimit = i;
+
+	// reset fraglimit warnings
+	i = atoi( Info_ValueForKey( info, "fraglimit" ) );
+	if ( cgs.fraglimit < i )
+		cg.fraglimitWarnings &= ~(1|2|4);
+	cgs.fraglimit = i;
 
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	mapname = Info_ValueForKey( info, "mapname" );

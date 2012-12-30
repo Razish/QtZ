@@ -60,7 +60,6 @@ extern vmCvar_t	ui_spSkill;
 extern vmCvar_t	ui_spSelection;
 
 extern vmCvar_t	ui_browserMaster;
-extern vmCvar_t	ui_browserGameType;
 extern vmCvar_t	ui_browserShowFull;
 extern vmCvar_t	ui_browserShowEmpty;
 
@@ -92,9 +91,6 @@ extern vmCvar_t	ui_cdkeychecked;
 extern vmCvar_t	ui_captureLimit;
 extern vmCvar_t	ui_fragLimit;
 extern vmCvar_t	ui_gameType;
-extern vmCvar_t	ui_netGameType;
-extern vmCvar_t	ui_actualNetGameType;
-extern vmCvar_t	ui_joinGameType;
 extern vmCvar_t	ui_netSource;
 extern vmCvar_t	ui_serverFilterType;
 extern vmCvar_t	ui_dedicated;
@@ -111,7 +107,6 @@ extern vmCvar_t	ui_lastServerRefresh_0;
 extern vmCvar_t	ui_lastServerRefresh_1;
 extern vmCvar_t	ui_lastServerRefresh_2;
 extern vmCvar_t	ui_lastServerRefresh_3;
-extern vmCvar_t	ui_singlePlayerActive;
 extern vmCvar_t	ui_scoreAccuracy;
 extern vmCvar_t	ui_scoreImpressives;
 extern vmCvar_t	ui_scoreExcellents;
@@ -592,12 +587,11 @@ typedef struct {
 
 // new ui stuff
 #define UI_NUMFX 7
-#define MAX_HEADS 64
+#define MAX_HEADS 256
 #define MAX_ALIASES 64
 #define MAX_HEADNAME  32
 #define MAX_TEAMS 64
-#define MAX_GAMETYPES 16
-#define MAX_MAPS 128
+#define MAX_MAPS 512
 #define MAX_SPMAPS 16
 #define PLAYERS_PER_TEAM 5
 #define MAX_PINGREQUESTS		32
@@ -663,7 +657,7 @@ typedef struct {
 	int teamMembers;
   int typeBits;
 	int cinematic;
-	int timeToBeat[MAX_GAMETYPES];
+	int timeToBeat[GT_NUM_GAMETYPES];
 	qhandle_t levelShot;
 	qboolean active;
 } mapInfo;
@@ -761,12 +755,6 @@ typedef struct {
 
 	int teamCount;
 	teamInfo teamList[MAX_TEAMS];
-
-	int numGameTypes;
-	gameTypeInfo gameTypes[MAX_GAMETYPES];
-
-	int numJoinGameTypes;
-	gameTypeInfo joinGameTypes[MAX_GAMETYPES];
 
 	int redBlue;
 	int playerCount;

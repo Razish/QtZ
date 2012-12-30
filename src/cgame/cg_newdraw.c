@@ -986,12 +986,6 @@ qboolean CG_OwnerDrawVisible(int flags) {
 		}
 	}
 
-	if (flags & CG_SHOW_SINGLEPLAYER) {
-		if( cgs.gametype == GT_SINGLE_PLAYER ) {
-			return qtrue;
-		}
-	}
-
 	if (flags & CG_SHOW_TOURNAMENT) {
 		if( cgs.gametype == GT_TOURNAMENT ) {
 			return qtrue;
@@ -1092,21 +1086,8 @@ static void CG_DrawGameStatus(rectDef_t *rect, float scale, vec4_t color, qhandl
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GetGameStatusText(), 0, 0, textStyle);
 }
 
-//RAZTODO: externalise gametype names
-const char *CG_GameTypeString(void) {
-	if ( cgs.gametype == GT_FFA ) {
-		return "Free For All";
-	} else if ( cgs.gametype == GT_TEAM ) {
-		return "Team Deathmatch";
-	} else if ( cgs.gametype == GT_CTF ) {
-		return "Capture the Flag";
-	} else if ( cgs.gametype == GT_1FCTF ) {
-		return "One Flag CTF";
-	}
-	return "";
-}
 static void CG_DrawGameType(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GameTypeString(), 0, 0, textStyle);
+	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, gametypeNames[cgs.gametype], 0, 0, textStyle);
 }
 
 static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit) {

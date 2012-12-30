@@ -100,15 +100,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 typedef enum {
-	GT_FFA,				// free for all
-	GT_TOURNAMENT,		// one on one tournament
-	GT_SINGLE_PLAYER,	// single player ffa
+	GT_DEATHMATCH=0,
+	GT_TOURNAMENT,
 	// team games
-	GT_TEAM,			// team deathmatch
-	GT_CTF,				// capture the flag
+	GT_TEAM,
+	GT_CTF,
 	GT_1FCTF,
-	GT_MAX_GAME_TYPE
+	GT_NUM_GAMETYPES
 } gametype_t;
+
+extern const char *gametypeNames[GT_NUM_GAMETYPES];
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
@@ -130,7 +131,6 @@ typedef enum {
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control
 	PM_INTERMISSION,	// no movement or status bar
-	PM_SPINTERMISSION	// no movement or status bar
 } pmtype_t;
 
 typedef enum {

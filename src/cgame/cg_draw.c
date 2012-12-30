@@ -2206,13 +2206,6 @@ static qboolean CG_DrawScoreboard( void ) {
 		menuScoreboard->window.flags &= ~WINDOW_FORCED;
 	}
 
-	// should never happen in Team Arena
-	if (cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
-	}
-
 	// don't draw scoreboard during death while warmup up
 	if ( cg.warmup && !cg.showScores ) {
 		return qfalse;
@@ -2261,17 +2254,7 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission( void ) {
 //	int key;
-#ifdef QTZRELIC
-	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		CG_DrawCenterString();
-		return;
-	}
-#else
-	//if (cg_singlePlayer.integer) {
-	//	CG_DrawCenterString();
-	//	return;
-	//}
-#endif // QTZRELIC
+
 	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
@@ -2420,46 +2403,13 @@ static void CG_DrawWarmup( void ) {
 
 		if ( ci1 && ci2 ) {
 			s = va( "%s vs %s", ci1->name, ci2->name );
-#ifdef QTZRELIC
-			w = CG_DrawStrlen( s );
-			if ( w > SCREEN_WIDTH / GIANT_WIDTH ) {
-				cw = SCREEN_WIDTH / w;
-			} else {
-				cw = GIANT_WIDTH;
-			}
-			CG_DrawStringExt( (SCREEN_WIDTH/2) - w * cw/2, 20,s, colorWhite, 
-					qfalse, qtrue, cw, (int)(cw * 1.5f), 0 );
-#else
 			w = CG_Text_Width(s, 0.6f, 0);
 			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#endif // QTZRELIC
 		}
 	} else {
-		//RAZTODO: Externalise gametype names
-		if ( cgs.gametype == GT_FFA ) {
-			s = "Free For All";
-		} else if ( cgs.gametype == GT_TEAM ) {
-			s = "Team Deathmatch";
-		} else if ( cgs.gametype == GT_CTF ) {
-			s = "Capture the Flag";
-		} else if ( cgs.gametype == GT_1FCTF ) {
-			s = "One Flag CTF";
-		} else {
-			s = "";
-		}
-#ifdef QTZRELIC
-		w = CG_DrawStrlen( s );
-		if ( w > SCREEN_WIDTH / GIANT_WIDTH ) {
-			cw = SCREEN_WIDTH / w;
-		} else {
-			cw = GIANT_WIDTH;
-		}
-		CG_DrawStringExt( (SCREEN_WIDTH/2) - w * cw/2, 25,s, colorWhite, 
-				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
-#else
+		s = gametypeNames[cgs.gametype];
 		w = CG_Text_Width(s, 0.6f, 0);
 		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#endif // QTZRELIC
 	}
 
 	sec = ( sec - cg.time ) / 1000;
@@ -2485,26 +2435,6 @@ static void CG_DrawWarmup( void ) {
 		}
 	}
 
-#ifdef QTZRELIC
-	switch ( cg.warmupCount ) {
-	case 0:
-		cw = 28;
-		break;
-	case 1:
-		cw = 24;
-		break;
-	case 2:
-		cw = 20;
-		break;
-	default:
-		cw = 16;
-		break;
-	}
-
-	w = CG_DrawStrlen( s );
-	CG_DrawStringExt( (SCREEN_WIDTH/2) - w * cw/2, 70, s, colorWhite, 
-			qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
-#else
 	switch ( cg.warmupCount ) {
 	case 0:
 		scale = 0.54f;
@@ -2522,7 +2452,6 @@ static void CG_DrawWarmup( void ) {
 
 	w = CG_Text_Width(s, scale, 0);
 	CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#endif // QTZRELIC
 }
 
 //==================================================================================

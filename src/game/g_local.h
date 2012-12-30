@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REWARD_SPRITE_TIME	2000
 
 #define	INTERMISSION_DELAY_TIME	1000
-#define	SP_INTERMISSION_DELAY_TIME	5000
 
 // gentity->flags
 #define	FL_GODMODE				0x0001
@@ -689,12 +688,11 @@ void G_WriteSessionData( void );
 //
 void UpdateTournamentInfo( void );
 void SpawnModelsOnVictoryPads( void );
-void Svcmd_AbortPodium_f( void );
 
 //
 // g_bot.c
 //
-void G_InitBots( qboolean restart );
+void G_InitBots( void );
 char *G_GetBotInfoByNumber( int num );
 char *G_GetBotInfoByName( const char *name );
 void G_CheckBotSpawn( void );

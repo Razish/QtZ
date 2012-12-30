@@ -14,7 +14,6 @@
 XCVAR_DEF( qtz_version,						QTZ_VERSION,		qfalse,	CVAR_SERVERINFO,								NULL )
 XCVAR_DEF( gamename,						GAMEVERSION,		qfalse, CVAR_SERVERINFO|CVAR_ROM,						NULL )
 XCVAR_DEF( gamedate,						__DATE__,			qfalse,	CVAR_SERVERINFO|CVAR_ROM,						NULL )
-XCVAR_DEF( ui_singlePlayerActive,			"",					qfalse,	CVAR_ROM,										NULL )
 XCVAR_DEF( sv_fps,							"40",				qtrue,	CVAR_ARCHIVE,									NULL )
 
 //RAZTODO: ClientConnect/ClientUserinfoChanged from modbase/JA++	
