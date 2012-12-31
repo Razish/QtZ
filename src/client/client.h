@@ -447,6 +447,13 @@ extern	cvar_t	*cl_voip;
 //=================================================
 
 //
+// cl_bot
+//
+
+void CL_BotInitBotLib( void );
+
+
+//
 // cl_main
 //
 

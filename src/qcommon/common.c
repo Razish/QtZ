@@ -293,7 +293,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 
 	if (code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT) {
 		VM_Forced_Unload_Start();
-		SV_Shutdown( "Server disconnected" );
+		sve.Shutdown( "Server disconnected" );
 		CL_Disconnect( qtrue );
 		CL_FlushMemory( );
 		VM_Forced_Unload_Done();
@@ -304,7 +304,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else if (code == ERR_DROP) {
 		Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
 		VM_Forced_Unload_Start();
-		SV_Shutdown (va("Server crashed: %s",  com_errorMessage));
+		sve.Shutdown (va("Server crashed: %s",  com_errorMessage));
 		CL_Disconnect( qtrue );
 		CL_FlushMemory( );
 		VM_Forced_Unload_Done();
@@ -313,7 +313,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		longjmp (abortframe, -1);
 	} else if ( code == ERR_NEED_CD ) {
 		VM_Forced_Unload_Start();
-		SV_Shutdown( "Server didn't have CD" );
+		sve.Shutdown( "Server didn't have CD" );
 		if ( com_cl_running && com_cl_running->integer ) {
 			CL_Disconnect( qtrue );
 			CL_FlushMemory( );
@@ -331,7 +331,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else {
 		VM_Forced_Unload_Start();
 		CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage), qtrue, qtrue);
-		SV_Shutdown(va("Server fatal crashed: %s", com_errorMessage));
+		if ( sve.Shutdown )
+			sve.Shutdown( va( "Server fatal crashed: %s", com_errorMessage ) );
 		VM_Forced_Unload_Done();
 	}
 
@@ -358,7 +359,7 @@ void Com_Quit_f( void ) {
 		// Sys_Quit will kill this process anyways, so
 		// a corrupt call stack makes no difference
 		VM_Forced_Unload_Start();
-		SV_Shutdown(p[0] ? p : "Server quit");
+		sve.Shutdown(p[0] ? p : "Server quit");
 		CL_Shutdown(p[0] ? p : "Client quit", qtrue, qtrue);
 		VM_Forced_Unload_Done();
 		Com_Shutdown ();
@@ -1627,7 +1628,6 @@ qboolean Hunk_CheckMark( void ) {
 
 void CL_ShutdownCGame( void );
 void CL_ShutdownUI( void );
-void SV_ShutdownGameProgs( void );
 
 /*
 =================
@@ -1642,7 +1642,8 @@ void Hunk_Clear( void ) {
 	CL_ShutdownCGame();
 	CL_ShutdownUI();
 #endif
-	SV_ShutdownGameProgs();
+	if ( sve.ShutdownGameProgs )
+		sve.ShutdownGameProgs();
 #ifndef DEDICATED
 	CIN_CloseAllVideos();
 #endif
@@ -2137,7 +2138,7 @@ void Com_RunAndTimeServerPacket( netadr_t *evFrom, msg_t *buf ) {
 		t1 = Sys_Milliseconds ();
 	}
 
-	SV_PacketEvent( *evFrom, buf );
+	sve.PacketEvent( *evFrom, buf );
 
 	if ( com_speeds->integer ) {
 		t2 = Sys_Milliseconds ();
@@ -2368,7 +2369,7 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
 		
 		// Kill server if we have one
 		if(com_sv_running->integer)
-			SV_Shutdown("Game directory changed");
+			sve.Shutdown("Game directory changed");
 
 		if(clWasRunning)
 		{
@@ -2626,6 +2627,186 @@ static void Com_InitRand(void)
 		srand(seed);
 	else
 		srand(time(NULL));
+}
+
+#include "../sys/sys_local.h"
+#include "../sys/sys_loadlib.h"
+#include "../server/sv_public.h"
+
+void *serverLib = NULL;
+serverExport_t sve;
+
+static void SV_Init( void ) {
+	serverImport_t svi;
+	GetServerAPI_t GetServerAPI;
+	char dllName[MAX_OSPATH] = "server_"ARCH_STRING DLL_EXT;
+
+	if( !(serverLib = Sys_LoadDll( dllName, qfalse )) )
+	{
+		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		Com_Error( ERR_FATAL, "Failed to load server" );
+	}
+
+	GetServerAPI = (GetServerAPI_t)Sys_LoadFunction( serverLib, "GetServerAPI" );
+	if ( !GetServerAPI )
+		Com_Error(ERR_FATAL, "Can't load symbol GetServerAPI: '%s'", Sys_LibraryError());
+
+	svi.Cvar_Get						= Cvar_Get;
+	svi.Print							= Com_Printf;
+	svi.Cbuf_AddText					= Cbuf_AddText;
+	svi.Cbuf_ExecuteText				= Cbuf_ExecuteText;
+	svi.CL_Disconnect					= CL_Disconnect;
+	svi.CL_MapLoading					= CL_MapLoading;
+	svi.CL_StartHunkUsers				= CL_StartHunkUsers;
+	svi.CL_ShutdownAll					= CL_ShutdownAll;
+	svi.CM_AdjustAreaPortalState		= CM_AdjustAreaPortalState;
+	svi.CM_AreasConnected				= CM_AreasConnected;
+	svi.CM_BoxLeafnums					= CM_BoxLeafnums;
+	svi.CM_BoxTrace						= CM_BoxTrace;
+	svi.CM_ClearMap						= CM_ClearMap;
+	svi.CM_ClusterPVS					= CM_ClusterPVS;
+	svi.CM_EntityString					= CM_EntityString;
+	svi.CM_InlineModel					= CM_InlineModel;
+	svi.CM_LeafArea						= CM_LeafArea;
+	svi.CM_LeafCluster					= CM_LeafCluster;
+	svi.CM_LoadMap						= CM_LoadMap;
+	svi.CM_ModelBounds					= CM_ModelBounds;
+	svi.CM_PointContents				= CM_PointContents;
+	svi.CM_PointLeafnum					= CM_PointLeafnum;
+	svi.CM_TempBoxModel					= CM_TempBoxModel;
+	svi.CM_TransformedBoxTrace			= CM_TransformedBoxTrace;
+	svi.CM_TransformedPointContents		= CM_TransformedPointContents;
+	svi.CM_WriteAreaBits				= CM_WriteAreaBits;
+	svi.Cmd_AddCommand					= Cmd_AddCommand;
+	svi.Cmd_Argc						= Cmd_Argc;
+	svi.Cmd_Args						= Cmd_Args;
+	svi.Cmd_ArgsFrom					= Cmd_ArgsFrom;
+	svi.Cmd_Args_Sanitize				= Cmd_Args_Sanitize;
+	svi.Cmd_Argv						= Cmd_Argv;
+	svi.Cmd_ArgvBuffer					= Cmd_ArgvBuffer;
+	svi.Cmd_Cmd							= Cmd_Cmd;
+	svi.Cmd_ExecuteString				= Cmd_ExecuteString;
+	svi.Cmd_SetCommandCompletionFunc	= Cmd_SetCommandCompletionFunc;
+	svi.Cmd_TokenizeString				= Cmd_TokenizeString;
+	svi.Cmd_TokenizeStringIgnoreQuotes	= Cmd_TokenizeStringIgnoreQuotes;
+	svi.Com_BeginRedirect				= Com_BeginRedirect;
+	svi.Com_EndRedirect					= Com_EndRedirect;
+	svi.Com_Milliseconds				= Com_Milliseconds;
+	svi.Com_RealTime					= Com_RealTime;
+	svi.CopyString						= CopyString;
+	svi.Cvar_CheckRange					= Cvar_CheckRange;
+	svi.Cvar_Get						= Cvar_Get;
+	svi.Cvar_InfoString					= Cvar_InfoString;
+	svi.Cvar_InfoString_Big				= Cvar_InfoString_Big;
+	svi.Cvar_Register					= Cvar_Register;
+	svi.Cvar_Set						= Cvar_Set;
+	svi.Cvar_SetSafe					= Cvar_SetSafe;
+	svi.Cvar_Update						= Cvar_Update;
+	svi.Cvar_VariableIntegerValue		= Cvar_VariableIntegerValue;
+	svi.Cvar_VariableString				= Cvar_VariableString;
+	svi.Cvar_VariableStringBuffer		= Cvar_VariableStringBuffer;	
+	svi.Cvar_VariableValue				= Cvar_VariableValue;
+	svi.Field_CompleteFilename			= Field_CompleteFilename;
+	svi.FS_ClearPakReferences			= FS_ClearPakReferences;
+	svi.FS_FCloseFile					= FS_FCloseFile;
+	svi.FS_FileIsInPAK					= FS_FileIsInPAK;
+	svi.FS_FilenameCompare				= FS_FilenameCompare;
+	svi.FS_FOpenFileByMode				= FS_FOpenFileByMode;
+	svi.FS_FOpenFileRead				= FS_FOpenFileRead;
+	svi.FS_GetCurrentGameDir			= FS_GetCurrentGameDir;
+	svi.FS_GetFileList					= FS_GetFileList;
+	svi.FS_idPak						= FS_idPak;
+	svi.FS_LoadedPakChecksums			= FS_LoadedPakChecksums;
+	svi.FS_LoadedPakNames				= FS_LoadedPakNames;
+	svi.FS_LoadedPakPureChecksums		= FS_LoadedPakPureChecksums;
+	svi.FS_Read							= FS_Read;
+	svi.FS_Read2						= FS_Read2;
+	svi.FS_ReadFile						= FS_ReadFile;
+	svi.FS_ReferencedPakChecksums		= FS_ReferencedPakChecksums;
+	svi.FS_ReferencedPakNames			= FS_ReferencedPakNames;
+	svi.FS_Restart						= FS_Restart;
+	svi.FS_Seek							= FS_Seek;
+	svi.FS_SV_FOpenFileRead				= FS_SV_FOpenFileRead;
+	svi.FS_SV_FOpenFileWrite			= FS_SV_FOpenFileWrite;
+	svi.FS_Write						= FS_Write;
+	svi.Huff_Decompress					= Huff_Decompress;
+	svi.Hunk_AllocateTempMemory			= Hunk_AllocateTempMemory;
+#ifdef HUNK_DEBUG
+	svi.Hunk_AllocDebug					= Hunk_AllocDebug;
+#else
+	svi.Hunk_Alloc						= Hunk_Alloc;
+#endif
+	svi.Hunk_CheckMark					= Hunk_CheckMark;
+	svi.Hunk_Clear						= Hunk_Clear;
+	svi.Hunk_FreeTempMemory				= Hunk_FreeTempMemory;
+	svi.Hunk_SetMark					= Hunk_SetMark;
+	svi.Info_Print						= Info_Print;
+	svi.Info_SetValueForKey				= Info_SetValueForKey;
+	svi.Info_ValueForKey				= Info_ValueForKey;
+	svi.MSG_Init						= MSG_Init;
+	svi.MSG_BeginReadingOOB				= MSG_BeginReadingOOB;
+	svi.MSG_Bitstream					= MSG_Bitstream;
+	svi.MSG_Clear						= MSG_Clear;
+	svi.MSG_Copy						= MSG_Copy;
+	svi.MSG_HashKey						= MSG_HashKey;
+	svi.MSG_ReadByte					= MSG_ReadByte;
+	svi.MSG_ReadDeltaUsercmdKey			= MSG_ReadDeltaUsercmdKey;
+	svi.MSG_ReadLong					= MSG_ReadLong;
+	svi.MSG_ReadShort					= MSG_ReadShort;
+	svi.MSG_ReadString					= MSG_ReadString;
+	svi.MSG_ReadStringLine				= MSG_ReadStringLine;
+	svi.MSG_WriteBigString				= MSG_WriteBigString;
+	svi.MSG_WriteBits					= MSG_WriteBits;
+	svi.MSG_WriteByte					= MSG_WriteByte;
+	svi.MSG_WriteData					= MSG_WriteData;
+	svi.MSG_WriteDeltaEntity			= MSG_WriteDeltaEntity;
+	svi.MSG_WriteDeltaPlayerstate		= MSG_WriteDeltaPlayerstate;
+	svi.MSG_WriteLong					= MSG_WriteLong;
+	svi.MSG_WriteShort					= MSG_WriteShort;
+	svi.MSG_WriteString					= MSG_WriteString;
+	svi.Netchan_Process					= Netchan_Process;
+	svi.Netchan_Setup					= Netchan_Setup;
+	svi.NET_AdrToString					= NET_AdrToString;
+	svi.NET_AdrToStringwPort			= NET_AdrToStringwPort;
+	svi.NET_CompareAdr					= NET_CompareAdr;
+	svi.NET_CompareBaseAdr				= NET_CompareBaseAdr;
+	svi.NET_CompareBaseAdrMask			= NET_CompareBaseAdrMask;
+	svi.NET_Init						= NET_Init;
+	svi.NET_IsLocalAddress				= NET_IsLocalAddress;
+	svi.NET_JoinMulticast6				= NET_JoinMulticast6;
+	svi.NET_LeaveMulticast6				= NET_LeaveMulticast6;
+	svi.NET_OutOfBandPrint				= NET_OutOfBandPrint;
+	svi.NET_StringToAdr					= NET_StringToAdr;
+	svi.Netchan_Transmit				= Netchan_Transmit;
+	svi.Netchan_TransmitNextFragment	= Netchan_TransmitNextFragment;
+	svi.Q_SnapVector					= Q_SnapVector;
+	svi.Sys_IsLANAddress				= Sys_IsLANAddress;
+	svi.Sys_Milliseconds				= Sys_Milliseconds;
+	svi.Sys_LoadDll						= Sys_LoadDll;
+	svi.Sys_Sleep						= Sys_Sleep;
+	svi.VM_ArgPtr						= VM_ArgPtr;
+	svi.VM_Call							= VM_Call;
+	svi.VM_Create						= VM_Create;
+	svi.VM_ExplicitArgPtr				= VM_ExplicitArgPtr;
+	svi.VM_Free							= VM_Free;
+	svi.VM_Restart						= VM_Restart;
+	svi.Z_AvailableMemory				= Z_AvailableMemory;
+	svi.Z_Free							= Z_Free;
+#ifdef ZONE_DEBUG
+	svi.Z_MallocDebug					= Z_MallocDebug;
+	svi.Z_TagMallocDebug				= Z_TagMallocDebug;
+#else
+	svi.Z_Malloc						= Z_Malloc;
+	svi.Z_TagMalloc						= Z_TagMalloc;
+#endif
+
+	svi.time_game						= &time_game;
+	svi.cvar_modifiedFlags				= &cvar_modifiedFlags;
+	svi.com_errorEntered				= &com_errorEntered;
+	svi.com_frameTime					= &com_frameTime;
+
+
+	sve = *(serverExport_t *)GetServerAPI( SERVER_API_VERSION, &svi );
 }
 
 /*
@@ -3077,7 +3258,7 @@ void Com_Frame( void ) {
 	if(!com_timedemo->integer)
 	{
 		if(com_dedicated->integer)
-			minMsec = SV_FrameMsec();
+			minMsec = sve.FrameMsec();
 		else
 		{
 			if ( com_minimized->integer && com_frametimeMinimized->integer > 0 )
@@ -3107,7 +3288,7 @@ void Com_Frame( void ) {
 	{
 		if(com_sv_running->integer)
 		{
-			timeValSV = SV_SendQueuedPackets();
+			timeValSV = sve.SendQueuedPackets();
 			
 			timeVal = Com_TimeVal(minMsec);
 
@@ -3146,7 +3327,7 @@ void Com_Frame( void ) {
 		timeBeforeServer = Sys_Milliseconds ();
 	}
 
-	SV_Frame( msec );
+	sve.Frame( msec );
 
 	// if "dedicated" has been modified, start up
 	// or shut down the client system.
@@ -3157,7 +3338,7 @@ void Com_Frame( void ) {
 		Cvar_Get( "dedicated", "0", 0, NULL );
 		com_dedicated->modified = qfalse;
 		if ( !com_dedicated->integer ) {
-			SV_Shutdown( "dedicated set to 0" );
+			sve.Shutdown( "dedicated set to 0" );
 			CL_FlushMemory();
 		}
 	}

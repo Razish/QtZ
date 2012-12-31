@@ -20,7 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
+#include "sv_local.h"
 
 /*
 ===============================================================================
@@ -50,12 +52,12 @@ static client_t *SV_GetPlayerByHandle( void ) {
 		return NULL;
 	}
 
-	if ( Cmd_Argc() < 2 ) {
+	if ( svi.Cmd_Argc() < 2 ) {
 		Com_Printf( "No player specified.\n" );
 		return NULL;
 	}
 
-	s = Cmd_Argv(1);
+	s = svi.Cmd_Argv(1);
 
 	// Check whether this is a numeric player handle
 	for(i = 0; s[i] >= '0' && s[i] <= '9'; i++);
@@ -113,12 +115,12 @@ static client_t *SV_GetPlayerByNum( void ) {
 		return NULL;
 	}
 
-	if ( Cmd_Argc() < 2 ) {
+	if ( svi.Cmd_Argc() < 2 ) {
 		Com_Printf( "No player specified.\n" );
 		return NULL;
 	}
 
-	s = Cmd_Argv(1);
+	s = svi.Cmd_Argv(1);
 
 	for (i = 0; s[i]; i++) {
 		if (s[i] < '0' || s[i] > '9') {
@@ -157,7 +159,7 @@ static void SV_Map_f( void ) {
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
 
-	map = Cmd_Argv(1);
+	map = svi.Cmd_Argv(1);
 	if ( !map ) {
 		return;
 	}
@@ -165,15 +167,15 @@ static void SV_Map_f( void ) {
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
 	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
-	if ( FS_ReadFile (expanded, NULL) == -1 ) {
+	if ( svi.FS_ReadFile (expanded, NULL) == -1 ) {
 		Com_Printf ("Can't find map %s\n", expanded);
 		return;
 	}
 
 	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL );
+	svi.Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL );
 
-	cmd = Cmd_Argv(0);
+	cmd = svi.Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) ) {
 		cheat = qtrue;
 		killBots = qtrue;
@@ -194,9 +196,9 @@ static void SV_Map_f( void ) {
 	// cheats will not be allowed.  If started with "devmap <levelname>"
 	// then cheats will be allowed
 	if ( cheat ) {
-		Cvar_Set( "sv_cheats", "1" );
+		svi.Cvar_Set( "sv_cheats", "1" );
 	} else {
-		Cvar_Set( "sv_cheats", "0" );
+		svi.Cvar_Set( "sv_cheats", "0" );
 	}
 }
 
@@ -216,7 +218,7 @@ static void SV_MapRestart_f( void ) {
 	int			delay;
 
 	// make sure we aren't restarting twice in the same frame
-	if ( com_frameTime == sv.serverId ) {
+	if ( (*svi.com_frameTime) == sv.serverId ) {
 		return;
 	}
 
@@ -230,13 +232,13 @@ static void SV_MapRestart_f( void ) {
 		return;
 	}
 
-	if (Cmd_Argc() > 1 ) {
-		delay = atoi( Cmd_Argv(1) );
+	if (svi.Cmd_Argc() > 1 ) {
+		delay = atoi( svi.Cmd_Argv(1) );
 	}
 	else {
 		delay = 5;
 	}
-	if( delay && !Cvar_VariableValue("g_doWarmup") ) {
+	if( delay && !svi.Cvar_VariableValue("g_doWarmup") ) {
 		sv.restartTime = sv.time + delay * 1000;
 		SV_SetConfigstring( CS_WARMUP, va("%i", sv.restartTime) );
 		return;
@@ -249,7 +251,7 @@ static void SV_MapRestart_f( void ) {
 
 		Com_Printf( "variable change -- restarting.\n" );
 		// restart the map the slow way
-		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
+		Q_strncpyz( mapname, svi.Cvar_VariableString( "mapname" ), sizeof( mapname ) );
 
 		SV_SpawnServer( mapname, qfalse );
 		return;
@@ -261,8 +263,8 @@ static void SV_MapRestart_f( void ) {
 
 	// generate a new serverid	
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
-	sv.serverId = com_frameTime;
-	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	sv.serverId = (*svi.com_frameTime);
+	svi.Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 
 	// if a map_restart occurs while a client is changing maps, we need
 	// to give them the correct time so that when they finish loading
@@ -284,7 +286,7 @@ static void SV_MapRestart_f( void ) {
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
 	{
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		svi.VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 		sv.time += 100;
 		svs.time += 100;
 	}
@@ -311,7 +313,7 @@ static void SV_MapRestart_f( void ) {
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
-		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
+		denied = svi.VM_ExplicitArgPtr( gvm, svi.VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -332,7 +334,7 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	svi.VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	sv.time += 100;
 	svs.time += 100;
 }
@@ -356,14 +358,14 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
+	if ( svi.Cmd_Argc() != 2 ) {
 		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
 	}
 
 	cl = SV_GetPlayerByHandle();
 	if ( !cl ) {
-		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
+		if ( !Q_stricmp(svi.Cmd_Argv(1), "all") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
 				if ( !cl->state ) {
 					continue;
@@ -375,7 +377,7 @@ static void SV_Kick_f( void ) {
 				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			}
 		}
-		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
+		else if ( !Q_stricmp(svi.Cmd_Argv(1), "allbots") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
 				if ( !cl->state ) {
 					continue;
@@ -475,8 +477,8 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: %s <client number>\n", Cmd_Argv(0));
+	if ( svi.Cmd_Argc() != 2 ) {
+		Com_Printf ("Usage: %s <client number>\n", svi.Cmd_Argv(0));
 		return;
 	}
 
@@ -513,7 +515,7 @@ static void SV_Ban_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
+	if ( svi.Cmd_Argc() != 2 ) {
 		Com_Printf ("Usage: banUser <player name>\n");
 		return;
 	}
@@ -532,7 +534,7 @@ static void SV_Ban_f( void ) {
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
+		if ( !svi.NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
@@ -545,7 +547,7 @@ static void SV_Ban_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+		svi.NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
@@ -569,7 +571,7 @@ static void SV_BanNum_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
+	if ( svi.Cmd_Argc() != 2 ) {
 		Com_Printf ("Usage: banClient <client number>\n");
 		return;
 	}
@@ -586,7 +588,7 @@ static void SV_BanNum_f( void ) {
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
+		if ( !svi.NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
@@ -599,7 +601,7 @@ static void SV_BanNum_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+		svi.NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
@@ -631,21 +633,21 @@ static void SV_RehashBans_f(void)
 	if(!sv_banFile->string || !*sv_banFile->string)
 		return;
 
-	Com_sprintf(filepath, sizeof(filepath), "%s/%s", FS_GetCurrentGameDir(), sv_banFile->string);
+	Com_sprintf(filepath, sizeof(filepath), "%s/%s", svi.FS_GetCurrentGameDir(), sv_banFile->string);
 
-	if((filelen = FS_SV_FOpenFileRead(filepath, &readfrom)) >= 0)
+	if((filelen = svi.FS_SV_FOpenFileRead(filepath, &readfrom)) >= 0)
 	{
 		if(filelen < 2)
 		{
 			// Don't bother if file is too short.
-			FS_FCloseFile(readfrom);
+			svi.FS_FCloseFile(readfrom);
 			return;
 		}
 
-		curpos = textbuf = Z_Malloc(filelen);
+		curpos = textbuf = svi.Z_Malloc(filelen);
 		
-		filelen = FS_Read(textbuf, filelen, readfrom);
-		FS_FCloseFile(readfrom);
+		filelen = svi.FS_Read(textbuf, filelen, readfrom);
+		svi.FS_FCloseFile(readfrom);
 		
 		endpos = textbuf + filelen;
 		
@@ -668,7 +670,7 @@ static void SV_RehashBans_f(void)
 			
 			*newlinepos = '\0';
 			
-			if(NET_StringToAdr(curpos + 2, &serverBans[index].ip, NA_UNSPEC))
+			if(svi.NET_StringToAdr(curpos + 2, &serverBans[index].ip, NA_UNSPEC))
 			{
 				serverBans[index].isexception = (curpos[0] != '0');
 				serverBans[index].subnet = atoi(maskpos);
@@ -690,7 +692,7 @@ static void SV_RehashBans_f(void)
 			
 		serverBansCount = index;
 		
-		Z_Free(textbuf);
+		svi.Z_Free(textbuf);
 	}
 }
 
@@ -710,9 +712,9 @@ static void SV_WriteBans(void)
 	if(!sv_banFile->string || !*sv_banFile->string)
 		return;
 	
-	Com_sprintf(filepath, sizeof(filepath), "%s/%s", FS_GetCurrentGameDir(), sv_banFile->string);
+	Com_sprintf(filepath, sizeof(filepath), "%s/%s", svi.FS_GetCurrentGameDir(), sv_banFile->string);
 
-	if((writeto = FS_SV_FOpenFileWrite(filepath)))
+	if((writeto = svi.FS_SV_FOpenFileWrite(filepath)))
 	{
 		char writebuf[128];
 		serverBan_t *curban;
@@ -722,11 +724,11 @@ static void SV_WriteBans(void)
 			curban = &serverBans[index];
 			
 			Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n",
-				    curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
-			FS_Write(writebuf, strlen(writebuf), writeto);
+				    curban->isexception, svi.NET_AdrToString(curban->ip), curban->subnet);
+			svi.FS_Write(writebuf, strlen(writebuf), writeto);
 		}
 
-		FS_FCloseFile(writeto);
+		svi.FS_FCloseFile(writeto);
 	}
 }
 
@@ -772,7 +774,7 @@ static qboolean SV_ParseCIDRNotation(netadr_t *dest, int *mask, char *adrstr)
 		suffix++;
 	}
 
-	if(!NET_StringToAdr(adrstr, dest, NA_UNSPEC))
+	if(!svi.NET_StringToAdr(adrstr, dest, NA_UNSPEC))
 		return qtrue;
 
 	if(suffix)
@@ -820,11 +822,11 @@ static void SV_AddBanToList(qboolean isexception)
 		return;
 	}
 
-	argc = Cmd_Argc();
+	argc = svi.Cmd_Argc();
 	
 	if(argc < 2 || argc > 3)
 	{
-		Com_Printf ("Usage: %s (ip[/subnet] | clientnum [subnet])\n", Cmd_Argv(0));
+		Com_Printf ("Usage: %s (ip[/subnet] | clientnum [subnet])\n", svi.Cmd_Argv(0));
 		return;
 	}
 
@@ -834,7 +836,7 @@ static void SV_AddBanToList(qboolean isexception)
 		return;
 	}
 
-	banstring = Cmd_Argv(1);
+	banstring = svi.Cmd_Argv(1);
 	
 	if(strchr(banstring, '.') || strchr(banstring, ':'))
 	{
@@ -856,7 +858,7 @@ static void SV_AddBanToList(qboolean isexception)
 
 		if(!cl)
 		{
-			Com_Printf("Error: Playernum %s does not exist.\n", Cmd_Argv(1));
+			Com_Printf("Error: Playernum %s does not exist.\n", svi.Cmd_Argv(1));
 			return;
 		}
 		
@@ -864,7 +866,7 @@ static void SV_AddBanToList(qboolean isexception)
 		
 		if(argc == 3)
 		{
-			mask = atoi(Cmd_Argv(2));
+			mask = atoi(svi.Cmd_Argv(2));
 			
 			if(ip.type == NA_IP)
 			{
@@ -894,24 +896,24 @@ static void SV_AddBanToList(qboolean isexception)
 		
 		if(curban->subnet <= mask)
 		{
-			if((curban->isexception || !isexception) && NET_CompareBaseAdrMask(curban->ip, ip, curban->subnet))
+			if((curban->isexception || !isexception) && svi.NET_CompareBaseAdrMask(curban->ip, ip, curban->subnet))
 			{
-				Q_strncpyz(addy2, NET_AdrToString(ip), sizeof(addy2));
+				Q_strncpyz(addy2, svi.NET_AdrToString(ip), sizeof(addy2));
 				
 				Com_Printf("Error: %s %s/%d supersedes %s %s/%d\n", curban->isexception ? "Exception" : "Ban",
-					   NET_AdrToString(curban->ip), curban->subnet,
+					   svi.NET_AdrToString(curban->ip), curban->subnet,
 					   isexception ? "exception" : "ban", addy2, mask);
 				return;
 			}
 		}
 		if(curban->subnet >= mask)
 		{
-			if(!curban->isexception && isexception && NET_CompareBaseAdrMask(curban->ip, ip, mask))
+			if(!curban->isexception && isexception && svi.NET_CompareBaseAdrMask(curban->ip, ip, mask))
 			{
-				Q_strncpyz(addy2, NET_AdrToString(curban->ip), sizeof(addy2));
+				Q_strncpyz(addy2, svi.NET_AdrToString(curban->ip), sizeof(addy2));
 			
 				Com_Printf("Error: %s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban",
-					   NET_AdrToString(ip), mask,
+					   svi.NET_AdrToString(ip), mask,
 					   curban->isexception ? "exception" : "ban", addy2, curban->subnet);
 				return;
 			}
@@ -924,7 +926,7 @@ static void SV_AddBanToList(qboolean isexception)
 	{
 		curban = &serverBans[index];
 		
-		if(curban->subnet > mask && (!curban->isexception || isexception) && NET_CompareBaseAdrMask(curban->ip, ip, mask))
+		if(curban->subnet > mask && (!curban->isexception || isexception) && svi.NET_CompareBaseAdrMask(curban->ip, ip, mask))
 			SV_DelBanEntryFromList(index);
 		else
 			index++;
@@ -939,7 +941,7 @@ static void SV_AddBanToList(qboolean isexception)
 	SV_WriteBans();
 
 	Com_Printf("Added %s: %s/%d\n", isexception ? "ban exception" : "ban",
-		   NET_AdrToString(ip), mask);
+		   svi.NET_AdrToString(ip), mask);
 }
 
 /*
@@ -962,13 +964,13 @@ static void SV_DelBanFromList(qboolean isexception)
 		return;
 	}
 	
-	if(Cmd_Argc() != 2)
+	if(svi.Cmd_Argc() != 2)
 	{
-		Com_Printf ("Usage: %s (ip[/subnet] | num)\n", Cmd_Argv(0));
+		Com_Printf ("Usage: %s (ip[/subnet] | num)\n", svi.Cmd_Argv(0));
 		return;
 	}
 
-	banstring = Cmd_Argv(1);
+	banstring = svi.Cmd_Argv(1);
 	
 	if(strchr(banstring, '.') || strchr(banstring, ':'))
 	{
@@ -988,11 +990,11 @@ static void SV_DelBanFromList(qboolean isexception)
 			
 			if(curban->isexception == isexception		&&
 			   curban->subnet >= mask 			&&
-			   NET_CompareBaseAdrMask(curban->ip, ip, mask))
+			   svi.NET_CompareBaseAdrMask(curban->ip, ip, mask))
 			{
 				Com_Printf("Deleting %s %s/%d\n",
 					   isexception ? "exception" : "ban",
-					   NET_AdrToString(curban->ip), curban->subnet);
+					   svi.NET_AdrToString(curban->ip), curban->subnet);
 					   
 				SV_DelBanEntryFromList(index);
 			}
@@ -1002,7 +1004,7 @@ static void SV_DelBanFromList(qboolean isexception)
 	}
 	else
 	{
-		todel = atoi(Cmd_Argv(1));
+		todel = atoi(svi.Cmd_Argv(1));
 
 		if(todel < 1 || todel > serverBansCount)
 		{
@@ -1020,7 +1022,7 @@ static void SV_DelBanFromList(qboolean isexception)
 				{
 					Com_Printf("Deleting %s %s/%d\n",
 					   isexception ? "exception" : "ban",
-					   NET_AdrToString(serverBans[index].ip), serverBans[index].subnet);
+					   svi.NET_AdrToString(serverBans[index].ip), serverBans[index].subnet);
 
 					SV_DelBanEntryFromList(index);
 
@@ -1062,7 +1064,7 @@ static void SV_ListBans_f(void)
 			count++;
 
 			Com_Printf("Ban #%d: %s/%d\n", count,
-				    NET_AdrToString(ban->ip), ban->subnet);
+				    svi.NET_AdrToString(ban->ip), ban->subnet);
 		}
 	}
 	// List all exceptions
@@ -1074,7 +1076,7 @@ static void SV_ListBans_f(void)
 			count++;
 
 			Com_Printf("Except #%d: %s/%d\n", count,
-				    NET_AdrToString(ban->ip), ban->subnet);
+				    svi.NET_AdrToString(ban->ip), ban->subnet);
 		}
 	}
 }
@@ -1177,9 +1179,9 @@ static void SV_Status_f( void ) {
 			j++;
 		} while(j < l);
 
-		Com_Printf ("%7i ", svs.time - cl->lastPacketTime );
+		Com_Printf( "%7i ", svs.time - cl->lastPacketTime );
 
-		s = NET_AdrToString( cl->netchan.remoteAddress );
+		s = svi.NET_AdrToString( cl->netchan.remoteAddress );
 		Com_Printf ("%s", s);
 		l = 22 - strlen(s);
 		j = 0;
@@ -1214,12 +1216,12 @@ static void SV_ConSay_f(void) {
 		return;
 	}
 
-	if ( Cmd_Argc () < 2 ) {
+	if ( svi.Cmd_Argc () < 2 ) {
 		return;
 	}
 
 	strcpy (text, "console: ");
-	p = Cmd_Args();
+	p = svi.Cmd_Args();
 
 	if ( *p == '"' ) {
 		p++;
@@ -1247,7 +1249,7 @@ static void SV_ConTell_f(void) {
 		return;
 	}
 
-	if ( Cmd_Argc() < 3 ) {
+	if ( svi.Cmd_Argc() < 3 ) {
 		Com_Printf ("Usage: tell <client number> <text>\n");
 		return;
 	}
@@ -1258,7 +1260,7 @@ static void SV_ConTell_f(void) {
 	}
 
 	strcpy (text, "console_tell: ");
-	p = Cmd_ArgsFrom(2);
+	p = svi.Cmd_ArgsFrom(2);
 
 	if ( *p == '"' ) {
 		p++;
@@ -1298,7 +1300,7 @@ static void SV_Serverinfo_f( void ) {
 	}
 
 	Com_Printf ("Server info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SERVERINFO ) );
+	svi.Info_Print ( svi.Cvar_InfoString( CVAR_SERVERINFO ) );
 }
 
 
@@ -1317,7 +1319,7 @@ static void SV_Systeminfo_f( void ) {
 	}
 
 	Com_Printf ("System info settings:\n");
-	Info_Print ( Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
+	svi.Info_Print ( svi.Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
 }
 
 
@@ -1337,7 +1339,7 @@ static void SV_DumpUser_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
+	if ( svi.Cmd_Argc() != 2 ) {
 		Com_Printf ("Usage: dumpuser <userid>\n");
 		return;
 	}
@@ -1349,7 +1351,7 @@ static void SV_DumpUser_f( void ) {
 
 	Com_Printf( "userinfo\n" );
 	Com_Printf( "--------\n" );
-	Info_Print( cl->userinfo );
+	svi.Info_Print( cl->userinfo );
 }
 
 
@@ -1371,7 +1373,7 @@ SV_CompleteMapName
 */
 static void SV_CompleteMapName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
+		svi.Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
 	}
 }
 
@@ -1388,47 +1390,47 @@ void SV_AddOperatorCommands( void ) {
 	}
 	initialized = qtrue;
 
-	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
-	Cmd_AddCommand ("kick", SV_Kick_f);
+	svi.Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
+	svi.Cmd_AddCommand ("kick", SV_Kick_f);
 #ifndef STANDALONE
 	if(!com_standalone->integer)
 	{
-		Cmd_AddCommand ("banUser", SV_Ban_f);
-		Cmd_AddCommand ("banClient", SV_BanNum_f);
+		svi.Cmd_AddCommand ("banUser", SV_Ban_f);
+		svi.Cmd_AddCommand ("banClient", SV_BanNum_f);
 	}
 #endif
-	Cmd_AddCommand ("kickbots", SV_KickBots_f);
-	Cmd_AddCommand ("kickall", SV_KickAll_f);
-	Cmd_AddCommand ("kicknum", SV_KickNum_f);
-	Cmd_AddCommand ("clientkick", SV_KickNum_f); // Legacy command
-	Cmd_AddCommand ("status", SV_Status_f);
-	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
-	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
-	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
-	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
-	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
-	Cmd_AddCommand ("map", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
-	Cmd_AddCommand ("devmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
-	Cmd_AddCommand ("spmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
-	Cmd_AddCommand ("spdevmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
+	svi.Cmd_AddCommand ("kickbots", SV_KickBots_f);
+	svi.Cmd_AddCommand ("kickall", SV_KickAll_f);
+	svi.Cmd_AddCommand ("kicknum", SV_KickNum_f);
+	svi.Cmd_AddCommand ("clientkick", SV_KickNum_f); // Legacy command
+	svi.Cmd_AddCommand ("status", SV_Status_f);
+	svi.Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
+	svi.Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
+	svi.Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
+	svi.Cmd_AddCommand ("map_restart", SV_MapRestart_f);
+	svi.Cmd_AddCommand ("sectorlist", SV_SectorList_f);
+	svi.Cmd_AddCommand ("map", SV_Map_f);
+	svi.Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
+	svi.Cmd_AddCommand ("devmap", SV_Map_f);
+	svi.Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
+	svi.Cmd_AddCommand ("spmap", SV_Map_f);
+	svi.Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
+	svi.Cmd_AddCommand ("spdevmap", SV_Map_f);
+	svi.Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
 
-	Cmd_AddCommand ("killserver", SV_KillServer_f);
+	svi.Cmd_AddCommand ("killserver", SV_KillServer_f);
 	if( com_dedicated->integer ) {
-		Cmd_AddCommand ("say", SV_ConSay_f);
-		Cmd_AddCommand ("tell", SV_ConTell_f);
+		svi.Cmd_AddCommand ("say", SV_ConSay_f);
+		svi.Cmd_AddCommand ("tell", SV_ConTell_f);
 	}
 	
-	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
-	Cmd_AddCommand("listbans", SV_ListBans_f);
-	Cmd_AddCommand("banaddr", SV_BanAddr_f);
-	Cmd_AddCommand("exceptaddr", SV_ExceptAddr_f);
-	Cmd_AddCommand("bandel", SV_BanDel_f);
-	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
-	Cmd_AddCommand("flushbans", SV_FlushBans_f);
+	svi.Cmd_AddCommand("rehashbans", SV_RehashBans_f);
+	svi.Cmd_AddCommand("listbans", SV_ListBans_f);
+	svi.Cmd_AddCommand("banaddr", SV_BanAddr_f);
+	svi.Cmd_AddCommand("exceptaddr", SV_ExceptAddr_f);
+	svi.Cmd_AddCommand("bandel", SV_BanDel_f);
+	svi.Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
+	svi.Cmd_AddCommand("flushbans", SV_FlushBans_f);
 }
 
 /*
@@ -1439,21 +1441,21 @@ SV_RemoveOperatorCommands
 void SV_RemoveOperatorCommands( void ) {
 #if 0
 	// removing these won't let the server start again
-	Cmd_RemoveCommand ("heartbeat");
-	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("kicknum");
-	Cmd_RemoveCommand ("clientkick");
-	Cmd_RemoveCommand ("kickall");
-	Cmd_RemoveCommand ("kickbots");
-	Cmd_RemoveCommand ("banUser");
-	Cmd_RemoveCommand ("banClient");
-	Cmd_RemoveCommand ("status");
-	Cmd_RemoveCommand ("serverinfo");
-	Cmd_RemoveCommand ("systeminfo");
-	Cmd_RemoveCommand ("dumpuser");
-	Cmd_RemoveCommand ("map_restart");
-	Cmd_RemoveCommand ("sectorlist");
-	Cmd_RemoveCommand ("say");
+	svi.Cmd_RemoveCommand ("heartbeat");
+	svi.Cmd_RemoveCommand ("kick");
+	svi.Cmd_RemoveCommand ("kicknum");
+	svi.Cmd_RemoveCommand ("clientkick");
+	svi.Cmd_RemoveCommand ("kickall");
+	svi.Cmd_RemoveCommand ("kickbots");
+	svi.Cmd_RemoveCommand ("banUser");
+	svi.Cmd_RemoveCommand ("banClient");
+	svi.Cmd_RemoveCommand ("status");
+	svi.Cmd_RemoveCommand ("serverinfo");
+	svi.Cmd_RemoveCommand ("systeminfo");
+	svi.Cmd_RemoveCommand ("dumpuser");
+	svi.Cmd_RemoveCommand ("map_restart");
+	svi.Cmd_RemoveCommand ("sectorlist");
+	svi.Cmd_RemoveCommand ("say");
 #endif
 }
 

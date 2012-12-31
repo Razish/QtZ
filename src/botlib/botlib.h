@@ -171,6 +171,8 @@ typedef struct botlib_import_s
 {
 	//print messages from the bot library
 	void		(QDECL *Print)(int type, char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+	void		(QDECL *Error)(int code, const char *fmt, ...);
+
 	//trace a bbox through the world
 	void		(*Trace)(bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask);
 	//trace a bbox against a specific entity
@@ -431,7 +433,7 @@ typedef struct botlib_export_s
 } botlib_export_t;
 
 //linking of bot library
-botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
+typedef botlib_export_t* (QDECL *GetBotLibAPI_t)( int apiVersion, botlib_import_t *import );
 
 /* Library variables:
 

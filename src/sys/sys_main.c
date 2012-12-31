@@ -564,7 +564,7 @@ void Sys_SigHandler( int signal )
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
 #endif
-		SV_Shutdown(va("Received signal %d", signal) );
+		sve.Shutdown(va("Received signal %d", signal) );
 		VM_Forced_Unload_Done();
 	}
 
@@ -654,4 +654,3 @@ int main( int argc, char **argv )
 
 	return 0;
 }
-

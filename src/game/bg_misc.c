@@ -78,8 +78,8 @@ gitem_t	bg_itemlist[] =
 	{	"holdable_medkit",			"sound/holdable_pickup.wav",	{ "models/holdable/medkit.md3",			"models/holdable/medkit_sphere.md3" },	"icons/holdable_medkit",		"Medkit",				60,			IT_HOLDABLE,			HI_MEDKIT,				"",			"sound/items/use_medkit.wav" },
 
 	// powerup items
-	{	"item_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
-	{	"item_regen",				"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
+	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
+	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
 
 	// persistent powerup items
 	{	"item_guard",				"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },

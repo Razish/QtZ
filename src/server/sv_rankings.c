@@ -21,7 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // sv_rankings.c -- global rankings interface
 
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
+#include "sv_local.h"
+
+#ifdef RANKINGS
 #include "..\rankings\1.0\gr\grapi.h"
 #include "..\rankings\1.0\gr\grlog.h"
 
@@ -85,12 +89,12 @@ void SV_RankBegin( char *gamekey )
 	assert( !s_rankings_active );
 	assert( s_ranked_players == NULL );
 
-	if( sv_enableRankings->integer == 0 || Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER )
+	if( sv_enableRankings->integer == 0 )
 	{
 		s_rankings_active = qfalse;
 		if( sv_rankingsActive->integer == 1 )
 		{
-			Cvar_Set( "sv_rankingsActive", "0" );
+			svi.Cvar_Set( "sv_rankingsActive", "0" );
 		}
 		return;
 	}
@@ -99,17 +103,17 @@ void SV_RankBegin( char *gamekey )
 	if( strcmp(gamekey, GR_GAMEKEY) == 0 )
 	{
 /*
-		if( Cvar_VariableValue("sv_pure") != 1 )
+		if( svi.Cvar_VariableValue("sv_pure") != 1 )
 		{
-			Cvar_Set( "sv_enableRankings", "0" );
+			svi.Cvar_Set( "sv_enableRankings", "0" );
 			return;
 		}
 */
 
 		// substitute game-specific game key
-		switch( (int)Cvar_VariableValue("g_gametype") )
+		switch( (int)svi.Cvar_VariableValue("g_gametype") )
 		{
-		case GT_FFA:
+		case GT_DEATHMATCH:
 			gamekey = "Q3 Free For All";
 			break;
 		case GT_TOURNAMENT:
@@ -123,12 +127,6 @@ void SV_RankBegin( char *gamekey )
 			break;
 		case GT_1FCTF:
 			gamekey = "Q3 One Flag CTF";
-			break;
-		case GT_OBELISK:
-			gamekey = "Q3 Overload";
-			break;
-		case GT_HARVESTER:
-			gamekey = "Q3 Harvester";
 			break;
 		default:
 			break;
@@ -148,7 +146,7 @@ void SV_RankBegin( char *gamekey )
 	Com_DPrintf( "SV_RankBegin(); s_server_context=%d\n",init.context );
 
 	// new game
-	if(!strlen(Cvar_VariableString( "sv_leagueName" )))
+	if(!strlen(svi.Cvar_VariableString( "sv_leagueName" )))
 	{
 		status = GRankNewGameAsync
 			( 			
@@ -156,7 +154,7 @@ void SV_RankBegin( char *gamekey )
 				SV_RankNewGameCBF, 
 				NULL, 
 				GR_OPT_LEAGUENAME,
-				(void*)(Cvar_VariableString( "sv_leagueName" )),
+				(void*)(svi.Cvar_VariableString( "sv_leagueName" )),
 				GR_OPT_END 
 			);
 	}
@@ -185,7 +183,7 @@ void SV_RankBegin( char *gamekey )
 	}
 	
 	// allocate rankings info for each player
-	s_ranked_players = Z_Malloc( sv_maxclients->value * 
+	s_ranked_players = svi.Z_Malloc( sv_maxclients->value * 
 		sizeof(ranked_player_t) );
 	memset( (void*)s_ranked_players, 0 ,sv_maxclients->value 
 		* sizeof(ranked_player_t));
@@ -252,7 +250,7 @@ void SV_RankEnd( void )
 	}
 
 	s_rankings_active = qfalse;
-	Cvar_Set( "sv_rankingsActive", "0" );
+	svi.Cvar_Set( "sv_rankingsActive", "0" );
 }
 
 /*
@@ -999,7 +997,7 @@ static void SV_RankNewGameCBF( GR_NEWGAME* gr_newgame, void* cbf_arg )
 
 		// ready to go
 		s_rankings_active = qtrue;
-		Cvar_Set( "sv_rankingsActive", "1" );
+		svi.Cvar_Set( "sv_rankingsActive", "1" );
 
 	}
 	else if( gr_newgame->status == GR_STATUS_BADLEAGUE )
@@ -1295,12 +1293,12 @@ static void SV_RankCloseContext( ranked_player_t* ranked_player )
 		
 		if( s_ranked_players != NULL )
 		{
-			Z_Free( s_ranked_players );
+			svi.Z_Free( s_ranked_players );
 			s_ranked_players = NULL;
 		}
 
 		s_rankings_active = qfalse;
-		Cvar_Set( "sv_rankingsActive", "0" );
+		svi.Cvar_Set( "sv_rankingsActive", "0" );
 	}
 }
 
@@ -1531,7 +1529,8 @@ static void SV_RankError( const char* fmt, ... )
 	Com_DPrintf( "****************************************\n" );
 
 	s_rankings_active = qfalse;
-	Cvar_Set( "sv_rankingsActive", "0" );
+	svi.Cvar_Set( "sv_rankingsActive", "0" );
 	// FIXME - attempt clean shutdown?
 }
 
+#endif

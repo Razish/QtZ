@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "libmumblelink.h"
 #endif
 
-extern	botlib_export_t	*botlib_export;
+extern botlib_export_t *botlib_export;
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);

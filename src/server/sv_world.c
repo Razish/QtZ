@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // world.c -- world query functions
 
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
+#include "sv_local.h"
 
 /*
 ================
@@ -35,15 +37,15 @@ be returned, otherwise a custom box tree will be constructed.
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
-		return CM_InlineModel( ent->s.modelindex );
+		return svi.CM_InlineModel( ent->s.modelindex );
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
-		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qtrue );
+		return svi.CM_TempBoxModel( ent->r.mins, ent->r.maxs, qtrue );
 	}
 
 	// create a temp tree from bounding box sizes
-	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qfalse );
+	return svi.CM_TempBoxModel( ent->r.mins, ent->r.maxs, qfalse );
 }
 
 
@@ -152,8 +154,8 @@ void SV_ClearWorld( void ) {
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	h = CM_InlineModel( 0 );
-	CM_ModelBounds( h, mins, maxs );
+	h = svi.CM_InlineModel( 0 );
+	svi.CM_ModelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
 }
 
@@ -286,7 +288,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	ent->areanum2 = -1;
 
 	//get all leafs, including solids
-	num_leafs = CM_BoxLeafnums( gEnt->r.absmin, gEnt->r.absmax,
+	num_leafs = svi.CM_BoxLeafnums( gEnt->r.absmin, gEnt->r.absmax,
 		leafs, MAX_TOTAL_ENT_LEAFS, &lastLeaf );
 
 	// if none of the leafs were inside the map, the
@@ -297,7 +299,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 
 	// set areas, even from clusters that don't fit in the entity array
 	for (i=0 ; i<num_leafs ; i++) {
-		area = CM_LeafArea (leafs[i]);
+		area = svi.CM_LeafArea (leafs[i]);
 		if (area != -1) {
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
@@ -317,7 +319,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// store as many explicit clusters as we can
 	ent->numClusters = 0;
 	for (i=0 ; i < num_leafs ; i++) {
-		cluster = CM_LeafCluster( leafs[i] );
+		cluster = svi.CM_LeafCluster( leafs[i] );
 		if ( cluster != -1 ) {
 			ent->clusternums[ent->numClusters++] = cluster;
 			if ( ent->numClusters == MAX_ENT_CLUSTERS ) {
@@ -328,7 +330,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 
 	// store off a last cluster if we need to
 	if ( i != num_leafs ) {
-		ent->lastCluster = CM_LeafCluster( lastLeaf );
+		ent->lastCluster = svi.CM_LeafCluster( lastLeaf );
 	}
 
 	gEnt->r.linkcount++;
@@ -488,7 +490,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 		angles = vec3_origin;	// boxes don't rotate
 	}
 
-	CM_TransformedBoxTrace ( trace, (float *)start, (float *)end,
+	svi.CM_TransformedBoxTrace ( trace, (float *)start, (float *)end,
 		(float *)mins, (float *)maxs, clipHandle,  contentmask,
 		origin, angles, capsule);
 
@@ -558,7 +560,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			angles = vec3_origin;	// boxes don't rotate
 		}
 
-		CM_TransformedBoxTrace ( &trace, (float *)clip->start, (float *)clip->end,
+		svi.CM_TransformedBoxTrace ( &trace, (float *)clip->start, (float *)clip->end,
 			(float *)clip->mins, (float *)clip->maxs, clipHandle,  clip->contentmask,
 			origin, angles, clip->capsule);
 
@@ -606,7 +608,7 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 	Com_Memset ( &clip, 0, sizeof ( moveclip_t ) );
 
 	// clip to world
-	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, capsule );
+	svi.CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, capsule );
 	clip.trace.entityNum = clip.trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	if ( clip.trace.fraction == 0 ) {
 		*results = clip.trace;
@@ -658,7 +660,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	float		*angles;
 
 	// get base contents from world
-	contents = CM_PointContents( p, 0 );
+	contents = svi.CM_PointContents( p, 0 );
 
 	// or in contents from all the other entities
 	num = SV_AreaEntities( p, p, touch, MAX_GENTITIES );
@@ -675,7 +677,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 			angles = vec3_origin;	// boxes don't rotate
 		}
 
-		c2 = CM_TransformedPointContents (p, clipHandle, hit->r.currentOrigin, angles);
+		c2 = svi.CM_TransformedPointContents (p, clipHandle, hit->r.currentOrigin, angles);
 
 		contents |= c2;
 	}

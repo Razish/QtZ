@@ -439,8 +439,7 @@ void	Cmd_RemoveCommandSafe( const char *cmd_name );
 
 void	Cmd_CommandCompletion( void(*callback)(const char *s) );
 // callback with each valid string
-void Cmd_SetCommandCompletionFunc( const char *command,
-	completionFunc_t complete );
+void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete );
 void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 
@@ -754,8 +753,7 @@ typedef struct {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir,
-		const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
+void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
 void Field_CompleteCommand( char *cmd,
 		qboolean doCommands, qboolean doCvars );
 
@@ -1023,15 +1021,11 @@ void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 #define AVI_LINE_PADDING 4
 
 //
-// server interface
+// Server interface
 //
-void SV_Init( void );
-void SV_Shutdown( char *finalmsg );
-void SV_Frame( int msec );
-void SV_PacketEvent( netadr_t from, msg_t *msg );
-int SV_FrameMsec(void);
-qboolean SV_GameCommand( void );
-int SV_SendQueuedPackets(void);
+
+#include "../server/sv_public.h"
+
 
 //
 // UI interface

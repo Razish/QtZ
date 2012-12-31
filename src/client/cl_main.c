@@ -1692,12 +1692,12 @@ void CL_Connect_f( void ) {
 
 	if ( com_sv_running->integer && !strcmp( server, "localhost" ) ) {
 		// if running a local server, kill it
-		SV_Shutdown( "Server quit" );
+		sve.Shutdown( "Server quit" );
 	}
 
 	// make sure a local server is killed
 	Cvar_Set( "sv_killserver", "1" );
-	SV_Frame( 0 );
+	sve.Frame( 0 );
 
 	noGameRestart = qtrue;
 	CL_Disconnect( qtrue );
@@ -3293,6 +3293,84 @@ static void CL_GenerateQKey(void)
 	}
 } 
 
+#include "../botlib/botlib.h"
+#include "../sys/sys_local.h"
+#include "../sys/sys_loadlib.h"
+
+void *botlibLib;
+botlib_export_t *botlib_export;
+
+/*
+==================
+BotImport_Print
+==================
+*/
+static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...)
+{
+	char str[2048];
+	va_list ap;
+
+	va_start(ap, fmt);
+	Q_vsnprintf(str, sizeof(str), fmt, ap);
+	va_end(ap);
+
+	switch(type) {
+		case PRT_MESSAGE: {
+			Com_Printf("%s", str);
+			break;
+		}
+		case PRT_WARNING: {
+			Com_Printf(S_COLOR_YELLOW "Warning: %s", str);
+			break;
+		}
+		case PRT_ERROR: {
+			Com_Printf(S_COLOR_RED "Error: %s", str);
+			break;
+		}
+		case PRT_FATAL: {
+			Com_Printf(S_COLOR_RED "Fatal: %s", str);
+			break;
+		}
+		case PRT_EXIT: {
+			Com_Error(ERR_DROP, S_COLOR_RED "Exit: %s", str);
+			break;
+		}
+		default: {
+			Com_Printf("unknown print type\n");
+			break;
+		}
+	}
+}
+
+static void CL_Botlib_Init( void ) {
+	botlib_import_t	botlib_import;
+	GetBotLibAPI_t GetBotLibAPI;
+	char dllName[MAX_OSPATH] = "botlib_"ARCH_STRING DLL_EXT;
+
+	if( !(botlibLib = Sys_LoadDll( dllName, qfalse )) )
+	{
+		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		Com_Error( ERR_FATAL, "Failed to load botlib" );
+	}
+
+	GetBotLibAPI = (GetBotLibAPI_t)Sys_LoadFunction( botlibLib, "GetBotLibAPI" );
+	if ( !GetBotLibAPI )
+		Com_Error(ERR_FATAL, "Can't load symbol GetBotLibAPI: '%s'",  Sys_LibraryError());
+
+	botlib_import.Print = BotImport_Print;
+	botlib_import.Error = Com_Error;
+
+	// file system access
+	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
+	botlib_import.FS_Read = FS_Read2;
+	botlib_import.FS_Write = FS_Write;
+	botlib_import.FS_FCloseFile = FS_FCloseFile;
+	botlib_import.FS_Seek = FS_Seek;
+
+	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
+	assert(botlib_export); 	// somehow we end up with a zero import.
+}
+
 /*
 ====================
 CL_Init
@@ -3474,6 +3552,8 @@ void CL_Init( void ) {
 	CL_InitRef();
 
 	SCR_Init ();
+
+	CL_BotInitBotLib();
 
 //	Cbuf_Execute ();
 

@@ -3930,19 +3930,20 @@ void AAS_SetWeaponJumpAreaFlags(void)
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
 		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
-		if (
-			!strcmp(classname, "item_armor_body") ||
-			!strcmp(classname, "item_armor_combat") ||
-			!strcmp(classname, "item_health_mega") ||
-			!strcmp(classname, "weapon_grenadelauncher") ||
-			!strcmp(classname, "weapon_rocketlauncher") ||
-			!strcmp(classname, "weapon_lightning") ||
-			!strcmp(classname, "weapon_plasmagun") ||
-			!strcmp(classname, "weapon_railgun") ||
-			!strcmp(classname, "weapon_bfg") ||
-			!strcmp(classname, "item_quad") ||
-			!strcmp(classname, "item_regen") ||
-			!strcmp(classname, "item_invulnerability"))
+		if ( !strcmp( classname, "item_armor_large" )
+			|| !strcmp( classname, "item_armor_mega" )
+			|| !strcmp( classname, "item_health_large" )
+			|| !strcmp( classname, "item_health_mega" )
+
+			//RAZMARK: Adding new weapons
+			|| !strcmp( classname, "weapon_repeater" )
+			|| !strcmp( classname, "weapon_splicer" )
+			|| !strcmp( classname, "weapon_mortar" )
+			|| !strcmp( classname, "weapon_divergence" )
+
+			|| !strcmp( classname, "powerup_quad" )
+			|| !strcmp( classname, "powerup_regen" )
+			)
 		{
 			if (AAS_VectorForBSPEpairKey(ent, "origin", origin))
 			{

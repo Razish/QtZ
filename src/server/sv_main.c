@@ -20,7 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
+#include "sv_local.h"
 
 #ifdef USE_VOIP
 cvar_t *sv_voip;
@@ -242,7 +244,7 @@ void SV_MasterHeartbeat(const char *message)
 	int			res;
 	int			netenabled;
 
-	netenabled = Cvar_VariableIntegerValue("net_enabled");
+	netenabled = svi.Cvar_VariableIntegerValue("net_enabled");
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if (!com_dedicated || com_dedicated->integer != 2 || !(netenabled & (NET_ENABLEV4 | NET_ENABLEV6)))
@@ -270,7 +272,7 @@ void SV_MasterHeartbeat(const char *message)
 			if(netenabled & NET_ENABLEV4)
 			{
 				Com_Printf("Resolving %s (IPv4)\n", sv_master[i]->string);
-				res = NET_StringToAdr(sv_master[i]->string, &adr[i][0], NA_IP);
+				res = svi.NET_StringToAdr(sv_master[i]->string, &adr[i][0], NA_IP);
 
 				if(res == 2)
 				{
@@ -279,7 +281,7 @@ void SV_MasterHeartbeat(const char *message)
 				}
 				
 				if(res)
-					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i][0]));
+					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, svi.NET_AdrToStringwPort(adr[i][0]));
 				else
 					Com_Printf( "%s has no IPv4 address.\n", sv_master[i]->string);
 			}
@@ -287,7 +289,7 @@ void SV_MasterHeartbeat(const char *message)
 			if(netenabled & NET_ENABLEV6)
 			{
 				Com_Printf("Resolving %s (IPv6)\n", sv_master[i]->string);
-				res = NET_StringToAdr(sv_master[i]->string, &adr[i][1], NA_IP6);
+				res = svi.NET_StringToAdr(sv_master[i]->string, &adr[i][1], NA_IP6);
 
 				if(res == 2)
 				{
@@ -296,7 +298,7 @@ void SV_MasterHeartbeat(const char *message)
 				}
 				
 				if(res)
-					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i][1]));
+					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, svi.NET_AdrToStringwPort(adr[i][1]));
 				else
 					Com_Printf( "%s has no IPv6 address.\n", sv_master[i]->string);
 			}
@@ -306,7 +308,7 @@ void SV_MasterHeartbeat(const char *message)
 				// if the address failed to resolve, clear it
 				// so we don't take repeated dns hits
 				Com_Printf("Couldn't resolve address: %s\n", sv_master[i]->string);
-				Cvar_Set(sv_master[i]->name, "");
+				svi.Cvar_Set(sv_master[i]->name, "");
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
@@ -319,9 +321,9 @@ void SV_MasterHeartbeat(const char *message)
 		// ever incompatably changes
 
 		if(adr[i][0].type != NA_BAD)
-			NET_OutOfBandPrint( NS_SERVER, adr[i][0], "heartbeat %s\n", message);
+			svi.NET_OutOfBandPrint( NS_SERVER, adr[i][0], "heartbeat %s\n", message);
 		if(adr[i][1].type != NA_BAD)
-			NET_OutOfBandPrint( NS_SERVER, adr[i][1], "heartbeat %s\n", message);
+			svi.NET_OutOfBandPrint( NS_SERVER, adr[i][1], "heartbeat %s\n", message);
 	}
 }
 
@@ -554,7 +556,7 @@ static void SVC_Status( netadr_t from ) {
 	// Prevent using getstatus as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
 		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
+			svi.NET_AdrToString( from ) );
 		return;
 	}
 
@@ -566,14 +568,14 @@ static void SVC_Status( netadr_t from ) {
 	}
 
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if(strlen(svi.Cmd_Argv(1)) > 128)
 		return;
 
-	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+	strcpy( infostring, svi.Cvar_InfoString( CVAR_SERVERINFO ) );
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
-	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
+	Info_SetValueForKey( infostring, "challenge", svi.Cmd_Argv(1) );
 
 	status[0] = 0;
 	statusLength = 0;
@@ -593,7 +595,7 @@ static void SVC_Status( netadr_t from ) {
 		}
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+	svi.NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
 /*
@@ -612,7 +614,7 @@ void SVC_Info( netadr_t from ) {
 	// Prevent using getinfo as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
 		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
+			svi.NET_AdrToString( from ) );
 		return;
 	}
 
@@ -629,7 +631,7 @@ void SVC_Info( netadr_t from ) {
 	 */
 
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if(strlen(svi.Cmd_Argv(1)) > 128)
 		return;
 
 	// don't count privateclients
@@ -647,7 +649,7 @@ void SVC_Info( netadr_t from ) {
 
 	// echo back the parameter to status. so servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
-	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
+	Info_SetValueForKey( infostring, "challenge", svi.Cmd_Argv(1) );
 
 	Info_SetValueForKey( infostring, "gamename", com_gamename->string );
 
@@ -656,12 +658,11 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
-	Info_SetValueForKey(infostring, "g_humanplayers", va("%i", humans));
-	Info_SetValueForKey( infostring, "sv_maxclients", 
-		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
+	Info_SetValueForKey( infostring, "g_humanplayers", va("%i", humans));
+	Info_SetValueForKey( infostring, "sv_maxclients", va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
-	Info_SetValueForKey(infostring, "g_needpass", va("%d", Cvar_VariableIntegerValue("g_needpass")));
+	Info_SetValueForKey( infostring, "g_needpass", va("%d", svi.Cvar_VariableIntegerValue("g_needpass")));
 
 #ifdef USE_VOIP
 	if (sv_voip->integer) {
@@ -675,12 +676,12 @@ void SVC_Info( netadr_t from ) {
 	if( sv_maxPing->integer ) {
 		Info_SetValueForKey( infostring, "maxPing", va("%i", sv_maxPing->integer) );
 	}
-	gamedir = Cvar_VariableString( "fs_game" );
+	gamedir = svi.Cvar_VariableString( "fs_game" );
 	if( *gamedir ) {
 		Info_SetValueForKey( infostring, "game", gamedir );
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+	svi.NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
 /*
@@ -690,7 +691,7 @@ SVC_FlushRedirect
 ================
 */
 static void SV_FlushRedirect( char *outputbuf ) {
-	NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
+	svi.NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
 }
 
 /*
@@ -714,12 +715,12 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
 		Com_DPrintf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
+			svi.NET_AdrToString( from ) );
 		return;
 	}
 
 	if ( !strlen( sv_rconPassword->string ) ||
-		strcmp (Cmd_Argv(1), sv_rconPassword->string) ) {
+		strcmp (svi.Cmd_Argv(1), sv_rconPassword->string) ) {
 		static leakyBucket_t bucket;
 
 		// Make DoS via rcon impractical
@@ -729,15 +730,15 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		}
 
 		valid = qfalse;
-		Com_Printf ("Bad rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
+		Com_Printf ("Bad rcon from %s: %s\n", svi.NET_AdrToString (from), svi.Cmd_ArgsFrom(2) );
 	} else {
 		valid = qtrue;
-		Com_Printf ("Rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
+		Com_Printf ("Rcon from %s: %s\n", svi.NET_AdrToString (from), svi.Cmd_ArgsFrom(2) );
 	}
 
 	// start redirecting all print outputs to the packet
 	svs.redirectAddress = from;
-	Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
+	svi.Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
 	if ( !strlen( sv_rconPassword->string ) ) {
 		Com_Printf ("No rconpassword set on the server.\n");
@@ -750,7 +751,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		// get the command directly, "rcon <pass> <command>" to avoid quoting issues
 		// extract the command by walking
 		// since the cmd formatting can fuckup (amount of spaces), using a dumb step by step parsing
-		cmd_aux = Cmd_Cmd();
+		cmd_aux = svi.Cmd_Cmd();
 		cmd_aux+=4;
 		while(cmd_aux[0]==' ')
 			cmd_aux++;
@@ -761,11 +762,11 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		
 		Q_strcat( remaining, sizeof(remaining), cmd_aux);
 		
-		Cmd_ExecuteString (remaining);
+		svi.Cmd_ExecuteString (remaining);
 
 	}
 
-	Com_EndRedirect ();
+	svi.Com_EndRedirect ();
 }
 
 /*
@@ -782,18 +783,18 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	*c;
 
-	MSG_BeginReadingOOB( msg );
-	MSG_ReadLong( msg );		// skip the -1 marker
+	svi.MSG_BeginReadingOOB( msg );
+	svi.MSG_ReadLong( msg );		// skip the -1 marker
 
 	if (!Q_strncmp("connect", (char *) &msg->data[4], 7)) {
-		Huff_Decompress(msg, 12);
+		svi.Huff_Decompress(msg, 12);
 	}
 
-	s = MSG_ReadStringLine( msg );
-	Cmd_TokenizeString( s );
+	s = svi.MSG_ReadStringLine( msg );
+	svi.Cmd_TokenizeString( s );
 
-	c = Cmd_Argv(0);
-	Com_DPrintf ("SV packet %s : %s\n", NET_AdrToString(from), c);
+	c = svi.Cmd_Argv(0);
+	Com_DPrintf ("SV packet %s : %s\n", svi.NET_AdrToString(from), c);
 
 	if (!Q_stricmp(c, "getstatus")) {
 		SVC_Status( from );
@@ -815,7 +816,7 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		// sequenced messages to the old client
 	} else {
 		Com_DPrintf ("bad connectionless packet from %s:\n%s\n",
-			NET_AdrToString (from), s);
+			svi.NET_AdrToString (from), s);
 	}
 }
 
@@ -839,16 +840,16 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 
 	// read the qport out of the message so we can fix up
 	// stupid address translating routers
-	MSG_BeginReadingOOB( msg );
-	MSG_ReadLong( msg );				// sequence number
-	qport = MSG_ReadShort( msg ) & 0xffff;
+	svi.MSG_BeginReadingOOB( msg );
+	svi.MSG_ReadLong( msg );				// sequence number
+	qport = svi.MSG_ReadShort( msg ) & 0xffff;
 
 	// find which client the message is from
 	for (i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
 		if (cl->state == CS_FREE) {
 			continue;
 		}
-		if ( !NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) ) {
+		if ( !svi.NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) ) {
 			continue;
 		}
 		// it is possible to have multiple clients from a single IP
@@ -1008,12 +1009,12 @@ static qboolean SV_CheckPaused( void ) {
 	if ( count > 1 ) {
 		// don't pause
 		if (sv_paused->integer)
-			Cvar_Set("sv_paused", "0");
+			svi.Cvar_Set("sv_paused", "0");
 		return qfalse;
 	}
 
 	if (!sv_paused->integer)
-		Cvar_Set("sv_paused", "1");
+		svi.Cvar_Set("sv_paused", "1");
 	return qtrue;
 }
 
@@ -1055,17 +1056,17 @@ void SV_Frame( int msec ) {
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
 		SV_Shutdown ("Server was killed");
-		Cvar_Set( "sv_killserver", "0" );
+		svi.Cvar_Set( "sv_killserver", "0" );
 		return;
 	}
 
 	if (!com_sv_running->integer)
 	{
 		// Running as a server, but no map loaded
-#ifdef DEDICATED
+//#ifdef DEDICATED
 		// Block until something interesting happens
-		Sys_Sleep(-1);
-#endif
+//		svi.Sys_Sleep(-1);
+//#endif
 
 		return;
 	}
@@ -1077,14 +1078,14 @@ void SV_Frame( int msec ) {
 
 	// if it isn't time for the next frame, do nothing
 	if ( sv_fps->integer < 1 ) {
-		Cvar_Set( "sv_fps", "10" );
+		svi.Cvar_Set( "sv_fps", "10" );
 	}
 
 	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
 	// don't let it scale below 1ms
 	if(frameMsec < 1)
 	{
-		Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
+		svi.Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
 		frameMsec = 1;
 	}
 
@@ -1098,30 +1099,30 @@ void SV_Frame( int msec ) {
 	// 2giga-milliseconds = 23 days, so it won't be too often
 	if ( svs.time > 0x70000000 ) {
 		SV_Shutdown( "Restarting server due to time wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		svi.Cbuf_AddText( va( "map %s\n", svi.Cvar_VariableString( "mapname" ) ) );
 		return;
 	}
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		svi.Cbuf_AddText( va( "map %s\n", svi.Cvar_VariableString( "mapname" ) ) );
 		return;
 	}
 
 	if( sv.restartTime && sv.time >= sv.restartTime ) {
 		sv.restartTime = 0;
-		Cbuf_AddText( "map_restart 0\n" );
+		svi.Cbuf_AddText( "map_restart 0\n" );
 		return;
 	}
 
 	// update infostrings if anything has been changed
-	if ( cvar_modifiedFlags & CVAR_SERVERINFO ) {
-		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+	if ( (*svi.cvar_modifiedFlags) & CVAR_SERVERINFO ) {
+		SV_SetConfigstring( CS_SERVERINFO, svi.Cvar_InfoString( CVAR_SERVERINFO ) );
+		(*svi.cvar_modifiedFlags) &= ~CVAR_SERVERINFO;
 	}
-	if ( cvar_modifiedFlags & CVAR_SYSTEMINFO ) {
-		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+	if ( (*svi.cvar_modifiedFlags) & CVAR_SYSTEMINFO ) {
+		SV_SetConfigstring( CS_SYSTEMINFO, svi.Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
+		(*svi.cvar_modifiedFlags) &= ~CVAR_SYSTEMINFO;
 	}
 
 	if ( com_speeds->integer ) {
@@ -1142,11 +1143,11 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		svi.VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
 
 	if ( com_speeds->integer ) {
-		time_game = Sys_Milliseconds () - startTime;
+		(*svi.time_game) = Sys_Milliseconds () - startTime;
 	}
 
 	// check timeouts
@@ -1182,7 +1183,7 @@ int SV_RateMsec(client_t *client)
 	if(sv_maxRate->integer)
 	{
 		if(sv_maxRate->integer < 1000)
-			Cvar_Set( "sv_MaxRate", "1000" );
+			svi.Cvar_Set( "sv_MaxRate", "1000" );
 		if(sv_maxRate->integer < rate)
 			rate = sv_maxRate->integer;
 	}
@@ -1190,7 +1191,7 @@ int SV_RateMsec(client_t *client)
 	if(sv_minRate->integer)
 	{
 		if(sv_minRate->integer < 1000)
-			Cvar_Set("sv_minRate", "1000");
+			svi.Cvar_Set("sv_minRate", "1000");
 		if(sv_minRate->integer > rate)
 			rate = sv_minRate->integer;
 	}

@@ -21,8 +21,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // sv_bot.c
 
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
 #include "../botlib/botlib.h"
+#include "../sys/sys_local.h"
+#include "../sys/sys_loadlib.h"
+#include "sv_local.h"
 
 typedef struct bot_debugpoly_s
 {
@@ -36,6 +40,8 @@ static bot_debugpoly_t *debugpolygons;
 int bot_maxdebugpolys;
 
 extern botlib_export_t	*botlib_export;
+extern void *botlibLib;
+
 int	bot_enable;
 
 
@@ -78,7 +84,7 @@ void SV_BotFreeClient( int clientNum ) {
 	client_t	*cl;
 
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-		Com_Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
+		svi.Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
 	}
 	cl = &svs.clients[clientNum];
 	cl->state = CS_FREE;
@@ -101,15 +107,15 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 	if (!debugpolygons)
 		return;
 	//bot debugging
-	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", 0, NULL);
+	if (!bot_debug) bot_debug = svi.Cvar_Get("bot_debug", "0", 0, NULL);
 	//
 	if (bot_enable && bot_debug->integer) {
 		//show reachabilities
-		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", 0, NULL);
+		if (!bot_reachability) bot_reachability = svi.Cvar_Get("bot_reachability", "0", 0, NULL);
 		//show ground faces only
-		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", 0, NULL);
+		if (!bot_groundonly) bot_groundonly = svi.Cvar_Get("bot_groundonly", "1", 0, NULL);
 		//get the hightlight area
-		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0, NULL);
+		if (!bot_highlightarea) bot_highlightarea = svi.Cvar_Get("bot_highlightarea", "0", 0, NULL);
 		//
 		parm0 = 0;
 		if (svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK) parm0 |= 1;
@@ -160,7 +166,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 			break;
 		}
 		case PRT_EXIT: {
-			Com_Error(ERR_DROP, S_COLOR_RED "Exit: %s", str);
+			svi.Error(ERR_DROP, S_COLOR_RED "Exit: %s", str);
 			break;
 		}
 		default: {
@@ -245,7 +251,7 @@ BotImport_BSPEntityData
 ==================
 */
 static char *BotImport_BSPEntityData(void) {
-	return CM_EntityString();
+	return svi.CM_EntityString();
 }
 
 /*
@@ -259,8 +265,8 @@ static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t
 	float max;
 	int	i;
 
-	h = CM_InlineModel(modelnum);
-	CM_ModelBounds(h, mins, maxs);
+	h = svi.CM_InlineModel(modelnum);
+	svi.CM_ModelBounds(h, mins, maxs);
 	//if the model is rotated
 	if ((angles[0] || angles[1] || angles[2])) {
 		// expand for rotation
@@ -284,7 +290,7 @@ BotImport_GetMemory
 static void *BotImport_GetMemory(int size) {
 	void *ptr;
 
-	ptr = Z_TagMalloc( size, TAG_BOTLIB );
+	ptr = svi.Z_TagMalloc( size, TAG_BOTLIB );
 	return ptr;
 }
 
@@ -294,7 +300,7 @@ BotImport_FreeMemory
 ==================
 */
 static void BotImport_FreeMemory(void *ptr) {
-	Z_Free(ptr);
+	svi.Z_Free(ptr);
 }
 
 /*
@@ -303,10 +309,10 @@ BotImport_HunkAlloc
 =================
 */
 static void *BotImport_HunkAlloc( int size ) {
-	if( Hunk_CheckMark() ) {
-		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set" );
+	if( svi.Hunk_CheckMark() ) {
+		svi.Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set" );
 	}
-	return Hunk_Alloc( size, h_high );
+	return svi.Hunk_Alloc( size, h_high );
 }
 
 /*
@@ -433,7 +439,7 @@ void SV_BotFrame( int time ) {
 	if (!bot_enable) return;
 	//NOTE: maybe the game is already shutdown
 	if (!gvm) return;
-	VM_Call( gvm, BOTAI_START_FRAME, time );
+	svi.VM_Call( gvm, BOTAI_START_FRAME, time );
 }
 
 /*
@@ -478,36 +484,36 @@ SV_BotInitCvars
 */
 void SV_BotInitCvars(void) {
 
-	Cvar_Get("bot_enable",				"1",	CVAR_NONE,	NULL );						//enable the bot
-	Cvar_Get("bot_developer",			"0",	CVAR_CHEAT,	NULL );			//bot developer mode
-	Cvar_Get("bot_debug",				"0",	CVAR_CHEAT,	NULL );				//enable bot debugging
-	Cvar_Get("bot_maxdebugpolys",		"2",	CVAR_NONE,	NULL );				//maximum number of debug polys
-	Cvar_Get("bot_groundonly",			"1",	CVAR_NONE,	NULL );					//only show ground faces of areas
-	Cvar_Get("bot_reachability",		"0",	CVAR_NONE,	NULL );				//show all reachabilities to other areas
-	Cvar_Get("bot_visualizejumppads",	"0",	CVAR_CHEAT,	NULL );	//show jumppads
-	Cvar_Get("bot_forceclustering",		"0",	CVAR_NONE,	NULL );			//force cluster calculations
-	Cvar_Get("bot_forcereachability",	"0",	CVAR_NONE,	NULL );			//force reachability calculations
-	Cvar_Get("bot_forcewrite",			"0",	CVAR_NONE,	NULL );					//force writing aas file
-	Cvar_Get("bot_aasoptimize",			"0",	CVAR_NONE,	NULL );				//no aas file optimisation
-	Cvar_Get("bot_saveroutingcache",	"0",	CVAR_NONE,	NULL );			//save routing cache
-	Cvar_Get("bot_thinktime",			"100",	CVAR_CHEAT,	NULL );		//msec the bots thinks
-	Cvar_Get("bot_reloadcharacters",	"0",	CVAR_NONE,	NULL );			//reload the bot characters each time
-	Cvar_Get("bot_testichat",			"0",	CVAR_NONE,	NULL );					//test ichats
-	Cvar_Get("bot_testrchat",			"0",	CVAR_NONE,	NULL );					//test rchats
-	Cvar_Get("bot_testsolid",			"0",	CVAR_CHEAT,	NULL );			//test for solid areas
-	Cvar_Get("bot_testclusters",		"0",	CVAR_CHEAT,	NULL );		//test the AAS clusters
-	Cvar_Get("bot_fastchat",			"0",	CVAR_NONE,	NULL );					//fast chatting bots
-	Cvar_Get("bot_nochat",				"0",	CVAR_NONE,	NULL );						//disable chats
-	Cvar_Get("bot_pause",				"0",	CVAR_CHEAT,	NULL );				//pause the bots thinking
-	Cvar_Get("bot_report",				"0",	CVAR_CHEAT,	NULL );			//get a full report in ctf
-	Cvar_Get("bot_grapple",				"0",	CVAR_NONE,	NULL );					//enable grapple
-	Cvar_Get("bot_rocketjump",			"1",	CVAR_NONE,	NULL );					//enable rocket jumping
-	Cvar_Get("bot_challenge",			"0",	CVAR_NONE,	NULL );					//challenging bot
-	Cvar_Get("bot_minplayers",			"0",	CVAR_NONE,	NULL );					//minimum players in a team or the game
-	Cvar_Get("bot_interbreedchar",		"",		CVAR_CHEAT,	NULL );		//bot character used for interbreeding
-	Cvar_Get("bot_interbreedbots",		"10",	CVAR_CHEAT,	NULL );	//number of bots used for interbreeding
-	Cvar_Get("bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL );	//bot interbreeding cycle
-	Cvar_Get("bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL );	//write interbreeded bots to this file
+	svi.Cvar_Get("bot_enable",				"1",	CVAR_NONE,	NULL );						//enable the bot
+	svi.Cvar_Get("bot_developer",			"0",	CVAR_CHEAT,	NULL );			//bot developer mode
+	svi.Cvar_Get("bot_debug",				"0",	CVAR_CHEAT,	NULL );				//enable bot debugging
+	svi.Cvar_Get("bot_maxdebugpolys",		"2",	CVAR_NONE,	NULL );				//maximum number of debug polys
+	svi.Cvar_Get("bot_groundonly",			"1",	CVAR_NONE,	NULL );					//only show ground faces of areas
+	svi.Cvar_Get("bot_reachability",		"0",	CVAR_NONE,	NULL );				//show all reachabilities to other areas
+	svi.Cvar_Get("bot_visualizejumppads",	"0",	CVAR_CHEAT,	NULL );	//show jumppads
+	svi.Cvar_Get("bot_forceclustering",		"0",	CVAR_NONE,	NULL );			//force cluster calculations
+	svi.Cvar_Get("bot_forcereachability",	"0",	CVAR_NONE,	NULL );			//force reachability calculations
+	svi.Cvar_Get("bot_forcewrite",			"0",	CVAR_NONE,	NULL );					//force writing aas file
+	svi.Cvar_Get("bot_aasoptimize",			"0",	CVAR_NONE,	NULL );				//no aas file optimisation
+	svi.Cvar_Get("bot_saveroutingcache",	"0",	CVAR_NONE,	NULL );			//save routing cache
+	svi.Cvar_Get("bot_thinktime",			"100",	CVAR_CHEAT,	NULL );		//msec the bots thinks
+	svi.Cvar_Get("bot_reloadcharacters",	"0",	CVAR_NONE,	NULL );			//reload the bot characters each time
+	svi.Cvar_Get("bot_testichat",			"0",	CVAR_NONE,	NULL );					//test ichats
+	svi.Cvar_Get("bot_testrchat",			"0",	CVAR_NONE,	NULL );					//test rchats
+	svi.Cvar_Get("bot_testsolid",			"0",	CVAR_CHEAT,	NULL );			//test for solid areas
+	svi.Cvar_Get("bot_testclusters",		"0",	CVAR_CHEAT,	NULL );		//test the AAS clusters
+	svi.Cvar_Get("bot_fastchat",			"0",	CVAR_NONE,	NULL );					//fast chatting bots
+	svi.Cvar_Get("bot_nochat",				"0",	CVAR_NONE,	NULL );						//disable chats
+	svi.Cvar_Get("bot_pause",				"0",	CVAR_CHEAT,	NULL );				//pause the bots thinking
+	svi.Cvar_Get("bot_report",				"0",	CVAR_CHEAT,	NULL );			//get a full report in ctf
+	svi.Cvar_Get("bot_grapple",				"0",	CVAR_NONE,	NULL );					//enable grapple
+	svi.Cvar_Get("bot_rocketjump",			"1",	CVAR_NONE,	NULL );					//enable rocket jumping
+	svi.Cvar_Get("bot_challenge",			"0",	CVAR_NONE,	NULL );					//challenging bot
+	svi.Cvar_Get("bot_minplayers",			"0",	CVAR_NONE,	NULL );					//minimum players in a team or the game
+	svi.Cvar_Get("bot_interbreedchar",		"",		CVAR_CHEAT,	NULL );		//bot character used for interbreeding
+	svi.Cvar_Get("bot_interbreedbots",		"10",	CVAR_CHEAT,	NULL );	//number of bots used for interbreeding
+	svi.Cvar_Get("bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL );	//bot interbreeding cycle
+	svi.Cvar_Get("bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL );	//write interbreeded bots to this file
 }
 
 /*
@@ -517,12 +523,25 @@ SV_BotInitBotLib
 */
 void SV_BotInitBotLib(void) {
 	botlib_import_t	botlib_import;
+	GetBotLibAPI_t GetBotLibAPI;
+	char dllName[MAX_OSPATH] = "botlib_"ARCH_STRING DLL_EXT;
 
-	if (debugpolygons) Z_Free(debugpolygons);
-	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
-	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
+	if( !(botlibLib = svi.Sys_LoadDll( dllName, qfalse )) )
+	{
+		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		svi.Error( ERR_FATAL, "Failed to load botlib" );
+	}
+
+	GetBotLibAPI = (GetBotLibAPI_t)Sys_LoadFunction( botlibLib, "GetBotLibAPI" );
+	if ( !GetBotLibAPI )
+		svi.Error(ERR_FATAL, "Can't load symbol GetBotLibAPI: '%s'",  Sys_LibraryError());
+
+	if (debugpolygons) svi.Z_Free(debugpolygons);
+	bot_maxdebugpolys = svi.Cvar_VariableIntegerValue("bot_maxdebugpolys");
+	debugpolygons = svi.Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
 
 	botlib_import.Print = BotImport_Print;
+	botlib_import.Error = svi.Error;
 	botlib_import.Trace = BotImport_Trace;
 	botlib_import.EntityTrace = BotImport_EntityTrace;
 	botlib_import.PointContents = BotImport_PointContents;
@@ -534,15 +553,15 @@ void SV_BotInitBotLib(void) {
 	//memory management
 	botlib_import.GetMemory = BotImport_GetMemory;
 	botlib_import.FreeMemory = BotImport_FreeMemory;
-	botlib_import.AvailableMemory = Z_AvailableMemory;
+	botlib_import.AvailableMemory = svi.Z_AvailableMemory;
 	botlib_import.HunkAlloc = BotImport_HunkAlloc;
 
 	// file system access
-	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
-	botlib_import.FS_Read = FS_Read2;
-	botlib_import.FS_Write = FS_Write;
-	botlib_import.FS_FCloseFile = FS_FCloseFile;
-	botlib_import.FS_Seek = FS_Seek;
+	botlib_import.FS_FOpenFile = svi.FS_FOpenFileByMode;
+	botlib_import.FS_Read = svi.FS_Read2;
+	botlib_import.FS_Write = svi.FS_Write;
+	botlib_import.FS_FCloseFile = svi.FS_FCloseFile;
+	botlib_import.FS_Seek = svi.FS_Seek;
 
 	//debug lines
 	botlib_import.DebugLineCreate = BotImport_DebugLineCreate;

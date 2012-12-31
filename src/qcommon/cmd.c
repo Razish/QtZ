@@ -799,7 +799,7 @@ void	Cmd_ExecuteString( const char *text ) {
 	}
 
 	// check server game commands
-	if ( com_sv_running && com_sv_running->integer && SV_GameCommand() ) {
+	if ( com_sv_running && com_sv_running->integer && sve.GameCommand() ) {
 		return;
 	}
 
