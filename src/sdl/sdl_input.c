@@ -160,7 +160,7 @@ qboolean IN_InitRawMouse( void ) {
 	if ( !SDLWindowProc ) {
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION(&wmInfo.version);
-		re.SDL_GetWMInfo(&wmInfo);
+		SDL_GetWMInfo(&wmInfo);
 		SDLWindowProc = (WNDPROC)GetWindowLongPtr(wmInfo.window, GWLP_WNDPROC); 
 		SetWindowLongPtr(wmInfo.window, GWLP_WNDPROC, (LONG_PTR)RawWndProc);
 	}
@@ -194,7 +194,7 @@ qboolean IN_ShutdownRawMouse( void ) {
 	if(SDLWindowProc){
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION(&wmInfo.version);
-		re.SDL_GetWMInfo(&wmInfo);
+		SDL_GetWMInfo(&wmInfo);
 		SetWindowLongPtr(wmInfo.window, GWLP_WNDPROC, (LONG_PTR)SDLWindowProc);
 		SDLWindowProc = NULL;
 	}
@@ -215,7 +215,7 @@ static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down )
 	else
 		Com_Printf( "  " );
 
-	Com_Printf( "0x%02x \"%s\"", keysym->scancode, re.SDL_GetKeyName( keysym->sym ) );
+	Com_Printf( "0x%02x \"%s\"", keysym->scancode, SDL_GetKeyName( keysym->sym ) );
 
 	if( keysym->mod & KMOD_LSHIFT )   Com_Printf( " KMOD_LSHIFT" );
 	if( keysym->mod & KMOD_RSHIFT )   Com_Printf( " KMOD_RSHIFT" );
@@ -528,8 +528,8 @@ static void IN_GobbleMotionEvents( void )
 	SDL_Event dummy[ 1 ];
 
 	// Gobble any mouse motion events
-	re.SDL_PumpEvents( );
-	while( re.SDL_PeepEvents( dummy, 1, SDL_GETEVENT,
+	SDL_PumpEvents( );
+	while( SDL_PeepEvents( dummy, 1, SDL_GETEVENT,
 		SDL_EVENTMASK( SDL_MOUSEMOTION ) ) ) { }
 }
 
@@ -540,7 +540,7 @@ IN_ActivateMouse
 */
 static void IN_ActivateMouse( void )
 {
-	if (!mouseAvailable || !re.SDL_WasInit( SDL_INIT_VIDEO ) )
+	if (!mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
 #ifdef MACOS_X_ACCELERATION_HACK
@@ -580,14 +580,14 @@ static void IN_ActivateMouse( void )
 
 	if( !mouseActive )
 	{
-		re.SDL_ShowCursor( 0 );
+		SDL_ShowCursor( 0 );
 #ifdef MACOS_X_CURSOR_HACK
 		// This is a bug in the current SDL/macosx...have to toggle it a few
 		//  times to get the cursor to hide.
-		re.SDL_ShowCursor( 1 );
-		re.SDL_ShowCursor( 0 );
+		SDL_ShowCursor( 1 );
+		SDL_ShowCursor( 0 );
 #endif
-		re.SDL_WM_GrabInput( SDL_GRAB_ON );
+		SDL_WM_GrabInput( SDL_GRAB_ON );
 
 		IN_GobbleMotionEvents( );
 	}
@@ -598,9 +598,9 @@ static void IN_ActivateMouse( void )
 		if( in_nograb->modified || !mouseActive )
 		{
 			if( in_nograb->integer )
-				re.SDL_WM_GrabInput( SDL_GRAB_OFF );
+				SDL_WM_GrabInput( SDL_GRAB_OFF );
 			else
-				re.SDL_WM_GrabInput( SDL_GRAB_ON );
+				SDL_WM_GrabInput( SDL_GRAB_ON );
 
 			in_nograb->modified = qfalse;
 		}
@@ -616,13 +616,13 @@ IN_DeactivateMouse
 */
 static void IN_DeactivateMouse( void )
 {
-	if( !re.SDL_WasInit( SDL_INIT_VIDEO ) )
+	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
 	// Always show the cursor when the mouse is disabled,
 	// but not when fullscreen
 	if( !Cvar_VariableIntegerValue("r_fullscreen") )
-		re.SDL_ShowCursor( 1 );
+		SDL_ShowCursor( 1 );
 
 	if( !mouseAvailable )
 		return;
@@ -650,11 +650,11 @@ static void IN_DeactivateMouse( void )
 	{
 		IN_GobbleMotionEvents( );
 
-		re.SDL_WM_GrabInput( SDL_GRAB_OFF );
+		SDL_WM_GrabInput( SDL_GRAB_OFF );
 
 		// Don't warp the mouse unless the cursor is within the window
-		if( re.SDL_GetAppState( ) & SDL_APPMOUSEFOCUS )
-			re.SDL_WarpMouse( cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2 );
+		if( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS )
+			SDL_WarpMouse( cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2 );
 
 		mouseActive = qfalse;
 	}
@@ -707,15 +707,15 @@ static void IN_InitJoystick( void )
 	char buf[16384] = "";
 
 	if (stick != NULL)
-		re.SDL_JoystickClose(stick);
+		SDL_JoystickClose(stick);
 
 	stick = NULL;
 	memset(&stick_state, '\0', sizeof (stick_state));
 
-	if (!re.SDL_WasInit(SDL_INIT_JOYSTICK))
+	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
 		Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
-		if (re.SDL_Init(SDL_INIT_JOYSTICK) == -1)
+		if (SDL_Init(SDL_INIT_JOYSTICK) == -1)
 		{
 			Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
 			return;
@@ -723,13 +723,13 @@ static void IN_InitJoystick( void )
 		Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
 	}
 
-	total = re.SDL_NumJoysticks();
+	total = SDL_NumJoysticks();
 	Com_DPrintf("%d possible joysticks\n", total);
 
 	// Print list and build cvar to allow ui to select joystick.
 	for (i = 0; i < total; i++)
 	{
-		Q_strcat(buf, sizeof(buf), re.SDL_JoystickName(i));
+		Q_strcat(buf, sizeof(buf), SDL_JoystickName(i));
 		Q_strcat(buf, sizeof(buf), "\n");
 	}
 
@@ -737,7 +737,7 @@ static void IN_InitJoystick( void )
 
 	if( !in_joystick->integer ) {
 		Com_DPrintf( "Joystick is not active.\n" );
-		re.SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 		return;
 	}
 
@@ -747,7 +747,7 @@ static void IN_InitJoystick( void )
 
 	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, NULL );
 
-	stick = re.SDL_JoystickOpen( in_joystickNo->integer );
+	stick = SDL_JoystickOpen( in_joystickNo->integer );
 
 	if (stick == NULL) {
 		Com_DPrintf( "No joystick opened.\n" );
@@ -755,14 +755,14 @@ static void IN_InitJoystick( void )
 	}
 
 	Com_DPrintf( "Joystick %d opened\n", in_joystickNo->integer );
-	Com_DPrintf( "Name:       %s\n", re.SDL_JoystickName(in_joystickNo->integer) );
-	Com_DPrintf( "Axes:       %d\n", re.SDL_JoystickNumAxes(stick) );
-	Com_DPrintf( "Hats:       %d\n", re.SDL_JoystickNumHats(stick) );
-	Com_DPrintf( "Buttons:    %d\n", re.SDL_JoystickNumButtons(stick) );
-	Com_DPrintf( "Balls:      %d\n", re.SDL_JoystickNumBalls(stick) );
+	Com_DPrintf( "Name:       %s\n", SDL_JoystickName(in_joystickNo->integer) );
+	Com_DPrintf( "Axes:       %d\n", SDL_JoystickNumAxes(stick) );
+	Com_DPrintf( "Hats:       %d\n", SDL_JoystickNumHats(stick) );
+	Com_DPrintf( "Buttons:    %d\n", SDL_JoystickNumButtons(stick) );
+	Com_DPrintf( "Balls:      %d\n", SDL_JoystickNumBalls(stick) );
 	Com_DPrintf( "Use Analog: %s\n", in_joystickUseAnalog->integer ? "Yes" : "No" );
 
-	re.SDL_JoystickEventState(SDL_QUERY);
+	SDL_JoystickEventState(SDL_QUERY);
 }
 
 /*
@@ -774,11 +774,11 @@ static void IN_ShutdownJoystick( void )
 {
 	if (stick)
 	{
-		re.SDL_JoystickClose(stick);
+		SDL_JoystickClose(stick);
 		stick = NULL;
 	}
 
-	re.SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
 /*
@@ -797,12 +797,12 @@ static void IN_JoyMove( void )
 	if (!stick)
 		return;
 
-	re.SDL_JoystickUpdate();
+	SDL_JoystickUpdate();
 
 	memset(joy_pressed, '\0', sizeof (joy_pressed));
 
 	// update the ball state.
-	total = re.SDL_JoystickNumBalls(stick);
+	total = SDL_JoystickNumBalls(stick);
 	if (total > 0)
 	{
 		int balldx = 0;
@@ -811,7 +811,7 @@ static void IN_JoyMove( void )
 		{
 			int dx = 0;
 			int dy = 0;
-			re.SDL_JoystickGetBall(stick, i, &dx, &dy);
+			SDL_JoystickGetBall(stick, i, &dx, &dy);
 			balldx += dx;
 			balldy += dy;
 		}
@@ -828,14 +828,14 @@ static void IN_JoyMove( void )
 	}
 
 	// now query the stick buttons...
-	total = re.SDL_JoystickNumButtons(stick);
+	total = SDL_JoystickNumButtons(stick);
 	if (total > 0)
 	{
 		if (total > ARRAY_LEN(stick_state.buttons))
 			total = ARRAY_LEN(stick_state.buttons);
 		for (i = 0; i < total; i++)
 		{
-			qboolean pressed = (re.SDL_JoystickGetButton(stick, i) != 0);
+			qboolean pressed = (SDL_JoystickGetButton(stick, i) != 0);
 			if (pressed != stick_state.buttons[i])
 			{
 				Com_QueueEvent( 0, SE_KEY, K_JOY1 + i, pressed, 0, NULL );
@@ -845,13 +845,13 @@ static void IN_JoyMove( void )
 	}
 
 	// look at the hats...
-	total = re.SDL_JoystickNumHats(stick);
+	total = SDL_JoystickNumHats(stick);
 	if (total > 0)
 	{
 		if (total > 4) total = 4;
 		for (i = 0; i < total; i++)
 		{
-			((Uint8 *)&hats)[i] = re.SDL_JoystickGetHat(stick, i);
+			((Uint8 *)&hats)[i] = SDL_JoystickGetHat(stick, i);
 		}
 	}
 
@@ -934,7 +934,7 @@ static void IN_JoyMove( void )
 	stick_state.oldhats = hats;
 
 	// finally, look at the axes...
-	total = re.SDL_JoystickNumAxes(stick);
+	total = SDL_JoystickNumAxes(stick);
 	if (total > 0)
 	{
 		if (in_joystickUseAnalog->integer)
@@ -942,7 +942,7 @@ static void IN_JoyMove( void )
 			if (total > MAX_JOYSTICK_AXIS) total = MAX_JOYSTICK_AXIS;
 			for (i = 0; i < total; i++)
 			{
-				Sint16 axis = re.SDL_JoystickGetAxis(stick, i);
+				Sint16 axis = SDL_JoystickGetAxis(stick, i);
 				float f = ( (float) abs(axis) ) / 32767.0f;
 				
 				if( f < in_joystickThreshold->value ) axis = 0;
@@ -999,21 +999,21 @@ static void IN_ProcessEvents( void )
 	const char *character = NULL;
 	keyNum_t key = 0;
 
-	if( !re.SDL_WasInit( SDL_INIT_VIDEO ) )
+	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 			return;
 
 	if( Key_GetCatcher( ) == 0 && keyRepeatEnabled )
 	{
-		re.SDL_EnableKeyRepeat( 0, 0 );
+		SDL_EnableKeyRepeat( 0, 0 );
 		keyRepeatEnabled = qfalse;
 	}
 	else if( !keyRepeatEnabled )
 	{
-		re.SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
+		SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 		keyRepeatEnabled = qtrue;
 	}
 
-	while( re.SDL_PollEvent( &e ) )
+	while( SDL_PollEvent( &e ) )
 	{
 		switch( e.type )
 		{
@@ -1123,7 +1123,7 @@ void IN_Frame( void )
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !( re.SDL_GetAppState() & SDL_APPINPUTFOCUS ) )
+	else if( !( SDL_GetAppState() & SDL_APPINPUTFOCUS ) )
 	{
 		// Window not got focus
 		IN_DeactivateMouse( );
@@ -1146,7 +1146,7 @@ IN_InitKeyLockStates
 */
 void IN_InitKeyLockStates( void )
 {
-	unsigned char *keystate = re.SDL_GetKeyState(NULL);
+	unsigned char *keystate = SDL_GetKeyState(NULL);
 
 	keys[K_SCROLLOCK].down = keystate[SDLK_SCROLLOCK];
 	keys[K_KP_NUMLOCK].down = keystate[SDLK_NUMLOCK];
@@ -1162,7 +1162,7 @@ void IN_Init( void )
 {
 	int appState;
 
-	if( !re.SDL_WasInit( SDL_INIT_VIDEO ) )
+	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
 		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )" );
 		return;
@@ -1185,8 +1185,8 @@ void IN_Init( void )
 	in_disablemacosxmouseaccel	= Cvar_Get( "in_disablemacosxmouseaccel",	"1",	CVAR_ARCHIVE,				NULL );
 #endif
 
-	re.SDL_EnableUNICODE( 1 );
-	re.SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
+	SDL_EnableUNICODE( 1 );
+	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 	keyRepeatEnabled = qtrue;
 
 	//QtZ: Raw mouse input
@@ -1195,20 +1195,20 @@ void IN_Init( void )
 			IN_ShutdownRawMouse();
 		if (in_mouse->integer == 3 && IN_InitRawMouse())
 		{
-			re.SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-			re.SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-			re.SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 		} else {
-			re.SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-			re.SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_ENABLE);
-			re.SDL_EventState(SDL_MOUSEBUTTONUP, SDL_ENABLE);
+			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_ENABLE);
+			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_ENABLE);
 		}
 	#endif
 
 	mouseAvailable = ( in_mouse->value != 0 );
 	IN_DeactivateMouse( );
 
-	appState = re.SDL_GetAppState( );
+	appState = SDL_GetAppState( );
 	Cvar_SetValue( "com_unfocused",	!( appState & SDL_APPINPUTFOCUS ) );
 	Cvar_SetValue( "com_minimized", !( appState & SDL_APPACTIVE ) );
 
