@@ -472,48 +472,6 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 
 /*
 =================
-Sys_LoadGameDll
-
-Used to load a development dll instead of a virtual machine
-=================
-*/
-void *Sys_LoadGameDll(const char *name,
-	intptr_t (QDECL **entryPoint)(int, ...),
-	intptr_t (*systemcalls)(intptr_t, ...))
-{
-	void *libHandle;
-	void (*dllEntry)(intptr_t (*syscallptr)(intptr_t, ...));
-
-	assert(name);
-
-	Com_Printf( "Loading DLL file: %s\n", name);
-	libHandle = Sys_LoadLibrary(name);
-
-	if(!libHandle)
-	{
-		Com_Printf("Sys_LoadGameDll(%s) failed:\n\"%s\"\n", name, Sys_LibraryError());
-		return NULL;
-	}
-
-	dllEntry = Sys_LoadFunction( libHandle, "dllEntry" );
-	*entryPoint = Sys_LoadFunction( libHandle, "vmMain" );
-
-	if ( !*entryPoint || !dllEntry )
-	{
-		Com_Printf ( "Sys_LoadGameDll(%s) failed to find vmMain function:\n\"%s\" !\n", name, Sys_LibraryError( ) );
-		Sys_UnloadLibrary(libHandle);
-
-		return NULL;
-	}
-
-	Com_Printf ( "Sys_LoadGameDll(%s) found vmMain function at %p\n", name, *entryPoint );
-	dllEntry( systemcalls );
-
-	return libHandle;
-}
-
-/*
-=================
 Sys_ParseArgs
 =================
 */
@@ -560,12 +518,10 @@ void Sys_SigHandler( int signal )
 	else
 	{
 		signalcaught = qtrue;
-		VM_Forced_Unload_Start();
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
 #endif
 		sve.Shutdown(va("Received signal %d", signal) );
-		VM_Forced_Unload_Done();
 	}
 
 	if( signal == SIGTERM || signal == SIGINT )

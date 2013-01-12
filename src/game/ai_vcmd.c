@@ -201,7 +201,7 @@ void BotVoiceChat_Patrol(bot_state_t *bs, int client, int mode) {
 	bs->lastgoal_ltgtype = 0;
 	//
 	BotAI_BotInitialChat(bs, "dismissed", NULL);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, -1, VOICECHAT_ONPATROL);
 	//
 	BotSetTeamStatus(bs);
@@ -226,7 +226,7 @@ void BotVoiceChat_Camp(bot_state_t *bs, int client, int mode) {
 	//if info is valid (in PVS)
 	if (entinfo.valid) {
 		areanum = BotPointAreaNum(entinfo.origin);
-		if (areanum) { // && trap_AAS_AreaReachability(areanum)) {
+		if (areanum) { // && gi.aas->AAS_AreaReachability(areanum)) {
 			//NOTE: just assume the bot knows where the person is
 			//if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, client)) {
 				bs->teamgoal.entitynum = client;
@@ -240,7 +240,7 @@ void BotVoiceChat_Camp(bot_state_t *bs, int client, int mode) {
 	//if the other is not visible
 	if (bs->teamgoal.entitynum < 0) {
 		BotAI_BotInitialChat(bs, "whereareyou", EasyClientName(client, netname, sizeof(netname)), NULL);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 		return;
 	}
 	//
@@ -281,7 +281,7 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode) {
 	//if info is valid (in PVS)
 	if (entinfo.valid) {
 		areanum = BotPointAreaNum(entinfo.origin);
-		if (areanum) { // && trap_AAS_AreaReachability(areanum)) {
+		if (areanum) { // && gi.aas->AAS_AreaReachability(areanum)) {
 			bs->teamgoal.entitynum = client;
 			bs->teamgoal.areanum = areanum;
 			VectorCopy(entinfo.origin, bs->teamgoal.origin);
@@ -292,7 +292,7 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode) {
 	//if the other is not visible
 	if (bs->teamgoal.entitynum < 0) {
 		BotAI_BotInitialChat(bs, "whereareyou", EasyClientName(client, netname, sizeof(netname)), NULL);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 		return;
 	}
 	//
@@ -403,7 +403,7 @@ void BotVoiceChat_WhoIsLeader(bot_state_t *bs, int client, int mode) {
 	//if this bot IS the team leader
 	if (!Q_stricmp(netname, bs->teamleader)) {
 		BotAI_BotInitialChat(bs, "iamteamleader", NULL);
-		trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+		gi.ai->BotEnterChat(bs->cs, 0, CHAT_TEAM);
 		BotVoiceChatOnly(bs, -1, VOICECHAT_STARTLEADER);
 	}
 }
@@ -424,9 +424,9 @@ void BotVoiceChat_WantOnDefense(bot_state_t *bs, int client, int mode) {
 	//
 	EasyClientName(client, netname, sizeof(netname));
 	BotAI_BotInitialChat(bs, "keepinmind", netname, NULL);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, client, VOICECHAT_YES);
-	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+	gi.ea->EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 
 /*
@@ -445,9 +445,9 @@ void BotVoiceChat_WantOnOffense(bot_state_t *bs, int client, int mode) {
 	//
 	EasyClientName(client, netname, sizeof(netname));
 	BotAI_BotInitialChat(bs, "keepinmind", netname, NULL);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, client, VOICECHAT_YES);
-	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+	gi.ea->EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 
 void BotVoiceChat_Dummy(bot_state_t *bs, int client, int mode) {

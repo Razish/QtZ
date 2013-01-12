@@ -1280,45 +1280,45 @@ void CL_KeyDownEvent( int key, unsigned time )
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-			VM_Call (cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
+			cge.EventHandling( CGAME_EVENT_NONE );
 			return;
 		}
 
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+				uie.SetActiveMenu( UIMENU_INGAME );
 			}
 			else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+				uie.SetActiveMenu( UIMENU_MAIN );
 			}
 			return;
 		}
 
-		VM_Call( uivm, UI_KEY_EVENT, key, qtrue );
+		uie.KeyEvent( key, qtrue );
 		return;
 	}
 
 	// distribute the key down event to the apropriate handler
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
+		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
-		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, qtrue );
-		} 
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, qtrue );
-		} 
-	} else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
-		Message_Key( key );
-	} else if ( clc.state == CA_DISCONNECTED ) {
-		Console_Key( key );
-	} else {
-		// send the bound action
-		CL_ParseBinding( key, qtrue, time );
 	}
+	else if ( Key_GetCatcher() & KEYCATCH_UI ) {
+		if ( cls.uiStarted ) uie.KeyEvent( key, qtrue );
+	}
+	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
+		if ( cls.cgameStarted ) cge.KeyEvent( key, qtrue );
+	}
+	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
+		Message_Key( key );
+	}
+	else if ( clc.state == CA_DISCONNECTED ) {
+		Console_Key( key );
+	}
+	else // send the bound action
+		CL_ParseBinding( key, qtrue, time );
+
 	return;
 }
 
@@ -1353,10 +1353,10 @@ void CL_KeyUpEvent( int key, unsigned time )
 	if( clc.state != CA_DISCONNECTED )
 		CL_ParseBinding( key, qfalse, time );
 
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_KEY_EVENT, key, qfalse );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cgvm ) {
-		VM_Call( cgvm, CG_KEY_EVENT, key, qfalse );
+	if ( (Key_GetCatcher() & KEYCATCH_UI) && cls.uiStarted ) {
+		uie.KeyEvent( key, qfalse );
+	} else if ( (Key_GetCatcher() & KEYCATCH_CGAME) && cls.cgameStarted ) {
+		cge.KeyEvent( key, qfalse );
 	}
 }
 
@@ -1395,7 +1395,7 @@ void CL_CharEvent( int key ) {
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
 	{
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+		uie.KeyEvent( key|K_CHAR_FLAG, qtrue );
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) 
 	{

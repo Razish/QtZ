@@ -39,8 +39,8 @@ typedef struct bot_debugpoly_s
 static bot_debugpoly_t *debugpolygons;
 int bot_maxdebugpolys;
 
-extern botlib_export_t	*botlib_export;
-extern void *botlibLib;
+botlib_export_t	*botlib_export = NULL;
+static void *botlibLib = NULL;
 
 int	bot_enable;
 
@@ -242,7 +242,7 @@ BotImport_inPVS
 ==================
 */
 static int BotImport_inPVS(vec3_t p1, vec3_t p2) {
-	return SV_inPVS (p1, p2);
+	return SV_InPVS (p1, p2);
 }
 
 /*
@@ -438,8 +438,9 @@ SV_BotFrame
 void SV_BotFrame( int time ) {
 	if (!bot_enable) return;
 	//NOTE: maybe the game is already shutdown
-	if (!gvm) return;
-	svi.VM_Call( gvm, BOTAI_START_FRAME, time );
+	if (!ge.BotAIStartFrame)
+		return;
+	ge.BotAIStartFrame( time );
 }
 
 /*

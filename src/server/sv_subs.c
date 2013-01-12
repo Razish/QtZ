@@ -49,10 +49,6 @@ int QDECL Sys_Milliseconds( void ) {
 	return svi.Sys_Milliseconds();
 }
 
-void *VM_ArgPtr( intptr_t intValue ) {
-	return svi.VM_ArgPtr( intValue );
-}
-
 char *CopyString( const char *in ) {
 	return svi.CopyString( in );
 }

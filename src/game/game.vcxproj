@@ -310,7 +310,6 @@
     <ClCompile Include="g_session.c" />
     <ClCompile Include="g_spawn.c" />
     <ClCompile Include="g_svcmds.c" />
-    <ClCompile Include="g_syscalls.c" />
     <ClCompile Include="g_target.c" />
     <ClCompile Include="g_team.c" />
     <ClCompile Include="g_trigger.c" />

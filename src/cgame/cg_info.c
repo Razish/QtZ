@@ -68,7 +68,7 @@ CG_LoadingString
 void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
 
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 }
 
 /*
@@ -82,7 +82,7 @@ void CG_LoadingItem( int itemNum ) {
 	item = &bg_itemlist[itemNum];
 	
 	if ( item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS ) {
-		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip( item->icon );
+		loadingItemIcons[loadingItemIconCount++] = cgi.R_RegisterShaderNoMip( item->icon );
 	}
 
 	CG_LoadingString( item->pickup_name );
@@ -106,14 +106,14 @@ void CG_LoadingClient( int clientNum ) {
 
 		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", model );
 		
-		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+		loadingPlayerIcons[loadingPlayerIconCount] = cgi.R_RegisterShaderNoMip( iconName );
 		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
 			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", model );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+			loadingPlayerIcons[loadingPlayerIconCount] = cgi.R_RegisterShaderNoMip( iconName );
 		}
 		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
 			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", DEFAULT_MODEL );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+			loadingPlayerIcons[loadingPlayerIconCount] = cgi.R_RegisterShaderNoMip( iconName );
 		}
 		if ( loadingPlayerIcons[loadingPlayerIconCount] ) {
 			loadingPlayerIconCount++;
@@ -148,16 +148,16 @@ void CG_DrawInformation( void ) {
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
 	s = Info_ValueForKey( info, "mapname" );
-	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+	levelshot = cgi.R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
 	if ( !levelshot ) {
-		levelshot = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
+		levelshot = cgi.R_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
 
 	// blend a detail texture over it
-	detail = trap_R_RegisterShader( "levelShotDetail" );
-	trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
+	detail = cgi.R_RegisterShader( "levelShotDetail" );
+	cgi.R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
 
 	// draw the icons of things as they are loaded
 	CG_DrawLoadingIcons();
@@ -177,7 +177,7 @@ void CG_DrawInformation( void ) {
 	y = 180-32;
 
 	// don't print server lines if playing a local game
-	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
+	cgi.Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
 	if ( !atoi( buf ) ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);

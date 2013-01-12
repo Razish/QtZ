@@ -309,7 +309,6 @@
     <ClCompile Include="cg_scoreboard.c" />
     <ClCompile Include="cg_servercmds.c" />
     <ClCompile Include="cg_snapshot.c" />
-    <ClCompile Include="cg_syscalls.c" />
     <ClCompile Include="cg_view.c" />
     <ClCompile Include="cg_weapons.c" />
     <ClCompile Include="cg_weaponfx.c" />

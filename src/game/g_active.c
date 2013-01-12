@@ -233,7 +233,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	VectorSubtract( ent->client->ps.origin, range, mins );
 	VectorAdd( ent->client->ps.origin, range, maxs );
 
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = gi.SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	// can't use ent->absmin, because that has a one unit pad
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
@@ -266,7 +266,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 				continue;
 			}
 		} else {
-			if ( !trap_EntityContact( mins, maxs, hit ) ) {
+			if ( !gi.SV_EntityContact( mins, maxs, (sharedEntity_t *)hit, qfalse ) ) {
 				continue;
 			}
 		}
@@ -281,7 +281,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 			VectorAdd( ent->client->ps.origin, ent->r.mins, newMins );
 			VectorAdd( ent->client->ps.origin, ent->r.maxs, newMaxs );
 
-			if ( !trap_EntityContact( newMins, newMaxs, hit ) )
+			if ( !gi.SV_EntityContact( newMins, newMaxs, (sharedEntity_t *)hit, qfalse ) )
 				continue;
 		}
 		//~QtZ
@@ -329,8 +329,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
-		pm.trace = trap_Trace;
-		pm.pointcontents = trap_PointContents;
+		pm.trace = gi.SV_Trace;
+		pm.pointcontents = gi.SV_PointContents;
 
 		// perform a pmove
 		Pmove (&pm);
@@ -338,7 +338,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		VectorCopy( client->ps.origin, ent->s.origin );
 
 		G_TouchTriggers( ent );
-		trap_UnlinkEntity( ent );
+		gi.SV_UnlinkEntity( (sharedEntity_t*)ent );
 	}
 
 	client->oldbuttons = client->buttons;
@@ -373,12 +373,12 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient ) {
 		if ( level.time > client->inactivityTime ) {
-			trap_DropClient( client - level.clients, "Dropped due to inactivity" );
+			gi.SV_GameDropClient( client - level.clients, "Dropped due to inactivity" );
 			return qfalse;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
 			client->inactivityWarning = qtrue;
-			trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
+			gi.SV_GameSendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
 		}
 	}
 	return qtrue;
@@ -707,8 +707,8 @@ void ClientThink_real( gentity_t *ent ) {
 	else {
 		pm.tracemask = MASK_PLAYERSOLID;
 	}
-	pm.trace = trap_Trace;
-	pm.pointcontents = trap_PointContents;
+	pm.trace = gi.SV_Trace;
+	pm.pointcontents = gi.SV_PointContents;
 	pm.noFootsteps = !!(dmflags.integer & DF_NO_FOOTSTEPS);
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
@@ -746,7 +746,7 @@ void ClientThink_real( gentity_t *ent ) {
 		ClientEvents( ent, oldEventSequence );
 
 	// link entity now, after any personal teleporters have been used
-	trap_LinkEntity (ent);
+	gi.SV_LinkEntity( (sharedEntity_t *)ent );
 	if ( !ent->client->noclip ) {
 		G_TouchTriggers( ent );
 	}
@@ -806,7 +806,7 @@ void ClientThink( int clientNum ) {
 	gentity_t *ent;
 
 	ent = g_entities + clientNum;
-	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
+	gi.SV_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while
@@ -974,7 +974,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	SendPendingPredictableEvents( &ent->client->ps );
 
 	// set the bit for the reachability area the client is currently in
-//	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
+//	i = gi.aas->AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
 //	ent->client->areabits[i >> 3] |= 1 << (i & 7);
 }
 

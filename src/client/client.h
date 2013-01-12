@@ -357,8 +357,8 @@ extern	qboolean	cl_oldGameSet;
 
 //=============================================================================
 
-extern	vm_t			*cgvm;	// interface to cgame dll or vm
-extern	vm_t			*uivm;	// interface to ui dll or vm
+extern	cgameExport_t	cge;	// interface to cgame .dll
+extern	uiExport_t		uie;	// interface to ui .dll
 extern	refexport_t		re;		// interface to refresh .dll
 
 
@@ -459,6 +459,7 @@ void CL_BotInitBotLib( void );
 
 void CL_Init (void);
 void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
+void CL_AddReliableCommand2(const char *cmd);
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 

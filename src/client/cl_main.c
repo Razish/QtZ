@@ -126,7 +126,6 @@ cvar_t	*cl_rate;
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
-vm_t				*cgvm;
 
 char				cl_reconnectArgs[MAX_OSPATH];
 char				cl_oldGame[MAX_QPATH];
@@ -357,12 +356,12 @@ void CL_VoipParseTargets(void)
 			{
 				if(!Q_stricmpn(target, "attacker", 8))
 				{
-					val = VM_Call(cgvm, CG_LAST_ATTACKER);
+					val = cge.LastAttacker();
 					target += 8;
 				}
 				else if(!Q_stricmpn(target, "crosshair", 9))
 				{
-					val = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+					val = cge.CrosshairPlayer();
 					target += 9;
 				}
 				else
@@ -606,6 +605,10 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd)
 
 	Q_strncpyz(clc.reliableCommands[++clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1)],
 		   cmd, sizeof(*clc.reliableCommands));
+}
+
+void CL_AddReliableCommand2( const char *cmd ) {
+	CL_AddReliableCommand( cmd, qfalse );
 }
 
 /*
@@ -1397,8 +1400,8 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		clc.demofile = 0;
 	}
 
-	if ( uivm && showMainMenu ) {
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
+	if ( cls.uiStarted && showMainMenu ) {
+		uie.SetActiveMenu( UIMENU_NONE );
 	}
 
 	SCR_StopCinematic ();
@@ -2822,12 +2825,12 @@ void CL_Frame ( int msec ) {
 	if ( cls.cddialog ) {
 		// bring up the cd error dialog if needed
 		cls.cddialog = qfalse;
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
+		uie.SetActiveMenu( UIMENU_NEED_CD );
 	} else	if ( clc.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
-		&& !com_sv_running->integer && uivm ) {
+		&& !com_sv_running->integer /*&& uivm*/ ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+		uie.SetActiveMenu( UIMENU_MAIN );
 	}
 
 	// if recording an avi, lock to a fixed fps

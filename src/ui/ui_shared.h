@@ -19,9 +19,7 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#ifndef __UI_SHARED_H
-#define __UI_SHARED_H
-
+#pragma once
 
 #include "../qcommon/q_shared.h"
 #include "../renderer/tr_types.h"
@@ -482,10 +480,12 @@ void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);
 void Controls_SetDefaults( void );
 
-int			trap_PC_AddGlobalDefine( char *define );
-int			trap_PC_LoadSource( const char *filename );
-int			trap_PC_FreeSource( int handle );
-int			trap_PC_ReadToken( int handle, pc_token_t *pc_token );
-int			trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
-
+#if defined(PROJECT_CGAME)
+	#include "../cgame/cg_local.h"
+	#define trap_PC_ReadToken			cgi.PC_ReadTokenHandle
+	#define trap_PC_SourceFileAndLine	cgi.PC_SourceFileAndLine
+#elif defined(PROJECT_UI)
+	#include "ui_local.h"
+	#define trap_PC_ReadToken			uii.PC_ReadTokenHandle
+	#define trap_PC_SourceFileAndLine	uii.PC_SourceFileAndLine
 #endif

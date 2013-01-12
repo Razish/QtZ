@@ -448,7 +448,7 @@ void CG_DrawOldTourneyScoreboard( void ) {
 	// request more scores regularly
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
 		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand( "score" );
+		cgi.SendClientCommand( "score" );
 	}
 
 	// draw the dialog background

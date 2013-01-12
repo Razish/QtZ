@@ -114,7 +114,7 @@ Con_MessageMode3_f
 ================
 */
 void Con_MessageMode3_f (void) {
-	chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
+	chat_playerNum = cge.CrosshairPlayer();
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -131,7 +131,7 @@ Con_MessageMode4_f
 ================
 */
 void Con_MessageMode4_f (void) {
-	chat_playerNum = VM_Call( cgvm, CG_LAST_ATTACKER );
+	chat_playerNum = cge.LastAttacker();
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -410,7 +410,7 @@ void CL_ConsolePrint( char *txt ) {
 	}
 	
 	if (!con.initialized) {
-		MAKERGBA( con.color, 0.5f, 0.666666f, 1.0f, 1.0f );
+		MAKERGBA( con.color, 1.0f, 0.788f, 0.054f, 0.8f );
 		con.linewidth = -1;
 		Con_CheckResize ();
 		con.initialized = qtrue;
@@ -602,7 +602,7 @@ void Con_DrawSolidConsole( float frac ) {
 	int				lines;
 //	qhandle_t		conShader;
 	int				currentColor;
-	vec4_t			color = { 0.5f, 0.666f, 1.0f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
+	vec4_t			color = { 1.0f, 0.788f, 0.054f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 
 	lines = cls.glconfig.vidHeight * frac;
 	if (lines <= 0)

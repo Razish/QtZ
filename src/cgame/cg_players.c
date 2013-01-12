@@ -51,7 +51,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 	int			i;
 
 	if ( soundName[0] != '*' ) {
-		return trap_S_RegisterSound( soundName, qfalse );
+		return cgi.S_RegisterSound( soundName, qfalse );
 	}
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
@@ -101,18 +101,18 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	animations = ci->animations;
 
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = cgi.FS_Open( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
 		CG_Printf( "File %s too long\n", filename );
-		trap_FS_FCloseFile( f );
+		cgi.FS_Close( f );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	cgi.FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	cgi.FS_Close( f );
 
 	// parse the text
 	text_p = text;
@@ -298,7 +298,7 @@ CG_FileExists
 static qboolean	CG_FileExists(const char *filename) {
 	int len;
 
-	len = trap_FS_FOpenFile( filename, NULL, FS_READ );
+	len = cgi.FS_Open( filename, NULL, FS_READ );
 	if (len>0) {
 		return qtrue;
 	}
@@ -331,19 +331,19 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName )
 
 	//lower
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "lower", "skin" ) )
-		ci->legsSkin = trap_R_RegisterSkin( filename );
+		ci->legsSkin = cgi.R_RegisterSkin( filename );
 	if ( !ci->legsSkin )
 		Com_Printf( "Leg skin load failure: %s\n", filename );
 
 	//torso
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "upper", "skin" ) )
-		ci->torsoSkin = trap_R_RegisterSkin( filename );
+		ci->torsoSkin = cgi.R_RegisterSkin( filename );
 	if ( !ci->torsoSkin )
 		Com_Printf( "Torso skin load failure: %s\n", filename );
 
 	//head
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "head", "skin" ) )
-		ci->headSkin = trap_R_RegisterSkin( filename );
+		ci->headSkin = cgi.R_RegisterSkin( filename );
 	if ( !ci->headSkin )
 		Com_Printf( "Head skin load failure: %s\n", filename );
 
@@ -365,7 +365,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//legs
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
-	ci->legsModel = trap_R_RegisterModel( filename );
+	ci->legsModel = cgi.R_RegisterModel( filename );
 	if ( !ci->legsModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -374,7 +374,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//torso
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
-	ci->torsoModel = trap_R_RegisterModel( filename );
+	ci->torsoModel = cgi.R_RegisterModel( filename );
 	if ( !ci->torsoModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -383,7 +383,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//head
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
-	ci->headModel = trap_R_RegisterModel( filename );
+	ci->headModel = cgi.R_RegisterModel( filename );
 	if ( !ci->headModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -405,7 +405,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 	}
 
 	if ( CG_FindClientModelFile( filename, sizeof(filename), modelName, "icon", "tga" ) )
-		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
+		ci->modelIcon = cgi.R_RegisterShaderNoMip( filename );
 
 	if ( !ci->modelIcon )
 		return qfalse;
@@ -467,7 +467,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	if ( ci->torsoModel ) {
 		orientation_t tag;
 		// if the torso model has the "tag_flag"
-		if ( trap_R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" ) ) {
+		if ( cgi.R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" ) ) {
 			ci->newAnims = qtrue;
 		}
 	}
@@ -485,9 +485,9 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 		ci->sounds[i] = 0;
 		// if the model didn't load use the sounds of the default model
 		if (modelloaded)
-			ci->sounds[i] = trap_S_RegisterSound( va("sound/player/%s/%s", dir, s + 1), qfalse );
+			ci->sounds[i] = cgi.S_RegisterSound( va("sound/player/%s/%s", dir, s + 1), qfalse );
 		if ( !ci->sounds[i] )
-			ci->sounds[i] = trap_S_RegisterSound( va("sound/player/%s/%s", fallback, s + 1), qfalse );
+			ci->sounds[i] = cgi.S_RegisterSound( va("sound/player/%s/%s", fallback, s + 1), qfalse );
 	}
 
 	ci->deferred = qfalse;
@@ -717,7 +717,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// so we can avoid loading checks if possible
 	if ( !CG_ScanForExistingClientInfo( &newInfo ) )
 	{
-		qboolean forceDefer = (qboolean)!!(trap_MemoryRemaining() < 4000000);
+		qboolean forceDefer = (qboolean)!!(cgi.MemoryRemaining() < 4000000);
 
 		// if we are defering loads, just have it pick the first valid
 		if ( forceDefer || (cg_deferPlayers.integer && !cg.loading ) )
@@ -758,7 +758,7 @@ void CG_LoadDeferredPlayers( void ) {
 	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
 		if ( ci->infoValid && ci->deferred ) {
 			// if we are low on memory, leave it deferred
-			if ( trap_MemoryRemaining() < 0x400000 ) { // < 4 Mb
+			if ( cgi.MemoryRemaining() < 0x400000 ) { // < 4 Mb
 				CG_Printf( "Memory is low. Using deferred model.\n" );
 				ci->deferred = qfalse;
 				continue;
@@ -1249,7 +1249,7 @@ static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
 	AnglesToAxis( angles, ent.axis );
 
 	ent.hModel = hModel;
-	trap_R_AddRefEntityToScene( &ent );
+	cgi.R_AddRefEntityToScene( &ent );
 }
 
 
@@ -1282,7 +1282,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
-	trap_R_AddRefEntityToScene( &pole );
+	cgi.R_AddRefEntityToScene( &pole );
 
 	// show the flag model
 	memset( &flag, 0, sizeof(flag) );
@@ -1382,7 +1382,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
-	trap_R_AddRefEntityToScene( &flag );
+	cgi.R_AddRefEntityToScene( &flag );
 }
 
 
@@ -1402,7 +1402,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
+		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
 	}
 
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
@@ -1414,7 +1414,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
+		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
 	}
 
 	// blueflag
@@ -1425,7 +1425,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
+		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
 	}
 
 	// neutralflag
@@ -1436,7 +1436,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
+		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
 	}
 }
 
@@ -1469,7 +1469,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	ent.shaderRGBA[1] = 255;
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = 255;
-	trap_R_AddRefEntityToScene( &ent );
+	cgi.R_AddRefEntityToScene( &ent );
 }
 
 
@@ -1558,7 +1558,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	VectorCopy( cent->lerpOrigin, end );
 	end[2] -= SHADOW_DISTANCE;
 
-	trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
+	cgi.CM_Trace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID, qfalse );
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
@@ -1623,7 +1623,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	}
 
 	// trace down to find the surface
-	trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) );
+	cgi.CM_Trace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
@@ -1670,7 +1670,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	trap_R_AddPolyToScene( cgs.media.wakeMarkShader, 4, verts );
+	cgi.R_AddPolysToScene( cgs.media.wakeMarkShader, 4, verts, 1 );
 }
 
 
@@ -1696,7 +1696,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		MAKERGB( ent->shaderRGBA, color[0], color[1], color[2] );
 	}
 
-	trap_R_AddRefEntityToScene( ent );
+	cgi.R_AddRefEntityToScene( ent );
 
 	if ( state->powerups & ( 1 << PW_QUAD ) )
 	{
@@ -1704,12 +1704,12 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			ent->customShader = cgs.media.redQuadShader;
 		else
 			ent->customShader = cgs.media.quadShader;
-		trap_R_AddRefEntityToScene( ent );
+		cgi.R_AddRefEntityToScene( ent );
 	}
 	if ( state->powerups & ( 1 << PW_REGEN ) ) {
 		if ( ((cg.time/100) % 10) == 1 ) {
 			ent->customShader = cgs.media.regenShader;
-			trap_R_AddRefEntityToScene( ent );
+			cgi.R_AddRefEntityToScene( ent );
 		}
 	}
 }
@@ -1727,7 +1727,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	vec3_t			lightDir;
 	vec3_t			directedLight;
 
-	trap_R_LightForPoint( verts[0].xyz, ambientLight, directedLight, lightDir );
+	cgi.R_LightForPoint( verts[0].xyz, ambientLight, directedLight, lightDir );
 
 	for (i = 0; i < numVerts; i++) {
 		incoming = DotProduct (normal, lightDir);
@@ -1879,7 +1879,7 @@ void CG_Player( centity_t *cent ) {
 		powerup.frame = 0;
 		powerup.oldframe = 0;
 		powerup.customSkin = 0;
-		trap_R_AddRefEntityToScene( &powerup );
+		cgi.R_AddRefEntityToScene( &powerup );
 	}
 
 	t = cg.time - ci->medkitUsageTime;
@@ -1906,7 +1906,7 @@ void CG_Player( centity_t *cent ) {
 			powerup.shaderRGBA[2] = 0xff;
 			powerup.shaderRGBA[3] = 0xff;
 		}
-		trap_R_AddRefEntityToScene( &powerup );
+		cgi.R_AddRefEntityToScene( &powerup );
 	}
 
 	//

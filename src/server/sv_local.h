@@ -2,8 +2,6 @@
 
 #include "sv_public.h"
 
-extern serverImport_t svi;
-
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../game/g_public.h"
@@ -236,9 +234,11 @@ typedef struct
 
 //=============================================================================
 
+extern	serverImport_t	svi;
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
-extern	vm_t			*gvm;				// game virtual machine
+extern	gameExport_t	ge;					// game virtual machine
+extern	botlib_export_t	*botlib_export;
 
 extern	cvar_t	*sv_fps;
 extern	cvar_t	*sv_timeout;
@@ -365,7 +365,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
 void		SV_RestartGameProgs( void );
-qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
+qboolean	SV_InPVS (const vec3_t p1, const vec3_t p2);
 
 //
 // sv_bot.c
@@ -424,7 +424,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
 
-void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule );
+void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule );
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,

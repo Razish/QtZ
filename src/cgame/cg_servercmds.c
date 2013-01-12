@@ -156,7 +156,7 @@ void CG_ParseServerinfo( void ) {
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
+	cgi.Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 
@@ -176,24 +176,24 @@ void CG_ParseServerinfo( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
-	trap_Cvar_Set("g_redTeam", cgs.redTeam);
+	cgi.Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
-	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+	cgi.Cvar_Set("g_blueTeam", cgs.blueTeam);
 
 	//QtZ: Added
 	cgs.server.cinfo = atoi( Info_ValueForKey( info, "qtz_cinfo" ) );
 	Q_strncpyz( cgs.server.hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof( cgs.server.hostname ) );
 
-	trap_Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "g_delagHitscan" ) ) ) );
+	cgi.Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "g_delagHitscan" ) ) ) );
 	//QTZFIXME: Physics HUD/UI alerts
 #if 0
-	trap_Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMAIRCONTROL) ) );
-	trap_Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMDOUBLEJUMP) ) );
-	trap_Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.server.cinfo & CINFO_BUNNYHOP) ) );
-	trap_Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.server.cinfo & CINFO_WALLJUMP) ) );
+	cgi.Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMAIRCONTROL) ) );
+	cgi.Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMDOUBLEJUMP) ) );
+	cgi.Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.server.cinfo & CINFO_BUNNYHOP) ) );
+	cgi.Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.server.cinfo & CINFO_WALLJUMP) ) );
 #endif
-	trap_Cvar_Set( "ui_about_svfps",		va( "%i", atoi( Info_ValueForKey( info, "sv_fps" ) ) ) );
-	trap_Cvar_Set( "ui_about_speed",		va( "%i", atoi( Info_ValueForKey( info, "g_speed" ) ) ) );
+	cgi.Cvar_Set( "ui_about_svfps",		va( "%i", atoi( Info_ValueForKey( info, "sv_fps" ) ) ) );
+	cgi.Cvar_Set( "ui_about_speed",		va( "%i", atoi( Info_ValueForKey( info, "g_speed" ) ) ) );
 }
 
 /*
@@ -213,9 +213,9 @@ static void CG_ParseWarmup( void ) {
 	if ( warmup == 0 && cg.warmup ) {
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
 		if ( cgs.gametype >= GT_TEAM )
-			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
+			cgi.S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
 		else
-			trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
+			cgi.S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
 	}
 
 	cg.warmup = warmup;
@@ -278,7 +278,7 @@ void CG_ShaderStateChanged(void) {
 				strncpy(timeOffset, t, o-t);
 				timeOffset[o-t] = 0;
 				o++;
-				trap_R_RemapShader( originalShader, newShader, timeOffset );
+				cgi.R_RemapShader( originalShader, newShader, timeOffset );
 			}
 		} else {
 			break;
@@ -300,7 +300,7 @@ static void CG_ConfigStringModified( void ) {
 
 	// get the gamestate from the client system, which will have the
 	// new configstring already integrated
-	trap_GetGameState( &cgs.gameState );
+	cgi.GetGameState( &cgs.gameState );
 
 	// look up the individual string that was modified
 	str = CG_ConfigString( num );
@@ -329,7 +329,7 @@ static void CG_ConfigStringModified( void ) {
 		cgs.voteModified = qtrue;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		cgi.S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
 		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
@@ -341,14 +341,14 @@ static void CG_ConfigStringModified( void ) {
 		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
 		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		cgi.S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
-		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
+		cgs.gameModels[ num-CS_MODELS ] = cgi.R_RegisterModel( str );
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {
 		if ( str[0] != '*' ) {	// player specific sounds don't register here
-			cgs.gameSounds[ num-CS_SOUNDS] = trap_S_RegisterSound( str, qfalse );
+			cgs.gameSounds[ num-CS_SOUNDS] = cgi.S_RegisterSound( str, qfalse );
 		}
 	} else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS ) {
 		CG_NewClientInfo( num - CS_PLAYERS );
@@ -468,16 +468,16 @@ static void CG_MapRestart( void ) {
 
 	CG_StartMusic();
 
-	trap_S_ClearLoopingSounds(qtrue);
+	cgi.S_ClearLoopingSounds(qtrue);
 
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
-		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
+		cgi.S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
 	}
-	trap_Cvar_Set("cg_thirdPerson", "0");
+	cgi.Cvar_Set("cg_thirdPerson", "0");
 }
 
 #define MAX_VOICEFILESIZE	16384
@@ -526,20 +526,20 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	voiceChat_t *voiceChats;
 	sfxHandle_t sound;
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = cgi.FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "voice chat file not found: %s\n", filename ) );
+		cgi.Print( va( S_COLOR_RED "voice chat file not found: %s\n", filename ) );
 		return qfalse;
 	}
 	if ( len >= MAX_VOICEFILESIZE ) {
-		trap_Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
-		trap_FS_FCloseFile( f );
+		cgi.Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
+		cgi.FS_Close( f );
 		return qfalse;
 	}
 
-	trap_FS_Read( buf, len, f );
+	cgi.FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	cgi.FS_Close( f );
 
 	ptr = buf;
 	p = &ptr;
@@ -563,7 +563,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 		voiceChatList->gender = GENDER_NEUTER;
 	}
 	else {
-		trap_Print( va( S_COLOR_RED "expected gender not found in voice chat file: %s\n", filename ) );
+		cgi.Print( va( S_COLOR_RED "expected gender not found in voice chat file: %s\n", filename ) );
 		return qfalse;
 	}
 
@@ -576,7 +576,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 		Com_sprintf(voiceChats[voiceChatList->numVoiceChats].id, sizeof( voiceChats[voiceChatList->numVoiceChats].id ), "%s", token);
 		token = COM_ParseExt(p, qtrue);
 		if (Q_stricmp(token, "{")) {
-			trap_Print( va( S_COLOR_RED "expected { found %s in voice chat file: %s\n", token, filename ) );
+			cgi.Print( va( S_COLOR_RED "expected { found %s in voice chat file: %s\n", token, filename ) );
 			return qfalse;
 		}
 		voiceChats[voiceChatList->numVoiceChats].numSounds = 0;
@@ -587,7 +587,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 			}
 			if (!Q_stricmp(token, "}"))
 				break;
-			sound = trap_S_RegisterSound( token, qtrue );
+			sound = cgi.S_RegisterSound( token, qtrue );
 			voiceChats[voiceChatList->numVoiceChats].sounds[voiceChats[voiceChatList->numVoiceChats].numSounds] = sound;
 			token = COM_ParseExt(p, qtrue);
 			if (!token || token[0] == 0) {
@@ -615,7 +615,7 @@ CG_LoadVoiceChats
 void CG_LoadVoiceChats( void ) {
 	int size;
 
-	size = trap_MemoryRemaining();
+	size = cgi.MemoryRemaining();
 	CG_ParseVoiceChats( "scripts/female1.voice", &voiceChatLists[0], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/female2.voice", &voiceChatLists[1], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/female3.voice", &voiceChatLists[2], MAX_VOICECHATS );
@@ -624,7 +624,7 @@ void CG_LoadVoiceChats( void ) {
 	CG_ParseVoiceChats( "scripts/male3.voice", &voiceChatLists[5], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male4.voice", &voiceChatLists[6], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male5.voice", &voiceChatLists[7], MAX_VOICECHATS );
-	CG_Printf("voice chat memory size = %d\n", size - trap_MemoryRemaining());
+	CG_Printf("voice chat memory size = %d\n", size - cgi.MemoryRemaining());
 }
 
 /*
@@ -639,20 +639,20 @@ int CG_HeadModelVoiceChats( char *filename ) {
 	char **p, *ptr;
 	char *token;
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = cgi.FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		//trap_Print( va( "voice chat file not found: %s\n", filename ) );
+		//cgi.Print( va( "voice chat file not found: %s\n", filename ) );
 		return -1;
 	}
 	if ( len >= MAX_VOICEFILESIZE ) {
-		trap_Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
-		trap_FS_FCloseFile( f );
+		cgi.Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
+		cgi.FS_Close( f );
 		return -1;
 	}
 
-	trap_FS_Read( buf, len, f );
+	cgi.FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	cgi.FS_Close( f );
 
 	ptr = buf;
 	p = &ptr;
@@ -794,7 +794,7 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 		return;
 	}
 
-	trap_S_StartLocalSound( vchat->snd, CHAN_VOICE);
+	cgi.S_StartLocalSound( vchat->snd, CHAN_VOICE);
 	if (vchat->clientNum != cg.snap->ps.clientNum) {
 		int orderTask = CG_ValidOrder(vchat->cmd);
 		if (orderTask > 0) {
@@ -975,16 +975,16 @@ static void CG_ServerCommand( void ) {
 		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
 		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
-			trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
+			cgi.S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
 		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
-			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
+			cgi.S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
 		}
 		return;
 	}
 
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly.integer ) {
-			trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+			cgi.S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );
 			CG_Printf( "%s\n", text );
@@ -993,7 +993,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "tchat" ) ) {
-		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+		cgi.S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
@@ -1033,7 +1033,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( Q_stricmp (cmd, "remapShader") == 0 )
 	{
-		if (trap_Argc() == 4)
+		if (cgi.Cmd_Argc() == 4)
 		{
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
@@ -1043,7 +1043,7 @@ static void CG_ServerCommand( void ) {
 			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
 			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
 
-			trap_R_RemapShader(shader1, shader2, shader3);
+			cgi.R_RemapShader(shader1, shader2, shader3);
 		}
 		
 		return;
@@ -1076,7 +1076,7 @@ with this this snapshot.
 */
 void CG_ExecuteNewServerCommands( int latestSequence ) {
 	while ( cgs.serverCommandSequence < latestSequence ) {
-		if ( trap_GetServerCommand( ++cgs.serverCommandSequence ) ) {
+		if ( cgi.GetServerCommand( ++cgs.serverCommandSequence ) ) {
 			CG_ServerCommand();
 		}
 	}

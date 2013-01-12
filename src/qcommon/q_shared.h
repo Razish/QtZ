@@ -1310,7 +1310,7 @@ typedef struct entityState_s {
 	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
 	int		frame;
 
-	int		solid;			// for client side prediction, trap_linkentity sets this properly
+	int		solid;			// for client side prediction, gi.SV_LinkEntity sets this properly
 
 	int		event;			// impulse events -- muzzle flashes, footsteps, etc
 	int		eventParm;

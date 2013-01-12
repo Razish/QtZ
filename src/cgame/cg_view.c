@@ -72,14 +72,14 @@ void CG_TestModel_f (void) {
 	vec3_t		angles;
 
 	memset( &cg.testModelEntity, 0, sizeof(cg.testModelEntity) );
-	if ( trap_Argc() < 2 ) {
+	if ( cgi.Cmd_Argc() < 2 ) {
 		return;
 	}
 
 	Q_strncpyz (cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
-	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
+	cg.testModelEntity.hModel = cgi.R_RegisterModel( cg.testModelName );
 
-	if ( trap_Argc() == 3 ) {
+	if ( cgi.Cmd_Argc() == 3 ) {
 		cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
@@ -143,7 +143,7 @@ static void CG_AddTestModel (void) {
 	int		i;
 
 	// re-register the model, because the level may have changed
-	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
+	cg.testModelEntity.hModel = cgi.R_RegisterModel( cg.testModelName );
 	if (! cg.testModelEntity.hModel ) {
 		CG_Printf ("Can't register model\n");
 		return;
@@ -164,7 +164,7 @@ static void CG_AddTestModel (void) {
 		}
 	}
 
-	trap_R_AddRefEntityToScene( &cg.testModelEntity );
+	cgi.R_AddRefEntityToScene( &cg.testModelEntity );
 }
 
 
@@ -505,7 +505,7 @@ static int CG_CalcFovJA( void ) {
 				static int zoomSoundTime = 0;
 				if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 				{
-					trap_S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
+					cgi.S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
 					zoomSoundTime = cg.time + 300;
 				}
 			}
@@ -529,7 +529,7 @@ static int CG_CalcFovJA( void ) {
 				static int zoomSoundTime = 0;
 				if ( zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 )
 				{
-					trap_S_StartSound( cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
+					cgi.S_StartSound( cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
 					zoomSoundTime = cg.time + 300;
 				}
 			}
@@ -721,7 +721,7 @@ static void CG_DamageBlendBlob( void ) {
 	ent.shaderRGBA[1] = 255;
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
-	trap_R_AddRefEntityToScene( &ent );
+	cgi.R_AddRefEntityToScene( &ent );
 }
 
 static int CG_CalcFov( void )
@@ -756,7 +756,7 @@ static int CG_CalcViewValues( void ) {
 /*
 	if (cg.cameraMode) {
 		vec3_t origin, angles;
-		if (trap_getCameraInfo(cg.time, &origin, &angles)) {
+		if (cgi.getCameraInfo(cg.time, &origin, &angles)) {
 			VectorCopy(origin, cg.refdef.vieworg);
 			angles[ROLL] = 0;
 			VectorCopy(angles, cg.refdefViewAngles);
@@ -840,7 +840,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			cgi.S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }
@@ -868,7 +868,7 @@ CG_PlayBufferedSounds
 static void CG_PlayBufferedSounds( void ) {
 	if ( cg.soundTime < cg.time ) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
+			cgi.S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
 			cg.soundTime = cg.time + 750;
@@ -883,6 +883,7 @@ static void CG_PlayBufferedSounds( void ) {
 CG_DrawActiveFrame
 
 Generates and draws a game scene and status information at the given time.
+If demoPlayback is set, local movement prediction will not be enabled
 =================
 */
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
@@ -903,10 +904,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// any looped sounds will be respecified as entities
 	// are added to the render list
-	trap_S_ClearLoopingSounds(qfalse);
+	cgi.S_ClearLoopingSounds(qfalse);
 
 	// clear all the render lists
-	trap_R_ClearScene();
+	cgi.R_ClearScene();
 
 	// set up cg.snap and possibly cg.nextSnap
 	CG_ProcessSnapshots();
@@ -919,7 +920,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	// let the client system know what our weapon and zoom settings are
-	trap_SetUserCmdValue( cg.weaponSelect, cg.zoomSensitivity );
+	cgi.SetUserCmdValue( cg.weaponSelect, cg.zoomSensitivity );
 
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
@@ -964,7 +965,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	CG_PowerupTimerSounds();
 
 	// update audio positions
-	trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
+	cgi.S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
 	// make sure the lagometerSample and frame timing isn't done twice when in stereo
 	if ( stereoView != STEREO_RIGHT ) {
@@ -987,7 +988,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				timescale.value = cg_timescaleFadeEnd.value;
 		}
 		if (cg_timescaleFadeSpeed.value) {
-			trap_Cvar_Set("timescale", va("%f", timescale.value));
+			cgi.Cvar_Set("timescale", va("%f", timescale.value));
 		}
 	}
 

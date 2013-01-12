@@ -182,7 +182,7 @@ void CG_ClearParticles (void)
 		int j;
 
 		for (j=0; j<shaderAnimCounts[i]; j++) {
-			shaderAnims[i][j] = trap_R_RegisterShader( va("%s%i", shaderAnimNames[i], j+1) );
+			shaderAnims[i][j] = cgi.R_RegisterShader( va("%s%i", shaderAnimNames[i], j+1) );
 		}
 	}
 	numShaderAnims = i;
@@ -838,9 +838,9 @@ void CG_AddParticleToScene (cparticle_t *p, vec3_t org, float alpha)
 	}
 
 	if (p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY)
-		trap_R_AddPolyToScene( p->pshader, 3, TRIverts );
+		cgi.R_AddPolysToScene( p->pshader, 3, TRIverts, 1 );
 	else
-		trap_R_AddPolyToScene( p->pshader, 4, verts );
+		cgi.R_AddPolysToScene( p->pshader, 4, verts, 1 );
 
 }
 

@@ -318,68 +318,6 @@ enum clc_ops_e {
 /*
 ==============================================================
 
-VIRTUAL MACHINE
-
-==============================================================
-*/
-
-typedef struct vm_s vm_t;
-
-typedef enum {
-	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
-} vmInterpret_t;
-
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
-
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT
-} sharedTraps_t;
-
-void	VM_Init( void );
-vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
-				   vmInterpret_t interpret );
-// module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
-
-void	VM_Free( vm_t *vm );
-void	VM_Clear(void);
-void	VM_Forced_Unload_Start(void);
-void	VM_Forced_Unload_Done(void);
-vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
-
-intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
-
-void	VM_Debug( int level );
-
-void	*VM_ArgPtr( intptr_t intValue );
-void	*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
-
-#define	VMA(x) VM_ArgPtr(args[x])
-static ID_INLINE float _vmf(intptr_t x)
-{
-	floatint_t fi;
-	fi.i = (int) x;
-	return fi.f;
-}
-#define	VMF(x)	_vmf(args[x])
-
-
-/*
-==============================================================
-
 CMD
 
 Command text buffering and command execution
@@ -619,8 +557,6 @@ void	FS_FreeFileList( char **list );
 qboolean FS_FileExists( const char *file );
 
 qboolean FS_CreatePath (char *OSPath);
-
-vmInterpret_t FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, int enableDll);
 
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 qboolean FS_CompareZipChecksum(const char *zipfile);
@@ -1047,22 +983,7 @@ NON-PORTABLE SYSTEM SERVICES
 void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
-void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, ...),
-				  intptr_t (QDECL *systemcalls)(intptr_t, ...) );
 void	Sys_UnloadDll( void *dllHandle );
-
-void	Sys_UnloadGame( void );
-void	*Sys_GetGameAPI( void *parms );
-
-void	Sys_UnloadCGame( void );
-void	*Sys_GetCGameAPI( void );
-
-void	Sys_UnloadUI( void );
-void	*Sys_GetUIAPI( void );
-
-//bot libraries
-void	Sys_UnloadBotLib( void );
-void	*Sys_GetBotLibAPI( void *parms );
 
 char	*Sys_GetCurrentUser( void );
 

@@ -37,7 +37,7 @@ typedef struct serverImport_s {
 	void			(*CM_AdjustAreaPortalState)			( int area1, int area2, qboolean open );
 	qboolean		(*CM_AreasConnected)				( int area1, int area2 );
 	int				(*CM_BoxLeafnums)					( const vec3_t mins, const vec3_t maxs, int *list, int listsize, int *lastLeaf );
-	void			(*CM_BoxTrace)						( trace_t *results, const vec3_t start, const vec3_t end, vec3_t mins, vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
+	void			(*CM_BoxTrace)						( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
 	void			(*CM_ClearMap)						( void );
 	byte *			(*CM_ClusterPVS)					( int cluster );
 	char *			(*CM_EntityString)					( void );
@@ -158,13 +158,8 @@ typedef struct serverImport_s {
 	qboolean		(*Sys_IsLANAddress)					( netadr_t adr );
 	int				(*Sys_Milliseconds)					( void );
 	void *			(*Sys_LoadDll)						( const char *name, qboolean useSystemLib );
+	void			(*Sys_UnloadDll)					( void *dllHandle );
 	void			(*Sys_Sleep)						( int msec );
-	void *			(*VM_ArgPtr)						( intptr_t intValue );
-	intptr_t		(*VM_Call)							( vm_t *vm, int callnum, ... );
-	vm_t *			(*VM_Create)						( const char *module, intptr_t (*systemCalls)(intptr_t *), vmInterpret_t interpret );
-	void *			(*VM_ExplicitArgPtr)				( vm_t *vm, intptr_t intValue );
-	void			(*VM_Free)							( vm_t *vm );
-	vm_t *			(*VM_Restart)						( vm_t *vm, qboolean unpure );
 	int				(*Z_AvailableMemory)				( void );
 	void			(*Z_Free)							( void *ptr );
 #ifdef ZONE_DEBUG

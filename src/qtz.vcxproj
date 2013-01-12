@@ -366,9 +366,6 @@
     <ClCompile Include=".\qcommon\q_math.c" />
     <ClCompile Include=".\qcommon\q_shared.c" />
     <ClCompile Include=".\qcommon\unzip.c" />
-    <ClCompile Include=".\qcommon\vm.c" />
-    <ClCompile Include=".\qcommon\vm_interpreted.c" />
-    <ClCompile Include=".\qcommon\vm_x86.c" />
     <ClCompile Include=".\sdl\sdl_snd.c" />
     <ClCompile Include=".\sdl\sdl_input.c" />
     <ClCompile Include=".\sys\con_log.c" />
@@ -404,7 +401,6 @@
     <ClInclude Include=".\qcommon\qfiles.h" />
     <ClInclude Include=".\qcommon\surfaceflags.h" />
     <ClInclude Include=".\qcommon\unzip.h" />
-    <ClInclude Include=".\qcommon\vm_local.h" />
     <ClInclude Include=".\sys\win_resource.h" />
     <ClInclude Include=".\ui\keycodes.h" />
     <ClInclude Include=".\ui\ui_public.h" />
@@ -446,19 +442,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml  -c "-Fl$(IntDir)%(FileName).lst" "-Fo$(IntDir)%(FileName).obj" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include=".\asm\vm_x86_64.asm">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64  -D idx64=1 -c -Zi "-Fl$(IntDir)%(FileName).lst" "-Fo$(IntDir)%(FileName).obj" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(FileName).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64  -D idx64=1 -c "-Fl$(IntDir)%(FileName).lst" "-Fo$(IntDir)%(FileName).obj" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(FileName).obj;%(Outputs)</Outputs>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

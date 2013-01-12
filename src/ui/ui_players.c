@@ -76,7 +76,7 @@ tryagain:
 	}
 
 	if ( item->classname ) {
-		pi->weaponModel = trap_R_RegisterModel( item->world_model[0] );
+		pi->weaponModel = uii.R_RegisterModel( item->world_model[0] );
 	}
 
 	if( pi->weaponModel == 0 ) {
@@ -91,12 +91,12 @@ tryagain:
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_barrel.md3" );
-	pi->barrelModel = trap_R_RegisterModel( path );
+	pi->barrelModel = uii.R_RegisterModel( path );
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_flash.md3" );
-	pi->flashModel = trap_R_RegisterModel( path );
+	pi->flashModel = uii.R_RegisterModel( path );
 
 	MAKERGB( pi->flashDlightColor, 1, 1, 1 );
 }
@@ -250,7 +250,7 @@ static void UI_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	orientation_t	lerped;
 	
 	// lerp the tag
-	trap_CM_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
@@ -277,7 +277,7 @@ static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_
 	vec3_t			tempAxis[3];
 
 	// lerp the tag
-	trap_CM_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
@@ -304,7 +304,7 @@ static void UI_SetLerpFrameAnimation( playerInfo_t *ci, lerpFrame_t *lf, int new
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= MAX_ANIMATIONS ) {
-		trap_Error( va("Bad animation number: %i", newAnimation) );
+		uii.Error( ERR_DROP, "Bad animation number: %i", newAnimation );
 	}
 
 	anim = &ci->animations[ newAnimation ];
@@ -596,7 +596,7 @@ static void UI_PlayerFloatSprite( playerInfo_t *pi, vec3_t origin, qhandle_t sha
 	ent.customShader = shader;
 	ent.radius = 10;
 	ent.renderfx = 0;
-	trap_R_AddRefEntityToScene( &ent );
+	uii.R_AddRefEntityToScene( &ent );
 }
 
 
@@ -674,7 +674,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		pi->pendingWeapon = -1;
 		pi->weaponTimer = 0;
 		if( pi->currentWeapon != pi->weapon ) {
-			trap_S_StartLocalSound( weaponChangeSound, CHAN_LOCAL );
+			uii.S_StartLocalSound( weaponChangeSound, CHAN_LOCAL );
 		}
 	}
 
@@ -709,7 +709,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	refdef.time = dp_realtime;
 
-	trap_R_ClearScene();
+	uii.R_ClearScene();
 
 	// get the rotation information
 	UI_PlayerAngles( pi, legs.axis, torso.axis, head.axis );
@@ -732,7 +732,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);
 
-	trap_R_AddRefEntityToScene( &legs );
+	uii.R_AddRefEntityToScene( &legs );
 
 	if (!legs.hModel) {
 		return;
@@ -754,7 +754,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	torso.renderfx = renderfx;
 
-	trap_R_AddRefEntityToScene( &torso );
+	uii.R_AddRefEntityToScene( &torso );
 
 	//
 	// add the head
@@ -771,7 +771,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	head.renderfx = renderfx;
 
-	trap_R_AddRefEntityToScene( &head );
+	uii.R_AddRefEntityToScene( &head );
 
 	//
 	// add the gun
@@ -782,7 +782,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		VectorCopy( origin, gun.lightingOrigin );
 		UI_PositionEntityOnTag( &gun, &torso, pi->torsoModel, "tag_weapon");
 		gun.renderfx = renderfx;
-		trap_R_AddRefEntityToScene( &gun );
+		uii.R_AddRefEntityToScene( &gun );
 	}
 
 	//
@@ -803,7 +803,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 		UI_PositionRotatedEntityOnTag( &barrel, &gun, pi->weaponModel, "tag_barrel");
 
-		trap_R_AddRefEntityToScene( &barrel );
+		uii.R_AddRefEntityToScene( &barrel );
 	}
 
 	//
@@ -816,12 +816,12 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 			VectorCopy( origin, flash.lightingOrigin );
 			UI_PositionEntityOnTag( &flash, &gun, pi->weaponModel, "tag_flash");
 			flash.renderfx = renderfx;
-			trap_R_AddRefEntityToScene( &flash );
+			uii.R_AddRefEntityToScene( &flash );
 		}
 
 		// make a dlight for the flash
 		if ( pi->flashDlightColor[0] || pi->flashDlightColor[1] || pi->flashDlightColor[2] ) {
-			trap_R_AddLightToScene( flash.origin, 200 + (rand()&31), pi->flashDlightColor[0],
+			uii.R_AddLightToScene( flash.origin, 200 + (rand()&31), pi->flashDlightColor[0],
 				pi->flashDlightColor[1], pi->flashDlightColor[2] );
 		}
 	}
@@ -830,7 +830,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	// add the chat icon
 	//
 	if ( pi->chat ) {
-		UI_PlayerFloatSprite( pi, origin, trap_R_RegisterShaderNoMip( "sprites/balloon3" ) );
+		UI_PlayerFloatSprite( pi, origin, uii.R_RegisterShader( "sprites/balloon3" ) );
 	}
 
 	//
@@ -839,14 +839,14 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	origin[0] -= 100;	// + = behind, - = in front
 	origin[1] += 100;	// + = left, - = right
 	origin[2] += 100;	// + = above, - = below
-	trap_R_AddLightToScene( origin, 500, 1.0, 1.0, 1.0 );
+	uii.R_AddLightToScene( origin, 500, 1.0, 1.0, 1.0 );
 
 	origin[0] -= 100;
 	origin[1] -= 100;
 	origin[2] -= 100;
-	trap_R_AddLightToScene( origin, 500, 1.0, 0.0, 0.0 );
+	uii.R_AddLightToScene( origin, 500, 1.0, 0.0, 0.0 );
 
-	trap_R_RenderScene( &refdef );
+	uii.R_RenderScene( &refdef );
 }
 
 /*
@@ -857,7 +857,7 @@ UI_FileExists
 static qboolean	UI_FileExists(const char *filename) {
 	int len;
 
-	len = trap_FS_FOpenFile( filename, NULL, FS_READ );
+	len = uii.FS_Open( filename, NULL, FS_READ );
 	if (len>0) {
 		return qtrue;
 	}
@@ -930,14 +930,14 @@ static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 	} else {
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
 	}
-	pi->legsSkin = trap_R_RegisterSkin( filename );
+	pi->legsSkin = uii.R_RegisterSkin( filename );
 	if (!pi->legsSkin) {
 		if (teamName && *teamName) {
 			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%s/lower_%s.skin", modelName, teamName, skinName );
 		} else {
 			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/lower_%s.skin", modelName, skinName );
 		}
-		pi->legsSkin = trap_R_RegisterSkin( filename );
+		pi->legsSkin = uii.R_RegisterSkin( filename );
 	}
 
 	if (teamName && *teamName) {
@@ -945,18 +945,18 @@ static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 	} else {
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
 	}
-	pi->torsoSkin = trap_R_RegisterSkin( filename );
+	pi->torsoSkin = uii.R_RegisterSkin( filename );
 	if (!pi->torsoSkin) {
 		if (teamName && *teamName) {
 			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%s/upper_%s.skin", modelName, teamName, skinName );
 		} else {
 			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/upper_%s.skin", modelName, skinName );
 		}
-		pi->torsoSkin = trap_R_RegisterSkin( filename );
+		pi->torsoSkin = uii.R_RegisterSkin( filename );
 	}
 
 	if ( UI_FindClientHeadFile( filename, sizeof(filename), teamName, headModelName, headSkinName, "head", "skin" ) ) {
-		pi->headSkin = trap_R_RegisterSkin( filename );
+		pi->headSkin = uii.R_RegisterSkin( filename );
 	}
 
 	if ( !pi->legsSkin || !pi->torsoSkin || !pi->headSkin ) {
@@ -985,18 +985,18 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 	memset( animations, 0, sizeof( animation_t ) * MAX_ANIMATIONS );
 
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = uii.FS_Open( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= ( sizeof( text ) - 1 ) ) {
 		Com_Printf( "File %s too long\n", filename );
-		trap_FS_FCloseFile( f );
+		uii.FS_Close( f );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	uii.FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	uii.FS_Close( f );
 
 	COM_Compress(text);
 
@@ -1134,10 +1134,10 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	// load cmodels before models so filecache works
 
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
-	pi->legsModel = trap_R_RegisterModel( filename );
+	pi->legsModel = uii.R_RegisterModel( filename );
 	if ( !pi->legsModel ) {
 		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/lower.md3", modelName );
-		pi->legsModel = trap_R_RegisterModel( filename );
+		pi->legsModel = uii.R_RegisterModel( filename );
 		if ( !pi->legsModel ) {
 			Com_Printf( "Failed to load model file %s\n", filename );
 			return qfalse;
@@ -1145,10 +1145,10 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	}
 
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
-	pi->torsoModel = trap_R_RegisterModel( filename );
+	pi->torsoModel = uii.R_RegisterModel( filename );
 	if ( !pi->torsoModel ) {
 		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/upper.md3", modelName );
-		pi->torsoModel = trap_R_RegisterModel( filename );
+		pi->torsoModel = uii.R_RegisterModel( filename );
 		if ( !pi->torsoModel ) {
 			Com_Printf( "Failed to load model file %s\n", filename );
 			return qfalse;
@@ -1161,10 +1161,10 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	else {
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headModelName );
 	}
-	pi->headModel = trap_R_RegisterModel( filename );
+	pi->headModel = uii.R_RegisterModel( filename );
 	if ( !pi->headModel && headModelName[0] != '*') {
 		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", headModelName, headModelName );
-		pi->headModel = trap_R_RegisterModel( filename );
+		pi->headModel = uii.R_RegisterModel( filename );
 	}
 
 	if (!pi->headModel) {

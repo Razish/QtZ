@@ -503,7 +503,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	re.BeginFrame( stereoFrame );
 
-	uiFullscreen = (uivm && VM_Call( uivm, UI_IS_FULLSCREEN ));
+	uiFullscreen = (cls.uiStarted && uie.IsFullscreen());
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
@@ -517,7 +517,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
-	if ( uivm && !uiFullscreen ) {
+	if ( cls.uiStarted && !uiFullscreen ) {
 		switch( clc.state ) {
 		default:
 			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad clc.state" );
@@ -528,15 +528,15 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_DISCONNECTED:
 			// force menu up
 			S_StopAllSounds();
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+			uie.SetActiveMenu( UIMENU_MAIN );
 			break;
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
-			VM_Call( uivm, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qfalse );
+			uie.Refresh( cls.realtime );
+			uie.DrawConnectScreen( qfalse );
 			break;
 		case CA_LOADING:
 		case CA_PRIMED:
@@ -546,8 +546,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			// also draw the connection information, so it doesn't
 			// flash away too briefly on local or lan games
 			// refresh to update the time
-			VM_Call( uivm, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qtrue );
+			uie.Refresh( cls.realtime );
+			uie.DrawConnectScreen( qtrue );
 			break;
 		case CA_ACTIVE:
 			// always supply STEREO_CENTER as vieworg offset is now done by the engine.
@@ -561,8 +561,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_REFRESH, cls.realtime );
+	if ( Key_GetCatcher( ) & KEYCATCH_UI /*&& uivm*/ ) {
+		uie.Refresh( cls.realtime );
 	}
 
 	// console draws next
@@ -596,7 +596,7 @@ void SCR_UpdateScreen( void ) {
 
 	// If there is no VM, there are also no rendering commands issued. Stop the renderer in
 	// that case.
-	if( uivm || com_dedicated->integer )
+	if ( cls.uiStarted || com_dedicated->integer )
 	{
 		// XXX
 		int in_anaglyphMode = Cvar_VariableIntegerValue("r_anaglyphMode");

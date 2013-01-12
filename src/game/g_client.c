@@ -86,7 +86,7 @@ qboolean SpotWouldTelefrag( gentity_t *spot ) {
 
 	VectorAdd( spot->s.origin, playerMins, mins );
 	VectorAdd( spot->s.origin, playerMaxs, maxs );
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = gi.SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
@@ -383,7 +383,7 @@ After sitting around for five seconds, fall into the ground and dissapear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
-		trap_UnlinkEntity( ent );
+		gi.SV_UnlinkEntity( (sharedEntity_t *)ent );
 		ent->physicsObject = qfalse;
 		return;	
 	}
@@ -403,10 +403,10 @@ void CopyToBodyQue( gentity_t *ent ) {
 	gentity_t		*body;
 	int			contents;
 
-	trap_UnlinkEntity (ent);
+	gi.SV_UnlinkEntity ((sharedEntity_t *)ent);
 
 	// if client is in a nodrop area, don't leave the body
-	contents = trap_PointContents( ent->s.origin, -1 );
+	contents = gi.SV_PointContents( ent->s.origin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		return;
 	}
@@ -474,7 +474,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 
 	VectorCopy ( body->s.pos.trBase, body->r.currentOrigin );
-	trap_LinkEntity (body);
+	gi.SV_LinkEntity ((sharedEntity_t *)body);
 }
 
 //======================================================================
@@ -674,7 +674,7 @@ ClientUserInfoChanged
 Called from ClientConnect when the player first connects and
 directly by the server system when the player updates a userinfo variable.
 
-The game can override any of the settings and call trap_SetUserinfo
+The game can override any of the settings and call gi.SV_SetUserinfo
 if desired.
 ============
 */
@@ -694,13 +694,13 @@ void ClientUserinfoChanged( int clientNum ) {
 	ent = g_entities + clientNum;
 	client = ent->client;
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	gi.SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// check for malformed or illegal info strings
 	if ( !Info_Validate(userinfo) ) {
 		strcpy (userinfo, "\\name\\badinfo");
 		// don't keep those clients and userinfo
-		trap_DropClient(clientNum, "Invalid userinfo");
+		gi.SV_GameDropClient(clientNum, "Invalid userinfo");
 	}
 
 	// check for local client
@@ -730,7 +730,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( client->pers.connected == CON_CONNECTED ) {
 		if ( strcmp( oldname, client->pers.netname ) ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
+			gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
 				client->pers.netname) );
 		}
 	}
@@ -817,7 +817,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
-	trap_SetConfigstring( CS_PLAYERS+clientNum, s );
+	gi.SV_SetConfigstring( CS_PLAYERS+clientNum, s );
 
 	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
@@ -853,7 +853,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	ent = &g_entities[ clientNum ];
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	gi.SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
  	// IP filtering
  	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
@@ -911,7 +911,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
+		gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
 	}
 
 	if ( g_gametype.integer >= GT_TEAM &&
@@ -925,7 +925,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// for statistics
 //	client->areabits = areabits;
 //	if ( !client->areabits )
-//		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
+//		client->areabits = G_Alloc( (gi.aas->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }
@@ -949,7 +949,7 @@ void ClientBegin( int clientNum ) {
 	client = level.clients + clientNum;
 
 	if ( ent->r.linked ) {
-		trap_UnlinkEntity( ent );
+		gi.SV_UnlinkEntity( (sharedEntity_t *)ent );
 	}
 	G_InitGentity( ent );
 	ent->touch = 0;
@@ -974,7 +974,7 @@ void ClientBegin( int clientNum ) {
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
+			gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
@@ -1085,7 +1085,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->airOutTime = level.time + 12000;
 
-	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
+	gi.SV_GetUserinfo( index, userinfo, sizeof(userinfo) );
 	// set max health
 	client->pers.maxHealth = atoi( Info_ValueForKey( userinfo, "handicap" ) );
 	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
@@ -1128,7 +1128,7 @@ void ClientSpawn(gentity_t *ent) {
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
-	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	gi.SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1165,7 +1165,7 @@ void ClientSpawn(gentity_t *ent) {
 			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 			tent->s.clientNum = ent->s.clientNum;
 
-			trap_LinkEntity (ent);
+			gi.SV_LinkEntity ((sharedEntity_t *)ent);
 		}
 	} else {
 		// move players to intermission
@@ -1195,7 +1195,7 @@ Called when a player drops from the server.
 Will not be called between levels.
 
 This should NOT be called directly by any game logic,
-call trap_DropClient(), which will call this and do
+call gi.SV_GameDropClient(), which will call this and do
 server system housekeeping.
 ============
 */
@@ -1283,13 +1283,13 @@ void ClientDisconnect( int clientNum ) {
 		ent->client->sess.sessionTeam == TEAM_FREE &&
 		level.intermissiontime ) {
 
-		trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		gi.Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
 		level.restarted = qtrue;
 		level.changemap = NULL;
 		level.intermissiontime = 0;
 	}
 
-	trap_UnlinkEntity (ent);
+	gi.SV_UnlinkEntity ((sharedEntity_t *)ent);
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
@@ -1297,7 +1297,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 
-	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
+	gi.SV_SetConfigstring( CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
 

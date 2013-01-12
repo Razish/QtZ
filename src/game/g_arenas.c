@@ -117,7 +117,7 @@ void UpdateTournamentInfo( void ) {
 		}
 		strcat( msg, buf );
 	}
-	trap_SendConsoleCommand( EXEC_APPEND, msg );
+	gi.Cbuf_ExecuteText( EXEC_APPEND, msg );
 }
 
 
@@ -175,7 +175,7 @@ static gentity_t *SpawnModelOnVictoryPad( gentity_t *pad, vec3_t offset, gentity
 
 	G_SetOrigin( body, vec );
 
-	trap_LinkEntity (body);
+	gi.SV_LinkEntity( (sharedEntity_t *)body );
 
 	body->count = place;
 
@@ -215,8 +215,8 @@ static void PodiumPlacementThink( gentity_t *podium ) {
 	podium->nextthink = level.time + 100;
 
 	AngleVectors( level.intermission_angle, vec, NULL, NULL );
-	VectorMA( level.intermission_origin, trap_Cvar_VariableIntegerValue( "g_podiumDist" ), vec, origin );
-	origin[2] -= trap_Cvar_VariableIntegerValue( "g_podiumDrop" );
+	VectorMA( level.intermission_origin, gi.Cvar_VariableIntegerValue( "g_podiumDist" ), vec, origin );
+	origin[2] -= gi.Cvar_VariableIntegerValue( "g_podiumDrop" );
 	G_SetOrigin( podium, origin );
 
 	if( podium1 ) {
@@ -281,13 +281,13 @@ static gentity_t *SpawnPodium( void ) {
 	podium->s.modelindex = G_ModelIndex( SP_PODIUM_MODEL );
 
 	AngleVectors( level.intermission_angle, vec, NULL, NULL );
-	VectorMA( level.intermission_origin, trap_Cvar_VariableIntegerValue( "g_podiumDist" ), vec, origin );
-	origin[2] -= trap_Cvar_VariableIntegerValue( "g_podiumDrop" );
+	VectorMA( level.intermission_origin, gi.Cvar_VariableIntegerValue( "g_podiumDist" ), vec, origin );
+	origin[2] -= gi.Cvar_VariableIntegerValue( "g_podiumDrop" );
 	G_SetOrigin( podium, origin );
 
 	VectorSubtract( level.intermission_origin, podium->r.currentOrigin, vec );
 	podium->s.apos.trBase[YAW] = vectoyaw( vec );
-	trap_LinkEntity (podium);
+	gi.SV_LinkEntity ((sharedEntity_t *)podium);
 
 	podium->think = PodiumPlacementThink;
 	podium->nextthink = level.time + 100;

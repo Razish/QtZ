@@ -105,7 +105,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	while ((p = strchr(msg, '"')) != NULL)
 		*p = '\'';
 
-	trap_SendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
+	gi.SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
 }
 
 /*
@@ -219,7 +219,7 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 			st[1] = 0;
 		}
 
-		trap_SetConfigstring( CS_FLAGSTATUS, st );
+		gi.SV_SetConfigstring( CS_FLAGSTATUS, st );
 	}
 }
 
@@ -393,9 +393,9 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	VectorSubtract(attacker->r.currentOrigin, flag->r.currentOrigin, v2);
 
 	if ( ( ( VectorLength(v1) < CTF_TARGET_PROTECT_RADIUS &&
-		trap_InPVS(flag->r.currentOrigin, targ->r.currentOrigin ) ) ||
+		gi.SV_InPVS(flag->r.currentOrigin, targ->r.currentOrigin ) ) ||
 		( VectorLength(v2) < CTF_TARGET_PROTECT_RADIUS &&
-		trap_InPVS(flag->r.currentOrigin, attacker->r.currentOrigin ) ) ) &&
+		gi.SV_InPVS(flag->r.currentOrigin, attacker->r.currentOrigin ) ) ) &&
 		attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam) {
 
 		// we defended the base flag
@@ -416,9 +416,9 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		VectorSubtract(attacker->r.currentOrigin, carrier->r.currentOrigin, v1);
 
 		if ( ( ( VectorLength(v1) < CTF_ATTACKER_PROTECT_RADIUS &&
-			trap_InPVS(carrier->r.currentOrigin, targ->r.currentOrigin ) ) ||
+			gi.SV_InPVS(carrier->r.currentOrigin, targ->r.currentOrigin ) ) ||
 			( VectorLength(v2) < CTF_ATTACKER_PROTECT_RADIUS &&
-				trap_InPVS(carrier->r.currentOrigin, attacker->r.currentOrigin ) ) ) &&
+				gi.SV_InPVS(carrier->r.currentOrigin, attacker->r.currentOrigin ) ) ) &&
 			attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam) {
 			AddScore(attacker, targ->r.currentOrigin, CTF_CARRIER_PROTECT_BONUS);
 			attacker->client->pers.teamState.carrierdefense++;
@@ -834,7 +834,7 @@ gentity_t *Team_GetLocation(gentity_t *ent)
 			continue;
 		}
 
-		if ( !trap_InPVS( origin, eloc->r.currentOrigin ) ) {
+		if ( !gi.SV_InPVS( origin, eloc->r.currentOrigin ) ) {
 			continue;
 		}
 
@@ -1036,7 +1036,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		}
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
+	gi.SV_GameSendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
 }
 
 void CheckTeamStatus(void) {

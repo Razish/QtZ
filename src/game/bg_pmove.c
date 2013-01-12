@@ -1867,8 +1867,6 @@ PmoveSingle
 
 ================
 */
-void trap_SnapVector( float *v );
-
 void PmoveSingle (pmove_t *pmove) {
 	pm = pmove;
 
@@ -2041,7 +2039,11 @@ void PmoveSingle (pmove_t *pmove) {
 
 	// snap some parts of playerstate to save network bandwidth
 	if ( pm_snapVec.boolean )
-		trap_SnapVector( pm->ps->velocity );
+#if defined(PROJECT_GAME)
+		gi.Q_SnapVector( pm->ps->velocity );
+#elif defined(PROJECT_CGAME)
+		cgi.Q_SnapVector( pm->ps->velocity );
+#endif
 }
 
 

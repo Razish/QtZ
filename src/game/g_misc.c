@@ -92,7 +92,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	}
 
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	trap_UnlinkEntity (player);
+	gi.SV_UnlinkEntity ((sharedEntity_t *)player);
 
 	VectorCopy ( origin, player->client->ps.origin );
 	player->client->ps.origin[2] += 1;
@@ -119,7 +119,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		trap_LinkEntity (player);
+		gi.SV_LinkEntity ((sharedEntity_t *)player);
 	}
 }
 
@@ -137,7 +137,7 @@ void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	}
 
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	trap_UnlinkEntity (player);
+	gi.SV_UnlinkEntity ((sharedEntity_t *)player);
 
 	VectorCopy ( origin, player->client->ps.origin );
 	player->client->ps.origin[2] += 1;
@@ -155,7 +155,7 @@ void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		trap_LinkEntity (player);
+		gi.SV_LinkEntity ((sharedEntity_t *)player);
 	}
 }
 
@@ -179,7 +179,7 @@ void SP_misc_model( gentity_t *ent ) {
 	ent->s.modelindex = G_ModelIndex( ent->model );
 	VectorSet (ent->mins, -16, -16, -16);
 	VectorSet (ent->maxs, 16, 16, 16);
-	trap_LinkEntity (ent);
+	gi.SV_LinkEntity ((sharedEntity_t *)ent);
 
 	G_SetOrigin( ent, ent->s.origin );
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
@@ -243,7 +243,7 @@ This must be within 64 world units of the surface!
 void SP_misc_portal_surface(gentity_t *ent) {
 	VectorClear( ent->r.mins );
 	VectorClear( ent->r.maxs );
-	trap_LinkEntity (ent);
+	gi.SV_LinkEntity ((sharedEntity_t *)ent);
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
@@ -265,7 +265,7 @@ void SP_misc_portal_camera(gentity_t *ent) {
 
 	VectorClear( ent->r.mins );
 	VectorClear( ent->r.maxs );
-	trap_LinkEntity (ent);
+	gi.SV_LinkEntity ((sharedEntity_t *)ent);
 
 	G_SpawnFloat( "roll", "0", &roll );
 
@@ -347,7 +347,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
 	}
-	trap_LinkEntity( ent );
+	gi.SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
 /*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
