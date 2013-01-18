@@ -157,11 +157,9 @@ static void CG_AddTestModel (void) {
 		VectorCopy( cg.refdef.viewaxis[2], cg.testModelEntity.axis[2] );
 
 		// allow the position to be adjusted
-		for (i=0 ; i<3 ; i++) {
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg.gunAlign.basePos.x;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg.gunAlign.basePos.y;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg.gunAlign.basePos.z;
-		}
+		cg.testModelEntity.origin[0] += cg.refdef.viewaxis[0][0] * cg.gunAlign.basePos.x;
+		cg.testModelEntity.origin[1] += cg.refdef.viewaxis[1][1] * cg.gunAlign.basePos.y;
+		cg.testModelEntity.origin[2] += cg.refdef.viewaxis[2][2] * cg.gunAlign.basePos.z;
 	}
 
 	cgi.R_AddRefEntityToScene( &cg.testModelEntity );

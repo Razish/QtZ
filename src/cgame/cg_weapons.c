@@ -613,9 +613,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		gunLerp.z = cg.gunAlign.basePos.z + point*(cg.gunAlign.zoomPos.z - cg.gunAlign.basePos.z);
 
 		//now offset to hand position
-		VectorMA( hand.origin, gunLerp.x, cg.refdef.viewaxis[i], hand.origin );
-		VectorMA( hand.origin, gunLerp.y, cg.refdef.viewaxis[i], hand.origin );
-		VectorMA( hand.origin, gunLerp.z, cg.refdef.viewaxis[i], hand.origin );
+		VectorMA( hand.origin, gunLerp.x, cg.refdef.viewaxis[0], hand.origin );
+		VectorMA( hand.origin, gunLerp.y, cg.refdef.viewaxis[1], hand.origin );
+		VectorMA( hand.origin, gunLerp.z, cg.refdef.viewaxis[2], hand.origin );
 	}
 
 	AnglesToAxis( angles, hand.axis );
