@@ -90,27 +90,26 @@ typedef struct
 } field_t;
 
 field_t fields[] = {
-	{"classname", FOFS(classname), F_STRING},
-	{"origin", FOFS(s.origin), F_VECTOR},
-	{"model", FOFS(model), F_STRING},
-	{"model2", FOFS(model2), F_STRING},
-	{"spawnflags", FOFS(spawnflags), F_INT},
-	{"speed", FOFS(speed), F_FLOAT},
-	{"target", FOFS(target), F_STRING},
-	{"targetname", FOFS(targetname), F_STRING},
-	{"message", FOFS(message), F_STRING},
-	{"team", FOFS(team), F_STRING},
-	{"wait", FOFS(wait), F_FLOAT},
-	{"random", FOFS(random), F_FLOAT},
-	{"count", FOFS(count), F_INT},
-	{"health", FOFS(health), F_INT},
-	{"dmg", FOFS(damage), F_INT},
-	{"angles", FOFS(s.angles), F_VECTOR},
-	{"angle", FOFS(s.angles), F_ANGLEHACK},
-	{"targetShaderName", FOFS(targetShaderName), F_STRING},
-	{"targetShaderNewName", FOFS(targetShaderNewName), F_STRING},
-
-	{NULL}
+	// sorted alphabetically, not case sensitive
+	{ "angle",					FOFS( s.angles ),				F_ANGLEHACK },
+	{ "angles",					FOFS( s.angles ),				F_VECTOR },
+	{ "classname",				FOFS( classname ),				F_STRING },
+	{ "count",					FOFS( count ),					F_INT },
+	{ "dmg",					FOFS( damage ),					F_INT },
+	{ "health",					FOFS( health ),					F_INT },
+	{ "message",				FOFS( message ),				F_STRING },
+	{ "model",					FOFS( model ),					F_STRING },
+	{ "model2",					FOFS( model2 ),					F_STRING },
+	{ "origin",					FOFS( s.origin ),				F_VECTOR },
+	{ "random",					FOFS( random ),					F_FLOAT },
+	{ "spawnflags",				FOFS( spawnflags ),				F_INT },
+	{ "speed",					FOFS( speed ),					F_FLOAT },
+	{ "target",					FOFS( target ),					F_STRING },
+	{ "targetname",				FOFS( targetname ),				F_STRING },
+	{ "targetShaderName",		FOFS( targetShaderName ),		F_STRING },
+	{ "targetShaderNewName",	FOFS( targetShaderNewName ),	F_STRING },
+	{ "team",					FOFS( team ),					F_STRING },
+	{ "wait",					FOFS( wait ),					F_FLOAT },
 };
 
 
@@ -177,74 +176,54 @@ void SP_team_CTF_bluespawn( gentity_t *ent );
 void SP_item_botroam( gentity_t *ent ) { }
 
 spawn_t	spawns[] = {
-	// info entities don't do anything at all, but provide positional
-	// information for things controlled by other processes
-	{"info_player_start", SP_info_player_start},
-	{"info_player_deathmatch", SP_info_player_deathmatch},
-	{"info_player_intermission", SP_info_player_intermission},
-	{"info_null", SP_info_null},
-	{"info_notnull", SP_info_notnull},		// use target_position instead
-	{"info_camp", SP_info_camp},
-
-	{"func_plat", SP_func_plat},
-	{"func_button", SP_func_button},
-	{"func_door", SP_func_door},
-	{"func_static", SP_func_static},
-	{"func_rotating", SP_func_rotating},
-	{"func_bobbing", SP_func_bobbing},
-	{"func_pendulum", SP_func_pendulum},
-	{"func_train", SP_func_train},
-	{"func_group", SP_info_null},
-	{"func_timer", SP_func_timer},			// rename trigger_timer?
-
-	// Triggers are brush objects that cause an effect when contacted
-	// by a living player, usually involving firing targets.
-	// While almost everything could be done with
-	// a single trigger class and different targets, triggered effects
-	// could not be client side predicted (push and teleport).
-	{"trigger_always", SP_trigger_always},
-	{"trigger_multiple", SP_trigger_multiple},
-	{"trigger_push", SP_trigger_push},
-	{"trigger_teleport", SP_trigger_teleport},
-	{"trigger_hurt", SP_trigger_hurt},
-
-	// targets perform no action by themselves, but must be triggered
-	// by another entity
-	{"target_give", SP_target_give},
-	{"target_remove_powerups", SP_target_remove_powerups},
-	{"target_delay", SP_target_delay},
-	{"target_speaker", SP_target_speaker},
-	{"target_print", SP_target_print},
-	{"target_laser", SP_target_laser},
-	{"target_score", SP_target_score},
-	{"target_teleporter", SP_target_teleporter},
-	{"target_relay", SP_target_relay},
-	{"target_kill", SP_target_kill},
-	{"target_position", SP_target_position},
-	{"target_location", SP_target_location},
-	{"target_push", SP_target_push},
-
-	{"light", SP_light},
-	{"path_corner", SP_path_corner},
-
-	{"misc_teleporter_dest", SP_misc_teleporter_dest},
-	{"misc_model", SP_misc_model},
-	{"misc_portal_surface", SP_misc_portal_surface},
-	{"misc_portal_camera", SP_misc_portal_camera},
-
-	{"shooter_rocket", SP_shooter_rocket},
-	{"shooter_grenade", SP_shooter_grenade},
-	{"shooter_plasma", SP_shooter_plasma},
-
-	{"team_CTF_redplayer", SP_team_CTF_redplayer},
-	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
-
-	{"team_CTF_redspawn", SP_team_CTF_redspawn},
-	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
-
-	{"item_botroam", SP_item_botroam},
-
-	{NULL, 0}
+	{ "func_bobbing",				SP_func_bobbing },
+	{ "func_button",				SP_func_button },
+	{ "func_door",					SP_func_door },
+	{ "func_group",					SP_info_null },
+	{ "func_pendulum",				SP_func_pendulum },
+	{ "func_plat",					SP_func_plat },
+	{ "func_rotating",				SP_func_rotating },
+	{ "func_static",				SP_func_static },
+	{ "func_timer",					SP_func_timer },
+	{ "func_train",					SP_func_train },
+	{ "info_camp",					SP_info_camp },
+	{ "info_null",					SP_info_null },
+	{ "info_notnull",				SP_info_notnull },
+	{ "info_player_deathmatch",		SP_info_player_deathmatch },
+	{ "info_player_intermission",	SP_info_player_intermission },
+	{ "info_player_start",			SP_info_player_start },
+	{ "item_botroam",				SP_item_botroam },
+	{ "light",						SP_light },
+	{ "misc_model",					SP_misc_model },
+	{ "misc_portal_camera",			SP_misc_portal_camera },
+	{ "misc_portal_surface",		SP_misc_portal_surface },
+	{ "misc_teleporter_dest",		SP_misc_teleporter_dest },
+	{ "path_corner",				SP_path_corner },
+	{ "shooter_grenade",			SP_shooter_grenade },
+	{ "shooter_plasma",				SP_shooter_plasma },
+	{ "shooter_rocket",				SP_shooter_rocket },
+	{ "target_delay",				SP_target_delay },
+	{ "target_give",				SP_target_give },
+	{ "target_kill",				SP_target_kill },
+	{ "target_laser",				SP_target_laser },
+	{ "target_location",			SP_target_location },
+	{ "target_position",			SP_target_position },
+	{ "target_print",				SP_target_print },
+	{ "target_push",				SP_target_push },
+	{ "target_relay",				SP_target_relay },
+	{ "target_remove_powerups",		SP_target_remove_powerups },
+	{ "target_score",				SP_target_score },
+	{ "target_speaker",				SP_target_speaker },
+	{ "target_teleporter",			SP_target_teleporter },
+	{ "team_CTF_bluespawn",			SP_team_CTF_bluespawn },
+	{ "team_CTF_blueplayer",		SP_team_CTF_blueplayer },
+	{ "team_CTF_redspawn",			SP_team_CTF_redspawn },
+	{ "team_CTF_redplayer",			SP_team_CTF_redplayer },
+	{ "trigger_always",				SP_trigger_always },
+	{ "trigger_hurt",				SP_trigger_hurt },
+	{ "trigger_multiple",			SP_trigger_multiple },
+	{ "trigger_push",				SP_trigger_push },
+	{ "trigger_teleport",			SP_trigger_teleport },
 };
 
 /*
@@ -255,6 +234,15 @@ Finds the spawn function for the entity and calls it,
 returning qfalse if not found
 ===============
 */
+
+static int itemcmp( const void *a, const void *b) {
+	return strcmp( (const char *)a, ((gitem_t *)b)->classname);
+}
+
+static int spawncmp( const void *a, const void *b ) {
+	return Q_stricmp( (const char *)a, ((spawn_t*)b)->name );
+}
+
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
 	gitem_t	*item;
@@ -265,22 +253,20 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	}
 
 	// check item spawn functions
-	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
-		if ( !strcmp(item->classname, ent->classname) ) {
-			G_SpawnItem( ent, item );
-			return qtrue;
-		}
+	item = (gitem_t *)bsearch( ent->classname, bg_itemlist, bg_numItems, sizeof( gitem_t ), itemcmp );
+	if ( item ) {
+		G_SpawnItem( ent, item );
+		return qtrue;
 	}
 
 	// check normal spawn functions
-	for ( s=spawns ; s->name ; s++ ) {
-		if ( !strcmp(s->name, ent->classname) ) {
-			// found it
-			s->spawn(ent);
-			return qtrue;
-		}
+	s = (spawn_t *)bsearch( ent->classname, spawns, ARRAY_LEN( spawns ), sizeof( spawn_t ), spawncmp );
+	if ( s ) {
+		s->spawn( ent );
+		return qtrue;
 	}
-	G_Printf ("%s doesn't have a spawn function\n", ent->classname);
+
+	G_Printf( "%s doesn't have a spawn function\n", ent->classname );
 	return qfalse;
 }
 
@@ -330,42 +316,44 @@ Takes a key/value pair and sets the binary values
 in a gentity
 ===============
 */
+static int fieldcmp( const void *a, const void *b ) {
+	return Q_stricmp( (const char *)a, ((field_t*)b)->name );
+}
+
 void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	field_t	*f;
 	byte	*b;
 	float	v;
 	vec3_t	vec;
 
-	for ( f=fields ; f->name ; f++ ) {
-		if ( !Q_stricmp(f->name, key) ) {
-			// found it
-			b = (byte *)ent;
+	f = (field_t *)bsearch( key, fields, ARRAY_LEN( fields ), sizeof( field_t ), fieldcmp );
+	if ( f ) {
+		b = (byte *)ent;
 
-			switch( f->type ) {
-			case F_STRING:
-				*(char **)(b+f->ofs) = G_NewString (value);
-				break;
-			case F_VECTOR:
-				sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-				((float *)(b+f->ofs))[0] = vec[0];
-				((float *)(b+f->ofs))[1] = vec[1];
-				((float *)(b+f->ofs))[2] = vec[2];
-				break;
-			case F_INT:
-				*(int *)(b+f->ofs) = atoi(value);
-				break;
-			case F_FLOAT:
-				*(float *)(b+f->ofs) = atof(value);
-				break;
-			case F_ANGLEHACK:
-				v = atof(value);
-				((float *)(b+f->ofs))[0] = 0;
-				((float *)(b+f->ofs))[1] = v;
-				((float *)(b+f->ofs))[2] = 0;
-				break;
-			}
-			return;
+		switch( f->type ) {
+		case F_STRING:
+			*(char **)(b+f->ofs) = G_NewString (value);
+			break;
+		case F_VECTOR:
+			sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+			((float *)(b+f->ofs))[0] = vec[0];
+			((float *)(b+f->ofs))[1] = vec[1];
+			((float *)(b+f->ofs))[2] = vec[2];
+			break;
+		case F_INT:
+			*(int *)(b+f->ofs) = atoi(value);
+			break;
+		case F_FLOAT:
+			*(float *)(b+f->ofs) = atof(value);
+			break;
+		case F_ANGLEHACK:
+			v = atof(value);
+			((float *)(b+f->ofs))[0] = 0;
+			((float *)(b+f->ofs))[1] = v;
+			((float *)(b+f->ofs))[2] = 0;
+			break;
 		}
+		return;
 	}
 }
 

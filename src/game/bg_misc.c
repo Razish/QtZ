@@ -45,55 +45,34 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 "count" override quantity or duration on most items.
 */
 
-gitem_t	bg_itemlist[] = 
-{
-	//	classname					pickup_sound					world_model																		icon							pickup_name				quantity	giType					giTag					precaches	sounds
-	{	NULL,						NULL,							{ NULL,									NULL },									NULL,							NULL,					0,			0,						0,						"",			"" },	// leave index 0 alone
-
-	// armor
-	{	"item_armor_small",			"sound/item_pickup.wav",		{ "models/powerups/armor/small.md3",	NULL },									"icons/armor_small",			"5 Armor",				5,			IT_ARMOR,				0,						"",			"" },
-	{	"item_armor_medium",		"sound/item_pickup.wav",		{ "models/powerups/armor/medium.md3",	NULL },									"icons/armor_medium",			"25 Armor",				25,			IT_ARMOR,				0,						"",			"" },
+//RAZMARK: adding new weapons
+gitem_t bg_itemlist[] = {
+	// sorted alphabetically, case sensitive
+	{	"ammo_all",					"sound/ammo_pickup.wav",		{ "models/items/battery.md3",			NULL },									"icons/ammo_all",				"Ammo All",				50,			IT_AMMO,				-1,						"",			"" },
+	{	"holdable_medkit",			"sound/holdable_pickup.wav",	{ "models/holdable/medkit.md3",			"models/holdable/medkit_sphere.md3" },	"icons/holdable_medkit",		"Medkit",				60,			IT_HOLDABLE,			HI_MEDKIT,				"",			"sound/items/use_medkit.wav" },
+	{	"holdable_teleporter",		"sound/holdable_pickup.wav",	{ "models/holdable/teleporter.md3",		NULL },									"icons/holdable_teleporter",	"Personal Teleporter",	60,			IT_HOLDABLE,			HI_TELEPORTER,			"",			"" },
 	{	"item_armor_large",			"sound/item_pickup.wav",		{ "models/powerups/armor/large.md3",	NULL },									"icons/armor_large",			"50 Armor",				50,			IT_ARMOR,				0,						"",			"" },
+	{	"item_armor_medium",		"sound/item_pickup.wav",		{ "models/powerups/armor/medium.md3",	NULL },									"icons/armor_medium",			"25 Armor",				25,			IT_ARMOR,				0,						"",			"" },
 	{	"item_armor_mega",			"sound/item_pickup.wav",		{ "models/powerups/armor/mega.md3",		NULL },									"icons/armor_mega",				"Mega Armor",			100,		IT_ARMOR,				0,						"",			"" },
-
-	// health
-	{	"item_health_small",		"sound/item_pickup.wav",		{ "models/powerups/health/small.md3",	NULL },									"icons/health_small",			"5 Health",				5,			IT_HEALTH,				0,						"",			"" },
-	{	"item_health_medium",		"sound/item_pickup.wav",		{ "models/powerups/health/medium.md3",	NULL },									"icons/health_medium",			"25 Health",			25,			IT_HEALTH,				0,						"",			"" },
+	{	"item_armor_small",			"sound/item_pickup.wav",		{ "models/powerups/armor/small.md3",	NULL },									"icons/armor_small",			"5 Armor",				5,			IT_ARMOR,				0,						"",			"" },
 	{	"item_health_large",		"sound/item_pickup.wav",		{ "models/powerups/health/large.md3",	NULL },									"icons/health_large",			"50 Health",			50,			IT_HEALTH,				0,						"",			"" },
+	{	"item_health_medium",		"sound/item_pickup.wav",		{ "models/powerups/health/medium.md3",	NULL },									"icons/health_medium",			"25 Health",			25,			IT_HEALTH,				0,						"",			"" },
 	{	"item_health_mega",			"sound/item_pickup.wav",		{ "models/powerups/health/mega.md3",	NULL },									"icons/health_mega",			"Mega Health",			100,		IT_HEALTH,				0,						"",			"" },
-
-	// weapons
-	//RAZMARK: adding new weapons
+	{	"item_health_small",		"sound/item_pickup.wav",		{ "models/powerups/health/small.md3",	NULL },									"icons/health_small",			"5 Health",				5,			IT_HEALTH,				0,						"",			"" },
+	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
+	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
+	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
+	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
+	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
+	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
+	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
+	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			IT_WEAPON,				WP_MORTAR,				"",			"" },
 	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
 	{	"weapon_repeater",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_repeater",		"Repeater",				120,		IT_WEAPON,				WP_REPEATER,			"",			"" },
 	{	"weapon_splicer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_splicer",			"Splicer",				100,		IT_WEAPON,				WP_SPLICER,				"",			"" },
-	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			IT_WEAPON,				WP_MORTAR,				"",			"" },
-	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
-
-	// ammo
-	{	"ammo_all",					"sound/ammo_pickup.wav",		{ "models/items/battery.md3",			NULL },									"icons/ammo_all",				"Ammo All",				50,			IT_AMMO,				-1,						"",			"" },
-
-	// holdable items
-	{	"holdable_teleporter",		"sound/holdable_pickup.wav",	{ "models/holdable/teleporter.md3",		NULL },									"icons/holdable_teleporter",	"Personal Teleporter",	60,			IT_HOLDABLE,			HI_TELEPORTER,			"",			"" },
-	{	"holdable_medkit",			"sound/holdable_pickup.wav",	{ "models/holdable/medkit.md3",			"models/holdable/medkit_sphere.md3" },	"icons/holdable_medkit",		"Medkit",				60,			IT_HOLDABLE,			HI_MEDKIT,				"",			"sound/items/use_medkit.wav" },
-
-	// powerup items
-	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
-	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
-
-	// persistent powerup items
-	{	"item_guard",				"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
-
-	// team items, some of these are powerups
-	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
-	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
-	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
-
-	// end of list marker
-	{ NULL }
+	{	NULL,						NULL,							{ NULL,									NULL },									NULL,							NULL,					0,			IT_BAD,					0,						"",			"" },
 };
-
-int		bg_numItems = ARRAY_LEN( bg_itemlist ) - 1;
+int bg_numItems = ARRAY_LEN( bg_itemlist );
 
 
 /*
@@ -102,16 +81,15 @@ BG_FindItemForPowerup
 ==============
 */
 gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
-	int		i;
+	gitem_t *it = NULL;
+	int i;
 
-	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( (bg_itemlist[i].giType == IT_POWERUP || 
-					bg_itemlist[i].giType == IT_TEAM ||
-					bg_itemlist[i].giType == IT_PERSISTANT_POWERUP) && 
-			bg_itemlist[i].giTag == pw ) {
-			return &bg_itemlist[i];
-		}
+	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
+		if ( (it->giType == IT_POWERUP || it->giType == IT_TEAM || it->giType == IT_PERSISTANT_POWERUP) &&  it->giTag == pw )
+			return it;
 	}
+
+	Com_Error( ERR_DROP, "Powerup not found: %i", pw );
 
 	return NULL;
 }
@@ -122,16 +100,16 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 BG_FindItemForHoldable
 ==============
 */
-gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
-	int		i;
+gitem_t	*BG_FindItemForHoldable( holdable_t hi ) {
+	gitem_t *it = NULL;
+	int i;
 
-	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw ) {
-			return &bg_itemlist[i];
-		}
+	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
+		if ( it->giType == IT_HOLDABLE && it->giTag == hi )
+			return it;
 	}
 
-	Com_Error( ERR_DROP, "HoldableItem not found" );
+	Com_Error( ERR_DROP, "HoldableItem not found: %i", hi );
 
 	return NULL;
 }
@@ -144,12 +122,12 @@ BG_FindItemForWeapon
 ===============
 */
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
-	gitem_t	*it;
+	gitem_t	*it = NULL;
+	int i=0;
 	
-	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_WEAPON && it->giTag == weapon ) {
+	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
+		if ( it->giType == IT_WEAPON && it->giTag == weapon )
 			return it;
-		}
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
@@ -162,15 +140,13 @@ BG_FindItem
 
 ===============
 */
-gitem_t	*BG_FindItem( const char *pickupName ) {
-	gitem_t	*it;
-	
-	for ( it = bg_itemlist + 1 ; it->classname ; it++ ) {
-		if ( !Q_stricmp( it->pickup_name, pickupName ) )
-			return it;
-	}
+static int itempickupcmp( const void *a, const void *b ) {
+	return strcmp( (const char *)a, ((gitem_t *)b)->classname );
+}
 
-	return NULL;
+// case sensitive lookup for item classname
+gitem_t	*BG_FindItem( const char *classname ) {
+	return (gitem_t *)bsearch( classname, bg_itemlist, bg_numItems, sizeof( gitem_t ), itempickupcmp );
 }
 
 /*
@@ -214,7 +190,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	gitem_t	*item;
 	int		upperBound;
 
-	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
+	if ( ent->modelindex < 0 || ent->modelindex >= bg_numItems ) {
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
 	}
 

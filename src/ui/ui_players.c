@@ -54,6 +54,7 @@ UI_PlayerInfo_SetWeapon
 static void UI_PlayerInfo_SetWeapon( playerInfo_t *pi, weapon_t weaponNum ) {
 	gitem_t *	item;
 	char		path[MAX_QPATH];
+	int i=0;
 
 	pi->currentWeapon = weaponNum;
 tryagain:
@@ -66,7 +67,7 @@ tryagain:
 		return;
 	}
 
-	for ( item = bg_itemlist + 1; item->classname ; item++ ) {
+	for ( item=bg_itemlist, i=0; i<bg_numItems; item++, i++ ) {
 		if ( item->giType != IT_WEAPON ) {
 			continue;
 		}

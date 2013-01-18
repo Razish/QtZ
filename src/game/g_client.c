@@ -1238,19 +1238,11 @@ void ClientDisconnect( int clientNum ) {
 
 		//OSP: New code for tossing flags
 		if ( ent->client->ps.powerups[PW_REDFLAG] ) {
-			item = BG_FindItem( "Red Flag" );
-			if ( !item ) {
-				item = BG_FindItem( "Objective" );
-			}
-
+			item = BG_FindItem( "team_CTF_redflag" );
 			ent->client->ps.powerups[PW_REDFLAG] = 0;
 		}
 		if ( ent->client->ps.powerups[PW_BLUEFLAG] ) {
-			item = BG_FindItem( "Blue Flag" );
-			if ( !item ) {
-				item = BG_FindItem( "Objective" );
-			}
-
+			item = BG_FindItem( "team_CTF_blueflag" );
 			ent->client->ps.powerups[PW_BLUEFLAG] = 0;
 		}
 
