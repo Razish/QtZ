@@ -623,12 +623,6 @@ void ClientThink_real( gentity_t *ent ) {
 		msec = 200;
 	}
 
-	if ( pm_fixed.integer ) {
-		ucmd->serverTime = ((ucmd->serverTime + pm_frametime.integer-1) / pm_frametime.integer) * pm_frametime.integer;
-		//if (ucmd->serverTime - client->ps.commandTime <= 0)
-		//	return;
-	}
-
 	//
 	// check for exiting intermission
 	//

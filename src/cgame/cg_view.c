@@ -140,8 +140,6 @@ void CG_TestModelPrevSkin_f (void) {
 }
 
 static void CG_AddTestModel (void) {
-	int		i;
-
 	// re-register the model, because the level may have changed
 	cg.testModelEntity.hModel = cgi.R_RegisterModel( cg.testModelName );
 	if (! cg.testModelEntity.hModel ) {

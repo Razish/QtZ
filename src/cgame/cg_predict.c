@@ -484,13 +484,6 @@ void CG_PredictPlayerState( void ) {
 		cg.physicsTime = cg.snap->serverTime;
 	}
 
-	if ( pm_frametime.integer < 8 ) {
-		cgi.Cvar_Set("pm_frametime", "8");
-	}
-	else if (pm_frametime.integer > 33) {
-		cgi.Cvar_Set("pm_frametime", "33");
-	}
-
 	// run cmds
 	moved = qfalse;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
@@ -569,9 +562,6 @@ void CG_PredictPlayerState( void ) {
 		// don't predict gauntlet firing, which is only supposed to happen
 		// when it actually inflicts damage
 		cg_pmove.gauntletHit = qfalse;
-
-		if ( pm_fixed.boolean )
-			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pm_frametime.integer-1) / pm_frametime.integer) * pm_frametime.integer;
 
 		Pmove( &cg_pmove );
 

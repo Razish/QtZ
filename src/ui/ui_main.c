@@ -144,8 +144,8 @@ void AssetCache( void ) {
 	uiInfo.uiDC.Assets.sliderThumb			= uii.R_RegisterShader( ASSET_SLIDER_THUMB );
 
 	//QtZ: New composite crosshair style
-	for ( n=0; n<NUM_CROSSHAIRS; n++ )
-		uiInfo.uiDC.Assets.crosshairShader[n] = uii.R_RegisterShader( va("gfx/hud/crosshair_bit%i", (1<<n)) );
+//	for ( n=0; n<NUM_CROSSHAIRS; n++ )
+//		uiInfo.uiDC.Assets.crosshairShader[n] = uii.R_RegisterShader( va("gfx/hud/crosshair_bit%i", (1<<n)) );
 
 	uiInfo.newHighScoreSound = uii.S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }

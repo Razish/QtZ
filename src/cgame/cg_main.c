@@ -1555,7 +1555,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	cgs.serverCommandSequence = serverCommandSequence;
 
 	// load a few needed things before we do any screen updates
-	cgs.media.charsetShader		= cgi.R_RegisterShader( "gfx/2d/bigchars" );
+	cgs.media.charsetShader		= cgi.R_RegisterShaderNoMip( "gfx/2d/bigchars" );
 	cgs.media.whiteShader		= cgi.R_RegisterShader( "white" );
 	cgs.media.charsetProp		= cgi.R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
 	cgs.media.charsetPropGlow	= cgi.R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );

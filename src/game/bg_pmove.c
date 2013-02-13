@@ -235,7 +235,8 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-	if ( (pm->ps->pm_flags & PMF_LANDED) && pm->ps->pm_time && pm->ps->groundEntityNum != ENTITYNUM_NONE )
+	if ( pm->ps->groundEntityNum != ENTITYNUM_NONE &&
+		( ((pm->ps->pm_flags & PMF_LANDED) && pm->ps->pm_time) || pm_airControlStyle.integer == 2) )
 	{// proper way (avoids strafe jump maxspeed bug), but feels bad
 		vec3_t		wishVelocity;
 		vec3_t		pushDir;
@@ -311,14 +312,14 @@ to the facing dir
 static void PM_SetMovementDir( void ) {
 	if ( pm->cmd.forwardmove || pm->cmd.rightmove )
 	{
-			 if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 0;
-		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 1;
-		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 2;
-		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 3;
-		else if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 4;
-		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 5;
-		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 6;
-		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 7;
+			 if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 0; // W
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 1; // W + A
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 2; // A
+		else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 3; // A + S
+		else if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 4; // S
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove < 0 )	pm->ps->movementDir = 5; // S + D
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove == 0 )	pm->ps->movementDir = 6; // D
+		else if ( pm->cmd.rightmove > 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 7; // D + W
 	}
 	else
 	{//if they aren't actively going directly sideways, change the animation to the diagonal so they don't stop too crooked
@@ -633,7 +634,7 @@ PM_AirMove
 
 ===================
 */
-void PM_AirControl( vec3_t wishdir, float wishspeed )
+void PM_AirControlCPM( vec3_t wishdir, float wishspeed )
 {
 	float	zspeed, speed, dot, k;
 	int		i;
@@ -659,6 +660,36 @@ void PM_AirControl( vec3_t wishdir, float wishspeed )
 	
 	for ( i=0; i<2; i++ ) 
 		pm->ps->velocity[i] *=speed;
+
+	pm->ps->velocity[2] = zspeed;
+}
+
+void PM_AirControlPK( vec3_t wishdir, float wishspeed )
+{
+	float	zspeed, speed, dot, k;
+	int		i;
+
+	if ( (pm->ps->movementDir && pm->ps->movementDir != 4) || wishspeed == 0.0 ) 
+		return; // can't control movement if not moveing forward or backward
+
+	zspeed = pm->ps->velocity[2];
+	pm->ps->velocity[2] = 0;
+	speed = VectorNormalize( pm->ps->velocity );
+
+	dot = DotProduct( pm->ps->velocity, wishdir );
+	k = 32; 
+	k *= pm_airControl.value * pml.frametime;
+	
+	
+	if ( dot > 0.0f )
+	{	// we can't change direction while slowing down
+		for ( i=0; i<2; i++ )
+			pm->ps->velocity[i] = wishdir[i] + wishdir[i]*k;
+		VectorNormalize( pm->ps->velocity );
+	}
+	
+	for ( i=0; i<2; i++ ) 
+		pm->ps->velocity[i] *= speed + (pm_airControlWishspeed.value*dot*pml.frametime);
 
 	pm->ps->velocity[2] = zspeed;
 }
@@ -699,7 +730,7 @@ static void PM_AirMove( void )
 	wishspeed = VectorNormalize( wishdir );
 	wishspeed *= scale;
 
-	if ( pm_airControlEnable.boolean )
+	if ( pm_airControlStyle.integer == 1 )
 	{
 		float wishspeed2 = wishspeed, accel = 0.0f;
 		if ( DotProduct( pm->ps->velocity, wishdir ) < 0.0f )
@@ -713,7 +744,20 @@ static void PM_AirMove( void )
 			accel = pm_airControlStrafeAccelerate.value;
 		}
 		PM_Accelerate( wishdir, wishspeed, accel );
-		PM_AirControl( wishdir, wishspeed2 );
+		PM_AirControlCPM( wishdir, wishspeed2 );
+	}
+	else if ( pm_airControlStyle.integer == 2 )
+	{
+		float accel = 0.0f;
+		accel = pm_airaccelerate.value;
+		if ( !pm->ps->movementDir || pm->ps->movementDir == 4 )
+		{
+			if (wishspeed > pm_airControlWishspeed.value)
+				wishspeed = pm_airControlWishspeed.value;	
+			accel = pm_airControlStrafeAccelerate.value;
+		}
+		PM_Accelerate( wishdir, wishspeed, accel );
+		PM_AirControlPK( wishdir, wishspeed );
 	}
 	else // not on ground, so little effect on velocity
 		PM_Accelerate( wishdir, wishspeed, pm_airaccelerate.value );
@@ -2069,16 +2113,12 @@ void Pmove (pmove_t *pmove) {
 
 	// chop the move up if it is too long, to prevent framerate
 	// dependent behavior
-	while ( pmove->ps->commandTime != finalTime ) {
+	while ( pmove->ps->commandTime < finalTime ) {
 		int frametime = finalTime - pmove->ps->commandTime;
 
 		if ( pm_fixed.boolean )
-		{
-			if ( frametime > pm_frametime.value )
-				frametime = pm_frametime.value;
-		}
-		else
-		{
+			frametime = pm_frametime.integer;
+		else {
 			if ( frametime > 66 )
 				frametime = 66;
 		}
