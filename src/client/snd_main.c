@@ -80,7 +80,7 @@ static qboolean S_ValidSoundInterface( soundInterface_t *si )
 S_StartSound
 =================
 */
-void S_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx )
+void S_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx )
 {
 	if( si.StartSound ) {
 		si.StartSound( origin, entnum, entchannel, sfx );
@@ -164,8 +164,7 @@ void S_ClearLoopingSounds( qboolean killall )
 S_AddLoopingSound
 =================
 */
-void S_AddLoopingSound( int entityNum, const vec3_t origin,
-		const vec3_t velocity, sfxHandle_t sfx )
+void S_AddLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx )
 {
 	if( si.AddLoopingSound ) {
 		si.AddLoopingSound( entityNum, origin, velocity, sfx );
@@ -177,8 +176,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin,
 S_AddRealLoopingSound
 =================
 */
-void S_AddRealLoopingSound( int entityNum, const vec3_t origin,
-		const vec3_t velocity, sfxHandle_t sfx )
+void S_AddRealLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx )
 {
 	if( si.AddRealLoopingSound ) {
 		si.AddRealLoopingSound( entityNum, origin, velocity, sfx );
@@ -202,8 +200,7 @@ void S_StopLoopingSound( int entityNum )
 S_Respatialize
 =================
 */
-void S_Respatialize( int entityNum, const vec3_t origin,
-		vec3_t axis[3], int inwater )
+void S_Respatialize( int entityNum, const vector3 *origin, vector3 axis[3], int inwater )
 {
 	if( si.Respatialize ) {
 		si.Respatialize( entityNum, origin, axis, inwater );
@@ -215,7 +212,7 @@ void S_Respatialize( int entityNum, const vec3_t origin,
 S_UpdateEntityPosition
 =================
 */
-void S_UpdateEntityPosition( int entityNum, const vec3_t origin )
+void S_UpdateEntityPosition( int entityNum, const vector3 *origin )
 {
 	if( si.UpdateEntityPosition ) {
 		si.UpdateEntityPosition( entityNum, origin );
@@ -536,7 +533,7 @@ void S_Shutdown( void )
 		si.Shutdown( );
 	}
 
-	Com_Memset( &si, 0, sizeof( soundInterface_t ) );
+	memset( &si, 0, sizeof( soundInterface_t ) );
 
 	Cmd_RemoveCommand( "play" );
 	Cmd_RemoveCommand( "music");

@@ -90,19 +90,19 @@ typedef struct {
 #define MD3_MAX_TAGS		16		// per frame
 
 // vertex scales
-#define	MD3_XYZ_SCALE		(1.0/64)
+#define	MD3_XYZ_SCALE		(1.0f/64)
 
 typedef struct md3Frame_s {
-	vec3_t		bounds[2];
-	vec3_t		localOrigin;
+	vector3		bounds[2];
+	vector3		localOrigin;
 	float		radius;
 	char		name[16];
 } md3Frame_t;
 
 typedef struct md3Tag_s {
 	char		name[MAX_QPATH];	// tag name
-	vec3_t		origin;
-	vec3_t		axis[3];
+	vector3		origin;
+	vector3		axis[3];
 } md3Tag_t;
 
 /*
@@ -190,12 +190,12 @@ MD4 file format
 typedef struct {
 	int			boneIndex;		// these are indexes into the boneReferences,
 	float		   boneWeight;		// not the global per-frame bone list
-	vec3_t		offset;
+	vector3		offset;
 } md4Weight_t;
 
 typedef struct {
-	vec3_t		normal;
-	vec2_t		texCoords;
+	vector3		normal;
+	vector2		texCoords;
 	int			numWeights;
 	md4Weight_t	weights[1];		// variable sized
 } md4Vertex_t;
@@ -235,8 +235,8 @@ typedef struct {
 } md4Bone_t;
 
 typedef struct {
-	vec3_t		bounds[2];			// bounds of all surfaces of all LOD's for this frame
-	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
+	vector3		bounds[2];			// bounds of all surfaces of all LOD's for this frame
+	vector3		localOrigin;		// midpoint of bounds, used for sphere cull
 	float		radius;				// dist from localOrigin to corner
 	md4Bone_t	bones[1];			// [numBones]
 } md4Frame_t;
@@ -294,12 +294,12 @@ typedef struct {
 typedef struct {
 	int			boneIndex;	// these are indexes into the boneReferences,
 	float		   boneWeight;		// not the global per-frame bone list
-	vec3_t		offset;
+	vector3		offset;
 } mdrWeight_t;
 
 typedef struct {
-	vec3_t		normal;
-	vec2_t		texCoords;
+	vector3		normal;
+	vector2		texCoords;
 	int			numWeights;
 	mdrWeight_t	weights[1];		// variable sized
 } mdrVertex_t;
@@ -339,8 +339,8 @@ typedef struct {
 } mdrBone_t;
 
 typedef struct {
-	vec3_t		bounds[2];		// bounds of all surfaces of all LOD's for this frame
-	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
+	vector3		bounds[2];		// bounds of all surfaces of all LOD's for this frame
+	vector3		localOrigin;		// midpoint of bounds, used for sphere cull
 	float		radius;			// dist from localOrigin to corner
 	char		name[16];
 	mdrBone_t	bones[1];		// [numBones]
@@ -351,8 +351,8 @@ typedef struct {
 } mdrCompBone_t;
 
 typedef struct {
-        vec3_t          bounds[2];		// bounds of all surfaces of all LOD's for this frame
-        vec3_t          localOrigin;		// midpoint of bounds, used for sphere cull
+        vector3          bounds[2];		// bounds of all surfaces of all LOD's for this frame
+        vector3          localOrigin;		// midpoint of bounds, used for sphere cull
         float           radius;			// dist from localOrigin to corner
         mdrCompBone_t   bones[1];		// [numBones]
 } mdrCompFrame_t;
@@ -481,7 +481,7 @@ typedef struct {
 } dheader_t;
 
 typedef struct {
-	float		mins[3], maxs[3];
+	vector3		mins, maxs;
 	int			firstSurface, numSurfaces;
 	int			firstBrush, numBrushes;
 } dmodel_t;
@@ -495,23 +495,21 @@ typedef struct {
 // planes x^1 is allways the opposite of plane x
 
 typedef struct {
-	float		normal[3];
+	vector3		normal;
 	float		dist;
 } dplane_t;
 
 typedef struct {
 	int			planeNum;
 	int			children[2];	// negative numbers are -(leafs+1), not nodes
-	int			mins[3];		// for frustom culling
-	int			maxs[3];
+	ivector3	mins, maxs;		// for frustom culling
 } dnode_t;
 
 typedef struct {
 	int			cluster;			// -1 = opaque cluster (do I still store these?)
 	int			area;
 
-	int			mins[3];			// for frustum culling
-	int			maxs[3];
+	ivector3	mins, maxs;			// for frustum culling
 
 	int			firstLeafSurface;
 	int			numLeafSurfaces;
@@ -539,10 +537,10 @@ typedef struct {
 } dfog_t;
 
 typedef struct {
-	vec3_t		xyz;
+	vector3		xyz;
 	float		st[2];
 	float		lightmap[2];
-	vec3_t		normal;
+	vector3		normal;
 	byte		color[4];
 } drawVert_t;
 
@@ -571,8 +569,8 @@ typedef struct {
 	int			lightmapX, lightmapY;
 	int			lightmapWidth, lightmapHeight;
 
-	vec3_t		lightmapOrigin;
-	vec3_t		lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
+	vector3		lightmapOrigin;
+	vector3		lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
 
 	int			patchWidth;
 	int			patchHeight;

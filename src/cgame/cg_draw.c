@@ -76,7 +76,7 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 			}
 		}
 	}
-	return out * useScale;
+	return (int)(out * useScale);
 }
 
 int CG_Text_Height(const char *text, float scale, int limit) {
@@ -107,15 +107,15 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 				continue;
 			} else {
 				glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-				if (max < glyph->height) {
-					max = glyph->height;
+				if (max < (float)glyph->height) {
+					max = (float)glyph->height;
 				}
 				s++;
 				count++;
 			}
 		}
 	}
-	return max * useScale;
+	return (int)(max * useScale);
 }
 
 void CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader) {
@@ -126,9 +126,9 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 	cgi.R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
 }
 
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style) {
+void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *text, float adjust, int limit, int style) {
 	int len, count;
-	vec4_t newColor;
+	vector4 newColor;
 	glyphInfo_t *glyph;
 	float useScale;
 	fontInfo_t *font = &cgDC.Assets.textFont;
@@ -143,7 +143,7 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		//		const unsigned char *s = text;
 		const char *s = text;
 		cgi.R_SetColor( color );
-		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
+		memcpy(&newColor, color, sizeof(vector4));
 		len = strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
@@ -154,32 +154,32 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
-				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
-				newColor[3] = color[3];
-				cgi.R_SetColor( newColor );
+				memcpy( &newColor, &g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
+				newColor.a = color->a;
+				cgi.R_SetColor( &newColor );
 				s += 2;
 				continue;
 			} else {
 				float yadj = useScale * glyph->top;
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-					colorBlack[3] = newColor[3];
-					cgi.R_SetColor( colorBlack );
+					colorBlack.a = newColor.a;
+					cgi.R_SetColor( &colorBlack );
 					CG_Text_PaintChar(x + ofs, y - yadj + ofs, 
-						glyph->imageWidth,
-						glyph->imageHeight,
+						(float)glyph->imageWidth,
+						(float)glyph->imageHeight,
 						useScale, 
 						glyph->s,
 						glyph->t,
 						glyph->s2,
 						glyph->t2,
 						glyph->glyph);
-					colorBlack[3] = 1.0;
-					cgi.R_SetColor( newColor );
+					colorBlack.a = 1.0;
+					cgi.R_SetColor( &newColor );
 				}
 				CG_Text_PaintChar(x, y - yadj, 
-					glyph->imageWidth,
-					glyph->imageHeight,
+					(float)glyph->imageWidth,
+					(float)glyph->imageHeight,
 					useScale, 
 					glyph->s,
 					glyph->t,
@@ -267,7 +267,7 @@ CG_Draw3DModel
 
 ================
 */
-void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles ) {
+void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vector3 *origin, vector3 *angles ) {
 	refdef_t		refdef;
 	refEntity_t		ent;
 
@@ -281,7 +281,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 
 	memset( &ent, 0, sizeof( ent ) );
 	AnglesToAxis( angles, ent.axis );
-	VectorCopy( origin, ent.origin );
+	VectorCopy( origin, &ent.origin );
 	ent.hModel = model;
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
@@ -293,10 +293,10 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 	refdef.fov_x = 30;
 	refdef.fov_y = 30;
 
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
+	refdef.x = (int)x;
+	refdef.y = (int)y;
+	refdef.width = (int)w;
+	refdef.height = (int)h;
 
 	refdef.time = cg.time;
 
@@ -312,12 +312,12 @@ CG_DrawHead
 Used for both the status bar and the scoreboard
 ================
 */
-void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles ) {
+void CG_DrawHead( float x, float y, float w, float h, int clientNum, vector3 *headAngles ) {
 	clipHandle_t	cm;
 	clientInfo_t	*ci;
 	float			len;
-	vec3_t			origin;
-	vec3_t			mins, maxs;
+	vector3			origin;
+	vector3			mins, maxs;
 
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -328,20 +328,20 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 		}
 
 		// offset the origin y and z to center the head
-		cgi.R_ModelBounds( cm, mins, maxs );
+		cgi.R_ModelBounds( cm, &mins, &maxs );
 
-		origin[2] = -0.5 * ( mins[2] + maxs[2] );
-		origin[1] = 0.5 * ( mins[1] + maxs[1] );
+		origin.z = -0.5f * ( mins.z + maxs.z );
+		origin.y =  0.5f * ( mins.y + maxs.y );
 
 		// calculate distance so the head nearly fills the box
 		// assume heads are taller than wide
-		len = 0.7 * ( maxs[2] - mins[2] );		
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
+		len = 0.7f * ( maxs.z - mins.z );		
+		origin.x = len / 0.268f;	// len / tan( fov/2 )
 
 		// allow per-model tweaking
-		VectorAdd( origin, ci->headOffset, origin );
+		VectorAdd( &origin, &ci->headOffset, &origin );
 
-		CG_Draw3DModel( x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles );
+		CG_Draw3DModel( x, y, w, h, ci->headModel, ci->headSkin, &origin, headAngles );
 	} else if ( cg_drawIcons.boolean ) {
 		CG_DrawPic( x, y, w, h, ci->modelIcon );
 	}
@@ -362,28 +362,28 @@ Used for both the status bar and the scoreboard
 void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
 	qhandle_t		cm;
 	float			len;
-	vec3_t			origin, angles;
-	vec3_t			mins, maxs;
+	vector3			origin, angles;
+	vector3			mins, maxs;
 	qhandle_t		handle;
 
 	if ( !force2D && cg_draw3dIcons.boolean ) {
 
-		VectorClear( angles );
+		VectorClear( &angles );
 
 		cm = cgs.media.redFlagModel;
 
 		// offset the origin y and z to center the flag
-		cgi.R_ModelBounds( cm, mins, maxs );
+		cgi.R_ModelBounds( cm, &mins, &maxs );
 
-		origin[2] = -0.5 * ( mins[2] + maxs[2] );
-		origin[1] = 0.5 * ( mins[1] + maxs[1] );
+		origin.z = -0.5f * ( mins.z + maxs.z );
+		origin.y =  0.5f * ( mins.y + maxs.y );
 
 		// calculate distance so the flag nearly fills the box
 		// assume heads are taller than wide
-		len = 0.5 * ( maxs[2] - mins[2] );		
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
+		len = 0.5f * ( maxs.z - mins.z );		
+		origin.x = len / 0.268f;	// len / tan( fov/2 )
 
-		angles[YAW] = 60 * sin( cg.time / 2000.0 );;
+		angles.yaw = 60 * sinf( cg.time / 2000.0f );;
 
 		if( team == TEAM_RED ) {
 			handle = cgs.media.redFlagModel;
@@ -394,7 +394,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 		} else {
 			return;
 		}
-		CG_Draw3DModel( x, y, w, h, handle, 0, origin, angles );
+		CG_Draw3DModel( x, y, w, h, handle, 0, &origin, &angles );
 	} else if ( cg_drawIcons.boolean ) {
 		gitem_t *item;
 
@@ -422,7 +422,7 @@ CG_DrawStatusBarHead
 #ifdef QTZRELIC
 
 static void CG_DrawStatusBarHead( float x ) {
-	vec3_t		angles;
+	vector3		angles;
 	float		size, stretch;
 	float		frac;
 
@@ -493,22 +493,22 @@ CG_DrawTeamBackground
 */
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 {
-	vec4_t		hcolor;
+	vector4		hcolor;
 
-	hcolor[3] = alpha;
+	hcolor.a = alpha;
 	if ( team == TEAM_RED ) {
-		hcolor[0] = 1;
-		hcolor[1] = 0;
-		hcolor[2] = 0;
+		hcolor.r = 1;
+		hcolor.g = 0;
+		hcolor.b = 0;
 	} else if ( team == TEAM_BLUE ) {
-		hcolor[0] = 0;
-		hcolor[1] = 0;
-		hcolor[2] = 1;
+		hcolor.r = 0;
+		hcolor.g = 0;
+		hcolor.b = 1;
 	} else {
 		return;
 	}
-	cgi.R_SetColor( hcolor );
-	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
+	cgi.R_SetColor( &hcolor );
+	CG_DrawPic( (float)x, (float)y, (float)w, (float)h, cgs.media.teamStatusBar );
 	cgi.R_SetColor( NULL );
 }
 
@@ -525,9 +525,9 @@ static void CG_DrawStatusBar( void ) {
 	centity_t	*cent;
 	playerState_t	*ps;
 	int			value;
-	vec4_t		hcolor;
-	vec3_t		angles;
-	vec3_t		origin;
+	vector4		hcolor;
+	vector3		angles;
+	vector3		origin;
 
 	static float colors[4][4] = { 
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
@@ -665,7 +665,7 @@ CG_DrawAttacker
 static float CG_DrawAttacker( float y ) {
 	int			t;
 	float		size;
-	vec3_t		angles;
+	vector3		angles;
 	const char	*info;
 	const char	*name;
 	int			clientNum;
@@ -691,15 +691,15 @@ static float CG_DrawAttacker( float y ) {
 
 	size = ICON_SIZE * 1.25;
 
-	angles[PITCH] = 0;
-	angles[YAW] = 180;
-	angles[ROLL] = 0;
-	CG_DrawHead( SCREEN_WIDTH - size, y, size, size, clientNum, angles );
+	angles.pitch = 0;
+	angles.yaw = 180;
+	angles.roll = 0;
+	CG_DrawHead( SCREEN_WIDTH - size, y, size, size, clientNum, &angles );
 
 	info = CG_ConfigString( CS_PLAYERS + clientNum );
 	name = Info_ValueForKey(  info, "n" );
 	y += size;
-	CG_DrawBigString( SCREEN_WIDTH - ( Q_PrintStrlen( name ) * BIGCHAR_WIDTH), y, name, 0.5 );
+	CG_DrawBigString( (int)SCREEN_WIDTH - ( Q_PrintStrlen( name ) * BIGCHAR_WIDTH), (int)y, name, 0.5f );
 
 	return y + BIGCHAR_HEIGHT + 2;
 }
@@ -717,7 +717,7 @@ static float CG_DrawSnapshot( float y ) {
 		cg.latestSnapshotNum, cgs.serverCommandSequence );
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	CG_DrawBigString( 635 - w, (int)y + 2, s, 1.0f);
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
@@ -768,16 +768,18 @@ static float CG_DrawFPS( float y ) {
 }
 #else
 #define	FPS_FRAMES	16
+#define FPS_MASK (FPS_FRAMES-1)
+
 static float CG_DrawFPS( float y ) {
 	static unsigned short previousTimes[FPS_FRAMES];
 	static unsigned short index;
 	static int	previous, lastupdate;
-	int		t, i, fps, total;
+	int		t, i, total;
 	unsigned short frameTime;
-	vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
+	vector4 fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
 	char *tmp = NULL;
-	int maxFPS = (int)(1000.0f/atof( CG_Cvar_VariableString( "com_frametime" ) ));
+	float fps, maxFPS = 1000.0f/(float)atof( CG_Cvar_VariableString( "com_frametime" ) );
 
 	if ( !cg_drawFPS.boolean && !cg_debugHUD.boolean )
 		return y;
@@ -787,11 +789,9 @@ static float CG_DrawFPS( float y ) {
 	t = cgi.Milliseconds();
 	frameTime = t - previous;
 	previous = t;
-	if (t - lastupdate > 50)	//don't sample faster than this
-	{
+	if ( t - lastupdate > 50 ) {// don't sample faster than this
 		lastupdate = t;
-		previousTimes[index % FPS_FRAMES] = frameTime;
-		index++;
+		previousTimes[index++ & FPS_MASK] = frameTime;
 	}
 	// average multiple frames together to smooth changes out a bit
 	total = 0;
@@ -803,12 +803,11 @@ static float CG_DrawFPS( float y ) {
 	fps = 1000.0f * (float)((float)FPS_FRAMES / (float)total);
 
 	point = MIN( MAX(0.0f, fps) / MAX(60.0f, maxFPS), 1.0f );
-	fpsColour[0] = fpsBad[0] + point*(fpsGood[0] - fpsBad[0]);
-	fpsColour[1] = fpsBad[1] + point*(fpsGood[1] - fpsBad[1]);
-	fpsColour[2] = fpsBad[2] + point*(fpsGood[2] - fpsBad[2]);
+	VectorLerp4( &fpsBad, point, &fpsGood, &fpsColour );
+	fpsColour.a = 1.0f;
 
-	tmp = va( "%3i FPS", fps );
-	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), y, tmp, fpsColour );
+	tmp = va( "%3i FPS", (int)fps );
+	CG_DrawSmallStringColor( (int)SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), (int)y, tmp, &fpsColour );
 
 	return y-14.0f;
 }
@@ -816,19 +815,18 @@ static float CG_DrawFPS( float y ) {
 
 static float CG_DrawPing( float y )
 {
-	vec4_t pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
+	vector4 pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = MIN( cg.snap->ping / 300.0f, 1.0f );
 	char *tmp = NULL;
 
 	if ( !cg_drawPing.boolean && cg_debugHUD.boolean )
 		return y;
 
-	pingColour[0] = pingGood[0] + point*(pingBad[0] - pingGood[0]);
-	pingColour[1] = pingGood[1] + point*(pingBad[1] - pingGood[1]);
-	pingColour[2] = pingGood[2] + point*(pingBad[2] - pingGood[2]);
+	VectorLerp4( &pingBad, point, &pingGood, &pingColour );
+	pingColour.a = 1.0f;
 
 	tmp = va( "%3i ping", cg.snap->ping );
-	CG_DrawSmallStringColor( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), y, tmp, pingColour );
+	CG_DrawSmallStringColor( (int)SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont.value, 0 ), (int)y, tmp, &pingColour );
 	return y-14.0f;
 }
 
@@ -854,7 +852,7 @@ static float CG_DrawTimer( float y ) {
 	s = va( "%i:%i%i", mins, tens, seconds );
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	CG_DrawBigString( 635 - w, (int)y + 2, s, 1.0f);
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
@@ -867,24 +865,21 @@ CG_DrawTeamOverlay
 */
 
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
-	int x, w, h, xx;
-	int i, j, len;
+	int x, w, h, xx, pw;
+	int i, len, count;
 	const char *p;
-	vec4_t		hcolor;
-	int pwidth, lwidth;
-	int plyrs;
+	vector4		hcolor;
+	int pwidth, lwidth, plyrs;
 	char st[16];
 	clientInfo_t *ci;
 	gitem_t	*item;
-	int ret_y, count;
+	float ret_y;
 
-	if ( !cg_drawTeamOverlay.boolean ) {
+	if ( !cg_drawTeamOverlay.boolean )
 		return y;
-	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE ) {
+	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE )
 		return y; // Not on any team
-	}
 
 	plyrs = 0;
 
@@ -901,7 +896,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 		}
 	}
 
-	if (!plyrs)
+	if ( !plyrs )
 		return y;
 
 	if (pwidth > TEAM_OVERLAY_MAXNAME_WIDTH)
@@ -924,44 +919,44 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_WIDTH;
 
 	if ( right )
-		x = SCREEN_WIDTH - w;
+		x = (int)SCREEN_WIDTH - w;
 	else
 		x = 0;
 
 	h = plyrs * TINYCHAR_HEIGHT;
 
-	if ( upper ) {
-		ret_y = y + h;
-	} else {
+	if ( upper )
+		ret_y = (float)y + h;
+	else {
 		y -= h;
-		ret_y = y;
+		ret_y = (float)y;
 	}
 
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-		hcolor[0] = 1.0f;
-		hcolor[1] = 0.0f;
-		hcolor[2] = 0.0f;
-		hcolor[3] = 0.33f;
+		hcolor.r = 1.0f;
+		hcolor.g = 0.0f;
+		hcolor.b = 0.0f;
+		hcolor.a = 0.33f;
 	} else { // if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE )
-		hcolor[0] = 0.0f;
-		hcolor[1] = 0.0f;
-		hcolor[2] = 1.0f;
-		hcolor[3] = 0.33f;
+		hcolor.r = 0.0f;
+		hcolor.g = 0.0f;
+		hcolor.b = 1.0f;
+		hcolor.a = 0.33f;
 	}
-	cgi.R_SetColor( hcolor );
-	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
+	cgi.R_SetColor( &hcolor );
+	CG_DrawPic( (float)x, y, (float)w, (float)h, cgs.media.teamStatusBar );
 	cgi.R_SetColor( NULL );
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 
-			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
+			hcolor.r = hcolor.g = hcolor.b = hcolor.a = 1.0f;
 
 			xx = x + TINYCHAR_WIDTH;
 
-			CG_DrawStringExt( xx, y,
-				ci->name, hcolor, qfalse, qfalse,
+			CG_DrawStringExt( xx, (int)y,
+				ci->name, &hcolor, qfalse, qfalse,
 				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH);
 
 			if (lwidth) {
@@ -975,32 +970,27 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
 				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth;
-				CG_DrawStringExt( xx, y,
-					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
+				CG_DrawStringExt( xx, (int)y,
+					p, &hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
 					TEAM_OVERLAY_MAXLOCATION_WIDTH);
 			}
 
-			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
+			CG_GetColorForHealth( ci->health, ci->armor, &hcolor );
 
 			Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
 
 			xx = x + TINYCHAR_WIDTH * 3 + 
 				TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
 
-			CG_DrawStringExt( xx, y,
-				st, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
+			CG_DrawStringExt( xx, (int)y, st, &hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
 
 			// draw weapon icon
 			xx += TINYCHAR_WIDTH * 3;
 
-			if ( cg_weapons[ci->curWeapon].weaponIcon ) {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
-					cg_weapons[ci->curWeapon].weaponIcon );
-			} else {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
-					cgs.media.deferShader );
-			}
+			if ( cg_weapons[ci->curWeapon].weaponIcon )
+				CG_DrawPic( (float)xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cg_weapons[ci->curWeapon].weaponIcon );
+			else
+				CG_DrawPic( (float)xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cgs.media.deferShader );
 
 			// Draw powerup icons
 			if (right) {
@@ -1008,19 +998,14 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			} else {
 				xx = x + w - TINYCHAR_WIDTH;
 			}
-			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
-				if (ci->powerups & (1 << j)) {
+			for ( pw=PW_NONE; pw<PW_NUM_POWERUPS; pw++ ) {
+				if (ci->powerups & (1 << pw)) {
 
-					item = BG_FindItemForPowerup( j );
-
-					if (item) {
-						CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
+					if ( (item=BG_FindItemForPowerup( (powerup_t)pw )) ) {
+						CG_DrawPic( (float)xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
 						cgi.R_RegisterShader( item->icon ) );
-						if (right) {
-							xx -= TINYCHAR_WIDTH;
-						} else {
-							xx += TINYCHAR_WIDTH;
-						}
+						if ( right )	xx -= TINYCHAR_WIDTH;
+						else			xx += TINYCHAR_WIDTH;
 					}
 				}
 			}
@@ -1029,7 +1014,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 		}
 	}
 
-	return ret_y;
+	return (float)ret_y;
 //#endif
 }
 
@@ -1054,7 +1039,7 @@ static float CG_DrawScores( float y ) {
 	int			s1, s2, score;
 	int			x, w;
 	int			v;
-	vec4_t		color;
+	vector4		color;
 	float		y1;
 	gitem_t		*item;
 
@@ -1271,7 +1256,7 @@ static float CG_DrawPowerups( float y ) {
 		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
 			  cgi.R_SetColor( NULL );
 		  } else {
-			  vec4_t	modulate;
+			  vector4	modulate;
 
 			  f = (float)( t - cg.time ) / POWERUP_BLINK_TIME;
 			  f -= (int)f;
@@ -1383,7 +1368,7 @@ CG_DrawTeamInfo
 static void CG_DrawTeamInfo( void ) {
 	int h;
 	int i;
-	vec4_t		hcolor;
+	vector4		hcolor;
 	int		chatHeight;
 
 #define CHATLOC_Y 420 // bottom end
@@ -1461,7 +1446,7 @@ CG_DrawReward
 ===================
 */
 static void CG_DrawReward( void ) { 
-	float	*color;
+	vector4 *color;
 	int		i, count;
 	float	x, y;
 	char	buf[32];
@@ -1510,7 +1495,7 @@ static void CG_DrawReward( void ) {
 		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
 		Com_sprintf(buf, sizeof(buf), "%d", cg.rewardCount[0]);
 		x = ( SCREEN_WIDTH - SMALLCHAR_WIDTH * CG_DrawStrlen( buf ) ) / 2;
-		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, qfalse, qtrue,
+		CG_DrawStringExt( (int)x, (int)y+ICON_SIZE, buf, color, qfalse, qtrue,
 								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 	}
 	else {
@@ -1540,10 +1525,10 @@ LAGOMETER
 
 
 typedef struct {
-	int		frameSamples[LAG_SAMPLES];
+	float	frameSamples[LAG_SAMPLES];
 	int		frameCount;
 	int		snapshotFlags[LAG_SAMPLES];
-	int		snapshotSamples[LAG_SAMPLES];
+	float	snapshotSamples[LAG_SAMPLES];
 	int		snapshotCount;
 } lagometer_t;
 
@@ -1557,10 +1542,10 @@ Adds the current interpolate / extrapolate bar for this frame
 ==============
 */
 void CG_AddLagometerFrameInfo( void ) {
-	int			offset;
+	int offset;
 
 	offset = cg.time - cg.latestSnapshotTime;
-	lagometer.frameSamples[ lagometer.frameCount & ( LAG_SAMPLES - 1) ] = offset;
+	lagometer.frameSamples[ lagometer.frameCount & ( LAG_SAMPLES - 1) ] = (float)offset;
 	lagometer.frameCount++;
 }
 
@@ -1583,7 +1568,7 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	}
 
 	// add this snapshot's info
-	lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1) ] = snap->ping;
+	lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1) ] = (float)snap->ping;
 	lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1) ] = snap->snapFlags;
 	lagometer.snapshotCount++;
 }
@@ -1621,7 +1606,7 @@ static void CG_DrawDisconnect( void ) {
 	// also add text in center of screen
 	s = "Connection Interrupted";
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigString( (SCREEN_WIDTH/2) - w/2, 100, s, 1.0F);
+	CG_DrawBigString( ((int)SCREEN_WIDTH/2) - w/2, 100, s, 1.0f);
 
 	// blink the icon
 	if ( ( cg.time >> 9 ) & 1 ) {
@@ -1650,7 +1635,7 @@ static void CG_DrawLagometer( void ) {
 	int		color;
 	float	vscale;
 
-	if ( !cg_lagometer.boolean || cgs.localServer ) {
+	if ( !cg_lagometer.boolean /*|| cgs.localServer*/ ) {
 		CG_DrawDisconnect();
 		return;
 	}
@@ -1662,17 +1647,17 @@ static void CG_DrawLagometer( void ) {
 	x = SCREEN_WIDTH - ICON_SIZE;
 	y = SCREEN_HEIGHT - ICON_SIZE;
 #else
-	x = SCREEN_WIDTH - ICON_SIZE;
-	y = SCREEN_HEIGHT - ICON_SIZE-96;
+	x = (int)SCREEN_WIDTH - ICON_SIZE;
+	y = (int)SCREEN_HEIGHT - ICON_SIZE-96;
 #endif // QTZRELIC
 
 	cgi.R_SetColor( NULL );
-	CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cgs.media.lagometerShader );
+	CG_DrawPic( (float)x, (float)y, (float)ICON_SIZE, (float)ICON_SIZE, cgs.media.lagometerShader );
 
-	ax = x;
-	ay = y;
-	aw = ICON_SIZE;
-	ah = ICON_SIZE;
+	ax = (float)x;
+	ay = (float)y;
+	aw = (float)ICON_SIZE;
+	ah = (float)ICON_SIZE;
 	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
 
 	color = -1;
@@ -1689,7 +1674,7 @@ static void CG_DrawLagometer( void ) {
 		if ( v > 0 ) {
 			if ( color != 1 ) {
 				color = 1;
-				cgi.R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] );
+				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
 			}
 			if ( v > range ) {
 				v = range;
@@ -1698,7 +1683,7 @@ static void CG_DrawLagometer( void ) {
 		} else if ( v < 0 ) {
 			if ( color != 2 ) {
 				color = 2;
-				cgi.R_SetColor( g_color_table[ColorIndex(COLOR_BLUE)] );
+				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_BLUE)] );
 			}
 			v = -v;
 			if ( v > range ) {
@@ -1719,12 +1704,12 @@ static void CG_DrawLagometer( void ) {
 			if ( lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED ) {
 				if ( color != 5 ) {
 					color = 5;	// YELLOW for rate delay
-					cgi.R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] );
+					cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
 				}
 			} else {
 				if ( color != 3 ) {
 					color = 3;
-					cgi.R_SetColor( g_color_table[ColorIndex(COLOR_GREEN)] );
+					cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
 				}
 			}
 			v = v * vscale;
@@ -1735,7 +1720,7 @@ static void CG_DrawLagometer( void ) {
 		} else if ( v < 0 ) {
 			if ( color != 4 ) {
 				color = 4;		// RED for dropped snapshots
-				cgi.R_SetColor( g_color_table[ColorIndex(COLOR_RED)] );
+				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_RED)] );
 			}
 			cgi.R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
 		}
@@ -1799,13 +1784,13 @@ static void CG_DrawCenterString( void ) {
 	int		l;
 	int		x, y, w;
 	int h;
-	float	*color;
+	vector4 *color;
 
 	if ( !cg.centerPrintTime ) {
 		return;
 	}
 
-	color = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value );
+	color = CG_FadeColor( cg.centerPrintTime, (int)(1000 * cg_centertime.value) );
 	if ( !color ) {
 		return;
 	}
@@ -1837,10 +1822,10 @@ static void CG_DrawCenterString( void ) {
 
 		y += cg.centerPrintCharWidth * 1.5;
 #else
-		w = CG_Text_Width(linebuffer, 0.5, 0);
-		h = CG_Text_Height(linebuffer, 0.5, 0);
-		x = (SCREEN_WIDTH - w) / 2;
-		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		w = CG_Text_Width(linebuffer, 0.5f, 0);
+		h = 26;//CG_Text_Height(linebuffer, 0.5, 0);
+		x = ((int)SCREEN_WIDTH - w) / 2;
+		CG_Text_Paint((float)x, (float)(y + h), 0.5f, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		y += h + 6;
 #endif // QTZRELIC
 		while ( *start && ( *start != '\n' ) ) {
@@ -1875,7 +1860,7 @@ static void CG_DrawCrosshair(void)
 {
 	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize.value, h = cg_crosshairSize.value, f = 0.0f;
 	int			i = 0;
-	vec4_t		finalColour = { 1.0 };
+	vector4	finalColour = { 1.0 };
 
 	if ( !cg_drawCrosshair.integer
 		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
@@ -1890,19 +1875,19 @@ static void CG_DrawCrosshair(void)
 		//QTZTODO: Per weapon tics? tics for ammo?
 		for ( i=0; i<cg_crosshairCooldownTics.integer; i++ )
 		{
-			float cooldown = MIN( cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], weaponData[cg.predictedPlayerState.weapon].fireTime );
+			float cooldown = (float)Q_bumpi( cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], weaponData[cg.predictedPlayerState.weapon].fireTime );
 			float cdmax = 1.0f - (cooldown / weaponData[cg.predictedPlayerState.weapon].fireTime);
 			float inc = RAD2DEG(M_PI*2)/cg_crosshairCooldownTics.value;
 			float angle = inc*i;
-			float cx = (SCREEN_WIDTH/2.0f) + cos( DEG2RAD(angle) ) * cg_crosshairCooldownSpread.value;
-			float cy = (SCREEN_HEIGHT/2.0f) + sin( DEG2RAD(angle) ) * cg_crosshairCooldownSpread.value;
+			float cx = (SCREEN_WIDTH/2.0f) + cosf( DEG2RAD(angle) ) * cg_crosshairCooldownSpread.value;
+			float cy = (SCREEN_HEIGHT/2.0f) + sinf( DEG2RAD(angle) ) * cg_crosshairCooldownSpread.value;
 			float finalFade = (cdmax/0.2f);
-			vec4_t colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+			vector4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 			if ( cdmax < 0.2f )
-				colour[3] = finalFade;
+				colour.a = finalFade;
 
-			cgi.R_SetColor( colour );
+			cgi.R_SetColor( &colour );
 			if ( angle/360.0f < cdmax )
 				CG_DrawRotatePic2( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic );
 		}
@@ -1911,22 +1896,22 @@ static void CG_DrawCrosshair(void)
 
 	// set color based on health
 	if ( cg_crosshairHealth.boolean )
-		CG_ColorForHealth( finalColour );
+		CG_ColorForHealth( &finalColour );
 
 //	else if ( cg.qtz.crosshairDamageTime > cg.time - cg_crosshairFeedbackTime.integer )
 	{//QtZ: Colour crosshair if we recently hit someone (Damage feedback)
-		float point = Com_Clamp( 0.0f, 1.0f, (float)(cg.time - cg.crosshair.damageTime) / cg_crosshairFeedbackTime.value );
-		finalColour[0] = LERP2( cg.crosshair.feedbackColor[0]/255.0f, cg.crosshair.baseColor[0]/255.0f, point );
-		finalColour[1] = LERP2( cg.crosshair.feedbackColor[1]/255.0f, cg.crosshair.baseColor[1]/255.0f, point );
-		finalColour[2] = LERP2( cg.crosshair.feedbackColor[2]/255.0f, cg.crosshair.baseColor[2]/255.0f, point );
-		finalColour[3] = 1.0f;
+		float point = Q_clamp( 0.0f, (float)(cg.time - cg.crosshair.damageTime) / cg_crosshairFeedbackTime.value, 1.0f );
+		finalColour.r = LERP2( cg.crosshair.feedbackColor.r/255.0f, cg.crosshair.baseColor.r/255.0f, point );
+		finalColour.g = LERP2( cg.crosshair.feedbackColor.g/255.0f, cg.crosshair.baseColor.g/255.0f, point );
+		finalColour.b = LERP2( cg.crosshair.feedbackColor.b/255.0f, cg.crosshair.baseColor.b/255.0f, point );
+		finalColour.a = 1.0f;
 	}
-	cgi.R_SetColor( finalColour );
+	cgi.R_SetColor( &finalColour );
 
 	w = h = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
+	f = (float)(cg.time - cg.itemPickupBlendTime);
 	if ( f > 0 && f < ITEM_BLOB_TIME )
 	{
 		f /= ITEM_BLOB_TIME;
@@ -1944,12 +1929,11 @@ static void CG_DrawCrosshair(void)
 	}
 #endif
 
-	x = cg.refdef.x + 0.5 * (SCREEN_WIDTH - w);
-	y = cg.refdef.y + 0.5 * (SCREEN_HEIGHT - h);
+	x = cg.refdef.x + 0.5f * (SCREEN_WIDTH - w);
+	y = cg.refdef.y + 0.5f * (SCREEN_HEIGHT - h);
 	CG_AdjustFrom640( &x, &y, &w, &h );
 
-	for ( i=0; i<NUM_CROSSHAIRS; i++ )
-	{
+	for ( i=0; i<NUM_CROSSHAIRS; i++ ) {
 		if ( cg_drawCrosshair.integer & (1<<i) )
 			cgi.R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshair.images[i] );
 	}
@@ -1971,7 +1955,7 @@ static void CG_DrawCrosshair3D(void)
 	int			ca;
 
 	trace_t trace;
-	vec3_t endpos;
+	vector3 endpos;
 	float stereoSep, zProj, maxdist, xmax;
 	char rendererinfos[128];
 	refEntity_t ent;
@@ -1991,7 +1975,7 @@ static void CG_DrawCrosshair3D(void)
 	w = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
+	f = (float)(cg.time - cg.itemPickupBlendTime);
 	if ( f > 0 && f < ITEM_BLOB_TIME ) {
 		f /= ITEM_BLOB_TIME;
 		w *= ( 1 + f );
@@ -2009,22 +1993,22 @@ static void CG_DrawCrosshair3D(void)
 
 	// first get all the important renderer information
 	cgi.Cvar_VariableStringBuffer("r_zProj", rendererinfos, sizeof(rendererinfos));
-	zProj = atof(rendererinfos);
+	zProj = (float)atof(rendererinfos);
 	cgi.Cvar_VariableStringBuffer("r_stereoSeparation", rendererinfos, sizeof(rendererinfos));
-	stereoSep = zProj / atof(rendererinfos);
+	stereoSep = zProj / (float)atof(rendererinfos);
 	
-	xmax = zProj * tan(cg.refdef.fov_x * M_PI / 360.0f);
+	xmax = zProj * tanf(cg.refdef.fov_x * M_PI / 360.0f);
 	
 	// let the trace run through until a change in stereo separation of the crosshair becomes less than one pixel.
 	maxdist = cgs.glconfig.vidWidth * stereoSep * zProj / (2 * xmax);
-	VectorMA(cg.refdef.vieworg, maxdist, cg.refdef.viewaxis[0], endpos);
-	CG_Trace(&trace, cg.refdef.vieworg, NULL, NULL, endpos, 0, MASK_SHOT);
+	VectorMA(&cg.refdef.vieworg, maxdist, &cg.refdef.viewaxis[0], &endpos);
+	CG_Trace(&trace, &cg.refdef.vieworg, NULL, NULL, &endpos, 0, MASK_SHOT);
 	
 	memset(&ent, 0, sizeof(ent));
 	ent.reType = RT_SPRITE;
 	ent.renderfx = RF_DEPTHHACK | RF_CROSSHAIR;
 	
-	VectorCopy(trace.endpos, ent.origin);
+	VectorCopy(&trace.endpos, &ent.origin);
 	
 	// scale the crosshair so it appears the same size for all distances
 	ent.radius = w / SCREEN_WIDTH * xmax * trace.fraction * maxdist / zProj;
@@ -2042,20 +2026,20 @@ CG_ScanForCrosshairEntity
 */
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
-	vec3_t		start, end;
+	vector3		start, end;
 	int			content;
 
-	VectorCopy( cg.refdef.vieworg, start );
-	VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
+	VectorCopy( &cg.refdef.vieworg, &start );
+	VectorMA( &start, 131072, &cg.refdef.viewaxis[0], &end );
 
-	CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
+	CG_Trace( &trace, &start, &vec3_origin, &vec3_origin, &end, 
 		cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
 	if ( trace.entityNum >= MAX_CLIENTS ) {
 		return;
 	}
 
 	// if the player is in fog, don't show it
-	content = CG_PointContents( trace.endpos, 0 );
+	content = CG_PointContents( &trace.endpos, 0 );
 	if ( content & CONTENTS_FOG ) {
 		return;
 	}
@@ -2072,7 +2056,7 @@ CG_DrawCrosshairNames
 =====================
 */
 static void CG_DrawCrosshairNames( void ) {
-	float		*color;
+	vector4		*color;
 	char		*name;
 	float		w;
 
@@ -2101,8 +2085,8 @@ static void CG_DrawCrosshairNames( void ) {
 	w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
 	CG_DrawBigString( (SCREEN_WIDTH/2) - w / 2, 170, name, color[3] * 0.5f );
 #else
-	color[3] *= 0.5f;
-	w = CG_Text_Width(name, 0.3f, 0);
+	color->a *= 0.5f;
+	w = (float)CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( (SCREEN_WIDTH/2) - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #endif // QTZRELIC
 	cgi.R_SetColor( NULL );
@@ -2117,13 +2101,11 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
-	CG_DrawBigString((SCREEN_WIDTH/2) - 9 * 8, 440, "SPECTATOR", 1.0F);
-	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString((SCREEN_WIDTH/2) - 15 * 8, 460, "waiting to play", 1.0F);
-	}
-	else if ( cgs.gametype >= GT_TEAM ) {
-		CG_DrawBigString((SCREEN_WIDTH/2) - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
-	}
+	CG_DrawBigString( ((int)SCREEN_WIDTH/2) - 9 * 8, 440, "SPECTATOR", 1.0f );
+	if ( cgs.gametype == GT_DUEL )
+		CG_DrawBigString( ((int)SCREEN_WIDTH/2) - 15 * 8, 460, "waiting to play", 1.0f );
+	else if ( cgs.gametype >= GT_TEAM )
+		CG_DrawBigString( ((int)SCREEN_WIDTH/2) - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0f );
 }
 
 /*
@@ -2160,44 +2142,8 @@ static void CG_DrawVote(void) {
 #endif // QTZRELIC
 }
 
-/*
-=================
-CG_DrawTeamVote
-=================
-*/
-static void CG_DrawTeamVote(void) {
-	char	*s;
-	int		sec, cs_offset;
-
-	if ( cgs.clientinfo[cg.clientNum].team == TEAM_RED )
-		cs_offset = 0;
-	else if ( cgs.clientinfo[cg.clientNum].team == TEAM_BLUE )
-		cs_offset = 1;
-	else
-		return;
-
-	if ( !cgs.teamVoteTime[cs_offset] ) {
-		return;
-	}
-
-	// play a talk beep whenever it is modified
-	if ( cgs.teamVoteModified[cs_offset] ) {
-		cgs.teamVoteModified[cs_offset] = qfalse;
-		cgi.S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-	}
-
-	sec = ( VOTE_TIME - ( cg.time - cgs.teamVoteTime[cs_offset] ) ) / 1000;
-	if ( sec < 0 ) {
-		sec = 0;
-	}
-	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-							cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
-	CG_DrawSmallString( 0, 90, s, 1.0F );
-}
-
-
 static qboolean CG_DrawScoreboard( void ) {
-#ifdef QTZRELIC
+#ifndef QTZRELIC
 	return CG_DrawOldScoreboard();
 #else
 	static qboolean firstTime = qtrue;
@@ -2266,25 +2212,24 @@ CG_DrawFollow
 */
 static qboolean CG_DrawFollow( void ) {
 	float		x;
-	vec4_t		color;
+	vector4		color;
 	const char	*name;
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
 	}
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
+	color.r = 1;
+	color.g = 1;
+	color.b = 1;
+	color.a = 1;
 
-
-	CG_DrawBigString( (SCREEN_WIDTH/2) - 9 * 8, 24, "following", 1.0F );
+	CG_DrawBigString( ((int)SCREEN_WIDTH/2) - 9 * 8, 24, "following", 1.0f );
 
 	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
 
-	x = 0.5 * ( SCREEN_WIDTH - GIANT_WIDTH * CG_DrawStrlen( name ) );
+	x = 0.5f * ( SCREEN_WIDTH - GIANT_WIDTH * CG_DrawStrlen( name ) );
 
-	CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
+	CG_DrawStringExt( (int)x, 40, name, &color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
 
 	return qtrue;
 }
@@ -2314,48 +2259,8 @@ static void CG_DrawAmmoWarning( void ) {
 		s = "LOW AMMO WARNING";
 	}
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigString((SCREEN_WIDTH/2) - w / 2, 64, s, 1.0F);
+	CG_DrawBigString( ((int)SCREEN_WIDTH/2) - w / 2, 64, s, 1.0f );
 }
-
-
-/*
-=================
-CG_DrawProxWarning
-=================
-*/
-static void CG_DrawProxWarning( void ) {
-	char s [32];
-	int			w;
-  static int proxTime;
-  static int proxCounter;
-  static int proxTick;
-
-	if( !(cg.snap->ps.eFlags & EF_TICKING ) ) {
-    proxTime = 0;
-		return;
-	}
-
-  if (proxTime == 0) {
-    proxTime = cg.time + 5000;
-    proxCounter = 5;
-    proxTick = 0;
-  }
-
-  if (cg.time > proxTime) {
-    proxTick = proxCounter--;
-    proxTime = cg.time + 1000;
-  }
-
-  if (proxTick != 0) {
-    Com_sprintf(s, sizeof(s), "INTERNAL COMBUSTION IN: %i", proxTick);
-  } else {
-    Com_sprintf(s, sizeof(s), "YOU HAVE BEEN MINED");
-  }
-
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigStringColor( (SCREEN_WIDTH/2) - w / 2, 64 + BIGCHAR_HEIGHT, s, g_color_table[ColorIndex(COLOR_RED)] );
-}
-
 
 /*
 =================
@@ -2382,12 +2287,12 @@ static void CG_DrawWarmup( void ) {
 	if ( sec < 0 ) {
 		s = "Waiting for players";		
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-		CG_DrawBigString((SCREEN_WIDTH/2) - w / 2, 24, s, 1.0F);
+		CG_DrawBigString( ((int)SCREEN_WIDTH/2) - w / 2, 24, s, 1.0f );
 		cg.warmupCount = 0;
 		return;
 	}
 
-	if (cgs.gametype == GT_TOURNAMENT) {
+	if (cgs.gametype == GT_DUEL) {
 		// find the two active players
 		ci1 = NULL;
 		ci2 = NULL;
@@ -2404,12 +2309,12 @@ static void CG_DrawWarmup( void ) {
 		if ( ci1 && ci2 ) {
 			s = va( "%s vs %s", ci1->name, ci2->name );
 			w = CG_Text_Width(s, 0.6f, 0);
-			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		}
 	} else {
-		s = gametypeNames[cgs.gametype];
+		s = BG_GetGametypeString( cgs.gametype );
 		w = CG_Text_Width(s, 0.6f, 0);
-		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
 	sec = ( sec - cg.time ) / 1000;
@@ -2451,7 +2356,7 @@ static void CG_DrawWarmup( void ) {
 	}
 
 	w = CG_Text_Width(s, scale, 0);
-	CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 125, scale, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
 //==================================================================================
@@ -2481,11 +2386,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	float y = 0.0f;
 	if (cgs.orderPending && cg.time > cgs.orderTime) {
 		CG_CheckOrderPending();
-	}
-
-	// if we are taking a levelshot for the menu, don't draw anything
-	if ( cg.levelShot ) {
-		return;
 	}
 
 	if ( !cg_draw2D.boolean ) {
@@ -2524,7 +2424,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
       
 			CG_DrawAmmoWarning();
 
-			CG_DrawProxWarning();
 			if(stereoFrame == STEREO_CENTER)
 				CG_DrawCrosshair();
 			CG_DrawCrosshairNames();
@@ -2540,8 +2439,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	}
 
 	CG_DrawVote();
-	CG_DrawTeamVote();
-
 	CG_DrawLagometer();
 
 	y = SCREEN_HEIGHT-SMALLCHAR_HEIGHT;

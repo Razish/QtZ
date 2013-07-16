@@ -74,10 +74,10 @@ typedef struct bsp_link_s
 
 typedef struct bsp_entdata_s
 {
-	vec3_t origin;
-	vec3_t angles;
-	vec3_t absmins;
-	vec3_t absmaxs;
+	vector3 origin;
+	vector3 angles;
+	vector3 absmins;
+	vector3 absmaxs;
 	int solid;
 	int modelnum;
 } bsp_entdata_t;
@@ -95,7 +95,7 @@ typedef struct aas_entity_s
 
 typedef struct aas_settings_s
 {
-	vec3_t phys_gravitydirection;
+	vector3 phys_gravitydirection;
 	float phys_friction;
 	float phys_stopspeed;
 	float phys_gravity;
@@ -145,7 +145,7 @@ typedef struct aas_routingcache_s
 	int size;									//size of the routing cache
 	int cluster;								//cluster the cache is for
 	int areanum;								//area the cache is created for
-	vec3_t origin;								//origin within the area
+	vector3 origin;								//origin within the area
 	float starttraveltime;						//travel time to start with
 	int travelflags;							//combinations of the travel flags
 	struct aas_routingcache_s *prev, *next;
@@ -159,7 +159,7 @@ typedef struct aas_routingupdate_s
 {
 	int cluster;
 	int areanum;								//area number of the update
-	vec3_t start;								//start point the area was entered
+	vector3 start;								//start point the area was entered
 	unsigned short int tmptraveltime;			//temporary travel time
 	unsigned short int *areatraveltimes;		//travel times within the area
 	qboolean inlist;							//true if the update is in the list

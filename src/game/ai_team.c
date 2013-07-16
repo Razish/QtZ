@@ -113,9 +113,9 @@ int BotClientTravelTimeToGoal(int client, bot_goal_t *goal) {
 	int areanum;
 
 	BotAI_GetClientState(client, &ps);
-	areanum = BotPointAreaNum(ps.origin);
+	areanum = BotPointAreaNum(&ps.origin);
 	if (!areanum) return 1;
-	return gi.aas->AAS_AreaTravelTimeToGoalArea(areanum, ps.origin, goal->areanum, TFL_DEFAULT);
+	return gi.aas->AAS_AreaTravelTimeToGoalArea(areanum, &ps.origin, goal->areanum, TFL_DEFAULT);
 }
 
 /*
@@ -378,9 +378,9 @@ void BotCTFOrders_BothFlagsNotAtBase(bot_state_t *bs) {
 		}
 		default:
 		{
-			defenders = (int) (float) numteammates * 0.4 + 0.5;
+			defenders = (int)((float)numteammates * 0.4f + 0.5f);
 			if (defenders > 4) defenders = 4;
-			attackers = (int) (float) numteammates * 0.5 + 0.5;
+			attackers = (int)((float)numteammates * 0.5f + 0.5f);
 			if (attackers > 5) attackers = 5;
 			if (bs->flagcarrier != -1) {
 				ClientName(bs->flagcarrier, carriername, sizeof(carriername));
@@ -485,9 +485,9 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 			default:
 			{
 				//keep some people near the base for when the flag is returned
-				defenders = (int) (float) numteammates * 0.3 + 0.5;
+				defenders = (int)((float)numteammates * 0.3f + 0.5f);
 				if (defenders > 3) defenders = 3;
-				attackers = (int) (float) numteammates * 0.6 + 0.5;
+				attackers = (int)((float)numteammates * 0.6f + 0.5f);
 				if (attackers > 6) attackers = 6;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -548,9 +548,9 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 			default:
 			{
 				//keep some people near the base for when the flag is returned
-				defenders = (int) (float) numteammates * 0.2 + 0.5;
+				defenders = (int)((float)numteammates * 0.2f + 0.5f);
 				if (defenders > 2) defenders = 2;
-				attackers = (int) (float) numteammates * 0.7 + 0.5;
+				attackers = (int)((float)numteammates * 0.7f + 0.5f);
 				if (attackers > 7) attackers = 7;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -620,10 +620,10 @@ void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 		default:
 		{
 			//60% will defend the base
-			defenders = (int) (float) numteammates * 0.6 + 0.5;
+			defenders = (int)((float)numteammates * 0.6f + 0.5f);
 			if (defenders > 6) defenders = 6;
 			//30% accompanies the flag carrier
-			attackers = (int) (float) numteammates * 0.3 + 0.5;
+			attackers = (int)((float)numteammates * 0.3f + 0.5f);
 			if (attackers > 3) attackers = 3;
 			for (i = 0; i < defenders; i++) {
 				//
@@ -730,9 +730,9 @@ void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 			}
 			default:
 			{
-				defenders = (int) (float) numteammates * 0.5 + 0.5;
+				defenders = (int)((float)numteammates * 0.5f + 0.5f);
 				if (defenders > 5) defenders = 5;
-				attackers = (int) (float) numteammates * 0.4 + 0.5;
+				attackers = (int)((float)numteammates * 0.4f + 0.5f);
 				if (attackers > 4) attackers = 4;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -792,9 +792,9 @@ void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 			}
 			default:
 			{
-				defenders = (int) (float) numteammates * 0.4 + 0.5;
+				defenders = (int)((float)numteammates * 0.4f + 0.5f);
 				if (defenders > 4) defenders = 4;
-				attackers = (int) (float) numteammates * 0.5 + 0.5;
+				attackers = (int)((float)numteammates * 0.5f + 0.5f);
 				if (attackers > 5) attackers = 5;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -987,10 +987,10 @@ void Bot1FCTFOrders_FlagAtCenter(bot_state_t *bs) {
 			default:
 			{
 				//50% defend the base
-				defenders = (int) (float) numteammates * 0.5 + 0.5;
+				defenders = (int)((float)numteammates * 0.5f + 0.5f);
 				if (defenders > 5) defenders = 5;
 				//40% get the flag
-				attackers = (int) (float) numteammates * 0.4 + 0.5;
+				attackers = (int)((float)numteammates * 0.4f + 0.5f);
 				if (attackers > 4) attackers = 4;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1051,10 +1051,10 @@ void Bot1FCTFOrders_FlagAtCenter(bot_state_t *bs) {
 			default:
 			{
 				//30% defend the base
-				defenders = (int) (float) numteammates * 0.3 + 0.5;
+				defenders = (int)((float)numteammates * 0.3f + 0.5f);
 				if (defenders > 3) defenders = 3;
 				//60% get the flag
-				attackers = (int) (float) numteammates * 0.6 + 0.5;
+				attackers = (int)((float)numteammates * 0.6f + 0.5f);
 				if (attackers > 6) attackers = 6;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1144,10 +1144,10 @@ void Bot1FCTFOrders_TeamHasFlag(bot_state_t *bs) {
 			default:
 			{
 				//30% will defend the base
-				defenders = (int) (float) numteammates * 0.3 + 0.5;
+				defenders = (int)((float)numteammates * 0.3f + 0.5f);
 				if (defenders > 3) defenders = 3;
 				//70% accompanies the flag carrier
-				attackers = (int) (float) numteammates * 0.7 + 0.5;
+				attackers = (int)((float)numteammates * 0.7f + 0.5f);
 				if (attackers > 7) attackers = 7;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1240,10 +1240,10 @@ void Bot1FCTFOrders_TeamHasFlag(bot_state_t *bs) {
 			default:
 			{
 				//20% will defend the base
-				defenders = (int) (float) numteammates * 0.2 + 0.5;
+				defenders = (int)((float)numteammates * 0.2f + 0.5f);
 				if (defenders > 2) defenders = 2;
 				//80% accompanies the flag carrier
-				attackers = (int) (float) numteammates * 0.8 + 0.5;
+				attackers = (int)((float)numteammates * 0.8f + 0.5f);
 				if (attackers > 8) attackers = 8;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1337,10 +1337,10 @@ void Bot1FCTFOrders_EnemyHasFlag(bot_state_t *bs) {
 			default:
 			{
 				//80% will defend the base
-				defenders = (int) (float) numteammates * 0.8 + 0.5;
+				defenders = (int)((float)numteammates * 0.8f + 0.5f);
 				if (defenders > 8) defenders = 8;
 				//10% will try to return the flag
-				attackers = (int) (float) numteammates * 0.1 + 0.5;
+				attackers = (int)((float)numteammates * 0.1f + 0.5f);
 				if (attackers > 1) attackers = 1;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1401,10 +1401,10 @@ void Bot1FCTFOrders_EnemyHasFlag(bot_state_t *bs) {
 			default:
 			{
 				//70% defend the base
-				defenders = (int) (float) numteammates * 0.7 + 0.5;
+				defenders = (int)((float)numteammates * 0.7f + 0.5f);
 				if (defenders > 7) defenders = 7;
 				//20% try to return the flag
-				attackers = (int) (float) numteammates * 0.2 + 0.5;
+				attackers = (int)((float)numteammates * 0.2f + 0.5f);
 				if (attackers > 2) attackers = 2;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1484,11 +1484,12 @@ void Bot1FCTFOrders_EnemyDroppedFlag(bot_state_t *bs) {
 			default:
 			{
 				//50% defend the base
-				defenders = (int) (float) numteammates * 0.5 + 0.5;
+				defenders = (int)((float)numteammates * 0.5f + 0.5f);
 				if (defenders > 5) defenders = 5;
 				//40% get the flag
-				attackers = (int) (float) numteammates * 0.4 + 0.5;
-				if (attackers > 4) attackers = 4;
+				attackers = (int)((float)numteammates * 0.4f + 0.5f);
+				if (attackers > 4)
+					attackers = 4;
 				for (i = 0; i < defenders; i++) {
 					//
 					ClientName(teammates[i], name, sizeof(name));
@@ -1548,10 +1549,10 @@ void Bot1FCTFOrders_EnemyDroppedFlag(bot_state_t *bs) {
 			default:
 			{
 				//30% defend the base
-				defenders = (int) (float) numteammates * 0.3 + 0.5;
+				defenders = (int)((float)numteammates * 0.3f + 0.5f);
 				if (defenders > 3) defenders = 3;
 				//60% get the flag
-				attackers = (int) (float) numteammates * 0.6 + 0.5;
+				attackers = (int)((float)numteammates * 0.6f + 0.5f);
 				if (attackers > 6) attackers = 6;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1645,10 +1646,10 @@ void BotObeliskOrders(bot_state_t *bs) {
 			default:
 			{
 				//50% defend the base
-				defenders = (int) (float) numteammates * 0.5 + 0.5;
+				defenders = (int)((float)numteammates * 0.5f + 0.5f);
 				if (defenders > 5) defenders = 5;
 				//40% attack the enemy base
-				attackers = (int) (float) numteammates * 0.4 + 0.5;
+				attackers = (int)((float)numteammates * 0.4f + 0.5f);
 				if (attackers > 4) attackers = 4;
 				for (i = 0; i < defenders; i++) {
 					//
@@ -1709,10 +1710,10 @@ void BotObeliskOrders(bot_state_t *bs) {
 			default:
 			{
 				//30% defend the base
-				defenders = (int) (float) numteammates * 0.3 + 0.5;
+				defenders = (int)((float)numteammates * 0.3f + 0.5f);
 				if (defenders > 3) defenders = 3;
 				//70% attack the enemy base
-				attackers = (int) (float) numteammates * 0.7 + 0.5;
+				attackers = (int)((float)numteammates * 0.7f + 0.5f);
 				if (attackers > 7) attackers = 7;
 				for (i = 0; i < defenders; i++) {
 					//

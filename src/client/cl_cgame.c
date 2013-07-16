@@ -39,7 +39,7 @@ cgameExport_t cge;
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
-extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+extern qboolean getCameraInfo(int time, vector3 *origin, vector3 *angles);
 
 /*
 ====================
@@ -155,7 +155,7 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	snapshot->serverCommandSequence = clSnap->serverCommandNum;
 	snapshot->ping = clSnap->ping;
 	snapshot->serverTime = clSnap->serverTime;
-	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
+	memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
@@ -229,7 +229,7 @@ void CL_ConfigstringModified( void ) {
 	// build the new gameState_t
 	oldGs = cl.gameState;
 
-	Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
+	memset( &cl.gameState, 0, sizeof( cl.gameState ) );
 
 	// leave the first 0 for uninitialized strings
 	cl.gameState.dataCount = 1;
@@ -252,7 +252,7 @@ void CL_ConfigstringModified( void ) {
 
 		// append it to the gameState string buffer
 		cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
-		Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
+		memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
 		cl.gameState.dataCount += len + 1;
 	}
 
@@ -349,26 +349,7 @@ rescan:
 		Con_ClearNotify();
 		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
-		return qtrue;
-	}
-
-	// the clientLevelShot command is used during development
-	// to generate 128*128 screenshots from the intermission
-	// point of levels for the menu system to use
-	// we pass it along to the cgame to make apropriate adjustments,
-	// but we also clear the console and notify lines here
-	if ( !strcmp( cmd, "clientLevelShot" ) ) {
-		// don't do it if we aren't running the server locally,
-		// otherwise malicious remote servers could overwrite
-		// the existing thumbnails
-		if ( !com_sv_running->integer ) {
-			return qfalse;
-		}
-		// close the console
-		Con_Close();
-		// take a special screenshot next frame
-		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
+		memset( cl.cmds, 0, sizeof( cl.cmds ) );
 		return qtrue;
 	}
 
@@ -528,7 +509,6 @@ void CL_InitCGame( void ) {
 	cgi.SetUserCmdValue				= CL_SetUserCmdValue;
 	cgi.MemoryRemaining				= Hunk_MemoryRemaining;
 	cgi.RealTime					= Com_RealTime;
-	cgi.Q_SnapVector				= Q_SnapVector;
 	cgi.Key_IsDown					= Key_IsDown;
 	cgi.Key_GetCatcher				= Key_GetCatcher;
 	cgi.Key_SetCatcher				= Key_SetCatcher;
@@ -545,9 +525,11 @@ void CL_InitCGame( void ) {
 	cgi.CIN_SetExtents				= CIN_SetExtents;
 
 	// init the cgame module and grab the exports
-	ret = GetCGameAPI( CGAME_API_VERSION, &cgi );
-	if ( !(ret = GetCGameAPI( CGAME_API_VERSION, &cgi )) )
+	if ( !(ret = GetCGameAPI( CGAME_API_VERSION, &cgi )) ) {
 		Com_Error( ERR_FATAL, "Couldn't initialize cgame" );
+		return;
+	}
+
 	cge = *ret;
 
 	clc.state = CA_LOADING;
@@ -700,9 +682,7 @@ void CL_FirstSnapshot( void ) {
 
 	//QtZ: Raw mouse input
 	#ifdef _WIN32
-		if (Cvar_VariableIntegerValue("in_mouse") == 3) {
-			Cbuf_AddText( "in_restart;" );
-		}
+		Cbuf_AddText( "in_restart;" );
 	#endif
 
 	// if this is the first frame of active play,
@@ -756,7 +736,7 @@ void CL_FirstSnapshot( void ) {
 		clc.voipMuteAll = qfalse;
 		Cmd_AddCommand ("voip", CL_Voip_f);
 		Cvar_Set("cl_voipSendTarget", "spatial");
-		Com_Memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
+		memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
 	}
 #endif
 }

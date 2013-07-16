@@ -47,19 +47,17 @@ at the same time.
 */
 
 
-kbutton_t	in_left, in_right, in_forward, in_back;
-kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
-kbutton_t	in_strafe, in_speed;
+kbutton_t	in_forward, in_back, in_left, in_right;
 kbutton_t	in_up, in_down;
+kbutton_t	in_lookup, in_lookdown, in_lookleft, in_lookright;
+kbutton_t	in_strafe, in_speed;
+qboolean	in_mlooking;
+
+kbutton_t	in_buttons[16];
 
 #ifdef USE_VOIP
 kbutton_t	in_voiprecord;
 #endif
-
-kbutton_t	in_buttons[16];
-
-
-qboolean	in_mlooking;
 
 
 void IN_MLookDown( void ) {
@@ -187,86 +185,6 @@ float CL_KeyState( kbutton_t *key ) {
 	return val;
 }
 
-
-
-void IN_UpDown(void) {IN_KeyDown(&in_up);}
-void IN_UpUp(void) {IN_KeyUp(&in_up);}
-void IN_DownDown(void) {IN_KeyDown(&in_down);}
-void IN_DownUp(void) {IN_KeyUp(&in_down);}
-void IN_LeftDown(void) {IN_KeyDown(&in_left);}
-void IN_LeftUp(void) {IN_KeyUp(&in_left);}
-void IN_RightDown(void) {IN_KeyDown(&in_right);}
-void IN_RightUp(void) {IN_KeyUp(&in_right);}
-void IN_ForwardDown(void) {IN_KeyDown(&in_forward);}
-void IN_ForwardUp(void) {IN_KeyUp(&in_forward);}
-void IN_BackDown(void) {IN_KeyDown(&in_back);}
-void IN_BackUp(void) {IN_KeyUp(&in_back);}
-void IN_LookupDown(void) {IN_KeyDown(&in_lookup);}
-void IN_LookupUp(void) {IN_KeyUp(&in_lookup);}
-void IN_LookdownDown(void) {IN_KeyDown(&in_lookdown);}
-void IN_LookdownUp(void) {IN_KeyUp(&in_lookdown);}
-void IN_MoveleftDown(void) {IN_KeyDown(&in_moveleft);}
-void IN_MoveleftUp(void) {IN_KeyUp(&in_moveleft);}
-void IN_MoverightDown(void) {IN_KeyDown(&in_moveright);}
-void IN_MoverightUp(void) {IN_KeyUp(&in_moveright);}
-
-void IN_SpeedDown(void) {IN_KeyDown(&in_speed);}
-void IN_SpeedUp(void) {IN_KeyUp(&in_speed);}
-void IN_StrafeDown(void) {IN_KeyDown(&in_strafe);}
-void IN_StrafeUp(void) {IN_KeyUp(&in_strafe);}
-
-#ifdef USE_VOIP
-void IN_VoipRecordDown(void)
-{
-	IN_KeyDown(&in_voiprecord);
-	Cvar_Set("cl_voipSend", "1");
-}
-
-void IN_VoipRecordUp(void)
-{
-	IN_KeyUp(&in_voiprecord);
-	Cvar_Set("cl_voipSend", "0");
-}
-#endif
-
-void IN_Button0Down(void) {IN_KeyDown(&in_buttons[0]);}
-void IN_Button0Up(void) {IN_KeyUp(&in_buttons[0]);}
-void IN_Button1Down(void) {IN_KeyDown(&in_buttons[1]);}
-void IN_Button1Up(void) {IN_KeyUp(&in_buttons[1]);}
-void IN_Button2Down(void) {IN_KeyDown(&in_buttons[2]);}
-void IN_Button2Up(void) {IN_KeyUp(&in_buttons[2]);}
-void IN_Button3Down(void) {IN_KeyDown(&in_buttons[3]);}
-void IN_Button3Up(void) {IN_KeyUp(&in_buttons[3]);}
-void IN_Button4Down(void) {IN_KeyDown(&in_buttons[4]);}
-void IN_Button4Up(void) {IN_KeyUp(&in_buttons[4]);}
-void IN_Button5Down(void) {IN_KeyDown(&in_buttons[5]);}
-void IN_Button5Up(void) {IN_KeyUp(&in_buttons[5]);}
-void IN_Button6Down(void) {IN_KeyDown(&in_buttons[6]);}
-void IN_Button6Up(void) {IN_KeyUp(&in_buttons[6]);}
-void IN_Button7Down(void) {IN_KeyDown(&in_buttons[7]);}
-void IN_Button7Up(void) {IN_KeyUp(&in_buttons[7]);}
-void IN_Button8Down(void) {IN_KeyDown(&in_buttons[8]);}
-void IN_Button8Up(void) {IN_KeyUp(&in_buttons[8]);}
-void IN_Button9Down(void) {IN_KeyDown(&in_buttons[9]);}
-void IN_Button9Up(void) {IN_KeyUp(&in_buttons[9]);}
-void IN_Button10Down(void) {IN_KeyDown(&in_buttons[10]);}
-void IN_Button10Up(void) {IN_KeyUp(&in_buttons[10]);}
-void IN_Button11Down(void) {IN_KeyDown(&in_buttons[11]);}
-void IN_Button11Up(void) {IN_KeyUp(&in_buttons[11]);}
-void IN_Button12Down(void) {IN_KeyDown(&in_buttons[12]);}
-void IN_Button12Up(void) {IN_KeyUp(&in_buttons[12]);}
-void IN_Button13Down(void) {IN_KeyDown(&in_buttons[13]);}
-void IN_Button13Up(void) {IN_KeyUp(&in_buttons[13]);}
-void IN_Button14Down(void) {IN_KeyDown(&in_buttons[14]);}
-void IN_Button14Up(void) {IN_KeyUp(&in_buttons[14]);}
-void IN_Button15Down(void) {IN_KeyDown(&in_buttons[15]);}
-void IN_Button15Up(void) {IN_KeyUp(&in_buttons[15]);}
-
-void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
-}
-
-
 //==========================================================================
 
 cvar_t	*cl_yawspeed;
@@ -288,12 +206,12 @@ void CL_AdjustAngles( void ) {
 	float	speed, keystateRight=1.0f, keystateLeft=1.0f, keystateLookUp=1.0f, keystateLookDown=1.0f;
 	
 	if ( in_speed.active )
-		speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
+		speed = 0.001f * cls.frametime * cl_anglespeedkey->value;
 	else
-		speed = 0.001 * cls.frametime;
+		speed = 0.001f * cls.frametime;
 
-	keystateRight		= CL_KeyState( &in_right );
-	keystateLeft		= CL_KeyState( &in_left );
+	keystateRight		= CL_KeyState( &in_lookright );
+	keystateLeft		= CL_KeyState( &in_lookleft );
 	keystateLookUp		= CL_KeyState( &in_lookup );
 	keystateLookDown	= CL_KeyState( &in_lookdown );
 
@@ -301,18 +219,18 @@ void CL_AdjustAngles( void ) {
 		Com_Printf( "CL_AdjustAngles: r/l/u/d %f/%f/%f/%f\n", keystateRight, keystateLeft, keystateLookUp, keystateLookDown );
 
 	if ( in_mouseDebug->integer == 3 )
-		Com_Printf( "CL_AdjustAngles: cl.viewangles (%.2f %.2f) -> ", cl.viewangles[YAW], cl.viewangles[PITCH] );
+		Com_Printf( "CL_AdjustAngles: cl.viewangles (%.2f %.2f) -> ", cl.viewangles.yaw, cl.viewangles.pitch );
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] -= speed * cl_yawspeed->value * keystateRight;
-		cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState( &in_left );
+		cl.viewangles.yaw -= speed * cl_yawspeed->value * keystateRight;
+		cl.viewangles.yaw += speed * cl_yawspeed->value * keystateLeft;
 	}
 
-	cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * keystateLookUp;
-	cl.viewangles[PITCH] += speed * cl_pitchspeed->value * keystateLookDown;
+	cl.viewangles.pitch -= speed * cl_pitchspeed->value * keystateLookUp;
+	cl.viewangles.pitch += speed * cl_pitchspeed->value * keystateLookDown;
 
 	if ( in_mouseDebug->integer == 3 )
-		Com_Printf( "(%.2f %.2f)\n", cl.viewangles[YAW], cl.viewangles[PITCH] );
+		Com_Printf( "(%.2f %.2f)\n", cl.viewangles.yaw, cl.viewangles.pitch );
 
 }
 
@@ -344,19 +262,19 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	side = 0;
 	up = 0;
 	if ( in_strafe.active ) {
-		side += movespeed * CL_KeyState (&in_right);
-		side -= movespeed * CL_KeyState (&in_left);
+		side += (int)(movespeed * CL_KeyState( &in_lookright ));
+		side -= (int)(movespeed * CL_KeyState( &in_lookleft ));
 	}
 
-	side += movespeed * CL_KeyState (&in_moveright);
-	side -= movespeed * CL_KeyState (&in_moveleft);
+	side += (int)(movespeed * CL_KeyState( &in_right ));
+	side -= (int)(movespeed * CL_KeyState( &in_left ));
 
 
-	up += movespeed * CL_KeyState (&in_up);
-	up -= movespeed * CL_KeyState (&in_down);
+	up += (int)(movespeed * CL_KeyState( &in_up ));
+	up -= (int)(movespeed * CL_KeyState( &in_down ));
 
-	forward += movespeed * CL_KeyState (&in_forward);
-	forward -= movespeed * CL_KeyState (&in_back);
+	forward += (int)(movespeed * CL_KeyState( &in_forward ));
+	forward -= (int)(movespeed * CL_KeyState( &in_back ));
 
 	cmd->forwardmove = ClampChar( forward );
 	cmd->rightmove = ClampChar( side );
@@ -406,24 +324,24 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( in_speed.active ) {
-		anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
+		anglespeed = 0.001f * cls.frametime * cl_anglespeedkey->value;
 	} else {
-		anglespeed = 0.001 * cls.frametime;
+		anglespeed = 0.001f * cls.frametime;
 	}
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] += anglespeed * j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
+		cl.viewangles.yaw += anglespeed * j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
 		cmd->rightmove = ClampChar( cmd->rightmove + (int) (j_side->value * cl.joystickAxis[j_side_axis->integer]) );
 	} else {
-		cl.viewangles[YAW] += anglespeed * j_side->value * cl.joystickAxis[j_side_axis->integer];
+		cl.viewangles.yaw += anglespeed * j_side->value * cl.joystickAxis[j_side_axis->integer];
 		cmd->rightmove = ClampChar( cmd->rightmove + (int) (j_yaw->value * cl.joystickAxis[j_yaw_axis->integer]) );
 	}
 
 	if ( in_mlooking ) {
-		cl.viewangles[PITCH] += anglespeed * j_forward->value * cl.joystickAxis[j_forward_axis->integer];
+		cl.viewangles.pitch += anglespeed * j_forward->value * cl.joystickAxis[j_forward_axis->integer];
 		cmd->forwardmove = ClampChar( cmd->forwardmove + (int) (j_pitch->value * cl.joystickAxis[j_pitch_axis->integer]) );
 	} else {
-		cl.viewangles[PITCH] += anglespeed * j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
+		cl.viewangles.pitch += anglespeed * j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
 		cmd->forwardmove = ClampChar( cmd->forwardmove + (int) (j_forward->value * cl.joystickAxis[j_forward_axis->integer]) );
 	}
 
@@ -441,15 +359,13 @@ void CL_MouseMove(usercmd_t *cmd)
 	float mx, my;
 
 	// allow mouse smoothing
-	if (m_filter->integer)
-	{
+	if (m_filter->boolean) {
 		mx = (cl.mouseDx[0] + cl.mouseDx[1]) * 0.5f;
 		my = (cl.mouseDy[0] + cl.mouseDy[1]) * 0.5f;
 	}
-	else
-	{
-		mx = cl.mouseDx[cl.mouseIndex];
-		my = cl.mouseDy[cl.mouseIndex];
+	else {
+		mx = (float)cl.mouseDx[cl.mouseIndex];
+		my = (float)cl.mouseDy[cl.mouseIndex];
 	}
 	
 	cl.mouseIndex ^= 1;
@@ -459,16 +375,16 @@ void CL_MouseMove(usercmd_t *cmd)
 	if (mx == 0.0f && my == 0.0f)
 		return;
 	
-	if (cl_mouseAccel->value > 0.0f)
+	if (m_accel->value > 0.0f)
 	{
-		if(cl_mouseAccelStyle->integer == 0)
+		if(m_accelStyle->integer == 0)
 		{
 			float accelSensitivity;
 			float rate;
 			
-			rate = sqrt(mx * mx + my * my) / (float) frame_msec;
+			rate = sqrtf(mx*mx + my*my) / (float) frame_msec;
 
-			accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
+			accelSensitivity = 1.0f + rate * m_accel->value;
 			mx *= accelSensitivity;
 			my *= accelSensitivity;
 			
@@ -485,22 +401,17 @@ void CL_MouseMove(usercmd_t *cmd)
 			// cl_mouseAccelOffset is the rate for which the acceleration will have doubled the non accelerated amplification
 			// NOTE: decouple the config cvars for independent acceleration setup along X and Y?
 
-			rate[0] = fabs(mx) / (float) frame_msec;
-			rate[1] = fabs(my) / (float) frame_msec;
-			power[0] = powf(rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
-			power[1] = powf(rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
+			rate[0] = fabsf(mx) / (float) frame_msec;
+			rate[1] = fabsf(my) / (float) frame_msec;
+			power[0] = powf(rate[0] / m_accelOffset->value, m_accel->value);
+			power[1] = powf(rate[1] / m_accelOffset->value, m_accel->value);
 
-			mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-			my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
+			mx = (mx + ((mx < 0) ? -power[0] : power[0]) * m_accelOffset->value);
+			my = (my + ((my < 0) ? -power[1] : power[1]) * m_accelOffset->value);
 
 			if(cl_showMouseRate->integer)
 				Com_Printf("ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1], power[0], power[1]);
 		}
-	}
-	else
-	{
-		mx *= cl_sensitivity->value;
-		my *= cl_sensitivity->value;
 	}
 
 	// ingame FOV
@@ -511,21 +422,21 @@ void CL_MouseMove(usercmd_t *cmd)
 		Com_Printf( "CL_MouseMove: mx my (%.2f, %.2f)\n", mx, my );
 
 	if ( in_mouseDebug->integer == 3 )
-		Com_Printf( "CL_MouseMove: cl.viewangles (%.2f %.2f) -> ", cl.viewangles[YAW], cl.viewangles[PITCH] );
+		Com_Printf( "CL_MouseMove: cl.viewangles (%.2f %.2f) -> ", cl.viewangles.yaw, cl.viewangles.pitch );
 
 	// add mouse X/Y movement to cmd
 	if(in_strafe.active)
-		cmd->rightmove = ClampChar(cmd->rightmove + m_side->value * mx);
+		cmd->rightmove = ClampChar( cmd->rightmove + (int)(m_side->value * mx) );
 	else
-		cl.viewangles[YAW] -= m_yaw->value * mx;
+		cl.viewangles.yaw -= mx * m_sensitivity->value;
 
 	if ((in_mlooking || cl_freelook->integer) && !in_strafe.active)
-		cl.viewangles[PITCH] += m_pitch->value * my;
+		cl.viewangles.pitch += my * m_sensitivity->value;
 	else
-		cmd->forwardmove = ClampChar(cmd->forwardmove - m_forward->value * my);
+		cmd->forwardmove = ClampChar( cmd->forwardmove - (int)(m_forward->value * my) );
 
 	if ( in_mouseDebug->integer == 3 )
-		Com_Printf( "(%.2f %.2f)\n", cl.viewangles[YAW], cl.viewangles[PITCH] );
+		Com_Printf( "(%.2f %.2f)\n", cl.viewangles.yaw, cl.viewangles.pitch );
 }
 
 
@@ -577,7 +488,7 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	cmd->serverTime = cl.serverTime;
 
 	for (i=0 ; i<3 ; i++) {
-		cmd->angles[i] = ANGLE2SHORT(cl.viewangles[i]);
+		cmd->angles[i] = ANGLE2SHORT(cl.viewangles.data[i]);
 	}
 }
 
@@ -589,14 +500,14 @@ CL_CreateCmd
 */
 usercmd_t CL_CreateCmd( void ) {
 	usercmd_t	cmd;
-	vec3_t		oldAngles;
+	vector3		oldAngles;
 
-	VectorCopy( cl.viewangles, oldAngles );
+	VectorCopy( &cl.viewangles, &oldAngles );
 
 	// keyboard angle adjustment
 	CL_AdjustAngles ();
 	
-	Com_Memset( &cmd, 0, sizeof( cmd ) );
+	memset( &cmd, 0, sizeof( cmd ) );
 
 	CL_CmdButtons( &cmd );
 
@@ -610,10 +521,10 @@ usercmd_t CL_CreateCmd( void ) {
 	CL_JoystickMove( &cmd );
 
 	// check to make sure the angles haven't wrapped
-	if ( cl.viewangles[PITCH] - oldAngles[PITCH] > 90 ) {
-		cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
-	} else if ( oldAngles[PITCH] - cl.viewangles[PITCH] > 90 ) {
-		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
+	if ( cl.viewangles.pitch - oldAngles.pitch > 90 ) {
+		cl.viewangles.pitch = oldAngles.pitch + 90;
+	} else if ( oldAngles.pitch - cl.viewangles.pitch > 90 ) {
+		cl.viewangles.pitch = oldAngles.pitch - 90;
 	} 
 
 	// store out the final values
@@ -622,10 +533,10 @@ usercmd_t CL_CreateCmd( void ) {
 	// draw debug graphs of turning for mouse testing
 	if ( cl_debugMove->integer ) {
 		if ( cl_debugMove->integer == 1 ) {
-			SCR_DebugGraph( abs(cl.viewangles[YAW] - oldAngles[YAW]) );
+			SCR_DebugGraph( fabsf(cl.viewangles.yaw - oldAngles.yaw) );
 		}
 		if ( cl_debugMove->integer == 2 ) {
-			SCR_DebugGraph( abs(cl.viewangles[PITCH] - oldAngles[PITCH]) );
+			SCR_DebugGraph( fabsf(cl.viewangles.pitch - oldAngles.pitch) );
 		}
 	}
 
@@ -641,33 +552,17 @@ Create a new usercmd_t structure for this frame
 =================
 */
 void CL_CreateNewCommands( void ) {
-	int			cmdNum;
-
 	// no need to create usercmds until we have a gamestate
-	if ( clc.state < CA_PRIMED ) {
+	if ( clc.state < CA_PRIMED )
 		return;
-	}
 
 	frame_msec = com_frameTime - old_com_frameTime;
-
-	// if running less than 5fps, truncate the extra time to prevent
-	// unexpected moves after a hitch
-	if ( frame_msec > 200 )
-		frame_msec = 200;
-
-	//QtZ: Force at-least 1 msec frametime
-	//		this avoids CL_KeyState returning bogus values resulting in #IND cl.viewangles[]
-	if ( frame_msec < 1 )
-		frame_msec = 1;
-	//~QtZ
-
 	old_com_frameTime = com_frameTime;
 
+		 if ( frame_msec > 200 )	frame_msec = 200;
+	else if ( frame_msec < 1 )		frame_msec = 1;
 
-	// generate a command for this frame
-	cl.cmdNumber++;
-	cmdNum = cl.cmdNumber & CMD_MASK;
-	cl.cmds[cmdNum] = CL_CreateCmd ();
+	cl.cmds[++cl.cmdNumber & CMD_MASK] = CL_CreateCmd();
 }
 
 /*
@@ -767,7 +662,7 @@ void CL_WritePacket( void ) {
 		return;
 	}
 
-	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
+	memset( &nullcmd, 0, sizeof(nullcmd) );
 	oldcmd = &nullcmd;
 
 	MSG_Init( &buf, data, sizeof(data) );
@@ -943,72 +838,107 @@ void CL_SendCmd( void ) {
 CL_InitInput
 ============
 */
-void CL_InitInput( void ) {
-	Cmd_AddCommand ("centerview",IN_CenterView);
 
-	Cmd_AddCommand ("+moveup",IN_UpDown);
-	Cmd_AddCommand ("-moveup",IN_UpUp);
-	Cmd_AddCommand ("+movedown",IN_DownDown);
-	Cmd_AddCommand ("-movedown",IN_DownUp);
-	Cmd_AddCommand ("+left",IN_LeftDown);
-	Cmd_AddCommand ("-left",IN_LeftUp);
-	Cmd_AddCommand ("+right",IN_RightDown);
-	Cmd_AddCommand ("-right",IN_RightUp);
-	Cmd_AddCommand ("+forward",IN_ForwardDown);
-	Cmd_AddCommand ("-forward",IN_ForwardUp);
-	Cmd_AddCommand ("+back",IN_BackDown);
-	Cmd_AddCommand ("-back",IN_BackUp);
-	Cmd_AddCommand ("+lookup", IN_LookupDown);
-	Cmd_AddCommand ("-lookup", IN_LookupUp);
-	Cmd_AddCommand ("+lookdown", IN_LookdownDown);
-	Cmd_AddCommand ("-lookdown", IN_LookdownUp);
-	Cmd_AddCommand ("+strafe", IN_StrafeDown);
-	Cmd_AddCommand ("-strafe", IN_StrafeUp);
-	Cmd_AddCommand ("+moveleft", IN_MoveleftDown);
-	Cmd_AddCommand ("-moveleft", IN_MoveleftUp);
-	Cmd_AddCommand ("+moveright", IN_MoverightDown);
-	Cmd_AddCommand ("-moveright", IN_MoverightUp);
-	Cmd_AddCommand ("+speed", IN_SpeedDown);
-	Cmd_AddCommand ("-speed", IN_SpeedUp);
-	Cmd_AddCommand ("+attack", IN_Button0Down);
-	Cmd_AddCommand ("-attack", IN_Button0Up);
-	Cmd_AddCommand ("+button0", IN_Button0Down);
-	Cmd_AddCommand ("-button0", IN_Button0Up);
-	Cmd_AddCommand ("+button1", IN_Button1Down);
-	Cmd_AddCommand ("-button1", IN_Button1Up);
-	Cmd_AddCommand ("+button2", IN_Button2Down);
-	Cmd_AddCommand ("-button2", IN_Button2Up);
-	Cmd_AddCommand ("+button3", IN_Button3Down);
-	Cmd_AddCommand ("-button3", IN_Button3Up);
-	Cmd_AddCommand ("+button4", IN_Button4Down);
-	Cmd_AddCommand ("-button4", IN_Button4Up);
-	Cmd_AddCommand ("+button5", IN_Button5Down);
-	Cmd_AddCommand ("-button5", IN_Button5Up);
-	Cmd_AddCommand ("+button6", IN_Button6Down);
-	Cmd_AddCommand ("-button6", IN_Button6Up);
-	Cmd_AddCommand ("+button7", IN_Button7Down);
-	Cmd_AddCommand ("-button7", IN_Button7Up);
-	Cmd_AddCommand ("+button8", IN_Button8Down);
-	Cmd_AddCommand ("-button8", IN_Button8Up);
-	Cmd_AddCommand ("+button9", IN_Button9Down);
-	Cmd_AddCommand ("-button9", IN_Button9Up);
-	Cmd_AddCommand ("+button10", IN_Button10Down);
-	Cmd_AddCommand ("-button10", IN_Button10Up);
-	Cmd_AddCommand ("+button11", IN_Button11Down);
-	Cmd_AddCommand ("-button11", IN_Button11Up);
-	Cmd_AddCommand ("+button12", IN_Button12Down);
-	Cmd_AddCommand ("-button12", IN_Button12Up);
-	Cmd_AddCommand ("+button13", IN_Button13Down);
-	Cmd_AddCommand ("-button13", IN_Button13Up);
-	Cmd_AddCommand ("+button14", IN_Button14Down);
-	Cmd_AddCommand ("-button14", IN_Button14Up);
-	Cmd_AddCommand ("+mlook", IN_MLookDown);
-	Cmd_AddCommand ("-mlook", IN_MLookUp);
-
+void IN_UpDown( void )			{ IN_KeyDown( &in_up ); }
+void IN_UpUp( void )			{ IN_KeyUp( &in_up ); }
+void IN_DownDown( void )		{ IN_KeyDown( &in_down ); }
+void IN_DownUp( void )			{ IN_KeyUp( &in_down ); }
+void IN_LeftDown( void )		{ IN_KeyDown( &in_left ); }
+void IN_LeftUp( void )			{ IN_KeyUp( &in_left ); }
+void IN_RightDown( void )		{ IN_KeyDown( &in_right ); }
+void IN_RightUp( void )			{ IN_KeyUp( &in_right ); }
+void IN_ForwardDown( void )		{ IN_KeyDown( &in_forward ); }
+void IN_ForwardUp( void )		{ IN_KeyUp( &in_forward ); }
+void IN_BackDown( void )		{ IN_KeyDown( &in_back ); }
+void IN_BackUp( void )			{ IN_KeyUp( &in_back ); }
+void IN_LookLeftDown( void )	{ IN_KeyDown( &in_lookleft ); }
+void IN_LookLeftUp( void )		{ IN_KeyUp( &in_lookleft ); }
+void IN_LookRightDown( void )	{ IN_KeyDown( &in_lookright ); }
+void IN_LookRightUp( void )		{ IN_KeyUp( &in_lookright ); }
+void IN_CenterView( void )		{ cl.viewangles.pitch = -SHORT2ANGLE( cl.snap.ps.delta_angles.pitch ); }
+void IN_LookupDown( void )		{ IN_KeyDown( &in_lookup ); }
+void IN_LookupUp( void )		{ IN_KeyUp( &in_lookup ); }
+void IN_LookdownDown( void )	{ IN_KeyDown( &in_lookdown ); }
+void IN_LookdownUp( void )		{ IN_KeyUp( &in_lookdown ); }
+void IN_SpeedDown( void )		{ IN_KeyDown( &in_speed ); }
+void IN_SpeedUp( void )			{ IN_KeyUp( &in_speed ); }
+void IN_StrafeDown( void )		{ IN_KeyDown( &in_strafe ); }
+void IN_StrafeUp( void )		{ IN_KeyUp( &in_strafe ); }
 #ifdef USE_VOIP
-	Cmd_AddCommand ("+voiprecord", IN_VoipRecordDown);
-	Cmd_AddCommand ("-voiprecord", IN_VoipRecordUp);
+void IN_VoipRecordDown( void )	{ IN_KeyDown( &in_voiprecord ); Cvar_Set( "cl_voipSend", "1" ); }
+void IN_VoipRecordUp( void )	{ IN_KeyUp( &in_voiprecord ); Cvar_Set( "cl_voipSend", "0" ); }
 #endif
+
+#define INBUTTON_LIST( x ) \
+	static QINLINE void IN_ButtonDown##x ( void ) { IN_KeyDown( &in_buttons[x] ); } \
+	static QINLINE void IN_ButtonUp##x ( void ) { IN_KeyUp( &in_buttons[x] ); }
+
+INBUTTON_LIST( 0 )
+INBUTTON_LIST( 1 )
+INBUTTON_LIST( 2 )
+INBUTTON_LIST( 3 )
+INBUTTON_LIST( 4 )
+INBUTTON_LIST( 5 )
+INBUTTON_LIST( 6 )
+INBUTTON_LIST( 7 )
+INBUTTON_LIST( 8 )
+INBUTTON_LIST( 9 )
+INBUTTON_LIST( 10 )
+INBUTTON_LIST( 11 )
+INBUTTON_LIST( 12 )
+INBUTTON_LIST( 13 )
+INBUTTON_LIST( 14 )
+INBUTTON_LIST( 15 )
+
+#define AddButton( name, down, up ) { Cmd_AddCommand( "+"name, down ); Cmd_AddCommand( "-"name, up ); }
+
+void CL_InitInput( void ) {
+	Cmd_AddCommand( "centerview",	IN_CenterView );
+
+	// vertical movement
+	AddButton( "moveup",	IN_UpDown, IN_UpUp );
+	AddButton( "jump",		IN_UpDown, IN_UpUp );
+	AddButton( "movedown",	IN_DownDown, IN_DownUp );
+	AddButton( "crouch",	IN_DownDown, IN_DownUp );
+
+	// directional movement
+	AddButton( "forward",	IN_ForwardDown, IN_ForwardUp );
+	AddButton( "back",		IN_BackDown, IN_BackUp );
+	AddButton( "left",		IN_LeftDown, IN_LeftUp );
+	AddButton( "right",		IN_RightDown, IN_RightUp );
+
+	// modifiers
+	AddButton( "speed",		IN_SpeedDown, IN_SpeedUp );
+
+	// view
+	AddButton( "lookleft",	IN_LookLeftDown, IN_LookLeftUp );
+	AddButton( "lookright",	IN_LookRightDown, IN_LookRightUp );
+	AddButton( "lookup",	IN_LookupDown, IN_LookupUp );
+	AddButton( "lookdown",	IN_LookdownDown, IN_LookdownUp );
+	AddButton( "strafe",	IN_StrafeDown, IN_StrafeUp );
+	AddButton( "mlook",		IN_MLookDown, IN_MLookUp );
+#ifdef USE_VOIP
+	AddButton( "voiprecord", IN_VoipRecordDown, IN_VoipRecordUp );
+#endif
+
+	// networked buttons
+	AddButton( "attack",	IN_ButtonDown0, IN_ButtonUp0 );
+	AddButton( "button0",	IN_ButtonDown0, IN_ButtonUp0 );
+	AddButton( "altattack", IN_ButtonDown1, IN_ButtonUp1 );
+	AddButton( "button1",	IN_ButtonDown1, IN_ButtonUp1 );
+	AddButton( "button2",	IN_ButtonDown2, IN_ButtonUp2 );
+	AddButton( "button3",	IN_ButtonDown3, IN_ButtonUp3 );
+	AddButton( "button4",	IN_ButtonDown4, IN_ButtonUp4 );
+	AddButton( "button5",	IN_ButtonDown5, IN_ButtonUp5 );
+	AddButton( "button6",	IN_ButtonDown6, IN_ButtonUp6 );
+	AddButton( "button7",	IN_ButtonDown7, IN_ButtonUp7 );
+	AddButton( "button8",	IN_ButtonDown8, IN_ButtonUp8 );
+	AddButton( "button9",	IN_ButtonDown9, IN_ButtonUp9 );
+	AddButton( "button10",	IN_ButtonDown10, IN_ButtonUp10 );
+	AddButton( "button11",	IN_ButtonDown11, IN_ButtonUp11 );
+	AddButton( "button12",	IN_ButtonDown12, IN_ButtonUp12 );
+	AddButton( "button13",	IN_ButtonDown13, IN_ButtonUp13 );
+	AddButton( "button14",	IN_ButtonDown14, IN_ButtonUp14 );
 
 	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0, "Use delta encoding (recommended)" );
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0, "Show graph for mouse movement" );

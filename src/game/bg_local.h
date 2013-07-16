@@ -31,11 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	OVERCLIP		1.001f
 
+
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have
 // any differences when running on client or server
 typedef struct {
-	vec3_t		forward, right, up;
+	vector3		forward, right, up;
 	float		frametime;
 
 	int			msec;
@@ -46,8 +47,8 @@ typedef struct {
 
 	float		impactSpeed;
 
-	vec3_t		previous_origin;
-	vec3_t		previous_velocity;
+	vector3		previous_origin;
+	vector3		previous_velocity;
 	int			previous_waterlevel;
 } pml_t;
 
@@ -67,7 +68,7 @@ extern	float	pm_flightfriction;
 
 extern	int		c_pmove;
 
-void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
+void PM_ClipVelocity( vector3 *in, vector3 *normal, vector3 *out, float overbounce );
 void PM_AddTouchEnt( int entityNum );
 void PM_AddEvent( int newEvent );
 

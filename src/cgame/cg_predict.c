@@ -82,14 +82,14 @@ CG_ClipMoveToEntities
 
 ====================
 */
-static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+static void CG_ClipMoveToEntities ( const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end,
 							int skipNumber, int mask, trace_t *tr ) {
 	int			i, x, zd, zu;
 	trace_t		trace;
 	entityState_t	*ent;
 	clipHandle_t 	cmodel;
-	vec3_t		bmins, bmaxs;
-	vec3_t		origin, angles;
+	vector3		bmins, bmaxs;
+	vector3		origin, angles;
 	centity_t	*cent;
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
@@ -103,26 +103,26 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
 			cmodel = cgi.CM_InlineModel( ent->modelindex );
-			VectorCopy( cent->lerpAngles, angles );
-			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
+			VectorCopy( &cent->lerpAngles, &angles );
+			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, &origin );
 		} else {
 			// encoded bbox
 			x = (ent->solid & 255);
 			zd = ((ent->solid>>8) & 255);
 			zu = ((ent->solid>>16) & 255) - 32;
 
-			bmins[0] = bmins[1] = -x;
-			bmaxs[0] = bmaxs[1] = x;
-			bmins[2] = -zd;
-			bmaxs[2] = zu;
+			bmins.x = bmins.y = (float)-x;
+			bmaxs.x = bmaxs.y = (float) x;
+			bmins.z = (float)-zd;
+			bmaxs.z = (float) zu;
 
-			cmodel = cgi.CM_TempModel( bmins, bmaxs, qfalse );
-			VectorCopy( vec3_origin, angles );
-			VectorCopy( cent->lerpOrigin, origin );
+			cmodel = cgi.CM_TempModel( &bmins, &bmaxs, qfalse );
+			VectorCopy( &vec3_origin, &angles );
+			VectorCopy( &cent->lerpOrigin, &origin );
 		}
 
 
-		cgi.CM_TransformedTrace( &trace, start, end, mins, maxs, cmodel,  mask, origin, angles, qfalse );
+		cgi.CM_TransformedTrace( &trace, start, end, mins, maxs, cmodel,  mask, &origin, &angles, qfalse );
 
 		if (trace.allsolid || trace.fraction < tr->fraction) {
 			trace.entityNum = ent->number;
@@ -141,7 +141,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 CG_Trace
 ================
 */
-void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void	CG_Trace( trace_t *result, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, 
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
@@ -158,7 +158,7 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 CG_PointContents
 ================
 */
-int		CG_PointContents( const vec3_t point, int passEntityNum ) {
+int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 	int			i;
 	entityState_t	*ent;
 	centity_t	*cent;
@@ -185,7 +185,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		contents |= cgi.CM_TransformedPointContents( point, cmodel, cent->lerpOrigin, cent->lerpAngles );
+		contents |= cgi.CM_TransformedPointContents( point, cmodel, &cent->lerpOrigin, &cent->lerpAngles );
 	}
 
 	return contents;
@@ -238,16 +238,13 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 	if ( i < prev->ps.bobCycle ) {
 		i += 256;		// handle wraparound
 	}
-	out->bobCycle = prev->ps.bobCycle + f * ( i - prev->ps.bobCycle );
+	out->bobCycle = prev->ps.bobCycle + (int)(f * (i - prev->ps.bobCycle));
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		out->origin[i] = prev->ps.origin[i] + f * (next->ps.origin[i] - prev->ps.origin[i] );
-		if ( !grabAngles ) {
-			out->viewangles[i] = LerpAngle( 
-				prev->ps.viewangles[i], next->ps.viewangles[i], f );
-		}
-		out->velocity[i] = prev->ps.velocity[i] + 
-			f * (next->ps.velocity[i] - prev->ps.velocity[i] );
+		out->origin.data[i] = prev->ps.origin.data[i] + f * (next->ps.origin.data[i] - prev->ps.origin.data[i] );
+		if ( !grabAngles )
+			out->viewangles.data[i] = LerpAngle( prev->ps.viewangles.data[i], next->ps.viewangles.data[i], f );
+		out->velocity.data[i] = prev->ps.velocity.data[i] + f * (next->ps.velocity.data[i] - prev->ps.velocity.data[i] );
 	}
 
 }
@@ -358,7 +355,7 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cgi.CM_Trace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, cg_pmove.mins, cg_pmove.maxs, cmodel, -1, qfalse );
+		cgi.CM_Trace( &trace, &cg.predictedPlayerState.origin, &cg.predictedPlayerState.origin, &cg_pmove.mins, &cg_pmove.maxs, cmodel, -1, qfalse );
 
 		if ( !trace.startsolid ) {
 			continue;
@@ -406,6 +403,7 @@ We detect prediction errors and allow them to be decayed off over several frames
 to ease the jerk.
 =================
 */
+//#define DEBUG_PREDICTION
 void CG_PredictPlayerState( void ) {
 	int			cmdNum, current;
 	playerState_t	oldPlayerState;
@@ -463,7 +461,7 @@ void CG_PredictPlayerState( void ) {
 	cgi.GetUserCmd( cmdNum, &oldestCmd );
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime 
 		&& oldestCmd.serverTime < cg.time ) {	// special check for map_restart
-		#ifdef _DEBUG
+		#ifdef DEBUG_PREDICTION
 			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
 		#endif
 		return;
@@ -490,8 +488,7 @@ void CG_PredictPlayerState( void ) {
 		// get the command
 		cgi.GetUserCmd( cmdNum, &cg_pmove.cmd );
 
-		if ( pm_fixed.boolean )
-			PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
+		PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
 
 		// don't do anything if the time is before the snapshot player time
 		if ( cg_pmove.cmd.serverTime <= cg.predictedPlayerState.commandTime ) {
@@ -509,32 +506,32 @@ void CG_PredictPlayerState( void ) {
 		// to predict several commands to get to the point
 		// we want to compare
 		if ( cg.predictedPlayerState.commandTime == oldPlayerState.commandTime ) {
-			vec3_t	delta;
+			vector3	delta;
 			float	len;
 
 			if ( cg.thisFrameTeleport ) {
 				// a teleport will not cause an error decay
-				VectorClear( cg.predictedError );
-				#ifdef _DEBUG
+				VectorClear( &cg.predictedError );
+				#ifdef DEBUG_PREDICTION
 					CG_Printf( "PredictionTeleport\n" );
 				#endif
 				cg.thisFrameTeleport = qfalse;
 			} else {
-				vec3_t adjusted, new_angles;
-				CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
-				cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted, cg.predictedPlayerState.viewangles, new_angles);
+				vector3 adjusted, new_angles;
+				CG_AdjustPositionForMover( &cg.predictedPlayerState.origin, 
+				cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, &adjusted, &cg.predictedPlayerState.viewangles, &new_angles);
 
-				#ifdef _DEBUG
+				#ifdef DEBUG_PREDICTION
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
 						CG_Printf("prediction error\n");
 					}
 				#endif
 
-				VectorSubtract( oldPlayerState.origin, adjusted, delta );
-				len = VectorLength( delta );
+				VectorSubtract( &oldPlayerState.origin, &adjusted, &delta );
+				len = VectorLength( &delta );
 				if ( len > 0.1 ) {
-					#ifdef _DEBUG
-						CG_Printf("Prediction miss: %f\n", len);
+					#ifdef DEBUG_PREDICTION
+					//	CG_Printf("Prediction miss: %f\n", len);
 					#endif
 					if ( cg_errorDecay.integer ) {
 						int		t;
@@ -545,15 +542,15 @@ void CG_PredictPlayerState( void ) {
 						if ( f < 0 ) {
 							f = 0;
 						}
-						#ifdef _DEBUG
+						#ifdef DEBUG_PREDICTION
 							if ( f > 0 )
 								CG_Printf("Double prediction decay: %f\n", f);
 						#endif
-						VectorScale( cg.predictedError, f, cg.predictedError );
+						VectorScale( &cg.predictedError, f, &cg.predictedError );
 					} else {
-						VectorClear( cg.predictedError );
+						VectorClear( &cg.predictedError );
 					}
-					VectorAdd( delta, cg.predictedError, cg.predictedError );
+					VectorAdd( &delta, &cg.predictedError, &cg.predictedError );
 					cg.predictedErrorTime = cg.oldTime;
 				}
 			}
@@ -578,9 +575,9 @@ void CG_PredictPlayerState( void ) {
 		return;
 
 	// adjust for the movement of the groundentity
-	CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
+	CG_AdjustPositionForMover( &cg.predictedPlayerState.origin, 
 		cg.predictedPlayerState.groundEntityNum, 
-		cg.physicsTime, cg.time, cg.predictedPlayerState.origin, cg.predictedPlayerState.viewangles, cg.predictedPlayerState.viewangles);
+		cg.physicsTime, cg.time, &cg.predictedPlayerState.origin, &cg.predictedPlayerState.viewangles, &cg.predictedPlayerState.viewangles);
 
 	#ifdef _DEBUG
 		if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {

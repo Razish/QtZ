@@ -34,7 +34,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
 	char			path[MAX_QPATH];
-	vec3_t			mins, maxs;
+	vector3			mins, maxs;
 	int				i;
 
 	weaponInfo = &cg_weapons[weaponNum];
@@ -65,15 +65,15 @@ void CG_RegisterWeapon( int weaponNum ) {
 	weaponInfo->weaponModel = cgi.R_RegisterModel( item->world_model[0] );
 
 	// calc midpoint for rotation
-	cgi.R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
+	cgi.R_ModelBounds( weaponInfo->weaponModel, &mins, &maxs );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * ( maxs[i] - mins[i] );
+		weaponInfo->weaponMidpoint.data[i] = mins.data[i] + 0.5f * ( maxs.data[i] - mins.data[i] );
 	}
 
 	weaponInfo->weaponIcon = cgi.R_RegisterShader( item->icon );
 	weaponInfo->ammoIcon = cgi.R_RegisterShader( item->icon );
 
-	for ( ammo=bg_itemlist, i=0; i<bg_numItems; ammo++, i++ ) {
+	for ( ammo=bg_itemlist, i=0; i<bg_numItems-1; ammo++, i++ ) {
 		if ( ammo->giType == IT_AMMO && ammo->giTag == weaponNum ) {
 			break;
 		}
@@ -157,7 +157,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 
 	 default:
-		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 1 );
+		VectorSet( &weaponInfo->flashDlightColor, 1, 1, 1 );
 		weaponInfo->flashSound[0] = cgi.S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
 		break;
 	}
@@ -251,13 +251,13 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 CG_CalculateWeaponPosition
 ==============
 */
-static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
+static void CG_CalculateWeaponPosition( vector3 *origin, vector3 *angles ) {
 	float	scale;
 	int		delta;
 	float	fracsin;
 
-	VectorCopy( cg.refdef.vieworg, origin );
-	VectorCopy( cg.refdefViewAngles, angles );
+	VectorCopy( &cg.refdef.vieworg, origin );
+	VectorCopy( &cg.refdefViewAngles, angles );
 
 	// on odd legs, invert some angles
 	if ( cg.bobcycle & 1 )	scale = -cg.xyspeed;
@@ -265,28 +265,28 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 	if ( cg_gunBobEnable.integer )
 	{// gun angles from bobbing
-		angles[PITCH]	+= scale * cg.bobfracsin * cg.gunBob.pitch;
-		angles[YAW]		+= scale * cg.bobfracsin * cg.gunBob.yaw;
-		angles[ROLL]	+= scale * cg.bobfracsin * cg.gunBob.roll;
+		angles->pitch	+= scale * cg.bobfracsin * cg.gunBob.pitch;
+		angles->yaw		+= scale * cg.bobfracsin * cg.gunBob.yaw;
+		angles->roll	+= scale * cg.bobfracsin * cg.gunBob.roll;
 
 		// drop the weapon when landing
 		delta = cg.time - cg.landTime;
-			 if ( delta < LAND_DEFLECT_TIME )						origin[2] += cg.landChange*0.25 * delta / LAND_DEFLECT_TIME;
-		else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )	origin[2] += cg.landChange*0.25 * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
+			 if ( delta < LAND_DEFLECT_TIME )						origin->z += cg.landChange*0.25f * delta / LAND_DEFLECT_TIME;
+		else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )	origin->z += cg.landChange*0.25f * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
 
 		// drop the weapon when stair climbing
 		delta = cg.time - cg.stepTime;
-			 if ( delta < STEP_TIME/2 )		origin[2] -= cg.stepChange*0.25 * delta / (STEP_TIME/2);
-		else if ( delta < STEP_TIME )		origin[2] -= cg.stepChange*0.25 * (STEP_TIME - delta) / (STEP_TIME/2);
+			 if ( delta < STEP_TIME/2 )		origin->z -= cg.stepChange*0.25f * delta / (STEP_TIME/2);
+		else if ( delta < STEP_TIME )		origin->z -= cg.stepChange*0.25f * (STEP_TIME - delta) / (STEP_TIME/2);
 	}
 
 	if ( cg_gunIdleDriftEnable.integer )
 	{// idle drift
 		scale = cg.xyspeed + 40;
-		fracsin = sin( cg.time * cg.gunIdleDriftSpeed );
-		angles[PITCH]	+= scale * fracsin * cg.gunIdleDrift.pitch;
-		angles[YAW]		+= scale * fracsin * cg.gunIdleDrift.yaw;
-		angles[ROLL]	+= scale * fracsin * cg.gunIdleDrift.roll;
+		fracsin = sinf( cg.time * cg.gunIdleDrift.speed );
+		angles->pitch	+= scale * fracsin * cg.gunIdleDrift.amount.pitch;
+		angles->yaw		+= scale * fracsin * cg.gunIdleDrift.amount.yaw;
+		angles->roll	+= scale * fracsin * cg.gunIdleDrift.amount.roll;
 	}
 }
 
@@ -295,7 +295,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 CG_MachinegunSpinAngle
 ======================
 */
-#define		SPIN_SPEED	0.9
+#define		SPIN_SPEED	0.9f
 #define		COAST_TIME	1000
 static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 	int		delta;
@@ -310,7 +310,7 @@ static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 			delta = COAST_TIME;
 		}
 
-		speed = 0.5 * ( SPIN_SPEED + (float)( COAST_TIME - delta ) / COAST_TIME );
+		speed = 0.5f * ( SPIN_SPEED + (float)( COAST_TIME - delta ) / COAST_TIME );
 		angle = cent->pe.barrelAngle + delta * speed;
 	}
 
@@ -353,7 +353,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	refEntity_t	flash;
-	vec3_t		angles;
+	vector3		angles;
 	weapon_t	weaponNum;
 	weaponInfo_t	*weapon;
 	centity_t	*nonPredictedCent;
@@ -366,7 +366,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	// add the weapon
 	memset( &gun, 0, sizeof( gun ) );
-	VectorCopy( parent->lightingOrigin, gun.lightingOrigin );
+	VectorCopy( &parent->lightingOrigin, &gun.lightingOrigin );
 	gun.shadowPlane = parent->shadowPlane;
 	gun.renderfx = parent->renderfx;
 
@@ -384,17 +384,17 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		else {
 			Byte4Copy( ci->c1RGBA, gun.shaderRGBA );
 		}
-#else
+#else`
 		float cooldown = MIN( (float)cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime );
 		float cdPoint =  cooldown / (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime;
 		float blueHue = 200.0f/1.0f, redHue = 8.0f;
-		vec3_t rgb = {0.0f};
+		vector3 rgb = {0.0f};
 		float hue = blueHue + cdPoint*(redHue - blueHue);
-		HSL2RGB( hue/360.0f, 1.0f, 0.5f, &rgb[0], &rgb[1], &rgb[2] );
+		HSL2RGB( hue/360.0f, 1.0f, 0.5f, &rgb.r, &rgb.g, &rgb.b );
 	//	Com_Printf( "%.2f, %.2f, %.2f\n", (float)cg.predictedPlayerState.qtz.weaponCooldown[cg.predictedPlayerState.weapon], (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime, hue );
-		gun.shaderRGBA[0] = rgb[0]*255;
-		gun.shaderRGBA[1] = rgb[1]*255;
-		gun.shaderRGBA[2] = rgb[2]*255;
+		gun.shaderRGBA[0] = (byte)(rgb.r*255);
+		gun.shaderRGBA[1] = (byte)(rgb.g*255);
+		gun.shaderRGBA[2] = (byte)(rgb.b*255);
 		gun.shaderRGBA[3] = 255;
 #endif
 	}
@@ -409,26 +409,25 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		cent->pe.lightningFiring = qfalse;
 		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
-			cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
+			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->firingSound );
 			cent->pe.lightningFiring = qtrue;
 		} else if ( weapon->readySound ) {
-			cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
+			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->readySound );
 		}
 	}
 
-	cgi.R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame,
-		1.0 - parent->backlerp, "tag_weapon");
-	VectorCopy(parent->origin, gun.origin);
+	cgi.R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, "tag_weapon");
+	VectorCopy(&parent->origin, &gun.origin);
 
-	VectorMA(gun.origin, lerped.origin[0], parent->axis[0], gun.origin);
+	VectorMA(&gun.origin, lerped.origin.x, &parent->axis[0], &gun.origin);
 
 	// Make weapon appear left-handed for 2 and centered for 3
 	if(ps && cg_drawGun.integer == 2)
-		VectorMA(gun.origin, -lerped.origin[1], parent->axis[1], gun.origin);
+		VectorMA(&gun.origin, -lerped.origin.y, &parent->axis[1], &gun.origin);
 	else if(!ps || cg_drawGun.integer != 3)
-	       	VectorMA(gun.origin, lerped.origin[1], parent->axis[1], gun.origin);
+		VectorMA(&gun.origin, lerped.origin.y, &parent->axis[1], &gun.origin);
 
-	VectorMA(gun.origin, lerped.origin[2], parent->axis[2], gun.origin);
+	VectorMA(&gun.origin, lerped.origin.z, &parent->axis[2], &gun.origin);
 
 	MatrixMultiply(lerped.axis, ((refEntity_t *)parent)->axis, gun.axis);
 	gun.backlerp = parent->backlerp;
@@ -438,15 +437,15 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// add the spinning barrel
 	if ( weapon->barrelModel ) {
 		memset( &barrel, 0, sizeof( barrel ) );
-		VectorCopy( parent->lightingOrigin, barrel.lightingOrigin );
+		VectorCopy( &parent->lightingOrigin, &barrel.lightingOrigin );
 		barrel.shadowPlane = parent->shadowPlane;
 		barrel.renderfx = parent->renderfx;
 
 		barrel.hModel = weapon->barrelModel;
-		angles[YAW] = 0;
-		angles[PITCH] = 0;
-		angles[ROLL] = CG_MachinegunSpinAngle( cent );
-		AnglesToAxis( angles, barrel.axis );
+		angles.yaw = 0;
+		angles.pitch = 0;
+		angles.roll = CG_MachinegunSpinAngle( cent );
+		AnglesToAxis( &angles, barrel.axis );
 
 		CG_PositionRotatedEntityOnTag( &barrel, &gun, weapon->weaponModel, "tag_barrel" );
 
@@ -468,19 +467,19 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	CG_PositionEntityOnTag( &flash, &gun, gun.hModel, "tag_flash");
 	//QtZ: Added from JA
-	VectorCopy(flash.origin, cg.lastFPFlashPoint);
+	VectorCopy(&flash.origin, &cg.lastFPFlashPoint);
 
 	flash.shadowPlane = parent->shadowPlane;
 	flash.renderfx = parent->renderfx;
 
 	flash.hModel = weapon->flashModel;
 	if (!flash.hModel) {
-//		return;
+		return;
 	}
-	angles[YAW] = 0;
-	angles[PITCH] = 0;
-	angles[ROLL] = crandom() * 10;
-	AnglesToAxis( angles, flash.axis );
+	angles.yaw = 0;
+	angles.pitch = 0;
+	angles.roll = crandom() * 10;
+	AnglesToAxis( &angles, flash.axis );
 
 	// colorize the railgun blast
 	if ( weaponNum == WP_DIVERGENCE ) {
@@ -492,19 +491,19 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		flash.shaderRGBA[1] = 255 * ci->color1[1];
 		flash.shaderRGBA[2] = 255 * ci->color1[2];
 #else
-		vec3_t flashColour = { 0.0f, 0.878431f, 1.0f };
+		vector3 flashColour = { 0.0f, 0.878431f, 1.0f };
 
 		if ( cgs.gametype >= GT_TEAM )
 		{
 			if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_RED )
-				VectorSet( flashColour, 1.0f, 0.0f, 0.0f );
+				VectorSet( &flashColour, 1.0f, 0.0f, 0.0f );
 			else if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_BLUE )
-				VectorSet( flashColour, 0.0f, 0.0f, 1.0f );
+				VectorSet( &flashColour, 0.0f, 0.0f, 1.0f );
 		}
 
-		flash.shaderRGBA[0] = flashColour[0]*255;
-		flash.shaderRGBA[1] = flashColour[1]*255;
-		flash.shaderRGBA[2] = flashColour[2]*255;
+		flash.shaderRGBA[0] = (byte)(flashColour.r*255);
+		flash.shaderRGBA[1] = (byte)(flashColour.g*255);
+		flash.shaderRGBA[2] = (byte)(flashColour.b*255);
 #endif
 	}
 
@@ -515,26 +514,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		// add lightning bolt
 	//	CG_LightningBolt( nonPredictedCent, flash.origin );
 
-		if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
-			cgi.R_AddLightToScene( flash.origin, 300 + (rand()&31), weapon->flashDlightColor[0],
-				weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
-		}
-
-		if ( weaponNum == WP_DIVERGENCE )
-		{
-			float cdPoint = MIN(cg.predictedPlayerState.weaponCooldown[weaponNum], weaponData[weaponNum].maxFireTime) / weaponData[weaponNum].maxFireTime;
-			vec3_t flashColour = { 0.0f, 0.878431f, 1.0f };
-
-			if ( cgs.gametype >= GT_TEAM )
-			{
-				if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_RED )
-					VectorSet( flashColour, 1.0f, 0.0f, 0.0f );
-				else if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_BLUE )
-					VectorSet( flashColour, 0.0f, 0.0f, 1.0f );
-			}
-
-			cgi.R_AddLightToScene( flash.origin, 300+(1000*cdPoint), flashColour[0], flashColour[1], flashColour[2] );
-		}
+		if ( weapon->flashDlightColor.r || weapon->flashDlightColor.g || weapon->flashDlightColor.b )
+			cgi.R_AddLightToScene( &flash.origin, (float)(300 + (rand()&31)), weapon->flashDlightColor.r, weapon->flashDlightColor.g, weapon->flashDlightColor.b );
 	}
 }
 
@@ -550,10 +531,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	refEntity_t		hand;
 	centity_t		*cent;
 	clientInfo_t	*ci;
-	vec3_t			angles;
+	vector3			angles;
 	weaponInfo_t	*weapon;
 	float	cgFov = cg_fov.value;
-	int i=0;
 
 	if (cgFov < 1)
 		cgFov = 1;
@@ -577,7 +557,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	// allow the gun to be completely removed
 	if ( !cg_drawGun.integer ) {
-	//	vec3_t		origin;
+	//	vector3		origin;
 
 		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
 			// special hack for lightning gun...
@@ -601,24 +581,22 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	memset (&hand, 0, sizeof(hand));
 
 	// set up gun position
-	CG_CalculateWeaponPosition( hand.origin, angles );
+	CG_CalculateWeaponPosition( &hand.origin, &angles );
 
 	{
 		vector3 gunLerp = { 0.0f };
 		float point = 1.0f + (zoomFov-cg_zoomFov.value)/(cgFov-cg_zoomFov.value) * -1.0f;
 
 		//lerp from base position to zoom position by how far we've zoomed
-		gunLerp.x = cg.gunAlign.basePos.x + point*(cg.gunAlign.zoomPos.x - cg.gunAlign.basePos.x);
-		gunLerp.y = cg.gunAlign.basePos.y + point*(cg.gunAlign.zoomPos.y - cg.gunAlign.basePos.y);
-		gunLerp.z = cg.gunAlign.basePos.z + point*(cg.gunAlign.zoomPos.z - cg.gunAlign.basePos.z);
+		VectorLerp( &cg.gunAlign.basePos, point, &cg.gunAlign.zoomPos, &gunLerp );
 
 		//now offset to hand position
-		VectorMA( hand.origin, gunLerp.x, cg.refdef.viewaxis[0], hand.origin );
-		VectorMA( hand.origin, gunLerp.y, cg.refdef.viewaxis[1], hand.origin );
-		VectorMA( hand.origin, gunLerp.z, cg.refdef.viewaxis[2], hand.origin );
+		VectorMA( &hand.origin, gunLerp.x, &cg.refdef.viewaxis[0], &hand.origin );
+		VectorMA( &hand.origin, gunLerp.y, &cg.refdef.viewaxis[1], &hand.origin );
+		VectorMA( &hand.origin, gunLerp.z, &cg.refdef.viewaxis[2], &hand.origin );
 	}
 
-	AnglesToAxis( angles, hand.axis );
+	AnglesToAxis( &angles, hand.axis );
 
 	// map torso animations to weapon animations
 	// get clientinfo for animation map
@@ -653,7 +631,7 @@ void CG_DrawWeaponSelect( void ) {
 	int		count;
 	int		x, y, w;
 	char	*name;
-	float	*color;
+	vector4	*color;
 
 	// don't display if dead
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
@@ -678,7 +656,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	x = (SCREEN_WIDTH/2) - count * 20;
+	x = ((int)SCREEN_WIDTH/2) - count * 20;
 	y = 380;
 
 	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ ) {
@@ -689,16 +667,16 @@ void CG_DrawWeaponSelect( void ) {
 		CG_RegisterWeapon( i );
 
 		// draw weapon icon
-		CG_DrawPic( x, y, 32, 32, cg_weapons[i].weaponIcon );
+		CG_DrawPic( (float)x, (float)y, 32, 32, cg_weapons[i].weaponIcon );
 
 		// draw selection marker
 		if ( i == cg.weaponSelect ) {
-			CG_DrawPic( x-4, y-4, 40, 40, cgs.media.selectShader );
+			CG_DrawPic( (float)(x-4), (float)(y-4), 40, 40, cgs.media.selectShader );
 		}
 
 		// no ammo cross on top
 		if ( !cg.snap->ps.ammo[ i ] ) {
-			CG_DrawPic( x, y, 32, 32, cgs.media.noammoShader );
+			CG_DrawPic( (float)x, (float)y, 32, 32, cgs.media.noammoShader );
 		}
 
 		x += 40;
@@ -709,7 +687,7 @@ void CG_DrawWeaponSelect( void ) {
 		name = cg_weapons[ cg.weaponSelect ].item->pickup_name;
 		if ( name ) {
 			w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
-			x = ( SCREEN_WIDTH - w ) / 2;
+			x = ( (int)SCREEN_WIDTH - w ) / 2;
 			CG_DrawBigStringColor(x, y - 22, name, color);
 		}
 	}
@@ -871,22 +849,22 @@ WEAPON EVENTS
 */
 
 //QtZ: equivalent to g_weapon
-void CalcMuzzlePoint( centity_t *cent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) 
+void CalcMuzzlePoint( centity_t *cent, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) 
 {
 	int weapontype;
-	vec3_t muzzleOffPoint;
+	vector3 muzzleOffPoint;
 
 	weapontype = cent->currentState.weapon;
-	VectorCopy( cent->lerpOrigin, muzzlePoint );
+	VectorCopy( &cent->lerpOrigin, muzzlePoint );
 
-	VectorCopy(weaponData[weapontype].muzzle, muzzleOffPoint);
+	VectorCopy(&weaponData[weapontype].muzzle, &muzzleOffPoint);
 
 	if (weapontype > WP_NONE && weapontype < WP_NUM_WEAPONS)
 	{// Use the table to generate the muzzlepoint;
 		{// Crouching.  Use the add-to-Z method to adjust vertically.
-			VectorMA(muzzlePoint, muzzleOffPoint[0], forward, muzzlePoint);
-			VectorMA(muzzlePoint, muzzleOffPoint[1], right, muzzlePoint);
-			muzzlePoint[2] += 36 + muzzleOffPoint[2]; // RAZFIXME: crouching?
+			VectorMA(muzzlePoint, muzzleOffPoint.x, forward, muzzlePoint);
+			VectorMA(muzzlePoint, muzzleOffPoint.y, right, muzzlePoint);
+			muzzlePoint->z += 36 + muzzleOffPoint.z; // RAZFIXME: crouching?
 		}
 	}
 }
@@ -921,22 +899,22 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 
 	if ( weap->fireFunc )
 	{
-		vec3_t muzzle, start, end, mins={-0.5}, maxs={0.5};
-		vec3_t fwd,up,right;
+		vector3 muzzle, start, end, mins={-0.5}, maxs={0.5};
+		vector3 fwd,up,right;
 		trace_t tr;
 
-		AngleVectors( cent->lerpAngles, fwd, right, up );
-		CalcMuzzlePoint( cent, fwd, right, up, muzzle );
-		VectorCopy( cent->lerpOrigin, start );
+		AngleVectors( &cent->lerpAngles, &fwd, &right, &up );
+		CalcMuzzlePoint( cent, &fwd, &right, &up, &muzzle );
+		VectorCopy( &cent->lerpOrigin, &start );
 		if ( ent->number == cg.clientNum )
-			start[2] += cg.predictedPlayerState.viewheight; //FIXME: crouching for other clients
-		VectorMA( start, 8192, fwd, end );
-		CG_Trace( &tr, start, mins, maxs, end, ent->number, MASK_SHOT );
+			start.z += cg.predictedPlayerState.viewheight; //FIXME: crouching for other clients
+		VectorMA( &start, 8192, &fwd, &end );
+		CG_Trace( &tr, &start, &mins, &maxs, &end, ent->number, MASK_SHOT );
 
-		if (ent->number == cg.snap->ps.clientNum && !cg.renderingThirdPerson && (cg.lastFPFlashPoint[0] ||cg.lastFPFlashPoint[1] || cg.lastFPFlashPoint[2]) )
-			VectorCopy(cg.lastFPFlashPoint, muzzle);
+		if (ent->number == cg.snap->ps.clientNum && !cg.renderingThirdPerson && (cg.lastFPFlashPoint.x ||cg.lastFPFlashPoint.y || cg.lastFPFlashPoint.z) )
+			VectorCopy(&cg.lastFPFlashPoint, &muzzle);
 
-		weap->fireFunc( cent, muzzle, tr.endpos );
+		weap->fireFunc( cent, &muzzle, &tr.endpos );
 	}
 
 	// play quad sound if needed
@@ -971,14 +949,14 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType ) {
+void CG_MissileHitWall( int weapon, int clientNum, vector3 *origin, vector3 *dir, impactSound_t soundType ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
 	sfxHandle_t		sfx;
 	float			radius;
 	float			light;
-	vec3_t			lightColor;
+	vector3			lightColor;
 	localEntity_t	*le;
 	qboolean		alphaFade;
 	qboolean		isSprite;
@@ -991,9 +969,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	mod = 0;
 	shader = 0;
 	light = 0;
-	lightColor[0] = 1;
-	lightColor[1] = 1;
-	lightColor[2] = 0;
+	lightColor.r = 1;
+	lightColor.g = 1;
+	lightColor.b = 0;
 
 	// set defaults
 	isSprite = qfalse;
@@ -1017,7 +995,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 							   mod,	shader,
 							   duration, isSprite );
 		le->light = light;
-		VectorCopy( lightColor, le->lightColor );
+		VectorCopy( &lightColor, &le->lightColor );
 	}
 
 	//
@@ -1033,7 +1011,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
+void CG_MissileHitPlayer( int weapon, vector3 *origin, vector3 *dir, int entityNum ) {
 	weaponInfo_t *wi = &cg_weapons[weapon];
 
 	if ( wi->missileHitPlayerFunc )
@@ -1047,16 +1025,16 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 CG_CalcMuzzlePoint
 ======================
 */
-static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
-	vec3_t		forward;
+static qboolean	CG_CalcMuzzlePoint( int entityNum, vector3 *muzzle ) {
+	vector3		forward;
 	centity_t	*cent;
 	int			anim;
 
 	if ( entityNum == cg.snap->ps.clientNum ) {
-		VectorCopy( cg.snap->ps.origin, muzzle );
-		muzzle[2] += cg.snap->ps.viewheight;
-		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
-		VectorMA( muzzle, 14, forward, muzzle );
+		VectorCopy( &cg.snap->ps.origin, muzzle );
+		muzzle->z += cg.snap->ps.viewheight;
+		AngleVectors( &cg.snap->ps.viewangles, &forward, NULL, NULL );
+		VectorMA( muzzle, 14, &forward, muzzle );
 		return qtrue;
 	}
 
@@ -1065,17 +1043,17 @@ static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 		return qfalse;
 	}
 
-	VectorCopy( cent->currentState.pos.trBase, muzzle );
+	VectorCopy( &cent->currentState.pos.trBase, muzzle );
 
-	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
+	AngleVectors( &cent->currentState.apos.trBase, &forward, NULL, NULL );
 	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
-		muzzle[2] += CROUCH_VIEWHEIGHT;
+		muzzle->z += CROUCH_VIEWHEIGHT;
 	} else {
-		muzzle[2] += DEFAULT_VIEWHEIGHT;
+		muzzle->z += DEFAULT_VIEWHEIGHT;
 	}
 
-	VectorMA( muzzle, 14, forward, muzzle );
+	VectorMA( muzzle, 14, &forward, muzzle );
 
 	return qtrue;
 

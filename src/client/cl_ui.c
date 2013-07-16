@@ -199,7 +199,7 @@ static void LAN_RemoveServer(int source, const char *addr) {
 			if (NET_CompareAdr( comp, servers[i].adr)) {
 				int j = i;
 				while (j < *count - 1) {
-					Com_Memcpy(&servers[j], &servers[j+1], sizeof(servers[j]));
+					memcpy(&servers[j], &servers[j+1], sizeof(servers[j]));
 					j++;
 				}
 				(*count)--;
@@ -755,7 +755,6 @@ void CL_InitUI( void ) {
 	uii.GetConfigString				= GetConfigString;
 	uii.MemoryRemaining				= Hunk_MemoryRemaining;
 	uii.RealTime					= Com_RealTime;
-	uii.Q_SnapVector				= Q_SnapVector;
 	uii.Key_ClearStates				= Key_ClearStates;
 	uii.Key_GetBindingBuf			= Key_GetBindingBuf;
 	uii.Key_GetCatcher				= Key_GetCatcher;
@@ -790,9 +789,10 @@ void CL_InitUI( void ) {
 	uii.CIN_StopCinematic			= CIN_StopCinematic;
 
 	// init the ui module and grab the exports
-	ret = GetUIAPI( UI_API_VERSION, &uii );
-	if ( !(ret = GetUIAPI( UI_API_VERSION, &uii )) )
-		Com_Error( ERR_FATAL, "Couldn't initialize cgame" );
+	if ( !(ret = GetUIAPI( UI_API_VERSION, &uii )) ) {
+		Com_Error( ERR_FATAL, "Couldn't initialize ui" );
+		return;
+	}
 	uie = *ret;
 
 	// init for this gamestate

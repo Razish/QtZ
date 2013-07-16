@@ -33,20 +33,17 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
-							qhandle_t parentModel, char *tagName ) {
+void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
 	
 	// lerp the tag
-	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
-		1.0 - parent->backlerp, tagName );
+	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
-	VectorCopy( parent->origin, entity->origin );
-	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( entity->origin, lerped.origin[i], parent->axis[i], entity->origin );
-	}
+	VectorCopy( &parent->origin, &entity->origin );
+	for ( i=0; i<3; i++ )
+		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
@@ -62,22 +59,19 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
-							qhandle_t parentModel, char *tagName ) {
+void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
-	vec3_t			tempAxis[3];
+	vector3			tempAxis[3];
 
 //AxisClear( entity->axis );
 	// lerp the tag
-	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
-		1.0 - parent->backlerp, tagName );
+	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
-	VectorCopy( parent->origin, entity->origin );
-	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( entity->origin, lerped.origin[i], parent->axis[i], entity->origin );
-	}
+	VectorCopy( &parent->origin, &entity->origin );
+	for ( i=0; i<3; i++ )
+		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( entity->axis, lerped.axis, tempAxis );
@@ -103,14 +97,14 @@ Also called by event processing code
 */
 void CG_SetEntitySoundPosition( centity_t *cent ) {
 	if ( cent->currentState.solid == SOLID_BMODEL ) {
-		vec3_t	origin;
-		float	*v;
+		vector3	origin;
+		vector3	*v;
 
-		v = cgs.inlineModelMidpoints[ cent->currentState.modelindex ];
-		VectorAdd( cent->lerpOrigin, v, origin );
-		cgi.S_UpdateEntityPosition( cent->currentState.number, origin );
+		v = &cgs.inlineModelMidpoints[ cent->currentState.modelindex ];
+		VectorAdd( &cent->lerpOrigin, v, &origin );
+		cgi.S_UpdateEntityPosition( cent->currentState.number, &origin );
 	} else {
-		cgi.S_UpdateEntityPosition( cent->currentState.number, cent->lerpOrigin );
+		cgi.S_UpdateEntityPosition( cent->currentState.number, &cent->lerpOrigin );
 	}
 }
 
@@ -129,10 +123,10 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// add loop sound
 	if ( cent->currentState.loopSound ) {
 		if (cent->currentState.eType != ET_SPEAKER) {
-			cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		} else {
-			cgi.S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			cgi.S_AddRealLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		}
 	}
@@ -145,11 +139,11 @@ static void CG_EntityEffects( centity_t *cent ) {
 		float		i, r, g, b;
 
 		cl = cent->currentState.constantLight;
-		r = (float) (cl & 0xFF) / 255.0;
-		g = (float) ((cl >> 8) & 0xFF) / 255.0;
-		b = (float) ((cl >> 16) & 0xFF) / 255.0;
-		i = (float) ((cl >> 24) & 0xFF) * 4.0;
-		cgi.R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+		r = (float) (cl & 0xFF) / 255.0f;
+		g = (float) ((cl >> 8) & 0xFF) / 255.0f;
+		b = (float) ((cl >> 16) & 0xFF) / 255.0f;
+		i = (float) ((cl >> 24) & 0xFF) * 4.0f;
+		cgi.R_AddLightToScene(&cent->lerpOrigin, i, r, g, b);
 	}
 
 }
@@ -179,8 +173,8 @@ static void CG_General( centity_t *cent ) {
 	ent.oldframe = ent.frame;
 	ent.backlerp = 0;
 
-	VectorCopy( cent->lerpOrigin, ent.origin);
-	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+	VectorCopy( &cent->lerpOrigin, &ent.origin);
+	VectorCopy( &cent->lerpOrigin, &ent.oldorigin);
 
 	ent.hModel = cgs.gameModels[s1->modelindex];
 
@@ -190,7 +184,7 @@ static void CG_General( centity_t *cent ) {
 	}
 
 	// convert angles to axis
-	AnglesToAxis( cent->lerpAngles, ent.axis );
+	AnglesToAxis( &cent->lerpAngles, ent.axis );
 
 	// add to refresh list
 	cgi.R_AddRefEntityToScene (&ent);
@@ -216,7 +210,7 @@ static void CG_Speaker( centity_t *cent ) {
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
-	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
+	cent->miscTime = cg.time + cent->currentState.frame * 100 + (int)(cent->currentState.clientNum * 100 * crandom());
 }
 
 /*
@@ -247,7 +241,7 @@ static void CG_Item( centity_t *cent ) {
 	if ( cg_simpleItems.boolean && item->giType != IT_TEAM ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
-		VectorCopy( cent->lerpOrigin, ent.origin );
+		VectorCopy( &cent->lerpOrigin, &ent.origin );
 		ent.radius = 14;
 		ent.customShader = cg_items[es->modelindex].icon;
 		ent.shaderRGBA[0] = 255;
@@ -259,17 +253,17 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	// items bob up and down continuously
-	scale = 0.005 + cent->currentState.number * 0.00001;
-	cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+	scale = 0.005f + cent->currentState.number * 0.00001f;
+	cent->lerpOrigin.z += 4 + cosf( ( cg.time + 1000 ) *  scale ) * 4;
 
 	memset (&ent, 0, sizeof(ent));
 
 	// autorotate at one of two speeds
 	if ( item->giType == IT_HEALTH ) {
-		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+		VectorCopy( &cg.autoAnglesFast, &cent->lerpAngles );
 		AxisCopy( cg.autoAxisFast, ent.axis );
 	} else {
-		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		VectorCopy( &cg.autoAngles, &cent->lerpAngles );
 		AxisCopy( cg.autoAxis, ent.axis );
 	}
 
@@ -279,26 +273,26 @@ static void CG_Item( centity_t *cent ) {
 	// eccentricly
 	if ( item->giType == IT_WEAPON ) {
 		wi = &cg_weapons[item->giTag];
-		cent->lerpOrigin[0] -= 
-			wi->weaponMidpoint[0] * ent.axis[0][0] +
-			wi->weaponMidpoint[1] * ent.axis[1][0] +
-			wi->weaponMidpoint[2] * ent.axis[2][0];
-		cent->lerpOrigin[1] -= 
-			wi->weaponMidpoint[0] * ent.axis[0][1] +
-			wi->weaponMidpoint[1] * ent.axis[1][1] +
-			wi->weaponMidpoint[2] * ent.axis[2][1];
-		cent->lerpOrigin[2] -= 
-			wi->weaponMidpoint[0] * ent.axis[0][2] +
-			wi->weaponMidpoint[1] * ent.axis[1][2] +
-			wi->weaponMidpoint[2] * ent.axis[2][2];
+		cent->lerpOrigin.x -= 
+			wi->weaponMidpoint.x * ent.axis[0].x +
+			wi->weaponMidpoint.y * ent.axis[1].x +
+			wi->weaponMidpoint.z * ent.axis[2].x;
+		cent->lerpOrigin.y -= 
+			wi->weaponMidpoint.x * ent.axis[0].y +
+			wi->weaponMidpoint.y * ent.axis[1].y +
+			wi->weaponMidpoint.z * ent.axis[2].y;
+		cent->lerpOrigin.z -= 
+			wi->weaponMidpoint.x * ent.axis[0].z +
+			wi->weaponMidpoint.y * ent.axis[1].z +
+			wi->weaponMidpoint.z * ent.axis[2].z;
 
-		cent->lerpOrigin[2] += 8;	// an extra height boost
+		cent->lerpOrigin.z += 8;	// an extra height boost
 	}
 	
 	ent.hModel = cg_items[es->modelindex].models[0];
 
-	VectorCopy( cent->lerpOrigin, ent.origin);
-	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+	VectorCopy( &cent->lerpOrigin, &ent.origin);
+	VectorCopy( &cent->lerpOrigin, &ent.oldorigin);
 
 	ent.nonNormalizedAxes = qfalse;
 
@@ -306,9 +300,9 @@ static void CG_Item( centity_t *cent ) {
 	msec = cg.time - cent->miscTime;
 	if ( msec >= 0 && msec < ITEM_SCALEUP_TIME ) {
 		frac = (float)msec / ITEM_SCALEUP_TIME;
-		VectorScale( ent.axis[0], frac, ent.axis[0] );
-		VectorScale( ent.axis[1], frac, ent.axis[1] );
-		VectorScale( ent.axis[2], frac, ent.axis[2] );
+		VectorScale( &ent.axis[0], frac, &ent.axis[0] );
+		VectorScale( &ent.axis[1], frac, &ent.axis[1] );
+		VectorScale( &ent.axis[2], frac, &ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
 	} else {
 		frac = 1.0;
@@ -323,11 +317,11 @@ static void CG_Item( centity_t *cent ) {
 
 	// increase the size of the weapons when they are presented as items
 	if ( item->giType == IT_WEAPON ) {
-		VectorScale( ent.axis[0], 1.5, ent.axis[0] );
-		VectorScale( ent.axis[1], 1.5, ent.axis[1] );
-		VectorScale( ent.axis[2], 1.5, ent.axis[2] );
+		VectorScale( &ent.axis[0], 1.5, &ent.axis[0] );
+		VectorScale( &ent.axis[1], 1.5, &ent.axis[1] );
+		VectorScale( &ent.axis[2], 1.5, &ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
-		cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+		cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, cgs.media.weaponHoverSound );
 	}
 
 	// add to refresh list
@@ -340,7 +334,7 @@ static void CG_Item( centity_t *cent ) {
 
 		barrel.hModel = wi->barrelModel;
 
-		VectorCopy( ent.lightingOrigin, barrel.lightingOrigin );
+		VectorCopy( &ent.lightingOrigin, &barrel.lightingOrigin );
 		barrel.shadowPlane = ent.shadowPlane;
 		barrel.renderfx = ent.renderfx;
 
@@ -355,9 +349,9 @@ static void CG_Item( centity_t *cent ) {
 	// accompanying rings / spheres for powerups
 	if ( !cg_simpleItems.boolean ) 
 	{
-		vec3_t spinAngles;
+		vector3 spinAngles;
 
-		VectorClear( spinAngles );
+		VectorClear( &spinAngles );
 
 		if ( item->giType == IT_HEALTH || item->giType == IT_POWERUP )
 		{
@@ -365,16 +359,16 @@ static void CG_Item( centity_t *cent ) {
 			{
 				if ( item->giType == IT_POWERUP )
 				{
-					ent.origin[2] += 12;
-					spinAngles[1] = ( cg.time & 1023 ) * 360 / -1024.0f;
+					ent.origin.z += 12;
+					spinAngles.yaw = ( cg.time & 1023 ) * 360 / -1024.0f;
 				}
-				AnglesToAxis( spinAngles, ent.axis );
+				AnglesToAxis( &spinAngles, ent.axis );
 				
 				// scale up if respawning
 				if ( frac != 1.0 ) {
-					VectorScale( ent.axis[0], frac, ent.axis[0] );
-					VectorScale( ent.axis[1], frac, ent.axis[1] );
-					VectorScale( ent.axis[2], frac, ent.axis[2] );
+					VectorScale( &ent.axis[0], frac, &ent.axis[0] );
+					VectorScale( &ent.axis[1], frac, &ent.axis[1] );
+					VectorScale( &ent.axis[2], frac, &ent.axis[2] );
 					ent.nonNormalizedAxes = qtrue;
 				}
 				cgi.R_AddRefEntityToScene( &ent );
@@ -397,19 +391,17 @@ static void CG_Missile( centity_t *cent ) {
 //	int	col;
 
 	s1 = &cent->currentState;
-	if ( s1->weapon >= WP_NUM_WEAPONS ) {
+	if ( s1->weapon >= WP_NUM_WEAPONS )
 		s1->weapon = 0;
-	}
+
 	weapon = &cg_weapons[s1->weapon];
 
 	// calculate the axis
-	VectorCopy( s1->angles, cent->lerpAngles);
+	VectorCopy( &s1->angles, &cent->lerpAngles);
 
 	// add trails
 	if ( weapon->missileTrailFunc ) 
-	{
-		weapon->missileTrailFunc( cent, weapon );
-	}
+ 		weapon->missileTrailFunc( cent, weapon );
 /*
 	if ( cent->currentState.modelindex == TEAM_RED ) {
 		col = 1;
@@ -429,23 +421,23 @@ static void CG_Missile( centity_t *cent ) {
 */
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		cgi.R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
-			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
+		cgi.R_AddLightToScene(&cent->lerpOrigin, weapon->missileDlight, 
+			weapon->missileDlightColor.r, weapon->missileDlightColor.g, weapon->missileDlightColor.z );
 	}
 
 	// add missile sound
 	if ( weapon->missileSound ) {
-		vec3_t	velocity;
+		vector3	velocity;
 
-		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
+		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, &velocity );
 
-		cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound );
+		cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &velocity, weapon->missileSound );
 	}
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
-	VectorCopy( cent->lerpOrigin, ent.origin);
-	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+	VectorCopy( &cent->lerpOrigin, &ent.origin);
+	VectorCopy( &cent->lerpOrigin, &ent.oldorigin);
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
@@ -453,15 +445,15 @@ static void CG_Missile( centity_t *cent ) {
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
 	// convert direction of travel into axis
-	if ( VectorNormalize2( s1->pos.trDelta, ent.axis[0] ) == 0 ) {
-		ent.axis[0][2] = 1;
+	if ( VectorNormalize2( &s1->pos.trDelta, &ent.axis[0] ) == 0 ) {
+		ent.axis[0].z = 1;
 	}
 
 	// spin as it moves
 	if ( s1->pos.trType != TR_STATIONARY )
-		RotateAroundDirection( ent.axis, cg.time / 4 );
+		RotateAroundDirection( ent.axis, (float)(cg.time / 4) );
 	else
-		RotateAroundDirection( ent.axis, s1->time );
+		RotateAroundDirection( ent.axis, (float)s1->time );
 
 	// add to refresh list, possibly with quad glow
 	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE );
@@ -480,9 +472,9 @@ static void CG_Mover( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
-	VectorCopy( cent->lerpOrigin, ent.origin);
-	VectorCopy( cent->lerpOrigin, ent.oldorigin);
-	AnglesToAxis( cent->lerpAngles, ent.axis );
+	VectorCopy( &cent->lerpOrigin, &ent.origin);
+	VectorCopy( &cent->lerpOrigin, &ent.oldorigin);
+	AnglesToAxis( &cent->lerpAngles, ent.axis );
 
 	ent.renderfx = RF_NOSHADOW;
 
@@ -523,8 +515,8 @@ void CG_Beam( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
-	VectorCopy( s1->pos.trBase, ent.origin );
-	VectorCopy( s1->origin2, ent.oldorigin );
+	VectorCopy( &s1->pos.trBase, &ent.origin );
+	VectorCopy( &s1->origin2, &ent.oldorigin );
 	AxisClear( ent.axis );
 	ent.reType = RT_BEAM;
 
@@ -548,20 +540,20 @@ static void CG_Portal( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
-	VectorCopy( cent->lerpOrigin, ent.origin );
-	VectorCopy( s1->origin2, ent.oldorigin );
-	ByteToDir( s1->eventParm, ent.axis[0] );
-	PerpendicularVector( ent.axis[1], ent.axis[0] );
+	VectorCopy( &cent->lerpOrigin, &ent.origin );
+	VectorCopy( &s1->origin2, &ent.oldorigin );
+	ByteToDir( s1->eventParm, &ent.axis[0] );
+	PerpendicularVector( &ent.axis[1], &ent.axis[0] );
 
 	// negating this tends to get the directions like they want
 	// we really should have a camera roll value
-	VectorSubtract( vec3_origin, ent.axis[1], ent.axis[1] );
+	VectorSubtract( &vec3_origin, &ent.axis[1], &ent.axis[1] );
 
-	CrossProduct( ent.axis[0], ent.axis[1], ent.axis[2] );
+	CrossProduct( &ent.axis[0], &ent.axis[1], &ent.axis[2] );
 	ent.reType = RT_PORTALSURFACE;
 	ent.oldframe = s1->powerups;
 	ent.frame = s1->frame;		// rotation speed
-	ent.skinNum = s1->clientNum/256.0 * 360;	// roll offset
+	ent.skinNum = (int)(s1->clientNum/256.0f * 360);	// roll offset
 
 	// add to refresh list
 	cgi.R_AddRefEntityToScene(&ent);
@@ -575,10 +567,10 @@ CG_AdjustPositionForMover
 Also called by client movement prediction code
 =========================
 */
-void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t angles_in, vec3_t angles_out) {
+void CG_AdjustPositionForMover(const vector3 *in, int moverNum, int fromTime, int toTime, vector3 *out, vector3 *angles_in, vector3 *angles_out) {
 	centity_t	*cent;
-	vec3_t	oldOrigin, origin, deltaOrigin;
-	vec3_t	oldAngles, angles, deltaAngles;
+	vector3	oldOrigin, origin, deltaOrigin;
+	vector3	oldAngles, angles, deltaAngles;
 
 	if ( moverNum <= 0 || moverNum >= ENTITYNUM_MAX_NORMAL ) {
 		VectorCopy( in, out );
@@ -593,17 +585,17 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 		return;
 	}
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, fromTime, oldOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, fromTime, oldAngles );
+	BG_EvaluateTrajectory( &cent->currentState.pos, fromTime, &oldOrigin );
+	BG_EvaluateTrajectory( &cent->currentState.apos, fromTime, &oldAngles );
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, toTime, origin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, toTime, angles );
+	BG_EvaluateTrajectory( &cent->currentState.pos, toTime, &origin );
+	BG_EvaluateTrajectory( &cent->currentState.apos, toTime, &angles );
 
-	VectorSubtract( origin, oldOrigin, deltaOrigin );
-	VectorSubtract( angles, oldAngles, deltaAngles );
+	VectorSubtract( &origin, &oldOrigin, &deltaOrigin );
+	VectorSubtract( &angles, &oldAngles, &deltaAngles );
 
-	VectorAdd( in, deltaOrigin, out );
-	VectorAdd( angles_in, deltaAngles, angles_out );
+	VectorAdd( in, &deltaOrigin, out );
+	VectorAdd( angles_in, &deltaAngles, angles_out );
 	// FIXME: origin change when on a rotating object
 }
 
@@ -614,7 +606,7 @@ CG_InterpolateEntityPosition
 =============================
 */
 static void CG_InterpolateEntityPosition( centity_t *cent ) {
-	vec3_t		current, next;
+	vector3		current, next;
 	float		f;
 
 	// it would be an internal error to find an entity that interpolates without
@@ -627,19 +619,19 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 
 	// this will linearize a sine or parabolic curve, but it is important
 	// to not extrapolate player positions if more recent data is available
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, current );
-	BG_EvaluateTrajectory( &cent->nextState.pos, cg.nextSnap->serverTime, next );
+	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, &current );
+	BG_EvaluateTrajectory( &cent->nextState.pos, cg.nextSnap->serverTime, &next );
 
-	cent->lerpOrigin[0] = current[0] + f * ( next[0] - current[0] );
-	cent->lerpOrigin[1] = current[1] + f * ( next[1] - current[1] );
-	cent->lerpOrigin[2] = current[2] + f * ( next[2] - current[2] );
+	cent->lerpOrigin.x = current.x + f * ( next.x - current.x );
+	cent->lerpOrigin.y = current.y + f * ( next.y - current.y );
+	cent->lerpOrigin.z = current.z + f * ( next.z - current.z );
 
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.snap->serverTime, current );
-	BG_EvaluateTrajectory( &cent->nextState.apos, cg.nextSnap->serverTime, next );
+	BG_EvaluateTrajectory( &cent->currentState.apos, cg.snap->serverTime, &current );
+	BG_EvaluateTrajectory( &cent->nextState.apos, cg.nextSnap->serverTime, &next );
 
-	cent->lerpAngles[0] = LerpAngle( current[0], next[0], f );
-	cent->lerpAngles[1] = LerpAngle( current[1], next[1], f );
-	cent->lerpAngles[2] = LerpAngle( current[2], next[2], f );
+	cent->lerpAngles.x = LerpAngle( current.x, next.x, f );
+	cent->lerpAngles.y = LerpAngle( current.y, next.y, f );
+	cent->lerpAngles.z = LerpAngle( current.z, next.z, f );
 
 }
 
@@ -671,12 +663,12 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
 	}
 
 	// just use the current frame and evaluate as best we can
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, &cent->lerpOrigin );
+	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, &cent->lerpAngles );
 
 	// adjust for riding a mover if it wasn't rolled into the predicted playerstate
 	if ( cent != &cg.predictedPlayerEntity )
-		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles, cent->lerpAngles );
+		CG_AdjustPositionForMover( &cent->lerpOrigin, cent->currentState.groundEntityNum, cg.snap->serverTime, cg.time, &cent->lerpOrigin, &cent->lerpAngles, &cent->lerpAngles );
 }
 
 /*
@@ -691,9 +683,9 @@ static void CG_TeamBase( centity_t *cent ) {
 		// show the flag base
 		memset(&model, 0, sizeof(model));
 		model.reType = RT_MODEL;
-		VectorCopy( cent->lerpOrigin, model.lightingOrigin );
-		VectorCopy( cent->lerpOrigin, model.origin );
-		AnglesToAxis( cent->currentState.angles, model.axis );
+		VectorCopy( &cent->lerpOrigin, &model.lightingOrigin );
+		VectorCopy( &cent->lerpOrigin, &model.origin );
+		AnglesToAxis( &cent->currentState.angles, model.axis );
 		if ( cent->currentState.modelindex == TEAM_RED ) {
 			model.hModel = cgs.media.redFlagBaseModel;
 		}
@@ -790,16 +782,16 @@ void CG_AddPacketEntities( void ) {
 	}
 
 	// the auto-rotating items will all have the same axis
-	cg.autoAngles[0] = 0;
-	cg.autoAngles[1] = ( cg.time & 2047 ) * 360 / 2048.0;
-	cg.autoAngles[2] = 0;
+	cg.autoAngles.x = 0;
+	cg.autoAngles.y = ( cg.time & 2047 ) * 360 / 2048.0f;
+	cg.autoAngles.z = 0;
 
-	cg.autoAnglesFast[0] = 0;
-	cg.autoAnglesFast[1] = ( cg.time & 1023 ) * 360 / 1024.0f;
-	cg.autoAnglesFast[2] = 0;
+	cg.autoAnglesFast.x = 0;
+	cg.autoAnglesFast.y = ( cg.time & 1023 ) * 360 / 1024.0f;
+	cg.autoAnglesFast.z = 0;
 
-	AnglesToAxis( cg.autoAngles, cg.autoAxis );
-	AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast );
+	AnglesToAxis( &cg.autoAngles, cg.autoAxis );
+	AnglesToAxis( &cg.autoAnglesFast, cg.autoAxisFast );
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predictedPlayerState;

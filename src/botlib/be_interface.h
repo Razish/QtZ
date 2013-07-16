@@ -42,7 +42,7 @@ typedef struct botlib_globals_s
 #ifdef DEBUG
 	qboolean debug;							//true if debug is on
 	int goalareanum;
-	vec3_t goalorigin;
+	vector3 goalorigin;
 	int runai;
 #endif
 } botlib_globals_t;

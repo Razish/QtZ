@@ -192,7 +192,7 @@ int   update_target
          }
 #else
          for (j=0;j<subvect_size;j++)
-            e[subvect_size*i+j]=sign*0.03125*shape_cb[rind*subvect_size+j];
+            e[subvect_size*i+j]=sign*0.03125f*shape_cb[rind*subvect_size+j];
 #endif
       
       }
@@ -213,7 +213,7 @@ int   update_target
 #ifdef FIXED_POINT
          g=sign*shape_cb[rind*subvect_size+m];
 #else
-         g=sign*0.03125*shape_cb[rind*subvect_size+m];
+         g=sign*0.03125f*shape_cb[rind*subvect_size+m];
 #endif
          target_update(t+subvect_size*(i+1), g, r+q, nsf-subvect_size*(i+1));
       }
@@ -436,7 +436,7 @@ int   update_target
 #ifdef FIXED_POINT
             g=sign*shape_cb[rind*subvect_size+m];
 #else
-            g=sign*0.03125*shape_cb[rind*subvect_size+m];
+            g=sign*0.03125f*shape_cb[rind*subvect_size+m];
 #endif
             target_update(nt[j]+subvect_size*(i+1), g, r+q, nsf-subvect_size*(i+1));
          }
@@ -490,7 +490,7 @@ int   update_target
       }
 #else
       for (j=0;j<subvect_size;j++)
-         e[subvect_size*i+j]=sign*0.03125*shape_cb[rind*subvect_size+j];
+         e[subvect_size*i+j]=sign*0.03125f*shape_cb[rind*subvect_size+j];
 #endif
    }   
    /* Update excitation */
@@ -565,7 +565,7 @@ spx_int32_t *seed
       }
 #else
       for (j=0;j<subvect_size;j++)
-         exc[subvect_size*i+j]+=s*0.03125*shape_cb[ind[i]*subvect_size+j];      
+         exc[subvect_size*i+j]+=s*0.03125f*shape_cb[ind[i]*subvect_size+j];      
 #endif
    }
 }

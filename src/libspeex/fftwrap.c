@@ -104,13 +104,13 @@ void spx_fft(void *table, float *in, float *out)
    if (in==out)
    {
       int i;
-      float scale = 1./((struct drft_lookup *)table)->n;
+      float scale = 1.0f/((struct drft_lookup *)table)->n;
       speex_warning("FFT should not be done in-place");
       for (i=0;i<((struct drft_lookup *)table)->n;i++)
          out[i] = scale*in[i];
    } else {
       int i;
-      float scale = 1./((struct drft_lookup *)table)->n;
+      float scale = 1.0f/((struct drft_lookup *)table)->n;
       for (i=0;i<((struct drft_lookup *)table)->n;i++)
          out[i] = scale*in[i];
    }

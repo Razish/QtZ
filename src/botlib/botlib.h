@@ -108,9 +108,9 @@ struct weaponinfo_s;
 typedef struct bot_input_s
 {
 	float thinktime;		//time since last output (in seconds)
-	vec3_t dir;				//movement direction
+	vector3 dir;				//movement direction
 	float speed;			//speed in the range [0, 400]
-	vec3_t viewangles;		//the view angles
+	vector3 viewangles;		//the view angles
 	int actionflags;		//one of the ACTION_? flags
 	int weapon;				//weapon to use
 } bot_input_t;
@@ -134,7 +134,7 @@ typedef struct bsp_trace_s
 	qboolean		allsolid;	// if true, plane is not valid
 	qboolean		startsolid;	// if true, the initial point was in a solid area
 	float			fraction;	// time completed, 1.0 = didn't hit anything
-	vec3_t			endpos;		// final position
+	vector3			endpos;		// final position
 	cplane_t		plane;		// surface normal at impact
 	float			exp_dist;	// expanded plane distance
 	int				sidenum;	// number of the brush side hit
@@ -150,11 +150,11 @@ typedef struct bot_entitystate_s
 {
 	int		type;			// entity type
 	int		flags;			// entity flags
-	vec3_t	origin;			// origin of the entity
-	vec3_t	angles;			// angles of the model
-	vec3_t	old_origin;		// for lerping
-	vec3_t	mins;			// bounding box minimums
-	vec3_t	maxs;			// bounding box maximums
+	vector3	origin;			// origin of the entity
+	vector3	angles;			// angles of the model
+	vector3	old_origin;		// for lerping
+	vector3	mins;			// bounding box minimums
+	vector3	maxs;			// bounding box maximums
 	int		groundent;		// ground entity
 	int		solid;			// solid type
 	int		modelindex;		// model used
@@ -176,17 +176,17 @@ typedef struct botlib_import_s
 	void		(QDECL *Error)(int code, const char *fmt, ...);
 
 	//trace a bbox through the world
-	void		(*Trace)(bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask);
+	void		(*Trace)(bsp_trace_t *trace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask);
 	//trace a bbox against a specific entity
-	void		(*EntityTrace)(bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask);
+	void		(*EntityTrace)(bsp_trace_t *trace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int entnum, int contentmask);
 	//retrieve the contents at the given point
-	int			(*PointContents)(vec3_t point);
+	int			(*PointContents)(vector3 *point);
 	//check if the point is in potential visible sight
-	int			(*inPVS)(vec3_t p1, vec3_t p2);
+	int			(*inPVS)(vector3 *p1, vector3 *p2);
 	//retrieve the BSP entity data lump
 	char		*(*BSPEntityData)(void);
 	//
-	void		(*BSPModelMinsMaxsOrigin)(int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin);
+	void		(*BSPModelMinsMaxsOrigin)(int modelnum, vector3 *angles, vector3 *mins, vector3 *maxs, vector3 *origin);
 	//send a bot client command
 	void		(*BotClientCommand)(int client, char *command);
 	//memory allocation
@@ -203,9 +203,9 @@ typedef struct botlib_import_s
 	//debug visualisation stuff
 	int			(*DebugLineCreate)(void);
 	void		(*DebugLineDelete)(int line);
-	void		(*DebugLineShow)(int line, vec3_t start, vec3_t end, int color);
+	void		(*DebugLineShow)(int line, vector3 *start, vector3 *end, int color);
 	//
-	int			(*DebugPolygonCreate)(int color, int numPoints, vec3_t *points);
+	int			(*DebugPolygonCreate)(int color, int numPoints, vector3 *points);
 	void		(*DebugPolygonDelete)(int id);
 } botlib_import_t;
 
@@ -219,23 +219,23 @@ typedef struct aas_export_s
 	// be_aas_main.h
 	//-----------------------------------
 	int			(*AAS_Initialized)(void);
-	void		(*AAS_PresenceTypeBoundingBox)(int presencetype, vec3_t mins, vec3_t maxs);
+	void		(*AAS_PresenceTypeBoundingBox)(int presencetype, vector3 *mins, vector3 *maxs);
 	float		(*AAS_Time)(void);
 	//--------------------------------------------
 	// be_aas_sample.c
 	//--------------------------------------------
-	int			(*AAS_PointAreaNum)(vec3_t point);
-	int			(*AAS_PointReachabilityAreaIndex)( vec3_t point );
-	int			(*AAS_TraceAreas)(vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas);
-	int			(*AAS_BBoxAreas)(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
+	int			(*AAS_PointAreaNum)(vector3 *point);
+	int			(*AAS_PointReachabilityAreaIndex)( vector3 *point );
+	int			(*AAS_TraceAreas)(vector3 *start, vector3 *end, int *areas, vector3 *points, int maxareas);
+	int			(*AAS_BBoxAreas)(vector3 *absmins, vector3 *absmaxs, int *areas, int maxareas);
 	int			(*AAS_AreaInfo)( int areanum, struct aas_areainfo_s *info );
 	//--------------------------------------------
 	// be_aas_bspq3.c
 	//--------------------------------------------
-	int			(*AAS_PointContents)(vec3_t point);
+	int			(*AAS_PointContents)(vector3 *point);
 	int			(*AAS_NextBSPEntity)(int ent);
 	int			(*AAS_ValueForBSPEpairKey)(int ent, char *key, char *value, int size);
-	int			(*AAS_VectorForBSPEpairKey)(int ent, char *key, vec3_t v);
+	int			(*AAS_VectorForBSPEpairKey)(int ent, char *key, vector3 *v);
 	int			(*AAS_FloatForBSPEpairKey)(int ent, char *key, float *value);
 	int			(*AAS_IntForBSPEpairKey)(int ent, char *key, int *value);
 	//--------------------------------------------
@@ -245,25 +245,25 @@ typedef struct aas_export_s
 	//--------------------------------------------
 	// be_aas_route.c
 	//--------------------------------------------
-	int			(*AAS_AreaTravelTimeToGoalArea)(int areanum, vec3_t origin, int goalareanum, int travelflags);
+	int			(*AAS_AreaTravelTimeToGoalArea)(int areanum, vector3 *origin, int goalareanum, int travelflags);
 	int			(*AAS_EnableRoutingArea)(int areanum, int enable);
-	int			(*AAS_PredictRoute)(struct aas_predictroute_s *route, int areanum, vec3_t origin,
+	int			(*AAS_PredictRoute)(struct aas_predictroute_s *route, int areanum, vector3 *origin,
 							int goalareanum, int travelflags, int maxareas, int maxtime,
 							int stopevent, int stopcontents, int stoptfl, int stopareanum);
 	//--------------------------------------------
 	// be_aas_altroute.c
 	//--------------------------------------------
-	int			(*AAS_AlternativeRouteGoals)(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags,
+	int			(*AAS_AlternativeRouteGoals)(vector3 *start, int startareanum, vector3 *goal, int goalareanum, int travelflags,
 										struct aas_altroutegoal_s *altroutegoals, int maxaltroutegoals,
 										int type);
 	//--------------------------------------------
 	// be_aas_move.c
 	//--------------------------------------------
-	int			(*AAS_Swimming)(vec3_t origin);
+	int			(*AAS_Swimming)(vector3 *origin);
 	int			(*AAS_PredictClientMovement)(struct aas_clientmove_s *move,
-											int entnum, vec3_t origin,
+											int entnum, vector3 *origin,
 											int presencetype, int onground,
-											vec3_t velocity, vec3_t cmdmove,
+											vector3 *velocity, vector3 *cmdmove,
 											int cmdframes,
 											int maxframes, float frametime,
 											int stopevent, int stopareanum, int visualize);
@@ -293,8 +293,8 @@ typedef struct ea_export_s
 	void	(*EA_SelectWeapon)(int client, int weapon);
 	void	(*EA_Jump)(int client);
 	void	(*EA_DelayedJump)(int client);
-	void	(*EA_Move)(int client, vec3_t dir, float speed);
-	void	(*EA_View)(int client, vec3_t viewangles);
+	void	(*EA_Move)(int client, vector3 *dir, float speed);
+	void	(*EA_View)(int client, vector3 *viewangles);
 	//send regular input to the server
 	void	(*EA_EndRegular)(int client, float thinktime);
 	void	(*EA_GetInput)(int client, float thinktime, bot_input_t *input);
@@ -350,11 +350,10 @@ typedef struct ai_export_s
 	void	(*BotGoalName)(int number, char *name, int size);
 	int		(*BotGetTopGoal)(int goalstate, struct bot_goal_s *goal);
 	int		(*BotGetSecondGoal)(int goalstate, struct bot_goal_s *goal);
-	int		(*BotChooseLTGItem)(int goalstate, vec3_t origin, int *inventory, int travelflags);
-	int		(*BotChooseNBGItem)(int goalstate, vec3_t origin, int *inventory, int travelflags,
-								struct bot_goal_s *ltg, float maxtime);
-	int		(*BotTouchingGoal)(vec3_t origin, struct bot_goal_s *goal);
-	int		(*BotItemGoalInVisButNotVisible)(int viewer, vec3_t eye, vec3_t viewangles, struct bot_goal_s *goal);
+	int		(*BotChooseLTGItem)(int goalstate, vector3 *origin, int *inventory, int travelflags);
+	int		(*BotChooseNBGItem)(int goalstate, vector3 *origin, int *inventory, int travelflags, struct bot_goal_s *ltg, float maxtime);
+	int		(*BotTouchingGoal)(vector3 *origin, struct bot_goal_s *goal);
+	int		(*BotItemGoalInVisButNotVisible)(int viewer, vector3 *eye, vector3 *viewangles, struct bot_goal_s *goal);
 	int		(*BotGetLevelItemGoal)(int index, char *classname, struct bot_goal_s *goal);
 	int		(*BotGetNextCampSpotGoal)(int num, struct bot_goal_s *goal);
 	int		(*BotGetMapLocationGoal)(char *name, struct bot_goal_s *goal);
@@ -374,16 +373,16 @@ typedef struct ai_export_s
 	//-----------------------------------
 	void	(*BotResetMoveState)(int movestate);
 	void	(*BotMoveToGoal)(struct bot_moveresult_s *result, int movestate, struct bot_goal_s *goal, int travelflags);
-	int		(*BotMoveInDirection)(int movestate, vec3_t dir, float speed, int type);
+	int		(*BotMoveInDirection)(int movestate, vector3 *dir, float speed, int type);
 	void	(*BotResetAvoidReach)(int movestate);
 	void	(*BotResetLastAvoidReach)(int movestate);
-	int		(*BotReachabilityArea)(vec3_t origin, int testground);
-	int		(*BotMovementViewTarget)(int movestate, struct bot_goal_s *goal, int travelflags, float lookahead, vec3_t target);
-	int		(*BotPredictVisiblePosition)(vec3_t origin, int areanum, struct bot_goal_s *goal, int travelflags, vec3_t target);
+	int		(*BotReachabilityArea)(vector3 *origin, int testground);
+	int		(*BotMovementViewTarget)(int movestate, struct bot_goal_s *goal, int travelflags, float lookahead, vector3 *target);
+	int		(*BotPredictVisiblePosition)(vector3 *origin, int areanum, struct bot_goal_s *goal, int travelflags, vector3 *target);
 	int		(*BotAllocMoveState)(void);
 	void	(*BotFreeMoveState)(int handle);
 	void	(*BotInitMoveState)(int handle, struct bot_initmove_s *initmove);
-	void	(*BotAddAvoidSpot)(int movestate, vec3_t origin, float radius, int type);
+	void	(*BotAddAvoidSpot)(int movestate, vector3 *origin, float radius, int type);
 	//-----------------------------------
 	// be_ai_weap.h
 	//-----------------------------------
@@ -431,7 +430,7 @@ typedef struct botlib_export_s
 	//entity updates
 	int (*BotLibUpdateEntity)(int ent, bot_entitystate_t *state);
 	//just for testing
-	int (*Test)(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);
+	int (*Test)(int parm0, char *parm1, vector3 *parm2, vector3 *parm3);
 } botlib_export_t;
 
 //linking of bot library

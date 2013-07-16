@@ -70,18 +70,18 @@ typedef struct {
 
 	qboolean	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by gi.SV_SetBrushModel
-	vec3_t		mins, maxs;
+	vector3		mins, maxs;
 	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
 									// a non-solid entity should set to 0
 
-	vec3_t		absmin, absmax;		// derived from mins/maxs and origin + rotation
+	vector3		absmin, absmax;		// derived from mins/maxs and origin + rotation
 
 	// currentOrigin will be used for all collision detection and world linking.
 	// it will not necessarily be the same as the trajectory evaluation for the current
 	// time, because each entity must be moved one at a time after time is advanced
 	// to avoid simultanious collision issues
-	vec3_t		currentOrigin;
-	vec3_t		currentAngles;
+	vector3		currentOrigin;
+	vector3		currentAngles;
 
 	// when a trace call is made and passEntityNum != ENTITYNUM_NONE,
 	// an ent will be excluded from testing if:
@@ -143,25 +143,24 @@ typedef struct gameImport_s {
 	void			(*SV_SetUserinfo)				( int index, const char *val );
 	void			(*SV_GetServerinfo)				( char *buffer, int bufferSize );
 	void			(*SV_SetBrushModel)				( sharedEntity_t *ent, const char *name );
-	void			(*SV_Trace)						( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
-	qboolean		(*SV_EntityContact)				( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, int capsule );
-	int				(*SV_PointContents)				( const vec3_t p, int passEntityNum );
-	qboolean		(*SV_InPVS)						( const vec3_t p1, const vec3_t p2 );
-	qboolean		(*SV_InPVSIgnorePortals)		( const vec3_t p1, const vec3_t p2 );
+	void			(*SV_Trace)						( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentmask );
+	qboolean		(*SV_EntityContact)				( vector3 *mins, vector3 *maxs, const sharedEntity_t *gEnt, int capsule );
+	int				(*SV_PointContents)				( const vector3 *p, int passEntityNum );
+	qboolean		(*SV_InPVS)						( const vector3 *p1, const vector3 *p2 );
+	qboolean		(*SV_InPVSIgnorePortals)		( const vector3 *p1, const vector3 *p2 );
 	void			(*SV_AdjustAreaPortalState)		( sharedEntity_t *ent, qboolean open );
 	qboolean		(*CM_AreasConnected)			( int area1, int area2 );
 	void			(*SV_LinkEntity)				( sharedEntity_t *gEnt );
 	void			(*SV_UnlinkEntity)				( sharedEntity_t *gEnt );
-	int				(*SV_AreaEntities)				( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
+	int				(*SV_AreaEntities)				( const vector3 *mins, const vector3 *maxs, int *entityList, int maxcount );
 	int				(*SV_BotAllocateClient)			( void );
 	void			(*SV_BotFreeClient)				( int clientNum );
 	void			(*SV_GetUsercmd)				( int clientNum, usercmd_t *cmd );
 	qboolean		(*SV_GetEntityToken)			( char *buffer, int bufferSize );
 
-	int				(*DebugPolygonCreate)			( int color, int numPoints, vec3_t *points );
+	int				(*DebugPolygonCreate)			( int color, int numPoints, vector3 *points );
 	void			(*DebugPolygonDelete)			( int id );
 	int				(*RealTime)						( qtime_t *qtime );
-	void			(*Q_SnapVector)					( vec_t *vec );
 
 	int				(*SV_BotLibSetup)				( void );
 	int				(*SV_BotLibShutdown)			( void );
@@ -176,7 +175,7 @@ typedef struct gameImport_s {
 	int				(*BotLibStartFrame)				( float time );
 	int				(*BotLibLoadMap)				( const char *mapname );
 	int				(*BotLibUpdateEntity)			( int ent, bot_entitystate_t *state );
-	int				(*BotLibTest)					( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 );
+	int				(*BotLibTest)					( int parm0, char *parm1, vector3 *parm2, vector3 *parm3 );
 
 	int				(*SV_BotGetSnapshotEntity)		( int client, int sequence );
 	int				(*SV_BotGetConsoleMessage)		( int client, char *buf, int size );

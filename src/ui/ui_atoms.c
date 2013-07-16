@@ -130,50 +130,35 @@ void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
 	}
 }
 
-void UI_LoadBestScores(const char *map, int game)
-{
-	char		fileName[MAX_QPATH];
+void UI_LoadBestScores( const char *map, int game ) {
+	char fileName[MAX_QPATH];
 	fileHandle_t f;
 	postGameInfo_t newInfo;
-	int protocol, protocolLegacy;
+	int protocol;
 	
-	memset(&newInfo, 0, sizeof(postGameInfo_t));
-	Com_sprintf(fileName, MAX_QPATH, "games/%s_%i.game", map, game);
-	if (uii.FS_Open(fileName, &f, FS_READ) >= 0) {
+	memset( &newInfo, 0, sizeof( postGameInfo_t ) );
+	Com_sprintf( fileName, MAX_QPATH, "games/%s_%i.game", map, game );
+	if ( uii.FS_Open( fileName, &f, FS_READ ) >= 0 ) {
 		int size = 0;
-		uii.FS_Read(&size, sizeof(int), f);
-		if (size == sizeof(postGameInfo_t)) {
-			uii.FS_Read(&newInfo, sizeof(postGameInfo_t), f);
-		}
-		uii.FS_Close(f);
+		uii.FS_Read( &size, sizeof( int ), f );
+		if ( size == sizeof( postGameInfo_t ) )
+			uii.FS_Read( &newInfo, sizeof( postGameInfo_t ), f );
+		uii.FS_Close( f );
 	}
-	UI_SetBestScores(&newInfo, qfalse);
+	UI_SetBestScores( &newInfo, qfalse );
 
 	uiInfo.demoAvailable = qfalse;
 
-	protocolLegacy = uii.Cvar_VariableValue("com_legacyprotocol");
-	protocol = uii.Cvar_VariableValue("com_protocol");
+	protocol = (int)uii.Cvar_VariableValue( "com_protocol" );
 
-	if(!protocol)
-		protocol = uii.Cvar_VariableValue("protocol");
-	if(protocolLegacy == protocol)
-		protocolLegacy = 0;
+	if ( !protocol )
+		protocol = (int)uii.Cvar_VariableValue( "protocol" );
 
-	Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, protocol);
-	if(uii.FS_Open(fileName, &f, FS_READ) >= 0)
-	{
+	Com_sprintf( fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMO_EXTENSION, protocol );
+	if ( uii.FS_Open( fileName, &f, FS_READ ) >= 0 ) {
 		uiInfo.demoAvailable = qtrue;
-		uii.FS_Close(f);
+		uii.FS_Close( f );
 	}
-	else if(protocolLegacy > 0)
-	{
-		Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, protocolLegacy);
-		if (uii.FS_Open(fileName, &f, FS_READ) >= 0)
-		{
-			uiInfo.demoAvailable = qtrue;
-			uii.FS_Close(f);
-		}
-	} 
 }
 
 /*
@@ -233,7 +218,7 @@ static void UI_CalcPostGameStats( void ) {
 
 	uii.GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 	Q_strncpyz( map, Info_ValueForKey( info, "mapname" ), sizeof(map) );
-	game = atoi(Info_ValueForKey(info, "g_gametype"));
+	game = atoi(Info_ValueForKey(info, "sv_gametype"));
 
 	// compose file name
 	Com_sprintf(fileName, MAX_QPATH, "games/%s_%i.game", map, game);
@@ -262,7 +247,7 @@ static void UI_CalcPostGameStats( void ) {
 	time = atoi(UI_Argv(13));
 	newInfo.captures = atoi(UI_Argv(14));
 
-	newInfo.time = (time - uii.Cvar_VariableValue("ui_matchStartTime")) / 1000;
+	newInfo.time = (int)((time - uii.Cvar_VariableValue("ui_matchStartTime")) / 1000.0f);
 	adjustedTime = uiInfo.mapList[ui_currentMap.integer].timeToBeat[game];
 	if (newInfo.time < adjustedTime) { 
 		newInfo.timeBonus = (adjustedTime - newInfo.time) * 10;
@@ -276,7 +261,7 @@ static void UI_CalcPostGameStats( void ) {
 		newInfo.shutoutBonus = 0;
 	}
 
-	newInfo.skillBonus = uii.Cvar_VariableValue("g_spSkill");
+	newInfo.skillBonus = (int)uii.Cvar_VariableValue("g_difficulty");
 	if (newInfo.skillBonus <= 0) {
 		newInfo.skillBonus = 1;
 	}
@@ -454,7 +439,7 @@ UI_FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_FillRect( float x, float y, float width, float height, const float *color ) {
+void UI_FillRect( float x, float y, float width, float height, const vector4 *color ) {
 	uii.R_SetColor( color );
 
 	UI_AdjustFrom640( &x, &y, &width, &height );
@@ -481,7 +466,7 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_DrawRect( float x, float y, float width, float height, const float *color ) {
+void UI_DrawRect( float x, float y, float width, float height, const vector4 *color ) {
 	uii.R_SetColor( color );
 
   UI_DrawTopBottom(x, y, width, height);
@@ -490,7 +475,7 @@ void UI_DrawRect( float x, float y, float width, float height, const float *colo
 	uii.R_SetColor( NULL );
 }
 
-void UI_SetColor( const float *rgba ) {
+void UI_SetColor( const vector4 *rgba ) {
 	uii.R_SetColor( rgba );
 }
 
@@ -501,8 +486,8 @@ void UI_UpdateScreen( void ) {
 
 void UI_DrawTextBox (int x, int y, int width, int lines)
 {
-	UI_FillRect( x + BIGCHAR_WIDTH/2, y + BIGCHAR_HEIGHT/2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorBlack );
-	UI_DrawRect( x + BIGCHAR_WIDTH/2, y + BIGCHAR_HEIGHT/2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorWhite );
+	UI_FillRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &colorBlack );
+	UI_DrawRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &colorWhite );
 }
 
 qboolean UI_CursorInRect (int x, int y, int width, int height)

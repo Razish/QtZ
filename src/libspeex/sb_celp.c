@@ -126,17 +126,17 @@ static const spx_word16_t fold_quant_bound[32] = {
 #else
 
 static const spx_word16_t gc_quant_bound[16] = {
-      0.97979, 1.28384, 1.68223, 2.20426, 2.88829, 3.78458, 4.95900, 6.49787, 
-      8.51428, 11.15642, 14.61846, 19.15484, 25.09895, 32.88761, 43.09325, 56.46588};
+      0.97979f, 1.28384f, 1.68223f, 2.20426f, 2.88829f, 3.78458f, 4.95900f, 6.49787f, 
+      8.51428f, 11.15642f, 14.61846f, 19.15484f, 25.09895f, 32.88761f, 43.09325f, 56.46588f};
 static const spx_word16_t fold_quant_bound[32] = {
-   0.30498, 0.34559, 0.39161, 0.44375, 0.50283, 0.56979, 0.64565, 0.73162,
-   0.82903, 0.93942, 1.06450, 1.20624, 1.36685, 1.54884, 1.75506, 1.98875,
-   2.25355, 2.55360, 2.89361, 3.27889, 3.71547, 4.21018, 4.77076, 5.40598,
-   6.12577, 6.94141, 7.86565, 8.91295, 10.09969, 11.44445, 12.96826, 14.69497};
+   0.30498f, 0.34559f, 0.39161f, 0.44375f, 0.50283f, 0.56979f, 0.64565f, 0.73162f,
+   0.82903f, 0.93942f, 1.06450f, 1.20624f, 1.36685f, 1.54884f, 1.75506f, 1.98875f,
+   2.25355f, 2.55360f, 2.89361f, 3.27889f, 3.71547f, 4.21018f, 4.77076f, 5.40598f,
+   6.12577f, 6.94141f, 7.86565f, 8.91295f, 10.09969f, 11.44445f, 12.96826f, 14.69497f};
 
-#define LSP_MARGIN .05
-#define LSP_DELTA1 .2
-#define LSP_DELTA2 .05
+#define LSP_MARGIN .05f
+#define LSP_DELTA1 .2f
+#define LSP_DELTA2 .05f
 
 #endif
 
@@ -432,11 +432,11 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
          if (st->abr_drift2 * st->abr_drift > 0)
          {
             /* Only adapt if long-term and short-term drift are the same sign */
-            qual_change = -.00001*st->abr_drift/(1+st->abr_count);
-            if (qual_change>.1)
-               qual_change=.1;
-            if (qual_change<-.1)
-               qual_change=-.1;
+            qual_change = -.00001f*st->abr_drift/(1+st->abr_count);
+            if (qual_change>.1f)
+               qual_change=.1f;
+            if (qual_change<-.1f)
+               qual_change=-.1f;
          }
          st->vbr_quality += qual_change;
          if (st->vbr_quality>10)
@@ -446,7 +446,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
       }
 
 
-      ratio = 2*log((1.f+e_high)/(1.f+e_low));
+      ratio = 2*logf((1.f+e_high)/(1.f+e_low));
       
       speex_encoder_ctl(st->st_low, SPEEX_GET_RELATIVE_QUALITY, &st->relative_quality);
       if (ratio<-4)
@@ -458,7 +458,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
       {
          spx_int32_t modeid;
          modeid = mode->nb_modes-1;
-         st->relative_quality+=1.0*(ratio+2);
+         st->relative_quality+=1.0f*(ratio+2);
 	 if (st->relative_quality<-1)
             st->relative_quality=-1;
          while (modeid)
@@ -481,8 +481,8 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
             spx_int32_t bitrate;
             speex_encoder_ctl(state, SPEEX_GET_BITRATE, &bitrate);
             st->abr_drift+=(bitrate-st->abr_enabled);
-            st->abr_drift2 = .95*st->abr_drift2 + .05*(bitrate-st->abr_enabled);
-            st->abr_count += 1.0;
+            st->abr_drift2 = .95f*st->abr_drift2 + .05f*(bitrate-st->abr_enabled);
+            st->abr_count += 1.0f;
          }
 
       } else {
@@ -589,7 +589,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
 #ifdef FIXED_POINT
       filter_ratio=EXTRACT16(SATURATE(PDIV32(SHL32(ADD32(rl,82),7),ADD32(82,rh)),32767));
 #else
-      filter_ratio=(rl+.01)/(rh+.01);
+      filter_ratio=(rl+.01f)/(rh+.01f);
 #endif
       
       /* Compute "real excitation" */
@@ -653,7 +653,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
          {
             int qgc = scal_quant(gc, gc_quant_bound, 16);
             speex_bits_pack(bits, qgc, 4);
-            gc = MULT16_16_Q15(QCONST16(0.87360,15),gc_quant_bound[qgc]);
+            gc = MULT16_16_Q15(QCONST16(0.87360f,15),gc_quant_bound[qgc]);
          }
          if (st->subframeSize==80)
             gc = MULT16_16_P14(QCONST16(1.4142f,14), gc);
@@ -1019,7 +1019,7 @@ int sb_decode(void *state, SpeexBits *bits, void *vout)
 #ifdef FIXED_POINT
          filter_ratio=EXTRACT16(SATURATE(PDIV32(SHL32(ADD32(rl,82),7),ADD32(82,rh)),32767));
 #else
-         filter_ratio=(rl+.01)/(rh+.01);
+         filter_ratio=(rl+.01f)/(rh+.01f);
 #endif
       
       SPEEX_MEMSET(exc, 0, st->subframeSize);
@@ -1045,7 +1045,7 @@ int sb_decode(void *state, SpeexBits *bits, void *vout)
          int qgc = speex_bits_unpack_unsigned(bits, 4);
          
          el = low_exc_rms[sub];
-         gc = MULT16_16_Q15(QCONST16(0.87360,15),gc_quant_bound[qgc]);
+         gc = MULT16_16_Q15(QCONST16(0.87360f,15),gc_quant_bound[qgc]);
 
          if (st->subframeSize==80)
             gc = MULT16_16_P14(QCONST16(1.4142f,14),gc);
@@ -1145,11 +1145,11 @@ int sb_encoder_ctl(void *state, int request, void *ptr)
    case SPEEX_SET_VBR_QUALITY:
       {
          spx_int32_t q;
-         float qual = (*(float*)ptr)+.6;
+         float qual = (*(float*)ptr)+.6f;
          st->vbr_quality = (*(float*)ptr);
          if (qual>10)
             qual=10;
-         q=(int)floor(.5+*(float*)ptr);
+         q=(int)floor(.5f+*(float*)ptr);
          if (q>10)
             q=10;
          speex_encoder_ctl(st->st_low, SPEEX_SET_VBR_QUALITY, &qual);
@@ -1178,7 +1178,7 @@ int sb_encoder_ctl(void *state, int request, void *ptr)
                break;
             i--;
          }
-         vbr_qual=i;
+         vbr_qual=(float)i;
          if (vbr_qual<0)
             vbr_qual=0;
          speex_encoder_ctl(st, SPEEX_SET_VBR_QUALITY, &vbr_qual);

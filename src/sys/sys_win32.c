@@ -68,7 +68,7 @@ Set FPU control word to default value
 #define FPUCWMASK1 (_MCW_RC | _MCW_EM)
 #define FPUCW (_RC_NEAR | _MCW_EM | _PC_53)
 
-#if idx64
+#ifdef idx64
 #define FPUCWMASK	(FPUCWMASK1)
 #else
 #define FPUCWMASK	(FPUCWMASK1 | _MCW_PC)
@@ -590,7 +590,7 @@ void Sys_ErrorDialog( const char *error )
 
 			while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
 			{
-				Com_Memcpy( p, buffer, size );
+				memcpy( p, buffer, size );
 				p += size;
 			}
 
@@ -669,22 +669,9 @@ Windows specific GL implementation initialisation
 void Sys_GLimpInit( void )
 {
 #ifndef DEDICATED
-	if( !SDL_VIDEODRIVER_externallySet )
-	{
-		// It's a little bit weird having in_mouse control the
-		// video driver, but from ioq3's point of view they're
-		// virtually the same except for the mouse input anyway
-		if( Cvar_VariableIntegerValue( "in_mouse" ) == -1 )
-		{
-			// Use the windib SDL backend, which is closest to
-			// the behaviour of idq3 with in_mouse set to -1
-			_putenv( "SDL_VIDEODRIVER=windib" );
-		}
-		else
-		{
-			// Use the DirectX SDL backend
-			_putenv( "SDL_VIDEODRIVER=directx" );
-		}
+	if ( !SDL_VIDEODRIVER_externallySet ) {
+		// Use the windib SDL backend, which is closest to the behaviour of idq3 with in_mouse set to -1
+		_putenv( "SDL_VIDEODRIVER=windib" );
 	}
 #endif
 }
@@ -708,8 +695,7 @@ void Sys_PlatformInit( void )
 #ifndef DEDICATED
 	if( SDL_VIDEODRIVER )
 	{
-		Com_Printf( "SDL_VIDEODRIVER is externally set to \"%s\", "
-				"in_mouse -1 will have no effect\n", SDL_VIDEODRIVER );
+		Com_Printf( "SDL_VIDEODRIVER is externally set to \"%s\"\n", SDL_VIDEODRIVER );
 		SDL_VIDEODRIVER_externallySet = qtrue;
 	}
 	else
@@ -721,8 +707,7 @@ void Sys_PlatformInit( void )
 
 		if(timerResolution > 1)
 		{
-			Com_Printf("Warning: Minimum supported timer resolution is %ums "
-				"on this system, recommended resolution 1ms\n", timerResolution);
+			Com_Printf("Warning: Minimum supported timer resolution is %ums on this system, recommended resolution 1ms\n", timerResolution);
 		}
 		
 		timeBeginPeriod(timerResolution);				
@@ -754,12 +739,11 @@ Sys_SetEnv
 set/unset environment variables (empty value removes it)
 ==============
 */
-void Sys_SetEnv(const char *name, const char *value)
-{
-	if(value)
-		_putenv(va("%s=%s", name, value));
+void Sys_SetEnv( const char *name, const char *value ) {
+	if ( value )
+		_putenv( va( "%s=%s", name, value ) );
 	else
-		_putenv(va("%s=", name));
+		_putenv( va( "%s=", name ) );
 }
 
 /*
@@ -767,9 +751,8 @@ void Sys_SetEnv(const char *name, const char *value)
 Sys_PID
 ==============
 */
-int Sys_PID( void )
-{
-	return GetCurrentProcessId( );
+int Sys_PID( void ) {
+	return GetCurrentProcessId();
 }
 
 /*
@@ -781,7 +764,7 @@ qboolean Sys_PIDIsRunning( unsigned int pid )
 {
 	DWORD processes[ 1024 ];
 	DWORD numBytes, numProcesses;
-	int i;
+	unsigned int i;
 
 	if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
 		return qfalse; // Assume it's not running

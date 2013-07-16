@@ -50,7 +50,7 @@ typedef struct {
 
 	int		times[NUM_CON_TIMES];	// cls.realtime time the line was generated
 								// for transparent notify lines
-	vec4_t	color;
+	vector4	color;
 } console_t;
 
 extern	console_t	con;
@@ -247,7 +247,7 @@ void Con_CheckResize (void)
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	short	tbuf[CON_TEXTSIZE];
 
-	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
+	width = ((int)SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
 
 	if (width == con.linewidth)
 		return;
@@ -276,7 +276,7 @@ void Con_CheckResize (void)
 		if (con.linewidth < numchars)
 			numchars = con.linewidth;
 
-		Com_Memcpy (tbuf, con.text, CON_TEXTSIZE * sizeof(short));
+		memcpy (tbuf, con.text, CON_TEXTSIZE * sizeof(short));
 		for(i=0; i<CON_TEXTSIZE; i++)
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 
@@ -305,7 +305,13 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "txt", qfalse, qtrue );
+		int i;
+		char *s=args, *token=s;
+
+		for ( i=0; i<argNum; i++ )
+			s = COM_Parse( &token );
+
+		Field_CompleteFilename( "", s, "txt", qfalse, qtrue );
 	}
 }
 
@@ -410,7 +416,7 @@ void CL_ConsolePrint( char *txt ) {
 	}
 	
 	if (!con.initialized) {
-		MAKERGBA( con.color, 1.0f, 0.788f, 0.054f, 0.8f );
+		VectorSet4( &con.color, 1.0f, 0.788f, 0.054f, 0.8f );
 		con.linewidth = -1;
 		Con_CheckResize ();
 		con.initialized = qtrue;
@@ -501,11 +507,11 @@ void Con_DrawInput (void) {
 
 	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
 
-	re.SetColor( con.color );
+	re.SetColor( &con.color );
 
-	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, CONSOLE_PROMPT_CHAR );
+	SCR_DrawSmallChar( (int)con.xadjust + 1 * SMALLCHAR_WIDTH, y, CONSOLE_PROMPT_CHAR );
 
-	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue, con.color );
+	Field_Draw( &g_consoleField, (int)con.xadjust + 2 * SMALLCHAR_WIDTH, y, (int)SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue, &con.color );
 }
 
 
@@ -526,7 +532,7 @@ void Con_DrawNotify (void)
 	int		currentColor;
 
 	currentColor = 7;
-	re.SetColor( g_color_table[currentColor] );
+	re.SetColor( &g_color_table[currentColor] );
 
 	v = 0;
 	for (i= con.current-NUM_CON_TIMES+1 ; i<=con.current ; i++)
@@ -551,9 +557,9 @@ void Con_DrawNotify (void)
 			}
 			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
 				currentColor = (text[x]>>8)&Q_COLORBITS;
-				re.SetColor( g_color_table[currentColor] );
+				re.SetColor( &g_color_table[currentColor] );
 			}
-			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
+			SCR_DrawSmallChar( cl_conXOffset->integer + (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
 		}
 
 		v += SMALLCHAR_HEIGHT;
@@ -561,26 +567,23 @@ void Con_DrawNotify (void)
 
 	re.SetColor( NULL );
 
-	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) )
 		return;
-	}
 
 	// draw the chat line
 	//QTZTODO: Redo the chatbox and such
-	if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE )
+	if ( Key_GetCatcher() & KEYCATCH_MESSAGE )
 	{
-		if (chat_team)
-		{
-			SCR_DrawBigString (8, v, "say_team:", 1.0f, qfalse );
+		if ( chat_team ) {
+			SCR_DrawBigString( 8, v, "say_team:", 1.0f, qfalse );
 			skip = 10;
 		}
-		else
-		{
-			SCR_DrawBigString (8, v, "say:", 1.0f, qfalse );
+		else {
+			SCR_DrawBigString( 8, v, "say:", 1.0f, qfalse );
 			skip = 5;
 		}
 
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue, NULL );
+		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, (int)SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue, NULL );
 
 		v += BIGCHAR_HEIGHT;
 	}
@@ -602,9 +605,9 @@ void Con_DrawSolidConsole( float frac ) {
 	int				lines;
 //	qhandle_t		conShader;
 	int				currentColor;
-	vec4_t			color = { 1.0f, 0.788f, 0.054f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
+	vector4			color = { 1.0f, 0.788f, 0.054f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 
-	lines = cls.glconfig.vidHeight * frac;
+	lines = (int)(cls.glconfig.vidHeight * frac);
 	if (lines <= 0)
 		return;
 
@@ -616,27 +619,25 @@ void Con_DrawSolidConsole( float frac ) {
 	SCR_AdjustFrom640( &con.xadjust, NULL, NULL, NULL );
 
 	// draw the background
-	y = frac * SCREEN_HEIGHT;
-	if ( y < 1 ) {
+	y = (int)(frac * SCREEN_HEIGHT);
+	if ( y < 1 )
 		y = 0;
-	}
-	else {
-		SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
-	}
+	else
+		SCR_DrawPic( 0.0f, 0.0f, SCREEN_WIDTH, (float)y, cls.consoleShader );
 
-	SCR_FillRect( 0, y, SCREEN_WIDTH, 3, shadowColour );
-	SCR_FillRect( 0, y+1, SCREEN_WIDTH, 1, color );
+	SCR_FillRect( 0.0f, (float)y, SCREEN_WIDTH, 3.0f, &shadowColour );
+	SCR_FillRect( 0.0f, (float)y+1, SCREEN_WIDTH, 1.0f, &color );
 
 
 	// draw the version number
 	i = strlen( QTZ_VERSION );
 
-	re.SetColor( shadowColour );
+	re.SetColor( &shadowColour );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( (cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f)+1.0f, (lines - SMALLCHAR_HEIGHT*1.3f)+1.0f, QTZ_VERSION[x], 1.125f );
-	re.SetColor( color );
+		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, QTZ_VERSION[x], 1.125f );
+	re.SetColor( &color );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f, lines - SMALLCHAR_HEIGHT*1.3f, QTZ_VERSION[x], 1.125f );
+		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f), (int)(lines - SMALLCHAR_HEIGHT*1.3f), QTZ_VERSION[x], 1.125f );
 
 
 	// draw the text
@@ -647,11 +648,10 @@ void Con_DrawSolidConsole( float frac ) {
 
 	// draw from the bottom up
 	if (con.display != con.current)
-	{
-	// draw arrows to show the buffer is backscrolled
-		re.SetColor( g_color_table[ColorIndex(COLOR_RED)] );
+	{// draw arrows to show the buffer is backscrolled
+		re.SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
 		for (x=0 ; x<con.linewidth ; x+=4)
-			SCR_DrawSmallChar( con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, '^' );
+			SCR_DrawSmallChar( (int)(con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, '^' );
 		y -= SMALLCHAR_HEIGHT;
 		rows--;
 	}
@@ -663,7 +663,7 @@ void Con_DrawSolidConsole( float frac ) {
 	}
 
 	currentColor = 7;
-	re.SetColor( g_color_table[currentColor] );
+	re.SetColor( &g_color_table[currentColor] );
 
 	for (i=0 ; i<rows ; i++, y -= SMALLCHAR_HEIGHT, row--)
 	{
@@ -681,11 +681,11 @@ void Con_DrawSolidConsole( float frac ) {
 				continue;
 			}
 
-			if ( ( (text[x]>>8)&7 ) != currentColor ) {
-				currentColor = (text[x]>>8)&7;
-				re.SetColor( g_color_table[currentColor] );
+			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
+				currentColor = (text[x]>>8)&Q_COLORBITS;
+				re.SetColor( &g_color_table[currentColor] );
 			}
-			SCR_DrawSmallChar(  con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff );
+			SCR_DrawSmallChar( (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff );
 		}
 	}
 
@@ -743,14 +743,14 @@ void Con_RunConsole (void) {
 	// scroll towards the destination height
 	if (con.finalFrac < con.displayFrac)
 	{
-		con.displayFrac -= con_conspeed->value*cls.realFrametime*0.001;
+		con.displayFrac -= con_conspeed->value*cls.realFrametime*0.001f;
 		if (con.finalFrac > con.displayFrac)
 			con.displayFrac = con.finalFrac;
 
 	}
 	else if (con.finalFrac > con.displayFrac)
 	{
-		con.displayFrac += con_conspeed->value*cls.realFrametime*0.001;
+		con.displayFrac += con_conspeed->value*cls.realFrametime*0.001f;
 		if (con.finalFrac < con.displayFrac)
 			con.displayFrac = con.finalFrac;
 	}

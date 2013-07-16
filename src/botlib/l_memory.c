@@ -136,7 +136,7 @@ void *GetClearedMemory(unsigned long size)
 #else
 	ptr = GetMemory(size);
 #endif //MEMDEBUG
-	Com_Memset(ptr, 0, size);
+	memset(ptr, 0, size);
 	return ptr;
 } //end of the function GetClearedMemory
 //===========================================================================
@@ -188,7 +188,7 @@ void *GetClearedHunkMemory(unsigned long size)
 #else
 	ptr = GetHunkMemory(size);
 #endif //MEMDEBUG
-	Com_Memset(ptr, 0, size);
+	memset(ptr, 0, size);
 	return ptr;
 } //end of the function GetClearedHunkMemory
 //===========================================================================
@@ -370,7 +370,7 @@ void *GetClearedMemory(unsigned long size)
 #else
 	ptr = GetMemory(size);
 #endif //MEMDEBUG
-	Com_Memset(ptr, 0, size);
+	memset(ptr, 0, size);
 	return ptr;
 } //end of the function GetClearedMemory
 //===========================================================================
@@ -412,7 +412,7 @@ void *GetClearedHunkMemory(unsigned long size)
 #else
 	ptr = GetHunkMemory(size);
 #endif //MEMDEBUG
-	Com_Memset(ptr, 0, size);
+	memset(ptr, 0, size);
 	return ptr;
 } //end of the function GetClearedHunkMemory
 //===========================================================================

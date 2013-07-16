@@ -381,13 +381,13 @@ void EA_MoveRight(int client)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void EA_Move(int client, vec3_t dir, float speed)
+void EA_Move(int client, vector3 *dir, float speed)
 {
 	bot_input_t *bi;
 
 	bi = &botinputs[client];
 
-	VectorCopy(dir, bi->dir);
+	VectorCopy(dir, &bi->dir);
 	//cap speed
 	if (speed > MAX_USERMOVE) speed = MAX_USERMOVE;
 	else if (speed < -MAX_USERMOVE) speed = -MAX_USERMOVE;
@@ -399,13 +399,13 @@ void EA_Move(int client, vec3_t dir, float speed)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void EA_View(int client, vec3_t viewangles)
+void EA_View(int client, vector3 *viewangles)
 {
 	bot_input_t *bi;
 
 	bi = &botinputs[client];
 
-	VectorCopy(viewangles, bi->viewangles);
+	VectorCopy(viewangles, &bi->viewangles);
 } //end of the function EA_View
 //===========================================================================
 //
@@ -428,7 +428,7 @@ void EA_GetInput(int client, float thinktime, bot_input_t *input)
 
 	bi = &botinputs[client];
 	bi->thinktime = thinktime;
-	Com_Memcpy(input, bi, sizeof(bot_input_t));
+	memcpy(input, bi, sizeof(bot_input_t));
 } //end of the function EA_GetInput
 //===========================================================================
 //
@@ -444,7 +444,7 @@ void EA_ResetInput(int client)
 	bi = &botinputs[client];
 
 	bi->thinktime = 0;
-	VectorClear(bi->dir);
+	VectorClear(&bi->dir);
 	bi->speed = 0;
 	jumped = bi->actionflags & ACTION_JUMP;
 	bi->actionflags = 0;

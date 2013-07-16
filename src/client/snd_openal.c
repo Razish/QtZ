@@ -543,7 +543,7 @@ typedef struct src_s
 	
 	float		lastTimePos;		// On stopped loops, the last position in the buffer
 	int		lastSampleTime;		// Time when this was stopped
-	vec3_t		loopSpeakerPos;		// Origin of the loop speaker
+	vector3		loopSpeakerPos;		// Origin of the loop speaker
 	
 	qboolean	local;			// Is this local (relative to the cam)
 } src_t;
@@ -558,19 +558,18 @@ static int srcCount = 0;
 static int srcActiveCnt = 0;
 static qboolean alSourcesInitialised = qfalse;
 static int lastListenerNumber = -1;
-static vec3_t lastListenerOrigin = { 0.0f, 0.0f, 0.0f };
+static vector3 lastListenerOrigin = { 0.0f, 0.0f, 0.0f };
 
-typedef struct sentity_s
-{
-	vec3_t					origin;
+typedef struct sentity_s {
+	vector3				origin;
 
-	qboolean						srcAllocated; // If a src_t has been allocated to this entity
-	int							srcIndex;
+	qboolean			srcAllocated; // If a src_t has been allocated to this entity
+	int					srcIndex;
 
-	qboolean				loopAddedThisFrame;
-	alSrcPriority_t	loopPriority;
+	qboolean			loopAddedThisFrame;
+	alSrcPriority_t		loopPriority;
 	sfxHandle_t			loopSfx;
-	qboolean				startLoopingSound;
+	qboolean			startLoopingSound;
 } sentity_t;
 
 static sentity_t entityList[MAX_GENTITIES];
@@ -581,12 +580,10 @@ S_AL_SanitiseVector
 =================
 */
 #define S_AL_SanitiseVector(v) _S_AL_SanitiseVector(v,__LINE__)
-static void _S_AL_SanitiseVector( vec3_t v, int line )
+static void _S_AL_SanitiseVector( vector3 *v, int line )
 {
-	if( Q_isnan( v[ 0 ] ) || Q_isnan( v[ 1 ] ) || Q_isnan( v[ 2 ] ) )
-	{
-		Com_DPrintf( S_COLOR_YELLOW "WARNING: vector with one or more NaN components "
-				"being passed to OpenAL at %s:%d -- zeroing\n", __FILE__, line );
+	if( Q_isnan( v->x ) || Q_isnan( v->y ) || Q_isnan( v->z ) ) {
+		Com_DPrintf( S_COLOR_YELLOW "WARNING: vector with one or more NaN components being passed to OpenAL at %s:%d -- zeroing\n", __FILE__, line );
 		VectorClear( v );
 	}
 }
@@ -613,12 +610,12 @@ Adapt the gain if necessary to get a quicker fadeout when the source is too far 
 =================
 */
 
-static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
+static void S_AL_ScaleGain(src_t *chksrc, vector3 *origin)
 {
 	float distance;
 	
 	if(!chksrc->local)
-		distance = Distance(origin, lastListenerOrigin);
+		distance = Distance(origin, &lastListenerOrigin);
 		
 	// If we exceed a certain distance, scale the gain linearly until the sound
 	// vanishes into nothingness.
@@ -666,8 +663,8 @@ static qboolean S_AL_HearingThroughEntity( int entityNum )
 		// compatibility. I don't think there is any way around this, but I'll leave
 		// the FIXME just in case anyone has a bright idea.
 		distanceSq = DistanceSquared(
-				entityList[ entityNum ].origin,
-				lastListenerOrigin );
+				&entityList[ entityNum ].origin,
+				&lastListenerOrigin );
 
 		if( distanceSq > THIRD_PERSON_THRESHOLD_SQ )
 			return qfalse; //we're the player, but third person
@@ -788,8 +785,8 @@ static void S_AL_SrcSetup(srcHandle_t src, sfxHandle_t sfx, alSrcPriority_t prio
 
 	qalSourcef(curSource->alSource, AL_PITCH, 1.0f);
 	S_AL_Gain(curSource->alSource, curSource->curGain);
-	qalSourcefv(curSource->alSource, AL_POSITION, vec3_origin);
-	qalSourcefv(curSource->alSource, AL_VELOCITY, vec3_origin);
+	qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *)&vec3_origin);
+	qalSourcefv(curSource->alSource, AL_VELOCITY, (ALfloat *)&vec3_origin);
 	qalSourcei(curSource->alSource, AL_LOOPING, AL_FALSE);
 	qalSourcef(curSource->alSource, AL_REFERENCE_DISTANCE, s_alMinDistance->value);
 
@@ -1132,15 +1129,15 @@ S_AL_UpdateEntityPosition
 =================
 */
 static
-void S_AL_UpdateEntityPosition( int entityNum, const vec3_t origin )
+void S_AL_UpdateEntityPosition( int entityNum, const vector3 *origin )
 {
-	vec3_t sanOrigin;
+	vector3 sanOrigin;
 
-	VectorCopy( origin, sanOrigin );
-	S_AL_SanitiseVector( sanOrigin );
+	VectorCopy( origin, &sanOrigin );
+	S_AL_SanitiseVector( &sanOrigin );
 	if ( entityNum < 0 || entityNum >= MAX_GENTITIES )
 		Com_Error( ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum );
-	VectorCopy( sanOrigin, entityList[entityNum].origin );
+	VectorCopy( &sanOrigin, &entityList[entityNum].origin );
 }
 
 /*
@@ -1200,9 +1197,9 @@ S_AL_StartSound
 Play a one-shot sound effect
 =================
 */
-static void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx )
+static void S_AL_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx )
 {
-	vec3_t sorigin;
+	vector3 sorigin;
 	srcHandle_t src;
 	src_t *curSource;
 
@@ -1211,7 +1208,7 @@ static void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandl
 		if(S_AL_CheckInput(0, sfx))
 			return;
 		
-		VectorCopy(origin, sorigin);
+		VectorCopy(origin, &sorigin);
 	}
 	else
 	{
@@ -1224,13 +1221,13 @@ static void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandl
 			return;
 		}
 		
-		VectorCopy(entityList[entnum].origin, sorigin);
+		VectorCopy(&entityList[entnum].origin, &sorigin);
 	}
 	
-	S_AL_SanitiseVector(sorigin);
+	S_AL_SanitiseVector(&sorigin);
 	
 	if((srcActiveCnt > 5 * srcCount / 3) &&
-		(DistanceSquared(sorigin, lastListenerOrigin) >=
+		(DistanceSquared(&sorigin, &lastListenerOrigin) >=
 		(s_alMaxDistance->value + s_alGraceDistance->value) * (s_alMaxDistance->value + s_alGraceDistance->value)))
 	{
 		// We're getting tight on sources and source is not within hearing distance so don't add it
@@ -1249,8 +1246,8 @@ static void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandl
 	if(!origin)
 		curSource->isTracking = qtrue;
 		
-	qalSourcefv(curSource->alSource, AL_POSITION, sorigin );
-	S_AL_ScaleGain(curSource, sorigin);
+	qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *)&sorigin );
+	S_AL_ScaleGain(curSource, &sorigin);
 
 	// Start it playing
 	curSource->isPlaying = qtrue;
@@ -1278,13 +1275,12 @@ void S_AL_ClearLoopingSounds( qboolean killall )
 S_AL_SrcLoop
 =================
 */
-static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx,
-		const vec3_t origin, const vec3_t velocity, int entityNum )
+static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vector3 *origin, const vector3 *velocity, int entityNum )
 {
 	int				src;
 	sentity_t	*sent = &entityList[ entityNum ];
 	src_t		*curSource;
-	vec3_t		sorigin, svelocity;
+	vector3		sorigin, svelocity;
 
 	if(S_AL_CheckInput(entityNum, sfx))
 		return;
@@ -1334,34 +1330,34 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx,
 	{
 		curSource->local = qtrue;
 
-		VectorClear(sorigin);
+		VectorClear(&sorigin);
 
-		qalSourcefv(curSource->alSource, AL_POSITION, sorigin);
-		qalSourcefv(curSource->alSource, AL_VELOCITY, vec3_origin);
+		qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *)&sorigin);
+		qalSourcefv(curSource->alSource, AL_VELOCITY, (ALfloat *)&vec3_origin);
 	}
 	else
 	{
 		curSource->local = qfalse;
 
 		if(origin)
-			VectorCopy(origin, sorigin);
+			VectorCopy(origin, &sorigin);
 		else
-			VectorCopy(sent->origin, sorigin);
+			VectorCopy(&sent->origin, &sorigin);
 
-		S_AL_SanitiseVector(sorigin);
+		S_AL_SanitiseVector(&sorigin);
 		
-		VectorCopy(sorigin, curSource->loopSpeakerPos);
+		VectorCopy(&sorigin, &curSource->loopSpeakerPos);
 		
 		if(velocity)
 		{
-			VectorCopy(velocity, svelocity);
-			S_AL_SanitiseVector(svelocity);
+			VectorCopy(velocity, &svelocity);
+			S_AL_SanitiseVector(&svelocity);
 		}
 		else
-			VectorClear(svelocity);
+			VectorClear(&svelocity);
 
-		qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *) sorigin);
-		qalSourcefv(curSource->alSource, AL_VELOCITY, (ALfloat *) svelocity);
+		qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *) &sorigin);
+		qalSourcefv(curSource->alSource, AL_VELOCITY, (ALfloat *) &svelocity);
 	}
 }
 
@@ -1370,7 +1366,7 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx,
 S_AL_AddLoopingSound
 =================
 */
-static void S_AL_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx)
+static void S_AL_AddLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx)
 {
 	S_AL_SrcLoop(SRCPRI_ENTITY, sfx, origin, velocity, entityNum);
 }
@@ -1380,7 +1376,7 @@ static void S_AL_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_
 S_AL_AddRealLoopingSound
 =================
 */
-static void S_AL_AddRealLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx)
+static void S_AL_AddRealLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx)
 {
 	S_AL_SrcLoop(SRCPRI_AMBIENT, sfx, origin, velocity, entityNum);
 }
@@ -1465,7 +1461,7 @@ void S_AL_SrcUpdate( void )
 				
 				curSfx = &knownSfx[curSource->sfx];
 
-				S_AL_ScaleGain(curSource, curSource->loopSpeakerPos);
+				S_AL_ScaleGain(curSource, &curSource->loopSpeakerPos);
 				if(!curSource->scaleGain)
 				{
 					if(curSource->isPlaying)
@@ -1592,8 +1588,8 @@ void S_AL_SrcUpdate( void )
 		// See if it needs to be moved
 		if(curSource->isTracking && !state)
 		{
-			qalSourcefv(curSource->alSource, AL_POSITION, entityList[entityNum].origin);
- 			S_AL_ScaleGain(curSource, entityList[entityNum].origin);
+			qalSourcefv(curSource->alSource, AL_POSITION, (ALfloat *)&entityList[entityNum].origin);
+ 			S_AL_ScaleGain(curSource, &entityList[entityNum].origin);
 		}
 	}
 }
@@ -2153,27 +2149,27 @@ S_AL_Respatialize
 =================
 */
 static
-void S_AL_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater )
+void S_AL_Respatialize( int entityNum, const vector3 *origin, vector3 axis[3], int inwater )
 {
 	float		orientation[6];
-	vec3_t	sorigin;
+	vector3	sorigin;
 
-	VectorCopy( origin, sorigin );
-	S_AL_SanitiseVector( sorigin );
+	VectorCopy( origin, &sorigin );
+	S_AL_SanitiseVector( &sorigin );
 
-	S_AL_SanitiseVector( axis[ 0 ] );
-	S_AL_SanitiseVector( axis[ 1 ] );
-	S_AL_SanitiseVector( axis[ 2 ] );
+	S_AL_SanitiseVector( &axis[ 0 ] );
+	S_AL_SanitiseVector( &axis[ 1 ] );
+	S_AL_SanitiseVector( &axis[ 2 ] );
 
-	orientation[0] = axis[0][0]; orientation[1] = axis[0][1]; orientation[2] = axis[0][2];
-	orientation[3] = axis[2][0]; orientation[4] = axis[2][1]; orientation[5] = axis[2][2];
+	orientation[0] = axis[0].x; orientation[1] = axis[0].y; orientation[2] = axis[0].z;
+	orientation[3] = axis[2].x; orientation[4] = axis[2].y; orientation[5] = axis[2].z;
 
 	lastListenerNumber = entityNum;
-	VectorCopy( sorigin, lastListenerOrigin );
+	VectorCopy( &sorigin, &lastListenerOrigin );
 
 	// Set OpenAL listener paramaters
-	qalListenerfv(AL_POSITION, (ALfloat *)sorigin);
-	qalListenerfv(AL_VELOCITY, vec3_origin);
+	qalListenerfv(AL_POSITION, (ALfloat *)&sorigin);
+	qalListenerfv(AL_VELOCITY, (ALfloat *)&vec3_origin);
 	qalListenerfv(AL_ORIENTATION, orientation);
 }
 

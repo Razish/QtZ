@@ -8,11 +8,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qtz", "qtz.vcxproj", "{81CB
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ui", "ui\ui.vcxproj", "{A8EAC38E-C7DA-42F8-811D-77FD092B9D19}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rend2", "rend2\rend2.vcxproj", "{AB2C1B36-532F-469B-BBD4-FA8C933BD002}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rd-vanilla", "rd-vanilla\rd-vanilla.vcxproj", "{518BD884-C233-4B86-ACEA-79534A3CEC01}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rend1", "rend1\rend1.vcxproj", "{518BD884-C233-4B86-ACEA-79534A3CEC01}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rend3", "rend3\rend3.vcxproj", "{081713E3-7DFA-4723-A838-03303F3B0C06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rd-rust", "rd-rust\rd-rust.vcxproj", "{081713E3-7DFA-4723-A838-03303F3B0C06}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "server\server.vcxproj", "{92435E34-06A0-4A23-847A-FB2EB61BC0ED}"
 EndProject
@@ -70,7 +68,6 @@ Global
 		{081713E3-7DFA-4723-A838-03303F3B0C06}.Debug|Win32.Build.0 = Debug|Win32
 		{081713E3-7DFA-4723-A838-03303F3B0C06}.Debug|x64.ActiveCfg = Debug|Win32
 		{081713E3-7DFA-4723-A838-03303F3B0C06}.Release|Win32.ActiveCfg = Release|Win32
-		{081713E3-7DFA-4723-A838-03303F3B0C06}.Release|Win32.Build.0 = Release|Win32
 		{081713E3-7DFA-4723-A838-03303F3B0C06}.Release|x64.ActiveCfg = Release|Win32
 		{92435E34-06A0-4A23-847A-FB2EB61BC0ED}.Debug|Win32.ActiveCfg = Debug|Win32
 		{92435E34-06A0-4A23-847A-FB2EB61BC0ED}.Debug|Win32.Build.0 = Debug|Win32

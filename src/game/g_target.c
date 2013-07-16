@@ -96,20 +96,19 @@ void Think_Target_Delay( gentity_t *ent ) {
 }
 
 void Use_Target_Delay( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	ent->nextthink = level.time + ( ent->wait + ent->random * crandom() ) * 1000;
+	ent->nextthink = level.time + (int)(( ent->wait + ent->random * crandom() ) * 1000);
 	ent->think = Think_Target_Delay;
 	ent->activator = activator;
 }
 
 void SP_target_delay( gentity_t *ent ) {
 	// check delay for backwards compatability
-	if ( !G_SpawnFloat( "delay", "0", &ent->wait ) ) {
+	if ( !G_SpawnFloat( "delay", "0", &ent->wait ) )
 		G_SpawnFloat( "wait", "1", &ent->wait );
-	}
 
-	if ( !ent->wait ) {
+	if ( !ent->wait )
 		ent->wait = 1;
-	}
+
 	ent->use = Use_Target_Delay;
 }
 
@@ -122,7 +121,7 @@ void SP_target_delay( gentity_t *ent ) {
 The activator is given this many points.
 */
 void Use_Target_Score (gentity_t *ent, gentity_t *other, gentity_t *activator) {
-	AddScore( activator, ent->r.currentOrigin, ent->count );
+	AddScore( activator, &ent->r.currentOrigin, ent->count );
 }
 
 void SP_target_score( gentity_t *ent ) {
@@ -203,7 +202,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( !G_SpawnString( "noise", "NOSOUND", &s ) ) {
-		G_Error( "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
+		G_Error( "target_speaker without a noise key at %s", vtos( &ent->s.origin ) );
 	}
 
 	// force all client relative sounds to be "activator" speakers that
@@ -222,8 +221,8 @@ void SP_target_speaker( gentity_t *ent ) {
 	// a repeating speaker can be done completely client side
 	ent->s.eType = ET_SPEAKER;
 	ent->s.eventParm = ent->noise_index;
-	ent->s.frame = ent->wait * 10;
-	ent->s.clientNum = ent->random * 10;
+	ent->s.frame = (int)(ent->wait * 10);
+	ent->s.clientNum = (int)(ent->random * 10);
 
 
 	// check for prestarted looping sound
@@ -237,7 +236,7 @@ void SP_target_speaker( gentity_t *ent ) {
 		ent->r.svFlags |= SVF_BROADCAST;
 	}
 
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( &ent->s.origin, &ent->s.pos.trBase );
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
@@ -252,33 +251,32 @@ void SP_target_speaker( gentity_t *ent ) {
 When triggered, fires a laser.  You can either set a target or a direction.
 */
 void target_laser_think (gentity_t *self) {
-	vec3_t	end;
+	vector3	end;
 	trace_t	tr;
-	vec3_t	point;
+	vector3	point;
 
 	// if pointed at another entity, set movedir to point at it
 	if ( self->enemy ) {
-		VectorMA (self->enemy->s.origin, 0.5, self->enemy->r.mins, point);
-		VectorMA (point, 0.5, self->enemy->r.maxs, point);
-		VectorSubtract (point, self->s.origin, self->movedir);
-		VectorNormalize (self->movedir);
+		VectorMA (&self->enemy->s.origin, 0.5, &self->enemy->r.mins, &point);
+		VectorMA (&point, 0.5, &self->enemy->r.maxs, &point);
+		VectorSubtract (&point, &self->s.origin, &self->movedir);
+		VectorNormalize (&self->movedir);
 	}
 
 	// fire forward and see what we hit
-	VectorMA (self->s.origin, 2048, self->movedir, end);
+	VectorMA (&self->s.origin, 2048, &self->movedir, &end);
 
-	gi.SV_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
+	gi.SV_Trace( &tr, &self->s.origin, NULL, NULL, &end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
-		G_Damage ( &g_entities[tr.entityNum], self, self->activator, NULL, self->movedir, 
-			tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER);
+		G_Damage ( &g_entities[tr.entityNum], self, self->activator, NULL, &self->movedir, &tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER);
 	}
 
-	VectorCopy (tr.endpos, self->s.origin2);
+	VectorCopy (&tr.endpos, &self->s.origin2);
 
 	gi.SV_LinkEntity( (sharedEntity_t *)self );
-	self->nextthink = level.time + (1000/sv_fps.integer);
+	self->nextthink = level.time + sv_frametime.integer;
 }
 
 void target_laser_on (gentity_t *self)
@@ -312,11 +310,11 @@ void target_laser_start (gentity_t *self)
 	if (self->target) {
 		ent = G_Find (NULL, FOFS(targetname), self->target);
 		if (!ent) {
-			G_Printf ("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+			G_Printf ("%s at %s: %s is a bad target\n", self->classname, vtos(&self->s.origin), self->target);
 		}
 		self->enemy = ent;
 	} else {
-		G_SetMovedir (self->s.angles, self->movedir);
+		G_SetMovedir (&self->s.angles, &self->movedir);
 	}
 
 	self->use = target_laser_use;
@@ -336,7 +334,7 @@ void SP_target_laser (gentity_t *self)
 {
 	// let everything else get spawned before we start firing
 	self->think = target_laser_start;
-	self->nextthink = level.time + (1000/sv_fps.integer);
+	self->nextthink = level.time + sv_frametime.integer;
 }
 
 
@@ -353,7 +351,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 		return;
 	}
 
-	TeleportPlayer( activator, dest->s.origin, dest->s.angles );
+	TeleportPlayer( activator, &dest->s.origin, &dest->s.angles );
 }
 
 /*QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
@@ -361,7 +359,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter( gentity_t *self ) {
 	if (!self->targetname)
-		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+		G_Printf("untargeted %s at %s\n", self->classname, vtos(&self->s.origin));
 
 	self->use = target_teleporter_use;
 }
@@ -417,7 +415,7 @@ void SP_target_kill( gentity_t *self ) {
 Used as a positional target for in-game calculation, like jumppad targets.
 */
 void SP_target_position( gentity_t *self ){
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, &self->s.origin );
 }
 
 static void target_location_linkup(gentity_t *ent)
@@ -462,6 +460,6 @@ void SP_target_location( gentity_t *self ){
 	self->think = target_location_linkup;
 	self->nextthink = level.time + 200;  // Let them all spawn first
 
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, &self->s.origin );
 }
 

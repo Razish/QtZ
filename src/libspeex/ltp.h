@@ -45,7 +45,7 @@ typedef struct {
 #ifdef FIXED_POINT
 #define gain_3tap_to_1tap(g) (ABS(g[1]) + (g[0]>0 ? g[0] : -SHR16(g[0],1)) + (g[2]>0 ? g[2] : -SHR16(g[2],1)))
 #else
-#define gain_3tap_to_1tap(g) (ABS(g[1]) + (g[0]>0 ? g[0] : -.5*g[0]) + (g[2]>0 ? g[2] : -.5*g[2]))
+#define gain_3tap_to_1tap(g) (ABS(g[1]) + (g[0]>0 ? g[0] : -.5f*g[0]) + (g[2]>0 ? g[2] : -.5f*g[2]))
 #endif
 
 spx_word32_t inner_prod(const spx_word16_t *x, const spx_word16_t *y, int len);

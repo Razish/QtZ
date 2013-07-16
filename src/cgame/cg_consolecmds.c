@@ -50,9 +50,7 @@ Debugging command to print the current position
 =============
 */
 static void CG_Viewpos_f (void) {
-	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
-		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
-		(int)cg.refdefViewAngles[YAW]);
+	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg.x, (int)cg.refdef.vieworg.y, (int)cg.refdef.vieworg.z, (int)cg.refdefViewAngles.yaw);
 }
 
 
@@ -133,7 +131,7 @@ static void CG_spWin_f( void) {
 	cgi.Cvar_Set("cg_thirdPersonRange", "100");
 	CG_AddBufferedSound(cgs.media.winnerSound);
 	//cgi.S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
-	CG_CenterPrint("YOU WIN!", SCREEN_HEIGHT * .30, 0);
+	CG_CenterPrint("YOU WIN!", (int)(SCREEN_HEIGHT * .30f), 0);
 }
 
 static void CG_spLose_f( void) {
@@ -144,7 +142,7 @@ static void CG_spLose_f( void) {
 	cgi.Cvar_Set("cg_thirdPersonRange", "100");
 	CG_AddBufferedSound(cgs.media.loserSound);
 	//cgi.S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
-	CG_CenterPrint("YOU LOSE...", SCREEN_HEIGHT * .30, 0);
+	CG_CenterPrint("YOU LOSE...", (int)(SCREEN_HEIGHT * .30f), 0);
 }
 
 
@@ -504,7 +502,6 @@ void CG_InitConsoleCommands( void ) {
 	cgi.AddCommand( "follow", NULL );
 	cgi.AddCommand( "follownext", NULL );
 	cgi.AddCommand( "followprev", NULL );
-	cgi.AddCommand( "levelshot", NULL );
 	cgi.AddCommand( "addbot", NULL );
 	cgi.AddCommand( "setviewpos", NULL );
 	cgi.AddCommand( "callvote", NULL );

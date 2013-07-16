@@ -34,7 +34,7 @@ Used to group brushes together just for editor convenience.  They are turned int
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
 void SP_info_camp( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, &self->s.origin );
 }
 
 
@@ -51,7 +51,7 @@ Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
 */
 void SP_info_notnull( gentity_t *self ){
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, &self->s.origin );
 }
 
 
@@ -76,15 +76,15 @@ TELEPORTERS
 =================================================================================
 */
 
-void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
+void TeleportPlayer( gentity_t *player, vector3 *origin, vector3 *angles ) {
 	gentity_t	*tent;
 	qboolean noAngles;
 
-	noAngles = (angles[0] > 999999.0);
+	noAngles = (angles->x > 999999.0);
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
+		tent = G_TempEntity( &player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = player->s.clientNum;
 
 		tent = G_TempEntity( origin, EV_PLAYER_TELEPORT_IN );
@@ -94,16 +94,21 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// unlink to make sure it can't possibly interfere with G_KillBox
 	gi.SV_UnlinkEntity ((sharedEntity_t *)player);
 
-	VectorCopy ( origin, player->client->ps.origin );
-	player->client->ps.origin[2] += 1;
+	VectorCopy ( origin, &player->client->ps.origin );
+	player->client->ps.origin.z += 1;
 	if (!noAngles) {
-	// spit the player out
-	AngleVectors( angles, player->client->ps.velocity, NULL, NULL );
-	VectorScale( player->client->ps.velocity, 400, player->client->ps.velocity );
-	player->client->ps.pm_time = 160;		// hold time
-	player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
-	// set angles
-	SetClientViewAngle(player, angles);
+		float xyspeed = sqrtf( player->client->ps.velocity.x*player->client->ps.velocity.x + player->client->ps.velocity.y*player->client->ps.velocity.y );
+		float zspeed = player->client->ps.velocity.z;
+		// spit the player out
+		AngleVectors( angles, &player->client->ps.velocity, NULL, NULL );
+		VectorScale( &player->client->ps.velocity, xyspeed, &player->client->ps.velocity );
+		// can't just fall through a tele
+		if ( zspeed > 0 )
+			player->client->ps.velocity.z = zspeed;
+		player->client->ps.pm_time = 160;		// hold time
+		player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+		// set angles
+		SetClientViewAngle(player, angles);
 	}
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
@@ -113,23 +118,23 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	}
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, pm_snapVec.boolean );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float.boolean );
 
 	// use the precise origin for linking
-	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+	VectorCopy( &player->client->ps.origin, &player->r.currentOrigin );
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		gi.SV_LinkEntity ((sharedEntity_t *)player);
 	}
 }
 
-void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles ) {
+void TeleportPlayerSeamless( gentity_t *player, vector3 *origin, vector3 *angles ) {
 	gentity_t	*tent;
 
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
+		tent = G_TempEntity( &player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = player->s.clientNum;
 
 		tent = G_TempEntity( origin, EV_PLAYER_TELEPORT_IN );
@@ -139,8 +144,8 @@ void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// unlink to make sure it can't possibly interfere with G_KillBox
 	gi.SV_UnlinkEntity ((sharedEntity_t *)player);
 
-	VectorCopy ( origin, player->client->ps.origin );
-	player->client->ps.origin[2] += 1;
+	VectorCopy ( origin, &player->client->ps.origin );
+	player->client->ps.origin.z += 1;
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 	// kill anything at the destination
@@ -149,10 +154,10 @@ void TeleportPlayerSeamless( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	}
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, pm_snapVec.boolean );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float.boolean );
 
 	// use the precise origin for linking
-	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+	VectorCopy( &player->client->ps.origin, &player->r.currentOrigin );
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		gi.SV_LinkEntity ((sharedEntity_t *)player);
@@ -191,7 +196,7 @@ void SP_misc_model( gentity_t *ent ) {
 //===========================================================
 
 void locateCamera( gentity_t *ent ) {
-	vec3_t		dir;
+	vector3		dir;
 	gentity_t	*target;
 	gentity_t	*owner;
 
@@ -222,18 +227,18 @@ void locateCamera( gentity_t *ent ) {
 	// clientNum holds the rotate offset
 	ent->s.clientNum = owner->s.clientNum;
 
-	VectorCopy( owner->s.origin, ent->s.origin2 );
+	VectorCopy( &owner->s.origin, &ent->s.origin2 );
 
 	// see if the portal_camera has a target
 	target = G_PickTarget( owner->target );
 	if ( target ) {
-		VectorSubtract( target->s.origin, owner->s.origin, dir );
-		VectorNormalize( dir );
+		VectorSubtract( &target->s.origin, &owner->s.origin, &dir );
+		VectorNormalize( &dir );
 	} else {
-		G_SetMovedir( owner->s.angles, dir );
+		G_SetMovedir( &owner->s.angles, &dir );
 	}
 
-	ent->s.eventParm = DirToByte( dir );
+	ent->s.eventParm = DirToByte( &dir );
 }
 
 /*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
@@ -241,15 +246,15 @@ The portal surface nearest this entity will show a view from the targeted misc_p
 This must be within 64 world units of the surface!
 */
 void SP_misc_portal_surface(gentity_t *ent) {
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
+	VectorClear( &ent->r.mins );
+	VectorClear( &ent->r.maxs );
 	gi.SV_LinkEntity ((sharedEntity_t *)ent);
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
 
 	if ( !ent->target ) {
-		VectorCopy( ent->s.origin, ent->s.origin2 );
+		VectorCopy( &ent->s.origin, &ent->s.origin2 );
 	} else {
 		ent->think = locateCamera;
 		ent->nextthink = level.time + 100;
@@ -263,13 +268,13 @@ The target for a misc_portal_director.  You can set either angles or target anot
 void SP_misc_portal_camera(gentity_t *ent) {
 	float	roll;
 
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
+	VectorClear( &ent->r.mins );
+	VectorClear( &ent->r.maxs );
 	gi.SV_LinkEntity ((sharedEntity_t *)ent);
 
 	G_SpawnFloat( "roll", "0", &roll );
 
-	ent->s.clientNum = roll/360.0 * 256;
+	ent->s.clientNum = (int)(roll/360.0f * 256);
 }
 
 /*
@@ -281,29 +286,29 @@ void SP_misc_portal_camera(gentity_t *ent) {
 */
 
 void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	vec3_t		dir;
+	vector3		dir;
 	float		deg;
-	vec3_t		up, right;
+	vector3		up, right;
 
 	// see if we have a target
 	if ( ent->enemy ) {
-		VectorSubtract( ent->enemy->r.currentOrigin, ent->s.origin, dir );
-		VectorNormalize( dir );
+		VectorSubtract( &ent->enemy->r.currentOrigin, &ent->s.origin, &dir );
+		VectorNormalize( &dir );
 	} else {
-		VectorCopy( ent->movedir, dir );
+		VectorCopy( &ent->movedir, &dir );
 	}
 
 	// randomize a bit
-	PerpendicularVector( up, dir );
-	CrossProduct( up, dir, right );
+	PerpendicularVector( &up, &dir );
+	CrossProduct( &up, &dir, &right );
 
 	deg = crandom() * ent->random;
-	VectorMA( dir, deg, up, dir );
+	VectorMA( &dir, deg, &up, &dir );
 
 	deg = crandom() * ent->random;
-	VectorMA( dir, deg, right, dir );
+	VectorMA( &dir, deg, &right, &dir );
 
-	VectorNormalize( dir );
+	VectorNormalize( &dir );
 
 	//RAZFIXME: Use_Shooter
 #if 0
@@ -336,12 +341,12 @@ void InitShooter( gentity_t *ent, int weapon ) {
 
 	RegisterItem( BG_FindItemForWeapon( weapon ) );
 
-	G_SetMovedir( ent->s.angles, ent->movedir );
+	G_SetMovedir( &ent->s.angles, &ent->movedir );
 
 	if ( !ent->random ) {
 		ent->random = 1.0;
 	}
-	ent->random = sin( M_PI * ent->random / 180 );
+	ent->random = sinf( M_PI * ent->random / 180 );
 	// target might be a moving object, so we can't set movedir for it
 	if ( ent->target ) {
 		ent->think = InitShooter_Finish;

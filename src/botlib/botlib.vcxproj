@@ -52,7 +52,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;..\freetype;..\SDL12\include;..\libcurl;..\AL;..\libspeex\include;..\zlib;..\jpeg-8c;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -109,6 +109,7 @@
     <ClCompile Include=".\l_struct.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\qcommon\q_asm.h" />
     <ClInclude Include=".\aasfile.h" />
     <ClInclude Include=".\be_aas_bsp.h" />
     <ClInclude Include=".\be_aas_cluster.h" />
@@ -134,6 +135,15 @@
     <ClInclude Include=".\l_script.h" />
     <ClInclude Include=".\l_struct.h" />
     <ClInclude Include=".\l_utils.h" />
+    <ClInclude Include="be_aas.h" />
+    <ClInclude Include="be_ai_char.h" />
+    <ClInclude Include="be_ai_chat.h" />
+    <ClInclude Include="be_ai_gen.h" />
+    <ClInclude Include="be_ai_goal.h" />
+    <ClInclude Include="be_ai_move.h" />
+    <ClInclude Include="be_ai_weap.h" />
+    <ClInclude Include="be_ea.h" />
+    <ClInclude Include="botlib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

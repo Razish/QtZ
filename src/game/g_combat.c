@@ -24,11 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
+int G_GetHitLocation(gentity_t *target, vector3 *ppoint)
 {
-	vec3_t	point, point_dir;
-	vec3_t	forward, right, up;
-	vec3_t	tangles, tcenter;
+	vector3	point, point_dir;
+	vector3	forward, right, up;
+	vector3	tangles, tcenter;
 	float	tradius;
 	float	udot, fdot, rdot;
 	int		Vertical, Forward, Lateral;
@@ -37,23 +37,23 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	// Get target forward, right and up.
 	// Ignore player's pitch and roll.
 	if ( target->client )
-		VectorSet( tangles, 0, target->r.currentAngles[YAW], 0 );
+		VectorSet( &tangles, 0, target->r.currentAngles.yaw, 0 );
 
-	AngleVectors( tangles, forward, right, up );
+	AngleVectors( &tangles, &forward, &right, &up );
 
 	// Get center of target.
-	VectorAdd( target->r.absmin, target->r.absmax, tcenter );
-	VectorScale( tcenter, 0.5f, tcenter );
+	VectorAdd( &target->r.absmin, &target->r.absmax, &tcenter );
+	VectorScale( &tcenter, 0.5f, &tcenter );
 
 	// Get radius width of target.
-	tradius = (	fabsf( target->r.maxs[0] ) +
-				fabsf( target->r.maxs[1] ) +
-				fabsf( target->r.mins[0] ) +
-				fabsf( target->r.mins[1] ) ) / 4.0f;
+	tradius = (	fabsf( target->r.maxs.x ) +
+				fabsf( target->r.maxs.y ) +
+				fabsf( target->r.mins.x ) +
+				fabsf( target->r.mins.y ) ) / 4.0f;
 
 	// Get impact point.
-	if ( ppoint && !VectorCompare( ppoint, vec3_origin ) )
-		VectorCopy( ppoint, point );
+	if ( ppoint && !VectorCompare( ppoint, &vec3_origin ) )
+		VectorCopy( ppoint, &point );
 	else
 		return HL_NONE;
 
@@ -76,11 +76,11 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	VectorMA(point, hdist - tradius, dir, point);
 	//now a point on the surface of a cylinder with a radius of tradius
 */	
-	VectorSubtract( point, tcenter, point_dir );
-	VectorNormalize( point_dir );
+	VectorSubtract( &point, &tcenter, &point_dir );
+	VectorNormalize( &point_dir );
 
 	// Get bottom to top (vertical) position index
-	udot = DotProduct( up, point_dir );
+	udot = DotProduct( &up, &point_dir );
 		 if ( udot >  0.800 )	Vertical = 4;
 	else if ( udot >  0.400 )	Vertical = 3;
 	else if ( udot > -0.333 )	Vertical = 2;
@@ -88,7 +88,7 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	else						Vertical = 0;
 
 	// Get back to front (forward) position index.
-	fdot = DotProduct( forward, point_dir );
+	fdot = DotProduct( &forward, &point_dir );
 		 if ( fdot >  0.666 )	Forward = 4;
 	else if ( fdot >  0.333 )	Forward = 3;
 	else if ( fdot > -0.333 )	Forward = 2;
@@ -96,7 +96,7 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	else						Forward = 0;
 
 	// Get left to right (lateral) position index.
-	rdot = DotProduct( right, point_dir );
+	rdot = DotProduct( &right, &point_dir );
 		 if ( rdot >  0.666 )	Lateral = 4;
 	else if ( rdot >  0.333 )	Lateral = 3;
 	else if ( rdot > -0.333 )	Lateral = 2;
@@ -187,7 +187,7 @@ char *hitLocName[HL_MAX] = {
 ScorePlum
 ============
 */
-void ScorePlum( gentity_t *ent, vec3_t origin, int score ) {
+void ScorePlum( gentity_t *ent, vector3 *origin, int score ) {
 	gentity_t *plum;
 
 	plum = G_TempEntity( origin, EV_SCOREPLUM );
@@ -206,7 +206,7 @@ AddScore
 Adds score to both the client and his team
 ============
 */
-void AddScore( gentity_t *ent, vec3_t origin, int score ) {
+void AddScore( gentity_t *ent, vector3 *origin, int score ) {
 	if ( !ent->client ) {
 		return;
 	}
@@ -218,7 +218,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	if ( g_gametype.integer == GT_TEAM )
+	if ( level.gametype == GT_TEAM )
 		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
 	CalculateRanks();
 }
@@ -240,35 +240,25 @@ void TossClientItems( gentity_t *self ) {
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
 
-	// make a special check to see if they are changing to a new
-	// weapon that isn't the mg or gauntlet.  Without this, a client
-	// can pick up a weapon, be killed, and not drop the weapon because
-	// their weapon change hasn't completed yet and they are still holding the MG.
-	{//if ( weapon == WP_MACHINEGUN || weapon == WP_GRAPPLING_HOOK ) {
-		if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
-			weapon = self->client->pers.cmd.weapon;
-		}
-		if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
-			weapon = WP_NONE;
-		}
-	}
+	if ( !(self->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) )
+		weapon = WP_NONE;
 
 	//RAZMARK: ADDING NEW WEAPONS
 	if ( weapon > WP_QUANTIZER && self->client->ps.ammo[weapon] )
 	{
 		// find the item type for this weapon
-		item = BG_FindItemForWeapon( weapon );
+		item = BG_FindItemForWeapon( (weapon_t)weapon );
 
 		// spawn the item
 		Drop_Item( self, item, 0 );
 	}
 
 	// drop all the powerups if not in teamplay
-	if ( g_gametype.integer != GT_TEAM ) {
+	if ( level.gametype != GT_TEAM ) {
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
-			if ( self->client->ps.powerups[ i ] > level.time ) {
-				item = BG_FindItemForPowerup( i );
+			if ( self->client->ps.powerups[i] > level.time ) {
+				item = BG_FindItemForPowerup( (powerup_t)i );
 				if ( !item ) {
 					continue;
 				}
@@ -318,18 +308,18 @@ LookAtKiller
 ==================
 */
 void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) {
-	vec3_t		dir;
+	vector3		dir;
 
 	if ( attacker && attacker != self ) {
-		VectorSubtract (attacker->s.pos.trBase, self->s.pos.trBase, dir);
+		VectorSubtract (&attacker->s.pos.trBase, &self->s.pos.trBase, &dir);
 	} else if ( inflictor && inflictor != self ) {
-		VectorSubtract (inflictor->s.pos.trBase, self->s.pos.trBase, dir);
+		VectorSubtract (&inflictor->s.pos.trBase, &self->s.pos.trBase, &dir);
 	} else {
-		self->client->ps.stats[STAT_DEAD_YAW] = self->s.angles[YAW];
+		self->client->ps.stats[STAT_DEAD_YAW] = (int)self->s.angles.yaw;
 		return;
 	}
 
-	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw ( dir );
+	self->client->ps.stats[STAT_DEAD_YAW] = (int)vectoyaw( &dir );
 }
 
 /*
@@ -386,7 +376,7 @@ CheckAlmostCapture
 */
 void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 	gentity_t	*ent;
-	vec3_t		dir;
+	vector3		dir;
 	char		*classname;
 
 	//RAZTODO: plz2rewrite
@@ -395,7 +385,7 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 		self->client->ps.powerups[PW_BLUEFLAG] ||
 		self->client->ps.powerups[PW_NEUTRALFLAG] ) {
 		// get the goal flag this player should have been going for
-		if ( g_gametype.integer == GT_CTF ) {
+		if ( level.gametype == GT_CTF ) {
 			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
 				classname = "team_CTF_blueflag";
 			}
@@ -419,8 +409,8 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 		// if we found the destination flag and it's not picked up
 		if (ent && !(ent->r.svFlags & SVF_NOCLIENT) ) {
 			// if the player was *very* close
-			VectorSubtract( self->client->ps.origin, ent->s.origin, dir );
-			if ( VectorLength(dir) < 200 ) {
+			VectorSubtract( &self->client->ps.origin, &ent->s.origin, &dir );
+			if ( VectorLength(&dir) < 200 ) {
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				if ( attacker->client ) {
 					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
@@ -437,19 +427,15 @@ player_die
 */
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
-	int			anim;
-	int			contents;
-	int			killer;
-	int			i;
+	gclient_t	*cl;
+	int			i, anim, contents, killer;
 	char		*killerName, *obit;
 
-	if ( self->client->ps.pm_type == PM_DEAD ) {
+	if ( self->client->ps.pm_type == PM_DEAD )
 		return;
-	}
 
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime )
 		return;
-	}
 
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
@@ -489,7 +475,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->pers.netname, obit );
 
 	// broadcast the death event to everyone
-	ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+	ent = G_TempEntity( &self->r.currentOrigin, EV_OBITUARY );
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
@@ -503,9 +489,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
-			AddScore( attacker, self->r.currentOrigin, -1 );
+			AddScore( attacker, &self->r.currentOrigin, -1 );
 		} else {
-			AddScore( attacker, self->r.currentOrigin, 1 );
+			AddScore( attacker, &self->r.currentOrigin, 1 );
 
 			if( meansOfDeath == MOD_QUANTIZER ) {
 				
@@ -536,7 +522,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		}
 	} else {
-		AddScore( self, self->r.currentOrigin, -1 );
+		AddScore( self, &self->r.currentOrigin, -1 );
 	}
 
 	// Add team bonuses
@@ -561,22 +547,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	TossClientItems( self );
 	TossClientPersistantPowerups( self );
 
-	Cmd_Score_f( self );		// show scores
+	DeathmatchScoreboardMessage( self );		// show scores
 	// send updated scores to any clients that are following this one,
 	// or they would get stale scoreboards
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		gclient_t	*client;
+	for ( i=0, cl=level.clients; i<level.maxclients; i++, cl++ ) {
+		if ( cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam != TEAM_SPECTATOR )
+			continue;
 
-		client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
-			continue;
-		}
-		if ( client->sess.spectatorClient == self->s.number ) {
-			Cmd_Score_f( g_entities + i );
-		}
+		if ( cl->sess.spectatorClient == self->s.number )
+			DeathmatchScoreboardMessage( g_entities + i );
 	}
 
 	self->takedamage = qtrue;	// can still be gibbed
@@ -585,15 +564,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->s.powerups = 0;
 	self->r.contents = CONTENTS_CORPSE;
 
-	self->s.angles[0] = 0;
-	self->s.angles[2] = 0;
+	self->s.angles.pitch = 0;
+	self->s.angles.roll = 0;
 	LookAtKiller (self, inflictor, attacker);
 
-	VectorCopy( self->s.angles, self->client->ps.viewangles );
+	VectorCopy( &self->s.angles, &self->client->ps.viewangles );
 
 	self->s.loopSound = 0;
 
-	self->r.maxs[2] = -8;
+	self->r.maxs.z = -8;
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
@@ -603,7 +582,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
 
 	// never gib in a nodrop
-	contents = gi.SV_PointContents( self->r.currentOrigin, -1 );
+	contents = gi.SV_PointContents( &self->r.currentOrigin, -1 );
 
 	if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP)) || meansOfDeath == MOD_SUICIDE) {
 		// gib death
@@ -655,30 +634,25 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 CheckArmor
 ================
 */
-int CheckArmor (gentity_t *ent, int damage, int dflags)
-{
+int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 	gclient_t	*client;
-	int			save;
-	int			count;
+	int			save, count;
 
-	if (!damage)
+	if ( !damage )
 		return 0;
 
 	client = ent->client;
 
-	if (!client)
-		return 0;
-
-	if (dflags & DAMAGE_NO_ARMOR)
+	if ( !client || (dflags & DAMAGE_NO_ARMOR) )
 		return 0;
 
 	// armor
 	count = client->ps.stats[STAT_ARMOR];
-	save = ceil( damage * ARMOR_PROTECTION );
-	if (save >= count)
+	save = (int)ceilf( damage * ARMOR_PROTECTION );
+	if ( save >= count )
 		save = count;
 
-	if (!save)
+	if ( !save )
 		return 0;
 
 	client->ps.stats[STAT_ARMOR] -= save;
@@ -691,7 +665,7 @@ int CheckArmor (gentity_t *ent, int damage, int dflags)
 RaySphereIntersections
 ================
 */
-int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t dir, vec3_t intersections[2] ) {
+int RaySphereIntersections( vector3 *origin, float radius, vector3 *point, vector3 *dir, vector3 intersections[2] ) {
 	float b, c, d, t;
 
 	//	| origin - (point + t * dir) | = radius
@@ -701,23 +675,23 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 
 	// normalize dir so a = 1
 	VectorNormalize(dir);
-	b = 2 * (dir[0] * (point[0] - origin[0]) + dir[1] * (point[1] - origin[1]) + dir[2] * (point[2] - origin[2]));
-	c = (point[0] - origin[0]) * (point[0] - origin[0]) +
-		(point[1] - origin[1]) * (point[1] - origin[1]) +
-		(point[2] - origin[2]) * (point[2] - origin[2]) -
+	b = 2 * (dir->x * (point->x - origin->x) + dir->y * (point->y - origin->y) + dir->z * (point->z - origin->z));
+	c = (point->x - origin->x) * (point->x - origin->x) +
+		(point->y - origin->y) * (point->y - origin->y) +
+		(point->z - origin->z) * (point->z - origin->z) -
 		radius * radius;
 
 	d = b * b - 4 * c;
 	if (d > 0) {
-		t = (- b + sqrt(d)) / 2;
-		VectorMA(point, t, dir, intersections[0]);
-		t = (- b - sqrt(d)) / 2;
-		VectorMA(point, t, dir, intersections[1]);
+		t = (- b + sqrtf(d)) / 2;
+		VectorMA(point, t, dir, &intersections[0]);
+		t = (- b - sqrtf(d)) / 2;
+		VectorMA(point, t, dir, &intersections[1]);
 		return 2;
 	}
 	else if (d == 0) {
 		t = (- b ) / 2;
-		VectorMA(point, t, dir, intersections[0]);
+		VectorMA(point, t, dir, &intersections[0]);
 		return 1;
 	}
 	return 0;
@@ -754,20 +728,19 @@ dflags		these flags are used to control how T_Damage works
 //						attacker == the traitor
 //	I've also added an 'affector', which will be the missile entity for weapons so I can apply per-missile knockback multipliers
 //		This is to aid the quantizer movement and rocket jumping tricks
-void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_attacker, gentity_t *real_affector,
-			   vec3_t real_dir, vec3_t real_point, int real_damage, int real_dflags, int real_mod ) {
+void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_attacker, gentity_t *real_affector, vector3 *real_dir, vector3 *real_point, int real_damage, int real_dflags, int real_mod ) {
 	gclient_t	*client;
 	int			take;
 	int			asave;
 	int			knockback;
-	int			max;
 	gentity_t *targ=real_targ, *inflictor=real_inflictor, *attacker=real_attacker, *affector=real_affector;
-	vec3_t dir, point;
+	vector3 dir, point;
 	int damage=real_damage, dflags=real_dflags, mod=real_mod;
+
 	if ( real_dir )
-		VectorCopy( real_dir, dir );
+		VectorCopy( real_dir, &dir );
 	if ( real_point )
-		VectorCopy( real_point, point );
+		VectorCopy( real_point, &point );
 
 	if (!targ->takedamage) {
 		return;
@@ -793,82 +766,70 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 		return;
 	}
 
-	// reduce damage by the attacker's handicap value
-	// unless they are rocket jumping
-	if ( attacker->client && attacker != targ ) {
-		max = attacker->client->ps.stats[STAT_MAX_HEALTH];
-		damage = damage * max / 100;
-	}
-
 	client = targ->client;
 
 	if ( client ) {
-		if ( client->noclip ) {
+		if ( client->noclip )
 			return;
-		}
 	}
 
 	//QtZ
 	if ( !real_dir )
-		VectorSet( dir, flrand( 0.0f, 0.2f ), flrand( 0.0f, 0.2f ), 0.7f );
+		VectorSet( &dir, flrand( 0.0f, 0.2f ), flrand( 0.0f, 0.2f ), 0.7f );
 	else
-		VectorNormalize( dir );
+		VectorNormalize( &dir );
 
 	//Raz: Added for Quantizer
 	if ( affector /*!damage && affector && !affector->splashDamage && affector->splashRadius*/ )
 		knockback = affector->splashDamage;
 	else
 		knockback = damage;
-	if ( knockback > 200 ) {
+
+	if ( knockback > 200 )
 		knockback = 200;
-	}
-	if ( targ->flags & FL_NO_KNOCKBACK ) {
+	if ( targ->flags & FL_NO_KNOCKBACK )
 		knockback = 0;
-	}
-	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
+	if ( dflags & DAMAGE_NO_KNOCKBACK )
 		knockback = 0;
-	}
 
 	//Raz: Quantizer/RL extra knockback
-	if ( affector )
-	{
+	if ( affector ) {
 		if ( attacker->client && attacker->s.eType == ET_PLAYER && (attacker==targ || OnSameTeam( attacker, targ )) )
-			knockback *= affector->knockbackMultiSelf;
+			knockback = (int)(knockback * affector->knockbackMultiSelf);
 		else
-			knockback *= affector->knockbackMulti;
+			knockback = (int)(knockback * affector->knockbackMulti);
 	}
 
 	// figure momentum add, even if the damage won't be taken
 	if ( knockback && targ->client ) {
-		vec3_t	kvel;
+		vector3	kvel;
 		float	mass;
 
 		mass = 200;
 
 		if ( g_debugDamage.integer )
-			Com_Printf( " \nDirectional knockback: %.2f, %.2f, %.2f\n", dir[0], dir[1], dir[2] );
+			Com_Printf( " \nDirectional knockback: %.2f, %.2f, %.2f\n", dir.x, dir.y, dir.z );
 
-		VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
+		VectorScale (&dir, g_knockback.value * (float)knockback / mass, &kvel);
 
 		if ( g_debugDamage.integer )
-			Com_Printf( "Scaled knockback: %.2f, %.2f, %.2f\n", kvel[0], kvel[1], kvel[2] );
+			Com_Printf( "Scaled knockback: %.2f, %.2f, %.2f\n", kvel.x, kvel.y, kvel.z );
 
 		if ( affector
 			&& (affector->dflags & DAMAGE_VERTICAL_KNOCKBACK)
 			&& affector->knockbackDampVert != 0.0f
 			)//&& attacker != targ )
 		{//Attacking someone else with a DAMAGE_VERTICAL_KNOCKBACK flag, dampen the x/y knockback
-			kvel[0] *= affector->knockbackDampVert;
-			kvel[1] *= affector->knockbackDampVert;
+			kvel.x *= affector->knockbackDampVert;
+			kvel.y *= affector->knockbackDampVert;
 		}
 
 		if ( g_debugDamage.integer )
-			Com_Printf( "Final knockback: %.2f, %.2f, %.2f\n \n", kvel[0], kvel[1], kvel[2] );
+			Com_Printf( "Final knockback: %.2f, %.2f, %.2f\n \n", kvel.x, kvel.y, kvel.z );
 
-		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
+		VectorAdd (&targ->client->ps.velocity, &kvel, &targ->client->ps.velocity);
 
-		// set the timer so that the other client can't cancel
-		// out the movement immediately
+		// set the timer so that the other client can't cancel out the movement immediately
 		if ( !targ->client->ps.pm_time ) {
 			int		t;
 
@@ -882,19 +843,19 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			targ->client->ps.pm_time = t;
 			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 		}
+		if ( OnSameTeam( targ, attacker ) || targ == attacker ) {
+			targ->client->ps.pm_flags |= PMF_SELFKNOCKBACK;
+		}
 	}
 
 	//QtZ: Moved this up here to bypass friendly fire checks
-	//	add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if ( attacker->client && targ != attacker && targ->health > 0
-			&& targ->s.eType != ET_MISSILE
-			&& targ->s.eType != ET_GENERAL
-			&& client) {
-		if ( OnSameTeam( targ, attacker ) ) {
+	//	add to the attacker's hit counter
+	if ( attacker->client && targ->client && targ != attacker && targ->health > 0
+			&& targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL) {
+		if ( OnSameTeam( targ, attacker ) )
 			attacker->client->ps.persistant[PERS_HITS]--;
-		} else {
+		else
 			attacker->client->ps.persistant[PERS_HITS]++;
-		}
 		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
 	}
 
@@ -907,10 +868,10 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			if ( !g_friendlyFire.integer )
 				return;
 			else if ( g_friendlyFire.integer == 2 )
-				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, real_damage*g_friendlyFireScale.value, real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale.value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
 			else if ( g_friendlyFire.integer == 3 )
 			{
-				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, real_damage*g_friendlyFireScale.value, real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale.value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
 				return;
 			}
 		}
@@ -926,13 +887,9 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	//Raz: Only do this if it's not a recursive reflected friendly-fire call, in which case targ==inflictor
 	if ( targ == attacker && targ != inflictor ) {
 //	if ( targ == attacker) {
-		damage *= 0.5;
+		damage /= 2;
 	}
 
-	//RAZFIXME: Do something better with this..?
-	if ( damage < 1 ) {
-	//	damage = 1;
-	}
 	take = damage;
 
 	// save some from armor
@@ -960,16 +917,16 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 		client->damage_blood					+= take;
 		client->damage_knockback				+= knockback;
 		if ( real_dir ) {
-			VectorCopy ( dir, client->damage_from );
+			VectorCopy ( &dir, &client->damage_from );
 			client->damage_fromWorld = qfalse;
 		} else {
-			VectorCopy ( targ->r.currentOrigin, client->damage_from );
+			VectorCopy ( &targ->r.currentOrigin, &client->damage_from );
 			client->damage_fromWorld = qtrue;
 		}
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-	if( g_gametype.integer == GT_CTF) {
+	if( level.gametype == GT_CTF) {
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 
@@ -1012,48 +969,48 @@ Returns qtrue if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-qboolean CanDamage (gentity_t *targ, vec3_t origin) {
-	vec3_t	dest;
+qboolean CanDamage (gentity_t *targ, vector3 *origin) {
+	vector3	dest;
 	trace_t	tr;
-	vec3_t	midpoint;
+	vector3	midpoint;
 
 	// use the midpoint of the bounds instead of the origin, because
 	// bmodels may have their origin is 0,0,0
-	VectorAdd (targ->r.absmin, targ->r.absmax, midpoint);
-	VectorScale (midpoint, 0.5, midpoint);
+	VectorAdd (&targ->r.absmin, &targ->r.absmax, &midpoint);
+	VectorScale (&midpoint, 0.5, &midpoint);
 
-	VectorCopy (midpoint, dest);
-	gi.SV_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	VectorCopy (&midpoint, &dest);
+	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
 
 	// this should probably check in the plane of projection, 
 	// rather than in world coordinate, and also include Z
-	VectorCopy (midpoint, dest);
-	dest[0] += 15.0;
-	dest[1] += 15.0;
-	gi.SV_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	VectorCopy (&midpoint, &dest);
+	dest.x += 15.0;
+	dest.y += 15.0;
+	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
-	VectorCopy (midpoint, dest);
-	dest[0] += 15.0;
-	dest[1] -= 15.0;
-	gi.SV_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	VectorCopy (&midpoint, &dest);
+	dest.x += 15.0;
+	dest.y -= 15.0;
+	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
-	VectorCopy (midpoint, dest);
-	dest[0] -= 15.0;
-	dest[1] += 15.0;
-	gi.SV_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	VectorCopy (&midpoint, &dest);
+	dest.x -= 15.0;
+	dest.y += 15.0;
+	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
-	VectorCopy (midpoint, dest);
-	dest[0] -= 15.0;
-	dest[1] -= 15.0;
-	gi.SV_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	VectorCopy (&midpoint, &dest);
+	dest.x -= 15.0;
+	dest.y -= 15.0;
+	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
@@ -1067,15 +1024,15 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 G_RadiusDamage
 ============
 */
-qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod )
+qboolean G_RadiusDamage( vector3 *origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod )
 {
 	float		points, dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];
 	int			numListedEntities;
-	vec3_t		mins, maxs;
-	vec3_t		v;
-	vec3_t		dir;
+	vector3		mins, maxs;
+	vector3		v;
+	vector3		dir;
 	int			i, e;
 	qboolean	hitClient = qfalse;
 
@@ -1084,11 +1041,11 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 	}
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		mins[i] = origin[i] - radius;
-		maxs[i] = origin[i] + radius;
+		mins.data[i] = origin->data[i] - radius;
+		maxs.data[i] = origin->data[i] + radius;
 	}
 
-	numListedEntities = gi.SV_AreaEntities( mins, maxs, entityList, MAX_GENTITIES );
+	numListedEntities = gi.SV_AreaEntities( &mins, &maxs, entityList, MAX_GENTITIES );
 
 	for ( e = 0 ; e < numListedEntities ; e++ ) {
 		ent = &g_entities[entityList[ e ]];
@@ -1100,32 +1057,28 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 
 		// find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) {
-			if ( origin[i] < ent->r.absmin[i] ) {
-				v[i] = ent->r.absmin[i] - origin[i];
-			} else if ( origin[i] > ent->r.absmax[i] ) {
-				v[i] = origin[i] - ent->r.absmax[i];
-			} else {
-				v[i] = 0;
-			}
+				 if ( origin->data[i] < ent->r.absmin.data[i] )	v.data[i] = ent->r.absmin.data[i] - origin->data[i];
+			else if ( origin->data[i] > ent->r.absmax.data[i] )	v.data[i] = origin->data[i] - ent->r.absmax.data[i];
+			else												v.data[i] = 0;
 		}
 
-		dist = VectorLength( v );
+		dist = VectorLength( &v );
 		if ( dist >= radius ) {
 			continue;
 		}
 
-		points = damage * ( 1.0 - dist / radius );
+		points = damage * ( 1.0f - dist / radius );
 
 		if( CanDamage (ent, origin) ) {
 			if( LogAccuracyHit( ent, attacker ) ) {
 				hitClient = qtrue;
 			}
-			VectorSubtract (ent->r.currentOrigin, origin, dir);
+			VectorSubtract (&ent->r.currentOrigin, origin, &dir);
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
-			dir[2] += 24;
+			dir.z += 24;
 			//QtZ: The affector here is the missile, so I can apply knockback multipliers for the quantizer and such
-			G_Damage (ent, NULL, attacker, missile, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+			G_Damage (ent, NULL, attacker, missile, &dir, origin, (int)points, DAMAGE_RADIUS, mod);
 		}
 	}
 

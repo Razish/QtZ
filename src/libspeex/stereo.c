@@ -114,7 +114,7 @@ void speex_encode_stereo(float *data, int frame_size, SpeexBits *bits)
    {
       e_left  += ((float)data[2*i])*data[2*i];
       e_right += ((float)data[2*i+1])*data[2*i+1];
-      data[i] =  .5*(((float)data[2*i])+data[2*i+1]);
+      data[i] =  .5f*(((float)data[2*i])+data[2*i+1]);
       e_tot   += ((float)data[i])*data[i];
    }
    balance=(e_left+1)/(e_right+1);
@@ -124,14 +124,14 @@ void speex_encode_stereo(float *data, int frame_size, SpeexBits *bits)
    speex_bits_pack(bits, 14, 5);
    speex_bits_pack(bits, SPEEX_INBAND_STEREO, 4);
    
-   balance=4*log(balance);
+   balance=4*logf(balance);
 
    /*Pack sign*/
    if (balance>0)
       speex_bits_pack(bits, 0, 1);
    else
       speex_bits_pack(bits, 1, 1);
-   balance=floor(.5+fabs(balance));
+   balance=floorf(.5f+fabsf(balance));
    if (balance>30)
       balance=31;
    
@@ -167,7 +167,7 @@ void speex_encode_stereo_int(spx_int16_t *data, int frame_size, SpeexBits *bits)
       /* I think this is actually unbiased */
       data[i] =  SHR16(data[2*i],1)+PSHR16(data[2*i+1],1);
 #else
-      data[i] =  .5*(((float)data[2*i])+data[2*i+1]);
+      data[i] =  (spx_int16_t)(.5f*(((float)data[2*i])+data[2*i+1]));
 #endif
       e_tot   += SHR32(MULT16_16(data[i],data[i]),8);
    }
@@ -192,9 +192,9 @@ void speex_encode_stereo_int(spx_int16_t *data, int frame_size, SpeexBits *bits)
       balance = 32767;
    balance_id = scal_quant(EXTRACT16(balance), balance_bounds, 32);
 #else
-   balance=(largest+1.)/(smallest+1.);
-   balance=4*log(balance);
-   balance_id=floor(.5+fabs(balance));
+   balance=(largest+1.f)/(smallest+1.f);
+   balance=4*logf(balance);
+   balance_id=(int)floorf(.5f+fabsf(balance));
    if (balance_id>30)
       balance_id=31;
 #endif
@@ -209,7 +209,7 @@ void speex_encode_stereo_int(spx_int16_t *data, int frame_size, SpeexBits *bits)
    e_right = VSHR32(e_right, shift-10);
    e_ratio = DIV32(e_tot, e_left+e_right+1);
 #else
-   e_ratio = e_tot/(1.+e_left+e_right);
+   e_ratio = e_tot/(1.f+e_left+e_right);
 #endif
    
    tmp=scal_quant(EXTRACT16(e_ratio), e_ratio_quant_bounds, 4);
@@ -283,9 +283,9 @@ int speex_std_stereo_request_handler(SpeexBits *bits, void *state, void *data)
 
    if (speex_bits_unpack_unsigned(bits, 1))
       sign=-1;
-   dexp = speex_bits_unpack_unsigned(bits, 5);
+   dexp = (spx_word16_t)speex_bits_unpack_unsigned(bits, 5);
 #ifndef FIXED_POINT
-   stereo->balance = exp(sign*.25*dexp);
+   stereo->balance = expf(sign*.25f*dexp);
 #else
    stereo->balance = spx_exp(MULT16_16(sign, SHL16(dexp, 9)));
 #endif

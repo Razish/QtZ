@@ -38,7 +38,7 @@
 #include "os_support.h"
 #include <math.h>
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846f
 #endif
 
 #include "arch.h"
@@ -58,12 +58,12 @@
 
 #else
 
-#define LSP_LINEAR(i) (.25*(i)+.25)
-#define LSP_LINEAR_HIGH(i) (.3125*(i)+.75)
-#define LSP_SCALE 256.
-#define LSP_DIV_256(x) (0.0039062*(x))
-#define LSP_DIV_512(x) (0.0019531*(x))
-#define LSP_DIV_1024(x) (0.00097656*(x))
+#define LSP_LINEAR(i) (.25f*(i)+.25f)
+#define LSP_LINEAR_HIGH(i) (.3125f*(i)+.75f)
+#define LSP_SCALE 256.f
+#define LSP_DIV_256(x) (0.0039062f*(x))
+#define LSP_DIV_512(x) (0.0019531f*(x))
+#define LSP_DIV_1024(x) (0.00097656f*(x))
 #define LSP_PI M_PI
 
 #endif
@@ -87,7 +87,7 @@ static void compute_quant_weights(spx_lsp_t *qlsp, spx_word16_t *quant_weight, i
 #ifdef FIXED_POINT
       quant_weight[i] = DIV32_16(81920,ADD16(300,tmp1));
 #else
-      quant_weight[i] = 10/(.04+tmp1);
+      quant_weight[i] = 10/(.04f+tmp1);
 #endif
    }
 
@@ -203,7 +203,7 @@ void lsp_quant_nb(spx_lsp_t *lsp, spx_lsp_t *qlsp, int order, SpeexBits *bits)
       qlsp[i]=PSHR16(qlsp[i],2);
 #else
    for (i=0;i<order;i++)
-      qlsp[i]=qlsp[i] * .00097656;
+      qlsp[i]=qlsp[i] * .00097656f;
 #endif
 
    for (i=0;i<order;i++)
@@ -273,7 +273,7 @@ void lsp_quant_lbr(spx_lsp_t *lsp, spx_lsp_t *qlsp, int order, SpeexBits *bits)
       qlsp[i] = PSHR16(qlsp[i],1);
 #else
    for (i=0;i<order;i++)
-      qlsp[i] = qlsp[i]*0.0019531;
+      qlsp[i] = qlsp[i]*0.0019531f;
 #endif
 
    for (i=0;i<order;i++)
@@ -356,7 +356,7 @@ void lsp_quant_high(spx_lsp_t *lsp, spx_lsp_t *qlsp, int order, SpeexBits *bits)
       qlsp[i] = PSHR16(qlsp[i],1);
 #else
    for (i=0;i<order;i++)
-      qlsp[i] = qlsp[i]*0.0019531;
+      qlsp[i] = qlsp[i]*0.0019531f;
 #endif
 
    for (i=0;i<order;i++)

@@ -137,7 +137,7 @@ int Export_BotLibSetup(void)
 {
 	int		errnum;
 	
-	botDeveloper = LibVarGetValue("bot_developer");
+	botDeveloper = (int)LibVarGetValue("bot_developer");
  	memset( &botlibglobals, 0, sizeof(botlibglobals) );
 	//initialize byte swapping (litte endian etc.)
 //	Swap_Init();
@@ -318,27 +318,27 @@ int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_TestMovementPrediction(int entnum, vec3_t origin, vec3_t dir);
-void ElevatorBottomCenter(aas_reachability_t *reach, vec3_t bottomcenter);
-int BotGetReachabilityToGoal(vec3_t origin, int areanum,
+void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir);
+void ElevatorBottomCenter(aas_reachability_t *reach, vector3 *bottomcenter);
+int BotGetReachabilityToGoal(vector3 *origin, int areanum,
 									  int lastgoalareanum, int lastareanum,
 									  int *avoidreach, float *avoidreachtimes, int *avoidreachtries,
 									  bot_goal_t *goal, int travelflags,
 									  struct bot_avoidspot_s *avoidspots, int numavoidspots, int *flags);
 
-int AAS_PointLight(vec3_t origin, int *red, int *green, int *blue);
+int AAS_PointLight(vector3 *origin, int *red, int *green, int *blue);
 
-int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas);
+int AAS_TraceAreas(vector3 *start, vector3 *end, int *areas, vector3 *points, int maxareas);
 
 int AAS_Reachability_WeaponJump(int area1num, int area2num);
 
-int BotFuzzyPointReachabilityArea(vec3_t origin);
+int BotFuzzyPointReachabilityArea(vector3 *origin);
 
-float BotGapDistance(vec3_t origin, vec3_t hordir, int entnum);
+float BotGapDistance(vector3 *origin, vector3 *hordir, int entnum);
 
-void AAS_FloodAreas(vec3_t origin);
+void AAS_FloodAreas(vector3 *origin);
 
-int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
+int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3)
 {
 
 //	return AAS_PointLight(parm2, NULL, NULL, NULL);
@@ -348,8 +348,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	static int line[2];
 	int newarea, i, highlightarea, flood;
 //	int reachnum;
-	vec3_t eye, forward, right, end, origin;
-//	vec3_t bottomcenter;
+	vector3 eye, forward, right, end, origin;
+//	vector3 bottomcenter;
 //	aas_trace_t trace;
 //	aas_face_t *face;
 //	aas_entity_t *ent;
@@ -358,8 +358,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 //	bot_goal_t goal;
 
 	// clock_t start_time, end_time;
-	vec3_t mins = {-16, -16, -24};
-	vec3_t maxs = {16, 16, 32};
+	vector3 mins = {-16, -16, -24};
+	vector3 maxs = {16, 16, 32};
 
 //	int areas[10], numareas;
 
@@ -552,7 +552,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		AAS_ShowReachability(&reach);
 		*/
 		int curarea;
-		vec3_t curorigin;
+		vector3 curorigin;
 
 		goal.areanum = botlibglobals.goalareanum;
 		VectorCopy(botlibglobals.goalorigin, goal.origin);
@@ -873,7 +873,7 @@ Q_EXPORT botlib_export_t* QDECL GetBotLibAPI(int apiVersion, botlib_import_t *im
 	botimport = *import;
 	assert(botimport.Print);
 
-	Com_Memset( &be_botlib_export, 0, sizeof( be_botlib_export ) );
+	memset( &be_botlib_export, 0, sizeof( be_botlib_export ) );
 
 	if ( apiVersion != BOTLIB_API_VERSION ) {
 		botimport.Print( PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion );

@@ -144,7 +144,7 @@ void PrintContents(int contents)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
+bsp_trace_t AAS_Trace(vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask)
 {
 	bsp_trace_t bsptrace;
 	botimport.Trace(&bsptrace, start, mins, maxs, end, passent, contentmask);
@@ -157,7 +157,7 @@ bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int pa
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointContents(vec3_t point)
+int AAS_PointContents(vector3 *point)
 {
 	return botimport.PointContents(point);
 } //end of the function AAS_PointContents
@@ -167,16 +167,14 @@ int AAS_PointContents(vec3_t point)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_EntityCollision(int entnum,
-					vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end,
-								int contentmask, bsp_trace_t *trace)
+qboolean AAS_EntityCollision(int entnum, vector3 *start, vector3 *boxmins, vector3 *boxmaxs, vector3 *end, int contentmask, bsp_trace_t *trace)
 {
 	bsp_trace_t enttrace;
 
 	botimport.EntityTrace(&enttrace, start, boxmins, boxmaxs, end, entnum, contentmask);
 	if (enttrace.fraction < trace->fraction)
 	{
-		Com_Memcpy(trace, &enttrace, sizeof(bsp_trace_t));
+		memcpy(trace, &enttrace, sizeof(bsp_trace_t));
 		return qtrue;
 	} //end if
 	return qfalse;
@@ -188,7 +186,7 @@ qboolean AAS_EntityCollision(int entnum,
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPVS(vec3_t p1, vec3_t p2)
+qboolean AAS_inPVS(vector3 *p1, vector3 *p2)
 {
 	return botimport.inPVS(p1, p2);
 } //end of the function AAS_InPVS
@@ -199,7 +197,7 @@ qboolean AAS_inPVS(vec3_t p1, vec3_t p2)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPHS(vec3_t p1, vec3_t p2)
+qboolean AAS_inPHS(vector3 *p1, vector3 *p2)
 {
 	return qtrue;
 } //end of the function AAS_inPHS
@@ -209,7 +207,7 @@ qboolean AAS_inPHS(vec3_t p1, vec3_t p2)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin)
+void AAS_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *mins, vector3 *maxs, vector3 *origin)
 {
 	botimport.BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, origin);
 } //end of the function AAS_BSPModelMinsMaxs
@@ -229,7 +227,7 @@ void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bsp_link_t *AAS_BSPLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum, int modelnum)
+bsp_link_t *AAS_BSPLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum, int modelnum)
 {
 	return NULL;
 } //end of the function AAS_BSPLinkEntity
@@ -239,7 +237,7 @@ bsp_link_t *AAS_BSPLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum, int mo
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BoxEntities(vec3_t absmins, vec3_t absmaxs, int *list, int maxcount)
+int AAS_BoxEntities(vector3 *absmins, vector3 *absmaxs, int *list, int maxcount)
 {
 	return 0;
 } //end of the function AAS_BoxEntities
@@ -299,19 +297,19 @@ int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v)
+int AAS_VectorForBSPEpairKey(int ent, char *key, vector3 *v)
 {
 	char buf[MAX_EPAIRKEY];
 	double v1, v2, v3;
 
 	VectorClear(v);
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
-	//scanf into doubles, then assign, so it is vec_t size independent
+	//scanf into doubles, then assign, so it is number size independent
 	v1 = v2 = v3 = 0;
 	sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3);
-	v[0] = v1;
-	v[1] = v2;
-	v[2] = v3;
+	v->x = (float)v1;
+	v->y = (float)v2;
+	v->z = (float)v3;
 	return qtrue;
 } //end of the function AAS_VectorForBSPEpairKey
 //===========================================================================
@@ -326,7 +324,7 @@ int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 	
 	*value = 0;
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
-	*value = atof(buf);
+	*value = (float)atof(buf);
 	return qtrue;
 } //end of the function AAS_FloatForBSPEpairKey
 //===========================================================================
@@ -447,7 +445,7 @@ void AAS_ParseBSPEntities(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BSPTraceLight(vec3_t start, vec3_t end, vec3_t endpos, int *red, int *green, int *blue)
+int AAS_BSPTraceLight(vector3 *start, vector3 *end, vector3 *endpos, int *red, int *green, int *blue)
 {
 	return 0;
 } //end of the function AAS_BSPTraceLight
@@ -466,7 +464,7 @@ void AAS_DumpBSPData(void)
 	bspworld.entdatasize = 0;
 	//
 	bspworld.loaded = qfalse;
-	Com_Memset( &bspworld, 0, sizeof(bspworld) );
+	memset( &bspworld, 0, sizeof(bspworld) );
 } //end of the function AAS_DumpBSPData
 //===========================================================================
 // load a .bsp file
@@ -480,7 +478,7 @@ int AAS_LoadBSPFile(void)
 	AAS_DumpBSPData();
 	bspworld.entdatasize = strlen(botimport.BSPEntityData()) + 1;
 	bspworld.dentdata = (char *) GetClearedHunkMemory(bspworld.entdatasize);
-	Com_Memcpy(bspworld.dentdata, botimport.BSPEntityData(), bspworld.entdatasize);
+	memcpy(bspworld.dentdata, botimport.BSPEntityData(), bspworld.entdatasize);
 	AAS_ParseBSPEntities();
 	bspworld.loaded = qtrue;
 	return BLERR_NOERROR;

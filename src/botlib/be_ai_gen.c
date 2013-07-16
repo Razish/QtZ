@@ -73,7 +73,7 @@ int GeneticSelection(int numranks, float *rankings)
 		} //end for
 	} //end if
 	//select a bot randomly
-	index = random() * numranks;
+	index = (int)(random() * numranks);
 	for (i = 0; i < numranks; i++)
 	{
 		if (rankings[index] >= 0) return index;
@@ -109,7 +109,7 @@ int GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, in
 		*parent1 = *parent2 = *child = 0;
 		return qfalse;
 	} //end if
-	Com_Memcpy(rankings, ranks, sizeof(float) * numranks);
+	memcpy(rankings, ranks, sizeof(float) * numranks);
 	//select first parent
 	*parent1 = GeneticSelection(numranks, rankings);
 	rankings[*parent1] = -1;

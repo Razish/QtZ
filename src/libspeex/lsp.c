@@ -118,7 +118,7 @@ Heavily modified by Jean-Marc Valin (c) 2002-2006 (fixed-point,
 
 #define FREQ_SCALE 1.
 #define ANGLE2X(a) (spx_cos(a))
-#define X2ANGLE(x) (acos(x))
+#define X2ANGLE(x) (acosf(x))
 
 #endif
 
@@ -193,7 +193,7 @@ static float cheb_poly_eva(spx_word32_t *coef, spx_word16_t x, int m, char *stac
       b1=tmp;                           /* b1 holds the previous value of b0 */
    }
 
-   return(-b1+.5*x*b0+coef[m]);
+   return(-b1+.5f*x*b0+coef[m]);
 }
 #endif
 
@@ -332,9 +332,9 @@ int lpc_to_lsp (spx_coef_t *a,int lpcrdr,spx_lsp_t *freq,int nb,spx_word16_t del
            if (psuml<512 && psuml>-512)
               dd = PSHR16(dd,1);
 #else
-           dd=delta*(1-.9*xl*xl);
+           dd=delta*(1-.9f*xl*xl);
            if (fabs(psuml)<.2)
-              dd *= .5;
+              dd *= .5f;
 #endif
            xr = SUB16(xl, dd);                        	/* interval spacing 	*/
 	    psumr = cheb_poly_eva(pt,xr,m,stack);/* poly(xl-delta_x) 	*/
@@ -359,7 +359,7 @@ int lpc_to_lsp (spx_coef_t *a,int lpcrdr,spx_lsp_t *freq,int nb,spx_word16_t del
 #ifdef FIXED_POINT
 		    xm = ADD16(PSHR16(xl,1),PSHR16(xr,1));        	/* bisect the interval 	*/
 #else
-                    xm = .5*(xl+xr);        	/* bisect the interval 	*/
+                    xm = .5f*(xl+xr);        	/* bisect the interval 	*/
 #endif
 		    psumm=cheb_poly_eva(pt,xm,m,stack);
 		    /*if(psumm*psuml>0.)*/

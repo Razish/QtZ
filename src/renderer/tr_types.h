@@ -64,8 +64,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RDF_POSTPROCESS		0x0008		// post processing
 
 typedef struct {
-	vec3_t		xyz;
-	float		st[2];
+	vector3		xyz;
+	vector2		st;
 	byte		modulate[4];
 } polyVert_t;
 
@@ -85,16 +85,11 @@ typedef enum {
 	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
 	//QtZ: Added from JA/EF
 	RT_LINE,
-//	RT_ORIENTEDLINE,
-//	RT_CYLINDER,
-//	RT_ENT_CHAIN,
 	//~QtZ
 
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
-//QtZ: using JA's refEntity_t
-#if 1 // q3 refEntity_t
 typedef struct {
 	refEntityType_t	reType;
 	int			renderfx;
@@ -102,16 +97,16 @@ typedef struct {
 	qhandle_t	hModel;				// opaque type outside refresh
 
 	// most recent data
-	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
+	vector3		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
 	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
 
-	vec3_t		axis[3];			// rotation vectors
+	vector3		axis[3];			// rotation vectors
 	qboolean	nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	float		origin[3];			// also used as MODEL_BEAM's "from"
+	vector3		origin;			// also used as MODEL_BEAM's "from"
 	int			frame;				// also used as MODEL_BEAM's diameter
 
 	// previous data for frame interpolation
-	float		oldorigin[3];		// also used as MODEL_BEAM's "to"
+	vector3		oldorigin;		// also used as MODEL_BEAM's "to"
 	int			oldframe;
 	float		backlerp;			// 0.0 = current, 1.0 = old
 
@@ -129,151 +124,6 @@ typedef struct {
 	float		radius;
 	float		rotation;
 } refEntity_t;
-#else
-typedef struct miniRefEntity_s 
-{
-	refEntityType_t		reType;
-	int					renderfx;
-
-	qhandle_t			hModel;				// opaque type outside refresh
-
-	// most recent data
-	vec3_t				axis[3];			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	vec3_t				origin;				// also used as MODEL_BEAM's "from"
-
-	// previous data for frame interpolation
-	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
-
-	// texturing
-	qhandle_t			customShader;		// use one image for the entire thing
-
-	// misc
-	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
-	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
-
-	// extra sprite information
-	float				radius;
-	float				rotation;			// size 2 for RT_CYLINDER or number of verts in RT_ELECTRICITY
-
-	// misc
-	float		shaderTime;			// subtracted from refdef time to control effect start times
-	int			frame;				// also used as MODEL_BEAM's diameter
-
-} miniRefEntity_t;
-
-#pragma warning (disable : 4201 )
-typedef struct {
-	// this stucture must remain identical as the miniRefEntity_t
-	//
-	//
-	refEntityType_t		reType;
-	int					renderfx;
-
-	qhandle_t			hModel;				// opaque type outside refresh
-
-	// most recent data
-	vec3_t				axis[3];			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	vec3_t				origin;				// also used as MODEL_BEAM's "from"
-
-	// previous data for frame interpolation
-	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
-
-	// texturing
-	qhandle_t			customShader;		// use one image for the entire thing
-
-	// misc
-	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
-	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
-
-	// extra sprite information
-	float				radius;
-	float				rotation;
-
-	// misc
-	float		shaderTime;			// subtracted from refdef time to control effect start times
-	int			frame;				// also used as MODEL_BEAM's diameter
-	//
-	//
-	// end miniRefEntity_t
-
-	//
-	//
-	// specific full refEntity_t data
-	//
-	//
-
-	// most recent data
-	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
-	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
-
-	// previous data for frame interpolation
-	int			oldframe;
-	float		backlerp;			// 0.0 = current, 1.0 = old
-
-	// texturing
-	int			skinNum;			// inline skin index
-	qhandle_t	customSkin;			// NULL for default skin
-
-	// texturing
-	union	
-	{
-		//		int			skinNum;		// inline skin index
-		//		ivec3_t		terxelCoords;	// coords of patch for RT_TERXELS	
-		struct
-		{
-			int		miniStart;
-			int		miniCount;
-		} uMini;
-	} uRefEnt;
-
-	// extra sprite information
-	union {
-		struct 
-		{
-			float rotation;
-			float radius;
-			byte  vertRGBA[4][4];
-		} sprite;
-		struct 
-		{
-			float width;
-			float width2;
-			float stscale;
-		} line;
-		struct	// that whole put-the-opening-brace-on-the-same-line-as-the-beginning-of-the-definition coding style is fecal
-		{
-			float	width;
-			vec3_t	control1;
-			vec3_t	control2;
-		} bezier;
-		struct
-		{
-			float width;
-			float width2;
-			float stscale;
-			float height;
-			float bias;
-			qboolean wrap;
-		} cylinder;
-		struct 
-		{
-			float width;
-			float deviation;
-			float stscale;
-			qboolean wrap;
-			qboolean taper;
-		} electricity;
-	} data;
-
-	float		endTime;
-	float		saberLength;
-
-} refEntity_t;
-#endif
-//~QtZ
-
 
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
@@ -281,8 +131,8 @@ typedef struct {
 typedef struct {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
-	vec3_t		vieworg;
-	vec3_t		viewaxis[3];		// transformation matrix
+	vector3		vieworg;
+	vector3		viewaxis[3];		// transformation matrix
 
 	// time in milliseconds for shader effects and other time dependent rendering issues
 	int			time;
@@ -303,7 +153,6 @@ typedef enum {
 	STEREO_RIGHT
 } stereoFrame_t;
 
-
 /*
 ** glconfig_t
 **
@@ -317,26 +166,6 @@ typedef enum {
 	TC_S3TC_ARB  // this is for the GL_EXT_texture_compression_s3tc extension.
 } textureCompression_t;
 
-typedef enum {
-	GLDRV_ICD,					// driver is integrated with window system
-								// WARNING: there are tests that check for
-								// > GLDRV_ICD for minidriverness, so this
-								// should always be the lowest value in this
-								// enum set
-	GLDRV_STANDALONE,			// driver is a non-3Dfx standalone driver
-	GLDRV_VOODOO				// driver is a 3Dfx standalone driver
-} glDriverType_t;
-
-typedef enum {
-	GLHW_GENERIC,			// where everthing works the way it should
-	GLHW_3DFX_2D3D,			// Voodoo Banshee or Voodoo3, relevant since if this is
-							// the hardware type then there can NOT exist a secondary
-							// display adapter
-	GLHW_RIVA128,			// where you can't interpolate alpha
-	GLHW_RAGEPRO,			// where you can't modulate alpha on alpha textures
-	GLHW_PERMEDIA2			// where you don't have src*dst
-} glHardwareType_t;
-
 typedef struct {
 	char					renderer_string[MAX_STRING_CHARS];
 	char					vendor_string[MAX_STRING_CHARS];
@@ -348,9 +177,6 @@ typedef struct {
 	float					maxTextureFilterAnisotropy;
 
 	int						colorBits, depthBits, stencilBits;
-
-	glDriverType_t			driverType;
-	glHardwareType_t		hardwareType;
 
 	qboolean				deviceSupportsGamma;
 	textureCompression_t	textureCompression;
@@ -369,7 +195,6 @@ typedef struct {
 	// used CDS.
 	qboolean				isFullscreen;
 	qboolean				stereoEnabled;
-	qboolean				smpActive;		// dual processor
 } glconfig_t;
 
 #endif	// __TR_TYPES_H

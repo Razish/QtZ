@@ -93,20 +93,20 @@ typedef struct uiImport_s {
 	void			(*S_StopBackgroundTrack)		( void );
 
 	// renderer
-	void			(*R_AddLightToScene)			( const vec3_t org, float intensity, float r, float g, float b );
+	void			(*R_AddLightToScene)			( const vector3 *org, float intensity, float r, float g, float b );
 	void			(*R_AddPolyToScene)				( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
 	void			(*R_AddRefEntityToScene)		( const refEntity_t *re );
 	void			(*R_ClearScene)					( void );
 	void			(*R_DrawStretchPic)				( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	int				(*R_LerpTag)					( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
-	void			(*R_ModelBounds)				( qhandle_t model, vec3_t mins, vec3_t maxs );
+	void			(*R_ModelBounds)				( qhandle_t model, vector3 *mins, vector3 *maxs );
 	void			(*R_RegisterFont)				( const char *fontName, int pointSize, fontInfo_t *font );
 	qhandle_t		(*R_RegisterModel)				( const char *name );
 	qhandle_t		(*R_RegisterSkin)				( const char *name );
 	qhandle_t		(*R_RegisterShader)				( const char *name );
 	void			(*R_RemapShader)				( const char *oldShader, const char *newShader, const char *offsetTime );
 	void			(*R_RenderScene)				( const refdef_t *fd );
-	void			(*R_SetColor)					( const float *rgba );
+	void			(*R_SetColor)					( const vector4 *rgba );
 
 	// screen
 	void			(*UpdateScreen)					( void );
@@ -125,7 +125,6 @@ typedef struct uiImport_s {
 	int				(*GetConfigString)				( int index, char *buf, int size );
 	int				(*MemoryRemaining)				( void );
 	int				(*RealTime)						( qtime_t *qtime );
-	void			(*Q_SnapVector)					( vec3_t vec );
 
 	// keys
 	void			(*Key_ClearStates)				( void );

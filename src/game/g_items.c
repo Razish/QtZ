@@ -35,15 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   movers and respawn apropriately.
 */
 
-
-#define	RESPAWN_ARMOR		25
-#define	RESPAWN_HEALTH		35
-#define	RESPAWN_AMMO		40
-#define	RESPAWN_HOLDABLE	60
-#define	RESPAWN_MEGAHEALTH	35//120
-#define	RESPAWN_POWERUP		120
-
-
 //======================================================================
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
@@ -68,9 +59,9 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 	// give any nearby players a "denied" anti-reward
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		vec3_t		delta;
+		vector3		delta;
 		float		len;
-		vec3_t		forward;
+		vector3		forward;
 		trace_t		tr;
 
 		client = &level.clients[i];
@@ -84,27 +75,27 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 			continue;
 		}
 
-    // if same team in team game, no sound
-    // cannot use OnSameTeam as it expects to g_entities, not clients
-  	if ( g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
-      continue;
-    }
+		// if same team in team game, no sound
+		// cannot use OnSameTeam as it expects to g_entities, not clients
+		if ( level.gametype >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+			continue;
+		}
 
 		// if too far away, no sound
-		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );
-		len = VectorNormalize( delta );
+		VectorSubtract( &ent->s.pos.trBase, &client->ps.origin, &delta );
+		len = VectorNormalize( &delta );
 		if ( len > 192 ) {
 			continue;
 		}
 
 		// if not facing, no sound
-		AngleVectors( client->ps.viewangles, forward, NULL, NULL );
-		if ( DotProduct( delta, forward ) < 0.4 ) {
+		AngleVectors( &client->ps.viewangles, &forward, NULL, NULL );
+		if ( DotProduct( &delta, &forward ) < 0.4 ) {
 			continue;
 		}
 
 		// if not line of sight, no sound
-		gi.SV_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
+		gi.SV_Trace( &tr, &client->ps.origin, NULL, NULL, &ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
 		if ( tr.fraction != 1.0 ) {
 			continue;
 		}
@@ -112,46 +103,21 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		// anti-reward
 		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
 	}
-	return RESPAWN_POWERUP;
+	return g_powerupRespawnTime.integer;
 }
 
 //======================================================================
 
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
-	int		clientNum;
-	char	userinfo[MAX_INFO_STRING];
-	float	handicap;
-	int		max;
-
-	other->client->ps.stats[STAT_PERSISTANT_POWERUP] = ent->item - bg_itemlist;
+	other->client->ps.stats[STAT_PERSISTANT_POWERUP] = ent->item-bg_itemlist;
 	other->client->persistantPowerup = ent;
 
 	switch( ent->item->giTag ) {
 	case PW_GUARD:
-		clientNum = other->client->ps.clientNum;
-		gi.SV_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
-		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
-		}
-		max = (int)(2 *  handicap);
-
-		other->health = max;
-		other->client->ps.stats[STAT_HEALTH] = max;
-		other->client->ps.stats[STAT_MAX_HEALTH] = max;
-		other->client->ps.stats[STAT_ARMOR] = max;
-		other->client->pers.maxHealth = max;
-
+		//QTZTODO: hmmm
 		break;
 
 	default:
-		clientNum = other->client->ps.clientNum;
-		gi.SV_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
-		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
-		}
-		other->client->pers.maxHealth = handicap;
 		break;
 	}
 
@@ -164,7 +130,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
-	return RESPAWN_HOLDABLE;
+	return g_holdableRespawnTime.integer;
 }
 
 
@@ -173,50 +139,40 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 void Add_Ammo (gentity_t *ent, int weapon, int count)
 {
 	ent->client->ps.ammo[weapon] += count;
-	if ( ent->client->ps.ammo[weapon] > 200 ) {
-		ent->client->ps.ammo[weapon] = 200;
+	if ( ent->client->ps.ammo[weapon] > weaponData[weapon].ammoMax ) {
+		ent->client->ps.ammo[weapon] = weaponData[weapon].ammoMax;
 	}
 }
 
 int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 {
-	int		quantity;
+	Add_Ammo( other, ent->item->giTag, ent->count ? ent->count : ent->item->quantity );
 
-	if ( ent->count ) {
-		quantity = ent->count;
-	} else {
-		quantity = ent->item->quantity;
-	}
-
-	Add_Ammo (other, ent->item->giTag, quantity);
-
-	return RESPAWN_AMMO;
+	return g_ammoRespawnTime.integer;
 }
 
 //======================================================================
 
 
-int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
-	int		quantity;
+int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
+	int quantity;
 
-	if ( ent->count < 0 ) {
+	if ( ent->count < 0 )
 		quantity = 0; // None for you, sir!
-	} else {
-		if ( ent->count ) {
+	else {
+		if ( ent->count )
 			quantity = ent->count;
-		} else {
+		else
 			quantity = ent->item->quantity;
-		}
 
 		// dropped items and teamplay weapons always have full ammo
-		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
+		if ( !(ent->flags & FL_DROPPED_ITEM) && level.gametype != GT_TEAM ) {
 			// respawning rules
 			// drop the quantity if the already have over the minimum
-			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
+			if ( other->client->ps.ammo[ent->item->giTag] < quantity )
 				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
-			} else {
+			else
 				quantity = 1;		// only add a single shot
-			}
 		}
 	}
 
@@ -225,72 +181,37 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 
 	Add_Ammo( other, ent->item->giTag, quantity );
 
-	return g_weaponRespawn.integer;
+	return g_weaponRespawnTime.integer;
 }
 
 
 //======================================================================
 
 int Pickup_Health (gentity_t *ent, gentity_t *other) {
-	int			max;
-	int			quantity;
+	int quantity;
 
-	// small and mega healths will go over the max
-	if( bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-		max = other->client->ps.stats[STAT_MAX_HEALTH];
-	}
-	else if ( ent->item->quantity != 5 && ent->item->quantity != 100 ) {
-		max = other->client->ps.stats[STAT_MAX_HEALTH];
-	} else {
-		max = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
-
-	if ( ent->count ) {
+	if ( ent->count )
 		quantity = ent->count;
-	} else {
+	else
 		quantity = ent->item->quantity;
-	}
 
 	other->health += quantity;
 
-	if (other->health > max ) {
-		other->health = max;
-	}
+	if (other->health > MAX_HEALTH )
+		other->health = MAX_HEALTH;
 	other->client->ps.stats[STAT_HEALTH] = other->health;
 
-	if ( ent->item->quantity == 100 ) {		// mega health respawns slow
-		return RESPAWN_MEGAHEALTH;
-	}
-
-	return RESPAWN_HEALTH;
+	return ent->item->respawn;
 }
 
 //======================================================================
 
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
-#ifdef QTZRELIC
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
-	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
-#else
-	int		upperBound;
+	if ( other->client->ps.stats[STAT_ARMOR] > ent->item->quantity )
+		other->client->ps.stats[STAT_ARMOR] = ent->item->quantity;
 
-	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
-
-	if( other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-		upperBound = other->client->ps.stats[STAT_MAX_HEALTH];
-	}
-	else {
-		upperBound = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
-
-	if ( other->client->ps.stats[STAT_ARMOR] > upperBound ) {
-		other->client->ps.stats[STAT_ARMOR] = upperBound;
-	}
-#endif // QTZRELIC
-
-	return RESPAWN_ARMOR;
+	return ent->item->respawn;
 }
 
 //======================================================================
@@ -303,22 +224,16 @@ RespawnItem
 void RespawnItem( gentity_t *ent ) {
 	// randomly select from teamed entities
 	if (ent->team) {
-		gentity_t	*master;
-		int	count;
-		int choice;
+		gentity_t *master;
+		int	count, choice;
 
-		if ( !ent->teammaster ) {
+		if ( !ent->teammaster )
 			G_Error( "RespawnItem: bad teammaster");
-		}
 		master = ent->teammaster;
 
-		for (count = 0, ent = master; ent; ent = ent->teamchain, count++)
-			;
-
+		for ( count=0, ent=master; ent; ent=ent->teamchain, count++ ) ;
 		choice = rand() % count;
-
-		for (count = 0, ent = master; count < choice; ent = ent->teamchain, count++)
-			;
+		for ( count=0, ent=master; count < choice; ent=ent->teamchain, count++ ) ;
 	}
 
 	ent->r.contents = CONTENTS_TRIGGER;
@@ -328,7 +243,7 @@ void RespawnItem( gentity_t *ent ) {
 
 	if ( ent->item->giType == IT_POWERUP ) {
 		// play powerup spawn sound to all clients
-		gentity_t *te = G_TempEntity( ent->s.pos.trBase, ent->speed ? EV_GENERAL_SOUND : EV_GLOBAL_SOUND );
+		gentity_t *te = G_TempEntity( &ent->s.pos.trBase, ent->speed ? EV_GENERAL_SOUND : EV_GLOBAL_SOUND );
 		te->s.eventParm = G_SoundIndex( "sound/items/poweruprespawn.wav" );
 		te->r.svFlags |= SVF_BROADCAST;
 	}
@@ -355,7 +270,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;		// dead people can't pickup
 
 	// the same pickup rules are used for client side and server side
-	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
+	if ( !BG_CanItemBeGrabbed( level.gametype, &ent->s, &other->client->ps ) ) {
 		return;
 	}
 
@@ -413,13 +328,13 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		if (!ent->speed) {
 			gentity_t	*te;
 
-			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
+			te = G_TempEntity( &ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
 			te->s.eventParm = ent->s.modelindex;
 			te->r.svFlags |= SVF_BROADCAST;
 		} else {
 			gentity_t	*te;
 
-			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
+			te = G_TempEntity( &ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
 			te->s.eventParm = ent->s.modelindex;
 			// only send this temp entity to a single client
 			te->r.svFlags |= SVF_SINGLECLIENT;
@@ -441,15 +356,14 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	// non zero wait overrides respawn time
 	if ( ent->wait ) {
-		respawn = ent->wait;
+		respawn = (int)ent->wait;
 	}
 
 	// random can be used to vary the respawn time
 	if ( ent->random ) {
-		respawn += crandom() * ent->random;
-		if ( respawn < 1 ) {
+		respawn += (int)(crandom() * ent->random);
+		if ( respawn < 1 )
 			respawn = 1;
-		}
 	}
 
 	// dropped items will not respawn
@@ -465,9 +379,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	ent->r.contents = 0;
 
 	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
-	// events such as ctf flags
+	// A negative respawn times means to never respawn this item (but don't delete it).
+	// This is used by items that are respawned by third party events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
 		ent->think = 0;
@@ -488,9 +401,9 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
+gentity_t *LaunchItem( gitem_t *item, vector3 *origin, vector3 *velocity ) {
 	gentity_t	*dropped;
-	vec3_t mins=ITEM_MINS, maxs=ITEM_MAXS;
+	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
 
 	dropped = G_Spawn();
 
@@ -500,8 +413,8 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped->classname = item->classname;
 	dropped->item = item;
-	VectorCopy( mins, dropped->r.mins );
-	VectorCopy( maxs, dropped->r.maxs );
+	VectorCopy( &mins, &dropped->r.mins );
+	VectorCopy( &maxs, &dropped->r.maxs );
 	dropped->r.contents = CONTENTS_TRIGGER;
 
 	dropped->touch = Touch_Item;
@@ -509,10 +422,10 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	G_SetOrigin( dropped, origin );
 	dropped->s.pos.trType = TR_GRAVITY;
 	dropped->s.pos.trTime = level.time;
-	VectorCopy( velocity, dropped->s.pos.trDelta );
+	VectorCopy( velocity, &dropped->s.pos.trDelta );
 
 	dropped->flags |= FL_BOUNCE_HALF;
-	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
+	if ((level.gametype == GT_CTF || level.gametype == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
@@ -536,18 +449,18 @@ Spawns an item and tosses it forward
 ================
 */
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
-	vec3_t	velocity;
-	vec3_t	angles;
+	vector3	velocity;
+	vector3	angles;
 
-	VectorCopy( ent->s.apos.trBase, angles );
-	angles[YAW] += angle;
-	angles[PITCH] = 0;	// always forward
+	VectorCopy( &ent->s.apos.trBase, &angles );
+	angles.yaw += angle;
+	angles.pitch = 0;	// always forward
 
-	AngleVectors( angles, velocity, NULL, NULL );
-	VectorScale( velocity, 150, velocity );
-	velocity[2] += 200 + crandom() * 50;
+	AngleVectors( &angles, &velocity, NULL, NULL );
+	VectorScale( &velocity, 150, &velocity );
+	velocity.z += 200 + crandom() * 50;
 	
-	return LaunchItem( item, ent->s.pos.trBase, velocity );
+	return LaunchItem( item, &ent->s.pos.trBase, &velocity );
 }
 
 
@@ -574,11 +487,11 @@ free fall from their spawn points
 */
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
-	vec3_t		dest;
-	vec3_t mins=ITEM_MINS, maxs=ITEM_MAXS;
+	vector3		dest;
+	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
 
-	VectorCopy( mins, ent->r.mins );
-	VectorCopy( maxs, ent->r.maxs );
+	VectorCopy( &mins, &ent->r.mins );
+	VectorCopy( &maxs, &ent->r.maxs );
 
 	ent->s.eType = ET_ITEM;
 	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
@@ -591,13 +504,13 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 	if ( ent->spawnflags & 1 ) {
 		// suspended
-		G_SetOrigin( ent, ent->s.origin );
+		G_SetOrigin( ent, &ent->s.origin );
 	} else {
 		// drop to floor
-		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-		gi.SV_Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
+		VectorSet( &dest, ent->s.origin.x, ent->s.origin.y, ent->s.origin.z - 4096 );
+		gi.SV_Trace( &tr, &ent->s.origin, &ent->r.mins, &ent->r.maxs, &dest, ent->s.number, MASK_SOLID );
 		if ( tr.startsolid ) {
-			G_Printf ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+			G_Printf ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(&ent->s.origin));
 			G_FreeEntity( ent );
 			return;
 		}
@@ -605,7 +518,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		// allow to ride movers
 		ent->s.groundEntityNum = tr.entityNum;
 
-		G_SetOrigin( ent, tr.endpos );
+		G_SetOrigin( ent, &tr.endpos );
 	}
 
 	// team slaves and targeted items aren't present at start
@@ -622,7 +535,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		respawn = 45 + crandom() * 15;
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
-		ent->nextthink = level.time + respawn * 1000;
+		ent->nextthink = level.time + (int)(respawn * 1000);
 		ent->think = RespawnItem;
 		return;
 	}
@@ -644,7 +557,7 @@ void G_CheckTeamItems( void ) {
 	// Set up team stuff
 	Team_InitGame();
 
-	if( g_gametype.integer == GT_CTF ) {
+	if( level.gametype == GT_CTF ) {
 		gitem_t	*item;
 
 		// check for the two flags
@@ -657,7 +570,7 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
 		}
 	}
-	if( g_gametype.integer == GT_1FCTF ) {
+	if( level.gametype == GT_1FCTF ) {
 		gitem_t	*item;
 
 		// check for all three flags
@@ -766,7 +679,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
-	ent->nextthink = level.time + (1000/sv_fps.integer) * 2;
+	ent->nextthink = level.time + sv_frametime.integer * 2;
 	ent->think = FinishSpawningItem;
 
 	ent->physicsBounce = 0.50;		// items are bouncy
@@ -789,30 +702,30 @@ G_BounceItem
 ================
 */
 void G_BounceItem( gentity_t *ent, trace_t *trace ) {
-	vec3_t	velocity;
+	vector3	velocity;
 	float	dot;
 	int		hitTime;
 
 	// reflect the velocity on the trace plane
-	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
-	dot = DotProduct( velocity, trace->plane.normal );
-	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
+	hitTime = level.previousTime + (int)((level.time - level.previousTime) * trace->fraction);
+	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, &velocity );
+	dot = DotProduct( &velocity, &trace->plane.normal );
+	VectorMA( &velocity, -2*dot, &trace->plane.normal, &ent->s.pos.trDelta );
 
 	// cut the velocity to keep from bouncing forever
-	VectorScale( ent->s.pos.trDelta, ent->physicsBounce, ent->s.pos.trDelta );
+	VectorScale( &ent->s.pos.trDelta, ent->physicsBounce, &ent->s.pos.trDelta );
 
 	// check for stop
-	if ( trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40 ) {
-		trace->endpos[2] += 1.0;	// make sure it is off ground
-		SnapVector( trace->endpos );
-		G_SetOrigin( ent, trace->endpos );
+	if ( trace->plane.normal.z > 0 && ent->s.pos.trDelta.z < 40 ) {
+		trace->endpos.z += 1.0;	// make sure it is off ground
+		VectorSnap( &trace->endpos );
+		G_SetOrigin( ent, &trace->endpos );
 		ent->s.groundEntityNum = trace->entityNum;
 		return;
 	}
 
-	VectorAdd( ent->r.currentOrigin, trace->plane.normal, ent->r.currentOrigin);
-	VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+	VectorAdd( &ent->r.currentOrigin, &trace->plane.normal, &ent->r.currentOrigin);
+	VectorCopy( &ent->r.currentOrigin, &ent->s.pos.trBase );
 	ent->s.pos.trTime = level.time;
 }
 
@@ -824,7 +737,7 @@ G_RunItem
 ================
 */
 void G_RunItem( gentity_t *ent ) {
-	vec3_t		origin;
+	vector3		origin;
 	trace_t		tr;
 	int			contents;
 	int			mask;
@@ -844,7 +757,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// get current position
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	BG_EvaluateTrajectory( &ent->s.pos, level.time, &origin );
 
 	// trace a line from the previous position to the current position
 	if ( ent->clipmask ) {
@@ -852,10 +765,9 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	gi.SV_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, 
-		ent->r.ownerNum, mask );
+	gi.SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, ent->r.ownerNum, mask );
 
-	VectorCopy( tr.endpos, ent->r.currentOrigin );
+	VectorCopy( &tr.endpos, &ent->r.currentOrigin );
 
 	if ( tr.startsolid ) {
 		tr.fraction = 0;
@@ -871,7 +783,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// if it is in a nodrop volume, remove it
-	contents = gi.SV_PointContents( ent->r.currentOrigin, -1 );
+	contents = gi.SV_PointContents( &ent->r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
 			Team_FreeEntity(ent);

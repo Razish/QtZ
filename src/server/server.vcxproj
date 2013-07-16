@@ -158,6 +158,7 @@
     <ClCompile Include=".\sv_world.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\qcommon\q_asm.h" />
     <ClInclude Include=".\sv_local.h" />
     <ClInclude Include=".\sv_public.h" />
   </ItemGroup>

@@ -68,7 +68,7 @@ float LibVarStringValue(char *string)
 		} //end if
 		else
 		{
-			value = value * 10.0 + (float) (*string - '0');
+			value = value * 10.0f + (float) (*string - '0');
 		} //end else
 		string++;
 	} //end while
@@ -85,7 +85,7 @@ libvar_t *LibVarAlloc(char *var_name)
 	libvar_t *v;
 
 	v = (libvar_t *) GetMemory(sizeof(libvar_t));
-	Com_Memset(v, 0, sizeof(libvar_t));
+	memset(v, 0, sizeof(libvar_t));
 	v->name = (char *) GetMemory(strlen(var_name)+1);
 	strcpy(v->name, var_name);
 	//add the variable in the list

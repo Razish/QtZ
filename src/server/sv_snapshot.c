@@ -291,8 +291,7 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 SV_AddEntitiesVisibleFromPoint
 ===============
 */
-static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, qboolean portal ) {
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -416,13 +415,13 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		// if it's a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
 			if ( ent->s.generic1 ) {
-				vec3_t dir;
-				VectorSubtract(ent->s.origin, origin, dir);
-				if ( VectorLengthSquared(dir) > (float) ent->s.generic1 * ent->s.generic1 ) {
+				vector3 dir;
+				VectorSubtract(&ent->s.origin, origin, &dir);
+				if ( VectorLengthSquared(&dir) > (float) ent->s.generic1 * ent->s.generic1 ) {
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( &ent->s.origin2, frame, eNums, qtrue );
 		}
 
 	}
@@ -442,7 +441,7 @@ For viewing through other player's eyes, clent can be something other than clien
 =============
 */
 static void SV_BuildClientSnapshot( client_t *client ) {
-	vec3_t						org;
+	vector3						org;
 	clientSnapshot_t			*frame;
 	snapshotEntityNumbers_t		entityNumbers;
 	int							i;
@@ -461,7 +460,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// clear everything in this snapshot
 	entityNumbers.numSnapshotEntities = 0;
-	Com_Memset( frame->areabits, 0, sizeof( frame->areabits ) );
+	memset( frame->areabits, 0, sizeof( frame->areabits ) );
 
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
 	frame->num_entities = 0;
@@ -486,12 +485,12 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	svEnt->snapshotCounter = sv.snapshotCounter;
 
 	// find the client's viewpoint
-	VectorCopy( ps->origin, org );
-	org[2] += ps->viewheight;
+	VectorCopy( &ps->origin, &org );
+	org.z += ps->viewheight;
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( &org, frame, &entityNumbers, qfalse );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -667,9 +666,11 @@ void SV_SendClientMessages(void)
 		if(!(c->netchan.remoteAddress.type == NA_LOOPBACK ||
 		     (sv_lanForceRate->integer && svi.Sys_IsLANAddress(c->netchan.remoteAddress))))
 		{
+			//int msec = 1000/Q_clampi( 1, sv_snapshotRate->integer, sv_fps->integer );
+			int msec = Q_bumpi( 1000/Q_bumpi( 1, sv_snapshotRate->integer ), sv_frametime->integer );
 			// rate control for clients not on LAN 
 			
-			if(svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value)
+			if(svs.time - c->lastSnapshotTime < msec * com_timescale->value)
 				continue;		// It's not time yet
 
 			if(SV_RateMsec(c) > 0)

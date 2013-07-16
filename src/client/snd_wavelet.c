@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "snd_local.h"
 
-#define C0 0.4829629131445341
-#define C1 0.8365163037378079
-#define C2 0.2241438680420134
-#define C3 -0.1294095225512604
+#define C0 0.4829629131445341f
+#define C1 0.8365163037378079f
+#define C2 0.2241438680420134f
+#define C3 -0.1294095225512604f
 
 void daub4(float b[], unsigned long n, int isign)
 {
@@ -60,7 +60,7 @@ void daub4(float b[], unsigned long n, int isign)
 void wt1(float a[], unsigned long n, int isign)
 {
 	unsigned long nn;
-	int inverseStartLength = n/4;
+	unsigned int inverseStartLength = n/4;
 	if (n < inverseStartLength) return;
 	if (isign >= 0) {
 		for (nn=n;nn>=inverseStartLength;nn>>=1) daub4(a,nn,isign);
@@ -105,7 +105,7 @@ short MuLawDecode(byte uLaw) {
 	mantissa = (uLaw&0xf) + 16;
 	adjusted = (mantissa << (exponent +3)) - 128 - 4;
 
-	return (uLaw & 0x80)? adjusted : -adjusted;
+	return (uLaw & 0x80)? (short)adjusted : (short)-adjusted;
 }
 
 short mulawToShort[256];
@@ -126,7 +126,7 @@ void encodeWavelet( sfx_t *sfx, short *packets) {
 
 	if (!madeTable) {
 		for (i=0;i<256;i++) {
-			mulawToShort[i] = (float)MuLawDecode((byte)i);
+			mulawToShort[i] = (short)MuLawDecode((byte)i);
 		}
 		madeTable = qtrue;
 	}
@@ -185,7 +185,7 @@ void decodeWavelet(sndBuffer *chunk, short *to) {
 	if (!to) return;
 
 	for(i=0; i<size; i++) {
-		to[i] = wksp[i];
+		to[i] = (short)wksp[i];
 	}
 }
 
@@ -197,7 +197,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets) {
 
 	if (!madeTable) {
 		for (i=0;i<256;i++) {
-			mulawToShort[i] = (float)MuLawDecode((byte)i);
+			mulawToShort[i] = (short)MuLawDecode((byte)i);
 		}
 		madeTable = qtrue;
 	}

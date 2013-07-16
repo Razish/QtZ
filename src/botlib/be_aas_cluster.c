@@ -588,7 +588,7 @@ qboolean AAS_CanMergeAreas(int *areanums, int numareas)
 qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int side2, int planenum)
 {
 	int i;
-	vec3_t edgevec1, edgevec2, normal1, normal2;
+	vector3 edgevec1, edgevec2, normal1, normal2;
 	float dist1, dist2;
 	aas_plane_t *plane;
 
@@ -725,7 +725,7 @@ qboolean AAS_ConnectedAreas(int *areanums, int numareas)
 {
 	int connectedareas[MAX_PORTALAREAS], i;
 
-	Com_Memset(connectedareas, 0, sizeof(connectedareas));
+	memset(connectedareas, 0, sizeof(connectedareas));
 	if (numareas < 1) return qfalse;
 	if (numareas == 1) return qtrue;
 	AAS_ConnectedAreas_r(areanums, numareas, connectedareas, 0);
@@ -809,8 +809,8 @@ int AAS_CheckAreaForPossiblePortals(int areanum)
 	//it must be a grounded area
 	if (!(aasworld.areasettings[areanum].areaflags & AREA_GROUNDED)) return 0;
 	//
-	Com_Memset(numareafrontfaces, 0, sizeof(numareafrontfaces));
-	Com_Memset(numareabackfaces, 0, sizeof(numareabackfaces));
+	memset(numareafrontfaces, 0, sizeof(numareafrontfaces));
+	memset(numareabackfaces, 0, sizeof(numareabackfaces));
 	numfrontfaces = numbackfaces = 0;
 	numfrontareas = numbackareas = 0;
 	frontplanenum = backplanenum = -1;
@@ -1215,8 +1215,8 @@ void AAS_AddTeleporterPortals(void)
 	int j, area2num, facenum, otherareanum;
 	char *target, *targetname, *classname;
 	bsp_entity_t *entities, *ent, *dest;
-	vec3_t origin, destorigin, mins, maxs, end;
-	vec3_t bbmins, bbmaxs;
+	vector3 origin, destorigin, mins, maxs, end;
+	vector3 bbmins, bbmaxs;
 	aas_area_t *area;
 	aas_face_t *face;
 	aas_trace_t trace;

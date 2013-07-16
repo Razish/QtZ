@@ -106,7 +106,7 @@ void AAS_RoutingInfo(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static ID_INLINE int AAS_ClusterAreaNum(int cluster, int areanum)
+static QINLINE int AAS_ClusterAreaNum(int cluster, int areanum)
 {
 	int side, areacluster;
 
@@ -166,7 +166,7 @@ void AAS_InitTravelFlagFromType(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static ID_INLINE int AAS_TravelFlagForType_inline(int traveltype)
+static QINLINE int AAS_TravelFlagForType_inline(int traveltype)
 {
 	int tfl;
 
@@ -339,7 +339,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static ID_INLINE float AAS_RoutingTime(void)
+static QINLINE float AAS_RoutingTime(void)
 {
 	return AAS_Time();
 } //end of the function AAS_RoutingTime
@@ -379,7 +379,7 @@ int AAS_GetAreaContentsTravelFlags(int areanum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static ID_INLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
+static QINLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
 {
 	return aasworld.areacontentstravelflags[areanum];
 } //end of the function AAS_AreaContentsTravelFlags
@@ -471,14 +471,14 @@ void AAS_CreateReversedReachability(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-unsigned short int AAS_AreaTravelTime(int areanum, vec3_t start, vec3_t end)
+unsigned short int AAS_AreaTravelTime(int areanum, vector3 *start, vector3 *end)
 {
 	int intdist;
 	float dist;
-	vec3_t dir;
+	vector3 dir;
 
-	VectorSubtract(start, end, dir);
-	dist = VectorLength(dir);
+	VectorSubtract(start, end, &dir);
+	dist = VectorLength(&dir);
 	//if crouch only area
 	if (AAS_AreaCrouch(areanum)) dist *= DISTANCEFACTOR_CROUCH;
 	//if swim area
@@ -501,7 +501,7 @@ void AAS_CalculateAreaTravelTimes(void)
 {
 	int i, l, n, size;
 	char *ptr;
-	vec3_t end;
+	vector3 end;
 	aas_reversedreachability_t *revreach;
 	aas_reversedlink_t *revlink;
 	aas_reachability_t *reach;
@@ -550,9 +550,9 @@ void AAS_CalculateAreaTravelTimes(void)
 			//
 			for (n = 0, revlink = revreach->first; revlink; revlink = revlink->next, n++)
 			{
-				VectorCopy(aasworld.reachability[revlink->linknum].end, end);
+				VectorCopy(&aasworld.reachability[revlink->linknum].end, &end);
 				//
-				aasworld.areatraveltimes[i][l][n] = AAS_AreaTravelTime(i, end, reach->start);
+				aasworld.areatraveltimes[i][l][n] = AAS_AreaTravelTime(i, &end, &reach->start);
 			} //end for
 		} //end for
 	} //end for
@@ -901,7 +901,7 @@ void AAS_CreateAllRoutingCache(void)
 		{
 			if (i == j) continue;
 			if (!AAS_AreaReachability(j)) continue;
-			AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, TFL_DEFAULT);
+			AAS_AreaTravelTimeToGoalArea(i, &aasworld.areas[i].center, j, TFL_DEFAULT);
 			//t = AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, TFL_DEFAULT);
 			//Log_Write("traveltime from %d to %d is %d", i, j, t);
 		} //end for
@@ -1150,7 +1150,7 @@ void AAS_InitReachabilityAreas(void)
 	int i, j, numareas, areas[MAX_REACHABILITYPASSAREAS];
 	int numreachareas;
 	aas_reachability_t *reach;
-	vec3_t start, end;
+	vector3 start, end;
 
 	if (aasworld.reachabilityareas)
 		FreeMemory(aasworld.reachabilityareas);
@@ -1171,17 +1171,17 @@ void AAS_InitReachabilityAreas(void)
 			//trace areas from start to end
 			case TRAVEL_BARRIERJUMP:
 			case TRAVEL_WATERJUMP:
-				VectorCopy(reach->start, end);
-				end[2] = reach->end[2];
-				numareas = AAS_TraceAreas(reach->start, end, areas, NULL, MAX_REACHABILITYPASSAREAS);
+				VectorCopy(&reach->start, &end);
+				end.z = reach->end.z;
+				numareas = AAS_TraceAreas(&reach->start, &end, areas, NULL, MAX_REACHABILITYPASSAREAS);
 				break;
 			case TRAVEL_WALKOFFLEDGE:
-				VectorCopy(reach->end, start);
-				start[2] = reach->start[2];
-				numareas = AAS_TraceAreas(start, reach->end, areas, NULL, MAX_REACHABILITYPASSAREAS);
+				VectorCopy(&reach->end, &start);
+				start.z = reach->start.z;
+				numareas = AAS_TraceAreas(&start, &reach->end, areas, NULL, MAX_REACHABILITYPASSAREAS);
 				break;
 			case TRAVEL_GRAPPLEHOOK:
-				numareas = AAS_TraceAreas(reach->start, reach->end, areas, NULL, MAX_REACHABILITYPASSAREAS);
+				numareas = AAS_TraceAreas(&reach->start, &reach->end, areas, NULL, MAX_REACHABILITYPASSAREAS);
 				break;
 
 			//trace arch
@@ -1308,22 +1308,22 @@ void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
 	//
 	aasworld.frameroutingupdates++;
 	//clear the routing update fields
-//	Com_Memset(aasworld.areaupdate, 0, aasworld.numareas * sizeof(aas_routingupdate_t));
+//	memset(aasworld.areaupdate, 0, aasworld.numareas * sizeof(aas_routingupdate_t));
 	//
 	badtravelflags = ~areacache->travelflags;
 	//
 	clusterareanum = AAS_ClusterAreaNum(areacache->cluster, areacache->areanum);
 	if (clusterareanum >= numreachabilityareas) return;
 	//
-	Com_Memset(startareatraveltimes, 0, sizeof(startareatraveltimes));
+	memset(startareatraveltimes, 0, sizeof(startareatraveltimes));
 	//
 	curupdate = &aasworld.areaupdate[clusterareanum];
 	curupdate->areanum = areacache->areanum;
 	//VectorCopy(areacache->origin, curupdate->start);
 	curupdate->areatraveltimes = startareatraveltimes;
-	curupdate->tmptraveltime = areacache->starttraveltime;
+	curupdate->tmptraveltime = (unsigned short)areacache->starttraveltime;
 	//
-	areacache->traveltimes[clusterareanum] = areacache->starttraveltime;
+	areacache->traveltimes[clusterareanum] = (unsigned short)areacache->starttraveltime;
 	//put the area to start with in the current read list
 	curupdate->next = NULL;
 	curupdate->prev = NULL;
@@ -1422,7 +1422,7 @@ aas_routingcache_t *AAS_GetAreaRoutingCache(int clusternum, int areanum, int tra
 		cache = AAS_AllocRoutingCache(aasworld.clusters[clusternum].numreachabilityareas);
 		cache->cluster = clusternum;
 		cache->areanum = areanum;
-		VectorCopy(aasworld.areas[areanum].center, cache->origin);
+		VectorCopy(&aasworld.areas[areanum].center, &cache->origin);
 		cache->starttraveltime = 1;
 		cache->travelflags = travelflags;
 		cache->prev = NULL;
@@ -1460,17 +1460,17 @@ void AAS_UpdatePortalRoutingCache(aas_routingcache_t *portalcache)
 	numportalcacheupdates++;
 #endif //ROUTING_DEBUG
 	//clear the routing update fields
-//	Com_Memset(aasworld.portalupdate, 0, (aasworld.numportals+1) * sizeof(aas_routingupdate_t));
+//	memset(aasworld.portalupdate, 0, (aasworld.numportals+1) * sizeof(aas_routingupdate_t));
 	//
 	curupdate = &aasworld.portalupdate[aasworld.numportals];
 	curupdate->cluster = portalcache->cluster;
 	curupdate->areanum = portalcache->areanum;
-	curupdate->tmptraveltime = portalcache->starttraveltime;
+	curupdate->tmptraveltime = (unsigned short)portalcache->starttraveltime;
 	//if the start area is a cluster portal, store the travel time for that portal
 	clusternum = aasworld.areasettings[portalcache->areanum].cluster;
 	if (clusternum < 0)
 	{
-		portalcache->traveltimes[-clusternum] = portalcache->starttraveltime;
+		portalcache->traveltimes[-clusternum] = (unsigned short)portalcache->starttraveltime;
 	} //end if
 	//put the area to start with in the current read list
 	curupdate->next = NULL;
@@ -1560,7 +1560,7 @@ aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, int t
 		cache = AAS_AllocRoutingCache(aasworld.numportals);
 		cache->cluster = clusternum;
 		cache->areanum = areanum;
-		VectorCopy(aasworld.areas[areanum].center, cache->origin);
+		VectorCopy(&aasworld.areas[areanum].center, &cache->origin);
 		cache->starttraveltime = 1;
 		cache->travelflags = travelflags;
 		//add the cache to the cache list
@@ -1587,7 +1587,7 @@ aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, int t
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags, int *traveltime, int *reachnum)
+int AAS_AreaRouteToGoalArea(int areanum, vector3 *origin, int goalareanum, int travelflags, int *traveltime, int *reachnum)
 {
 	int clusternum, goalclusternum, portalnum, i, clusterareanum, bestreachnum;
 	unsigned short int t, besttime;
@@ -1686,7 +1686,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 			}
 			reach = &aasworld.reachability[*reachnum];
 			*traveltime = areacache->traveltimes[clusterareanum] +
-							AAS_AreaTravelTime(areanum, origin, reach->start);
+							AAS_AreaTravelTime(areanum, origin, &reach->start);
 			//
 			return qtrue;
 		} //end if
@@ -1747,7 +1747,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 			*reachnum = aasworld.areasettings[areanum].firstreachablearea +
 							areacache->reachabilities[clusterareanum];
 			reach = aasworld.reachability + *reachnum;
-			t += AAS_AreaTravelTime(areanum, origin, reach->start);
+			t += AAS_AreaTravelTime(areanum, origin, &reach->start);
 		} //end if
 		//if the time is better than the one already found
 		if (!besttime || t < besttime)
@@ -1769,7 +1769,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags)
+int AAS_AreaTravelTimeToGoalArea(int areanum, vector3 *origin, int goalareanum, int travelflags)
 {
 	int traveltime, reachnum;
 
@@ -1785,7 +1785,7 @@ int AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, in
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaReachabilityToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags)
+int AAS_AreaReachabilityToGoalArea(int areanum, vector3 *origin, int goalareanum, int travelflags)
 {
 	int traveltime, reachnum;
 
@@ -1802,12 +1802,12 @@ int AAS_AreaReachabilityToGoalArea(int areanum, vec3_t origin, int goalareanum, 
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origin,
+int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vector3 *origin,
 							int goalareanum, int travelflags, int maxareas, int maxtime,
 							int stopevent, int stopcontents, int stoptfl, int stopareanum)
 {
 	int curareanum, reachnum, i, j, testareanum;
-	vec3_t curorigin;
+	vector3 curorigin;
 	aas_reachability_t *reach;
 	aas_reachabilityareas_t *reachareas;
 
@@ -1816,15 +1816,15 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 	route->endarea = goalareanum;
 	route->endcontents = 0;
 	route->endtravelflags = 0;
-	VectorCopy(origin, route->endpos);
+	VectorCopy(origin, &route->endpos);
 	route->time = 0;
 
 	curareanum = areanum;
-	VectorCopy(origin, curorigin);
+	VectorCopy(origin, &curorigin);
 
 	for (i = 0; curareanum != goalareanum && (!maxareas || i < maxareas) && i < aasworld.numareas; i++)
 	{
-		reachnum = AAS_AreaReachabilityToGoalArea(curareanum, curorigin, goalareanum, travelflags);
+		reachnum = AAS_AreaReachabilityToGoalArea(curareanum, &curorigin, goalareanum, travelflags);
 		if (!reachnum)
 		{
 			route->stopevent = RSE_NOROUTE;
@@ -1840,7 +1840,7 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 				route->endarea = curareanum;
 				route->endcontents = aasworld.areasettings[curareanum].contents;
 				route->endtravelflags = AAS_TravelFlagForType_inline(reach->traveltype);
-				VectorCopy(reach->start, route->endpos);
+				VectorCopy(&reach->start, &route->endpos);
 				return qtrue;
 			} //end if
 			if (AAS_AreaContentsTravelFlags_inline(reach->areanum) & stoptfl)
@@ -1849,8 +1849,8 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 				route->endarea = reach->areanum;
 				route->endcontents = aasworld.areasettings[reach->areanum].contents;
 				route->endtravelflags = AAS_AreaContentsTravelFlags_inline(reach->areanum);
-				VectorCopy(reach->end, route->endpos);
-				route->time += AAS_AreaTravelTime(areanum, origin, reach->start);
+				VectorCopy(&reach->end, &route->endpos);
+				route->time += AAS_AreaTravelTime(areanum, origin, &reach->start);
 				route->time += reach->traveltime;
 				return qtrue;
 			} //end if
@@ -1869,8 +1869,8 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 					route->stopevent = RSE_ENTERCONTENTS;
 					route->endarea = testareanum;
 					route->endcontents = aasworld.areasettings[testareanum].contents;
-					VectorCopy(reach->end, route->endpos);
-					route->time += AAS_AreaTravelTime(areanum, origin, reach->start);
+					VectorCopy(&reach->end, &route->endpos);
+					route->time += AAS_AreaTravelTime(areanum, origin, &reach->start);
 					route->time += reach->traveltime;
 					return qtrue;
 				} //end if
@@ -1882,21 +1882,21 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 					route->stopevent = RSE_ENTERAREA;
 					route->endarea = testareanum;
 					route->endcontents = aasworld.areasettings[testareanum].contents;
-					VectorCopy(reach->start, route->endpos);
+					VectorCopy(&reach->start, &route->endpos);
 					return qtrue;
 				} //end if
 			} //end if
 		} //end for
 
-		route->time += AAS_AreaTravelTime(areanum, origin, reach->start);
+		route->time += AAS_AreaTravelTime(areanum, origin, &reach->start);
 		route->time += reach->traveltime;
 		route->endarea = reach->areanum;
 		route->endcontents = aasworld.areasettings[reach->areanum].contents;
 		route->endtravelflags = AAS_TravelFlagForType_inline(reach->traveltype);
-		VectorCopy(reach->end, route->endpos);
+		VectorCopy(&reach->end, &route->endpos);
 		//
 		curareanum = reach->areanum;
-		VectorCopy(reach->end, curorigin);
+		VectorCopy(&reach->end, &curorigin);
 		//
 		if (maxtime && route->time > maxtime)
 			break;
@@ -1925,15 +1925,15 @@ void AAS_ReachabilityFromNum(int num, struct aas_reachability_s *reach)
 {
 	if (!aasworld.initialized)
 	{
-		Com_Memset(reach, 0, sizeof(aas_reachability_t));
+		memset(reach, 0, sizeof(aas_reachability_t));
 		return;
 	} //end if
 	if (num < 0 || num >= aasworld.reachabilitysize)
 	{
-		Com_Memset(reach, 0, sizeof(aas_reachability_t));
+		memset(reach, 0, sizeof(aas_reachability_t));
 		return;
 	} //end if
-	Com_Memcpy(reach, &aasworld.reachability[num], sizeof(aas_reachability_t));;
+	memcpy(reach, &aasworld.reachability[num], sizeof(aas_reachability_t));;
 } //end of the function AAS_ReachabilityFromNum
 //===========================================================================
 //
@@ -2003,45 +2003,45 @@ int AAS_NextModelReachability(int num, int modelnum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_RandomGoalArea(int areanum, int travelflags, int *goalareanum, vec3_t goalorigin)
+int AAS_RandomGoalArea(int areanum, int travelflags, int *goalareanum, vector3 *goalorigin)
 {
 	int i, n, t;
-	vec3_t start, end;
+	vector3 start, end;
 	aas_trace_t trace;
 
 	//if the area has no reachabilities
 	if (!AAS_AreaReachability(areanum)) return qfalse;
 	//
-	n = aasworld.numareas * random();
+	n = (int)(aasworld.numareas * random());
 	for (i = 0; i < aasworld.numareas; i++)
 	{
 		if (n <= 0) n = 1;
 		if (n >= aasworld.numareas) n = 1;
 		if (AAS_AreaReachability(n))
 		{
-			t = AAS_AreaTravelTimeToGoalArea(areanum, aasworld.areas[areanum].center, n, travelflags);
+			t = AAS_AreaTravelTimeToGoalArea(areanum, &aasworld.areas[areanum].center, n, travelflags);
 			//if the goal is reachable
 			if (t > 0)
 			{
 				if (AAS_AreaSwim(n))
 				{
 					*goalareanum = n;
-					VectorCopy(aasworld.areas[n].center, goalorigin);
+					VectorCopy(&aasworld.areas[n].center, goalorigin);
 					//botimport.Print(PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
 					return qtrue;
 				} //end if
-				VectorCopy(aasworld.areas[n].center, start);
-				if (!AAS_PointAreaNum(start))
-					Log_Write("area %d center %f %f %f in solid?", n, start[0], start[1], start[2]);
-				VectorCopy(start, end);
-				end[2] -= 300;
-				trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-				if (!trace.startsolid && trace.fraction < 1 && AAS_PointAreaNum(trace.endpos) == n)
+				VectorCopy(&aasworld.areas[n].center, &start);
+				if (!AAS_PointAreaNum(&start))
+					Log_Write("area %d center %f %f %f in solid?", n, start.x, start.y, start.z);
+				VectorCopy(&start, &end);
+				end.z -= 300;
+				trace = AAS_TraceClientBBox(&start, &end, PRESENCE_CROUCH, -1);
+				if (!trace.startsolid && trace.fraction < 1 && AAS_PointAreaNum(&trace.endpos) == n)
 				{
 					if (AAS_AreaGroundFaceArea(n) > 300)
 					{
 						*goalareanum = n;
-						VectorCopy(trace.endpos, goalorigin);
+						VectorCopy(&trace.endpos, goalorigin);
 						//botimport.Print(PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
 						return qtrue;
 					} //end if
@@ -2068,13 +2068,13 @@ int AAS_AreaVisible(int srcarea, int destarea)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float DistancePointToLine(vec3_t v1, vec3_t v2, vec3_t point)
+float DistancePointToLine(vector3 *v1, vector3 *v2, vector3 *point)
 {
-	vec3_t vec, p2;
+	vector3 vec, p2;
 
-	AAS_ProjectPointOntoVector(point, v1, v2, p2);
-	VectorSubtract(point, p2, vec);
-	return VectorLength(vec);
+	AAS_ProjectPointOntoVector(point, v1, v2, &p2);
+	VectorSubtract(point, &p2, &vec);
+	return VectorLength(&vec);
 } //end of the function DistancePointToLine
 //===========================================================================
 //
@@ -2082,7 +2082,7 @@ float DistancePointToLine(vec3_t v1, vec3_t v2, vec3_t point)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags)
+int AAS_NearestHideArea(int srcnum, vector3 *origin, int areanum, int enemynum, vector3 *enemyorigin, int enemyareanum, int travelflags)
 {
 	int i, j, nextareanum, badtravelflags, numreach, bestarea;
 	unsigned short int t, besttraveltime;
@@ -2090,7 +2090,7 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 	aas_routingupdate_t *updateliststart, *updatelistend, *curupdate, *nextupdate;
 	aas_reachability_t *reach;
 	float dist1, dist2;
-	vec3_t v1, v2, p;
+	vector3 v1, v2, p;
 	qboolean startVisible;
 
 	//
@@ -2100,7 +2100,7 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 	} //end if
 	else
 	{
-		Com_Memset(hidetraveltimes, 0, aasworld.numareas * sizeof(unsigned short int));
+		memset(hidetraveltimes, 0, aasworld.numareas * sizeof(unsigned short int));
 	} //end else
 	besttraveltime = 0;
 	bestarea = 0;
@@ -2111,7 +2111,7 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 	//
 	curupdate = &aasworld.areaupdate[areanum];
 	curupdate->areanum = areanum;
-	VectorCopy(origin, curupdate->start);
+	VectorCopy(origin, &curupdate->start);
 	curupdate->areatraveltimes = aasworld.areatraveltimes[areanum][0];
 	curupdate->tmptraveltime = 0;
 	//put the area to start with in the current read list
@@ -2146,33 +2146,33 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 			//time already travelled plus the traveltime through
 			//the current area plus the travel time from the reachability
 			t = curupdate->tmptraveltime +
-						AAS_AreaTravelTime(curupdate->areanum, curupdate->start, reach->start) +
+						AAS_AreaTravelTime(curupdate->areanum, &curupdate->start, &reach->start) +
 							reach->traveltime;
 
 			//avoid going near the enemy
-			AAS_ProjectPointOntoVector(enemyorigin, curupdate->start, reach->end, p);
+			AAS_ProjectPointOntoVector(enemyorigin, &curupdate->start, &reach->end, &p);
 			for (j = 0; j < 3; j++)
-				if ((p[j] > curupdate->start[j] && p[j] > reach->end[j]) ||
-					(p[j] < curupdate->start[j] && p[j] < reach->end[j]))
+				if ((p.data[j] > curupdate->start.data[j] && p.data[j] > reach->end.data[j]) ||
+					(p.data[j] < curupdate->start.data[j] && p.data[j] < reach->end.data[j]))
 					break;
 			if (j < 3)
 			{
-				VectorSubtract(enemyorigin, reach->end, v2);
+				VectorSubtract(enemyorigin, &reach->end, &v2);
 			} //end if
 			else
 			{
-				VectorSubtract(enemyorigin, p, v2);
+				VectorSubtract(enemyorigin, &p, &v2);
 			} //end else
-			dist2 = VectorLength(v2);
+			dist2 = VectorLength(&v2);
 			//never go through the enemy
 			if (dist2 < 40) continue;
 			//
-			VectorSubtract(enemyorigin, curupdate->start, v1);
-			dist1 = VectorLength(v1);
+			VectorSubtract(enemyorigin, &curupdate->start, &v1);
+			dist1 = VectorLength(&v1);
 			//
 			if (dist2 < dist1)
 			{
-				t += (dist1 - dist2) * 10;
+				t += (unsigned short)((dist1 - dist2) * 10);
 			}
 			// if we weren't visible when starting, make sure we don't move into their view
 			if (!startVisible && AAS_AreaVisible(enemyareanum, nextareanum)) {
@@ -2195,7 +2195,7 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 				nextupdate->areanum = nextareanum;
 				nextupdate->tmptraveltime = t;
 				//remember where we entered this area
-				VectorCopy(reach->end, nextupdate->start);
+				VectorCopy(&reach->end, &nextupdate->start);
 				//if this update is not in the list yet
 				if (!nextupdate->inlist)
 				{

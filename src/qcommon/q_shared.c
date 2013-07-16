@@ -23,14 +23,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
-float Com_Clamp( float min, float max, float value ) {
-	if ( value < min ) {
-		return min;
-	}
-	if ( value > max ) {
-		return max;
-	}
+float Q_clamp( float min, float value, float max ) {
+	if ( value < min ) return min;
+	if ( value > max ) return max;
 	return value;
+}
+
+int Q_clampi( int min, int value, int max ) {
+	if ( value < min ) return min;
+	if ( value > max ) return max;
+	return value;
+}
+
+// min
+float Q_cap( float value, float max ) {
+	return (value > max) ? max : value;
+}
+
+int Q_capi( int value, int max ) {
+	return (value > max) ? max : value;
+}
+
+// max
+float Q_bump( float min, float value ) {
+	return (value < min) ? min : value;
+}
+
+int Q_bumpi( int min, int value ) {
+	return (value < min) ? min : value;
 }
 
 
@@ -122,6 +142,14 @@ void COM_DefaultExtension( char *path, int maxSize, const char *extension )
 		return;
 	else
 		Q_strcat(path, maxSize, extension);
+}
+
+
+QINLINE int PlaneTypeForNormal( vector3 *normal ) {
+		 if ( normal->x == 1.0f )	return PLANE_X;
+	else if ( normal->y == 1.0f )	return PLANE_Y;
+	else if ( normal->z == 1.0f )	return PLANE_Z;
+	else							return PLANE_NON_AXIAL;
 }
 
 /*
@@ -636,7 +664,7 @@ qboolean COM_ParseFloat( const char **data, float *f )
 		return qtrue;
 	}
 
-	*f = atof( token );
+	*f = (float)atof( token );
 	return qfalse;
 }
 
@@ -645,7 +673,7 @@ qboolean COM_ParseFloat( const char **data, float *f )
 COM_ParseVec4
 ===============
 */
-qboolean COM_ParseVec4( const char **buffer, vec4_t *c) 
+qboolean COM_ParseVec4( const char **buffer, vector4 *c) 
 {
 	int i;
 	float f;
@@ -656,7 +684,7 @@ qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
 		{
 			return qtrue;
 		}
-		(*c)[i] = f;
+		c->data[i] = f;
 	}
 	return qfalse;
 }
@@ -732,7 +760,7 @@ void Parse1DMatrix (char **buf_p, int x, float *m) {
 
 	for (i = 0 ; i < x ; i++) {
 		token = COM_Parse(buf_p);
-		m[i] = atof(token);
+		m[i] = (float)atof(token);
 	}
 
 	COM_MatchToken( buf_p, ")" );
@@ -767,18 +795,16 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m) {
 Com_HexStrToInt
 ===================
 */
-int Com_HexStrToInt( const char *str )
-{
+int Com_HexStrToInt( const char *str ) {
 	if ( !str || !str[ 0 ] )
 		return -1;
 
 	// check for hex code
-	if( str[ 0 ] == '0' && str[ 1 ] == 'x' )
-	{
-		int i, n = 0;
+	if ( str[ 0 ] == '0' && str[ 1 ] == 'x' ) {
+		int n = 0;
+		unsigned int i;
 
-		for( i = 2; i < strlen( str ); i++ )
-		{
+		for ( i=2; i<strlen( str ); i++ ) {
 			char digit;
 
 			n *= 16;
@@ -1088,6 +1114,122 @@ char *Q_CleanStr( char *string ) {
 	}
 	*d = '\0';
 	// !Cgg
+
+	return string;
+}
+
+/*
+Q_strstrip
+
+	Description:	Replace strip[x] in string with repl[x] or remove characters entirely
+					Does not strip colours or any characters not specified. See Q_CleanStr
+	Mutates:		string
+	Return:			--
+
+	Examples:		Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" );	// "Bo1b is h2airy33"
+					Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" );	// "Bo1b is h2airy"
+					Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL );	// "Bob is hairy"
+*/
+
+void Q_strstrip( char *string, const char *strip, const char *repl )
+{
+	char		*out=string, *p=string, c;
+	const char	*s=strip;
+	int			replaceLen = repl?strlen( repl ):0, offset=0;
+
+	while ( (c = *p++) != '\0' )
+	{
+		for ( s=strip; *s; s++ )
+		{
+			offset = s-strip;
+			if ( c == *s )
+			{
+				if ( !repl || offset >= replaceLen )
+					c = *p++;
+				else
+					c = repl[offset];
+				break;
+			}
+		}
+		*out++ = c;
+	}
+	*out = '\0';
+}
+
+/*
+Q_strchrs
+
+	Description:	Find any characters in a string. Think of it as a shorthand strchr loop.
+	Mutates:		--
+	Return:			first instance of any characters found
+					 otherwise NULL
+*/
+
+const char *Q_strchrs( const char *string, const char *search )
+{
+	const char *p, *s;
+
+	for ( p=string; *p != '\0'; p++ ) {
+		for ( s=search; *s != '\0'; s++ ) {
+			if ( *p == *s ) {
+				return p;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+/*
+Q_strrep
+
+	Description:	Replace instances of 'old' in 's' with 'new'
+	Mutates:		--
+	Return:			malloced string containing the replacements
+*/
+
+char *Q_strrep( const char *string, const char *substr, const char *replacement ) {
+	char *tok = NULL;
+	char *newstr = NULL;
+
+	tok = (char *)strstr( string, substr );
+	if( tok == NULL ) return strdup( string );
+	newstr = (char *)malloc( strlen( string ) - strlen( substr ) + strlen( replacement ) + 1 );
+	if( newstr == NULL ) return NULL;
+	memcpy( newstr, string, tok - string );
+	memcpy( newstr + (tok - string), replacement, strlen( replacement ) );
+	memcpy( newstr + (tok - string) + strlen( replacement ), tok + strlen( substr ), strlen( string ) - strlen( substr ) - ( tok - string ) );
+	memset( newstr + strlen( string ) - strlen( substr ) + strlen( replacement ), 0, 1 );
+
+	return newstr;
+}
+
+void Q_strrev( char *string ) {
+	char *s, *d;
+	size_t len = strlen( string );
+
+	d = string;
+	s = string + len-1;
+}
+
+char *Q_CleanColorStr( char *string ) {
+	char *d, *s;
+	int c;
+	ptrdiff_t len = strlen( string );
+
+	s = d = string;
+	while ( len > s-string && (c = *s) != 0 )
+	{
+		if ( Q_IsColorString( s ) )
+			s += 2;
+		
+		*d = *s;
+
+		d++;
+		s++;
+	}
+
+	*d = '\0';
 
 	return string;
 }
@@ -1495,12 +1637,10 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 Com_CharIsOneOfCharset
 ==================
 */
-static qboolean Com_CharIsOneOfCharset( char c, char *set )
-{
-	int i;
+static qboolean Com_CharIsOneOfCharset( char c, char *set ) {
+	unsigned int i;
 
-	for( i = 0; i < strlen( set ); i++ )
-	{
+	for ( i=0; i<strlen( set ); i++ ) {
 		if( set[ i ] == c )
 			return qtrue;
 	}
@@ -1554,4 +1694,42 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep )
 		return p;
 	else
 		return s;
+}
+
+/*
+=============
+TempVector
+
+This is just a convenience function for making temporary vectors
+=============
+*/
+#define NUM_TEMPVECS 8
+#define TEMPVEC_MASK (NUM_TEMPVECS-1)
+static vector3 tempVecs[NUM_TEMPVECS];
+
+vector3 *tv( float x, float y, float z ) {
+	static int index;
+	vector3 *v = &tempVecs[index++ & TEMPVEC_MASK];
+
+	VectorSet( v, x, y, z );
+
+	return v;
+}
+
+/*
+=============
+VectorToString
+
+This is just a convenience function for printing vectors
+=============
+*/
+static char tempStrs[NUM_TEMPVECS][32];
+
+char *vtos( const vector3 *v ) {
+	static int index;
+	char *s = tempStrs[index++ & TEMPVEC_MASK];
+
+	Com_sprintf( s, 32, "(%i %i %i)", (int)v->x, (int)v->y, (int)v->z );
+
+	return s;
 }

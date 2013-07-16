@@ -39,11 +39,11 @@
 
 #ifndef FIXED_POINT
 
-#define spx_sqrt sqrt
-#define spx_acos acos
-#define spx_exp exp
-#define spx_cos_norm(x) (cos((.5f*M_PI)*(x)))
-#define spx_atan atan
+#define spx_sqrt sqrtf
+#define spx_acos acosf
+#define spx_exp expf
+#define spx_cos_norm(x) (cosf((.5f*M_PI)*(x)))
+#define spx_atan atanf
 
 /** Generate a pseudo-random number */
 static inline spx_word16_t speex_rand(spx_word16_t std, spx_int32_t *seed)
@@ -54,7 +54,7 @@ static inline spx_word16_t speex_rand(spx_word16_t std, spx_int32_t *seed)
    *seed = 1664525 * *seed + 1013904223;
    ran.i = jflone | (jflmsk & *seed);
    ran.f -= 1.5;
-   return 3.4642*std*ran.f;
+   return 3.4642f*std*ran.f;
 }
 
 
@@ -303,7 +303,7 @@ static inline spx_word16_t spx_atan(spx_word32_t x)
 #else
 
 #ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
+#define M_PI           3.14159265358979323846f  /* pi */
 #endif
 
 #define C1 0.9999932946f

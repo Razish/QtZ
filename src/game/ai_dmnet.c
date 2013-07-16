@@ -115,29 +115,29 @@ BotGetAirGoal
 */
 int BotGetAirGoal(bot_state_t *bs, bot_goal_t *goal) {
 	bsp_trace_t bsptrace;
-	vec3_t end, mins = {-15, -15, -2}, maxs = {15, 15, 2};
+	vector3 end, mins = {-15, -15, -2}, maxs = {15, 15, 2};
 	int areanum;
 
 	//trace up until we hit solid
-	VectorCopy(bs->origin, end);
-	end[2] += 1000;
-	BotAI_Trace(&bsptrace, bs->origin, mins, maxs, end, bs->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+	VectorCopy(&bs->origin, &end);
+	end.z += 1000;
+	BotAI_Trace(&bsptrace, &bs->origin, &mins, &maxs, &end, bs->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
 	//trace down until we hit water
-	VectorCopy(bsptrace.endpos, end);
-	BotAI_Trace(&bsptrace, end, mins, maxs, bs->origin, bs->entitynum, CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA);
+	VectorCopy(&bsptrace.endpos, &end);
+	BotAI_Trace(&bsptrace, &end, &mins, &maxs, &bs->origin, bs->entitynum, CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA);
 	//if we found the water surface
 	if (bsptrace.fraction > 0) {
-		areanum = BotPointAreaNum(bsptrace.endpos);
+		areanum = BotPointAreaNum(&bsptrace.endpos);
 		if (areanum) {
-			VectorCopy(bsptrace.endpos, goal->origin);
-			goal->origin[2] -= 2;
+			VectorCopy(&bsptrace.endpos, &goal->origin);
+			goal->origin.z -= 2;
 			goal->areanum = areanum;
-			goal->mins[0] = -15;
-			goal->mins[1] = -15;
-			goal->mins[2] = -1;
-			goal->maxs[0] = 15;
-			goal->maxs[1] = 15;
-			goal->maxs[2] = 1;
+			goal->mins.x = -15;
+			goal->mins.y = -15;
+			goal->mins.z = -1;
+			goal->maxs.x = 15;
+			goal->maxs.y = 15;
+			goal->maxs.z = 1;
 			goal->flags = GFL_AIR;
 			goal->number = 0;
 			goal->iteminfo = 0;
@@ -169,10 +169,10 @@ int BotGoForAir(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 		}
 		else {
 			//get a nearby goal outside the water
-			while(gi.ai->BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range)) {
+			while(gi.ai->BotChooseNBGItem(bs->gs, &bs->origin, bs->inventory, tfl, ltg, range)) {
 				gi.ai->BotGetTopGoal(bs->gs, &goal);
 				//if the goal is not in water
-				if (!(gi.aas->AAS_PointContents(goal.origin) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA))) {
+				if (!(gi.aas->AAS_PointContents(&goal.origin) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA))) {
 					return qtrue;
 				}
 				gi.ai->BotPopGoal(bs->gs);
@@ -198,14 +198,13 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 		|| Bot1FCTFCarryingFlag(bs)
 		) {
 		//if the bot is just a few secs away from the base 
-		if (gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
-				bs->teamgoal.areanum, TFL_DEFAULT) < 300) {
+		if (gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, bs->teamgoal.areanum, TFL_DEFAULT) < 300) {
 			//make the range really small
 			range = 50;
 		}
 	}
 	//
-	ret = gi.ai->BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range);
+	ret = gi.ai->BotChooseNBGItem(bs->gs, &bs->origin, bs->inventory, tfl, ltg, range);
 	/*
 	if (ret)
 	{
@@ -227,14 +226,14 @@ BotReachedGoal
 int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 	if (goal->flags & GFL_ITEM) {
 		//if touching the goal
-		if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+		if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 			if (!(goal->flags & GFL_DROPPED)) {
 				gi.ai->BotSetAvoidGoalTime(bs->gs, goal->number, -1);
 			}
 			return qtrue;
 		}
 		//if the goal isn't there
-		if (gi.ai->BotItemGoalInVisButNotVisible(bs->entitynum, bs->eye, bs->viewangles, goal)) {
+		if (gi.ai->BotItemGoalInVisButNotVisible(bs->entitynum, &bs->eye, &bs->viewangles, goal)) {
 			/*
 			float avoidtime;
 			int t;
@@ -250,9 +249,11 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 		}
 		//if in the goal area and below or above the goal and not swimming
 		if (bs->areanum == goal->areanum) {
-			if (bs->origin[0] > goal->origin[0] + goal->mins[0] && bs->origin[0] < goal->origin[0] + goal->maxs[0]) {
-				if (bs->origin[1] > goal->origin[1] + goal->mins[1] && bs->origin[1] < goal->origin[1] + goal->maxs[1]) {
-					if (!gi.aas->AAS_Swimming(bs->origin)) {
+			if (bs->origin.x > goal->origin.x + goal->mins.x &&
+				bs->origin.x < goal->origin.x + goal->maxs.x) {
+				if (bs->origin.y > goal->origin.y + goal->mins.y &&
+					bs->origin.y < goal->origin.y + goal->maxs.y) {
+					if (!gi.aas->AAS_Swimming(&bs->origin)) {
 						return qtrue;
 					}
 				}
@@ -261,13 +262,13 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 	}
 	else if (goal->flags & GFL_AIR) {
 		//if touching the goal
-		if (gi.ai->BotTouchingGoal(bs->origin, goal)) return qtrue;
+		if (gi.ai->BotTouchingGoal(&bs->origin, goal)) return qtrue;
 		//if the bot got air
 		if (bs->lastair_time > FloatTime() - 1) return qtrue;
 	}
 	else {
 		//if touching the goal
-		if (gi.ai->BotTouchingGoal(bs->origin, goal)) return qtrue;
+		if (gi.ai->BotTouchingGoal(&bs->origin, goal)) return qtrue;
 	}
 	return qfalse;
 }
@@ -295,7 +296,7 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 		//BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
 		//choose a new goal
 		//BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", FloatTime(), bs->client);
-		if (gi.ai->BotChooseLTGItem(bs->gs, bs->origin, bs->inventory, tfl)) {
+		if (gi.ai->BotChooseLTGItem(bs->gs, &bs->origin, bs->inventory, tfl)) {
 			/*
 			char buf[128];
 			//get the goal at the top of the stack
@@ -332,7 +333,7 @@ however this saves us a lot of code
 ==================
 */
 int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) {
-	vec3_t target, dir, dir2;
+	vector3 target, dir, dir2;
 	char netname[MAX_NETNAME];
 	char buf[MAX_MESSAGE_SIZE];
 	int areanum;
@@ -357,10 +358,10 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		//get entity information of the companion
 		BotEntityInfo(bs->teammate, &entinfo);
 		//if the team mate is visible
-		if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->teammate)) {
+		if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->teammate)) {
 			//if close just stand still there
-			VectorSubtract(entinfo.origin, bs->origin, dir);
-			if (VectorLengthSquared(dir) < Square(100)) {
+			VectorSubtract(&entinfo.origin, &bs->origin, &dir);
+			if (VectorLengthSquared(&dir) < Square(100)) {
 				gi.ai->BotResetAvoidReach(bs->ms);
 				return qfalse;
 			}
@@ -371,14 +372,14 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		}
 		//if the entity information is valid (entity in PVS)
 		if (entinfo.valid) {
-			areanum = BotPointAreaNum(entinfo.origin);
+			areanum = BotPointAreaNum(&entinfo.origin);
 			if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
 				//update team goal
 				bs->teamgoal.entitynum = bs->teammate;
 				bs->teamgoal.areanum = areanum;
-				VectorCopy(entinfo.origin, bs->teamgoal.origin);
-				VectorSet(bs->teamgoal.mins, -8, -8, -8);
-				VectorSet(bs->teamgoal.maxs, 8, 8, 8);
+				VectorCopy(&entinfo.origin, &bs->teamgoal.origin);
+				VectorSet(&bs->teamgoal.mins, -8, -8, -8);
+				VectorSet(&bs->teamgoal.maxs, 8, 8, 8);
 			}
 		}
 		memcpy(goal, &bs->teamgoal, sizeof(bot_goal_t));
@@ -403,35 +404,35 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		//get entity information of the companion
 		BotEntityInfo(bs->teammate, &entinfo);
 		//if the companion is visible
-		if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->teammate)) {
+		if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->teammate)) {
 			//update visible time
 			bs->teammatevisible_time = FloatTime();
-			VectorSubtract(entinfo.origin, bs->origin, dir);
-			if (VectorLengthSquared(dir) < Square(bs->formation_dist)) {
+			VectorSubtract(&entinfo.origin, &bs->origin, &dir);
+			if (VectorLengthSquared(&dir) < Square(bs->formation_dist)) {
 				//
 				// if the client being followed bumps into this bot then
 				// the bot should back up
 				BotEntityInfo(bs->entitynum, &botinfo);
 				// if the followed client is not standing ontop of the bot
-				if (botinfo.origin[2] + botinfo.maxs[2] > entinfo.origin[2] + entinfo.mins[2]) {
+				if (botinfo.origin.z + botinfo.maxs.z > entinfo.origin.z + entinfo.mins.z) {
 					// if the bounding boxes touch each other
-					if (botinfo.origin[0] + botinfo.maxs[0] > entinfo.origin[0] + entinfo.mins[0] - 4&&
-						botinfo.origin[0] + botinfo.mins[0] < entinfo.origin[0] + entinfo.maxs[0] + 4) {
-						if (botinfo.origin[1] + botinfo.maxs[1] > entinfo.origin[1] + entinfo.mins[1] - 4 &&
-							botinfo.origin[1] + botinfo.mins[1] < entinfo.origin[1] + entinfo.maxs[1] + 4) {
-							if (botinfo.origin[2] + botinfo.maxs[2] > entinfo.origin[2] + entinfo.mins[2] - 4 &&
-								botinfo.origin[2] + botinfo.mins[2] < entinfo.origin[2] + entinfo.maxs[2] + 4) {
+					if (botinfo.origin.x + botinfo.maxs.x > entinfo.origin.x + entinfo.mins.x - 4&&
+						botinfo.origin.x + botinfo.mins.x < entinfo.origin.x + entinfo.maxs.x + 4) {
+						if (botinfo.origin.y + botinfo.maxs.y > entinfo.origin.y + entinfo.mins.y - 4 &&
+							botinfo.origin.y + botinfo.mins.y < entinfo.origin.y + entinfo.maxs.y + 4) {
+							if (botinfo.origin.z + botinfo.maxs.z > entinfo.origin.z + entinfo.mins.z - 4 &&
+								botinfo.origin.z + botinfo.mins.z < entinfo.origin.z + entinfo.maxs.z + 4) {
 								// if the followed client looks in the direction of this bot
-								AngleVectors(entinfo.angles, dir, NULL, NULL);
-								dir[2] = 0;
-								VectorNormalize(dir);
+								AngleVectors(&entinfo.angles, &dir, NULL, NULL);
+								dir.z = 0;
+								VectorNormalize(&dir);
 								//VectorSubtract(entinfo.origin, entinfo.lastvisorigin, dir);
-								VectorSubtract(bs->origin, entinfo.origin, dir2);
-								VectorNormalize(dir2);
-								if (DotProduct(dir, dir2) > 0.7) {
+								VectorSubtract(&bs->origin, &entinfo.origin, &dir2);
+								VectorNormalize(&dir2);
+								if (DotProduct(&dir, &dir2) > 0.7) {
 									// back up
 									BotSetupForMovement(bs);
-									gi.ai->BotMoveInDirection(bs->ms, dir2, 400, MOVE_WALK);
+									gi.ai->BotMoveInDirection(bs->ms, &dir2, 400, MOVE_WALK);
 								}
 							}
 						}
@@ -446,7 +447,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 					}
 				}
 				//don't crouch when swimming
-				if (gi.aas->AAS_Swimming(bs->origin)) bs->attackcrouch_time = FloatTime() - 1;
+				if (gi.aas->AAS_Swimming(&bs->origin)) bs->attackcrouch_time = FloatTime() - 1;
 				//if not arrived yet or arived some time ago
 				if (bs->arrive_time < FloatTime() - 2) {
 					//if not arrived yet
@@ -468,16 +469,16 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				}
 				//if just arrived look at the companion
 				if (bs->arrive_time > FloatTime() - 2) {
-					VectorSubtract(entinfo.origin, bs->origin, dir);
-					vectoangles(dir, bs->ideal_viewangles);
-					bs->ideal_viewangles[2] *= 0.5;
+					VectorSubtract(&entinfo.origin, &bs->origin, &dir);
+					vectoangles(&dir, &bs->ideal_viewangles);
+					bs->ideal_viewangles.z *= 0.5;
 				}
 				//else look strategically around for enemies
 				else if (random() < bs->thinktime * 0.8) {
-					BotRoamGoal(bs, target);
-					VectorSubtract(target, bs->origin, dir);
-					vectoangles(dir, bs->ideal_viewangles);
-					bs->ideal_viewangles[2] *= 0.5;
+					BotRoamGoal(bs, &target);
+					VectorSubtract(&target, &bs->origin, &dir);
+					vectoangles(&dir, &bs->ideal_viewangles);
+					bs->ideal_viewangles.z *= 0.5;
 				}
 				//check if the bot wants to go for air
 				if (BotGoForAir(bs, bs->tfl, &bs->teamgoal, 400)) {
@@ -498,14 +499,14 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		}
 		//if the entity information is valid (entity in PVS)
 		if (entinfo.valid) {
-			areanum = BotPointAreaNum(entinfo.origin);
+			areanum = BotPointAreaNum(&entinfo.origin);
 			if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
 				//update team goal
 				bs->teamgoal.entitynum = bs->teammate;
 				bs->teamgoal.areanum = areanum;
-				VectorCopy(entinfo.origin, bs->teamgoal.origin);
-				VectorSet(bs->teamgoal.mins, -8, -8, -8);
-				VectorSet(bs->teamgoal.maxs, 8, 8, 8);
+				VectorCopy(&entinfo.origin, &bs->teamgoal.origin);
+				VectorSet(&bs->teamgoal.mins, -8, -8, -8);
+				VectorSet(&bs->teamgoal.maxs, 8, 8, 8);
 			}
 		}
 		//the goal the bot should go for
@@ -522,8 +523,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 	}
 	//
 	if (bs->ltgtype == LTG_DEFENDKEYAREA) {
-		if (gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
-				bs->teamgoal.areanum, TFL_DEFAULT) > bs->defendaway_range) {
+		if (gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, bs->teamgoal.areanum, TFL_DEFAULT) > bs->defendaway_range) {
 			bs->defendaway_time = 0;
 		}
 	}
@@ -548,8 +548,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			bs->ltgtype = 0;
 		}
 		//if very close... go away for some time
-		VectorSubtract(goal->origin, bs->origin, dir);
-		if (VectorLengthSquared(dir) < Square(70)) {
+		VectorSubtract(&goal->origin, &bs->origin, &dir);
+		if (VectorLengthSquared(&dir) < Square(70)) {
 			gi.ai->BotResetAvoidReach(bs->ms);
 			bs->defendaway_time = FloatTime() + 3 + 3 * random();
 			if (BotHasPersistantPowerupAndWeapon(bs)) {
@@ -603,7 +603,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			bs->ltgtype = 0;
 		}
 		//
-		if (gi.ai->BotItemGoalInVisButNotVisible(bs->entitynum, bs->eye, bs->viewangles, goal)) {
+		if (gi.ai->BotItemGoalInVisButNotVisible(bs->entitynum, &bs->eye, &bs->viewangles, goal)) {
 			gi.ai->BotGoalName(bs->teamgoal.number, buf, sizeof(buf));
 			BotAI_BotInitialChat(bs, "getitem_notthere", buf, NULL);
 			gi.ai->BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
@@ -640,8 +640,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			bs->ltgtype = 0;
 		}
 		//if really near the camp spot
-		VectorSubtract(goal->origin, bs->origin, dir);
-		if (VectorLengthSquared(dir) < Square(60))
+		VectorSubtract(&goal->origin, &bs->origin, &dir);
+		if (VectorLengthSquared(&dir) < Square(60))
 		{
 			//if not arrived yet
 			if (!bs->arrive_time) {
@@ -654,10 +654,10 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			}
 			//look strategically around for enemies
 			if (random() < bs->thinktime * 0.8) {
-				BotRoamGoal(bs, target);
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
-				bs->ideal_viewangles[2] *= 0.5;
+				BotRoamGoal(bs, &target);
+				VectorSubtract(&target, &bs->origin, &dir);
+				vectoangles(&dir, &bs->ideal_viewangles);
+				bs->ideal_viewangles.z *= 0.5;
 			}
 			//check if the bot wants to crouch
 			//don't crouch if crouched less than 5 seconds ago
@@ -672,9 +672,9 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				gi.ea->EA_Crouch(bs->client);
 			}
 			//don't crouch when swimming
-			if (gi.aas->AAS_Swimming(bs->origin)) bs->attackcrouch_time = FloatTime() - 1;
+			if (gi.aas->AAS_Swimming(&bs->origin)) bs->attackcrouch_time = FloatTime() - 1;
 			//make sure the bot is not gonna drown
-			if (gi.SV_PointContents(bs->eye,bs->entitynum) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) {
+			if (gi.SV_PointContents(&bs->eye,bs->entitynum) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) {
 				if (bs->ltgtype == LTG_CAMPORDER) {
 					BotAI_BotInitialChat(bs, "camp_stop", NULL);
 					gi.ai->BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
@@ -714,7 +714,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			return qfalse;
 		}
 		//if the bot touches the current goal
-		if (gi.ai->BotTouchingGoal(bs->origin, &bs->curpatrolpoint->goal)) {
+		if (gi.ai->BotTouchingGoal(&bs->origin, &bs->curpatrolpoint->goal)) {
 			if (bs->patrolflags & PATROL_BACK) {
 				if (bs->curpatrolpoint->prev) {
 					bs->curpatrolpoint = bs->curpatrolpoint->prev;
@@ -765,7 +765,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if touching the flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 				// make sure the bot knows the flag isn't there anymore
 				switch(BotTeam(bs)) {
 					case TEAM_RED: bs->blueflagstatus = 1; break;
@@ -792,7 +792,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			//quit rushing after 2 minutes
 			if (bs->teamgoal_time < FloatTime()) bs->ltgtype = 0;
 			//if touching the base flag the bot should loose the enemy flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 				//if the bot is still carrying the enemy flag then the
 				//base flag is gone, now just walk near the base a bit
 				if (BotCTFCarryingFlag(bs)) {
@@ -823,7 +823,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if touching the flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) bs->ltgtype = 0;
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) bs->ltgtype = 0;
 			//stop after 3 minutes
 			if (bs->teamgoal_time < FloatTime()) {
 				bs->ltgtype = 0;
@@ -844,7 +844,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			}
 			memcpy(goal, &ctf_neutralflag, sizeof(bot_goal_t));
 			//if touching the flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 				bs->ltgtype = 0;
 			}
 			//stop after 3 minutes
@@ -869,7 +869,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				bs->ltgtype = 0;
 			}
 			//if touching the base flag the bot should loose the enemy flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 				bs->ltgtype = 0;
 			}
 			BotAlternateRoute(bs, goal);
@@ -895,7 +895,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				bs->ltgtype = 0;
 			}
 			//if touching the base flag the bot should loose the enemy flag
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 				bs->attackaway_time = FloatTime() + 2 + 5 * random();
 			}
 			return qtrue;
@@ -931,7 +931,7 @@ int BotLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) {
 	char teammate[MAX_MESSAGE_SIZE];
 	float squaredist;
 	int areanum;
-	vec3_t dir;
+	vector3 dir;
 
 	//FIXME: also have air long term goals?
 	//
@@ -953,18 +953,18 @@ int BotLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) {
 		BotEntityInfo(bs->lead_teammate, &entinfo);
 		//
 		if (entinfo.valid) {
-			areanum = BotPointAreaNum(entinfo.origin);
+			areanum = BotPointAreaNum(&entinfo.origin);
 			if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
 				//update team goal
 				bs->lead_teamgoal.entitynum = bs->lead_teammate;
 				bs->lead_teamgoal.areanum = areanum;
-				VectorCopy(entinfo.origin, bs->lead_teamgoal.origin);
-				VectorSet(bs->lead_teamgoal.mins, -8, -8, -8);
-				VectorSet(bs->lead_teamgoal.maxs, 8, 8, 8);
+				VectorCopy(&entinfo.origin, &bs->lead_teamgoal.origin);
+				VectorSet(&bs->lead_teamgoal.mins, -8, -8, -8);
+				VectorSet(&bs->lead_teamgoal.maxs, 8, 8, 8);
 			}
 		}
 		//if the team mate is visible
-		if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->lead_teammate)) {
+		if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->lead_teammate)) {
 			bs->leadvisible_time = FloatTime();
 		}
 		//if the team mate is not visible for 1 seconds
@@ -972,8 +972,8 @@ int BotLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) {
 			bs->leadbackup_time = FloatTime() + 2;
 		}
 		//distance towards the team mate
-		VectorSubtract(bs->origin, bs->lead_teamgoal.origin, dir);
-		squaredist = VectorLengthSquared(dir);
+		VectorSubtract(&bs->origin, &bs->lead_teamgoal.origin, &dir);
+		squaredist = VectorLengthSquared(&dir);
 		//if backing up towards the team mate
 		if (bs->leadbackup_time > FloatTime()) {
 			if (bs->leadmessage_time < FloatTime() - 20) {
@@ -998,9 +998,9 @@ int BotLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) {
 					bs->leadmessage_time = FloatTime();
 				}
 				//look at the team mate
-				VectorSubtract(entinfo.origin, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
-				bs->ideal_viewangles[2] *= 0.5;
+				VectorSubtract(&entinfo.origin, &bs->origin, &dir);
+				vectoangles(&dir, &bs->ideal_viewangles);
+				bs->ideal_viewangles.z *= 0.5;
 				//just wait for the team mate
 				return qfalse;
 			}
@@ -1090,8 +1090,8 @@ int AINode_Stand(bot_state_t *bs) {
 	//if the bot's health decreased
 	if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
 		if (BotChat_HitTalking(bs)) {
-			bs->standfindenemy_time = FloatTime() + BotChatTime(bs) + 0.1;
-			bs->stand_time = FloatTime() + BotChatTime(bs) + 0.1;
+			bs->standfindenemy_time = FloatTime() + BotChatTime(bs) + 0.1f;
+			bs->stand_time = FloatTime() + BotChatTime(bs) + 0.1f;
 		}
 	}
 	if (bs->standfindenemy_time < FloatTime()) {
@@ -1217,7 +1217,7 @@ AINode_Seek_Activate_Entity
 */
 int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	bot_goal_t *goal;
-	vec3_t target, dir, ideal_viewangles;
+	vector3 target, dir, ideal_viewangles;
 	bot_moveresult_t moveresult;
 	int targetvisible;
 	bsp_trace_t bsptrace;
@@ -1262,16 +1262,16 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	// if the bot has to shoot at a target to activate something
 	if (bs->activatestack->shoot) {
 		//
-		BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, bs->activatestack->target, bs->entitynum, MASK_SHOT);
+		BotAI_Trace(&bsptrace, &bs->eye, NULL, NULL, &bs->activatestack->target, bs->entitynum, MASK_SHOT);
 		// if the shootable entity is visible from the current position
 		if (bsptrace.fraction >= 1.0 || bsptrace.ent == goal->entitynum) {
 			targetvisible = qtrue;
 			// if holding the right weapon
 			if (bs->cur_ps.weapon == bs->activatestack->weapon) {
-				VectorSubtract(bs->activatestack->target, bs->eye, dir);
-				vectoangles(dir, ideal_viewangles);
+				VectorSubtract(&bs->activatestack->target, &bs->eye, &dir);
+				vectoangles(&dir, &ideal_viewangles);
 				// if the bot is pretty close with its aim
-				if (InFieldOfVision(bs->viewangles, 20, ideal_viewangles)) {
+				if (InFieldOfVision(&bs->viewangles, 20, &ideal_viewangles)) {
 					gi.ea->EA_Attack(bs->client);
 				}
 			}
@@ -1282,7 +1282,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		// get the entity info of the entity the bot is shooting at
 		BotEntityInfo(goal->entitynum, &entinfo);
 		// if the entity the bot shoots at moved
-		if (!VectorCompare(bs->activatestack->origin, entinfo.origin)) {
+		if (!VectorCompare(&bs->activatestack->origin, &entinfo.origin)) {
 #ifdef DEBUG
 			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
 #endif //DEBUG
@@ -1309,7 +1309,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		// if the bot does not have a shoot goal
 		else if (!bs->activatestack->shoot) {
 			//if the bot touches the current goal
-			if (gi.ai->BotTouchingGoal(bs->origin, goal)) {
+			if (gi.ai->BotTouchingGoal(&bs->origin, goal)) {
 #ifdef DEBUG
 				BotAI_Print(PRT_MESSAGE, "touched button or trigger\n");
 #endif //DEBUG
@@ -1350,8 +1350,8 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	if (bs->activatestack->shoot) {
 		// if the view angles aren't yet used for the movement
 		if (!(moveresult.flags & MOVERESULT_MOVEMENTVIEW)) {
-			VectorSubtract(bs->activatestack->target, bs->eye, dir);
-			vectoangles(dir, moveresult.ideal_viewangles);
+			VectorSubtract(&bs->activatestack->target, &bs->eye, &dir);
+			vectoangles(&dir, &moveresult.ideal_viewangles);
 			moveresult.flags |= MOVERESULT_MOVEMENTVIEW;
 		}
 		// if there's no weapon yet used for the movement
@@ -1368,26 +1368,26 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	}
 	// if the ideal view angles are set for movement
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEWSET|MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	// if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
 		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+			BotRoamGoal(bs, &target);
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
+			bs->ideal_viewangles.z *= 0.5;
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
-		if (gi.ai->BotMovementViewTarget(bs->ms, goal, bs->tfl, 300, target)) {
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
+		if (gi.ai->BotMovementViewTarget(bs->ms, goal, bs->tfl, 300, &target)) {
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
 		}
 		else {
-			vectoangles(moveresult.movedir, bs->ideal_viewangles);
+			vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
 		}
-		bs->ideal_viewangles[2] *= 0.5;
+		bs->ideal_viewangles.z *= 0.5;
 	}
 	// if the weapon is used for the bot movement
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON)
@@ -1436,7 +1436,7 @@ AINode_Seek_NBG
 */
 int AINode_Seek_NBG(bot_state_t *bs) {
 	bot_goal_t goal;
-	vec3_t target, dir;
+	vector3 target, dir;
 	bot_moveresult_t moveresult;
 
 	if (BotIsObserver(bs)) {
@@ -1479,7 +1479,7 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 		gi.ai->BotPopGoal(bs->gs);
 		//check for new nearby items right away
 		//NOTE: we canNOT reset the check_time to zero because it would create an endless loop of node switches
-		bs->check_time = FloatTime() + 0.05;
+		bs->check_time = FloatTime() + 0.05f;
 		//go back to seek ltg
 		AIEnter_Seek_LTG(bs, "seek nbg: time out");
 		return qfalse;
@@ -1503,26 +1503,26 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	BotClearPath(bs, &moveresult);
 	//if the viewangles are used for the movement
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEWSET|MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	//if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
 		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+			BotRoamGoal(bs, &target);
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
+			bs->ideal_viewangles.z *= 0.5;
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
 		if (!gi.ai->BotGetSecondGoal(bs->gs, &goal)) gi.ai->BotGetTopGoal(bs->gs, &goal);
-		if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, target)) {
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
+		if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, &target)) {
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
 		}
 		//FIXME: look at cluster portals?
-		else vectoangles(moveresult.movedir, bs->ideal_viewangles);
-		bs->ideal_viewangles[2] *= 0.5;
+		else vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
+		bs->ideal_viewangles.z *= 0.5;
 	}
 	//if the weapon is used for the bot movement
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
@@ -1570,7 +1570,7 @@ AINode_Seek_LTG
 int AINode_Seek_LTG(bot_state_t *bs)
 {
 	bot_goal_t goal;
-	vec3_t target, dir;
+	vector3 target, dir;
 	bot_moveresult_t moveresult;
 	int range;
 	//char buf[128];
@@ -1639,7 +1639,7 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//check for nearby goals periodicly
 	if (bs->check_time < FloatTime()) {
-		bs->check_time = FloatTime() + 0.5;
+		bs->check_time = FloatTime() + 0.5f;
 		//check if the bot wants to camp
 		BotWantsToCamp(bs);
 		//
@@ -1658,14 +1658,14 @@ int AINode_Seek_LTG(bot_state_t *bs)
 				range = 50;
 		}
 		//
-		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
+		if (BotNearbyGoal(bs, bs->tfl, &goal, (float)range)) {
 			gi.ai->BotResetLastAvoidReach(bs->ms);
 			//get the goal at the top of the stack
 			//gi.ai->BotGetTopGoal(bs->gs, &tmpgoal);
 			//gi.ai->BotGoalName(tmpgoal.number, buf, 144);
 			//BotAI_Print(PRT_MESSAGE, "new nearby goal %s\n", buf);
 			//time the bot gets to pick up the nearby goal item
-			bs->nbg_time = FloatTime() + 4 + range * 0.01;
+			bs->nbg_time = FloatTime() + 4 + range * 0.01f;
 			AIEnter_Seek_NBG(bs, "ltg seek: nbg");
 			return qfalse;
 		}
@@ -1690,33 +1690,33 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	BotClearPath(bs, &moveresult);
 	//if the viewangles are used for the movement
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEWSET|MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	//if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
 		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+			BotRoamGoal(bs, &target);
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
+			bs->ideal_viewangles.z *= 0.5;
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
-		if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, target)) {
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
+		if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, &target)) {
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
 		}
 		//FIXME: look at cluster portals?
-		else if (VectorLengthSquared(moveresult.movedir)) {
-			vectoangles(moveresult.movedir, bs->ideal_viewangles);
+		else if (VectorLengthSquared(&moveresult.movedir)) {
+			vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
 		}
 		else if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+			BotRoamGoal(bs, &target);
+			VectorSubtract(&target, &bs->origin, &dir);
+			vectoangles(&dir, &bs->ideal_viewangles);
+			bs->ideal_viewangles.z *= 0.5;
 		}
-		bs->ideal_viewangles[2] *= 0.5;
+		bs->ideal_viewangles.z *= 0.5;
 	}
 	//if the weapon is used for the bot movement
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
@@ -1755,7 +1755,7 @@ AINode_Battle_Fight
 */
 int AINode_Battle_Fight(bot_state_t *bs) {
 	int areanum;
-	vec3_t target;
+	vector3 target;
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
 
@@ -1818,19 +1818,19 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 		}
 	}
 	//
-	VectorCopy(entinfo.origin, target);
+	VectorCopy(&entinfo.origin, &target);
 	// if not a player enemy
 	if (bs->enemy >= MAX_CLIENTS) {
 		// if attacking an obelisk
 		if ( bs->enemy == redobelisk.entitynum ||
 			bs->enemy == blueobelisk.entitynum ) {
-			target[2] += 16;
+			target.z += 16;
 		}
 	}
 	//update the reachability area and origin if possible
-	areanum = BotPointAreaNum(target);
+	areanum = BotPointAreaNum(&target);
 	if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
-		VectorCopy(target, bs->lastenemyorigin);
+		VectorCopy(&target, &bs->lastenemyorigin);
 		bs->lastenemyareanum = areanum;
 	}
 	//update the attack inventory values
@@ -1852,7 +1852,7 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 		}
 	}
 	//if the enemy is not visible
-	if (!BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
+	if (!BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->enemy)) {
 		if (bs->enemy == redobelisk.entitynum || bs->enemy == blueobelisk.entitynum) {
 			AIEnter_Battle_Chase(bs, "battle fight: obelisk out of sight");
 			return qfalse;
@@ -1923,7 +1923,7 @@ AINode_Battle_Chase
 int AINode_Battle_Chase(bot_state_t *bs)
 {
 	bot_goal_t goal;
-	vec3_t target, dir;
+	vector3 target, dir;
 	bot_moveresult_t moveresult;
 	float range;
 
@@ -1947,7 +1947,7 @@ int AINode_Battle_Chase(bot_state_t *bs)
 		return qfalse;
 	}
 	//if the enemy is visible
-	if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
+	if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->enemy)) {
 		AIEnter_Battle_Fight(bs, "battle chase");
 		return qfalse;
 	}
@@ -1975,11 +1975,11 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//create the chase goal
 	goal.entitynum = bs->enemy;
 	goal.areanum = bs->lastenemyareanum;
-	VectorCopy(bs->lastenemyorigin, goal.origin);
-	VectorSet(goal.mins, -8, -8, -8);
-	VectorSet(goal.maxs, 8, 8, 8);
+	VectorCopy(&bs->lastenemyorigin, &goal.origin);
+	VectorSet(&goal.mins, -8, -8, -8);
+	VectorSet(&goal.maxs, 8, 8, 8);
 	//if the last seen enemy spot is reached the enemy could not be found
-	if (gi.ai->BotTouchingGoal(bs->origin, &goal)) bs->chase_time = 0;
+	if (gi.ai->BotTouchingGoal(&bs->origin, &goal)) bs->chase_time = 0;
 	//if there's no chase time left
 	if (!bs->chase_time || bs->chase_time < FloatTime() - 10) {
 		AIEnter_Seek_LTG(bs, "battle chase: time out");
@@ -1992,7 +1992,7 @@ int AINode_Battle_Chase(bot_state_t *bs)
 		//
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
 			//the bot gets 5 seconds to pick up the nearby goal item
-			bs->nbg_time = FloatTime() + 0.1 * range + 1;
+			bs->nbg_time = FloatTime() + 0.1f * range + 1;
 			gi.ai->BotResetLastAvoidReach(bs->ms);
 			AIEnter_Battle_NBG(bs, "battle chase: nbg");
 			return qfalse;
@@ -2015,22 +2015,22 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	BotAIBlocked(bs, &moveresult, qfalse);
 	//
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEWSET|MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
 		if (bs->chase_time > FloatTime() - 2) {
 			BotAimAtEnemy(bs);
 		}
 		else {
-			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, target)) {
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
+			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, &target)) {
+				VectorSubtract(&target, &bs->origin, &dir);
+				vectoangles(&dir, &bs->ideal_viewangles);
 			}
 			else {
-				vectoangles(moveresult.movedir, bs->ideal_viewangles);
+				vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
 			}
 		}
-		bs->ideal_viewangles[2] *= 0.5;
+		bs->ideal_viewangles.z *= 0.5;
 	}
 	//if the weapon is used for the bot movement
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
@@ -2063,7 +2063,7 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	bot_goal_t goal;
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
-	vec3_t target, dir;
+	vector3 target, dir;
 	float attack_skill, range;
 	int areanum;
 
@@ -2116,21 +2116,21 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		return qfalse;
 	}
 	//update the last time the enemy was visible
-	if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
+	if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->enemy)) {
 		bs->enemyvisible_time = FloatTime();
-		VectorCopy(entinfo.origin, target);
+		VectorCopy(&entinfo.origin, &target);
 		// if not a player enemy
 		if (bs->enemy >= MAX_CLIENTS) {
 			// if attacking an obelisk
 			if ( bs->enemy == redobelisk.entitynum ||
 				bs->enemy == blueobelisk.entitynum ) {
-				target[2] += 16;
+				target.z += 16;
 			}
 		}
 		//update the reachability area and origin if possible
-		areanum = BotPointAreaNum(target);
+		areanum = BotPointAreaNum(&target);
 		if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
-			VectorCopy(target, bs->lastenemyorigin);
+			VectorCopy(&target, &bs->lastenemyorigin);
 			bs->lastenemyareanum = areanum;
 		}
 	}
@@ -2197,7 +2197,7 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	BotChooseWeapon(bs);
 	//if the view is fixed for the movement
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	else if (!(moveresult.flags & MOVERESULT_MOVEMENTVIEWSET)
 				&& !(bs->flags & BFL_IDEALVIEWSET) ) {
@@ -2207,14 +2207,14 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 			BotAimAtEnemy(bs);
 		}
 		else {
-			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, target)) {
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
+			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, &target)) {
+				VectorSubtract(&target, &bs->origin, &dir);
+				vectoangles(&dir, &bs->ideal_viewangles);
 			}
 			else {
-				vectoangles(moveresult.movedir, bs->ideal_viewangles);
+				vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
 			}
-			bs->ideal_viewangles[2] *= 0.5;
+			bs->ideal_viewangles.roll *= 0.5;
 		}
 	}
 	//if the weapon is used for the bot movement
@@ -2246,7 +2246,7 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
 	float attack_skill;
-	vec3_t target, dir;
+	vector3 target, dir;
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "battle nbg: observer");
@@ -2285,21 +2285,21 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	//map specific code
 	BotMapScripts(bs);
 	//update the last time the enemy was visible
-	if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
+	if (BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, bs->enemy)) {
 		bs->enemyvisible_time = FloatTime();
-		VectorCopy(entinfo.origin, target);
+		VectorCopy(&entinfo.origin, &target);
 		// if not a player enemy
 		if (bs->enemy >= MAX_CLIENTS) {
 			// if attacking an obelisk
 			if ( bs->enemy == redobelisk.entitynum ||
 				bs->enemy == blueobelisk.entitynum ) {
-				target[2] += 16;
+				target.z += 16;
 			}
 		}
 		//update the reachability area and origin if possible
-		areanum = BotPointAreaNum(target);
+		areanum = BotPointAreaNum(&target);
 		if (areanum && gi.aas->AAS_AreaReachability(areanum)) {
-			VectorCopy(target, bs->lastenemyorigin);
+			VectorCopy(&target, &bs->lastenemyorigin);
 			bs->lastenemyareanum = areanum;
 		}
 	}
@@ -2341,7 +2341,7 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	BotChooseWeapon(bs);
 	//if the view is fixed for the movement
 	if (moveresult.flags & (MOVERESULT_MOVEMENTVIEW|MOVERESULT_SWIMVIEW)) {
-		VectorCopy(moveresult.ideal_viewangles, bs->ideal_viewangles);
+		VectorCopy(&moveresult.ideal_viewangles, &bs->ideal_viewangles);
 	}
 	else if (!(moveresult.flags & MOVERESULT_MOVEMENTVIEWSET)
 				&& !(bs->flags & BFL_IDEALVIEWSET)) {
@@ -2352,14 +2352,14 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 			BotAimAtEnemy(bs);
 		}
 		else {
-			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, target)) {
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
+			if (gi.ai->BotMovementViewTarget(bs->ms, &goal, bs->tfl, 300, &target)) {
+				VectorSubtract(&target, &bs->origin, &dir);
+				vectoangles(&dir, &bs->ideal_viewangles);
 			}
 			else {
-				vectoangles(moveresult.movedir, bs->ideal_viewangles);
+				vectoangles(&moveresult.movedir, &bs->ideal_viewangles);
 			}
-			bs->ideal_viewangles[2] *= 0.5;
+			bs->ideal_viewangles.roll *= 0.5;
 		}
 	}
 	//if the weapon is used for the bot movement
@@ -2369,4 +2369,3 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	//
 	return qtrue;
 }
-

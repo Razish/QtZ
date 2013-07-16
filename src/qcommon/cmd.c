@@ -98,7 +98,7 @@ void Cbuf_AddText( const char *text ) {
 		Com_Printf ("Cbuf_AddText: overflow\n");
 		return;
 	}
-	Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
+	memcpy(&cmd_text.data[cmd_text.cursize], text, l);
 	cmd_text.cursize += l;
 }
 
@@ -127,7 +127,7 @@ void Cbuf_InsertText( const char *text ) {
 	}
 
 	// copy the new text in
-	Com_Memcpy( cmd_text.data, text, len - 1 );
+	memcpy( cmd_text.data, text, len - 1 );
 
 	// add a \n
 	cmd_text.data[ len - 1 ] = '\n';
@@ -228,7 +228,7 @@ void Cbuf_Execute (void)
 			i = MAX_CMD_LINE - 1;
 		}
 				
-		Com_Memcpy (line, text, i);
+		memcpy (line, text, i);
 		line[i] = 0;
 		
 // delete the text from the command buffer and move remaining commands down
@@ -271,29 +271,28 @@ void Cmd_Exec_f( void ) {
 		char	*c;
 		void	*v;
 	} f;
-	char	filename[MAX_QPATH];
+	char filename[MAX_QPATH];
 
-	quiet = !Q_stricmp(Cmd_Argv(0), "execq");
+	quiet = !Q_stricmp( Cmd_Argv( 0 ), "execq" );
 
-	if (Cmd_Argc () != 2) {
-		Com_Printf ("exec%s <filename> : execute a script file%s\n",
-		            quiet ? "q" : "", quiet ? " without notification" : "");
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf( "exec%s <filename> : execute a script file%s\n", quiet ? "q" : "", quiet ? " without notification" : "" );
 		return;
 	}
 
-	Q_strncpyz( filename, Cmd_Argv(1), sizeof( filename ) );
+	Com_sprintf( filename, sizeof( filename ), "cfg/%s", Cmd_ArgsFrom( 1 ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
-	FS_ReadFile( filename, &f.v);
-	if (!f.c) {
-		Com_Printf ("couldn't exec %s\n", filename);
+	FS_ReadFile( filename, &f.v );
+	if ( !f.c ) {
+		Com_Printf( "couldn't exec %s\n", filename );
 		return;
 	}
-	if (!quiet)
-		Com_Printf ("execing %s\n", filename);
+	if ( !quiet )
+		Com_Printf( "execing %s\n", filename );
 	
-	Cbuf_InsertText (f.c);
+	Cbuf_InsertText( f.c );
 
-	FS_FreeFile (f.v);
+	FS_FreeFile( f.v );
 }
 
 
@@ -369,9 +368,9 @@ Cmd_Argv
 ============
 */
 char	*Cmd_Argv( int arg ) {
-	if ( (unsigned)arg >= cmd_argc ) {
+	if ( arg >= cmd_argc )
 		return "";
-	}
+
 	return cmd_argv[arg];	
 }
 
@@ -853,21 +852,26 @@ void Cmd_CompleteCfgName( char *args, int argNum ) {
 		//	This allows things like /exec cfg/phys_<TAB>
 		//	default behaviour will only search "/" of the FS, not any subdirectories
 		int i=0;
-		char *s = args, *token=s;
-		const char *pos=NULL;
+		char *s=args, *token=s;
 
 		for ( i=0; i<argNum; i++ )
 			s = COM_Parse( &token );
 
-		if ( (pos=Q_stristr( s, "/" )) )
-		{
-			char realdir[MAX_QPATH]={0};
-			Q_strncpyz( realdir, s, /*strlen(s)-*/(pos-s)+1 );
-			completionString = pos+1;
-			Field_CompleteFilename( realdir, "cfg", qfalse, qtrue );
+		if ( Q_strchrs( s, "/\\" ) ) {
+			const char *pos = s + strlen( s )-1;
+
+			// find the last path separator
+			while ( pos-s > 0 && *pos != '/' && *pos != '\\' )
+				pos--;
+
+			if ( pos-s > 0 ) {
+				char realdir[MAX_QPATH] = {0};
+				Com_sprintf( realdir, sizeof( realdir )/*(pos-s) + 4*/, "cfg/%s", s );
+				realdir[pos-s+4] = '\0';
+				Field_CompleteFilename( realdir, pos+1, "cfg", qfalse, qtrue );
+			}
 		}
-		else
-			Field_CompleteFilename( "", "cfg", qfalse, qtrue );
+		Field_CompleteFilename( "cfg/", s, "cfg", qfalse, qtrue );
 	}
 }
 

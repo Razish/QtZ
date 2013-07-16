@@ -309,7 +309,7 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape, float *color ) {
+void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape, vector4 *color ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -342,18 +342,18 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		Com_Error( ERR_DROP, "drawLen >= MAX_STRING_CHARS" );
 	}
 
-	Com_Memcpy( str, edit->buffer + prestep, drawLen );
+	memcpy( str, edit->buffer + prestep, drawLen );
 	str[ drawLen ] = 0;
 
 	// draw it
 	if ( size == SMALLCHAR_WIDTH ) {
-		vec4_t	defaultcolor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		vec4_t	shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
+		vector4	defaultcolor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		vector4	shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 
 		//drop shadow
-		SCR_DrawSmallStringExt( x+1, y+1, str, shadowColour, qfalse, noColorEscape );
+		SCR_DrawSmallStringExt( x+1, y+1, str, &shadowColour, qfalse, noColorEscape );
 
-		SCR_DrawSmallStringExt( x, y, str, color ? color : defaultcolor, qfalse, noColorEscape );
+		SCR_DrawSmallStringExt( x, y, str, color ? color : &defaultcolor, qfalse, noColorEscape );
 	} else {
 		// draw big string with drop shadow
 		SCR_DrawBigString( x, y, str, 1.0, noColorEscape );
@@ -384,12 +384,12 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color ) 
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color ) 
 {
 	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, float *color ) 
+void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color ) 
 {
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape, color );
 }
@@ -1038,42 +1038,40 @@ Key_Bind_f
 */
 void Key_Bind_f (void)
 {
-	int			i, c, b;
-	char		cmd[1024];
+	int i, c, b;
+	char cmd[1024] = {0};
 	
 	c = Cmd_Argc();
 
-	if (c < 2)
-	{
-		Com_Printf ("bind <key> [command] : attach a command to a key\n");
-		return;
-	}
-	b = Key_StringToKeynum (Cmd_Argv(1));
-	if (b==-1)
-	{
-		Com_Printf ("\"%s\" isn't a valid key\n", Cmd_Argv(1));
+	if ( c < 2 ) {
+		Com_Printf( "bind <key> [command] : attach a command to a key\n" );
 		return;
 	}
 
-	if (c == 2)
-	{
-		if (keys[b].binding)
-			Com_Printf ("\"%s\" = \"%s\"\n", Cmd_Argv(1), keys[b].binding );
+	b = Key_StringToKeynum( Cmd_Argv( 1 ) );
+	if ( b == -1 ) {
+		Com_Printf( "  \"%s\" isn't a valid key\n", Cmd_Argv( 1 ) );
+		return;
+	}
+
+	if ( c == 2 ) {
+		if ( keys[b].binding )
+			Com_Printf( "  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"\n", Cmd_Argv( 1 ), keys[b].binding );
 		else
-			Com_Printf ("\"%s\" is not bound\n", Cmd_Argv(1) );
+			Com_Printf( "  \"%s\" is not bound\n", Cmd_Argv( 1 ) );
 		return;
 	}
 	
-// copy the rest of the command line
-	cmd[0] = 0;		// start out with a null string
-	for (i=2 ; i< c ; i++)
+	// copy the rest of the command line
+	cmd[0] = '\0';		// start out with a null string
+	for ( i=2; i<c; i++ )
 	{
-		strcat (cmd, Cmd_Argv(i));
-		if (i != (c-1))
-			strcat (cmd, " ");
+		Q_strcat( cmd, sizeof( cmd ), Cmd_Argv( i ) );
+		if ( i != (c-1) )
+			Q_strcat( cmd, sizeof( cmd ), " " );
 	}
 
-	Key_SetBinding (b, cmd);
+	Key_SetBinding( b, cmd );
 }
 
 /*
@@ -1245,8 +1243,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 
 	if( keys[K_ALT].down && key == K_ENTER )
 	{
-		Cvar_SetValue( "r_fullscreen",
-			!Cvar_VariableIntegerValue( "r_fullscreen" ) );
+		Cvar_SetValue( "r_fullscreen", (float)!Cvar_VariableIntegerValue( "r_fullscreen" ) );
 		return;
 	}
 
@@ -1509,7 +1506,7 @@ void CL_LoadConsoleHistory( void )
 				Com_DPrintf( S_COLOR_YELLOW "WARNING: probable corrupt history\n" );
 				break;
 			}
-			Com_Memcpy( historyEditLines[ i ].buffer,
+			memcpy( historyEditLines[ i ].buffer,
 					text_p, numChars );
 			historyEditLines[ i ].buffer[ numChars ] = '\0';
 			text_p += numChars;

@@ -400,7 +400,7 @@ int Sys_FileTime( char *path )
 	if (stat (path,&buf) == -1)
 		return -1;
 
-	return buf.st_mtime;
+	return (int)buf.st_mtime;
 }
 
 /*

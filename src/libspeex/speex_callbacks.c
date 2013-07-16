@@ -117,8 +117,7 @@ int speex_std_enh_request_handler(SpeexBits *bits, void *state, void *data)
 #ifndef DISABLE_VBR
 int speex_std_vbr_quality_request_handler(SpeexBits *bits, void *state, void *data)
 {
-   float qual;
-   qual = speex_bits_unpack_unsigned(bits, 4);
+   float qual = (float)speex_bits_unpack_unsigned(bits, 4);
    speex_encoder_ctl(data, SPEEX_SET_VBR_QUALITY, &qual);
    return 0;
 }

@@ -58,4 +58,4 @@ int AAS_IndexFromModel(char *modelname);
 //returns the current time
 float AAS_Time(void);
 //
-void AAS_ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
+void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd, vector3 *vProj );

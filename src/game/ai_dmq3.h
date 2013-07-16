@@ -111,13 +111,13 @@ int BotEnemyFlagCarrierVisible(bot_state_t *bs);
 //get the number of visible teammates and enemies
 void BotVisibleTeamMatesAndEnemies(bot_state_t *bs, int *teammates, int *enemies, float range);
 //returns true if within the field of vision for the given angles
-qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles);
+qboolean InFieldOfVision(vector3 *viewangles, float fov, vector3 *angles);
 //returns true and sets the .enemy field when an enemy is found
 int BotFindEnemy(bot_state_t *bs, int curenemy);
 //returns a roam goal
-void BotRoamGoal(bot_state_t *bs, vec3_t goal);
+void BotRoamGoal(bot_state_t *bs, vector3 *goal);
 //returns entity visibility in the range [0, 1]
-float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int ent);
+float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov, int ent);
 //the bot will aim at the current enemy
 void BotAimAtEnemy(bot_state_t *bs);
 //check if the bot should attack
@@ -153,7 +153,7 @@ int BotGetAlternateRouteGoal(bot_state_t *bs, int base);
 //returns either the alternate route goal or the given goal
 bot_goal_t *BotAlternateRoute(bot_state_t *bs, bot_goal_t *goal);
 //create a new waypoint
-bot_waypoint_t *BotCreateWayPoint(char *name, vec3_t origin, int areanum);
+bot_waypoint_t *BotCreateWayPoint(char *name, vector3 *origin, int areanum);
 //find a waypoint with the given name
 bot_waypoint_t *BotFindWayPoint(bot_waypoint_t *waypoints, char *name);
 //strstr but case insensitive
@@ -162,7 +162,7 @@ char *stristr(char *str, char *charset);
 int ClientFromName(char *name);
 int ClientOnSameTeamFromName(bot_state_t *bs, char *name);
 //
-int BotPointAreaNum(vec3_t origin);
+int BotPointAreaNum(vector3 *origin);
 //
 void BotMapScripts(bot_state_t *bs);
 

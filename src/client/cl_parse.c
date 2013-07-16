@@ -213,7 +213,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read in the new snapshot to a temporary buffer
 	// we will only copy to cl.snap if it is valid
-	Com_Memset (&newSnap, 0, sizeof(newSnap));
+	memset (&newSnap, 0, sizeof(newSnap));
 
 	// we will have read any new server commands in this
 	// message before we got to svc_snapshot
@@ -341,9 +341,10 @@ gamestate, and possibly during gameplay.
 void CL_SystemInfoChanged( void ) {
 	char			*systemInfo;
 	const char		*s, *t;
-	char			key[BIG_INFO_KEY];
-	char			value[BIG_INFO_VALUE];
+	static char key[BIG_INFO_KEY], value[BIG_INFO_VALUE];
 	qboolean		gameSet;
+
+	key[0] = value[0] = '\0';
 
 	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
 	// NOTE TTimo:
@@ -407,14 +408,8 @@ void CL_SystemInfoChanged( void ) {
 			// If this cvar may not be modified by a server discard the value.
 			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED | CVAR_USER_CREATED)))
 			{
-#ifndef STANDALONE
-				if(Q_stricmp(key, "g_synchronousClients") && Q_stricmp(key, "pmove_fixed") &&
-				   Q_stricmp(key, "pmove_msec"))
-#endif
-				{
-					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
-					continue;
-				}
+				Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+				continue;
 			}
 
 			Cvar_SetSafe(key, value);
@@ -424,7 +419,7 @@ void CL_SystemInfoChanged( void ) {
 	if ( !gameSet && *Cvar_VariableString("fs_game") ) {
 		Cvar_Set( "fs_game", "" );
 	}
-	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
+	cl_connectedToPureServer = (int)Cvar_VariableValue( "sv_pure" );
 }
 
 /*
@@ -495,14 +490,14 @@ void CL_ParseGamestate( msg_t *msg ) {
 
 			// append it to the gameState string buffer
 			cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
-			Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, s, len + 1 );
+			memcpy( cl.gameState.stringData + cl.gameState.dataCount, s, len + 1 );
 			cl.gameState.dataCount += len + 1;
 		} else if ( cmd == svc_baseline ) {
 			newnum = MSG_ReadBits( msg, GENTITYNUM_BITS );
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
 			}
-			Com_Memset (&nullstate, 0, sizeof(nullstate));
+			memset (&nullstate, 0, sizeof(nullstate));
 			es = &cl.entityBaselines[ newnum ];
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
@@ -556,8 +551,10 @@ A download message has been received from the server
 */
 void CL_ParseDownload ( msg_t *msg ) {
 	int		size;
-	unsigned char data[MAX_MSGLEN];
+	static unsigned char data[MAX_MSGLEN];
 	uint16_t block;
+
+	data[0] = '\0';
 
 	if (!*clc.downloadTempName) {
 		Com_Printf("Server sending download, but no download was requested\n");
@@ -573,7 +570,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 		// block zero is special, contains file size
 		clc.downloadSize = MSG_ReadLong ( msg );
 
-		Cvar_SetValue( "cl_downloadSize", clc.downloadSize );
+		Cvar_SetValue( "cl_downloadSize", (float)clc.downloadSize );
 
 		if (clc.downloadSize < 0)
 		{
@@ -619,7 +616,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 	clc.downloadCount += size;
 
 	// So UI gets access to it
-	Cvar_SetValue( "cl_downloadCount", clc.downloadCount );
+	Cvar_SetValue( "cl_downloadCount", (float)clc.downloadCount );
 
 	if (!size) { // A zero length block means EOF
 		if (clc.download) {
@@ -645,18 +642,31 @@ void CL_ParseDownload ( msg_t *msg ) {
 
 #ifdef USE_VOIP
 static
-qboolean CL_ShouldIgnoreVoipSender(int sender)
-{
-	if (!cl_voip->integer)
-		return qtrue;  // VoIP is disabled.
-	else if ((sender == clc.clientNum) && (!clc.demoplaying))
-		return qtrue;  // ignore own voice (unless playing back a demo).
+qboolean CL_ShouldIgnoreVoipSender( int sender ) {
+
+	// VoIP is disabled.
+	if ( !cl_voip->integer )
+		return qtrue;
+
+	// ignore own voice (unless playing back a demo)
+	else if ( sender == clc.clientNum && !clc.demoplaying && cl_voipIgnoreSelf->integer )
+		return qtrue;
+
+	// all channels are muted with extreme prejudice.
 	else if (clc.voipMuteAll)
-		return qtrue;  // all channels are muted with extreme prejudice.
-	else if (clc.voipIgnore[sender])
-		return qtrue;  // just ignoring this guy.
-	else if (clc.voipGain[sender] == 0.0f)
-		return qtrue;  // too quiet to play.
+		return qtrue;
+
+	// bogus sender
+	else if ( sender < 0 || sender >= MAX_CLIENTS )
+		return qtrue;
+
+	// just ignoring this guy.
+	else if ( clc.voipIgnore[sender] )
+		return qtrue;
+
+	// too quiet to play.
+	else if ( clc.voipGain[sender] <= 0.0f )
+		return qtrue;
 
 	return qfalse;
 }
@@ -691,8 +701,7 @@ CL_ParseVoip
 A VoIP message has been received from the server
 =====================
 */
-static
-void CL_ParseVoip ( msg_t *msg ) {
+static void CL_ParseVoip ( msg_t *msg ) {
 	static short decoded[4096];  // !!! FIXME: don't hardcode.
 
 	const int sender = MSG_ReadShort(msg);
@@ -734,10 +743,7 @@ void CL_ParseVoip ( msg_t *msg ) {
 	if (!clc.speexInitialized) {
 		MSG_ReadData(msg, encoded, packetsize);  // skip payload.
 		return;   // can't handle VoIP without libspeex!
-	} else if (sender >= MAX_CLIENTS) {
-		MSG_ReadData(msg, encoded, packetsize);  // skip payload.
-		return;   // bogus sender.
-	} else if (CL_ShouldIgnoreVoipSender(sender)) {
+	} else if ( CL_ShouldIgnoreVoipSender(sender) ) {
 		MSG_ReadData(msg, encoded, packetsize);  // skip payload.
 		return;   // Channel is muted, bail.
 	}
@@ -779,44 +785,31 @@ void CL_ParseVoip ( msg_t *msg ) {
 	}
 
 	for (i = 0; i < frames; i++) {
-		char encoded[256];
-		const int len = MSG_ReadByte(msg);
-		if (len < 0) {
+		char work[256];
+		const int len = MSG_ReadByte( msg );
+		if ( len < 0 ) {
 			Com_DPrintf("VoIP: Short packet!\n");
 			break;
 		}
-		MSG_ReadData(msg, encoded, len);
+		MSG_ReadData( msg, work, len );
 
 		// shouldn't happen, but just in case...
-		if ((written + clc.speexFrameSize) * 2 > sizeof (decoded)) {
-			Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n",
-			            written * 2, written, i);
-			
-			CL_PlayVoip(sender, written, (const byte *) decoded, flags);
+		if ( (written + clc.speexFrameSize) * 2 > sizeof( decoded ) ) {
+			Com_DPrintf( "VoIP: playback %d bytes, %d samples, %d frames\n", written * 2, written, i );
+			CL_PlayVoip( sender, written, (const byte *)decoded, flags );
 			written = 0;
 		}
 
-		speex_bits_read_from(&clc.speexDecoderBits[sender], encoded, len);
-		speex_decode_int(clc.speexDecoder[sender],
-		                 &clc.speexDecoderBits[sender], decoded + written);
-
-		#if 0
-		static FILE *encio = NULL;
-		if (encio == NULL) encio = fopen("voip-incoming-encoded.bin", "wb");
-		if (encio != NULL) { fwrite(encoded, len, 1, encio); fflush(encio); }
-		static FILE *decio = NULL;
-		if (decio == NULL) decio = fopen("voip-incoming-decoded.bin", "wb");
-		if (decio != NULL) { fwrite(decoded+written, clc.speexFrameSize*2, 1, decio); fflush(decio); }
-		#endif
+		speex_bits_read_from( &clc.speexDecoderBits[sender], work, len );
+		speex_decode_int( clc.speexDecoder[sender], &clc.speexDecoderBits[sender], decoded + written );
 
 		written += clc.speexFrameSize;
 	}
 
-	Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n",
-	            written * 2, written, i);
+	Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n", written * 2, written, i);
 
-	if(written > 0)
-		CL_PlayVoip(sender, written, (const byte *) decoded, flags);
+	if ( written > 0 )
+		CL_PlayVoip( sender, written, (const byte *)decoded, flags );
 
 	clc.voipIncomingSequence[sender] = sequence + frames;
 }

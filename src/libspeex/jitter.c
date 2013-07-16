@@ -200,7 +200,7 @@ static spx_int16_t compute_opt_delay(JitterBuffer *jitter)
    if (jitter->latency_tradeoff != 0)
       late_factor = jitter->latency_tradeoff * 100.0f / tot_count;
    else
-      late_factor = jitter->auto_tradeoff * jitter->window_size/tot_count;
+      late_factor = jitter->auto_tradeoff * (float)jitter->window_size/(float)tot_count;
    
    /*fprintf(stderr, "late_factor = %f\n", late_factor);*/
    for (i=0;i<MAX_BUFFERS;i++)
@@ -233,7 +233,7 @@ static spx_int16_t compute_opt_delay(JitterBuffer *jitter)
          pos[next]++;
          
          /* Actual cost function that tells us how bad using this delay would be */
-         cost = -latest + late_factor*late;
+		 cost = (spx_int32_t)(-latest + late_factor*late);
          /*fprintf(stderr, "cost %d = %d + %f * %d\n", cost, -latest, late_factor, late);*/
          if (cost < best_cost)
          {
@@ -367,7 +367,8 @@ static void shift_timings(JitterBuffer *jitter, spx_int16_t amount)
 /** Put one packet into the jitter buffer */
 void jitter_buffer_put(JitterBuffer *jitter, const JitterBufferPacket *packet)
 {
-   int i,j;
+   int i;
+   spx_uint32_t j;
    int late;
    /*fprintf (stderr, "put packet %d %d\n", timestamp, span);*/
    
@@ -676,7 +677,8 @@ int jitter_buffer_get(JitterBuffer *jitter, JitterBufferPacket *packet, spx_int3
 
 int jitter_buffer_get_another(JitterBuffer *jitter, JitterBufferPacket *packet)
 {
-   int i, j;
+   int i;
+   spx_uint32_t j;
    for (i=0;i<SPEEX_JITTER_MAX_BUFFER_SIZE;i++)
    {
       if (jitter->packets[i].data && jitter->packets[i].timestamp==jitter->last_returned_timestamp)

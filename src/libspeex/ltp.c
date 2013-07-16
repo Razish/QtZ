@@ -476,9 +476,9 @@ int scaledown
       C[8] = MAC16_32_Q15(C[8],MULT16_16_16(plc_tuning,655),C[8]);
       normalize16(C, C16, 32767, 9);
 #else
-      C[6]*=.5*(1+.02*plc_tuning);
-      C[7]*=.5*(1+.02*plc_tuning);
-      C[8]*=.5*(1+.02*plc_tuning);
+      C[6]*=.5f*(1+.02f*plc_tuning);
+      C[7]*=.5f*(1+.02f*plc_tuning);
+      C[8]*=.5f*(1+.02f*plc_tuning);
 #endif
 
       best_cdbk = pitch_gain_search_3tap_vq(gain_cdbk, gain_cdbk_size, C16, max_gain);
@@ -489,9 +489,9 @@ int scaledown
       gain[2] = ADD16(32,(spx_word16_t)gain_cdbk[best_cdbk*4+2]);
       /*printf ("%d %d %d %d\n",gain[0],gain[1],gain[2], best_cdbk);*/
 #else
-      gain[0] = 0.015625*gain_cdbk[best_cdbk*4]  + .5;
-      gain[1] = 0.015625*gain_cdbk[best_cdbk*4+1]+ .5;
-      gain[2] = 0.015625*gain_cdbk[best_cdbk*4+2]+ .5;
+      gain[0] = 0.015625f*gain_cdbk[best_cdbk*4]  + .5f;
+      gain[1] = 0.015625f*gain_cdbk[best_cdbk*4+1]+ .5f;
+      gain[2] = 0.015625f*gain_cdbk[best_cdbk*4+2]+ .5f;
 #endif
       *cdbk_index=best_cdbk;
    }
@@ -635,7 +635,7 @@ spx_word32_t *cumul_gain
 #ifdef FIXED_POINT
    *cumul_gain = MULT16_32_Q13(SHL16(params->gain_cdbk[4*best_gain_index+3],8), MAX32(1024,*cumul_gain));
 #else
-   *cumul_gain = 0.03125*MAX32(1024,*cumul_gain)*params->gain_cdbk[4*best_gain_index+3];
+   *cumul_gain = 0.03125f*MAX32(1024,*cumul_gain)*params->gain_cdbk[4*best_gain_index+3];
 #endif
    /*printf ("%f\n", cumul_gain);*/
    /*printf ("encode pitch: %d %d\n", best_pitch, best_gain_index);*/
@@ -691,9 +691,9 @@ int cdbk_offset
    gain[1] = ADD16(32,(spx_word16_t)gain_cdbk[gain_index*4+1]);
    gain[2] = ADD16(32,(spx_word16_t)gain_cdbk[gain_index*4+2]);
 #else
-   gain[0] = 0.015625*gain_cdbk[gain_index*4]+.5;
-   gain[1] = 0.015625*gain_cdbk[gain_index*4+1]+.5;
-   gain[2] = 0.015625*gain_cdbk[gain_index*4+2]+.5;
+   gain[0] = 0.015625f*gain_cdbk[gain_index*4]+.5f;
+   gain[1] = 0.015625f*gain_cdbk[gain_index*4+1]+.5f;
+   gain[2] = 0.015625f*gain_cdbk[gain_index*4+2]+.5f;
 #endif
 
    if (count_lost && pitch > subframe_offset)
@@ -705,9 +705,9 @@ int cdbk_offset
          if (tmp>62)
             tmp=62;
 #else
-         spx_word16_t tmp = count_lost < 4 ? last_pitch_gain : 0.5 * last_pitch_gain;
-         if (tmp>.95)
-            tmp=.95;
+         spx_word16_t tmp = count_lost < 4 ? last_pitch_gain : 0.5f * last_pitch_gain;
+         if (tmp>.95f)
+            tmp=.95f;
 #endif
          gain_sum = gain_3tap_to_1tap(gain);
 
@@ -782,8 +782,8 @@ spx_word32_t *cumul_gain
    if (pitch_coef>63)
       pitch_coef=63;
 #else
-   if (pitch_coef>.99)
-      pitch_coef=.99;
+   if (pitch_coef>.99f)
+      pitch_coef=.99f;
 #endif
    for (i=0;i<nsf&&i<start;i++)
    {
@@ -825,8 +825,8 @@ int cdbk_offset
    if (pitch_coef>63)
       pitch_coef=63;
 #else
-   if (pitch_coef>.99)
-      pitch_coef=.99;
+   if (pitch_coef>.99f)
+      pitch_coef=.99f;
 #endif
    for (i=0;i<nsf;i++)
    {

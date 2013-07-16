@@ -26,54 +26,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 static	float	s_quadFactor;
-static	vec3_t	forward, right, up;
-static	vec3_t	muzzle;
+static	vector3	forward, right, up;
+static	vector3	muzzle;
 
 /*
 ================
 G_BounceProjectile
 ================
 */
-void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout ) {
-	vec3_t v, newv;
+void G_BounceProjectile( vector3 *start, vector3 *impact, vector3 *dir, vector3 *endout ) {
+	vector3 v, newv;
 	float dot;
 
-	VectorSubtract( impact, start, v );
-	dot = DotProduct( v, dir );
-	VectorMA( v, -2*dot, dir, newv );
+	VectorSubtract( impact, start, &v );
+	dot = DotProduct( &v, dir );
+	VectorMA( &v, -2*dot, dir, &newv );
 
-	VectorNormalize(newv);
-	VectorMA(impact, 8192, newv, endout);
-}
-
-/*
-======================
-SnapVectorTowards
-
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
-into a wall.
-======================
-*/
-void SnapVectorTowards( vec3_t v, vec3_t to ) {
-	int		i;
-
-	for ( i=0; i<3; i++ )
-	{
-		if ( to[i] <= v[i] )
-			v[i] = floor( v[i] );
-		else
-			v[i] = ceil( v[i] );
-	}
+	VectorNormalize(&newv);
+	VectorMA(impact, 8192, &newv, endout);
 }
 
 //Raz: Leaving this here, we may use it for the splicer
 #if 0
 void Weapon_LightningFire( gentity_t *ent ) {
 	trace_t		tr;
-	vec3_t		end;
-	vec3_t impactpoint, bouncedir;
+	vector3		end;
+	vector3 impactpoint, bouncedir;
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
 
@@ -92,7 +70,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 			//
 			tent = G_TempEntity( muzzle, EV_LIGHTNINGBOLT );
 			VectorCopy( tr.endpos, end );
-			SnapVector( end );
+			VectorSnap( end );
 			VectorCopy( end, tent->s.origin2 );
 		}
 		if ( tr.entityNum == ENTITYNUM_NONE ) {
@@ -170,12 +148,12 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
-	VectorCopy( ent->s.pos.trBase, muzzlePoint );
-	muzzlePoint[2] += ent->client->ps.viewheight;
+void CalcMuzzlePoint ( gentity_t *ent, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) {
+	VectorCopy( &ent->s.pos.trBase, muzzlePoint );
+	muzzlePoint->z += ent->client->ps.viewheight;
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
 	// snap to integer coordinates for more efficient network bandwidth usage
-	SnapVector( muzzlePoint );
+	VectorSnap( muzzlePoint );
 }
 
 /*
@@ -185,12 +163,12 @@ CalcMuzzlePointOrigin
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
-	VectorCopy( ent->s.pos.trBase, muzzlePoint );
-	muzzlePoint[2] += ent->client->ps.viewheight;
+void CalcMuzzlePointOrigin ( gentity_t *ent, vector3 *origin, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) {
+	VectorCopy( &ent->s.pos.trBase, muzzlePoint );
+	muzzlePoint->z += ent->client->ps.viewheight;
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
 	// snap to integer coordinates for more efficient network bandwidth usage
-	SnapVector( muzzlePoint );
+	VectorSnap( muzzlePoint );
 }
 
 void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
@@ -213,12 +191,12 @@ void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 static void WP_Quantizer_Fire( gentity_t *ent, int special )
 {
 	gentity_t *missile = NULL;
-	vec3_t dir = { 0.0f }, angs = { 0.0f };
+	vector3 dir = { 0.0f }, angs = { 0.0f };
 
-	vectoangles( forward, angs );
-	AngleVectors( angs, dir, NULL, NULL );
+	vectoangles( &forward, &angs );
+	AngleVectors( &angs, &dir, NULL, NULL );
 
-	missile = CreateMissile( muzzle, dir, QUANTIZER_VELOCITY, QUANTIZER_LIFE, ent );
+	missile = CreateMissile( &muzzle, &dir, QUANTIZER_VELOCITY, QUANTIZER_LIFE, ent );
 	missile->think = G_ExplodeMissile;
 	missile->classname = "quantizer_proj";
 	missile->s.weapon = WP_QUANTIZER;
@@ -234,8 +212,8 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 	missile->clipmask = MASK_SHOT;
 	missile->bounceCount = 0;
 
-	VectorSet( missile->r.maxs, QUANTIZER_SIZE, QUANTIZER_SIZE, QUANTIZER_SIZE );
-	VectorScale( missile->r.maxs, -1, missile->r.mins );
+	VectorSet( &missile->r.maxs, QUANTIZER_SIZE, QUANTIZER_SIZE, QUANTIZER_SIZE );
+	VectorScale( &missile->r.maxs, -1, &missile->r.mins );
 }
 
 
@@ -246,12 +224,12 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 static void WP_Repeater_Fire( gentity_t *ent, int special )
 {
 	gentity_t *missile = NULL;
-	vec3_t dir = { 0.0f }, angs = { 0.0f };
+	vector3 dir = { 0.0f }, angs = { 0.0f };
 
-	vectoangles( forward, angs );
-	AngleVectors( angs, dir, NULL, NULL );
+	vectoangles( &forward, &angs );
+	AngleVectors( &angs, &dir, NULL, NULL );
 
-	missile = CreateMissile( muzzle, dir, REPEATER_VELOCITY, REPEATER_LIFE, ent );
+	missile = CreateMissile( &muzzle, &dir, REPEATER_VELOCITY, REPEATER_LIFE, ent );
 	missile->think = G_ExplodeMissile;
 	missile->classname = "repeater_proj";
 	missile->s.weapon = WP_REPEATER;
@@ -261,8 +239,8 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 	missile->clipmask = MASK_SHOT;
 	missile->bounceCount = 0;
 
-	VectorSet( missile->r.maxs, REPEATER_SIZE, REPEATER_SIZE, REPEATER_SIZE );
-	VectorScale( missile->r.maxs, -1, missile->r.mins );
+	VectorSet( &missile->r.maxs, REPEATER_SIZE, REPEATER_SIZE, REPEATER_SIZE );
+	VectorScale( &missile->r.maxs, -1, &missile->r.mins );
 }
 
 
@@ -271,9 +249,9 @@ static void WP_Repeater_Fire( gentity_t *ent, int special )
 
 void WP_Splicer_Fire( gentity_t *ent, int special ) {
 	trace_t		trace;
-	vec3_t		start = { 0.0f }, end = { 0.0f }, mins = { -SPLICER_SIZE }, maxs = { SPLICER_SIZE };
+	vector3		start = { 0.0f }, end = { 0.0f }, mins = { -SPLICER_SIZE }, maxs = { SPLICER_SIZE };
 	gentity_t	*traceEnt=NULL, *tent=NULL;
-	int			damage = SPLICER_DAMAGE * s_quadFactor;
+	int			damage = (int)(SPLICER_DAMAGE * s_quadFactor);
 	int			range = weaponData[WP_SPLICER].range;
 
 	// time to compensate for lag
@@ -281,12 +259,12 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
 
 	//Start at eye position
-	VectorCopy( ent->client->ps.origin, start );
-	start[2] += ent->client->ps.viewheight;
+	VectorCopy( &ent->client->ps.origin, &start );
+	start.z += ent->client->ps.viewheight;
 
-	VectorMA( start, range, forward, end );
+	VectorMA( &start, (float)range, &forward, &end );
 
-	gi.SV_Trace( &trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	gi.SV_Trace( &trace, &muzzle, &mins, &maxs, &end, ent->s.number, MASK_SHOT );
 
 	if ( trace.entityNum == ENTITYNUM_NONE )
 	{
@@ -300,21 +278,21 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 	//RAZTODO: headshots? does it matter?
 
 	if ( traceEnt->takedamage )
-			G_Damage( traceEnt, ent, ent, NULL, forward, trace.endpos, damage, 0, MOD_SPLICER );
+		G_Damage( traceEnt, ent, ent, NULL, &forward, &trace.endpos, damage, 0, MOD_SPLICER );
 
 	if ( traceEnt->takedamage && traceEnt->client )
 	{
-		tent = G_TempEntity( trace.endpos, EV_MISSILE_HIT );
+		tent = G_TempEntity( &trace.endpos, EV_MISSILE_HIT );
 		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( trace.plane.normal );
+		tent->s.eventParm = DirToByte( &trace.plane.normal );
 		tent->s.weapon = ent->s.weapon;
 		if ( LogAccuracyHit( traceEnt, ent ) )
 			ent->client->accuracy_hits++;
 	}
 	else if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
 	{
-		tent = G_TempEntity( trace.endpos, EV_MISSILE_MISS );
-		tent->s.eventParm = DirToByte( trace.plane.normal );
+		tent = G_TempEntity( &trace.endpos, EV_MISSILE_MISS );
+		tent->s.eventParm = DirToByte( &trace.plane.normal );
 	}
 
 	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
@@ -331,14 +309,14 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 static void WP_Mortar_Fire( gentity_t *ent, int special )
 {
 	gentity_t	*missile = NULL;
-	vec3_t		dir = { 0.0f }, angs = { 0.0f };
-	int			damage = MORTAR_DAMAGE * s_quadFactor;
+	vector3		dir = { 0.0f }, angs = { 0.0f };
+	int			damage = (int)(MORTAR_DAMAGE * s_quadFactor);
 
-	vectoangles( forward, angs );
-	angs[PITCH] -= 9.5f;
-	AngleVectors( angs, dir, NULL, NULL );
+	vectoangles( &forward, &angs );
+	angs.pitch -= 9.5f;
+	AngleVectors( &angs, &dir, NULL, NULL );
 
-	missile = CreateMissile( muzzle, dir, MORTAR_VELOCITY, MORTAR_LIFE, ent );
+	missile = CreateMissile( &muzzle, &dir, MORTAR_VELOCITY, MORTAR_LIFE, ent );
 	missile->think = G_ExplodeMissile;
 	missile->classname = "mortar_proj";
 	missile->s.weapon = WP_MORTAR;
@@ -361,8 +339,8 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 	missile->r.contents = MASK_SHOT;
 	missile->die = RocketDie;
 
-	VectorSet( missile->r.maxs, MORTAR_SIZE, MORTAR_SIZE, MORTAR_SIZE );
-	VectorScale( missile->r.maxs, -1, missile->r.mins );
+	VectorSet( &missile->r.maxs, MORTAR_SIZE, MORTAR_SIZE, MORTAR_SIZE );
+	VectorScale( &missile->r.maxs, -1, &missile->r.mins );
 }
 
 
@@ -373,8 +351,7 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 #define DIVERGENCE_RANGE (8192)
 #define DIVERGENCE_SIZE (0.5f)
 
-qboolean G_CanDisruptify( gentity_t *ent )
-{
+qboolean G_CanDisruptify( gentity_t *ent ) {
 	if ( !ent || !ent->inuse || !ent->client )
 		return qtrue;
 
@@ -384,7 +361,7 @@ qboolean G_CanDisruptify( gentity_t *ent )
 static void WP_Divergence_Fire( gentity_t *ent, int special )
 {
 	qboolean render_impact = qtrue;
-	vec3_t start = { 0.0f }, end = { 0.0f }, mins = { -DIVERGENCE_SIZE }, maxs = { DIVERGENCE_SIZE };
+	vector3 start = { 0.0f }, end = { 0.0f }, mins = { -DIVERGENCE_SIZE }, maxs = { DIVERGENCE_SIZE };
 	trace_t tr = { 0 };
 	gentity_t *traceEnt = NULL, *tent = NULL;
 	int range = weaponData[WP_DIVERGENCE].range;
@@ -399,13 +376,13 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
 
 	//Start at eye position
-	VectorCopy( ent->client->ps.origin, start );
-	start[2] += ent->client->ps.viewheight;
+	VectorCopy( &ent->client->ps.origin, &start );
+	start.z += ent->client->ps.viewheight;
 
 	while ( traces )
 	{
-		VectorMA( start, range, forward, end );
-		gi.SV_Trace( &tr, start, mins, maxs, end, ignore, MASK_SHOT );
+		VectorMA( &start, (float)range, &forward, &end );
+		gi.SV_Trace( &tr, &start, &mins, &maxs, &end, ignore, MASK_SHOT );
 
 		traceEnt = &g_entities[tr.entityNum];
 
@@ -417,7 +394,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 
 		if ( traceEnt && traceEnt->client )
 		{
-			vec3_t preAng = { 0.0f };
+			vector3 preAng = { 0.0f };
 			int preHealth = traceEnt->health, preLegs = 0, preTorso = 0;
 			int hitLoc = HL_NONE;
 
@@ -425,20 +402,20 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 			{
 				preLegs = traceEnt->client->ps.legsAnim;
 				preTorso = traceEnt->client->ps.torsoAnim;
-				VectorCopy( traceEnt->client->ps.viewangles, preAng );
+				VectorCopy( &traceEnt->client->ps.viewangles, &preAng );
 			}
 
 			if ( LogAccuracyHit( traceEnt, ent ) )
 				ent->client->accuracy_hits++;
 
-			if ( !OnSameTeam( ent, traceEnt ) && g_enableHeadshots.integer && G_GetHitLocation( traceEnt, tr.endpos ) == HL_HEAD )
+			if ( !OnSameTeam( ent, traceEnt ) && g_enableHeadshots.integer && G_GetHitLocation( traceEnt, &tr.endpos ) == HL_HEAD )
 			{
 				headshot = qtrue;
 				ent->client->tracking.headshotCount++;
 				headshotMulti = DIVERGENCE_HEADSHOT_MULTIPLIER;
 			}
 
-			G_Damage( traceEnt, ent, ent, NULL, forward, tr.endpos, damage*s_quadFactor*headshotMulti, DAMAGE_NORMAL, MOD_DIVERGENCE );
+			G_Damage( traceEnt, ent, ent, NULL, &forward, &tr.endpos, (int)(damage*s_quadFactor*headshotMulti), DAMAGE_NORMAL, MOD_DIVERGENCE );
 			if ( !OnSameTeam( ent, traceEnt ) )
 				hits++;
 
@@ -453,9 +430,9 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 
 				if ( preHealth > 0 && traceEnt->health <= 0 && G_CanDisruptify( traceEnt ) )
 				{//disintegrate!
-					vec3_t dir = { 0.0f };
-					VectorSubtract( traceEnt->client->ps.origin, ent->client->ps.origin, dir );
-					if ( hits > 1 || VectorLength( dir ) > 2560.0f )
+					vector3 dir = { 0.0f };
+					VectorSubtract( &traceEnt->client->ps.origin, &ent->client->ps.origin, &dir );
+					if ( hits > 1 || VectorLength( &dir ) > 2560.0f )
 					{
 						amazing = qtrue;
 						ent->client->tracking.amazingCount++;
@@ -463,7 +440,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 				}
 			}
 
-			VectorCopy( tr.endpos, start );
+			VectorCopy( &tr.endpos, &start );
 			ignore = tr.entityNum;
 			memset( &tr, 0, sizeof( tr ) );
 			traces--;
@@ -490,9 +467,9 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	}
 #endif
 
-	tent = G_TempEntity( tr.endpos, EV_HITSCANTRAIL );
+	tent = G_TempEntity( &tr.endpos, EV_HITSCANTRAIL );
 	tent->s.clientNum = ent->s.number;
-	tent->s.eventParm = DirToByte( tr.plane.normal );
+	tent->s.eventParm = DirToByte( &tr.plane.normal );
 	tent->s.weapon = WP_DIVERGENCE;
 
 	// reward sound for headshots, airshots, amazing
@@ -521,9 +498,9 @@ void FireWeapon( gentity_t *ent, int special )
 	ent->client->accuracy_shots++;
 
 	// set aiming directions
-	AngleVectors (ent->client->ps.viewangles, forward, right, up);
+	AngleVectors (&ent->client->ps.viewangles, &forward, &right, &up);
 
-	CalcMuzzlePointOrigin ( ent, ent->client->oldOrigin, forward, right, up, muzzle );
+	CalcMuzzlePointOrigin ( ent, &ent->client->oldOrigin, &forward, &right, &up, &muzzle );
 
 	// fire the specific weapon
 	switch( ent->s.weapon ) {

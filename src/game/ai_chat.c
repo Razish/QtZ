@@ -241,7 +241,7 @@ char *BotRandomOpponentName(bot_state_t *bs) {
 		opponents[numopponents] = i;
 		numopponents++;
 	}
-	count = random() * numopponents;
+	count = (int)(random() * numopponents);
 	for (i = 0; i < numopponents; i++) {
 		count--;
 		if (count <= 0) {
@@ -291,7 +291,7 @@ char *BotRandomWeaponName(void) {
 	int rnd;
 
 	//RAZMARK: Adding new weapons
-	rnd = random() * WP_NUM_WEAPONS-0.1;
+	rnd = (int)(random() * WP_NUM_WEAPONS-0.1f);
 	return (char *)weaponNames[rnd].longName;
 }
 
@@ -321,7 +321,7 @@ int BotVisibleEnemies(bot_state_t *bs) {
 		//if on the same team
 		if (BotSameTeam(bs, i)) continue;
 		//check if the enemy is visible
-		vis = BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, i);
+		vis = BotEntityVisible(bs->entitynum, &bs->eye, &bs->viewangles, 360, i);
 		if (vis > 0) return qtrue;
 	}
 	return qfalse;
@@ -333,7 +333,7 @@ BotValidChatPosition
 ==================
 */
 int BotValidChatPosition(bot_state_t *bs) {
-	vec3_t point, start, end, mins, maxs;
+	vector3 point, start, end, mins, maxs;
 	bsp_trace_t trace;
 
 	//if the bot is dead all positions are valid
@@ -344,20 +344,20 @@ int BotValidChatPosition(bot_state_t *bs) {
 	//must be on the ground
 	//if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE) return qfalse;
 	//do not chat if in lava or slime
-	VectorCopy(bs->origin, point);
-	point[2] -= 24;
-	if (gi.SV_PointContents(point,bs->entitynum) & (CONTENTS_LAVA|CONTENTS_SLIME)) return qfalse;
+	VectorCopy(&bs->origin, &point);
+	point.z -= 24;
+	if (gi.SV_PointContents(&point,bs->entitynum) & (CONTENTS_LAVA|CONTENTS_SLIME)) return qfalse;
 	//do not chat if under water
-	VectorCopy(bs->origin, point);
-	point[2] += 32;
-	if (gi.SV_PointContents(point,bs->entitynum) & MASK_WATER) return qfalse;
+	VectorCopy(&bs->origin, &point);
+	point.z += 32;
+	if (gi.SV_PointContents(&point,bs->entitynum) & MASK_WATER) return qfalse;
 	//must be standing on the world entity
-	VectorCopy(bs->origin, start);
-	VectorCopy(bs->origin, end);
-	start[2] += 1;
-	end[2] -= 10;
-	gi.aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, mins, maxs);
-	BotAI_Trace(&trace, start, mins, maxs, end, bs->client, MASK_SOLID);
+	VectorCopy(&bs->origin, &start);
+	VectorCopy(&bs->origin, &end);
+	start.z += 1;
+	end.z -= 10;
+	gi.aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &mins, &maxs);
+	BotAI_Trace(&trace, &start, &mins, &maxs, &end, bs->client, MASK_SOLID);
 	if (trace.ent != ENTITYNUM_WORLD) return qfalse;
 	//the bot is in a position where it can chat
 	return qtrue;
@@ -377,7 +377,7 @@ int BotChat_EnterGame(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -410,7 +410,7 @@ int BotChat_ExitGame(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -447,7 +447,7 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	    return qfalse;
 	}
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -482,7 +482,7 @@ int BotChat_EndLevel(bot_state_t *bs) {
 		return qtrue;
 	}
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -534,7 +534,7 @@ int BotChat_Death(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_DEATH, 0, 1);
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chatting is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -636,7 +636,7 @@ int BotChat_Kill(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_KILL, 0, 1);
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -705,7 +705,7 @@ int BotChat_EnemySuicide(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -745,7 +745,7 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -785,7 +785,7 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -823,7 +823,7 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -857,7 +857,7 @@ int BotChat_Random(bot_state_t *bs) {
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	// don't chat in tournament mode
-	if (gametype == GT_TOURNAMENT) return qfalse;
+	if (gametype == GT_DUEL) return qfalse;
 	//don't chat when doing something important :)
 	if (bs->ltgtype == LTG_TEAMHELP ||
 		bs->ltgtype == LTG_TEAMACCOMPANY ||

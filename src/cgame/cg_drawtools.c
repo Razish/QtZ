@@ -51,7 +51,7 @@ CG_FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void CG_FillRect( float x, float y, float width, float height, const float *color ) {
+void CG_FillRect( float x, float y, float width, float height, const vector4 *color ) {
 	cgi.R_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
@@ -87,11 +87,11 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
+void CG_DrawRect( float x, float y, float width, float height, float size, const vector4 *color ) {
 	cgi.R_SetColor( color );
 
-  CG_DrawTopBottom(x, y, width, height, size);
-  CG_DrawSides(x, y, width, height, size);
+	CG_DrawTopBottom(x, y, width, height, size);
+	CG_DrawSides(x, y, width, height, size);
 
 	cgi.R_SetColor( NULL );
 }
@@ -160,18 +160,18 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 		return;
 	}
 
-	ax = x;
-	ay = y;
-	aw = width;
-	ah = height;
+	ax = (float)x;
+	ay = (float)y;
+	aw = (float)width;
+	ah = (float)height;
 	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
 
 	row = ch>>4;
 	col = ch&15;
 
-	frow = row*0.0625;
-	fcol = col*0.0625;
-	size = 0.0625;
+	frow = row*0.0625f;
+	fcol = col*0.0625f;
+	size = 0.0625f;
 
 	cgi.R_DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
@@ -190,8 +190,8 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars ) {
-	vec4_t		color;
+void CG_DrawStringExt( int x, int y, const char *string, const vector4 *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars ) {
+	vector4		color;
 	const char	*s;
 	int			xx;
 	int			cnt;
@@ -201,9 +201,9 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 
 	// draw the drop shadow
 	if (shadow) {
-		color[0] = color[1] = color[2] = 0;
-		color[3] = setColor[3];
-		cgi.R_SetColor( color );
+		color.r = color.g = color.b = 0;
+		color.a = setColor->a;
+		cgi.R_SetColor( &color );
 		s = string;
 		xx = x;
 		cnt = 0;
@@ -227,9 +227,9 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 	while ( *s && cnt < maxChars) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
-				color[3] = setColor[3];
-				cgi.R_SetColor( color );
+				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color.a = setColor->a;
+				cgi.R_SetColor( &color );
 			}
 			s += 2;
 			continue;
@@ -243,26 +243,26 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 }
 
 void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
-	float	color[4];
+	vector4	color;
 
-	color[0] = color[1] = color[2] = 1.0;
-	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
+	color.r = color.g = color.b = 1.0;
+	color.a = alpha;
+	CG_DrawStringExt( x, y, s, &color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
-void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
+void CG_DrawBigStringColor( int x, int y, const char *s, vector4 *color ) {
 	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
-	float	color[4];
+	vector4	color;
 
-	color[0] = color[1] = color[2] = 1.0;
-	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+	color.r = color.g = color.b = 1.0;
+	color.a = alpha;
+	CG_DrawStringExt( x, y, s, &color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
-void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
+void CG_DrawSmallStringColor( int x, int y, const char *s, vector4 *color ) {
 	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
@@ -300,11 +300,11 @@ refresh window.
 static void CG_TileClearBox( int x, int y, int w, int h, qhandle_t hShader ) {
 	float	s1, t1, s2, t2;
 
-	s1 = x/64.0;
-	t1 = y/64.0;
-	s2 = (x+w)/64.0;
-	t2 = (y+h)/64.0;
-	cgi.R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
+	s1 = x/64.0f;
+	t1 = y/64.0f;
+	s2 = (x+w)/64.0f;
+	t2 = (y+h)/64.0f;
+	cgi.R_DrawStretchPic( (float)x, (float)y, (float)w, (float)h, s1, t1, s2, t2, hShader );
 }
 
 
@@ -353,27 +353,29 @@ void CG_TileClear( void ) {
 CG_FadeColor
 ================
 */
-float *CG_FadeColor( int startMsec, int totalMsec ) {
-	static vec4_t		color;
-	int			t;
+#define NUM_FADE_COLORS 8
+#define FADE_MASK (NUM_FADE_COLORS-1)
+vector4 *CG_FadeColor( int startMsec, int totalMsec ) {
+	static vector4 colors[NUM_FADE_COLORS];
+	static int index = 0;
+	int t;
+	vector4 *color = NULL;
 
-	if ( startMsec == 0 ) {
+	if ( startMsec == 0 )
 		return NULL;
-	}
 
 	t = cg.time - startMsec;
 
-	if ( t >= totalMsec ) {
+	if ( t >= totalMsec )
 		return NULL;
-	}
 
+	color = &colors[index++ & FADE_MASK];
 	// fade out
-	if ( totalMsec - t < FADE_TIME ) {
-		color[3] = ( totalMsec - t ) * 1.0/FADE_TIME;
-	} else {
-		color[3] = 1.0;
-	}
-	color[0] = color[1] = color[2] = 1;
+	if ( totalMsec - t < FADE_TIME )
+		color->a = (totalMsec - t) * 1.0f/FADE_TIME;
+	else
+		color->a = 1.0f;
+	color->r = color->g = color->b = 1.0f;
 
 	return color;
 }
@@ -384,21 +386,21 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 CG_TeamColor
 ================
 */
-float *CG_TeamColor( int team ) {
-	static vec4_t	red = {1, 0.2f, 0.2f, 1};
-	static vec4_t	blue = {0.2f, 0.2f, 1, 1};
-	static vec4_t	other = {1, 1, 1, 1};
-	static vec4_t	spectator = {0.7f, 0.7f, 0.7f, 1};
+vector4 *CG_TeamColor( int team ) {
+	static vector4	red = {1, 0.2f, 0.2f, 1};
+	static vector4	blue = {0.2f, 0.2f, 1, 1};
+	static vector4	other = {1, 1, 1, 1};
+	static vector4	spectator = {0.7f, 0.7f, 0.7f, 1};
 
 	switch ( team ) {
 	case TEAM_RED:
-		return red;
+		return &red;
 	case TEAM_BLUE:
-		return blue;
+		return &blue;
 	case TEAM_SPECTATOR:
-		return spectator;
+		return &spectator;
 	default:
-		return other;
+		return &other;
 	}
 }
 
@@ -409,42 +411,40 @@ float *CG_TeamColor( int team ) {
 CG_GetColorForHealth
 =================
 */
-void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
+void CG_GetColorForHealth( int health, int armor, vector4 *hcolor ) {
 	int		count;
 	int		max;
 
 	// calculate the total points of damage that can
 	// be sustained at the current health / armor level
 	if ( health <= 0 ) {
-		VectorClear( hcolor );	// black
-		hcolor[3] = 1;
+		VectorClear4( hcolor );	// black
+		hcolor->a = 1;
 		return;
 	}
 	count = armor;
-	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
+	max = (int)(health * ARMOR_PROTECTION / ( 1.0f - ARMOR_PROTECTION ));
 	if ( max < count ) {
 		count = max;
 	}
 	health += count;
 
 	// set the color based on health
-	hcolor[0] = 1.0;
-	hcolor[3] = 1.0;
-	if ( health >= 100 ) {
-		hcolor[2] = 1.0;
-	} else if ( health < 66 ) {
-		hcolor[2] = 0;
-	} else {
-		hcolor[2] = ( health - 66 ) / 33.0;
-	}
+	hcolor->r = 1.0f;
+	hcolor->a = 1.0f;
+	if ( health >= 100 )
+		hcolor->b = 1.0f;
+	else if ( health < 66 )
+		hcolor->b = 0;
+	else
+		hcolor->b = ( health - 66 ) / 33.0f;
 
-	if ( health > 60 ) {
-		hcolor[1] = 1.0;
-	} else if ( health < 30 ) {
-		hcolor[1] = 0;
-	} else {
-		hcolor[1] = ( health - 30 ) / 30.0;
-	}
+	if ( health > 60 )
+		hcolor->g = 1.0f;
+	else if ( health < 30 )
+		hcolor->g = 0;
+	else
+		hcolor->g = ( health - 30 ) / 30.0f;
 }
 
 /*
@@ -452,10 +452,9 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 CG_ColorForHealth
 =================
 */
-void CG_ColorForHealth( vec4_t hcolor ) {
+void CG_ColorForHealth( vector4 *hcolor ) {
 
-	CG_GetColorForHealth( cg.snap->ps.stats[STAT_HEALTH], 
-		cg.snap->ps.stats[STAT_ARMOR], hcolor );
+	CG_GetColorForHealth( cg.snap->ps.stats[STAT_HEALTH], cg.snap->ps.stats[STAT_ARMOR], hcolor );
 }
 
 
@@ -615,7 +614,7 @@ static int propMapB[26][3] = {
 UI_DrawBannerString
 =================
 */
-static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
+static void UI_DrawBannerString2( int x, int y, const char* str, vector4 *color )
 {
 	const char* s;
 	unsigned char	ch;
@@ -658,11 +657,11 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 	cgi.R_SetColor( NULL );
 }
 
-void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color ) {
+void UI_DrawBannerString( int x, int y, const char* str, int style, vector4 *color ) {
 	const char *	s;
 	int				ch;
 	int				width;
-	vec4_t			drawcolor;
+	vector4			drawcolor;
 
 	// find the width of the drawn text
 	s = str;
@@ -694,9 +693,9 @@ void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color
 	}
 
 	if ( style & UI_DROPSHADOW ) {
-		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
-		drawcolor[3] = color[3];
-		UI_DrawBannerString2( x+2, y+2, str, drawcolor );
+		drawcolor.r = drawcolor.g = drawcolor.b = 0;
+		drawcolor.a = color->a;
+		UI_DrawBannerString2( x+2, y+2, str, &drawcolor );
 	}
 
 	UI_DrawBannerString2( x, y, str, color );
@@ -725,7 +724,7 @@ int UI_ProportionalStringWidth( const char* str ) {
 	return width;
 }
 
-static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset )
+static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *color, float sizeScale, qhandle_t charset )
 {
 	const char* s;
 	unsigned char	ch;
@@ -788,8 +787,8 @@ float UI_ProportionalSizeScale( int style ) {
 UI_DrawProportionalString
 =================
 */
-void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color ) {
-	vec4_t	drawcolor;
+void UI_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color ) {
+	vector4	drawcolor;
 	int		width;
 	float	sizeScale;
 
@@ -797,12 +796,12 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 
 	switch( style & UI_FORMATMASK ) {
 		case UI_CENTER:
-			width = UI_ProportionalStringWidth( str ) * sizeScale;
+			width = (int)(UI_ProportionalStringWidth( str ) * sizeScale);
 			x -= width / 2;
 			break;
 
 		case UI_RIGHT:
-			width = UI_ProportionalStringWidth( str ) * sizeScale;
+			width = (int)(UI_ProportionalStringWidth( str ) * sizeScale);
 			x -= width;
 			break;
 
@@ -812,32 +811,32 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 	}
 
 	if ( style & UI_DROPSHADOW ) {
-		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
-		drawcolor[3] = color[3];
-		UI_DrawProportionalString2( x+2, y+2, str, drawcolor, sizeScale, cgs.media.charsetProp );
+		drawcolor.r = drawcolor.g = drawcolor.b = 0;
+		drawcolor.a = color->a;
+		UI_DrawProportionalString2( x+2, y+2, str, &drawcolor, sizeScale, cgs.media.charsetProp );
 	}
 
 	if ( style & UI_INVERSE ) {
-		drawcolor[0] = color[0] * 0.8;
-		drawcolor[1] = color[1] * 0.8;
-		drawcolor[2] = color[2] * 0.8;
-		drawcolor[3] = color[3];
-		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, cgs.media.charsetProp );
+		drawcolor.r = color->r * 0.8f;
+		drawcolor.g = color->g * 0.8f;
+		drawcolor.b = color->b * 0.8f;
+		drawcolor.a = color->a;
+		UI_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetProp );
 		return;
 	}
 
 	if ( style & UI_PULSE ) {
-		drawcolor[0] = color[0] * 0.8;
-		drawcolor[1] = color[1] * 0.8;
-		drawcolor[2] = color[2] * 0.8;
-		drawcolor[3] = color[3];
+		drawcolor.r = color->r * 0.8f;
+		drawcolor.g = color->g * 0.8f;
+		drawcolor.b = color->b * 0.8f;
+		drawcolor.a = color->a;
 		UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
 
-		drawcolor[0] = color[0];
-		drawcolor[1] = color[1];
-		drawcolor[2] = color[2];
-		drawcolor[3] = 0.5 + 0.5 * sin( cg.time / PULSE_DIVISOR );
-		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, cgs.media.charsetPropGlow );
+		drawcolor.r = color->r;
+		drawcolor.g = color->g;
+		drawcolor.b = color->b;
+		drawcolor.a = 0.5f + 0.5f * sinf( cg.time / PULSE_DIVISOR );
+		UI_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetPropGlow );
 		return;
 	}
 

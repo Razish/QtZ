@@ -36,8 +36,8 @@ global pain sound events for all clients.
 */
 void P_DamageFeedback( gentity_t *player ) {
 	gclient_t	*client;
-	float	count;
-	vec3_t	angles;
+	int	count;
+	vector3	angles;
 
 	client = player->client;
 	if ( client->ps.pm_type == PM_DEAD ) {
@@ -64,9 +64,9 @@ void P_DamageFeedback( gentity_t *player ) {
 
 		client->damage_fromWorld = qfalse;
 	} else {
-		vectoangles( client->damage_from, angles );
-		client->ps.damagePitch = angles[PITCH]/360.0 * 256;
-		client->ps.damageYaw = angles[YAW]/360.0 * 256;
+		vectoangles( &client->damage_from, &angles );
+		client->ps.damagePitch = (int)(angles.pitch/360.0f * 256);
+		client->ps.damageYaw = (int)(angles.yaw/360.0f * 256);
 	}
 
 	// play an apropriate pain sound
@@ -218,8 +218,8 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	int			touch[MAX_GENTITIES];
 	gentity_t	*hit;
 	trace_t		trace;
-	vec3_t		mins, maxs;
-	static vec3_t	range = { 40, 40, 52 };
+	vector3		mins, maxs;
+	static vector3	range = { 40, 40, 52 };
 
 	if ( !ent->client ) {
 		return;
@@ -230,14 +230,14 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		return;
 	}
 
-	VectorSubtract( ent->client->ps.origin, range, mins );
-	VectorAdd( ent->client->ps.origin, range, maxs );
+	VectorSubtract( &ent->client->ps.origin, &range, &mins );
+	VectorAdd( &ent->client->ps.origin, &range, &maxs );
 
-	num = gi.SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
+	num = gi.SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
 
 	// can't use ent->absmin, because that has a one unit pad
-	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
-	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
+	VectorAdd( &ent->client->ps.origin, &ent->r.mins, &mins );
+	VectorAdd( &ent->client->ps.origin, &ent->r.maxs, &maxs );
 
 	for ( i=0 ; i<num ; i++ ) {
 		hit = &g_entities[touch[i]];
@@ -266,7 +266,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 				continue;
 			}
 		} else {
-			if ( !gi.SV_EntityContact( mins, maxs, (sharedEntity_t *)hit, qfalse ) ) {
+			if ( !gi.SV_EntityContact( &mins, &maxs, (sharedEntity_t *)hit, qfalse ) ) {
 				continue;
 			}
 		}
@@ -276,12 +276,12 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		//QtZ: Seamless teleporter
 		if ( hit->s.eType == ET_TELEPORT_TRIGGER && hit->s.generic1 )
 		{//Must be within half a unit to actually teleport
-			vec3_t newMins = { -0.25f, -0.25f, -0.25f }, newMaxs = { 0.25f, 0.25f, 0.25f };
+			vector3 newMins = { -0.25f, -0.25f, -0.25f }, newMaxs = { 0.25f, 0.25f, 0.25f };
 		
-			VectorAdd( ent->client->ps.origin, ent->r.mins, newMins );
-			VectorAdd( ent->client->ps.origin, ent->r.maxs, newMaxs );
+			VectorAdd( &ent->client->ps.origin, &ent->r.mins, &newMins );
+			VectorAdd( &ent->client->ps.origin, &ent->r.maxs, &newMaxs );
 
-			if ( !gi.SV_EntityContact( newMins, newMaxs, (sharedEntity_t *)hit, qfalse ) )
+			if ( !gi.SV_EntityContact( &newMins, &newMaxs, (sharedEntity_t *)hit, qfalse ) )
 				continue;
 		}
 		//~QtZ
@@ -315,7 +315,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
-		client->ps.speed = 400;	// faster than normal
 
 		//OSP: dead players are frozen too, in a timeout
 		//OSP: pause
@@ -335,7 +334,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		// perform a pmove
 		Pmove (&pm);
 		// save results of pmove
-		VectorCopy( client->ps.origin, ent->s.origin );
+		VectorCopy( &client->ps.origin, &ent->s.origin );
 
 		G_TouchTriggers( ent );
 		gi.SV_UnlinkEntity( (sharedEntity_t*)ent );
@@ -345,9 +344,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	client->buttons = ucmd->buttons;
 
 	// attack button cycles through spectators
-	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
-		Cmd_FollowCycle_f( ent, 1 );
-	}
+	if ( (client->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK) )
+		Cmd_FollowNext_f( ent );
+
+	else if ( client->sess.spectatorState == SPECTATOR_FOLLOW && (client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK) )
+		Cmd_FollowPrev_f( ent );
 }
 
 
@@ -401,11 +402,11 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		client->timeResidual -= 1000;
 
 		// count down health when over max
-		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] )
+		if ( ent->health > MAX_HEALTH )
 			ent->health--;
 
 		// count down armor when over max
-		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
+		if ( client->ps.stats[STAT_ARMOR] > MAX_ARMOR ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
@@ -444,7 +445,7 @@ but any server game effects are handled here
 */
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;
-	int		event;
+	int		ev;
 	gclient_t *client;
 	int		damage;
 //	qboolean	fired;
@@ -454,23 +455,19 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	if ( oldEventSequence < client->ps.eventSequence - MAX_PS_EVENTS ) {
 		oldEventSequence = client->ps.eventSequence - MAX_PS_EVENTS;
 	}
-	for ( i = oldEventSequence ; i < client->ps.eventSequence ; i++ ) {
-		event = client->ps.events[ i & (MAX_PS_EVENTS-1) ];
+	for ( i=oldEventSequence; i<client->ps.eventSequence; i++ ) {
+		ev = client->ps.events[i&(MAX_PS_EVENTS-1)];
 
-		switch ( event ) {
+		switch ( ev ) {
 		case EV_FALL_MEDIUM:
 		case EV_FALL_FAR:
-			if ( ent->s.eType != ET_PLAYER ) {
+			if ( ent->s.eType != ET_PLAYER )
 				break;		// not in the player model
-			}
-			if ( dmflags.integer & DF_NO_FALLING ) {
+			if ( dmflags.integer & DF_NO_FALLING )
 				break;
-			}
-			if ( event == EV_FALL_FAR ) {
-				damage = 10;
-			} else {
-				damage = 5;
-			}
+			if ( ev == EV_FALL_FAR )	damage = 10;
+			else						damage = 5;
+
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
 			G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, damage, 0, MOD_FALLING);
 			break;
@@ -482,7 +479,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			break;
 
 		case EV_USE_ITEM1: // medkit
-			ent->health = ent->client->ps.stats[STAT_MAX_HEALTH] + 25;
+			ent->health = MAX_HEALTH;
 			break;
 
 		case EV_USE_ITEM2:
@@ -509,37 +506,21 @@ static int StuckInOtherClient(gentity_t *ent) {
 
 	ent2 = &g_entities[0];
 	for ( i = 0; i < MAX_CLIENTS; i++, ent2++ ) {
-		if ( ent2 == ent ) {
+		if ( ent2 == ent || !ent2->inuse || !ent2->client || ent2->health <= 0 )
 			continue;
-		}
-		if ( !ent2->inuse ) {
-			continue;
-		}
-		if ( !ent2->client ) {
-			continue;
-		}
-		if ( ent2->health <= 0 ) {
-			continue;
-		}
 		//
-		if (ent2->r.absmin[0] > ent->r.absmax[0])
-			continue;
-		if (ent2->r.absmin[1] > ent->r.absmax[1])
-			continue;
-		if (ent2->r.absmin[2] > ent->r.absmax[2])
-			continue;
-		if (ent2->r.absmax[0] < ent->r.absmin[0])
-			continue;
-		if (ent2->r.absmax[1] < ent->r.absmin[1])
-			continue;
-		if (ent2->r.absmax[2] < ent->r.absmin[2])
-			continue;
+		if ( ent2->r.absmin.x > ent->r.absmax.x )	continue;
+		if ( ent2->r.absmin.y > ent->r.absmax.y )	continue;
+		if ( ent2->r.absmin.z > ent->r.absmax.z )	continue;
+		if ( ent2->r.absmax.x < ent->r.absmin.x )	continue;
+		if ( ent2->r.absmax.y < ent->r.absmin.y )	continue;
+		if ( ent2->r.absmax.z < ent->r.absmin.z )	continue;
 		return qtrue;
 	}
 	return qfalse;
 }
 
-void BotTestSolid(vec3_t origin);
+void BotTestSolid(vector3 *origin);
 
 /*
 ==============
@@ -561,7 +542,7 @@ void SendPendingPredictableEvents( playerState_t *ps ) {
 		extEvent = ps->externalEvent;
 		ps->externalEvent = 0;
 		// create temporary entity for event
-		t = G_TempEntity( ps->origin, event );
+		t = G_TempEntity( &ps->origin, event );
 		number = t->s.number;
 		BG_PlayerStateToEntityState( ps, &t->s, qtrue );
 		t->s.number = number;
@@ -663,11 +644,6 @@ void ClientThink_real( gentity_t *ent ) {
 	else
 		client->ps.pm_type = PM_NORMAL;
 
-	client->ps.gravity = g_gravity.value;
-
-	// set speed
-	client->ps.speed = g_speed.value;
-
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 
@@ -705,7 +681,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pointcontents = gi.SV_PointContents;
 	pm.noFootsteps = !!(dmflags.integer & DF_NO_FOOTSTEPS);
 
-	VectorCopy( client->ps.origin, client->oldOrigin );
+	VectorCopy( &client->ps.origin, &client->oldOrigin );
 
 	Pmove (&pm);
 
@@ -714,10 +690,10 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->eventTime = level.time;
 	}
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.boolean );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float.boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.boolean );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float.boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -726,10 +702,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// use the snapped origin for linking so it matches client predicted versions
-	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+	VectorCopy( &ent->s.pos.trBase, &ent->r.currentOrigin );
 
-	VectorCopy (pm.mins, ent->r.mins);
-	VectorCopy (pm.maxs, ent->r.maxs);
+	VectorCopy (&pm.mins, &ent->r.mins);
+	VectorCopy (&pm.maxs, &ent->r.maxs);
 
 	ent->waterlevel = pm.waterlevel;
 	ent->watertype = pm.watertype;
@@ -746,10 +722,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// NOTE: now copy the exact origin over otherwise clients can be snapped into solid
-	VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+	VectorCopy( &ent->client->ps.origin, &ent->r.currentOrigin );
 
 	//test for solid areas in the AAS file
-	BotTestAAS(ent->r.currentOrigin);
+	BotTestAAS(&ent->r.currentOrigin);
 
 	// touch other objects
 	ClientImpacts( ent, &pm );
@@ -835,7 +811,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
-		int		clientNum, flags;
+		int clientNum;
 
 		clientNum = ent->client->sess.spectatorClient;
 
@@ -848,10 +824,9 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 		if ( clientNum >= 0 ) {
 			cl = &level.clients[ clientNum ];
 			if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
-				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
+				ent->client->ps.eFlags = cl->ps.eFlags;
 				ent->client->ps = cl->ps;
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
-				ent->client->ps.eFlags = flags;
 				return;
 			} else {
 				// drop them to free spectators unless they are dedicated camera followers
@@ -863,11 +838,10 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 		}
 	}
 
-	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
+	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD )
 		ent->client->ps.pm_flags |= PMF_SCOREBOARD;
-	} else {
+	else
 		ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
-	}
 }
 
 /*
@@ -922,7 +896,6 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->pers.teamState.lastfraggedcarrier += time_delta;
 		ent->client->respawnTime += time_delta;
 		ent->pain_debounce_time += time_delta;
-	//	level.warmupTime += time_delta;
 	}
 
 	// save network bandwidth
@@ -960,10 +933,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// set the latest infor
 	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, pm_snapVec.boolean );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float.boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, pm_snapVec.boolean );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float.boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 

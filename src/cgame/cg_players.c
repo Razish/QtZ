@@ -119,7 +119,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	skip = 0;	// quite the compiler warning
 
 	ci->footsteps = FOOTSTEP_NORMAL;
-	VectorClear( ci->headOffset );
+	VectorClear( &ci->headOffset );
 	ci->gender = GENDER_MALE;
 	ci->fixedlegs = qfalse;
 	ci->fixedtorso = qfalse;
@@ -156,7 +156,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 				if ( !token ) {
 					break;
 				}
-				ci->headOffset[i] = atof( token );
+				ci->headOffset.data[i] = (float)atof( token );
 			}
 			continue;
 		} else if ( !Q_stricmp( token, "sex" ) ) {
@@ -238,12 +238,12 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 		if ( !*token ) {
 			break;
 		}
-		fps = atof( token );
+		fps = (float)atof( token );
 		if ( fps == 0 ) {
 			fps = 1;
 		}
-		animations[i].frameLerp = 1000 / fps;
-		animations[i].initialLerp = 1000 / fps;
+		animations[i].frameLerp = (int)(1000 / fps);
+		animations[i].initialLerp = (int)(1000 / fps);
 	}
 
 	if ( i != MAX_ANIMATIONS ) {
@@ -418,7 +418,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 CG_ColorFromString
 ====================
 */
-static void CG_ColorFromString( const char *v, vec3_t color ) {
+static void CG_ColorFromString( const char *v, vector3 *color ) {
 	int val;
 
 	VectorClear( color );
@@ -431,13 +431,13 @@ static void CG_ColorFromString( const char *v, vec3_t color ) {
 	}
 
 	if ( val & 1 ) {
-		color[2] = 1.0f;
+		color->b = 1.0f;
 	}
 	if ( val & 2 ) {
-		color[1] = 1.0f;
+		color->g = 1.0f;
 	}
 	if ( val & 4 ) {
-		color[0] = 1.0f;
+		color->r = 1.0f;
 	}
 }
 
@@ -474,7 +474,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 
 	// sounds
 	dir = ci->modelName;
-	fallback = (cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
+	fallback = DEFAULT_MODEL;
 
 	for ( i=0; i<MAX_CUSTOM_SOUNDS; i++ )
 	{
@@ -507,7 +507,7 @@ CG_CopyClientInfoModel
 ======================
 */
 static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to ) {
-	VectorCopy( from->headOffset, to->headOffset );
+	VectorCopy( &from->headOffset, &to->headOffset );
 	to->footsteps = from->footsteps;
 	to->gender = from->gender;
 
@@ -655,19 +655,19 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// colors
 	v = Info_ValueForKey( configstring, "c1" );
-	CG_ColorFromString( v, newInfo.color1 );
+	CG_ColorFromString( v, &newInfo.color1 );
 
-	newInfo.c1RGBA[0] = 255 * newInfo.color1[0];
-	newInfo.c1RGBA[1] = 255 * newInfo.color1[1];
-	newInfo.c1RGBA[2] = 255 * newInfo.color1[2];
+	newInfo.c1RGBA[0] = (byte)(255 * newInfo.color1.r);
+	newInfo.c1RGBA[1] = (byte)(255 * newInfo.color1.g);
+	newInfo.c1RGBA[2] = (byte)(255 * newInfo.color1.b);
 	newInfo.c1RGBA[3] = 255;
 
 	v = Info_ValueForKey( configstring, "c2" );
-	CG_ColorFromString( v, newInfo.color2 );
+	CG_ColorFromString( v, &newInfo.color2 );
 
-	newInfo.c2RGBA[0] = 255 * newInfo.color2[0];
-	newInfo.c2RGBA[1] = 255 * newInfo.color2[1];
-	newInfo.c2RGBA[2] = 255 * newInfo.color2[2];
+	newInfo.c2RGBA[0] = (byte)(255 * newInfo.color2.r);
+	newInfo.c2RGBA[1] = (byte)(255 * newInfo.color2.g);
+	newInfo.c2RGBA[2] = (byte)(255 * newInfo.color2.b);
 	newInfo.c2RGBA[3] = 255;
 
 	// bot skill
@@ -835,7 +835,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
 		}
 		f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
-		f *= speedScale;		// adjust for haste, etc
+		f = (int)(f * speedScale);		// adjust for haste, etc
 
 		numFrames = anim->numFrames;
 		if (anim->flipflop) {
@@ -878,7 +878,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 	if ( lf->frameTime == lf->oldFrameTime ) {
 		lf->backlerp = 0;
 	} else {
-		lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
+		lf->backlerp = 1.0f - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
 	}
 }
 
@@ -964,13 +964,13 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
-	if ( scale < swingTolerance * 0.5 ) {
-		scale = 0.5;
+	scale = fabsf( swing );
+	if ( scale < swingTolerance * 0.5f ) {
+		scale = 0.5f;
 	} else if ( scale < swingTolerance ) {
-		scale = 1.0;
+		scale = 1.0f;
 	} else {
-		scale = 2.0;
+		scale = 2.0f;
 	}
 
 	// swing towards the destination angle
@@ -1004,7 +1004,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 CG_AddPainTwitch
 =================
 */
-static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles ) {
+static void CG_AddPainTwitch( centity_t *cent, vector3 *torsoAngles ) {
 	int		t;
 	float	f;
 
@@ -1013,13 +1013,12 @@ static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles ) {
 		return;
 	}
 
-	f = 1.0 - (float)t / PAIN_TWITCH_TIME;
+	f = 1.0f - (float)t / PAIN_TWITCH_TIME;
 
-	if ( cent->pe.painDirection ) {
-		torsoAngles[ROLL] += 20 * f;
-	} else {
-		torsoAngles[ROLL] -= 20 * f;
-	}
+	if ( cent->pe.painDirection )
+		torsoAngles->roll += 20 * f;
+	else
+		torsoAngles->roll -= 20 * f;
 }
 
 
@@ -1037,19 +1036,19 @@ Handles seperate torso motion
   if < 45 degrees, also show in torso
 ===============
 */
-static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], vec3_t head[3] ) {
-	vec3_t		legsAngles, torsoAngles, headAngles;
+static void CG_PlayerAngles( centity_t *cent, vector3 legs[3], vector3 torso[3], vector3 head[3] ) {
+	vector3		legsAngles, torsoAngles, headAngles;
 	float		dest;
 	static	int	movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
-	vec3_t		velocity;
+	vector3		velocity;
 	float		speed;
 	int			dir, clientNum;
 	clientInfo_t	*ci;
 
-	VectorCopy( cent->lerpAngles, headAngles );
-	headAngles[YAW] = AngleMod( headAngles[YAW] );
-	VectorClear( legsAngles );
-	VectorClear( torsoAngles );
+	VectorCopy( &cent->lerpAngles, &headAngles );
+	headAngles.yaw = AngleMod( headAngles.yaw );
+	VectorClear( &legsAngles );
+	VectorClear( &torsoAngles );
 
 	// --------- yaw -------------
 
@@ -1068,39 +1067,39 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 		// don't let dead bodies twitch
 		dir = 0;
 	} else {
-		dir = cent->currentState.angles2[YAW];
+		dir = (int)cent->currentState.angles2.yaw;
 		if ( dir < 0 || dir > 7 ) {
 			CG_Error( "Bad player movement angle" );
 		}
 	}
-	legsAngles[YAW] = headAngles[YAW] + movementOffsets[ dir ];
-	torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[ dir ];
+	legsAngles.yaw = headAngles.yaw + movementOffsets[ dir ];
+	torsoAngles.yaw = headAngles.yaw + 0.25f * movementOffsets[ dir ];
 
 	// torso
-	CG_SwingAngles( torsoAngles[YAW], 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
-	CG_SwingAngles( legsAngles[YAW], 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+	CG_SwingAngles( torsoAngles.yaw, 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+	CG_SwingAngles( legsAngles.yaw, 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
 
-	torsoAngles[YAW] = cent->pe.torso.yawAngle;
-	legsAngles[YAW] = cent->pe.legs.yawAngle;
+	torsoAngles.yaw = cent->pe.torso.yawAngle;
+	legsAngles.yaw = cent->pe.legs.yawAngle;
 
 
 	// --------- pitch -------------
 
 	// only show a fraction of the pitch angle in the torso
-	if ( headAngles[PITCH] > 180 ) {
-		dest = (-360 + headAngles[PITCH]) * 0.75f;
+	if ( headAngles.pitch > 180 ) {
+		dest = (-360 + headAngles.pitch) * 0.75f;
 	} else {
-		dest = headAngles[PITCH] * 0.75f;
+		dest = headAngles.pitch * 0.75f;
 	}
 	CG_SwingAngles( dest, 15, 30, 0.1f, &cent->pe.torso.pitchAngle, &cent->pe.torso.pitching );
-	torsoAngles[PITCH] = cent->pe.torso.pitchAngle;
+	torsoAngles.pitch = cent->pe.torso.pitchAngle;
 
 	//
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum >= 0 && clientNum < MAX_CLIENTS ) {
 		ci = &cgs.clientinfo[ clientNum ];
 		if ( ci->fixedtorso ) {
-			torsoAngles[PITCH] = 0.0f;
+			torsoAngles.pitch = 0.0f;
 		}
 	}
 
@@ -1108,20 +1107,20 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 
 	// lean towards the direction of travel
-	VectorCopy( cent->currentState.pos.trDelta, velocity );
-	speed = VectorNormalize( velocity );
+	VectorCopy( &cent->currentState.pos.trDelta, &velocity );
+	speed = VectorNormalize( &velocity );
 	if ( speed ) {
-		vec3_t	axis[3];
+		vector3	axis[3];
 		float	side;
 
 		speed *= 0.05f;
 
-		AnglesToAxis( legsAngles, axis );
-		side = speed * DotProduct( velocity, axis[1] );
-		legsAngles[ROLL] -= side;
+		AnglesToAxis( &legsAngles, axis );
+		side = speed * DotProduct( &velocity, &axis[1] );
+		legsAngles.roll -= side;
 
-		side = speed * DotProduct( velocity, axis[0] );
-		legsAngles[PITCH] += side;
+		side = speed * DotProduct( &velocity, &axis[0] );
+		legsAngles.pitch += side;
 	}
 
 	//
@@ -1129,21 +1128,21 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 	if ( clientNum >= 0 && clientNum < MAX_CLIENTS ) {
 		ci = &cgs.clientinfo[ clientNum ];
 		if ( ci->fixedlegs ) {
-			legsAngles[YAW] = torsoAngles[YAW];
-			legsAngles[PITCH] = 0.0f;
-			legsAngles[ROLL] = 0.0f;
+			legsAngles.yaw = torsoAngles.yaw;
+			legsAngles.pitch = 0.0f;
+			legsAngles.roll = 0.0f;
 		}
 	}
 
 	// pain twitch
-	CG_AddPainTwitch( cent, torsoAngles );
+	CG_AddPainTwitch( cent, &torsoAngles );
 
 	// pull the angles back out of the hierarchial chain
-	AnglesSubtract( headAngles, torsoAngles, headAngles );
-	AnglesSubtract( torsoAngles, legsAngles, torsoAngles );
-	AnglesToAxis( legsAngles, legs );
-	AnglesToAxis( torsoAngles, torso );
-	AnglesToAxis( headAngles, head );
+	AnglesSubtract( &headAngles, &torsoAngles, &headAngles );
+	AnglesSubtract( &torsoAngles, &legsAngles, &torsoAngles );
+	AnglesToAxis( &legsAngles, legs );
+	AnglesToAxis( &torsoAngles, torso );
+	AnglesToAxis( &headAngles, head );
 }
 
 
@@ -1156,7 +1155,7 @@ CG_BreathPuffs
 */
 static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	clientInfo_t *ci;
-	vec3_t up, origin;
+	vector3 up, origin;
 	int contents;
 
 	ci = &cgs.clientinfo[ cent->currentState.number ];
@@ -1167,7 +1166,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	if ( cent->currentState.eFlags & EF_DEAD ) {
 		return;
 	}
-	contents = CG_PointContents( head->origin, 0 );
+	contents = CG_PointContents( &head->origin, 0 );
 	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		return;
 	}
@@ -1175,10 +1174,10 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 		return;
 	}
 
-	VectorSet( up, 0, 0, 8 );
-	VectorMA(head->origin, 8, head->axis[0], origin);
-	VectorMA(origin, -4, head->axis[2], origin);
-	CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, 0/*cgs.media.shotgunSmokePuffShader*/ );
+	VectorSet( &up, 0, 0, 8 );
+	VectorMA(&head->origin, 8, &head->axis[0], &origin);
+	VectorMA(&origin, -4, &head->axis[2], &origin);
+	CG_SmokePuff( &origin, &up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, 0/*cgs.media.shotgunSmokePuffShader*/ );
 	ci->breathPuffTime = cg.time + 2000;
 }
 
@@ -1189,7 +1188,7 @@ CG_DustTrail
 */
 static void CG_DustTrail( centity_t *cent ) {
 	int				anim;
-	vec3_t end, vel;
+	vector3 end, vel;
 	trace_t tr;
 
 	if ( cent->dustTrailTime > cg.time ) {
@@ -1206,18 +1205,18 @@ static void CG_DustTrail( centity_t *cent ) {
 		cent->dustTrailTime = cg.time;
 	}
 
-	VectorCopy(cent->currentState.pos.trBase, end);
-	end[2] -= 64;
-	CG_Trace( &tr, cent->currentState.pos.trBase, NULL, NULL, end, cent->currentState.number, MASK_PLAYERSOLID );
+	VectorCopy(&cent->currentState.pos.trBase, &end);
+	end.z -= 64;
+	CG_Trace( &tr, &cent->currentState.pos.trBase, NULL, NULL, &end, cent->currentState.number, MASK_PLAYERSOLID );
 
 	if ( !(tr.surfaceFlags & SURF_DUST) )
 		return;
 
-	VectorCopy( cent->currentState.pos.trBase, end );
-	end[2] -= 16;
+	VectorCopy( &cent->currentState.pos.trBase, &end );
+	end.z -= 16;
 
-	VectorSet(vel, 0, 0, -30);
-	CG_SmokePuff( end, vel,
+	VectorSet(&vel, 0, 0, -30);
+	CG_SmokePuff( &end, &vel,
 				  24,
 				  .8f, .8f, 0.7f, 0.33f,
 				  500,
@@ -1234,19 +1233,19 @@ CG_TrailItem
 */
 static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
 	refEntity_t		ent;
-	vec3_t			angles;
-	vec3_t			axis[3];
+	vector3			angles;
+	vector3			axis[3];
 
-	VectorCopy( cent->lerpAngles, angles );
-	angles[PITCH] = 0;
-	angles[ROLL] = 0;
-	AnglesToAxis( angles, axis );
+	VectorCopy( &cent->lerpAngles, &angles );
+	angles.pitch = 0;
+	angles.roll = 0;
+	AnglesToAxis( &angles, axis );
 
 	memset( &ent, 0, sizeof( ent ) );
-	VectorMA( cent->lerpOrigin, -16, axis[0], ent.origin );
-	ent.origin[2] += 16;
-	angles[YAW] += 90;
-	AnglesToAxis( angles, ent.axis );
+	VectorMA( &cent->lerpOrigin, -16, &axis[0], &ent.origin );
+	ent.origin.z += 16;
+	angles.yaw += 90;
+	AnglesToAxis( &angles, ent.axis );
 
 	ent.hModel = hModel;
 	cgi.R_AddRefEntityToScene( &ent );
@@ -1262,7 +1261,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	clientInfo_t	*ci;
 	refEntity_t	pole;
 	refEntity_t	flag;
-	vec3_t		angles, dir;
+	vector3		angles, dir;
 	int			legsAnim, flagAnim, updateangles;
 	float		angle, d;
 	float		flagScale = cg_flagScale.value;
@@ -1270,15 +1269,15 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	// show the flag pole model
 	memset( &pole, 0, sizeof(pole) );
 	pole.hModel = cgs.media.flagPoleModel;
-	VectorCopy( torso->lightingOrigin, pole.lightingOrigin );
+	VectorCopy( &torso->lightingOrigin, &pole.lightingOrigin );
 	pole.shadowPlane = torso->shadowPlane;
 	pole.renderfx = torso->renderfx;
 	CG_PositionEntityOnTag( &pole, torso, torso->hModel, "tag_flag" );
 
 	//QtZ: Scale flag models on players
-	VectorScale( pole.axis[0], flagScale, pole.axis[0] );
-	VectorScale( pole.axis[1], flagScale, pole.axis[1] );
-	VectorScale( pole.axis[2], flagScale, pole.axis[2] );
+	VectorScale( &pole.axis[0], flagScale, &pole.axis[0] );
+	VectorScale( &pole.axis[1], flagScale, &pole.axis[1] );
+	VectorScale( &pole.axis[2], flagScale, &pole.axis[2] );
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
@@ -1288,11 +1287,11 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	memset( &flag, 0, sizeof(flag) );
 	flag.hModel = cgs.media.flagFlapModel;
 	flag.customSkin = hSkin;
-	VectorCopy( torso->lightingOrigin, flag.lightingOrigin );
+	VectorCopy( &torso->lightingOrigin, &flag.lightingOrigin );
 	flag.shadowPlane = torso->shadowPlane;
 	flag.renderfx = torso->renderfx;
 
-	VectorClear(angles);
+	VectorClear(&angles);
 
 	updateangles = qfalse;
 	legsAnim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
@@ -1308,39 +1307,39 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 
 	if ( updateangles ) {
 
-		VectorCopy( cent->currentState.pos.trDelta, dir );
+		VectorCopy( &cent->currentState.pos.trDelta, &dir );
 		// add gravity
-		dir[2] += 100;
-		VectorNormalize( dir );
-		d = DotProduct(pole.axis[2], dir);
+		dir.z += 100;
+		VectorNormalize( &dir );
+		d = DotProduct(&pole.axis[2], &dir);
 		// if there is enough movement orthogonal to the flag pole
 		if (fabs(d) < 0.9) {
 			//
-			d = DotProduct(pole.axis[0], dir);
+			d = DotProduct(&pole.axis[0], &dir);
 			if (d > 1.0f) {
 				d = 1.0f;
 			}
 			else if (d < -1.0f) {
 				d = -1.0f;
 			}
-			angle = acos(d);
+			angle = acosf(d);
 
-			d = DotProduct(pole.axis[1], dir);
+			d = DotProduct(&pole.axis[1], &dir);
 			if (d < 0) {
-				angles[YAW] = 360 - angle * 180 / M_PI;
+				angles.yaw = 360 - angle * 180 / M_PI;
 			}
 			else {
-				angles[YAW] = angle * 180 / M_PI;
+				angles.yaw = angle * 180 / M_PI;
 			}
-			if (angles[YAW] < 0)
-				angles[YAW] += 360;
-			if (angles[YAW] > 360)
-				angles[YAW] -= 360;
+			if (angles.yaw < 0)
+				angles.yaw += 360;
+			if (angles.yaw > 360)
+				angles.yaw -= 360;
 
 			//vectoangles( cent->currentState.pos.trDelta, tmpangles );
 			//angles[YAW] = tmpangles[YAW] + 45 - cent->pe.torso.yawAngle;
 			// change the yaw angle
-			CG_SwingAngles( angles[YAW], 25, 90, 0.15f, &cent->pe.flag.yawAngle, &cent->pe.flag.yawing );
+			CG_SwingAngles( angles.yaw, 25, 90, 0.15f, &cent->pe.flag.yawAngle, &cent->pe.flag.yawing );
 		}
 
 		/*
@@ -1364,7 +1363,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	}
 
 	// set the yaw angle
-	angles[YAW] = cent->pe.flag.yawAngle;
+	angles.yaw = cent->pe.flag.yawAngle;
 	// lerp the flag animation frames
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 	CG_RunLerpFrame( ci, &cent->pe.flag, flagAnim, 1 );
@@ -1372,13 +1371,13 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	flag.frame = cent->pe.flag.frame;
 	flag.backlerp = cent->pe.flag.backlerp;
 
-	AnglesToAxis( angles, flag.axis );
+	AnglesToAxis( &angles, flag.axis );
 	CG_PositionRotatedEntityOnTag( &flag, &pole, pole.hModel, "tag_flag" );
 
 	//QtZ: Scale flag models on players
-	VectorScale( pole.axis[0], flagScale, pole.axis[0] );
-	VectorScale( pole.axis[1], flagScale, pole.axis[1] );
-	VectorScale( pole.axis[2], flagScale, pole.axis[2] );
+	VectorScale( &pole.axis[0], flagScale, &pole.axis[0] );
+	VectorScale( &pole.axis[1], flagScale, &pole.axis[1] );
+	VectorScale( &pole.axis[2], flagScale, &pole.axis[2] );
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
@@ -1402,7 +1401,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
-		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
+		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
 	}
 
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
@@ -1414,7 +1413,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
+		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0, 0.2f, 0.2f );
 	}
 
 	// blueflag
@@ -1425,7 +1424,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
-		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
+		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
 	}
 
 	// neutralflag
@@ -1436,7 +1435,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
-		cgi.R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
+		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0f, 1.0f, 1.0f );
 	}
 }
 
@@ -1459,8 +1458,8 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	}
 
 	memset( &ent, 0, sizeof( ent ) );
-	VectorCopy( cent->lerpOrigin, ent.origin );
-	ent.origin[2] += 48;
+	VectorCopy( &cent->lerpOrigin, &ent.origin );
+	ent.origin.z += 48;
 	ent.reType = RT_SPRITE;
 	ent.customShader = shader;
 	ent.radius = 10;
@@ -1544,7 +1543,7 @@ Returns the Z component of the surface being shadowed
 */
 #define	SHADOW_DISTANCE		128
 static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
-	vec3_t		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
+	vector3		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
 	trace_t		trace;
 	float		alpha;
 
@@ -1555,31 +1554,31 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	}
 
 	// send a trace down from the player to the ground
-	VectorCopy( cent->lerpOrigin, end );
-	end[2] -= SHADOW_DISTANCE;
+	VectorCopy( &cent->lerpOrigin, &end );
+	end.z -= SHADOW_DISTANCE;
 
-	cgi.CM_Trace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID, qfalse );
+	cgi.CM_Trace( &trace, &cent->lerpOrigin, &end, &mins, &maxs, 0, MASK_PLAYERSOLID, qfalse );
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
 		return qfalse;
 	}
 
-	*shadowPlane = trace.endpos[2] + 1;
+	*shadowPlane = trace.endpos.z + 1;
 
 	if ( cg_shadows.integer != 1 ) {	// no mark for stencil or projection shadows
 		return qtrue;
 	}
 
 	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
+	alpha = 1.0f - trace.fraction;
 
 	// hack / FPE - bogus planes?
 	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
+	CG_ImpactMark( cgs.media.shadowMarkShader, &trace.endpos, &trace.plane.normal, 
 		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, 24, qtrue );
 
 	return qtrue;
@@ -1594,7 +1593,7 @@ Draw a mark at the water surface
 ===============
 */
 static void CG_PlayerSplash( centity_t *cent ) {
-	vec3_t		start, end;
+	vector3		start, end;
 	trace_t		trace;
 	int			contents;
 	polyVert_t	verts[4];
@@ -1603,68 +1602,68 @@ static void CG_PlayerSplash( centity_t *cent ) {
 		return;
 	}
 
-	VectorCopy( cent->lerpOrigin, end );
-	end[2] -= 24;
+	VectorCopy( &cent->lerpOrigin, &end );
+	end.z -= 24;
 
 	// if the feet aren't in liquid, don't make a mark
 	// this won't handle moving water brushes, but they wouldn't draw right anyway...
-	contents = CG_PointContents( end, 0 );
+	contents = CG_PointContents( &end, 0 );
 	if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
 		return;
 	}
 
-	VectorCopy( cent->lerpOrigin, start );
-	start[2] += 32;
+	VectorCopy( &cent->lerpOrigin, &start );
+	start.z += 32;
 
 	// if the head isn't out of liquid, don't make a mark
-	contents = CG_PointContents( start, 0 );
+	contents = CG_PointContents( &start, 0 );
 	if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		return;
 	}
 
 	// trace down to find the surface
-	cgi.CM_Trace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
+	cgi.CM_Trace( &trace, &start, &end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
 	}
 
 	// create a mark polygon
-	VectorCopy( trace.endpos, verts[0].xyz );
-	verts[0].xyz[0] -= 32;
-	verts[0].xyz[1] -= 32;
-	verts[0].st[0] = 0;
-	verts[0].st[1] = 0;
+	VectorCopy( &trace.endpos, &verts[0].xyz );
+	verts[0].xyz.x -= 32;
+	verts[0].xyz.y -= 32;
+	verts[0].st.x = 0;
+	verts[0].st.y = 0;
 	verts[0].modulate[0] = 255;
 	verts[0].modulate[1] = 255;
 	verts[0].modulate[2] = 255;
 	verts[0].modulate[3] = 255;
 
-	VectorCopy( trace.endpos, verts[1].xyz );
-	verts[1].xyz[0] -= 32;
-	verts[1].xyz[1] += 32;
-	verts[1].st[0] = 0;
-	verts[1].st[1] = 1;
+	VectorCopy( &trace.endpos, &verts[1].xyz );
+	verts[1].xyz.x -= 32;
+	verts[1].xyz.y += 32;
+	verts[1].st.x = 0;
+	verts[1].st.y = 1;
 	verts[1].modulate[0] = 255;
 	verts[1].modulate[1] = 255;
 	verts[1].modulate[2] = 255;
 	verts[1].modulate[3] = 255;
 
-	VectorCopy( trace.endpos, verts[2].xyz );
-	verts[2].xyz[0] += 32;
-	verts[2].xyz[1] += 32;
-	verts[2].st[0] = 1;
-	verts[2].st[1] = 1;
+	VectorCopy( &trace.endpos, &verts[2].xyz );
+	verts[2].xyz.x += 32;
+	verts[2].xyz.y += 32;
+	verts[2].st.x = 1;
+	verts[2].st.y = 1;
 	verts[2].modulate[0] = 255;
 	verts[2].modulate[1] = 255;
 	verts[2].modulate[2] = 255;
 	verts[2].modulate[3] = 255;
 
-	VectorCopy( trace.endpos, verts[3].xyz );
-	verts[3].xyz[0] += 32;
-	verts[3].xyz[1] -= 32;
-	verts[3].st[0] = 1;
-	verts[3].st[1] = 0;
+	VectorCopy( &trace.endpos, &verts[3].xyz );
+	verts[3].xyz.x += 32;
+	verts[3].xyz.y -= 32;
+	verts[3].st.x = 1;
+	verts[3].st.y = 0;
 	verts[3].modulate[0] = 255;
 	verts[3].modulate[1] = 255;
 	verts[3].modulate[2] = 255;
@@ -1685,15 +1684,15 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
-	int *color = NULL;
+	ivector3 *color = NULL;
 
 	if ( (cgs.gametype < GT_TEAM && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAM && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
-		color = cg.forceModel.enemyColor;
+		color = &cg.forceModel.enemyColor;
 	else
-		color = cg.forceModel.allyColor;
+		color = &cg.forceModel.allyColor;
 
 	if ( cg_brightModels.boolean ) {
-		MAKERGB( ent->shaderRGBA, color[0], color[1], color[2] );
+		MAKERGB( ent->shaderRGBA, color->r, color->g, color->b );
 	}
 
 	cgi.R_AddRefEntityToScene( ent );
@@ -1719,38 +1718,36 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 CG_LightVerts
 =================
 */
-int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
+int CG_LightVerts( vector3 *normal, int numVerts, polyVert_t *verts )
 {
-	int				i, j;
-	float			incoming;
-	vec3_t			ambientLight;
-	vec3_t			lightDir;
-	vec3_t			directedLight;
+	int i, j;
+	float incoming;
+	vector3 ambientLight, lightDir, directedLight;
 
-	cgi.R_LightForPoint( verts[0].xyz, ambientLight, directedLight, lightDir );
+	cgi.R_LightForPoint( &verts[0].xyz, &ambientLight, &directedLight, &lightDir );
 
 	for (i = 0; i < numVerts; i++) {
-		incoming = DotProduct (normal, lightDir);
+		incoming = DotProduct (normal, &lightDir);
 		if ( incoming <= 0 ) {
-			verts[i].modulate[0] = ambientLight[0];
-			verts[i].modulate[1] = ambientLight[1];
-			verts[i].modulate[2] = ambientLight[2];
+			verts[i].modulate[0] = (byte)ambientLight.r;
+			verts[i].modulate[1] = (byte)ambientLight.g;
+			verts[i].modulate[2] = (byte)ambientLight.b;
 			verts[i].modulate[3] = 255;
 			continue;
 		} 
-		j = ( ambientLight[0] + incoming * directedLight[0] );
+		j = (int)( ambientLight.r + incoming * directedLight.r );
 		if ( j > 255 ) {
 			j = 255;
 		}
 		verts[i].modulate[0] = j;
 
-		j = ( ambientLight[1] + incoming * directedLight[1] );
+		j = (int)( ambientLight.g + incoming * directedLight.g );
 		if ( j > 255 ) {
 			j = 255;
 		}
 		verts[i].modulate[1] = j;
 
-		j = ( ambientLight[2] + incoming * directedLight[2] );
+		j = (int)( ambientLight.b + incoming * directedLight.b );
 		if ( j > 255 ) {
 			j = 255;
 		}
@@ -1778,7 +1775,7 @@ void CG_Player( centity_t *cent ) {
 	refEntity_t		powerup;
 	int				t;
 	float			c;
-	vec3_t			angles;
+	vector3			angles;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -1840,12 +1837,12 @@ void CG_Player( centity_t *cent ) {
 	legs.hModel = ci->legsModel;
 	legs.customSkin = ci->legsSkin;
 
-	VectorCopy( cent->lerpOrigin, legs.origin );
+	VectorCopy( &cent->lerpOrigin, &legs.origin );
 
-	VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
+	VectorCopy( &cent->lerpOrigin, &legs.lightingOrigin );
 	legs.shadowPlane = shadowPlane;
 	legs.renderfx = renderfx;
-	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
+	VectorCopy (&legs.origin, &legs.oldorigin);	// don't positionally lerp at all
 
 	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team );
 
@@ -1864,7 +1861,7 @@ void CG_Player( centity_t *cent ) {
 
 	torso.customSkin = ci->torsoSkin;
 
-	VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
+	VectorCopy( &cent->lerpOrigin, &torso.lightingOrigin );
 
 	CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
 
@@ -1889,16 +1886,16 @@ void CG_Player( centity_t *cent ) {
 		powerup.customSkin = 0;
 		// always draw
 		powerup.renderfx &= ~RF_THIRD_PERSON;
-		VectorClear(angles);
-		AnglesToAxis(angles, powerup.axis);
-		VectorCopy(cent->lerpOrigin, powerup.origin);
-		powerup.origin[2] += -24 + (float) t * 80 / 500;
+		VectorClear(&angles);
+		AnglesToAxis(&angles, powerup.axis);
+		VectorCopy(&cent->lerpOrigin, &powerup.origin);
+		powerup.origin.z += -24 + (float) t * 80 / 500;
 		if ( t > 400 ) {
 			c = (float) (t - 1000) * 0xff / 100;
-			powerup.shaderRGBA[0] = 0xff - c;
-			powerup.shaderRGBA[1] = 0xff - c;
-			powerup.shaderRGBA[2] = 0xff - c;
-			powerup.shaderRGBA[3] = 0xff - c;
+			powerup.shaderRGBA[0] = (byte)(0xff - c);
+			powerup.shaderRGBA[1] = (byte)(0xff - c);
+			powerup.shaderRGBA[2] = (byte)(0xff - c);
+			powerup.shaderRGBA[3] = (byte)(0xff - c);
 		}
 		else {
 			powerup.shaderRGBA[0] = 0xff;
@@ -1918,7 +1915,7 @@ void CG_Player( centity_t *cent ) {
 	}
 	head.customSkin = ci->headSkin;
 
-	VectorCopy( cent->lerpOrigin, head.lightingOrigin );
+	VectorCopy( &cent->lerpOrigin, &head.lightingOrigin );
 
 	CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
 
@@ -1957,21 +1954,21 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.legs, cent->currentState.legsAnim );
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.torso, cent->currentState.torsoAnim );
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, &cent->lerpOrigin );
+	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, &cent->lerpAngles );
 
-	VectorCopy( cent->lerpOrigin, cent->rawOrigin );
-	VectorCopy( cent->lerpAngles, cent->rawAngles );
+	VectorCopy( &cent->lerpOrigin, &cent->rawOrigin );
+	VectorCopy( &cent->lerpAngles, &cent->rawAngles );
 
 	memset( &cent->pe.legs, 0, sizeof( cent->pe.legs ) );
-	cent->pe.legs.yawAngle = cent->rawAngles[YAW];
+	cent->pe.legs.yawAngle = cent->rawAngles.yaw;
 	cent->pe.legs.yawing = qfalse;
 	cent->pe.legs.pitchAngle = 0;
 	cent->pe.legs.pitching = qfalse;
 
 	memset( &cent->pe.torso, 0, sizeof( cent->pe.torso ) );
-	cent->pe.torso.yawAngle = cent->rawAngles[YAW];
+	cent->pe.torso.yawAngle = cent->rawAngles.yaw;
 	cent->pe.torso.yawing = qfalse;
-	cent->pe.torso.pitchAngle = cent->rawAngles[PITCH];
+	cent->pe.torso.pitchAngle = cent->rawAngles.pitch;
 	cent->pe.torso.pitching = qfalse;
 }

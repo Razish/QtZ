@@ -36,8 +36,8 @@ typedef struct serverImport_s {
 	void			(*CL_ShutdownAll)					( qboolean shutdownRef );
 	void			(*CM_AdjustAreaPortalState)			( int area1, int area2, qboolean open );
 	qboolean		(*CM_AreasConnected)				( int area1, int area2 );
-	int				(*CM_BoxLeafnums)					( const vec3_t mins, const vec3_t maxs, int *list, int listsize, int *lastLeaf );
-	void			(*CM_BoxTrace)						( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
+	int				(*CM_BoxLeafnums)					( const vector3 *mins, const vector3 *maxs, int *list, int listsize, int *lastLeaf );
+	void			(*CM_BoxTrace)						( trace_t *results, const vector3 *start, const vector3 *end, const vector3 *mins, const vector3 *maxs, clipHandle_t model, int brushmask, int capsule );
 	void			(*CM_ClearMap)						( void );
 	byte *			(*CM_ClusterPVS)					( int cluster );
 	char *			(*CM_EntityString)					( void );
@@ -45,12 +45,12 @@ typedef struct serverImport_s {
 	int				(*CM_LeafArea)						( int leafnum );
 	int				(*CM_LeafCluster)					( int leafnum );
 	void			(*CM_LoadMap)						( const char *name, qboolean clientload, int *checksum );
-	void			(*CM_ModelBounds)					( clipHandle_t model, vec3_t mins, vec3_t maxs );
-	int				(*CM_PointContents)					( const vec3_t p, clipHandle_t model );
-	int				(*CM_PointLeafnum)					( const vec3_t p );
-	clipHandle_t	(*CM_TempBoxModel)					( const vec3_t mins, const vec3_t maxs, int capsule );
-	void			(*CM_TransformedBoxTrace)			( trace_t *results, const vec3_t start, const vec3_t end, vec3_t mins, vec3_t maxs, clipHandle_t model, int brushmask, const vec3_t origin, const vec3_t angles, int capsule );
-	int				(*CM_TransformedPointContents)		( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
+	void			(*CM_ModelBounds)					( clipHandle_t model, vector3 *mins, vector3 *maxs );
+	int				(*CM_PointContents)					( const vector3 *p, clipHandle_t model );
+	int				(*CM_PointLeafnum)					( const vector3 *p );
+	clipHandle_t	(*CM_TempBoxModel)					( const vector3 *mins, const vector3 *maxs, int capsule );
+	void			(*CM_TransformedBoxTrace)			( trace_t *results, const vector3 *start, const vector3 *end, vector3 *mins, vector3 *maxs, clipHandle_t model, int brushmask, const vector3 *origin, const vector3 *angles, int capsule );
+	int				(*CM_TransformedPointContents)		( const vector3 *p, clipHandle_t model, const vector3 *origin, const vector3 *angles );
 	int				(*CM_WriteAreaBits)					( byte *buffer, int area );
 	void			(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function );
 	int				(*Cmd_Argc)							( void );
@@ -81,7 +81,7 @@ typedef struct serverImport_s {
 	char *			(*Cvar_VariableString)				( const char *var_name );
 	void			(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
 	float			(*Cvar_VariableValue)				( const char *var_name );
-	void			(*Field_CompleteFilename)			( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
+	void			(*Field_CompleteFilename)			( const char *dir, const char *filename, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
 	void			(*FS_ClearPakReferences)			( int flags );
 	void			(*FS_FCloseFile)					( fileHandle_t f );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );
@@ -90,7 +90,6 @@ typedef struct serverImport_s {
 	long			(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
 	const char *	(*FS_GetCurrentGameDir)				( void );
 	int				(*FS_GetFileList)					( const char *path, const char *extension, char *listbuf, int bufsize );
-	qboolean		(*FS_idPak)							( char *pak, char *base, int numPaks );
 	const char *	(*FS_LoadedPakChecksums)			( void );
 	const char *	(*FS_LoadedPakNames)				( void );
 	const char *	(*FS_LoadedPakPureChecksums)		( void );
@@ -154,7 +153,6 @@ typedef struct serverImport_s {
 	int				(*NET_StringToAdr)					( const char *s, netadr_t *a, netadrtype_t family );
 	void			(*Netchan_Transmit)					( netchan_t *chan, int length, const byte *data );
 	void			(*Netchan_TransmitNextFragment)		( netchan_t *chan );
-	void			(*Q_SnapVector)						( vec3_t vec );
 	qboolean		(*Sys_IsLANAddress)					( netadr_t adr );
 	int				(*Sys_Milliseconds)					( void );
 	void *			(*Sys_LoadDll)						( const char *name, qboolean useSystemLib );
@@ -183,7 +181,7 @@ typedef struct serverExport_s {
 	int			(*FrameMsec)			( void );
 	qboolean	(*GameCommand)			( void );
 	int			(*SendQueuedPackets)	( void );
-	void		(*BotDrawDebugPolygons)	( void (*drawPoly)(int color, int numPoints, float *points), int value );
+	void		(*BotDrawDebugPolygons)	( void (*drawPoly)(int color, int numPoints, vector3 *points), int value );
 	void		(*ShutdownGameProgs)	( void );
 } serverExport_t;
 extern serverExport_t sve;

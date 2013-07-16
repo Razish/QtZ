@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // cl_bot.c
+// most of these are stubs in the client.
+// should eventually remove this dependency
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -31,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 botlib_export_t	*botlib_export;
 void *botlibLib;
 
-void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value) {
+void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, vector3 *points), int value) {
 }
 
 static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...)
@@ -71,17 +73,17 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 	}
 }
 
-static void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
+static void BotImport_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask) {
 }
 
-static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
+static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int entnum, int contentmask) {
 }
 
-static int BotImport_PointContents(vec3_t point) {
+static int BotImport_PointContents(vector3 *point) {
 	return 0;
 }
 
-static int BotImport_inPVS(vec3_t p1, vec3_t p2) {
+static int BotImport_inPVS(vector3 *p1, vector3 *p2) {
 	return 0;
 }
 
@@ -89,7 +91,7 @@ static char *BotImport_BSPEntityData(void) {
 	return CM_EntityString();
 }
 
-static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin) {
+static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *outmins, vector3 *outmaxs, vector3 *origin) {
 }
 
 static void *BotImport_GetMemory(int size) {
@@ -107,11 +109,11 @@ static void *BotImport_HunkAlloc( int size ) {
 	return Hunk_Alloc( size, h_high );
 }
 
-int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
+int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points) {
 	return 0;
 }
 
-static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
+static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3 *points) {
 }
 
 void BotImport_DebugPolygonDelete(int id)
@@ -119,14 +121,14 @@ void BotImport_DebugPolygonDelete(int id)
 }
 
 static int BotImport_DebugLineCreate(void) {
-	vec3_t points[1];
+	vector3 points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
 }
 
 static void BotImport_DebugLineDelete(int line) {
 }
 
-static void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
+static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int color) {
 }
 
 static void BotClientCommand( int client, char *command ) {

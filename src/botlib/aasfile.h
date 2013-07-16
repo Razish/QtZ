@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRESENCE_NONE				1
 #define PRESENCE_NORMAL				2
 #define PRESENCE_CROUCH				4
+#define NUM_PRESENCE_TYPES (3)
 
 //travel types
 #define MAX_TRAVELTYPES				32
@@ -119,7 +120,7 @@ typedef struct aas_bbox_s
 {
 	int presencetype;
 	int flags;
-	vec3_t mins, maxs;
+	vector3 mins, maxs;
 } aas_bbox_t;
 
 //============ settings ===========
@@ -130,8 +131,8 @@ typedef struct aas_reachability_s
 	int areanum;						//number of the reachable area
 	int facenum;						//number of the face towards the other area
 	int edgenum;						//number of the edge towards the other area
-	vec3_t start;						//start point of inter area movement
-	vec3_t end;							//end point of inter area movement
+	vector3 start;						//start point of inter area movement
+	vector3 end;							//end point of inter area movement
 	int traveltype;					//type of travel required to get to the area
 	unsigned short int traveltime;//travel time of the inter area movement
 } aas_reachability_t;
@@ -172,12 +173,12 @@ typedef struct aas_cluster_s
 
 //============ 3d definition ============
 
-typedef vec3_t aas_vertex_t;
+typedef vector3 aas_vertex_t;
 
 //just a plane in the third dimension
 typedef struct aas_plane_s
 {
-	vec3_t normal;						//normal vector of the plane
+	vector3 normal;						//normal vector of the plane
 	float dist;							//distance of the plane (normal vector * distance = point in plane)
 	int type;
 } aas_plane_t;
@@ -212,9 +213,9 @@ typedef struct aas_area_s
 	//3d definition
 	int numfaces;						//number of faces used for the boundary of the area
 	int firstface;						//first face in the face index used for the boundary of the area
-	vec3_t mins;						//mins of the area
-	vec3_t maxs;						//maxs of the area
-	vec3_t center;						//'center' of the area
+	vector3 mins;						//mins of the area
+	vector3 maxs;						//maxs of the area
+	vector3 center;						//'center' of the area
 } aas_area_t;
 
 //nodes of the bsp tree

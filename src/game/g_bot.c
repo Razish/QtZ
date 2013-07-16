@@ -55,7 +55,7 @@ float trap_Cvar_VariableValue( const char *var_name ) {
 	char buf[128];
 
 	gi.Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
-	return atof(buf);
+	return (float)atof(buf);
 }
 
 
@@ -144,44 +144,143 @@ static void G_LoadArenasFromFile( char *filename ) {
 	g_numArenas += G_ParseInfos( buf, MAX_ARENAS - g_numArenas, &g_arenaInfos[g_numArenas] );
 }
 
+int G_GetMapTypeBits( char *type ) {
+	if ( *type ) {
+		int typeBits = 0;
+		char tmp[MAX_TOKEN_CHARS] = {0}, *p = NULL, *delim = " ";
+
+		Q_strncpyz( tmp, type, sizeof( tmp ) );
+		p = strtok( tmp, delim );
+
+		while ( p != NULL ) {
+			int gt = BG_GetGametypeForString( p );
+			if ( gt != -1 )
+				typeBits |= (1<<gt);
+			p = strtok( NULL, delim );
+		}
+		return typeBits;
+	}
+
+	return GTB_DM;
+}
+
+qboolean G_DoesMapSupportGametype( const char *mapname, int gametype ) {
+	int i;
+	char *type = NULL;
+
+	if ( !level.arenas.infos[0] || !VALIDSTRING( mapname ) )
+		return qfalse;
+
+	for ( i=0; i<level.arenas.num; i++ ) {
+		type = Info_ValueForKey( level.arenas.infos[i], "map" );
+
+		if ( !Q_stricmp( mapname, type ) )
+			break;
+	}
+
+	if ( i == level.arenas.num )
+		return qfalse;
+
+	type = Info_ValueForKey( level.arenas.infos[i], "type" );
+
+	if ( G_GetMapTypeBits( type ) & (1<<gametype) )
+		return qtrue;
+
+	return qfalse;
+}
+
+const char *G_RefreshNextMap( int gametype )
+{
+	int			typeBits = 0;
+	int			thisLevel = 0;
+	int			desiredMap = 0;
+	int			n = 0;
+	char		*type = NULL;
+	qboolean	loopingUp = qfalse;
+
+	if ( !level.arenas.infos[0] )
+		return NULL;
+
+	for ( n=0; n<level.arenas.num; n++ ) {
+		type = Info_ValueForKey( level.arenas.infos[n], "map" );
+
+		if ( !Q_stricmp( level.rawmapname, type ) ) {
+			thisLevel = n;
+			break;
+		}
+	}
+
+	desiredMap = thisLevel;
+
+	n = thisLevel+1;
+	while ( n != thisLevel )
+	{ //now cycle through the arena list and find the next map that matches the gametype we're in
+		if ( !level.arenas.infos[n] || n >= level.arenas.num )
+		{
+			//this shouldn't happen, but if it does we have a null entry break in the arena file if this is the case just break out of the loop instead of sticking in an infinite loop
+			if ( loopingUp )
+				break;
+			n = 0;
+			loopingUp = qtrue;
+		}
+
+		type = Info_ValueForKey( level.arenas.infos[n], "type" );
+		
+		typeBits = G_GetMapTypeBits( type );
+		if ( typeBits & (1<<gametype) ) {
+			desiredMap = n;
+			break;
+		}
+
+		n++;
+	}
+
+	//If this is the only level for this game mode or we just can't find a map for this game mode, then nextmap will always restart.
+	if ( desiredMap == thisLevel )
+		gi.Cvar_Set( "nextmap", "map_restart 0" );
+	//otherwise we have a valid nextmap to cycle to, so use it.
+	else { 
+		type = Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
+		gi.Cvar_Set( "nextmap", va( "map %s", type ) );
+	}
+
+	return Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
+}
+
 /*
 ===============
 G_LoadArenas
 ===============
 */
-static void G_LoadArenas( void ) {
-	int			numdirs;
-	vmCvar_t	arenasFile;
-	char		filename[128];
-	char		dirlist[1024];
-	char*		dirptr;
-	int			i, n;
-	int			dirlen;
+#define MAX_MAPS 256
+#define MAPSBUFSIZE (MAX_MAPS * 32)
 
-	g_numArenas = 0;
+void G_LoadArenas( void ) {
+	char	filelist[MAPSBUFSIZE], filename[MAX_QPATH], *fileptr;
+	int		i, n, len, numFiles;
 
-	gi.Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM, NULL );
-	if( *arenasFile.string ) {
-		G_LoadArenasFromFile(arenasFile.string);
-	}
-	else {
-		G_LoadArenasFromFile("scripts/arenas.txt");
-	}
+	level.arenas.num = 0;
 
 	// get all arenas from .arena files
-	numdirs = gi.FS_GetFileList("scripts", ".arena", dirlist, 1024 );
-	dirptr  = dirlist;
-	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
-		G_LoadArenasFromFile(filename);
+	numFiles = gi.FS_GetFileList( "maps", ".arena", filelist, ARRAY_LEN( filelist ) );
+
+	fileptr = filelist;
+
+	if (numFiles > MAX_MAPS)
+		numFiles = MAX_MAPS;
+
+	for ( i=0; i<numFiles; i++ ) {
+		len = strlen( fileptr );
+		Com_sprintf( filename, sizeof( filename ), "maps/%s", fileptr );
+		G_LoadArenasFromFile( filename );
+		fileptr += len + 1;
 	}
-	gi.Print( va( "%i arenas parsed\n", g_numArenas ) );
+	gi.Print( "%i arenas parsed\n", level.arenas.num );
 	
-	for( n = 0; n < g_numArenas; n++ ) {
-		Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) );
-	}
+	for ( n=0; n<level.arenas.num; n++ )
+		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
+
+	G_RefreshNextMap( level.gametype );
 }
 
 
@@ -235,7 +334,6 @@ G_AddRandomBot
 */
 void G_AddRandomBot( int team ) {
 	int		i, n, num;
-	float	skill;
 	char	*value, netname[36], *teamstr;
 	gclient_t	*cl;
 
@@ -262,7 +360,7 @@ void G_AddRandomBot( int team ) {
 			num++;
 		}
 	}
-	num = random() * num;
+	num = (int)(random() * num);
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "name" );
 		//
@@ -284,14 +382,13 @@ void G_AddRandomBot( int team ) {
 		if (i >= sv_maxclients.integer) {
 			num--;
 			if (num <= 0) {
-				skill = trap_Cvar_VariableValue( "g_spSkill" );
 				if (team == TEAM_RED) teamstr = "red";
 				else if (team == TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
 				strncpy(netname, value, sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
 				Q_CleanStr(netname);
-				gi.Cbuf_ExecuteText( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, skill, teamstr, 0) );
+				gi.Cbuf_ExecuteText( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, g_difficulty.value, teamstr, 0) );
 				return;
 			}
 		}
@@ -405,7 +502,7 @@ void G_CheckMinimumPlayers( void ) {
 	minplayers = bot_minplayers.integer;
 	if (minplayers <= 0) return;
 
-	if (g_gametype.integer >= GT_TEAM) {
+	if (level.gametype >= GT_TEAM) {
 		if (minplayers >= sv_maxclients.integer / 2) {
 			minplayers = (sv_maxclients.integer / 2) -1;
 		}
@@ -428,7 +525,7 @@ void G_CheckMinimumPlayers( void ) {
 			G_RemoveRandomBot( TEAM_BLUE );
 		}
 	}
-	else if (g_gametype.integer == GT_TOURNAMENT ) {
+	else if (level.gametype == GT_DUEL ) {
 		if (minplayers >= sv_maxclients.integer) {
 			minplayers = sv_maxclients.integer-1;
 		}
@@ -445,7 +542,7 @@ void G_CheckMinimumPlayers( void ) {
 			}
 		}
 	}
-	else if (g_gametype.integer == GT_DEATHMATCH) {
+	else if (level.gametype == GT_DEATHMATCH) {
 		if (minplayers >= sv_maxclients.integer) {
 			minplayers = sv_maxclients.integer-1;
 		}
@@ -535,11 +632,11 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 
 	gi.SV_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 
-	Q_strncpyz( settings.characterfile, Info_ValueForKey( userinfo, "characterfile" ), sizeof(settings.characterfile) );
-	settings.skill = atof( Info_ValueForKey( userinfo, "skill" ) );
-	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof(settings.team) );
+	Q_strncpyz( settings.characterfile, Info_ValueForKey( userinfo, "characterfile" ), sizeof( settings.characterfile) );
+	settings.skill = (float)atof( Info_ValueForKey( userinfo, "skill" ) );
+	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof( settings.team ) );
 
-	if (!BotAISetupClient( clientNum, &settings, restart )) {
+	if ( !BotAISetupClient( clientNum, &settings, restart ) ) {
 		gi.SV_GameDropClient( clientNum, "BotAISetupClient failed" );
 		return qfalse;
 	}
@@ -554,12 +651,9 @@ G_AddBot
 ===============
 */
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
-	int				clientNum;
-	gentity_t		*bot;
-	char			*botinfo;
-	char			*key, *s;
-	char			*botname, *model;
-	char			userinfo[MAX_INFO_STRING];
+	int clientNum;
+	gentity_t *bot;
+	char userinfo[MAX_INFO_STRING], *botinfo, *key, *s, *botname, *model;
 
 	// get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );
@@ -581,7 +675,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 	Info_SetValueForKey( userinfo, "name", botname );
 	Info_SetValueForKey( userinfo, "rate", "25000" );
-	Info_SetValueForKey( userinfo, "snaps", "20" );
 	Info_SetValueForKey( userinfo, "skill", va("%1.2f", skill) );
 
 	if ( skill >= 1 && skill < 2 ) {
@@ -599,8 +692,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	if ( !*model )
 		model = DEFAULT_MODEL;
 
-	Info_SetValueForKey( userinfo, key, model );
-	key = "team_model";
 	Info_SetValueForKey( userinfo, key, model );
 
 	key = "gender";
@@ -640,7 +731,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	// initialize the bot settings
 	if( !team || !*team ) {
-		if( g_gametype.integer >= GT_TEAM ) {
+		if( level.gametype >= GT_TEAM ) {
 			if( PickTeam(clientNum) == TEAM_RED) {
 				team = "red";
 			}
@@ -708,7 +799,7 @@ void Svcmd_AddBot_f( void ) {
 		skill = 4;
 	}
 	else {
-		skill = atof( string );
+		skill = (float)atof( string );
 	}
 
 	// team
@@ -787,13 +878,13 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 	podium2 = NULL;
 	podium3 = NULL;
 
-	skill = trap_Cvar_VariableValue( "g_spSkill" );
+	skill = trap_Cvar_VariableValue( "g_difficulty" );
 	if( skill < 1 ) {
-		gi.Cvar_Set( "g_spSkill", "1" );
+		gi.Cvar_Set( "g_difficulty", "1" );
 		skill = 1;
 	}
 	else if ( skill > 5 ) {
-		gi.Cvar_Set( "g_spSkill", "5" );
+		gi.Cvar_Set( "g_difficulty", "5" );
 		skill = 5;
 	}
 

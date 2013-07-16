@@ -47,7 +47,7 @@ qboolean	G_SpawnFloat( const char *key, const char *defaultString, float *out ) 
 	qboolean	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	*out = atof( s );
+	*out = (float)atof( s );
 	return present;
 }
 
@@ -60,12 +60,12 @@ qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out ) {
 	return present;
 }
 
-qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out ) {
+qboolean	G_SpawnVector( const char *key, const char *defaultString, vector3 *out ) {
 	char		*s;
 	qboolean	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
+	sscanf( s, "%f %f %f", &out->x, &out->y, &out->z );
 	return present;
 }
 
@@ -324,7 +324,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	field_t	*f;
 	byte	*b;
 	float	v;
-	vec3_t	vec;
+	vector3	vec;
 
 	f = (field_t *)bsearch( key, fields, ARRAY_LEN( fields ), sizeof( field_t ), fieldcmp );
 	if ( f ) {
@@ -335,19 +335,31 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			*(char **)(b+f->ofs) = G_NewString (value);
 			break;
 		case F_VECTOR:
+			//Raz: unsafe sscanf usage
+			/* q3 code
 			sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 			((float *)(b+f->ofs))[0] = vec[0];
 			((float *)(b+f->ofs))[1] = vec[1];
 			((float *)(b+f->ofs))[2] = vec[2];
+			*/
+			if ( sscanf( value, "%f %f %f", &vec.x, &vec.y, &vec.z ) == 3 ) {
+				((float *)(b+f->ofs))[0] = vec.x;
+				((float *)(b+f->ofs))[1] = vec.y;
+				((float *)(b+f->ofs))[2] = vec.z;
+			}
+			else {
+				Com_Printf( "G_ParseField: F_VECTOR (%s:%s) with incorrect amount of arguments. Using null vector\n", key, value );
+				((float *)(b+f->ofs))[0] = ((float *)(b+f->ofs))[1] = ((float *)(b+f->ofs))[2] = 0.0f;
+			}
 			break;
 		case F_INT:
 			*(int *)(b+f->ofs) = atoi(value);
 			break;
 		case F_FLOAT:
-			*(float *)(b+f->ofs) = atof(value);
+			*(float *)(b+f->ofs) = (float)atof(value);
 			break;
 		case F_ANGLEHACK:
-			v = atof(value);
+			v = (float)atof(value);
 			((float *)(b+f->ofs))[0] = 0;
 			((float *)(b+f->ofs))[1] = v;
 			((float *)(b+f->ofs))[2] = 0;
@@ -387,7 +399,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 
 	// check for "notteam" flag
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAM ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			ADJUST_AREAPORTAL();
@@ -404,10 +416,11 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 
 	//QTZTODO: Rewrite this plz, gametype aliases
+	// format is "gametype: dm duel"
 #if 0
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
-		if( g_gametype.integer >= 0 && g_gametype.integer < GT_MAX_GAME_TYPE ) {
-			gametypeName = gametypeNames[g_gametype.integer];
+		if( level.gametype >= 0 && level.gametype < GT_MAX_GAME_TYPE ) {
+			gametypeName = gametypeNames[sv_gametype.integer];
 
 			s = strstr( value, gametypeName );
 			if( !s ) {
@@ -420,8 +433,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 #endif
 
 	// move editor origin to pos
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	VectorCopy( &ent->s.origin, &ent->s.pos.trBase );
+	VectorCopy( &ent->s.origin, &ent->r.currentOrigin );
 
 	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {
@@ -539,8 +552,8 @@ void SP_worldspawn( void ) {
 
 	gi.SV_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
-	G_SpawnString( "gravity", "800", &s );
-	gi.Cvar_Set( "g_gravity", s );
+	G_SpawnString( "gravity", "1100", &s );
+	gi.Cvar_Set( "pm_gravity", s );
 
 	G_SpawnString( "enableDust", "0", &s );
 	gi.Cvar_Set( "g_enableDust", s );

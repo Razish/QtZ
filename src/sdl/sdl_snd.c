@@ -184,7 +184,7 @@ qboolean SNDDMA_Init(void)
 	// I dunno if this is the best idea, but I'll give it a try...
 	//  should probably check a cvar for this...
 	if (s_sdlDevSamps->value)
-		desired.samples = s_sdlDevSamps->value;
+		desired.samples = (Uint16)s_sdlDevSamps->integer;
 	else
 	{
 		// just pick a sane default.
@@ -217,7 +217,7 @@ qboolean SNDDMA_Init(void)
 	// 32768 is what the OSS driver filled in here on my system. I don't
 	//  know if it's a good value overall, but at least we know it's
 	//  reasonable...this is why I let the user override.
-	tmp = s_sdlMixSamps->value;
+	tmp = s_sdlMixSamps->integer;
 	if (!tmp)
 		tmp = (obtained.samples * obtained.channels) * 10;
 

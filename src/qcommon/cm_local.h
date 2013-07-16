@@ -46,7 +46,7 @@ typedef struct {
 } cLeaf_t;
 
 typedef struct cmodel_s {
-	vec3_t		mins, maxs;
+	vector3		mins, maxs;
 	cLeaf_t		leaf;			// submodels don't reference the main tree
 } cmodel_t;
 
@@ -60,7 +60,7 @@ typedef struct {
 typedef struct {
 	int			shaderNum;		// the shader that determined the contents
 	int			contents;
-	vec3_t		bounds[2];
+	vector3		bounds[2];
 	int			numsides;
 	cbrushside_t	*sides;
 	int			checkcount;		// to avoid repeated testings
@@ -132,7 +132,7 @@ typedef struct {
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
-#define	SURFACE_CLIP_EPSILON	(0.125)
+#define	SURFACE_CLIP_EPSILON	(0.125f)
 
 extern	clipMap_t	cm;
 extern	int			c_pointcontents;
@@ -149,18 +149,18 @@ typedef struct
 	qboolean	use;
 	float		radius;
 	float		halfheight;
-	vec3_t		offset;
+	vector3		offset;
 } sphere_t;
 
 typedef struct {
-	vec3_t		start;
-	vec3_t		end;
-	vec3_t		size[2];	// size of the box being swept through the model
-	vec3_t		offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
+	vector3		start;
+	vector3		end;
+	vector3		size[2];	// size of the box being swept through the model
+	vector3		offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
 	float		maxOffset;	// longest corner length from origin
-	vec3_t		extents;	// greatest of abs(size[0]) and abs(size[1])
-	vec3_t		bounds[2];	// enclosing box of start and end surrounding by size
-	vec3_t		modelOrigin;// origin of the model tracing through
+	vector3		extents;	// greatest of abs(size[0]) and abs(size[1])
+	vector3		bounds[2];	// enclosing box of start and end surrounding by size
+	vector3		modelOrigin;// origin of the model tracing through
 	int			contents;	// ored contents of the model tracing through
 	qboolean	isPoint;	// optimized case
 	trace_t		trace;		// returned from trace call
@@ -172,13 +172,13 @@ typedef struct leafList_s {
 	int		maxcount;
 	qboolean	overflowed;
 	int		*list;
-	vec3_t	bounds[2];
+	vector3	bounds[2];
 	int		lastLeaf;		// for overflows where each leaf can't be stored individually
 	void	(*storeLeafs)( struct leafList_s *ll, int nodenum );
 } leafList_t;
 
 
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize );
+int CM_BoxBrushes( const vector3 *mins, const vector3 *maxs, cbrush_t **list, int listsize );
 
 void CM_StoreLeafs( leafList_t *ll, int nodenum );
 void CM_StoreBrushes( leafList_t *ll, int nodenum );
@@ -186,12 +186,12 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum );
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
 
 cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle );
-qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
-qboolean CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );
+qboolean CM_BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 );
+qboolean CM_BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *point );
 
 // cm_patch.c
 
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vector3 *points );
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 void CM_ClearLevelPatches( void );

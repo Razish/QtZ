@@ -61,21 +61,21 @@ void AAS_SwapAASData(void)
 		aasworld.bboxes[i].flags = LittleLong(aasworld.bboxes[i].flags);
 		for (j = 0; j < 3; j++)
 		{
-			aasworld.bboxes[i].mins[j] = LittleLong(aasworld.bboxes[i].mins[j]);
-			aasworld.bboxes[i].maxs[j] = LittleLong(aasworld.bboxes[i].maxs[j]);
+			aasworld.bboxes[i].mins.data[j] = LittleLong(aasworld.bboxes[i].mins.data[j]);
+			aasworld.bboxes[i].maxs.data[j] = LittleLong(aasworld.bboxes[i].maxs.data[j]);
 		} //end for
 	} //end for
 	//vertexes
 	for (i = 0; i < aasworld.numvertexes; i++)
 	{
 		for (j = 0; j < 3; j++)
-			aasworld.vertexes[i][j] = LittleFloat(aasworld.vertexes[i][j]);
+			aasworld.vertexes[i].data[j] = LittleFloat(aasworld.vertexes[i].data[j]);
 	} //end for
 	//planes
 	for (i = 0; i < aasworld.numplanes; i++)
 	{
 		for (j = 0; j < 3; j++)
-			aasworld.planes[i].normal[j] = LittleFloat(aasworld.planes[i].normal[j]);
+			aasworld.planes[i].normal.data[j] = LittleFloat(aasworld.planes[i].normal.data[j]);
 		aasworld.planes[i].dist = LittleFloat(aasworld.planes[i].dist);
 		aasworld.planes[i].type = LittleLong(aasworld.planes[i].type);
 	} //end for
@@ -113,9 +113,9 @@ void AAS_SwapAASData(void)
 		aasworld.areas[i].firstface = LittleLong(aasworld.areas[i].firstface);
 		for (j = 0; j < 3; j++)
 		{
-			aasworld.areas[i].mins[j] = LittleFloat(aasworld.areas[i].mins[j]);
-			aasworld.areas[i].maxs[j] = LittleFloat(aasworld.areas[i].maxs[j]);
-			aasworld.areas[i].center[j] = LittleFloat(aasworld.areas[i].center[j]);
+			aasworld.areas[i].mins.data[j] = LittleFloat(aasworld.areas[i].mins.data[j]);
+			aasworld.areas[i].maxs.data[j] = LittleFloat(aasworld.areas[i].maxs.data[j]);
+			aasworld.areas[i].center.data[j] = LittleFloat(aasworld.areas[i].center.data[j]);
 		} //end for
 	} //end for
 	//area settings
@@ -137,8 +137,8 @@ void AAS_SwapAASData(void)
 		aasworld.reachability[i].edgenum = LittleLong(aasworld.reachability[i].edgenum);
 		for (j = 0; j < 3; j++)
 		{
-			aasworld.reachability[i].start[j] = LittleFloat(aasworld.reachability[i].start[j]);
-			aasworld.reachability[i].end[j] = LittleFloat(aasworld.reachability[i].end[j]);
+			aasworld.reachability[i].start.data[j] = LittleFloat(aasworld.reachability[i].start.data[j]);
+			aasworld.reachability[i].end.data[j] = LittleFloat(aasworld.reachability[i].end.data[j]);
 		} //end for
 		aasworld.reachability[i].traveltype = LittleLong(aasworld.reachability[i].traveltype);
 		aasworld.reachability[i].traveltime = LittleShort(aasworld.reachability[i].traveltime);
@@ -529,7 +529,7 @@ qboolean AAS_WriteAASFile(char *filename)
 	//swap the aas data
 	AAS_SwapAASData();
 	//initialize the file header
-	Com_Memset(&header, 0, sizeof(aas_header_t));
+	memset(&header, 0, sizeof(aas_header_t));
 	header.ident = LittleLong(AASID);
 	header.version = LittleLong(AASVERSION);
 	header.bspchecksum = LittleLong(aasworld.bspchecksum);

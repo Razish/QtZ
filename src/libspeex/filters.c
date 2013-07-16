@@ -305,7 +305,7 @@ spx_word16_t compute_rms(const spx_sig_t *x, int len)
    {
       sum += x[i]*x[i];
    }
-   return sqrt(.1+sum/len);
+   return sqrtf(.1f+sum/len);
 }
 spx_word16_t compute_rms16(const spx_word16_t *x, int len)
 {
@@ -762,10 +762,10 @@ char *stack
    {
 #ifdef FIXED_POINT
       c1 = (MULT16_16_Q15(QCONST16(.4,15),comb_gain)+QCONST16(.07,15));
-      c2 = QCONST16(.5,15)+MULT16_16_Q14(QCONST16(1.72,14),(c1-QCONST16(.07,15)));
+      c2 = QCONST16(.5,15)+MULT16_16_Q14(QCONST16(1.72f,14),(c1-QCONST16(.07,15)));
 #else
-      c1 = .4*comb_gain+.07;
-      c2 = .5+1.72*(c1-.07);
+      c1 = .4f*comb_gain+.07f;
+      c2 = .5f+1.72f*(c1-.07f);
 #endif
    } else 
    {
@@ -786,11 +786,11 @@ char *stack
    g2 = (spx_word16_t)PDIV32_16(SHL32(EXTEND32(c1),14),(spx_word16_t)g2);
    if (corr_pitch>max_pitch)
    {
-      gain0 = MULT16_16_Q15(QCONST16(.7,15),MULT16_16_Q14(g1,gg1));
-      gain1 = MULT16_16_Q15(QCONST16(.3,15),MULT16_16_Q14(g2,gg2));
+      gain0 = MULT16_16_Q15(QCONST16(.7f,15),MULT16_16_Q14(g1,gg1));
+      gain1 = MULT16_16_Q15(QCONST16(.3f,15),MULT16_16_Q14(g2,gg2));
    } else {
-      gain0 = MULT16_16_Q15(QCONST16(.6,15),MULT16_16_Q14(g1,gg1));
-      gain1 = MULT16_16_Q15(QCONST16(.6,15),MULT16_16_Q14(g2,gg2));
+      gain0 = MULT16_16_Q15(QCONST16(.6f,15),MULT16_16_Q14(g1,gg1));
+      gain1 = MULT16_16_Q15(QCONST16(.6f,15),MULT16_16_Q14(g2,gg2));
    }
    for (i=0;i<nsf;i++)
       new_exc[i] = ADD16(exc[i], EXTRACT16(PSHR32(ADD32(MULT16_16(gain0,iexc[i]), MULT16_16(gain1,iexc[i+nsf])),8)));

@@ -115,7 +115,7 @@ sets mins and maxs for inline bmodels
 */
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	clipHandle_t	h;
-	vec3_t			mins, maxs;
+	vector3			mins, maxs;
 
 	if (!name) {
 		svi.Error( ERR_DROP, "SV_SetBrushModel: NULL" );
@@ -129,9 +129,9 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	ent->s.modelindex = atoi( name + 1 );
 
 	h = svi.CM_InlineModel( ent->s.modelindex );
-	svi.CM_ModelBounds( h, mins, maxs );
-	VectorCopy (mins, ent->r.mins);
-	VectorCopy (maxs, ent->r.maxs);
+	svi.CM_ModelBounds( h, &mins, &maxs );
+	VectorCopy (&mins, &ent->r.mins);
+	VectorCopy (&maxs, &ent->r.maxs);
 	ent->r.bmodel = qtrue;
 
 	ent->r.contents = -1;		// we don't know exactly what is in the brushes
@@ -148,7 +148,7 @@ SV_InPVS
 Also checks portalareas so that doors block sight
 =================
 */
-qboolean SV_InPVS (const vec3_t p1, const vec3_t p2)
+qboolean SV_InPVS (const vector3 *p1, const vector3 *p2)
 {
 	int		leafnum;
 	int		cluster;
@@ -179,7 +179,7 @@ Does NOT check portalareas
 =================
 */
 // currently unused...
-static qboolean SV_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
+static qboolean SV_InPVSIgnorePortals( const vector3 *p1, const vector3 *p2)
 {
 	int		leafnum;
 	int		cluster;
@@ -220,18 +220,17 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 SV_EntityContact
 ==================
 */
-qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
-	const float	*origin, *angles;
+qboolean	SV_EntityContact( vector3 *mins, vector3 *maxs, const sharedEntity_t *gEnt, int capsule ) {
+	const vector3	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;
 
 	// check for exact collision
-	origin = gEnt->r.currentOrigin;
-	angles = gEnt->r.currentAngles;
+	origin = &gEnt->r.currentOrigin;
+	angles = &gEnt->r.currentAngles;
 
 	ch = SV_ClipHandleForEntity( gEnt );
-	svi.CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, -1, origin, angles, capsule );
+	svi.CM_TransformedBoxTrace ( &trace, &vec3_origin, &vec3_origin, mins, maxs, ch, -1, origin, angles, capsule );
 
 	return trace.startsolid;
 }
@@ -244,9 +243,8 @@ SV_GetServerinfo
 ===============
 */
 void SV_GetServerinfo( char *buffer, int bufferSize ) {
-	if ( bufferSize < 1 ) {
+	if ( bufferSize < 1 )
 		svi.Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
-	}
 	Q_strncpyz( buffer, svi.Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
@@ -312,7 +310,7 @@ SV_GameTrace
 
 ================
 */
-static void SV_GameTrace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
+static void SV_GameTrace( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentmask ) {
 	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qfalse );
 }
 
@@ -466,7 +464,6 @@ void SV_InitGameProgs( void ) {
 	gi.DebugPolygonCreate			= BotImport_DebugPolygonCreate;
 	gi.DebugPolygonDelete			= BotImport_DebugPolygonDelete;
 	gi.RealTime						= svi.Com_RealTime;
-	gi.Q_SnapVector					= svi.Q_SnapVector;
 	gi.SV_BotLibSetup				= SV_BotLibSetup;
 	gi.SV_BotLibShutdown			= SV_BotLibShutdown;
 	gi.BotLibVarSet					= botlib_export->BotLibVarSet;

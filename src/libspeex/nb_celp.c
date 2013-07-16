@@ -434,11 +434,11 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
          if (st->abr_drift2 * st->abr_drift > 0)
          {
             /* Only adapt if long-term and short-term drift are the same sign */
-            qual_change = -.00001*st->abr_drift/(1+st->abr_count);
-            if (qual_change>.05)
-               qual_change=.05;
-            if (qual_change<-.05)
-               qual_change=-.05;
+            qual_change = -.00001f*st->abr_drift/(1+st->abr_count);
+            if (qual_change>.05f)
+               qual_change=.05f;
+            if (qual_change<-.05f)
+               qual_change=-.05f;
          }
          st->vbr_quality += qual_change;
          if (st->vbr_quality>10)
@@ -505,7 +505,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
             spx_int32_t bitrate;
             speex_encoder_ctl(state, SPEEX_GET_BITRATE, &bitrate);
             st->abr_drift+=(bitrate-st->abr_enabled);
-            st->abr_drift2 = .95*st->abr_drift2 + .05*(bitrate-st->abr_enabled);
+            st->abr_drift2 = .95f*st->abr_drift2 + .05f*(bitrate-st->abr_enabled);
             st->abr_count += 1.0;
          }
 
@@ -590,7 +590,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
    {
       int quant;
       /* This just damps the pitch a bit, because it tends to be too aggressive when forced */
-      ol_pitch_coef = MULT16_16_Q15(QCONST16(.9,15), ol_pitch_coef);
+      ol_pitch_coef = MULT16_16_Q15(QCONST16(.9f,15), ol_pitch_coef);
 #ifdef FIXED_POINT
       quant = PSHR16(MULT16_16_16(15, ol_pitch_coef),GAIN_SHIFT);
 #else
@@ -601,7 +601,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
       if (quant<0)
          quant=0;
       speex_bits_pack(bits, quant, 4);
-      ol_pitch_coef=MULT16_16_P15(QCONST16(0.066667,15),SHL16(quant,GAIN_SHIFT));
+      ol_pitch_coef=MULT16_16_P15(QCONST16(0.066667f,15),SHL16(quant,GAIN_SHIFT));
    }
    
    
@@ -620,7 +620,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
          qe=0;
       if (qe>31)
          qe=31;
-      ol_gain = exp(qe/3.5)*SIG_SCALING;
+      ol_gain = expf(qe/3.5)*SIG_SCALING;
       speex_bits_pack(bits, qe, 5);
    }
 #endif
@@ -1013,7 +1013,7 @@ void nb_decoder_destroy(void *state)
 #ifdef FIXED_POINT
 const spx_word16_t attenuation[10] = {32767, 31483, 27923, 22861, 17278, 12055, 7764, 4616, 2533, 1283};
 #else
-const spx_word16_t attenuation[10] = {1., 0.961, 0.852, 0.698, 0.527, 0.368, 0.237, 0.141, 0.077, 0.039};
+const spx_word16_t attenuation[10] = {1.f, 0.961f, 0.852f, 0.698f, 0.527f, 0.368f, 0.237f, 0.141f, 0.077f, 0.039f};
 
 #endif
 
@@ -1043,8 +1043,8 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
    pitch_gain = SHL16(pitch_gain, 9);
 #else   
    pitch_gain = GAIN_SCALING_1*st->last_pitch_gain;
-   if (pitch_gain>.85)
-      pitch_gain=.85;
+   if (pitch_gain>.85f)
+      pitch_gain=.85f;
 #endif
    pitch_gain = MULT16_16_Q15(fact,pitch_gain) + VERY_SMALL;
    /* FIXME: This was rms of innovation (not exc) */
@@ -1054,7 +1054,7 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
    SPEEX_MOVE(st->excBuf, st->excBuf+st->frameSize, 2*st->max_pitch + st->subframeSize + 12);
    
 
-   pitch_val = st->last_pitch + SHR32((spx_int32_t)speex_rand(1+st->count_lost, &st->seed),SIG_SHIFT);
+   pitch_val = st->last_pitch + SHR32((spx_int32_t)speex_rand(1+(spx_word16_t)st->count_lost, &st->seed),SIG_SHIFT);
    if (pitch_val > st->max_pitch)
       pitch_val = st->max_pitch;
    if (pitch_val < st->min_pitch)
@@ -1065,7 +1065,7 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
             speex_rand(noise_gain, &st->seed);
    }
 
-   bw_lpc(QCONST16(.98,15), st->interp_qlpc, st->interp_qlpc, st->lpcSize);
+   bw_lpc(QCONST16(.98f,15), st->interp_qlpc, st->interp_qlpc, st->lpcSize);
    iir_mem16(&st->exc[-st->subframeSize], st->interp_qlpc, out, st->frameSize,
              st->lpcSize, st->mem_sp, stack);
    highpass(out, out, st->frameSize, HIGHPASS_NARROWBAND|HIGHPASS_OUTPUT, st->mem_hp);
@@ -1239,7 +1239,7 @@ int nb_decode(void *state, SpeexBits *bits, void *vout)
 #ifdef FIXED_POINT
       fact = SHR16(19661,SHR32(lsp_dist,LSP_SHIFT+2));      
 #else
-      fact = .6*exp(-.2*lsp_dist);
+      fact = .6f*expf(-.2f*lsp_dist);
 #endif
       for (i=0;i<st->lpcSize;i++)
          st->mem_sp[i] = MULT16_32_Q15(fact,st->mem_sp[i]);
@@ -1263,7 +1263,7 @@ int nb_decode(void *state, SpeexBits *bits, void *vout)
    {
       int quant;
       quant = speex_bits_unpack_unsigned(bits, 4);
-      ol_pitch_coef=MULT16_16_P15(QCONST16(0.066667,15),SHL16(quant,GAIN_SHIFT));
+      ol_pitch_coef=MULT16_16_P15(QCONST16(0.066667f,15),SHL16(quant,GAIN_SHIFT));
    }
    
    /* Get global excitation gain */
@@ -1274,7 +1274,7 @@ int nb_decode(void *state, SpeexBits *bits, void *vout)
       /* FIXME: Perhaps we could slightly lower the gain here when the output is going to saturate? */
       ol_gain = MULT16_32_Q15(28406,ol_gain_table[qe]);
 #else
-      ol_gain = SIG_SCALING*exp(qe/3.5);
+      ol_gain = SIG_SCALING*expf(qe/3.5f);
 #endif
    }
 
@@ -1562,7 +1562,7 @@ int nb_decode(void *state, SpeexBits *bits, void *vout)
 #ifdef FIXED_POINT
    st->last_pitch_gain = PSHR16(pitch_average,2);
 #else
-   st->last_pitch_gain = .25*pitch_average;   
+   st->last_pitch_gain = .25f*pitch_average;   
 #endif
    st->pitch_gain_buf[st->pitch_gain_buf_idx++] = st->last_pitch_gain;
    if (st->pitch_gain_buf_idx > 2) /* rollover */
@@ -1626,7 +1626,7 @@ int nb_encoder_ctl(void *state, int request, void *ptr)
                break;
             i--;
          }
-         vbr_qual=i;
+         vbr_qual=(float)i;
          if (vbr_qual<0)
             vbr_qual=0;
          speex_encoder_ctl(st, SPEEX_SET_VBR_QUALITY, &vbr_qual);
@@ -1857,7 +1857,7 @@ int nb_decoder_ctl(void *state, int request, void *ptr)
    case SPEEX_GET_ACTIVITY:
    {
       float ret;
-      ret = log(st->level/st->min_level)/log(st->max_level/st->min_level);
+      ret = logf(st->level/st->min_level)/logf(st->max_level/st->min_level);
       if (ret>1)
          ret = 1;
       /* Done in a strange way to catch NaNs as well */

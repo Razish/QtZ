@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "snd_local.h"
-#if idppc_altivec && !defined(MACOS_X)
-#include <altivec.h>
+#if defined(idppc_altivec) && !defined(MACOS_X)
+	#include <altivec.h>
 #endif
 
 static portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
@@ -34,7 +34,7 @@ int*     snd_p;
 int      snd_linear_count;
 short*   snd_out;
 
-#if	!id386                                        // if configured not to use asm
+#ifndef id386 // if configured not to use asm
 
 void S_WriteLinearBlastStereo16 (void)
 {
@@ -68,44 +68,48 @@ void S_WriteLinearBlastStereo16 (void);
 __declspec( naked ) void S_WriteLinearBlastStereo16 (void)
 {
 	__asm {
+		push edi
+		push ebx
+		mov ecx,ds:dword ptr[snd_linear_count]
+		mov ebx,ds:dword ptr[snd_p]
+		mov edi,ds:dword ptr[snd_out]
 
- push edi
- push ebx
- mov ecx,ds:dword ptr[snd_linear_count]
- mov ebx,ds:dword ptr[snd_p]
- mov edi,ds:dword ptr[snd_out]
 LWLBLoopTop:
- mov eax,ds:dword ptr[-8+ebx+ecx*4]
- sar eax,8
- cmp eax,07FFFh
- jg LClampHigh
- cmp eax,0FFFF8000h
- jnl LClampDone
- mov eax,0FFFF8000h
- jmp LClampDone
+		mov eax,ds:dword ptr[-8+ebx+ecx*4]
+		sar eax,8
+		cmp eax,07FFFh
+		jg LClampHigh
+		cmp eax,0FFFF8000h
+		jnl LClampDone
+		mov eax,0FFFF8000h
+		jmp LClampDone
+
 LClampHigh:
- mov eax,07FFFh
+		mov eax,07FFFh
+
 LClampDone:
- mov edx,ds:dword ptr[-4+ebx+ecx*4]
- sar edx,8
- cmp edx,07FFFh
- jg LClampHigh2
- cmp edx,0FFFF8000h
- jnl LClampDone2
- mov edx,0FFFF8000h
- jmp LClampDone2
+		mov edx,ds:dword ptr[-4+ebx+ecx*4]
+		sar edx,8
+		cmp edx,07FFFh
+		jg LClampHigh2
+		cmp edx,0FFFF8000h
+		jnl LClampDone2
+		mov edx,0FFFF8000h
+		jmp LClampDone2
+
 LClampHigh2:
- mov edx,07FFFh
+		mov edx,07FFFh
+
 LClampDone2:
- shl edx,16
- and eax,0FFFFh
- or edx,eax
- mov ds:dword ptr[-4+edi+ecx*2],edx
- sub ecx,2
- jnz LWLBLoopTop
- pop ebx
- pop edi
- ret
+		shl edx,16
+		and eax,0FFFFh
+		or edx,eax
+		mov ds:dword ptr[-4+edi+ecx*2],edx
+		sub ecx,2
+		jnz LWLBLoopTop
+		pop ebx
+		pop edi
+		ret
 	}
 }
 
@@ -115,13 +119,13 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 {
 	int		lpos;
 	int		ls_paintedtime;
-	
+
 	snd_p = (int *) paintbuffer;
 	ls_paintedtime = s_paintedtime;
 
 	while (ls_paintedtime < endtime)
 	{
-	// handle recirculating buffer issues
+		// handle recirculating buffer issues
 		lpos = ls_paintedtime & ((dma.samples>>1)-1);
 
 		snd_out = (short *) pbuf + (lpos<<1);
@@ -132,7 +136,7 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 
 		snd_linear_count <<= 1;
 
-	// write a linear blast of samples
+		// write a linear blast of samples
 		S_WriteLinearBlastStereo16 ();
 
 		snd_p += snd_linear_count;
@@ -169,7 +173,7 @@ void S_TransferPaintBuffer(int endtime)
 		// write a fixed sine wave
 		count = (endtime - s_paintedtime);
 		for (i=0 ; i<count ; i++)
-			paintbuffer[i].left = paintbuffer[i].right = sin((s_paintedtime+i)*0.1)*20000*256;
+			paintbuffer[i].left = (int)(paintbuffer[i].right = (int)sinf((s_paintedtime+i)*0.1f)*20000*256);
 	}
 
 
@@ -227,7 +231,7 @@ CHANNEL MIXING
 ===============================================================================
 */
 
-#if idppc_altivec
+#ifdef idppc_altivec
 static void S_PaintChannelFrom16_altivec( channel_t *ch, const sfx_t *sc, int count, int sampleOffset, int bufferOffset ) {
 	int						data, aoff, boff;
 	int						leftvol, rightvol;
@@ -408,7 +412,7 @@ static void S_PaintChannelFrom16_scalar( channel_t *ch, const sfx_t *sc, int cou
 	samp = &paintbuffer[ bufferOffset ];
 
 	if (ch->doppler) {
-		sampleOffset = sampleOffset*ch->oldDopplerScale;
+		sampleOffset = (int)(sampleOffset*ch->oldDopplerScale);
 	}
 
 	chunk = sc->soundData;
@@ -436,10 +440,10 @@ static void S_PaintChannelFrom16_scalar( channel_t *ch, const sfx_t *sc, int cou
 			}
 		}
 	} else {
-		fleftvol = ch->leftvol*snd_vol;
-		frightvol = ch->rightvol*snd_vol;
+		fleftvol = (float)(ch->leftvol*snd_vol);
+		frightvol = (float)(ch->rightvol*snd_vol);
 
-		ooff = sampleOffset;
+		ooff = (float)sampleOffset;
 		samples = chunk->sndChunk;
 		
 
@@ -447,9 +451,9 @@ static void S_PaintChannelFrom16_scalar( channel_t *ch, const sfx_t *sc, int cou
 
 		for ( i=0 ; i<count ; i++ ) {
 
-			aoff = ooff;
+			aoff = (int)ooff;
 			ooff = ooff + ch->dopplerScale;
-			boff = ooff;
+			boff = (int)ooff;
 			fdata = 0;
 			for (j=aoff; j<boff; j++) {
 				if (j == SND_CHUNK_SIZE) {
@@ -462,15 +466,15 @@ static void S_PaintChannelFrom16_scalar( channel_t *ch, const sfx_t *sc, int cou
 				}
 				fdata  += samples[j&(SND_CHUNK_SIZE-1)];
 			}
-			fdiv = 256 * (boff-aoff);
-			samp[i].left += (fdata * fleftvol)/fdiv;
-			samp[i].right += (fdata * frightvol)/fdiv;
+			fdiv = (float)(256 * (boff-aoff));
+			samp[i].left += (int)((fdata * fleftvol)/fdiv);
+			samp[i].right += (int)((fdata * frightvol)/fdiv);
 		}
 	}
 }
 
 static void S_PaintChannelFrom16( channel_t *ch, const sfx_t *sc, int count, int sampleOffset, int bufferOffset ) {
-#if idppc_altivec
+#ifdef idppc_altivec
 	if (com_altivec->integer) {
 		// must be in a seperate function or G3 systems will crash.
 		S_PaintChannelFrom16_altivec( ch, sc, count, sampleOffset, bufferOffset );
@@ -538,7 +542,7 @@ void S_PaintChannelFromADPCM( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	chunk = sc->soundData;
 
 	if (ch->doppler) {
-		sampleOffset = sampleOffset*ch->oldDopplerScale;
+		sampleOffset = (int)(sampleOffset*ch->oldDopplerScale);
 	}
 
 	while (sampleOffset>=(SND_CHUNK_SIZE*4)) {
@@ -604,7 +608,7 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 			}
 		}
 	} else {
-		ooff = sampleOffset;
+		ooff = (float)sampleOffset;
 		samples = (byte *)chunk->sndChunk;
 		for ( i=0 ; i<count ; i++ ) {
 			data  = mulawToShort[samples[(int)(ooff)]];
@@ -640,7 +644,7 @@ void S_PaintChannels( int endtime ) {
 	if(s_muted->integer)
 		snd_vol = 0;
 	else
-		snd_vol = s_volume->value*255;
+		snd_vol = (int)(s_volume->value*255);
 
 //Com_Printf ("%i to %i\n", s_paintedtime, endtime);
 	while ( s_paintedtime < endtime ) {
@@ -652,7 +656,7 @@ void S_PaintChannels( int endtime ) {
 		}
 
 		// clear the paint buffer and mix any raw samples...
-		Com_Memset(paintbuffer, 0, sizeof (paintbuffer));
+		memset(paintbuffer, 0, sizeof (paintbuffer));
 		for (stream = 0; stream < MAX_RAW_STREAMS; stream++) {
 			if ( s_rawend[stream] >= s_paintedtime ) {
 				// copy from the streaming sound source

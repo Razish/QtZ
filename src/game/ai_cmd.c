@@ -211,8 +211,10 @@ float BotGetTime(bot_match_t *match) {
 			}
 			else {
 				gi.ai->BotMatchVariable(&timematch, TIME, timestring, MAX_MESSAGE_SIZE);
-				if (timematch.type == MSG_MINUTES) t = atof(timestring) * 60;
-				else if (timematch.type == MSG_SECONDS) t = atof(timestring);
+				if (timematch.type == MSG_MINUTES)
+					t = (float)atof(timestring) * 60;
+				else if (timematch.type == MSG_SECONDS)
+					t = (float)atof(timestring);
 				else t = 0;
 			}
 			//if there's a valid time
@@ -326,7 +328,7 @@ int BotGetPatrolWaypoints(bot_state_t *bs, bot_match_t *match) {
 			return qfalse;
 		}
 		//create a new waypoint
-		newwp = BotCreateWayPoint(keyarea, goal.origin, goal.areanum);
+		newwp = BotCreateWayPoint(keyarea, &goal.origin, goal.areanum);
 		if (!newwp)
 			break;
 		//add the waypoint to the patrol points
@@ -439,7 +441,7 @@ int BotAddressedToBot(bot_state_t *bs, bot_match_t *match) {
 BotGPSToPosition
 ==================
 */
-int BotGPSToPosition(char *buf, vec3_t position) {
+int BotGPSToPosition(char *buf, vector3 *position) {
 	int i, j = 0;
 	int num, sign;
 
@@ -464,7 +466,7 @@ int BotGPSToPosition(char *buf, vec3_t position) {
 			}
 		}
 		BotAI_Print(PRT_MESSAGE, "%d\n", sign * num);
-		position[i] = (float) sign * num;
+		position->data[i] = (float) sign * num;
 	}
 	return qtrue;
 }
@@ -528,13 +530,13 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match) {
 	BotEntityInfo(client, &entinfo);
 	//if info is valid (in PVS)
 	if (entinfo.valid) {
-		areanum = BotPointAreaNum(entinfo.origin);
+		areanum = BotPointAreaNum(&entinfo.origin);
 		if (areanum) {// && gi.aas->AAS_AreaReachability(areanum)) {
 			bs->teamgoal.entitynum = client;
 			bs->teamgoal.areanum = areanum;
-			VectorCopy(entinfo.origin, bs->teamgoal.origin);
-			VectorSet(bs->teamgoal.mins, -8, -8, -8);
-			VectorSet(bs->teamgoal.maxs, 8, 8, 8);
+			VectorCopy(&entinfo.origin, &bs->teamgoal.origin);
+			VectorSet(&bs->teamgoal.mins, -8, -8, -8);
+			VectorSet(&bs->teamgoal.maxs, 8, 8, 8);
 		}
 	}
 	//if no teamgoal yet
@@ -714,9 +716,9 @@ void BotMatch_Camp(bot_state_t *bs, bot_match_t *match) {
 		//camp at the spot the bot is currently standing
 		bs->teamgoal.entitynum = bs->entitynum;
 		bs->teamgoal.areanum = bs->areanum;
-		VectorCopy(bs->origin, bs->teamgoal.origin);
-		VectorSet(bs->teamgoal.mins, -8, -8, -8);
-		VectorSet(bs->teamgoal.maxs, 8, 8, 8);
+		VectorCopy(&bs->origin, &bs->teamgoal.origin);
+		VectorSet(&bs->teamgoal.mins, -8, -8, -8);
+		VectorSet(&bs->teamgoal.maxs, 8, 8, 8);
 	}
 	else if (match->subtype & ST_HERE) {
 		//if this is the bot self
@@ -726,15 +728,15 @@ void BotMatch_Camp(bot_state_t *bs, bot_match_t *match) {
 		BotEntityInfo(client, &entinfo);
 		//if info is valid (in PVS)
 		if (entinfo.valid) {
-			areanum = BotPointAreaNum(entinfo.origin);
+			areanum = BotPointAreaNum(&entinfo.origin);
 			if (areanum) {// && gi.aas->AAS_AreaReachability(areanum)) {
 				//NOTE: just assume the bot knows where the person is
 				//if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, client)) {
 					bs->teamgoal.entitynum = client;
 					bs->teamgoal.areanum = areanum;
-					VectorCopy(entinfo.origin, bs->teamgoal.origin);
-					VectorSet(bs->teamgoal.mins, -8, -8, -8);
-					VectorSet(bs->teamgoal.maxs, 8, 8, 8);
+					VectorCopy(&entinfo.origin, &bs->teamgoal.origin);
+					VectorSet(&bs->teamgoal.mins, -8, -8, -8);
+					VectorSet(&bs->teamgoal.maxs, 8, 8, 8);
 				//}
 			}
 		}
@@ -1110,20 +1112,20 @@ void BotMatch_CheckPoint(bot_state_t *bs, bot_match_t *match) {
 	int areanum, client;
 	char buf[MAX_MESSAGE_SIZE];
 	char netname[MAX_MESSAGE_SIZE];
-	vec3_t position;
+	vector3 position;
 	bot_waypoint_t *cp;
 
 	if (!TeamPlayIsOn()) return;
 	//
 	gi.ai->BotMatchVariable(match, POSITION, buf, MAX_MESSAGE_SIZE);
-	VectorClear(position);
+	VectorClear(&position);
 	//
 	gi.ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 	client = ClientFromName(netname);
 	//BotGPSToPosition(buf, position);
-	sscanf(buf, "%f %f %f", &position[0], &position[1], &position[2]);
-	position[2] += 0.5;
-	areanum = BotPointAreaNum(position);
+	sscanf(buf, "%f %f %f", &position.x, &position.y, &position.z);
+	position.z += 0.5;
+	areanum = BotPointAreaNum(&position);
 	if (!areanum) {
 		if (BotAddressedToBot(bs, match)) {
 			BotAI_BotInitialChat(bs, "checkpoint_invalid", NULL);
@@ -1142,16 +1144,16 @@ void BotMatch_CheckPoint(bot_state_t *bs, bot_match_t *match) {
 		cp->inuse = qfalse;
 	}
 	//create a new check point
-	cp = BotCreateWayPoint(buf, position, areanum);
+	cp = BotCreateWayPoint(buf, &position, areanum);
 	//add the check point to the bot's known chech points
 	cp->next = bs->checkpoints;
 	if (bs->checkpoints) bs->checkpoints->prev = cp;
 	bs->checkpoints = cp;
 	//
 	if (BotAddressedToBot(bs, match)) {
-		Com_sprintf(buf, sizeof(buf), "%1.0f %1.0f %1.0f", cp->goal.origin[0],
-													cp->goal.origin[1],
-													cp->goal.origin[2]);
+		Com_sprintf(buf, sizeof(buf), "%1.0f %1.0f %1.0f", cp->goal.origin.x,
+													cp->goal.origin.y,
+													cp->goal.origin.z);
 
 		BotAI_BotInitialChat(bs, "checkpoint_confirm", cp->name, buf, NULL);
 		gi.ai->BotEnterChat(bs->cs, client, CHAT_TELL);
@@ -1173,9 +1175,9 @@ void BotMatch_FormationSpace(bot_state_t *bs, bot_match_t *match) {
 	//
 	gi.ai->BotMatchVariable(match, NUMBER, buf, MAX_MESSAGE_SIZE);
 	//if it's the distance in feet
-	if (match->subtype & ST_FEET) space = 0.3048 * 32 * atof(buf);
+	if (match->subtype & ST_FEET) space = 0.3048f * 32 * (float)atof(buf);
 	//else it's in meters
-	else space = 32 * atof(buf);
+	else space = 32 * (float)atof(buf);
 	//check if the formation intervening space is valid
 	if (space < 48 || space > 500) space = 100;
 	bs->formation_dist = space;
@@ -1411,7 +1413,7 @@ float BotNearestVisibleItem(bot_state_t *bs, char *itemname, bot_goal_t *goal) {
 	char name[64];
 	bot_goal_t tmpgoal;
 	float dist, bestdist;
-	vec3_t dir;
+	vector3 dir;
 	bsp_trace_t trace;
 
 	bestdist = 999999;
@@ -1421,11 +1423,11 @@ float BotNearestVisibleItem(bot_state_t *bs, char *itemname, bot_goal_t *goal) {
 		gi.ai->BotGoalName(tmpgoal.number, name, sizeof(name));
 		if (Q_stricmp(itemname, name) != 0)
 			continue;
-		VectorSubtract(tmpgoal.origin, bs->origin, dir);
-		dist = VectorLength(dir);
+		VectorSubtract(&tmpgoal.origin, &bs->origin, &dir);
+		dist = VectorLength(&dir);
 		if (dist < bestdist) {
 			//trace from start to end
-			BotAI_Trace(&trace, bs->eye, NULL, NULL, tmpgoal.origin, bs->client, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+			BotAI_Trace(&trace, &bs->eye, NULL, NULL, &tmpgoal.origin, bs->client, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
 			if (trace.fraction >= 1.0) {
 				bestdist = dist;
 				memcpy(goal, &tmpgoal, sizeof(bot_goal_t));
@@ -1496,8 +1498,8 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		if (gametype == GT_CTF
 			|| gametype == GT_1FCTF
 			) {
-			redtt = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
-			bluett = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
+			redtt = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
+			bluett = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
 			if (redtt < (redtt + bluett) * 0.4) {
 				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "red", NULL);
 			}
@@ -1564,13 +1566,13 @@ void BotMatch_LeadTheWay(bot_state_t *bs, bot_match_t *match) {
 	BotEntityInfo(client, &entinfo);
 	//if info is valid (in PVS)
 	if (entinfo.valid) {
-		areanum = BotPointAreaNum(entinfo.origin);
+		areanum = BotPointAreaNum(&entinfo.origin);
 		if (areanum) { // && gi.aas->AAS_AreaReachability(areanum)) {
 			bs->lead_teamgoal.entitynum = client;
 			bs->lead_teamgoal.areanum = areanum;
-			VectorCopy(entinfo.origin, bs->lead_teamgoal.origin);
-			VectorSet(bs->lead_teamgoal.mins, -8, -8, -8);
-			VectorSet(bs->lead_teamgoal.maxs, 8, 8, 8);
+			VectorCopy(&entinfo.origin, &bs->lead_teamgoal.origin);
+			VectorSet(&bs->lead_teamgoal.mins, -8, -8, -8);
+			VectorSet(&bs->lead_teamgoal.maxs, 8, 8, 8);
 		}
 	}
 

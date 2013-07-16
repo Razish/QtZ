@@ -103,7 +103,7 @@ void CMod_LoadShaders( lump_t *l ) {
 	cm.shaders = Hunk_Alloc( count * sizeof( *cm.shaders ), h_high );
 	cm.numShaders = count;
 
-	Com_Memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
+	memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
 
 	out = cm.shaders;
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
@@ -144,8 +144,8 @@ void CMod_LoadSubmodels( lump_t *l ) {
 
 		for (j=0 ; j<3 ; j++)
 		{	// spread the mins / maxs by a pixel
-			out->mins[j] = LittleFloat (in->mins[j]) - 1;
-			out->maxs[j] = LittleFloat (in->maxs[j]) + 1;
+			out->mins.data[j] = LittleFloat (in->mins.data[j]) - 1;
+			out->maxs.data[j] = LittleFloat (in->maxs.data[j]) + 1;
 		}
 
 		if ( i == 0 ) {
@@ -213,14 +213,12 @@ CM_BoundBrush
 =================
 */
 void CM_BoundBrush( cbrush_t *b ) {
-	b->bounds[0][0] = -b->sides[0].plane->dist;
-	b->bounds[1][0] = b->sides[1].plane->dist;
-
-	b->bounds[0][1] = -b->sides[2].plane->dist;
-	b->bounds[1][1] = b->sides[3].plane->dist;
-
-	b->bounds[0][2] = -b->sides[4].plane->dist;
-	b->bounds[1][2] = b->sides[5].plane->dist;
+	b->bounds[0].x = -b->sides[0].plane->dist;
+	b->bounds[1].x =  b->sides[1].plane->dist;
+	b->bounds[0].y = -b->sides[2].plane->dist;
+	b->bounds[1].y =  b->sides[3].plane->dist;
+	b->bounds[0].z = -b->sides[4].plane->dist;
+	b->bounds[1].z =  b->sides[5].plane->dist;
 }
 
 
@@ -334,13 +332,13 @@ void CMod_LoadPlanes (lump_t *l)
 		bits = 0;
 		for (j=0 ; j<3 ; j++)
 		{
-			out->normal[j] = LittleFloat (in->normal[j]);
-			if (out->normal[j] < 0)
+			out->normal.data[j] = LittleFloat (in->normal.data[j]);
+			if (out->normal.data[j] < 0)
 				bits |= 1<<j;
 		}
 
 		out->dist = LittleFloat (in->dist);
-		out->type = PlaneTypeForNormal( out->normal );
+		out->type = PlaneTypeForNormal( &out->normal );
 		out->signbits = bits;
 	}
 }
@@ -444,7 +442,7 @@ CMod_LoadEntityString
 void CMod_LoadEntityString( lump_t *l ) {
 	cm.entityString = Hunk_Alloc( l->filelen, h_high );
 	cm.numEntityChars = l->filelen;
-	Com_Memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
+	memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
 }
 
 /*
@@ -461,7 +459,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 	if ( !len ) {
 		cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
 		cm.visibility = Hunk_Alloc( cm.clusterBytes, h_high );
-		Com_Memset( cm.visibility, 255, cm.clusterBytes );
+		memset( cm.visibility, 255, cm.clusterBytes );
 		return;
 	}
 	buf = cmod_base + l->fileofs;
@@ -470,7 +468,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 	cm.visibility = Hunk_Alloc( len, h_high );
 	cm.numClusters = LittleLong( ((int *)buf)[0] );
 	cm.clusterBytes = LittleLong( ((int *)buf)[1] );
-	Com_Memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
+	memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
 //==================================================================
@@ -489,7 +487,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	int			i, j;
 	int			c;
 	cPatch_t	*patch;
-	vec3_t		points[MAX_PATCH_VERTS];
+	vector3		points[MAX_PATCH_VERTS];
 	int			width, height;
 	int			shaderNum;
 
@@ -523,9 +521,9 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 
 		dv_p = dv + LittleLong( in->firstVert );
 		for ( j = 0 ; j < c ; j++, dv_p++ ) {
-			points[j][0] = LittleFloat( dv_p->xyz[0] );
-			points[j][1] = LittleFloat( dv_p->xyz[1] );
-			points[j][2] = LittleFloat( dv_p->xyz[2] );
+			points[j].x = LittleFloat( dv_p->xyz.x );
+			points[j].y = LittleFloat( dv_p->xyz.y );
+			points[j].z = LittleFloat( dv_p->xyz.z );
 		}
 
 		shaderNum = LittleLong( in->shaderNum );
@@ -594,7 +592,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 
 	// free old stuff
-	Com_Memset( &cm, 0, sizeof( cm ) );
+	memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 
 	if ( !name[0] ) {
@@ -668,7 +666,7 @@ CM_ClearMap
 ==================
 */
 void CM_ClearMap( void ) {
-	Com_Memset( &cm, 0, sizeof( cm ) );
+	memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 }
 
@@ -778,14 +776,14 @@ void CM_InitBoxHull (void)
 		p = &box_planes[i*2];
 		p->type = i>>1;
 		p->signbits = 0;
-		VectorClear (p->normal);
-		p->normal[i>>1] = 1;
+		VectorClear (&p->normal);
+		p->normal.data[i>>1] = 1;
 
 		p = &box_planes[i*2+1];
 		p->type = 3 + (i>>1);
 		p->signbits = 0;
-		VectorClear (p->normal);
-		p->normal[i>>1] = -1;
+		VectorClear (&p->normal);
+		p->normal.data[i>>1] = -1;
 
 		SetPlaneSignbits( p );
 	}	
@@ -800,30 +798,29 @@ BSP trees instead of being compared directly.
 Capsules are handled differently though.
 ===================
 */
-clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule ) {
+clipHandle_t CM_TempBoxModel( const vector3 *mins, const vector3 *maxs, int capsule ) {
 
-	VectorCopy( mins, box_model.mins );
-	VectorCopy( maxs, box_model.maxs );
+	VectorCopy( mins, &box_model.mins );
+	VectorCopy( maxs, &box_model.maxs );
 
-	if ( capsule ) {
+	if ( capsule )
 		return CAPSULE_MODEL_HANDLE;
-	}
 
-	box_planes[0].dist = maxs[0];
-	box_planes[1].dist = -maxs[0];
-	box_planes[2].dist = mins[0];
-	box_planes[3].dist = -mins[0];
-	box_planes[4].dist = maxs[1];
-	box_planes[5].dist = -maxs[1];
-	box_planes[6].dist = mins[1];
-	box_planes[7].dist = -mins[1];
-	box_planes[8].dist = maxs[2];
-	box_planes[9].dist = -maxs[2];
-	box_planes[10].dist = mins[2];
-	box_planes[11].dist = -mins[2];
+	box_planes[0].dist	=  maxs->x;
+	box_planes[1].dist	= -maxs->x;
+	box_planes[2].dist	=  mins->x;
+	box_planes[3].dist	= -mins->x;
+	box_planes[4].dist	=  maxs->y;
+	box_planes[5].dist	= -maxs->y;
+	box_planes[6].dist	=  mins->y;
+	box_planes[7].dist	= -mins->y;
+	box_planes[8].dist	=  maxs->z;
+	box_planes[9].dist	= -maxs->z;
+	box_planes[10].dist	=  mins->z;
+	box_planes[11].dist	= -mins->z;
 
-	VectorCopy( mins, box_brush->bounds[0] );
-	VectorCopy( maxs, box_brush->bounds[1] );
+	VectorCopy( mins, &box_brush->bounds[0] );
+	VectorCopy( maxs, &box_brush->bounds[1] );
 
 	return BOX_MODEL_HANDLE;
 }
@@ -833,12 +830,10 @@ clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule 
 CM_ModelBounds
 ===================
 */
-void CM_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
+void CM_ModelBounds( clipHandle_t model, vector3 *mins, vector3 *maxs ) {
 	cmodel_t	*cmod;
 
 	cmod = CM_ClipHandleToModel( model );
-	VectorCopy( cmod->mins, mins );
-	VectorCopy( cmod->maxs, maxs );
+	VectorCopy( &cmod->mins, mins );
+	VectorCopy( &cmod->maxs, maxs );
 }
-
-

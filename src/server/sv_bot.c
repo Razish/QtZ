@@ -33,7 +33,7 @@ typedef struct bot_debugpoly_s
 	int inuse;
 	int color;
 	int numPoints;
-	vec3_t points[128];
+	vector3 points[128];
 } bot_debugpoly_t;
 
 static bot_debugpoly_t *debugpolygons;
@@ -99,7 +99,7 @@ void SV_BotFreeClient( int clientNum ) {
 BotDrawDebugPolygons
 ==================
 */
-void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value) {
+void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, vector3 *points), int value) {
 	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
 	bot_debugpoly_t *poly;
 	int i, parm0;
@@ -122,14 +122,13 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 		if (bot_reachability->integer) parm0 |= 2;
 		if (bot_groundonly->integer) parm0 |= 4;
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
-		botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, 
-			svs.clients[0].gentity->r.currentAngles);
+		botlib_export->Test(parm0, NULL, &svs.clients[0].gentity->r.currentOrigin, &svs.clients[0].gentity->r.currentAngles);
 	} //end if
 	//draw all debug polys
 	for (i = 0; i < bot_maxdebugpolys; i++) {
 		poly = &debugpolygons[i];
 		if (!poly->inuse) continue;
-		drawPoly(poly->color, poly->numPoints, (float *) poly->points);
+		drawPoly(poly->color, poly->numPoints, poly->points);
 		//Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
 	}
 }
@@ -181,7 +180,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 BotImport_Trace
 ==================
 */
-static void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
+static void BotImport_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask) {
 	trace_t trace;
 
 	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, qfalse);
@@ -189,9 +188,9 @@ static void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, ve
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
 	bsptrace->fraction = trace.fraction;
-	VectorCopy(trace.endpos, bsptrace->endpos);
+	VectorCopy(&trace.endpos, &bsptrace->endpos);
 	bsptrace->plane.dist = trace.plane.dist;
-	VectorCopy(trace.plane.normal, bsptrace->plane.normal);
+	VectorCopy(&trace.plane.normal, &bsptrace->plane.normal);
 	bsptrace->plane.signbits = trace.plane.signbits;
 	bsptrace->plane.type = trace.plane.type;
 	bsptrace->surface.value = trace.surfaceFlags;
@@ -206,7 +205,7 @@ static void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, ve
 BotImport_EntityTrace
 ==================
 */
-static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
+static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int entnum, int contentmask) {
 	trace_t trace;
 
 	SV_ClipToEntity(&trace, start, mins, maxs, end, entnum, contentmask, qfalse);
@@ -214,9 +213,9 @@ static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mi
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
 	bsptrace->fraction = trace.fraction;
-	VectorCopy(trace.endpos, bsptrace->endpos);
+	VectorCopy(&trace.endpos, &bsptrace->endpos);
 	bsptrace->plane.dist = trace.plane.dist;
-	VectorCopy(trace.plane.normal, bsptrace->plane.normal);
+	VectorCopy(&trace.plane.normal, &bsptrace->plane.normal);
 	bsptrace->plane.signbits = trace.plane.signbits;
 	bsptrace->plane.type = trace.plane.type;
 	bsptrace->surface.value = trace.surfaceFlags;
@@ -232,7 +231,7 @@ static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mi
 BotImport_PointContents
 ==================
 */
-static int BotImport_PointContents(vec3_t point) {
+static int BotImport_PointContents(vector3 *point) {
 	return SV_PointContents(point, -1);
 }
 
@@ -241,7 +240,7 @@ static int BotImport_PointContents(vec3_t point) {
 BotImport_inPVS
 ==================
 */
-static int BotImport_inPVS(vec3_t p1, vec3_t p2) {
+static int BotImport_inPVS(vector3 *p1, vector3 *p2) {
 	return SV_InPVS (p1, p2);
 }
 
@@ -259,26 +258,26 @@ static char *BotImport_BSPEntityData(void) {
 BotImport_BSPModelMinsMaxsOrigin
 ==================
 */
-static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin) {
+static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *outmins, vector3 *outmaxs, vector3 *origin) {
 	clipHandle_t h;
-	vec3_t mins, maxs;
+	vector3 mins, maxs;
 	float max;
 	int	i;
 
 	h = svi.CM_InlineModel(modelnum);
-	svi.CM_ModelBounds(h, mins, maxs);
+	svi.CM_ModelBounds(h, &mins, &maxs);
 	//if the model is rotated
-	if ((angles[0] || angles[1] || angles[2])) {
+	if ((angles->pitch || angles->yaw || angles->roll)) {
 		// expand for rotation
 
-		max = RadiusFromBounds(mins, maxs);
+		max = RadiusFromBounds(&mins, &maxs);
 		for (i = 0; i < 3; i++) {
-			mins[i] = -max;
-			maxs[i] = max;
+			mins.data[i] = -max;
+			maxs.data[i] =  max;
 		}
 	}
-	if (outmins) VectorCopy(mins, outmins);
-	if (outmaxs) VectorCopy(maxs, outmaxs);
+	if (outmins) VectorCopy(&mins, outmins);
+	if (outmaxs) VectorCopy(&maxs, outmaxs);
 	if (origin) VectorClear(origin);
 }
 
@@ -320,7 +319,7 @@ static void *BotImport_HunkAlloc( int size ) {
 BotImport_DebugPolygonCreate
 ==================
 */
-int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
+int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points) {
 	bot_debugpoly_t *poly;
 	int i;
 
@@ -337,7 +336,7 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 	poly->inuse = qtrue;
 	poly->color = color;
 	poly->numPoints = numPoints;
-	Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t));
+	memcpy(poly->points, points, numPoints * sizeof(vector3));
 	//
 	return i;
 }
@@ -347,7 +346,7 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 BotImport_DebugPolygonShow
 ==================
 */
-static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
+static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3 *points) {
 	bot_debugpoly_t *poly;
 
 	if (!debugpolygons) return;
@@ -355,7 +354,7 @@ static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t 
 	poly->inuse = qtrue;
 	poly->color = color;
 	poly->numPoints = numPoints;
-	Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t));
+	memcpy(poly->points, points, numPoints * sizeof(vector3));
 }
 
 /*
@@ -375,7 +374,7 @@ BotImport_DebugLineCreate
 ==================
 */
 static int BotImport_DebugLineCreate(void) {
-	vec3_t points[1];
+	vector3 points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
 }
 
@@ -393,30 +392,30 @@ static void BotImport_DebugLineDelete(int line) {
 BotImport_DebugLineShow
 ==================
 */
-static void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
-	vec3_t points[4], dir, cross, up = {0, 0, 1};
+static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int color) {
+	vector3 points[4], dir, cross, up = {0, 0, 1};
 	float dot;
 
-	VectorCopy(start, points[0]);
-	VectorCopy(start, points[1]);
+	VectorCopy(start, &points[0]);
+	VectorCopy(start, &points[1]);
 	//points[1][2] -= 2;
-	VectorCopy(end, points[2]);
+	VectorCopy(end, &points[2]);
 	//points[2][2] -= 2;
-	VectorCopy(end, points[3]);
+	VectorCopy(end, &points[3]);
 
 
-	VectorSubtract(end, start, dir);
-	VectorNormalize(dir);
-	dot = DotProduct(dir, up);
-	if (dot > 0.99 || dot < -0.99) VectorSet(cross, 1, 0, 0);
-	else CrossProduct(dir, up, cross);
+	VectorSubtract(end, start, &dir);
+	VectorNormalize(&dir);
+	dot = DotProduct(&dir, &up);
+	if (dot > 0.99 || dot < -0.99) VectorSet(&cross, 1, 0, 0);
+	else CrossProduct(&dir, &up, &cross);
 
-	VectorNormalize(cross);
+	VectorNormalize(&cross);
 
-	VectorMA(points[0], 2, cross, points[0]);
-	VectorMA(points[1], -2, cross, points[1]);
-	VectorMA(points[2], -2, cross, points[2]);
-	VectorMA(points[3], 2, cross, points[3]);
+	VectorMA(&points[0],  2, &cross, &points[0]);
+	VectorMA(&points[1], -2, &cross, &points[1]);
+	VectorMA(&points[2], -2, &cross, &points[2]);
+	VectorMA(&points[3],  2, &cross, &points[3]);
 
 	BotImport_DebugPolygonShow(line, color, 4, points);
 }

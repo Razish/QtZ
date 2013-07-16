@@ -215,13 +215,9 @@ void String_Report(void) {
 	float f;
 	Com_Printf("Memory/String Pool Info\n");
 	Com_Printf("----------------\n");
-	f = strPoolIndex;
-	f /= STRING_POOL_SIZE;
-	f *= 100;
+	f = ((float)strPoolIndex/STRING_POOL_SIZE) * 100;
 	Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE);
-	f = allocPoint;
-	f /= MEM_POOL_SIZE;
-	f *= 100;
+	f = ((float)allocPoint/MEM_POOL_SIZE) * 100;
 	Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
 }
 
@@ -298,18 +294,18 @@ static __attribute__ ((format (printf, 2, 3))) void PC_SourceError(int handle, c
 LerpColor
 =================
 */
-void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
+void LerpColor(vector4 *a, vector4 *b, vector4 *c, float t)
 {
 	int i;
 
 	// lerp and clamp each component
-	for (i=0; i<4; i++)
+	for ( i=0; i<4; i++ )
 	{
-		c[i] = a[i] + t*(b[i]-a[i]);
-		if (c[i] < 0)
-			c[i] = 0;
-		else if (c[i] > 1.0)
-			c[i] = 1.0;
+		c->data[i] = a->data[i] + t*(b->data[i] - a->data[i]);
+		if ( c->data[i] < 0 )
+			c->data[i] = 0;
+		else if ( c->data[i] > 1.0f )
+			c->data[i] = 1.0f;
 	}
 }
 
@@ -322,7 +318,7 @@ qboolean Float_Parse(char **p, float *f) {
 	char	*token;
 	token = COM_ParseExt(p, qfalse);
 	if (token && token[0] != 0) {
-		*f = atof(token);
+		*f = (float)atof(token);
 		return qtrue;
 	} else {
 		return qfalse;
@@ -361,7 +357,7 @@ qboolean PC_Float_Parse(int handle, float *f) {
 Color_Parse
 =================
 */
-qboolean Color_Parse(char **p, vec4_t *c) {
+qboolean Color_Parse(char **p, vector4 *c) {
 	int i;
 	float f;
 
@@ -369,7 +365,7 @@ qboolean Color_Parse(char **p, vec4_t *c) {
 		if (!Float_Parse(p, &f)) {
 			return qfalse;
 		}
-		(*c)[i] = f;
+		c->data[i] = f;
 	}
 	return qtrue;
 }
@@ -379,7 +375,7 @@ qboolean Color_Parse(char **p, vec4_t *c) {
 PC_Color_Parse
 =================
 */
-qboolean PC_Color_Parse(int handle, vec4_t *c) {
+qboolean PC_Color_Parse(int handle, vector4 *c) {
 	int i;
 	float f;
 
@@ -387,7 +383,7 @@ qboolean PC_Color_Parse(int handle, vec4_t *c) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		(*c)[i] = f;
+		c->data[i] = f;
 	}
 	return qtrue;
 }
@@ -558,7 +554,7 @@ void Init_Display(displayContextDef_t *dc) {
 
 // type and style painting 
 
-void GradientBar_Paint(rectDef_t *rect, vec4_t color) {
+void GradientBar_Paint(rectDef_t *rect, vector4 *color) {
 	// gradient bar takes two paints
 	DC->setColor( color );
 	DC->drawHandlePic(rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar);
@@ -577,7 +573,7 @@ Initializes a window structure ( windowDef_t ) with defaults
 void Window_Init(Window *w) {
 	memset(w, 0, sizeof(windowDef_t));
 	w->borderSize = 1;
-	w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
+	VectorSet4( &w->foreColor, 1.0f, 1.0f, 1.0f, 1.0f );
 	w->cinematic = -1;
 }
 
@@ -607,13 +603,13 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 
 void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) {
 	//float bordersize = 0;
-	vec4_t color;
+	vector4 color;
 	rectDef_t fillRect = w->rect;
 
 
 	if (debugMode) {
-		color[0] = color[1] = color[2] = color[3] = 1;
-		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
+		VectorSet4( &color, 1.0f, 1.0f, 1.0f, 1.0f );
+		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, &color);
 	}
 
 	if (w == NULL || (w->style == 0 && w->border == 0)) {
@@ -630,26 +626,26 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 	if (w->style == WINDOW_STYLE_FILLED) {
 		// box, but possible a shader that needs filled
 		if (w->background) {
-			Fade(&w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, qtrue, fadeAmount);
-			DC->setColor(w->backColor);
+			Fade(&w->flags, &w->backColor.a, fadeClamp, &w->nextTime, (int)fadeCycle, qtrue, fadeAmount);
+			DC->setColor(&w->backColor);
 			DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
 			DC->setColor(NULL);
 		} else {
-			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor);
+			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, &w->backColor);
 		}
 	} else if (w->style == WINDOW_STYLE_GRADIENT) {
-		GradientBar_Paint(&fillRect, w->backColor);
+		GradientBar_Paint(&fillRect, &w->backColor);
 		// gradient bar
 	} else if (w->style == WINDOW_STYLE_SHADER) {
 		if (w->flags & WINDOW_FORECOLORSET) {
-			DC->setColor(w->foreColor);
+			DC->setColor(&w->foreColor);
 		}
 		DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
 		DC->setColor(NULL);
 	} else if (w->style == WINDOW_STYLE_TEAMCOLOR) {
 		if (DC->getTeamColor) {
 			DC->getTeamColor(&color);
-			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, color);
+			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, &color);
 		}
 	} else if (w->style == WINDOW_STYLE_CINEMATIC) {
 		if (w->cinematic == -1) {
@@ -668,37 +664,37 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 		// full
 		// HACK HACK HACK
 		if (w->style == WINDOW_STYLE_TEAMCOLOR) {
-			if (color[0] > 0) { 
+			if (color.r > 0) { 
 				// red
-				color[0] = 1;
-				color[1] = color[2] = .5;
+				color.r = 1;
+				color.g = color.b = 0.5f;
 
 			} else {
-				color[2] = 1;
-				color[0] = color[1] = .5;
+				color.b = 1;
+				color.r = color.g = 0.5f;
 			}
-			color[3] = 1;
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
+			color.a = 1;
+			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, &color);
 		} else {
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
+			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, &w->borderColor);
 		}
 	} else if (w->border == WINDOW_BORDER_HORZ) {
 		// top/bottom
-		DC->setColor(w->borderColor);
+		DC->setColor(&w->borderColor);
 		DC->drawTopBottom(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
 		DC->setColor( NULL );
 	} else if (w->border == WINDOW_BORDER_VERT) {
 		// left right
-		DC->setColor(w->borderColor);
+		DC->setColor(&w->borderColor);
 		DC->drawSides(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
 		DC->setColor( NULL );
 	} else if (w->border == WINDOW_BORDER_KCGRADIENT) {
 		// this is just two gradient bars along each horz edge
 		rectDef_t r = w->rect;
 		r.h = w->borderSize;
-		GradientBar_Paint(&r, w->borderColor);
+		GradientBar_Paint(&r, &w->borderColor);
 		r.y = w->rect.y + w->rect.h - 1;
-		GradientBar_Paint(&r, w->borderColor);
+		GradientBar_Paint(&r, &w->borderColor);
 	}
 
 }
@@ -878,7 +874,7 @@ qboolean Script_SetColor ( itemDef_t *item, char **args )
 	const char *name;
 	int i;
 	float f;
-	vec4_t *out;
+	vector4 *out;
 
 	// expecting type of color to set and 4 args for the color
 	if (String_Parse(args, &name)) 
@@ -907,7 +903,7 @@ qboolean Script_SetColor ( itemDef_t *item, char **args )
 				{
 					return qtrue;
 				}
-				(*out)[i] = f;
+				out->data[i] = f;
 			}
 		}
 	}
@@ -963,16 +959,16 @@ qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)
 			{
 				menu = (menuDef_t *) item->parent;
 
-				item2->window.rectClient.x = atof(holdVal) + menu->window.rect.x;
+				item2->window.rectClient.x = (float)atof(holdVal) + menu->window.rect.x;
 				if (String_Parse(&holdBuf,&holdVal))
 				{
-					item2->window.rectClient.y = atof(holdVal) + menu->window.rect.y;
+					item2->window.rectClient.y = (float)atof(holdVal) + menu->window.rect.y;
 					if (String_Parse(&holdBuf,&holdVal))
 					{
-						item2->window.rectClient.w = atof(holdVal);
+						item2->window.rectClient.w = (float)atof(holdVal);
 						if (String_Parse(&holdBuf,&holdVal))
 						{
-							item2->window.rectClient.h = atof(holdVal);
+							item2->window.rectClient.h = (float)atof(holdVal);
 
 							item2->window.rect.x = item2->window.rectClient.x;
 							item2->window.rect.y = item2->window.rectClient.y;
@@ -1106,11 +1102,11 @@ qboolean Script_SetTeamColor(itemDef_t *item, char **args)
 	if (DC->getTeamColor) 
 	{
 		int i;
-		vec4_t color;
+		vector4 color;
 		DC->getTeamColor(&color);
 		for (i = 0; i < 4; i++) 
 		{
-			item->window.backColor[i] = color[i];
+			item->window.backColor.data[i] = color.data[i];
 		}
 	}
 	return qtrue;
@@ -1120,9 +1116,9 @@ qboolean Script_SetItemColor(itemDef_t *item, char **args)
 {
 	const char *itemname;
 	const char *name;
-	vec4_t color;
+	vector4 color;
 	int i;
-	vec4_t *out;
+	vector4 *out;
 
 	// expecting type of color to set and 4 args for the color
 	if (String_Parse(args, &itemname) && String_Parse(args, &name)) 
@@ -1170,7 +1166,7 @@ qboolean Script_SetItemColor(itemDef_t *item, char **args)
 				{
 					for (i = 0; i < 4; i++) 
 					{
-						(*out)[i] = color[i];
+						out->data[i] = color.data[i];
 					}
 				}
 			}
@@ -1186,9 +1182,9 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 	char	*colorCvarName,*holdBuf,*holdVal;
 	char cvarBuf[1024];
 	const char *name;
-	vec4_t color;
+	vector4 color;
 	int i;
-	vec4_t *out;
+	vector4 *out;
 
 	// expecting type of color to set and 4 args for the color
 	if (String_Parse(args, &itemname) && String_Parse(args, &name)) 
@@ -1219,16 +1215,16 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 			holdBuf = cvarBuf;
 			if (String_Parse(&holdBuf,(const char **) &holdVal))
 			{
-				color[0] = atof(holdVal);
+				color.r = (float)atof(holdVal);
 				if (String_Parse(&holdBuf,(const char **) &holdVal))
 				{
-					color[1] = atof(holdVal);
+					color.g = (float)atof(holdVal);
 					if (String_Parse(&holdBuf,(const char **) &holdVal))
 					{
-						color[2] = atof(holdVal);
+						color.g = (float)atof(holdVal);
 						if (String_Parse(&holdBuf,(const char **) &holdVal))
 						{
-							color[3] = atof(holdVal);
+							color.a = (float)atof(holdVal);
 						}
 					}
 				}
@@ -1259,7 +1255,7 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 				{
 					for (i = 0; i < 4; i++) 
 					{
-						(*out)[i] = color[i];
+						out->data[i] = color.data[i];
 					}
 				}
 			}
@@ -1557,10 +1553,10 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 			item->window.offsetTime = time;
 			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = abs(rectTo->x - rectFrom->x) / amt;
-			item->window.rectEffects2.y = abs(rectTo->y - rectFrom->y) / amt;
-			item->window.rectEffects2.w = abs(rectTo->w - rectFrom->w) / amt;
-			item->window.rectEffects2.h = abs(rectTo->h - rectFrom->h) / amt;
+			item->window.rectEffects2.x = fabsf(rectTo->x - rectFrom->x) / amt;
+			item->window.rectEffects2.y = fabsf(rectTo->y - rectFrom->y) / amt;
+			item->window.rectEffects2.w = fabsf(rectTo->w - rectFrom->w) / amt;
+			item->window.rectEffects2.h = fabsf(rectTo->h - rectFrom->h) / amt;
 
 			Item_UpdatePosition(item);
 		}
@@ -2122,21 +2118,17 @@ int Item_TextScroll_ThumbPosition ( itemDef_t *item )
 	float max, pos, size;
 	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
 
-	max  = Item_TextScroll_MaxScroll ( item );
+	max  = (float)Item_TextScroll_MaxScroll( item );
 	size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
 
 	if (max > 0) 
-	{
 		pos = (size-SCROLLBAR_SIZE) / (float) max;
-	} 
 	else 
-	{
 		pos = 0;
-	}
 	
 	pos *= scrollPtr->startPos;
 	
-	return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
+	return (int)item->window.rect.y + 1 + SCROLLBAR_SIZE + (int)pos;
 }
 
 int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item ) 
@@ -2145,12 +2137,12 @@ int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item )
 
 	if (itemCapture == item) 
 	{
-		min = item->window.rect.y + SCROLLBAR_SIZE + 1;
-		max = item->window.rect.y + item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
+		min = (int)item->window.rect.y + SCROLLBAR_SIZE + 1;
+		max = (int)item->window.rect.y + (int)item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
 
 		if (DC->cursory >= min + SCROLLBAR_SIZE/2 && DC->cursory <= max + SCROLLBAR_SIZE/2) 
 		{
-			return DC->cursory - SCROLLBAR_SIZE/2;
+			return (int)DC->cursory - SCROLLBAR_SIZE/2;
 		}
 
 		return Item_TextScroll_ThumbPosition(item);
@@ -2184,7 +2176,7 @@ int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 	}
 
 	thumbstart = Item_TextScroll_ThumbPosition(item);
-	r.y = thumbstart;
+	r.y = (float)thumbstart;
 	if (Rect_ContainsPoint(&r, x, y)) 
 	{
 		return WINDOW_LB_THUMB;
@@ -2197,7 +2189,7 @@ int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 		return WINDOW_LB_PGUP;
 	}
 
-	r.y = thumbstart + SCROLLBAR_SIZE;
+	r.y = (float)(thumbstart + SCROLLBAR_SIZE);
 	r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 	if (Rect_ContainsPoint(&r, x, y)) 
 	{
@@ -2223,7 +2215,7 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 	{
 		max = Item_TextScroll_MaxScroll(item);
 
-		viewmax = (item->window.rect.h / scrollPtr->lineHeight);
+		viewmax = (int)(item->window.rect.h / scrollPtr->lineHeight);
 		if ( key == K_UPARROW || key == K_MWHEELUP ) 
 		{
 			scrollPtr->startPos--;
@@ -2333,10 +2325,10 @@ int Item_ListBox_MaxScroll(itemDef_t *item) {
 	int max;
 
 	if (item->window.flags & WINDOW_HORIZONTAL) {
-		max = count - (item->window.rect.w / listPtr->elementWidth) + 1;
+		max = count - (int)(item->window.rect.w / listPtr->elementWidth) + 1;
 	}
 	else {
-		max = count - (item->window.rect.h / listPtr->elementHeight) + 1;
+		max = count - (int)(item->window.rect.h / listPtr->elementHeight) + 1;
 	}
 	if (max < 0) {
 		return 0;
@@ -2348,7 +2340,7 @@ int Item_ListBox_ThumbPosition(itemDef_t *item) {
 	float max, pos, size;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
-	max = Item_ListBox_MaxScroll(item);
+	max = (float)Item_ListBox_MaxScroll(item);
 	if (item->window.flags & WINDOW_HORIZONTAL) {
 		size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
 		if (max > 0) {
@@ -2357,7 +2349,7 @@ int Item_ListBox_ThumbPosition(itemDef_t *item) {
 			pos = 0;
 		}
 		pos *= listPtr->startPos;
-		return item->window.rect.x + 1 + SCROLLBAR_SIZE + pos;
+		return (int)item->window.rect.x + 1 + SCROLLBAR_SIZE + (int)pos;
 	}
 	else {
 		size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
@@ -2367,7 +2359,7 @@ int Item_ListBox_ThumbPosition(itemDef_t *item) {
 			pos = 0;
 		}
 		pos *= listPtr->startPos;
-		return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
+		return (int)item->window.rect.y + 1 + SCROLLBAR_SIZE + (int)pos;
 	}
 }
 
@@ -2379,11 +2371,11 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
 	{
 		if (item->window.flags & WINDOW_HORIZONTAL) 
 		{
-			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.x + item->window.rect.w - 2*SCROLLBAR_SIZE - 1;
-			if (DC->cursorx >= min + SCROLLBAR_SIZE/2 && DC->cursorx <= max + SCROLLBAR_SIZE/2) 
+			min = (int)item->window.rect.x + SCROLLBAR_SIZE + 1;
+			max = (int)item->window.rect.x + (int)item->window.rect.w - 2*SCROLLBAR_SIZE - 1;
+			if ((int)DC->cursorx >= min + SCROLLBAR_SIZE/2 && (int)DC->cursorx <= max + SCROLLBAR_SIZE/2) 
 			{
-				return DC->cursorx - SCROLLBAR_SIZE/2;
+				return (int)DC->cursorx - SCROLLBAR_SIZE/2;
 			}
 			else 
 			{
@@ -2392,11 +2384,11 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
 		}
 		else 
 		{
-			min = item->window.rect.y + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.y + item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
-			if (DC->cursory >= min + SCROLLBAR_SIZE/2 && DC->cursory <= max + SCROLLBAR_SIZE/2) 
+			min = (int)item->window.rect.y + SCROLLBAR_SIZE + 1;
+			max = (int)item->window.rect.y + (int)item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
+			if ((int)DC->cursory >= min + SCROLLBAR_SIZE/2 && (int)DC->cursory <= max + SCROLLBAR_SIZE/2) 
 			{
-				return DC->cursory - SCROLLBAR_SIZE/2;
+				return (int)DC->cursory - SCROLLBAR_SIZE/2;
 			}
 			else 
 			{
@@ -2536,7 +2528,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y) {
 		}
 		// check if on thumb
 		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.x = thumbstart;
+		r.x = (float)thumbstart;
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_THUMB;
 		}
@@ -2545,7 +2537,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y) {
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_PGUP;
 		}
-		r.x = thumbstart + SCROLLBAR_SIZE;
+		r.x = (float)(thumbstart + SCROLLBAR_SIZE);
 		r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_PGDN;
@@ -2562,7 +2554,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y) {
 			return WINDOW_LB_RIGHTARROW;
 		}
 		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.y = thumbstart;
+		r.y = (float)thumbstart;
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_THUMB;
 		}
@@ -2571,7 +2563,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y) {
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_PGUP;
 		}
-		r.y = thumbstart + SCROLLBAR_SIZE;
+		r.y = (float)(thumbstart + SCROLLBAR_SIZE);
 		r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y)) {
 			return WINDOW_LB_PGDN;
@@ -2724,7 +2716,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS)) {
 		max = Item_ListBox_MaxScroll(item);
 		if (item->window.flags & WINDOW_HORIZONTAL) {
-			viewmax = (item->window.rect.w / listPtr->elementWidth);
+			viewmax = (int)(item->window.rect.w / listPtr->elementWidth);
 			if ( key == K_LEFTARROW || key == K_KP_LEFTARROW ) 
 			{
 				if (!listPtr->notselectable) {
@@ -2773,7 +2765,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			}
 		}
 		else {
-			viewmax = (item->window.rect.h / listPtr->elementHeight);
+			viewmax = (int)(item->window.rect.h / listPtr->elementHeight);
 			if ( key == K_UPARROW || key == K_KP_UPARROW ) 
 			{
 				if (!listPtr->notselectable) {
@@ -3238,7 +3230,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		r.w = si->item->window.rect.w - (SCROLLBAR_SIZE*2) - 2;
 		max = Item_ListBox_MaxScroll(si->item);
 		//
-		pos = (DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE);
+		pos = (int)((DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE));
 		if (pos < 0) {
 			pos = 0;
 		}
@@ -3256,7 +3248,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		r.w = SCROLLBAR_SIZE;
 		max = Item_ListBox_MaxScroll(si->item);
 		//
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
+		pos = (int)((DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE));
 		if (pos < 0) {
 			pos = 0;
 		}
@@ -3325,7 +3317,7 @@ static void Scroll_TextScroll_ThumbFunc(void *p)
 		r.w = SCROLLBAR_SIZE;
 		max = Item_TextScroll_MaxScroll(si->item);
 		//
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
+		pos = (int)((DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE));
 		if (pos < 0) 
 		{
 			pos = 0;
@@ -3966,8 +3958,8 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 		return;
 	}
 
-	*width = item->textRect.w;
-	*height = item->textRect.h;
+	*width = (int)item->textRect.w;
+	*height = (int)item->textRect.h;
 
 	// keeps us from computing the widths and heights more than once
 	if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER)) {
@@ -3977,14 +3969,14 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 			originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
 		} else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) {
 			char buff[256];
-			DC->getCVarString(item->cvar, buff, 256);
+			DC->getCVarString( item->cvar, buff, sizeof( buff ) );
 			originalWidth += DC->textWidth(buff, item->textscale, 0);
 		}
 
 		*width = DC->textWidth(textPtr, item->textscale, 0);
 		*height = DC->textHeight(textPtr, item->textscale, 0);
-		item->textRect.w = *width;
-		item->textRect.h = *height;
+		item->textRect.w = (float)*width;
+		item->textRect.h = (float)*height;
 		item->textRect.x = item->textalignx;
 		item->textRect.y = item->textaligny;
 		if (item->textalignment == ITEM_ALIGN_RIGHT) {
@@ -3997,37 +3989,37 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 	}
 }
 
-void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
-	vec4_t lowLight;
+void Item_TextColor(itemDef_t *item, vector4 *newColor) {
+	vector4 lowLight;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
-	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
+	Fade(&item->window.flags, &item->window.foreColor.a, parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
-		LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * parent->focusColor.r; 
+		lowLight.g = 0.8f * parent->focusColor.g; 
+		lowLight.b = 0.8f * parent->focusColor.b; 
+		lowLight.a = 0.8f * parent->focusColor.a; 
+		LerpColor(&parent->focusColor,&lowLight,newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
-		lowLight[0] = 0.8 * item->window.foreColor[0]; 
-		lowLight[1] = 0.8 * item->window.foreColor[1]; 
-		lowLight[2] = 0.8 * item->window.foreColor[2]; 
-		lowLight[3] = 0.8 * item->window.foreColor[3]; 
-		LerpColor(item->window.foreColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * item->window.foreColor.r; 
+		lowLight.g = 0.8f * item->window.foreColor.g; 
+		lowLight.b = 0.8f * item->window.foreColor.b; 
+		lowLight.a = 0.8f * item->window.foreColor.a; 
+		LerpColor(&item->window.foreColor,&lowLight,newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(newColor, &item->window.foreColor, sizeof(vector4));
 		// items can be enabled and disabled based on cvars
 	}
 
 	if (item->disabled) 
 	{
-		memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
+		memcpy(newColor, &parent->disableColor, sizeof(vector4));
 	}
 
 	if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
 		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
-			memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
+			memcpy(newColor, &parent->disableColor, sizeof(vector4));
 		}
 	}
 }
@@ -4038,7 +4030,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 	char buff[2048];
 	int width, height, len, textWidth, newLine, newLineWidth;
 	float y;
-	vec4_t color;
+	vector4 color;
 
 	textWidth = 0;
 	newLinePtr = NULL;
@@ -4087,7 +4079,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 				ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
 				//
 				buff[newLine] = '\0';
-				DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle);
+				DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &color, buff, 0, 0, item->textStyle);
 			}
 			if (*p == '\0') {
 				break;
@@ -4111,7 +4103,7 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 	char buff[1024];
 	int width, height;
 	float x, y;
-	vec4_t color;
+	vector4 color;
 
 	// now paint the text and/or any optional images
 	// default to left
@@ -4142,19 +4134,19 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 	while (p && *p) {
 		strncpy(buff, start, p-start+1);
 		buff[p-start] = '\0';
-		DC->drawText(x, y, item->textscale, color, buff, 0, 0, item->textStyle);
+		DC->drawText(x, y, item->textscale, &color, buff, 0, 0, item->textStyle);
 		y += height + 5;
 		start += p - start + 1;
 		p = strchr(p+1, '\r');
 	}
-	DC->drawText(x, y, item->textscale, color, start, 0, 0, item->textStyle);
+	DC->drawText(x, y, item->textscale, &color, start, 0, 0, item->textStyle);
 }
 
 void Item_Text_Paint(itemDef_t *item) {
 	char text[1024];
 	const char *textPtr;
 	int height, width;
-	vec4_t color;
+	vector4 color;
 
 	if (item->window.flags & WINDOW_WRAPPED) {
 		Item_Text_Wrapped_Paint(item);
@@ -4188,7 +4180,7 @@ void Item_Text_Paint(itemDef_t *item) {
 
 	Item_TextColor(item, &color);
 
-	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle);
+	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &color, textPtr, 0, 0, item->textStyle);
 }
 
 
@@ -4198,7 +4190,7 @@ void Item_Text_Paint(itemDef_t *item) {
 
 void Item_TextField_Paint(itemDef_t *item) {
 	char buff[1024];
-	vec4_t newColor, lowLight;
+	vector4 newColor, lowLight;
 	int offset;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
@@ -4212,77 +4204,77 @@ void Item_TextField_Paint(itemDef_t *item) {
 	} 
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * parent->focusColor.r; 
+		lowLight.g = 0.8f * parent->focusColor.g; 
+		lowLight.b = 0.8f * parent->focusColor.b; 
+		lowLight.a = 0.8f * parent->focusColor.a; 
+		LerpColor(&parent->focusColor,&lowLight,&newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(&newColor, &item->window.foreColor, sizeof(vector4));
 	}
 
 	offset = (item->text && *item->text) ? 8 : 0;
 	if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
 		char cursor = DC->getOverstrikeMode() ? '_' : '|';
-		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, editPtr->maxPaintChars, item->textStyle);
+		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, &newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, editPtr->maxPaintChars, item->textStyle);
 	} else {
-		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle);
+		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, &newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle);
 	}
 
 }
 
 void Item_YesNo_Paint(itemDef_t *item) {
-	vec4_t newColor, lowLight;
+	vector4 newColor, lowLight;
 	float value;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * parent->focusColor.r; 
+		lowLight.g = 0.8f * parent->focusColor.g; 
+		lowLight.b = 0.8f * parent->focusColor.b; 
+		lowLight.a = 0.8f * parent->focusColor.a; 
+		LerpColor(&parent->focusColor,&lowLight,&newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(&newColor, &item->window.foreColor, sizeof(vector4));
 	}
 
 	if (item->text) {
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
+		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, &newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
+		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
 	}
 }
 
 void Item_Multi_Paint(itemDef_t *item) {
-	vec4_t newColor, lowLight;
+	vector4 newColor, lowLight;
 	const char *text = "";
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * parent->focusColor.r; 
+		lowLight.g = 0.8f * parent->focusColor.g; 
+		lowLight.b = 0.8f * parent->focusColor.b; 
+		lowLight.a = 0.8f * parent->focusColor.a; 
+		LerpColor(&parent->focusColor,&lowLight,&newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(&newColor, &item->window.foreColor, sizeof(vector4));
 	}
 
 	text = Item_Multi_Setting(item);
 
 	if (item->text) {
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle);
+		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, &newColor, text, 0, 0, item->textStyle);
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle);
+		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &newColor, text, 0, 0, item->textStyle);
 	}
 }
 
 
-typedef struct {
+typedef struct bind_s {
 	char	*command;
 	int		defaultbind1;
 	int		defaultbind2;
@@ -4290,8 +4282,7 @@ typedef struct {
 	int		bind2;
 } bind_t;
 
-typedef struct
-{
+typedef struct configcvar_s {
 	char*	name;
 	float	defaultvalue;
 	float	value;	
@@ -4300,66 +4291,66 @@ typedef struct
 
 static bind_t g_bindings[] = 
 {
-	{"+scores",			 K_TAB,				-1,		-1, -1},
-	{"+button2",		 K_ENTER,			-1,		-1, -1},
-	{"+speed", 			 K_SHIFT,			-1,		-1,	-1},
-	{"+forward", 		 K_UPARROW,		-1,		-1, -1},
-	{"+back", 			 K_DOWNARROW,	-1,		-1, -1},
-	{"+moveleft", 	 ',',					-1,		-1, -1},
-	{"+moveright", 	 '.',					-1,		-1, -1},
-	{"+moveup",			 K_SPACE,			-1,		-1, -1},
-	{"+movedown",		 'c',					-1,		-1, -1},
-	{"+left", 			 K_LEFTARROW,	-1,		-1, -1},
-	{"+right", 			 K_RIGHTARROW,	-1,		-1, -1},
-	{"+strafe", 		 K_ALT,				-1,		-1, -1},
-	{"+lookup", 		 K_PGDN,				-1,		-1, -1},
-	{"+lookdown", 	 K_DEL,				-1,		-1, -1},
-	{"+mlook", 			 '/',					-1,		-1, -1},
-	{"centerview", 	 K_END,				-1,		-1, -1},
-	{"+zoom", 			 -1,						-1,		-1, -1},
-	{"weapon 1",		 '1',					-1,		-1, -1},
-	{"weapon 2",		 '2',					-1,		-1, -1},
-	{"weapon 3",		 '3',					-1,		-1, -1},
-	{"weapon 4",		 '4',					-1,		-1, -1},
-	{"weapon 5",		 '5',					-1,		-1, -1},
-	{"weapon 6",		 '6',					-1,		-1, -1},
-	{"weapon 7",		 '7',					-1,		-1, -1},
-	{"weapon 8",		 '8',					-1,		-1, -1},
-	{"weapon 9",		 '9',					-1,		-1, -1},
-	{"weapon 10",		 '0',					-1,		-1, -1},
-	{"weapon 11",		 -1,					-1,		-1, -1},
-	{"weapon 12",		 -1,					-1,		-1, -1},
-	{"weapon 13",		 -1,					-1,		-1, -1},
-	{"+attack", 		 K_CTRL,				-1,		-1, -1},
-	{"weapprev",		 '[',					-1,		-1, -1},
-	{"weapnext", 		 ']',					-1,		-1, -1},
-	{"+button3", 		 K_MOUSE3,			-1,		-1, -1},
-	{"+button4", 		 K_MOUSE4,			-1,		-1, -1},
-	{"prevTeamMember", 'w',					-1,		-1, -1},
-	{"nextTeamMember", 'r',					-1,		-1, -1},
-	{"nextOrder", 't',					-1,		-1, -1},
-	{"confirmOrder", 'y',					-1,		-1, -1},
-	{"denyOrder", 'n',					-1,		-1, -1},
-	{"taskOffense", 'o',					-1,		-1, -1},
-	{"taskDefense", 'd',					-1,		-1, -1},
-	{"taskPatrol", 'p',					-1,		-1, -1},
-	{"taskCamp", 'c',					-1,		-1, -1},
-	{"taskFollow", 'f',					-1,		-1, -1},
-	{"taskRetrieve", 'v',					-1,		-1, -1},
-	{"taskEscort", 'e',					-1,		-1, -1},
-	{"taskOwnFlag", 'i',					-1,		-1, -1},
-	{"taskSuicide", 'k',					-1,		-1, -1},
-	{"tauntKillInsult", K_F1,			-1,		-1, -1},
-	{"tauntPraise", K_F2,			-1,		-1, -1},
-	{"tauntTaunt", K_F3,			-1,		-1, -1},
-	{"tauntDeathInsult", K_F4,			-1,		-1, -1},
-	{"tauntGauntlet", K_F5,			-1,		-1, -1},
-	{"scoresUp", K_KP_PGUP,			-1,		-1, -1},
-	{"scoresDown", K_KP_PGDN,			-1,		-1, -1},
-	{"messagemode",  -1,					-1,		-1, -1},
-	{"messagemode2", -1,						-1,		-1, -1},
-	{"messagemode3", -1,						-1,		-1, -1},
-	{"messagemode4", -1,						-1,		-1, -1}
+	{ "+scores",			K_TAB,			-1, -1, -1 },
+	{ "+button2",			K_ENTER,		-1, -1, -1 },
+	{ "+speed", 			K_SHIFT,		-1, -1,	-1 },
+	{ "+forward", 			K_UPARROW,		-1, -1, -1 },
+	{ "+back", 				K_DOWNARROW,	-1, -1, -1 },
+	{ "+left",				',',			-1, -1, -1 },
+	{ "+right", 			'.',			-1, -1, -1 },
+	{ "+moveup",			K_SPACE,		-1, -1, -1 },
+	{ "+movedown",			'c',			-1, -1, -1 },
+	{ "+strafe", 			K_ALT,			-1, -1, -1 },
+	{ "+lookup", 			K_PGDN,			-1, -1, -1 },
+	{ "+lookdown",			K_DEL,			-1, -1, -1 },
+	{ "+lookleft", 			K_LEFTARROW,	-1, -1, -1 },
+	{ "+lookright",			K_RIGHTARROW,	-1, -1, -1 },
+	{ "+mlook", 			'/',			-1, -1, -1 },
+	{ "centerview", 		K_END,			-1, -1, -1 },
+	{ "+zoom", 				-1,				-1, -1, -1 },
+	{ "weapon 1",			'1',			-1, -1, -1 },
+	{ "weapon 2",			'2',			-1, -1, -1 },
+	{ "weapon 3",			'3',			-1, -1, -1 },
+	{ "weapon 4",			'4',			-1, -1, -1 },
+	{ "weapon 5",			'5',			-1, -1, -1 },
+	{ "weapon 6",			'6',			-1, -1, -1 },
+	{ "weapon 7",			'7',			-1, -1, -1 },
+	{ "weapon 8",			'8',			-1, -1, -1 },
+	{ "weapon 9",			'9',			-1, -1, -1 },
+	{ "weapon 10",			'0',			-1, -1, -1 },
+	{ "weapon 11",			-1,				-1, -1, -1 },
+	{ "weapon 12",			-1,				-1, -1, -1 },
+	{ "weapon 13",			-1,				-1, -1, -1 },
+	{ "+attack", 			K_CTRL,			-1, -1, -1 },
+	{ "weapprev",			'[',			-1, -1, -1 },
+	{ "weapnext", 			']',			-1, -1, -1 },
+	{ "+button3", 			K_MOUSE3,		-1, -1, -1 },
+	{ "+button4", 			K_MOUSE4,		-1, -1, -1 },
+	{ "prevTeamMember",		'w',			-1, -1, -1 },
+	{ "nextTeamMember",		'r',			-1, -1, -1 },
+	{ "nextOrder",			't',			-1, -1, -1 },
+	{ "confirmOrder",		'y',			-1, -1, -1 },
+	{ "denyOrder",			'n',			-1, -1, -1 },
+	{ "taskOffense",		'o',			-1, -1, -1 },
+	{ "taskDefense",		'd',			-1, -1, -1 },
+	{ "taskPatrol",			'p',			-1, -1, -1 },
+	{ "taskCamp",			'c',			-1, -1, -1 },
+	{ "taskFollow",			'f',			-1, -1, -1 },
+	{ "taskRetrieve",		'v',			-1, -1, -1 },
+	{ "taskEscort",			'e',			-1, -1, -1 },
+	{ "taskOwnFlag",		'i',			-1, -1, -1 },
+	{ "taskSuicide",		'k',			-1, -1, -1 },
+	{ "tauntKillInsult",	K_F1,			-1, -1, -1 },
+	{ "tauntPraise",		K_F2,			-1, -1, -1 },
+	{ "tauntTaunt",			K_F3,			-1, -1, -1 },
+	{ "tauntDeathInsult",	K_F4,			-1, -1, -1 },
+	{ "tauntGauntlet",		K_F5,			-1, -1, -1 },
+	{ "scoresUp",			K_KP_PGUP,		-1, -1, -1 },
+	{ "scoresDown",			K_KP_PGDN,		-1, -1, -1 },
+	{ "messagemode",		-1,				-1, -1, -1 },
+	{ "messagemode2",		-1,				-1, -1, -1 },
+	{ "messagemode3",		-1,				-1, -1, -1 },
+	{ "messagemode4",		-1,				-1, -1, -1 }
 };
 
 
@@ -4419,7 +4410,7 @@ void Controls_GetConfig( void )
 	//s_controls.smoothmouse.curvalue  = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "m_filter" ) );
 	//s_controls.alwaysrun.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_run" ) );
 	//s_controls.autoswitch.curvalue   = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cg_autoswitch" ) );
-	//s_controls.sensitivity.curvalue  = UI_ClampCvar( 2, 30, Controls_GetCvarValue( "sensitivity" ) );
+	//s_controls.sensitivity.curvalue  = UI_ClampCvar( 2, 30, Controls_GetCvarValue( "m_sensitivity" ) );
 	//s_controls.joyenable.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "in_joystick" ) );
 	//s_controls.joythreshold.curvalue = UI_ClampCvar( 0.05, 0.75, Controls_GetCvarValue( "joy_threshold" ) );
 	//s_controls.freelook.curvalue     = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_freelook" ) );
@@ -4455,7 +4446,7 @@ void Controls_SetConfig(qboolean restart)
 	//trap_Cvar_SetValue( "m_filter", s_controls.smoothmouse.curvalue );
 	//trap_Cvar_SetValue( "cl_run", s_controls.alwaysrun.curvalue );
 	//trap_Cvar_SetValue( "cg_autoswitch", s_controls.autoswitch.curvalue );
-	//trap_Cvar_SetValue( "sensitivity", s_controls.sensitivity.curvalue );
+	//trap_Cvar_SetValue( "m_sensitivity", s_controls.sensitivity.curvalue );
 	//trap_Cvar_SetValue( "in_joystick", s_controls.joyenable.curvalue );
 	//trap_Cvar_SetValue( "joy_threshold", s_controls.joythreshold.curvalue );
 	//trap_Cvar_SetValue( "cl_freelook", s_controls.freelook.curvalue );
@@ -4483,7 +4474,7 @@ void Controls_SetDefaults( void )
 	//s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "m_filter" );
 	//s_controls.alwaysrun.curvalue    = Controls_GetCvarDefault( "cl_run" );
 	//s_controls.autoswitch.curvalue   = Controls_GetCvarDefault( "cg_autoswitch" );
-	//s_controls.sensitivity.curvalue  = Controls_GetCvarDefault( "sensitivity" );
+	//s_controls.sensitivity.curvalue  = Controls_GetCvarDefault( "m_sensitivity" );
 	//s_controls.joyenable.curvalue    = Controls_GetCvarDefault( "in_joystick" );
 	//s_controls.joythreshold.curvalue = Controls_GetCvarDefault( "joy_threshold" );
 	//s_controls.freelook.curvalue     = Controls_GetCvarDefault( "cl_freelook" );
@@ -4532,18 +4523,18 @@ void BindingFromName(const char *cvar) {
 }
 
 void Item_Slider_Paint(itemDef_t *item) {
-	vec4_t newColor, lowLight;
+	vector4 newColor, lowLight;
 	float x, y;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		lowLight.r = 0.8f * parent->focusColor.r; 
+		lowLight.g = 0.8f * parent->focusColor.g; 
+		lowLight.b = 0.8f * parent->focusColor.b; 
+		lowLight.a = 0.8f * parent->focusColor.a; 
+		LerpColor(&parent->focusColor,&lowLight,&newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(&newColor, &item->window.foreColor, sizeof(vector4));
 	}
 
 	y = item->window.rect.y;
@@ -4553,7 +4544,7 @@ void Item_Slider_Paint(itemDef_t *item) {
 	} else {
 		x = item->window.rect.x;
 	}
-	DC->setColor(newColor);
+	DC->setColor(&newColor);
 	DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
 
 	x = Item_Slider_ThumbPosition(item);
@@ -4561,7 +4552,7 @@ void Item_Slider_Paint(itemDef_t *item) {
 }
 
 void Item_Bind_Paint(itemDef_t *item) {
-	vec4_t newColor, lowLight;
+	vector4 newColor, lowLight;
 	int maxChars = 0;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
@@ -4571,27 +4562,27 @@ void Item_Bind_Paint(itemDef_t *item) {
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		if (g_bindItem == item) {
-			lowLight[0] = 0.8f * 1.0f;
-			lowLight[1] = 0.8f * 0.0f;
-			lowLight[2] = 0.8f * 0.0f;
-			lowLight[3] = 0.8f * 1.0f;
+			lowLight.r = 0.8f * 1.0f;
+			lowLight.g = 0.8f * 0.0f;
+			lowLight.b = 0.8f * 0.0f;
+			lowLight.a = 0.8f * 1.0f;
 		} else {
-			lowLight[0] = 0.8f * parent->focusColor[0]; 
-			lowLight[1] = 0.8f * parent->focusColor[1]; 
-			lowLight[2] = 0.8f * parent->focusColor[2]; 
-			lowLight[3] = 0.8f * parent->focusColor[3]; 
+			lowLight.r = 0.8f * parent->focusColor.r; 
+			lowLight.g = 0.8f * parent->focusColor.g; 
+			lowLight.b = 0.8f * parent->focusColor.b; 
+			lowLight.a = 0.8f * parent->focusColor.a; 
 		}
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		LerpColor(&parent->focusColor,&lowLight,&newColor,0.5f+0.5f*sinf(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(&newColor, &item->window.foreColor, sizeof(vector4));
 	}
 
 	if (item->text) {
 		Item_Text_Paint(item);
 		BindingFromName(item->cvar);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle);
+		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, &newColor, g_nameBind1, 0, maxChars, item->textStyle);
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, "FIXME", 0, maxChars, item->textStyle);
+		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &newColor, "FIXME", 0, maxChars, item->textStyle);
 	}
 }
 
@@ -4709,8 +4700,8 @@ void Item_Model_Paint(itemDef_t *item) {
 	float x, y, w, h;
 	refdef_t refdef;
 	refEntity_t		ent;
-	vec3_t			mins, maxs, origin;
-	vec3_t			angles;
+	vector3			mins, maxs, origin;
+	vector3			angles;
 	modelDef_t *modelPtr = (modelDef_t*)item->typeData;
 
 	if (modelPtr == NULL) {
@@ -4728,23 +4719,23 @@ void Item_Model_Paint(itemDef_t *item) {
 
 	AdjustFrom640( &x, &y, &w, &h );
 
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
+	refdef.x = (int)x;
+	refdef.y = (int)y;
+	refdef.width = (int)w;
+	refdef.height = (int)h;
 
-	DC->modelBounds( item->asset, mins, maxs );
+	DC->modelBounds( item->asset, &mins, &maxs );
 
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
+	origin.z = -0.5f * ( mins.z + maxs.z );
+	origin.y =  0.5f * ( mins.y + maxs.y );
 
 	// calculate distance so the model nearly fills the box
 	if (qtrue) {
-		float len = 0.5 * ( maxs[2] - mins[2] );		
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
-		//origin[0] = len / tan(w/2);
+		float len = 0.5f * ( maxs.z - mins.z );		
+		origin.x = len / 0.268f;	// len / tan( fov/2 )
+		//origin.x = len / tan(w/2);
 	} else {
-		origin[0] = item->textscale;
+		origin.x = item->textscale;
 	}
 	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : w;
 	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : h;
@@ -4773,14 +4764,14 @@ void Item_Model_Paint(itemDef_t *item) {
 			modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
 		}
 	}
-	VectorSet( angles, 0, modelPtr->angle, 0 );
-	AnglesToAxis( angles, ent.axis );
+	VectorSet( &angles, 0.0f, (float)modelPtr->angle, 0.0f );
+	AnglesToAxis( &angles, ent.axis );
 
 	ent.hModel = item->asset;
-	VectorCopy( origin, ent.origin );
-	VectorCopy( origin, ent.lightingOrigin );
+	VectorCopy( &origin, &ent.origin );
+	VectorCopy( &origin, &ent.lightingOrigin );
 	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
-	VectorCopy( ent.origin, ent.oldorigin );
+	VectorCopy( &ent.origin, &ent.oldorigin );
 
 	DC->addRefEntityToScene( &ent );
 	DC->renderScene( &refdef );
@@ -4802,7 +4793,7 @@ void Item_TextScroll_Paint(itemDef_t *item)
 	int	  i;
 	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
 
-	count = scrollPtr->iLineCount;
+	count = (float)scrollPtr->iLineCount;
 
 	// draw scrollbar to right side of the window
 	x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
@@ -4817,7 +4808,7 @@ void Item_TextScroll_Paint(itemDef_t *item)
 	DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
 	
 	// thumb
-	thumb = Item_TextScroll_ThumbDrawPosition(item);
+	thumb = (float)Item_TextScroll_ThumbDrawPosition(item);
 	if (thumb > y - SCROLLBAR_SIZE - 1) 
 	{
 		thumb = y - SCROLLBAR_SIZE - 1;
@@ -4846,12 +4837,12 @@ void Item_TextScroll_Paint(itemDef_t *item)
 			continue;
 		}
 
-		DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle );
+		DC->drawText(x + 4, y, item->textscale, &item->window.foreColor, text, 0, 0, item->textStyle );
 
 		size -= scrollPtr->lineHeight;
 		if (size < scrollPtr->lineHeight) 
 		{
-			scrollPtr->drawPadding = scrollPtr->lineHeight - size;
+			scrollPtr->drawPadding = (int)(scrollPtr->lineHeight - size);
 			break;
 		}
 
@@ -4885,7 +4876,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 		x += size - 1;
 		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
 		// thumb
-		thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
+		thumb = (float)Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
 		if (thumb > x - SCROLLBAR_SIZE - 1) {
 			thumb = x - SCROLLBAR_SIZE - 1;
 		}
@@ -4908,12 +4899,12 @@ void Item_ListBox_Paint(itemDef_t *item) {
 				}
 
 				if (i == item->cursorPos) {
-					DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor);
+					DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, &item->window.borderColor);
 				}
 
 				size -= listPtr->elementWidth;
 				if (size < listPtr->elementWidth) {
-					listPtr->drawPadding = size; //listPtr->elementWidth - size;
+					listPtr->drawPadding = (int)size; //listPtr->elementWidth - size;
 					break;
 				}
 				x += listPtr->elementWidth;
@@ -4936,7 +4927,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 		y += size - 1;
 		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
 		// thumb
-		thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
+		thumb = (float)Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
 		if (thumb > y - SCROLLBAR_SIZE - 1) {
 			thumb = y - SCROLLBAR_SIZE - 1;
 		}
@@ -4957,13 +4948,13 @@ void Item_ListBox_Paint(itemDef_t *item) {
 				}
 
 				if (i == item->cursorPos) {
-					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor);
+					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, &item->window.borderColor);
 				}
 
 				listPtr->endPos++;
 				size -= listPtr->elementWidth;
 				if (size < listPtr->elementHeight) {
-					listPtr->drawPadding = listPtr->elementHeight - size;
+					listPtr->drawPadding = (int)(listPtr->elementHeight - size);
 					break;
 				}
 				y += listPtr->elementHeight;
@@ -4982,9 +4973,9 @@ void Item_ListBox_Paint(itemDef_t *item) {
 					for (j = 0; j < listPtr->numColumns; j++) {
 						text = DC->feederItemText(item->special, i, j, &optionalImage);
 						if (optionalImage >= 0) {
-							DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+							DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, (float)listPtr->columnInfo[j].width, (float)listPtr->columnInfo[j].width, optionalImage);
 						} else if (text) {
-							DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
+							DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, &item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
 						}
 					}
 				} else {
@@ -4992,17 +4983,17 @@ void Item_ListBox_Paint(itemDef_t *item) {
 					if (optionalImage >= 0) {
 						//DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
 					} else if (text) {
-						DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle);
+						DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, &item->window.foreColor, text, 0, 0, item->textStyle);
 					}
 				}
 
 				if (i == item->cursorPos) {
-					DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor);
+					DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, &item->window.outlineColor);
 				}
 
 				size -= listPtr->elementHeight;
 				if (size < listPtr->elementHeight) {
-					listPtr->drawPadding = listPtr->elementHeight - size;
+					listPtr->drawPadding = (int)(listPtr->elementHeight - size);
 					break;
 				}
 				listPtr->endPos++;
@@ -5023,8 +5014,8 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 	parent = (menuDef_t*)item->parent;
 
 	if (DC->ownerDrawItem) {
-		vec4_t color, lowLight;
-		Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
+		vector4 color, lowLight;
+		Fade(&item->window.flags, &item->window.foreColor.a, parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
 		memcpy(&color, &item->window.foreColor, sizeof(color));
 		if (item->numColors > 0 && DC->getValue) {
 			// if the value is within one of the ranges then set color to that, otherwise leave at default
@@ -5039,38 +5030,38 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 		}
 
 		if (item->window.flags & WINDOW_HASFOCUS) {
-			lowLight[0] = 0.8 * parent->focusColor[0]; 
-			lowLight[1] = 0.8 * parent->focusColor[1]; 
-			lowLight[2] = 0.8 * parent->focusColor[2]; 
-			lowLight[3] = 0.8 * parent->focusColor[3]; 
-			LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+			lowLight.r = 0.8f * parent->focusColor.r; 
+			lowLight.g = 0.8f * parent->focusColor.g; 
+			lowLight.b = 0.8f * parent->focusColor.b; 
+			lowLight.a = 0.8f * parent->focusColor.a; 
+			LerpColor(&parent->focusColor,&lowLight,&color,0.5f+0.5f*sinf((float)(DC->realTime / PULSE_DIVISOR)));
 		} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
-			lowLight[0] = 0.8 * item->window.foreColor[0]; 
-			lowLight[1] = 0.8 * item->window.foreColor[1]; 
-			lowLight[2] = 0.8 * item->window.foreColor[2]; 
-			lowLight[3] = 0.8 * item->window.foreColor[3]; 
-			LerpColor(item->window.foreColor,lowLight,color,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+			lowLight.r = 0.8f * item->window.foreColor.r; 
+			lowLight.g = 0.8f * item->window.foreColor.g; 
+			lowLight.b = 0.8f * item->window.foreColor.b; 
+			lowLight.a = 0.8f * item->window.foreColor.a; 
+			LerpColor(&item->window.foreColor,&lowLight,&color,0.5f+0.5f*sinf((float)(DC->realTime / PULSE_DIVISOR)));
 		}
 
 		if (item->disabled) 
 		{
-			Com_Memcpy(color, parent->disableColor, sizeof(vec4_t));
+			memcpy(&color, &parent->disableColor, sizeof(vector4));
 		}
 
 		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
-			Com_Memcpy(color, parent->disableColor, sizeof(vec4_t));
+			memcpy(&color, &parent->disableColor, sizeof(vector4));
 		}
 
 		if (item->text) {
 			Item_Text_Paint(item);
 			if (item->text[0]) {
 				// +8 is an offset kludge to properly align owner draw items that have text combined with them
-				DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
+				DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, &color, item->window.background, item->textStyle );
 			} else {
-				DC->ownerDrawItem(item->textRect.x + item->textRect.w, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
+				DC->ownerDrawItem(item->textRect.x + item->textRect.w, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, &color, item->window.background, item->textStyle );
 			}
 		} else {
-			DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
+			DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, &color, item->window.background, item->textStyle );
 		}
 	}
 }
@@ -5078,13 +5069,13 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 
 void Item_Paint(itemDef_t *item)
 {
-	vec4_t		red;
+	vector4		red;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 	int			xPos,textWidth;
-	vec4_t		color = {1, 1, 1, 1};
+	vector4		color = {1, 1, 1, 1};
 
-	red[0] = red[3] = 1;
-	red[1] = red[2] = 0;
+	red.r = red.a = 1;
+	red.g = red.b = 0;
 
 	if (item == NULL)
 	{
@@ -5104,8 +5095,8 @@ void Item_Paint(itemDef_t *item)
 			rx = item->window.rectClient.x + w - item->window.rectEffects.x;
 			ry = item->window.rectClient.y + h - item->window.rectEffects.y;
 			a = 3 * M_PI / 180;
-			c = cos(a);
-			s = sin(a);
+			c = cosf(a);
+			s = sinf(a);
 			item->window.rectClient.x = (rx * c - ry * s) + item->window.rectEffects.x - w;
 			item->window.rectClient.y = (rx * s + ry * c) + item->window.rectEffects.y - h;
 			Item_UpdatePosition(item);
@@ -5235,7 +5226,7 @@ void Item_Paint(itemDef_t *item)
 				int iYadj = 0;
 				while (1)
 				{
-					vec4_t _color = { 0.0f, 0.0f, 0.0f, 0.5f };
+					vector4 _color = { 0.0f, 0.0f, 0.0f, 0.5f };
 					textWidth = DC->textWidth(textPtr,fDescScale,-1);
 
 					if (parent->descAlignment == ITEM_ALIGN_RIGHT)
@@ -5270,8 +5261,8 @@ void Item_Paint(itemDef_t *item)
 					}
 
 					//Raz: Added background
-					DC->fillRect(xPos, parent->descY + iYadj, textWidth, DC->textHeight( textPtr, fDescScale, -1 ), _color );
-					DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, 0, item->textStyle );
+					DC->fillRect((float)xPos, (float)(parent->descY + iYadj), (float)textWidth, (float)DC->textHeight( textPtr, fDescScale, -1 ), &_color );
+					DC->drawText((float)xPos, (float)(parent->descY + iYadj), fDescScale, &parent->descColor, textPtr, 0, 0, item->textStyle );
 					break;
 				}
 			}
@@ -5279,14 +5270,14 @@ void Item_Paint(itemDef_t *item)
 	}
 
 	// paint the rect first.. 
-	Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle);
+	Window_Paint(&item->window, parent->fadeAmount, parent->fadeClamp, (float)parent->fadeCycle);
 
 	if (debugMode) {
-		vec4_t color;
+		vector4 color;
 		rectDef_t *r = Item_CorrectedTextRect(item);
-		color[1] = color[3] = 1;
-		color[0] = color[2] = 0;
-		DC->drawRect(r->x, r->y, r->w, r->h, 1, color);
+		color.g = color.a = 1;
+		color.r = color.b = 0;
+		DC->drawRect(r->x, r->y, r->w, r->h, 1, &color);
 	}
 
 	//DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
@@ -5560,7 +5551,7 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	}
 
 	// paint the background and or border
-	Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, menu->fadeCycle );
+	Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, (float)menu->fadeCycle );
 
 	// Loop through all items for the menu and paint them
 	for (i = 0; i < menu->itemCount; i++) 
@@ -5585,10 +5576,10 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	}
 
 	if (debugMode) {
-		vec4_t color;
-		color[0] = color[2] = color[3] = 1;
-		color[1] = 0;
-		DC->drawRect(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, color);
+		vector4 color;
+		color.r = color.b = color.a = 1;
+		color.g = 0;
+		DC->drawRect(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, &color);
 	}
 }
 
@@ -5751,9 +5742,9 @@ qboolean ItemParse_model_origin( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData(item);
 	modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_Float_Parse(handle, &modelPtr->origin[0])) {
-		if (PC_Float_Parse(handle, &modelPtr->origin[1])) {
-			if (PC_Float_Parse(handle, &modelPtr->origin[2])) {
+	if (PC_Float_Parse(handle, &modelPtr->origin.x)) {
+		if (PC_Float_Parse(handle, &modelPtr->origin.y)) {
+			if (PC_Float_Parse(handle, &modelPtr->origin.z)) {
 				return qtrue;
 			}
 		}
@@ -6034,7 +6025,7 @@ qboolean ItemParse_backcolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		item->window.backColor[i]  = f;
+		item->window.backColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6047,7 +6038,7 @@ qboolean ItemParse_forecolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		item->window.foreColor[i]  = f;
+		item->window.foreColor.data[i]  = f;
 		item->window.flags |= WINDOW_FORECOLORSET;
 	}
 	return qtrue;
@@ -6061,7 +6052,7 @@ qboolean ItemParse_bordercolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		item->window.borderColor[i]  = f;
+		item->window.borderColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6560,7 +6551,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 		}
 
 		// Get the current character width 
-		cw = DC->textWidth ( va("%c", *lineEnd), item->textscale, -1 );
+		cw = (float)DC->textWidth ( va("%c", *lineEnd), item->textscale, -1 );
 
 		// Past the end of the boundary?
 		if ( w + cw > (item->window.rect.w - SCROLLBAR_SIZE - 10) )
@@ -6751,7 +6742,7 @@ qboolean MenuParse_backcolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		menu->window.backColor[i]  = f;
+		menu->window.backColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6839,7 +6830,7 @@ qboolean MenuParse_descColor( itemDef_t *item, int handle)
 		{
 			return qfalse;
 		}
-		menu->descColor[i]  = f;
+		menu->descColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6853,7 +6844,7 @@ qboolean MenuParse_forecolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		menu->window.foreColor[i]  = f;
+		menu->window.foreColor.data[i]  = f;
 		menu->window.flags |= WINDOW_FORECOLORSET;
 	}
 	return qtrue;
@@ -6868,7 +6859,7 @@ qboolean MenuParse_bordercolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		menu->window.borderColor[i]  = f;
+		menu->window.borderColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6882,7 +6873,7 @@ qboolean MenuParse_focuscolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		menu->focusColor[i]  = f;
+		menu->focusColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -6895,7 +6886,7 @@ qboolean MenuParse_disablecolor( itemDef_t *item, int handle ) {
 		if (!PC_Float_Parse(handle, &f)) {
 			return qfalse;
 		}
-		menu->disableColor[i]  = f;
+		menu->disableColor.data[i]  = f;
 	}
 	return qtrue;
 }
@@ -7160,9 +7151,9 @@ void Menu_PaintAll(void) {
 	}
 
 	if (debugMode) {
-		vec4_t v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .5, v, va("fps: %f", DC->FPS), 0, 0, 0);
-		DC->drawText(5, 45, .5, v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0);
+		vector4 v = {1, 1, 1, 1};
+		DC->drawText(5, 25, .5, &v, va("fps: %f", DC->FPS), 0, 0, 0);
+		DC->drawText(5, 45, .5, &v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0);
 	}
 }
 
@@ -7180,7 +7171,7 @@ void *Display_CaptureItem(int x, int y) {
 	for (i = 0; i < menuCount; i++) {
 		// turn off focus each item
 		// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
-		if (Rect_ContainsPoint(&Menus[i].window.rect, x, y)) {
+		if (Rect_ContainsPoint(&Menus[i].window.rect, (float)x, (float)y)) {
 			return &Menus[i];
 		}
 	}
@@ -7189,7 +7180,7 @@ void *Display_CaptureItem(int x, int y) {
 
 
 // FIXME: 
-qboolean Display_MouseMove(void *p, int x, int y) {
+qboolean Display_MouseMove(void *p, float x, float y) {
 	int i;
 	menuDef_t *menu = p;
 
@@ -7213,7 +7204,7 @@ qboolean Display_MouseMove(void *p, int x, int y) {
 
 }
 
-int Display_CursorType(int x, int y) {
+int Display_CursorType(float x, float y) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		rectDef_t r2;
@@ -7229,7 +7220,7 @@ int Display_CursorType(int x, int y) {
 
 
 void Display_HandleKey(int key, qboolean down, int x, int y) {
-	menuDef_t *menu = Display_CaptureItem(x, y);
+	menuDef_t *menu = (menuDef_t *)Display_CaptureItem(x, y);
 	if (menu == NULL) {  
 		menu = Menu_GetFocused();
 	}

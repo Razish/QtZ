@@ -152,7 +152,6 @@ typedef struct client_s {
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
 	int				ping;
 	int				rate;				// bytes / second
-	int				snapshotMsec;		// requests a snapshot every snapshotMsec unless rate choked
 	int				pureAuthentic;
 	qboolean  gotCP; // TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
 	netchan_t		netchan;
@@ -240,7 +239,8 @@ extern	server_t		sv;					// cleared each map
 extern	gameExport_t	ge;					// game virtual machine
 extern	botlib_export_t	*botlib_export;
 
-extern	cvar_t	*sv_fps;
+extern	cvar_t	*sv_snapshotRate;
+extern	cvar_t	*sv_frametime;
 extern	cvar_t	*sv_timeout;
 extern	cvar_t	*sv_zombietime;
 extern	cvar_t	*sv_rconPassword;
@@ -267,9 +267,6 @@ extern	cvar_t	*sv_gametype;
 extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
-#ifndef STANDALONE
-extern	cvar_t	*sv_strictAuth;
-#endif
 extern	cvar_t	*sv_banFile;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
@@ -320,10 +317,6 @@ void SV_GetChallenge(netadr_t from);
 
 void SV_DirectConnect( netadr_t from );
 
-#ifndef STANDALONE
-void SV_AuthorizeIpPacket( netadr_t from );
-#endif
-
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
 
@@ -365,7 +358,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
 void		SV_RestartGameProgs( void );
-qboolean	SV_InPVS (const vec3_t p1, const vec3_t p2);
+qboolean	SV_InPVS (const vector3 *p1, const vector3 *p2);
 
 //
 // sv_bot.c
@@ -380,7 +373,7 @@ int			SV_BotLibShutdown( void );
 int			SV_BotGetSnapshotEntity( int client, int ent );
 int			SV_BotGetConsoleMessage( int client, char *buf, int size );
 
-int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
+int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points);
 void BotImport_DebugPolygonDelete(int id);
 
 void SV_BotInitBotLib(void);
@@ -411,7 +404,7 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent );
 void SV_SectorList_f( void );
 
 
-int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
+int SV_AreaEntities( const vector3 *mins, const vector3 *maxs, int *entityList, int maxcount );
 // fills in a table of entity numbers with entities that have bounding boxes
 // that intersect the given area.  It is possible for a non-axial bmodel
 // to be returned that doesn't actually intersect the area on an exact
@@ -420,11 +413,11 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 // The world entity is never returned in this list.
 
 
-int SV_PointContents( const vec3_t p, int passEntityNum );
+int SV_PointContents( const vector3 *p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
 
-void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule );
+void SV_Trace( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentmask, int capsule );
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,
@@ -436,7 +429,7 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 // passEntityNum is explicitly excluded from clipping checks (normally ENTITYNUM_NONE)
 
 
-void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule );
+void SV_ClipToEntity( trace_t *trace, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int entityNum, int contentmask, int capsule );
 // clip to a specific entity
 
 //
@@ -453,5 +446,5 @@ void		SV_PacketEvent( netadr_t from, msg_t *msg );
 int			SV_FrameMsec( void );
 qboolean	SV_GameCommand( void );
 int			SV_SendQueuedPackets( void );
-void		BotDrawDebugPolygons( void (*drawPoly)(int color, int numPoints, float *points), int value );
+void		BotDrawDebugPolygons( void (*drawPoly)(int color, int numPoints, vector3 *points), int value );
 void		SV_ShutdownGameProgs( void );

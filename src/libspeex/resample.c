@@ -77,13 +77,13 @@ static void speex_free (void *ptr) {free(ptr);}
 #include <math.h>
 
 #ifndef M_PI
-#define M_PI 3.14159263
+#define M_PI 3.14159263f
 #endif
 
 #ifdef FIXED_POINT
 #define WORD2INT(x) ((x) < -32767 ? -32768 : ((x) > 32766 ? 32767 : (x)))  
 #else
-#define WORD2INT(x) ((x) < -32767.5f ? -32768 : ((x) > 32766.5f ? 32767 : floor(.5+(x))))  
+#define WORD2INT(x) ((x) < -32767.5f ? -32768 : ((x) > 32766.5f ? 32767 : floorf(.5f+(x))))  
 #endif
                
 /*#define float double*/
@@ -281,7 +281,7 @@ static spx_word16_t sinc(float cutoff, float x, int N, struct FuncDef *window_fu
    else if (fabs(x) > .5*N)
       return 0;
    /*FIXME: Can it really be any slower than this? */
-   return cutoff*sin(M_PI*xx)/(M_PI*xx) * compute_func(fabs(2.*x/N), window_func);
+   return cutoff*sinf(M_PI*xx)/(M_PI*xx) * (float)compute_func(fabsf(2.f*x/N), window_func);
 }
 #endif
 
@@ -311,7 +311,7 @@ static void cubic_coef(spx_word16_t frac, spx_word16_t interp[4])
    /*interp[2] = 1.f - 0.5f*frac - frac*frac + 0.5f*frac*frac*frac;*/
    interp[3] = -0.33333f*frac + 0.5f*frac*frac - 0.16667f*frac*frac*frac;
    /* Just to make sure we don't have rounding problems */
-   interp[2] = 1.-interp[0]-interp[1]-interp[3];
+   interp[2] = 1.f-interp[0]-interp[1]-interp[3];
 }
 #endif
 
@@ -398,7 +398,7 @@ static int resampler_basic_direct_double(SpeexResamplerState *st, spx_uint32_t c
          }
       }
       
-      *out = sum;
+      *out = (spx_word16_t)sum;
       out += st->out_stride;
       out_sample++;
       last_sample += st->int_advance;
@@ -534,7 +534,7 @@ static int resampler_basic_interpolate_double(SpeexResamplerState *st, spx_uint3
          }
       }
       cubic_coef(frac, interp);
-      sum = interp[0]*accum[0] + interp[1]*accum[1] + interp[2]*accum[2] + interp[3]*accum[3];
+      sum = (spx_word32_t)(interp[0]*accum[0] + interp[1]*accum[1] + interp[2]*accum[2] + interp[3]*accum[3]);
    
       *out = PSHR32(sum,15);
       out += st->out_stride;
@@ -597,7 +597,7 @@ static void update_filter(SpeexResamplerState *st)
       }
       for (i=0;i<st->den_rate;i++)
       {
-         spx_int32_t j;
+         spx_uint32_t j;
          for (j=0;j<st->filt_len;j++)
          {
             st->sinc_table[i*st->filt_len+j] = sinc(st->cutoff,((j-(spx_int32_t)st->filt_len/2+1)-((float)i)/st->den_rate), st->filt_len, quality_map[st->quality].window_func);
@@ -669,7 +669,7 @@ static void update_filter(SpeexResamplerState *st)
       }
       for (i=st->nb_channels-1;i>=0;i--)
       {
-         spx_int32_t j;
+         spx_uint32_t j;
          spx_uint32_t olen = old_length;
          /*if (st->magic_samples[i])*/
          {
@@ -984,7 +984,7 @@ int speex_resampler_process_int(SpeexResamplerState *st, spx_uint32_t channel_in
       st->in_stride = istride_save;
       st->out_stride = ostride_save;
       for (i=0;i<ochunk;i++)
-         out[i*st->out_stride] = WORD2INT(y[i]);
+         out[i*st->out_stride] = (spx_int16_t)WORD2INT(y[i]);
       out += ochunk;
       in += ichunk;
       ilen -= ichunk;

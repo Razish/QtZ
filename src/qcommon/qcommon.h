@@ -246,36 +246,25 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	71
-#define PROTOCOL_LEGACY_VERSION	68
-// 1.31 - 67
+#define	PROTOCOL_VERSION 1
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols
 extern int demo_protocols[];
 
-#if !defined UPDATE_SERVER_NAME && !defined STANDALONE
-#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
+#if !defined UPDATE_SERVER_NAME
+	#define	UPDATE_SERVER_NAME	"update.quantize.org"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
 	//QTZTODO: Master server :>
-	#define MASTER_SERVER_NAME	"master.quake3arena.com"
+	#define MASTER_SERVER_NAME	"master.quantize.org"
 #endif
 
-#ifndef STANDALONE
-  #ifndef AUTHORIZE_SERVER_NAME
-    #define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
-  #endif
-  #ifndef PORT_AUTHORIZE
-  #define	PORT_AUTHORIZE		27952
-  #endif
-#endif
-
-#define	PORT_MASTER			27950
-#define	PORT_UPDATE			27951
-#define	PORT_SERVER			27960
-#define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after
+#define	PORT_UPDATE			24678
+#define	PORT_MASTER			24679
+#define	PORT_SERVER			24680 // <-> 24689
+#define	NUM_SERVER_PORTS	10		// broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
 									// run multiple servers
 
@@ -524,16 +513,12 @@ issues.
 #define FS_UI_REF		0x02
 #define FS_CGAME_REF	0x04
 
-//QTZTODO: Base assets :S
-// number of id paks that will never be autodownloaded from baseq3
-#define NUM_ID_PAKS		9
-
 #define	MAX_FILE_HANDLES	64
 
 #ifdef DEDICATED
-#	define Q3CONFIG_CFG PRODUCT_NAME "config_server.cfg"
+#	define QTZCONFIG_CFG PRODUCT_NAME "config_server.cfg"
 #else
-#	define Q3CONFIG_CFG PRODUCT_NAME "config.cfg"
+#	define QTZCONFIG_CFG PRODUCT_NAME "config.cfg"
 #endif
 
 qboolean FS_Initialized( void );
@@ -654,7 +639,6 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // sole exception of .cfg files.
 
 qboolean FS_CheckDirTraversal(const char *checkdir);
-qboolean FS_idPak(char *pak, char *base, int numPaks);
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
 void FS_Rename( const char *from, const char *to );
@@ -662,8 +646,7 @@ void FS_Rename( const char *from, const char *to );
 void FS_Remove( const char *osPath );
 void FS_HomeRemove( const char *homePath );
 
-void	FS_FilenameCompletion( const char *dir, const char *ext,
-		qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk );
+void	FS_FilenameCompletion( const char *dir, const char *filename, const char *ext, qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk );
 
 const char *FS_GetCurrentGameDir(void);
 qboolean FS_Which(const char *filename, void *searchPath);
@@ -690,9 +673,8 @@ typedef struct {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd,
-		qboolean doCommands, qboolean doCvars );
+void Field_CompleteFilename( const char *dir, const char *filename, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
 
 /*
 ==============================================================
@@ -787,7 +769,6 @@ extern	cvar_t	*com_ansiColor;
 extern	cvar_t	*com_unfocused;
 extern	cvar_t	*com_minimized;
 extern	cvar_t	*com_altivec;
-extern	cvar_t	*com_standalone;
 extern	cvar_t	*com_basegame;
 extern	cvar_t	*com_homepath;
 
@@ -996,8 +977,6 @@ void	Sys_Print( const char *msg );
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
 int		Sys_Milliseconds (void);
-
-void	Sys_SnapVector( float *v );
 
 qboolean Sys_RandomBytes( byte *string, int len );
 

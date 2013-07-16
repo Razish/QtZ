@@ -124,11 +124,11 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 	
 	stepscale = (float)inrate / dma.speed;	// this is usually 0.5, 1, or 2
 
-	outcount = sfx->soundLength / stepscale;
+	outcount = (int)(sfx->soundLength / stepscale);
 	sfx->soundLength = outcount;
 
 	samplefrac = 0;
-	fracstep = stepscale * 256;
+	fracstep = (int)(stepscale * 256);
 	chunk = sfx->soundData;
 
 	for (i=0 ; i<outcount ; i++)
@@ -172,10 +172,10 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 	
 	stepscale = (float)inrate / dma.speed;	// this is usually 0.5, 1, or 2
 
-	outcount = samples / stepscale;
+	outcount = (int)(samples / stepscale);
 
 	samplefrac = 0;
-	fracstep = stepscale * 256;
+	fracstep = (int)(stepscale * 256);
 
 	for (i=0 ; i<outcount ; i++)
 	{

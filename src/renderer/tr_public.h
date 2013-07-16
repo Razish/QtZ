@@ -78,12 +78,12 @@ typedef struct {
 	void	(*ClearScene)( void );
 	void	(*AddRefEntityToScene)( const refEntity_t *re );
 	void	(*AddPolyToScene)( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
-	int		(*LightForPoint)( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
-	void	(*AddLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
-	void	(*AddAdditiveLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
+	int		(*LightForPoint)( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir );
+	void	(*AddLightToScene)( const vector3 *org, float intensity, float r, float g, float b );
+	void	(*AddAdditiveLightToScene)( const vector3 *org, float intensity, float r, float g, float b );
 	void	(*RenderScene)( const refdef_t *fd );
 
-	void	(*SetColor)( const float *rgba );	// NULL = 1,1,1,1
+	void	(*SetColor)( const vector4 *rgba );	// NULL = 1,1,1,1
 	void	(*DrawStretchPic) ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 	//QtZ: Added from JA/EF
 	void	(*DrawRotatedPic) ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a, qboolean centered, qhandle_t hShader );  // 0 = white
@@ -99,10 +99,10 @@ typedef struct {
 	void	(*EndFrame)( int *frontEndMsec, int *backEndMsec );
 
 
-	int		(*MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+	int		(*MarkFragments)( int numPoints, const vector3 *points, const vector3 *projection, int maxPoints, vector3 *pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
 	int		(*LerpTag)( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
-	void	(*ModelBounds)( qhandle_t model, vec3_t mins, vec3_t maxs );
+	void	(*ModelBounds)( qhandle_t model, vector3 *mins, vector3 *maxs );
 
 #ifdef __USEA3D
 	void    (*A3D_RenderGeometry) (void *pVoidA3D, void *pVoidGeom, void *pVoidMat, void *pVoidGeomStatus);
@@ -110,7 +110,7 @@ typedef struct {
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
 	void	(*RemapShader)(const char *oldShader, const char *newShader, const char *offsetTime);
 	qboolean (*GetEntityToken)( char *buffer, int size );
-	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
+	qboolean (*inPVS)( const vector3 *p1, const vector3 *p2 );
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
@@ -162,7 +162,7 @@ typedef struct {
 	byte	*(*CM_ClusterPVS)(int cluster);
 
 	// visualization for debugging collision detection
-	void	(*CM_DrawDebugSurface)( void (*drawPoly)(int color, int numPoints, float *points) );
+	void	(*CM_DrawDebugSurface)( void (*drawPoly)(int color, int numPoints, vector3 *points) );
 
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance
@@ -172,6 +172,9 @@ typedef struct {
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 	void	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
+	int		(*FS_Write)( const void *buffer, int len, fileHandle_t f );
+	fileHandle_t (*FS_FOpenFileWrite)( const char *qpath );
+	void	(*FS_FCloseFile)( fileHandle_t f );
 	qboolean (*FS_FileExists)( const char *file );
 
 	// cinematic stuff

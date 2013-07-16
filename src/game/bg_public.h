@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GAME_VERSION		BASEGAME "-1"
 
 #define	DEFAULT_GRAVITY		800
+#define MAX_HEALTH			100
+#define MAX_ARMOR			100
 #define	GIB_HEALTH			-40
 #define	ARMOR_PROTECTION	0.66
 
@@ -73,19 +75,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_VOTE_YES				10
 #define	CS_VOTE_NO				11
 
-#define CS_TEAMVOTE_TIME		12
-#define CS_TEAMVOTE_STRING		14
-#define	CS_TEAMVOTE_YES			16
-#define	CS_TEAMVOTE_NO			18
+#define	CS_GAME_VERSION			12
+#define	CS_LEVEL_START_TIME		13		// so the timer only shows the current level
+#define	CS_INTERMISSION			14		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+#define CS_FLAGSTATUS			15		// string indicating flag status in CTF
+#define CS_SHADERSTATE			16
+#define CS_BOTINFO				17
 
-#define	CS_GAME_VERSION			20
-#define	CS_LEVEL_START_TIME		21		// so the timer only shows the current level
-#define	CS_INTERMISSION			22		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS			23		// string indicating flag status in CTF
-#define CS_SHADERSTATE			24
-#define CS_BOTINFO				25
-
-#define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+#define	CS_ITEMS				19		// string of 0's and 1's that tell which items are present
 
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
@@ -99,9 +96,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
-typedef enum {
+typedef enum gametype_e {
 	GT_DEATHMATCH=0,
-	GT_TOURNAMENT,
+	GT_DUEL,
 	// team games
 	GT_TEAM,
 	GT_CTF,
@@ -109,7 +106,19 @@ typedef enum {
 	GT_NUM_GAMETYPES
 } gametype_t;
 
-extern const char *gametypeNames[GT_NUM_GAMETYPES];
+// gametype bits
+#define GTB_NONE			0x00 // invalid
+#define GTB_DM				0x01 // deathmatch
+#define GTB_DUEL			0x02 // duel
+#define GTB_NOTTEAM			0x03 // **SPECIAL: All of the above gametypes, i.e. not team-based
+#define GTB_TEAM			0x04 // team deathmatch
+#define GTB_CTF				0x10 // capture the flag
+#define GTB_1FCTF			0x20 // capture the ysalimiri
+#define GTB_ALL				0x37 // **SPECIAL: All
+
+extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
+const char *BG_GetGametypeString( int gametype );
+int BG_GetGametypeForString( const char *gametype );
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
@@ -141,20 +150,22 @@ typedef enum {
 } weaponstate_t;
 
 // pmove->pm_flags
-#define	PMF_DUCKED			1
-#define	PMF_JUMP_HELD		2
-#define	PMF_BACKWARDS_JUMP	8		// go into backwards land
-#define	PMF_BACKWARDS_RUN	16		// coast down to backwards run
-#define	PMF_TIME_LAND		32		// pm_time is time before rejump
-#define	PMF_TIME_KNOCKBACK	64		// pm_time is an air-accelerate only time
-#define	PMF_TIME_WATERJUMP	256		// pm_time is waterjump
-#define	PMF_RESPAWNED		512		// clear after attack and jump buttons come up
-#define	PMF_USE_ITEM_HELD	1024
-#define PMF_GRAPPLE_PULL	2048	// pull towards grapple location
-#define PMF_FOLLOW			4096	// spectate following another player
-#define PMF_SCOREBOARD		8192	// spectate as a scoreboard
-#define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
-#define PMF_LANDED			32768
+#define	PMF_DUCKED			0x0001
+#define	PMF_JUMP_HELD		0x0002
+#define	PMF_BACKWARDS_JUMP	0x0004	// go into backwards land
+#define	PMF_BACKWARDS_RUN	0x0008	// coast down to backwards run
+#define	PMF_TIME_LAND		0x0010	// pm_time is time before rejump
+#define	PMF_TIME_KNOCKBACK	0x0020	// pm_time is an air-accelerate only time
+#define	PMF_TIME_WATERJUMP	0x0040	// pm_time is waterjump
+#define	PMF_RESPAWNED		0x0080	// clear after attack and jump buttons come up
+#define	PMF_USE_ITEM_HELD	0x0100	// 
+#define PMF_FOLLOW			0x0200	// 
+#define PMF_SCOREBOARD		0x0400	// spectate following another player
+#define PMF_INVULEXPAND		0x0800	// spectate as a scoreboard
+#define PMF_SELFKNOCKBACK	0x1000	// no air control if rocket jumping off a wall
+#define PMF_UNUSED03		0x2000	// invulnerability sphere set to full size
+#define PMF_UNUSED02		0x4000	// invulnerability sphere set to full size
+#define PMF_UNUSED01		0x8000	// invulnerability sphere set to full size
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -176,7 +187,7 @@ typedef struct {
 	int			numtouch;
 	int			touchents[MAXTOUCH];
 
-	vec3_t		mins, maxs;			// bounding box size
+	vector3		mins, maxs;			// bounding box size
 
 	int			watertype;
 	int			waterlevel;
@@ -185,8 +196,8 @@ typedef struct {
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
-	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
-	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+	void		(*trace)( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentMask );
+	int			(*pointcontents)( const vector3 *point, int passEntityNum );
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -206,7 +217,6 @@ typedef enum {
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 } statIndex_t;
 
 
@@ -247,18 +257,18 @@ typedef enum {
 #define	EF_AWARD_CAP		0x00200		// draw the capture sprite
 #define EF_TALK				0x00400		// draw a talk balloon
 #define	EF_CONNECTION		0x00800		// draw a connection trouble sprite
-#define	EF_VOTED			0x01000		// already cast a vote
-#define	EF_AWARD_IMPRESSIVE	0x02000		// draw an impressive sprite
-#define	EF_AWARD_DEFEND		0x04000		// draw a defend sprite
-#define	EF_AWARD_ASSIST		0x08000		// draw a assist sprite
-#define	EF_AWARD_DENIED		0x10000		// denied
-#define EF_TEAMVOTED		0x20000		// already cast a team vote
-#define EF_NOT_USED_01		0x40000
-#define EF_NOT_USED_02		0x80000
+#define	EF_AWARD_IMPRESSIVE	0x01000		// draw an impressive sprite
+#define	EF_AWARD_DEFEND		0x02000		// draw a defend sprite
+#define	EF_AWARD_ASSIST		0x04000		// draw a assist sprite
+#define	EF_AWARD_DENIED		0x08000		// denied
+#define	EF_NOT_USED_04		0x10000		// 
+#define EF_NOT_USED_03		0x20000		// 
+#define EF_NOT_USED_02		0x40000		// 
+#define EF_NOT_USED_01		0x80000		// 
 
 // NOTE: may not have more than 16
 typedef enum {
-	PW_NONE,
+	PW_NONE=0,
 
 	// regular
 	PW_QUAD,
@@ -571,6 +581,7 @@ typedef struct gitem_s {
 	char		*pickup_name;	// for printing on pickup
 
 	int			quantity;		// for ammo how much, or duration of powerup
+	int			respawn;		// how long until this item spawns again after pickup
 	itemType_t  giType;			// IT_* flags
 
 	int			giTag;
@@ -631,8 +642,8 @@ typedef enum {
 
 
 
-void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
-void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
+void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vector3 *result );
+void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vector3 *result );
 
 void	BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
 

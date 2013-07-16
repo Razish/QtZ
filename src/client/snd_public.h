@@ -25,7 +25,7 @@ void S_Init( void );
 void S_Shutdown( void );
 
 // if origin is NULL, the sound will be dynamically sourced from the entity
-void S_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
+void S_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx );
 void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 
 void S_StartBackgroundTrack( const char *intro, const char *loop );
@@ -41,16 +41,16 @@ void S_StopAllSounds( void );
 
 // all continuous looping sounds must be added before calling S_Update
 void S_ClearLoopingSounds( qboolean killall );
-void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-void S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+void S_AddLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
+void S_AddRealLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 void S_StopLoopingSound(int entityNum );
 
 // recompute the relative volumes for all running sounds
 // relative to the given entityNum / orientation
-void S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
+void S_Respatialize( int entityNum, const vector3 *origin, vector3 axis[3], int inwater );
 
 // let the sound system know where an entity currently is
-void S_UpdateEntityPosition( int entityNum, const vec3_t origin );
+void S_UpdateEntityPosition( int entityNum, const vector3 *origin );
 
 void S_Update( void );
 

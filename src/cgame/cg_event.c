@@ -106,7 +106,7 @@ static void CG_Obituary( entityState_t *ent )
 	{// "You fragged" message, not for self
 		char *str = (cgs.gametype<GT_TEAM) ? va( "You fragged %s\n%s place with %i", targetName, CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] )
 											: va( "You fragged %s", targetName );
-		CG_CenterPrint( str, SCREEN_HEIGHT * 0.2f, BIGCHAR_WIDTH );
+		CG_CenterPrint( str, (int)(SCREEN_HEIGHT * 0.2f), BIGCHAR_WIDTH );
 	}
 
 	// check for double client messages
@@ -174,10 +174,10 @@ static void CG_UseItem( centity_t *cent ) {
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum ) {
 		if ( !itemNum ) {
-			CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			CG_CenterPrint( "No item to use", (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
 		} else {
-			item = BG_FindItemForHoldable( itemNum );
-			CG_CenterPrint( va("Use %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			item = BG_FindItemForHoldable( (holdable_t)itemNum );
+			CG_CenterPrint( va("Use %s", item->pickup_name), (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
 		}
 	}
 
@@ -243,34 +243,33 @@ Returns waterlevel for entity origin
 ================
 */
 int CG_WaterLevel(centity_t *cent) {
-	vec3_t point;
+	vector3 point;
 	int contents, sample1, sample2, anim, waterlevel;
 
 	// get waterlevel, accounting for ducking
 	waterlevel = 0;
-	VectorCopy(cent->lerpOrigin, point);
-	point[2] += MINS_Z + 1;
+	VectorCopy(&cent->lerpOrigin, &point);
+	point.z += MINS_Z + 1;
 	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 
-	if (anim == LEGS_WALKCR || anim == LEGS_IDLECR) {
-		point[2] += CROUCH_VIEWHEIGHT;
-	} else {
-		point[2] += DEFAULT_VIEWHEIGHT;
-	}
+	if (anim == LEGS_WALKCR || anim == LEGS_IDLECR)
+		point.z += CROUCH_VIEWHEIGHT;
+	else
+		point.z += DEFAULT_VIEWHEIGHT;
 
-	contents = CG_PointContents(point, -1);
+	contents = CG_PointContents(&point, -1);
 
 	if (contents & MASK_WATER) {
-		sample2 = point[2] - MINS_Z;
+		sample2 = (int)point.z - MINS_Z;
 		sample1 = sample2 / 2;
 		waterlevel = 1;
-		point[2] = cent->lerpOrigin[2] + MINS_Z + sample1;
-		contents = CG_PointContents(point, -1);
+		point.z = cent->lerpOrigin.z + MINS_Z + sample1;
+		contents = CG_PointContents(&point, -1);
 
 		if (contents & MASK_WATER) {
 			waterlevel = 2;
-			point[2] = cent->lerpOrigin[2] + MINS_Z + sample2;
-			contents = CG_PointContents(point, -1);
+			point.z = cent->lerpOrigin.z + MINS_Z + sample2;
+			contents = CG_PointContents(&point, -1);
 
 			if (contents & MASK_WATER) {
 				waterlevel = 3;
@@ -331,10 +330,10 @@ also called by CG_CheckPlayerstateEvents
 ==============
 */
 #define	DEBUGNAME(x) if(cg_debugEvents.boolean){CG_Printf(x"\n");}
-void CG_EntityEvent( centity_t *cent, vec3_t position ) {
+void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	entityState_t	*es;
 	int				event;
-	vec3_t			dir;
+	vector3			dir;
 	const char		*s;
 	int				clientNum;
 	clientInfo_t	*ci;
@@ -467,10 +466,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_JUMP_PAD");
 //		CG_Printf( "EV_JUMP_PAD w/effect #%i\n", es->eventParm );
 		{
-			vec3_t			up = {0, 0, 1};
+			vector3			up = {0, 0, 1};
 
 
-			CG_SmokePuff( cent->lerpOrigin, up, 
+			CG_SmokePuff( &cent->lerpOrigin, &up, 
 						  32, 
 						  1, 1, 1, 0.33f,
 						  1000, 
@@ -480,7 +479,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 
 		// boing sound at origin, jump sound on player
-		cgi.S_StartSound ( cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound );
+		cgi.S_StartSound ( &cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound );
 		cgi.S_StartSound (NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
 		break;
 
@@ -701,7 +700,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_SCOREPLUM:
 		DEBUGNAME("EV_SCOREPLUM");
-		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
+		CG_ScorePlum( cent->currentState.otherEntityNum, &cent->lerpOrigin, cent->currentState.time );
 		break;
 
 	//
@@ -709,20 +708,20 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_MISSILE_HIT:
 		DEBUGNAME("EV_MISSILE_HIT");
-		ByteToDir( es->eventParm, dir );
-		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum );
+		ByteToDir( es->eventParm, &dir );
+		CG_MissileHitPlayer( es->weapon, position, &dir, es->otherEntityNum );
 		break;
 
 	case EV_MISSILE_MISS:
 		DEBUGNAME("EV_MISSILE_MISS");
-		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT );
+		ByteToDir( es->eventParm, &dir );
+		CG_MissileHitWall( es->weapon, 0, position, &dir, IMPACTSOUND_DEFAULT );
 		break;
 
 	case EV_MISSILE_MISS_METAL:
 		DEBUGNAME("EV_MISSILE_MISS_METAL");
-		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
+		ByteToDir( es->eventParm, &dir );
+		CG_MissileHitWall( es->weapon, 0, position, &dir, IMPACTSOUND_METAL );
 		break;
 
 	case EV_HITSCANTRAIL:
@@ -749,8 +748,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 		// if the end was on a nomark surface, don't make an explosion
 		if ( es->eventParm != 255 ) {
-			ByteToDir( es->eventParm, dir );
-			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
+			ByteToDir( es->eventParm, &dir );
+			CG_MissileHitWall( es->weapon, es->clientNum, position, &dir, IMPACTSOUND_DEFAULT );
 		}
 		break;
 
@@ -920,7 +919,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		// with the kamikaze sound, downside is that the gib sound will also
 		// not be played when someone is gibbed while just carrying the kamikaze
 		cgi.S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
-		CG_GibPlayer( cent->lerpOrigin );
+		CG_GibPlayer( &cent->lerpOrigin );
 		break;
 
 	case EV_STOPLOOPINGSOUND:
@@ -975,9 +974,9 @@ void CG_CheckEvents( centity_t *cent ) {
 	}
 
 	// calculate the position at exactly the frame time
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
+	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, &cent->lerpOrigin );
 	CG_SetEntitySoundPosition( cent );
 
-	CG_EntityEvent( cent, cent->lerpOrigin );
+	CG_EntityEvent( cent, &cent->lerpOrigin );
 }
 

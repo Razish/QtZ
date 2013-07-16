@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 int demo_protocols[] =
-{ 67, 66, 0 };
+{ 1, 0 };
 
 #define MAX_NUM_ARGVS	50
 
@@ -84,19 +84,17 @@ cvar_t	*com_ansiColor;
 cvar_t	*com_unfocused;
 cvar_t	*com_minimized;
 cvar_t	*com_abnormalExit;
-cvar_t	*com_standalone;
 cvar_t	*com_gamename;
 cvar_t	*com_protocol;
 cvar_t	*com_basegame;
 cvar_t  *com_homepath;
 cvar_t	*com_busyWait;
 
-#if idx64
+#ifdef idx64
 	int (*Q_VMftol)(void);
-#elif id386
+#elif defined(id386)
 	long (QDECL *Q_ftol)(float f);
 	int (QDECL *Q_VMftol)(void);
-	void (QDECL *Q_SnapVector)(vec3_t vec);
 #endif
 
 // com_speeds times
@@ -178,6 +176,10 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 #ifndef DEDICATED
 	CL_ConsolePrint( msg );
+#endif
+
+#ifdef _DEBUG
+	OutputDebugString( msg );
 #endif
 
 	// echo to dedicated console and early console
@@ -419,7 +421,7 @@ void Com_ParseCommandLine( char *commandLine ) {
 Com_SafeMode
 
 Check for "safe" on the command line, which will
-skip loading of q3config.cfg
+skip loading of qtzconfig.cfg
 ===================
 */
 qboolean Com_SafeMode( void ) {
@@ -526,7 +528,7 @@ void Info_Print( const char *s ) {
 		l = o - key;
 		if (l < 20)
 		{
-			Com_Memset (o, ' ', 20-l);
+			memset (o, ' ', 20-l);
 			key[20] = 0;
 		}
 		else
@@ -703,7 +705,7 @@ int Com_RealTime(qtime_t *qtime) {
 
 	t = time(NULL);
 	if (!qtime)
-		return t;
+		return (int)t;
 	tms = localtime(&t);
 	if (tms) {
 		qtime->tm_sec = tms->tm_sec;
@@ -716,7 +718,7 @@ int Com_RealTime(qtime_t *qtime) {
 		qtime->tm_yday = tms->tm_yday;
 		qtime->tm_isdst = tms->tm_isdst;
 	}
-	return t;
+	return (int)t;
 }
 
 
@@ -853,7 +855,7 @@ void Z_Free( void *ptr ) {
 	zone->used -= block->size;
 	// set the block to something that should cause problems
 	// if it is referenced...
-	Com_Memset( ptr, 0xaa, block->size - sizeof( *block ) );
+	memset( ptr, 0xaa, block->size - sizeof( *block ) );
 
 	block->tag = 0;		// mark as free
 	
@@ -1031,7 +1033,7 @@ void *Z_Malloc( int size ) {
 #else
 	buf = Z_TagMalloc( size, TAG_GENERAL );
 #endif
-	Com_Memset( buf, 0, size );
+	memset( buf, 0, size );
 
 	return buf;
 }
@@ -1412,7 +1414,7 @@ void Com_InitZoneMemory( void ) {
 	cvar_t	*cv;
 
 	// Please note: com_zoneMegs can only be set on the command line, and
-	// not in q3config.cfg or Com_StartupVariable, as they haven't been
+	// not in qtzconfig.cfg or Com_StartupVariable, as they haven't been
 	// executed by this point. It's a chicken and egg problem. We need the
 	// memory manager configured to handle those places where you would
 	// configure the memory manager.
@@ -1734,7 +1736,7 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 
 	hunk_permanent->temp = hunk_permanent->permanent;
 
-	Com_Memset( buf, 0, size );
+	memset( buf, 0, size );
 
 #ifdef HUNK_DEBUG
 	{
@@ -2265,13 +2267,13 @@ static void Com_Freeze_f (void) {
 		Com_Printf( "freeze <seconds>\n" );
 		return;
 	}
-	s = atof( Cmd_Argv(1) );
+	s = (float)atof( Cmd_Argv(1) );
 
 	start = Com_Milliseconds();
 
 	while ( 1 ) {
 		now = Com_Milliseconds();
-		if ( ( now - start ) * 0.001 > s ) {
+		if ( ( now - start ) * 0.001f > s ) {
 			break;
 		}
 	}
@@ -2327,15 +2329,14 @@ For controlling environment variables
 
 void Com_ExecuteCfg(void)
 {
-	Cbuf_ExecuteText(EXEC_NOW, "exec default.cfg\n");
+	Cbuf_ExecuteText( EXEC_NOW, "exec default.cfg\n" );
 	Cbuf_Execute(); // Always execute after exec to prevent text buffer overflowing
 
-	if(!Com_SafeMode())
-	{
-		// skip the q3config.cfg and autoexec.cfg if "safe" is on the command line
-		Cbuf_ExecuteText(EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
+	if ( !Com_SafeMode() ) {
+		// skip the qtzconfig.cfg and autoexec.cfg if "safe" is on the command line
+		Cbuf_ExecuteText( EXEC_NOW, "exec "QTZCONFIG_CFG"\n" );
 		Cbuf_Execute();
-		Cbuf_ExecuteText(EXEC_NOW, "exec autoexec.cfg\n");
+		Cbuf_ExecuteText( EXEC_NOW, "exec autoexec.cfg\n" );
 		Cbuf_Execute();
 	}
 }
@@ -2418,128 +2419,6 @@ void Com_GameRestart_f(void)
 	Com_GameRestart(0, qtrue);
 }
 
-#ifndef STANDALONE
-
-// TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
-//   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to risk it
-//   https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
-#ifndef DEDICATED
-char	cl_cdkey[34] = "                                ";
-#else
-char	cl_cdkey[34] = "123456789";
-#endif
-
-/*
-=================
-Com_ReadCDKey
-=================
-*/
-qboolean CL_CDKeyValidate( const char *key, const char *checksum );
-void Com_ReadCDKey( const char *filename ) {
-	fileHandle_t	f;
-	char			buffer[33];
-	char			fbuffer[MAX_OSPATH];
-
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/"PRODUCT_NAME"key", filename);
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if ( !f ) {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof(buffer) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if (CL_CDKeyValidate(buffer, NULL)) {
-		Q_strncpyz( cl_cdkey, buffer, 17 );
-	} else {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-	}
-}
-
-/*
-=================
-Com_AppendCDKey
-=================
-*/
-void Com_AppendCDKey( const char *filename ) {
-	fileHandle_t	f;
-	char			buffer[33];
-	char			fbuffer[MAX_OSPATH];
-
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/"PRODUCT_NAME"key", filename);
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if (!f) {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof(buffer) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if (CL_CDKeyValidate(buffer, NULL)) {
-		strcat( &cl_cdkey[16], buffer );
-	} else {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-	}
-}
-
-#ifndef DEDICATED
-/*
-=================
-Com_WriteCDKey
-=================
-*/
-static void Com_WriteCDKey( const char *filename, const char *ikey ) {
-	fileHandle_t	f;
-	char			fbuffer[MAX_OSPATH];
-	char			key[17];
-#ifndef _WIN32
-	mode_t			savedumask;
-#endif
-
-
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/"PRODUCT_NAME"key", filename);
-
-
-	Q_strncpyz( key, ikey, 17 );
-
-	if(!CL_CDKeyValidate(key, NULL) ) {
-		return;
-	}
-
-#ifndef _WIN32
-	savedumask = umask(0077);
-#endif
-	f = FS_SV_FOpenFileWrite( fbuffer );
-	if ( !f ) {
-		Com_Printf ("Couldn't write CD key to %s.\n", fbuffer );
-		goto out;
-	}
-
-	FS_Write( key, 16, f );
-
-	FS_Printf( f, "\n// generated by quake, do not modify\r\n" );
-	FS_Printf( f, "// Do not give this file to ANYONE.\r\n" );
-	FS_Printf( f, "// id Software and Activision will NOT ask you to send this file to them.\r\n");
-
-	FS_FCloseFile( f );
-out:
-#ifndef _WIN32
-	umask(savedumask);
-#endif
-	return;
-}
-#endif
-
-#endif // STANDALONE
-
 static void Com_DetectAltivec(void)
 {
 	// Only detect if user hasn't forcibly disabled it.
@@ -2564,7 +2443,7 @@ Find out whether we have SSE support for Q_ftol function
 =================
 */
 
-#if id386 || idx64
+#if defined(id386) || defined(idx64)
 
 static void Com_DetectSSE(void)
 {
@@ -2575,11 +2454,6 @@ static void Com_DetectSSE(void)
 
 	if(feat & CF_SSE)
 	{
-		if(feat & CF_SSE2)
-			Q_SnapVector = qsnapvectorsse;
-		else
-			Q_SnapVector = qsnapvectorx87;
-
 		Q_ftol = qftolsse;
 #endif
 		Q_VMftol = qvmftolsse;
@@ -2591,7 +2465,6 @@ static void Com_DetectSSE(void)
 	{
 		Q_ftol = qftolx87;
 		Q_VMftol = qvmftolx87;
-		Q_SnapVector = qsnapvectorx87;
 
 		Com_Printf("No SSE support on this machine\n");
 	}
@@ -2617,7 +2490,7 @@ static void Com_InitRand(void)
 	if(Sys_RandomBytes((byte *) &seed, sizeof(seed)))
 		srand(seed);
 	else
-		srand(time(NULL));
+		srand((unsigned int)time(NULL));
 }
 
 #include "../sys/sys_local.h"
@@ -2706,7 +2579,6 @@ static void SV_Init( void ) {
 	svi.FS_FOpenFileRead				= FS_FOpenFileRead;
 	svi.FS_GetCurrentGameDir			= FS_GetCurrentGameDir;
 	svi.FS_GetFileList					= FS_GetFileList;
-	svi.FS_idPak						= FS_idPak;
 	svi.FS_LoadedPakChecksums			= FS_LoadedPakChecksums;
 	svi.FS_LoadedPakNames				= FS_LoadedPakNames;
 	svi.FS_LoadedPakPureChecksums		= FS_LoadedPakPureChecksums;
@@ -2770,7 +2642,6 @@ static void SV_Init( void ) {
 	svi.NET_StringToAdr					= NET_StringToAdr;
 	svi.Netchan_Transmit				= Netchan_Transmit;
 	svi.Netchan_TransmitNextFragment	= Netchan_TransmitNextFragment;
-	svi.Q_SnapVector					= Q_SnapVector;
 	svi.Sys_IsLANAddress				= Sys_IsLANAddress;
 	svi.Sys_Milliseconds				= Sys_Milliseconds;
 	svi.Sys_LoadDll						= Sys_LoadDll;
@@ -2811,7 +2682,7 @@ void Com_Init( char *commandLine ) {
 	}
 
 	// Clear queues
-	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
+	memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
 
 	// initialize the weak pseudo-random number generator for use later.
 	Com_InitRand();
@@ -2838,12 +2709,15 @@ void Com_Init( char *commandLine ) {
 	Cmd_Init ();
 
 	// get the developer cvar set as early as possible
+#ifdef _DEBUG
+	com_developer = Cvar_Get( "developer", "1", CVAR_TEMP, "Enable developer features for debugging/testing" );
+#else
 	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP, "Enable developer features for debugging/testing" );
+#endif
 
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
-	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM, NULL);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT, NULL);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT, NULL);
 	
@@ -2978,16 +2852,14 @@ void Com_Init( char *commandLine ) {
 
 	//QtZ: Raw mouse input
 	#ifdef _WIN32
-		if (Cvar_VariableIntegerValue("in_mouse") == 3) {
-			Cbuf_AddText( "in_restart;" );
-		}
+		Cbuf_AddText( "in_restart;" );
 	#endif
 
 	com_fullyInitialized = qtrue;
 
 	// always set the cvar, but only print the info if it makes sense.
 	Com_DetectAltivec();
-#if idppc
+#ifdef idppc
 	Com_Printf ("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 
@@ -3054,17 +2926,24 @@ void Com_ReadFromPipe( void )
 //==================================================================
 
 void Com_WriteConfigToFile( const char *filename ) {
-	fileHandle_t	f;
+	fileHandle_t f;
 
 	f = FS_FOpenFileWrite( filename );
 	if ( !f ) {
-		Com_Printf ("Couldn't write %s.\n", filename );
+		Com_Printf( "Couldn't write %s.\n", filename );
 		return;
 	}
 
-	FS_Printf (f, "// generated by "PRODUCT_NAME", do not modify\n");
-	Key_WriteBindings (f);
-	Cvar_WriteVariables (f);
+	FS_Printf( f, "// generated by "PRODUCT_NAME", do not modify\n\n" );
+
+	FS_Printf( f, "// binds\n" );
+	Key_WriteBindings( f );
+	FS_Printf( f, "\n" );
+
+	FS_Printf( f, "// cvars\n" );
+	Cvar_WriteVariables( f );
+	FS_Printf( f, "\n" );
+
 	FS_FCloseFile( f );
 }
 
@@ -3077,9 +2956,6 @@ Writes key bindings and archived cvars to config file if modified
 ===============
 */
 void Com_WriteConfiguration( void ) {
-#if !defined(DEDICATED) && !defined(STANDALONE)
-	cvar_t	*fs;
-#endif
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if ( !com_fullyInitialized ) {
@@ -3091,21 +2967,7 @@ void Com_WriteConfiguration( void ) {
 	}
 	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
-	Com_WriteConfigToFile( Q3CONFIG_CFG );
-
-	// not needed for dedicated or standalone
-#if !defined(DEDICATED) && !defined(STANDALONE)
-	fs = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-
-	if(!com_standalone->integer)
-	{
-		if (UI_usesUniqueCDKey() && fs && fs->string[0] != 0) {
-			Com_WriteCDKey( fs->string, &cl_cdkey[16] );
-		} else {
-			Com_WriteCDKey( BASEGAME, cl_cdkey );
-		}
-	}
-#endif
+	Com_WriteConfigToFile( QTZCONFIG_CFG );
 }
 
 
@@ -3141,13 +3003,10 @@ int Com_ModifyMsec( int msec ) {
 	//
 	// modify time for debugging values
 	//
-	if ( com_fixedtime->integer ) {
+	if ( com_fixedtime->integer )
 		msec = com_fixedtime->integer;
-	} else if ( com_timescale->value ) {
-		msec *= com_timescale->value;
-	} else if (com_cameraMode->integer) {
-		msec *= com_timescale->value;
-	}
+	else if ( com_timescale->value || com_cameraMode->integer )
+		msec = (int)(msec * com_timescale->value);
 	
 	// don't let it scale below 1 msec
 	if ( msec < 1 && com_timescale->value) {
@@ -3487,9 +3346,8 @@ PrintMatches
 ===============
 */
 static void PrintMatches( const char *s ) {
-	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
+	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) )
 		Com_Printf( "    %s\n", s );
-	}
 }
 
 /*
@@ -3503,7 +3361,7 @@ static void PrintCvarMatches( const char *s ) {
 
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
 		Com_TruncateLongString( value, Cvar_VariableString( s ) );
-		Com_Printf( "    %s = \"%s\"\n", s, value );
+		Com_Printf( "    %s = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]\n", s, value );
 	}
 }
 
@@ -3579,16 +3437,15 @@ void Field_CompleteKeyname( void )
 Field_CompleteFilename
 ===============
 */
-void Field_CompleteFilename( const char *dir,
-		const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk )
+void Field_CompleteFilename( const char *dir, const char *filename, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk )
 {
 	matchCount = 0;
 	shortestMatch[ 0 ] = 0;
 
-	FS_FilenameCompletion( dir, ext, stripExt, FindMatches, allowNonPureFilesOnDisk );
+	FS_FilenameCompletion( dir, filename, ext, stripExt, FindMatches, allowNonPureFilesOnDisk );
 
-	if( !Field_Complete( ) )
-		FS_FilenameCompletion( dir, ext, stripExt, PrintMatches, allowNonPureFilesOnDisk );
+	if ( !Field_Complete() )
+		FS_FilenameCompletion( dir, filename, ext, stripExt, PrintMatches, allowNonPureFilesOnDisk );
 }
 
 /*
@@ -3596,8 +3453,7 @@ void Field_CompleteFilename( const char *dir,
 Field_CompleteCommand
 ===============
 */
-void Field_CompleteCommand( char *cmd,
-		qboolean doCommands, qboolean doCvars )
+void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars )
 {
 	int		completionArgument = 0;
 

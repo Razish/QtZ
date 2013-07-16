@@ -35,6 +35,6 @@ void AAS_ShutdownAlternativeRouting(void);
 #endif //AASINTERN
 
 
-int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags,
+int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, int goalareanum, int travelflags,
 										aas_altroutegoal_t *altroutegoals, int maxaltroutegoals,
 										int type);

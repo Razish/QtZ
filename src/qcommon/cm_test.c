@@ -28,7 +28,7 @@ CM_PointLeafnum_r
 
 ==================
 */
-int CM_PointLeafnum_r( const vec3_t p, int num ) {
+int CM_PointLeafnum_r( const vector3 *p, int num ) {
 	float		d;
 	cNode_t		*node;
 	cplane_t	*plane;
@@ -39,9 +39,9 @@ int CM_PointLeafnum_r( const vec3_t p, int num ) {
 		plane = node->plane;
 		
 		if (plane->type < 3)
-			d = p[plane->type] - plane->dist;
+			d = p->data[plane->type] - plane->dist;
 		else
-			d = DotProduct (plane->normal, p) - plane->dist;
+			d = DotProduct (&plane->normal, p) - plane->dist;
 		if (d < 0)
 			num = node->children[1];
 		else
@@ -53,7 +53,7 @@ int CM_PointLeafnum_r( const vec3_t p, int num ) {
 	return -1 - num;
 }
 
-int CM_PointLeafnum( const vec3_t p ) {
+int CM_PointLeafnum( const vector3 *p ) {
 	if ( !cm.numNodes ) {	// map not loaded
 		return 0;
 	}
@@ -106,7 +106,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 		}
 		b->checkcount = cm.checkcount;
 		for ( i = 0 ; i < 3 ; i++ ) {
-			if ( b->bounds[0][i] >= ll->bounds[1][i] || b->bounds[1][i] <= ll->bounds[0][i] ) {
+			if ( b->bounds[0].data[i] >= ll->bounds[1].data[i] || b->bounds[1].data[i] <= ll->bounds[0].data[i] ) {
 				break;
 			}
 		}
@@ -150,7 +150,7 @@ void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 	
 		node = &cm.nodes[nodenum];
 		plane = node->plane;
-		s = BoxOnPlaneSide( ll->bounds[0], ll->bounds[1], plane );
+		s = BoxOnPlaneSide( &ll->bounds[0], &ll->bounds[1], plane );
 		if (s == 1) {
 			nodenum = node->children[0];
 		} else if (s == 2) {
@@ -169,13 +169,13 @@ void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 CM_BoxLeafnums
 ==================
 */
-int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsize, int *lastLeaf) {
+int	CM_BoxLeafnums( const vector3 *mins, const vector3 *maxs, int *list, int listsize, int *lastLeaf) {
 	leafList_t	ll;
 
 	cm.checkcount++;
 
-	VectorCopy( mins, ll.bounds[0] );
-	VectorCopy( maxs, ll.bounds[1] );
+	VectorCopy( mins, &ll.bounds[0] );
+	VectorCopy( maxs, &ll.bounds[1] );
 	ll.count = 0;
 	ll.maxcount = listsize;
 	ll.list = list;
@@ -194,13 +194,13 @@ int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsiz
 CM_BoxBrushes
 ==================
 */
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize ) {
+int CM_BoxBrushes( const vector3 *mins, const vector3 *maxs, cbrush_t **list, int listsize ) {
 	leafList_t	ll;
 
 	cm.checkcount++;
 
-	VectorCopy( mins, ll.bounds[0] );
-	VectorCopy( maxs, ll.bounds[1] );
+	VectorCopy( mins, &ll.bounds[0] );
+	VectorCopy( maxs, &ll.bounds[1] );
 	ll.count = 0;
 	ll.maxcount = listsize;
 	ll.list = (void *)list;
@@ -223,7 +223,7 @@ CM_PointContents
 
 ==================
 */
-int CM_PointContents( const vec3_t p, clipHandle_t model ) {
+int CM_PointContents( const vector3 *p, clipHandle_t model ) {
 	int			leafnum;
 	int			i, k;
 	int			brushnum;
@@ -250,13 +250,13 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		brushnum = cm.leafbrushes[leaf->firstLeafBrush+k];
 		b = &cm.brushes[brushnum];
 
-		if ( !CM_BoundsIntersectPoint( b->bounds[0], b->bounds[1], p ) ) {
+		if ( !CM_BoundsIntersectPoint( &b->bounds[0], &b->bounds[1], p ) ) {
 			continue;
 		}
 
 		// see if the point is in the brush
 		for ( i = 0 ; i < b->numsides ; i++ ) {
-			d = DotProduct( p, b->sides[i].plane->normal );
+			d = DotProduct( p, &b->sides[i].plane->normal );
 // FIXME test for Cash
 //			if ( d >= b->sides[i].plane->dist ) {
 			if ( d > b->sides[i].plane->dist ) {
@@ -280,27 +280,27 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
-	vec3_t		p_l;
-	vec3_t		temp;
-	vec3_t		forward, right, up;
+int	CM_TransformedPointContents( const vector3 *p, clipHandle_t model, const vector3 *origin, const vector3 *angles) {
+	vector3		p_l;
+	vector3		temp;
+	vector3		forward, right, up;
 
 	// subtract origin offset
-	VectorSubtract (p, origin, p_l);
+	VectorSubtract (p, origin, &p_l);
 
 	// rotate start and end into the models frame of reference
 	if ( model != BOX_MODEL_HANDLE && 
-	(angles[0] || angles[1] || angles[2]) )
+		(angles->x || angles->y || angles->z) )
 	{
-		AngleVectors (angles, forward, right, up);
+		AngleVectors (angles, &forward, &right, &up);
 
-		VectorCopy (p_l, temp);
-		p_l[0] = DotProduct (temp, forward);
-		p_l[1] = -DotProduct (temp, right);
-		p_l[2] = DotProduct (temp, up);
+		VectorCopy (&p_l, &temp);
+		p_l.x = DotProduct (&temp, &forward);
+		p_l.y = -DotProduct (&temp, &right);
+		p_l.z = DotProduct (&temp, &up);
 	}
 
-	return CM_PointContents( p_l, model );
+	return CM_PointContents( &p_l, model );
 }
 
 
@@ -465,7 +465,7 @@ int CM_WriteAreaBits (byte *buffer, int area)
 	if ( area == -1)
 #endif
 	{	// for debugging, send everything
-		Com_Memset (buffer, 255, bytes);
+		memset (buffer, 255, bytes);
 	}
 	else
 	{
@@ -485,14 +485,14 @@ int CM_WriteAreaBits (byte *buffer, int area)
 CM_BoundsIntersect
 ====================
 */
-qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 )
+qboolean CM_BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 )
 {
-	if (maxs[0] < mins2[0] - SURFACE_CLIP_EPSILON ||
-		maxs[1] < mins2[1] - SURFACE_CLIP_EPSILON ||
-		maxs[2] < mins2[2] - SURFACE_CLIP_EPSILON ||
-		mins[0] > maxs2[0] + SURFACE_CLIP_EPSILON ||
-		mins[1] > maxs2[1] + SURFACE_CLIP_EPSILON ||
-		mins[2] > maxs2[2] + SURFACE_CLIP_EPSILON)
+	if (maxs->x < mins2->x - SURFACE_CLIP_EPSILON ||
+		maxs->y < mins2->y - SURFACE_CLIP_EPSILON ||
+		maxs->z < mins2->z - SURFACE_CLIP_EPSILON ||
+		mins->x > maxs2->x + SURFACE_CLIP_EPSILON ||
+		mins->y > maxs2->y + SURFACE_CLIP_EPSILON ||
+		mins->z > maxs2->z + SURFACE_CLIP_EPSILON)
 	{
 		return qfalse;
 	}
@@ -505,14 +505,14 @@ qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t 
 CM_BoundsIntersectPoint
 ====================
 */
-qboolean CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point )
+qboolean CM_BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *point )
 {
-	if (maxs[0] < point[0] - SURFACE_CLIP_EPSILON ||
-		maxs[1] < point[1] - SURFACE_CLIP_EPSILON ||
-		maxs[2] < point[2] - SURFACE_CLIP_EPSILON ||
-		mins[0] > point[0] + SURFACE_CLIP_EPSILON ||
-		mins[1] > point[1] + SURFACE_CLIP_EPSILON ||
-		mins[2] > point[2] + SURFACE_CLIP_EPSILON)
+	if (maxs->x < point->x - SURFACE_CLIP_EPSILON ||
+		maxs->y < point->y - SURFACE_CLIP_EPSILON ||
+		maxs->z < point->z - SURFACE_CLIP_EPSILON ||
+		mins->x > point->x + SURFACE_CLIP_EPSILON ||
+		mins->y > point->y + SURFACE_CLIP_EPSILON ||
+		mins->z > point->z + SURFACE_CLIP_EPSILON)
 	{
 		return qfalse;
 	}

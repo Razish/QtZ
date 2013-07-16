@@ -173,7 +173,7 @@ static void SV_Map_f( void ) {
 	}
 
 	// force latched values to get set
-	svi.Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL );
+	svi.Cvar_Get ("sv_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL );
 
 	cmd = svi.Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) ) {
@@ -184,7 +184,7 @@ static void SV_Map_f( void ) {
 		killBots = qfalse;
 	}
 
-	// save the map name here cause on a map restart we reload the q3config.cfg
+	// save the map name here cause on a map restart we reload the qtzconfig.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
@@ -493,120 +493,6 @@ static void SV_KickNum_f( void ) {
 	SV_DropClient( cl, "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
-
-#ifndef STANDALONE
-// these functions require the auth server which of course is not available anymore for stand-alone games.
-
-/*
-==================
-SV_Ban_f
-
-Ban a user from being able to play on this server through the auth
-server
-==================
-*/
-static void SV_Ban_f( void ) {
-	client_t	*cl;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( svi.Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: banUser <player name>\n");
-		return;
-	}
-
-	cl = SV_GetPlayerByHandle();
-
-	if (!cl) {
-		return;
-	}
-
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		Com_Printf("Cannot kick host player\n");
-		return;
-	}
-
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !svi.NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-			svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-			svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-			BigShort( svs.authorizeAddress.port ) );
-	}
-
-	// otherwise send their ip to the authorize server
-	if ( svs.authorizeAddress.type != NA_BAD ) {
-		svi.NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
-			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
-								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
-		Com_Printf("%s was banned from coming back\n", cl->name);
-	}
-}
-
-/*
-==================
-SV_BanNum_f
-
-Ban a user from being able to play on this server through the auth
-server
-==================
-*/
-static void SV_BanNum_f( void ) {
-	client_t	*cl;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( svi.Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: banClient <client number>\n");
-		return;
-	}
-
-	cl = SV_GetPlayerByNum();
-	if ( !cl ) {
-		return;
-	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		Com_Printf("Cannot kick host player\n");
-		return;
-	}
-
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !svi.NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-			svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-			svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-			BigShort( svs.authorizeAddress.port ) );
-	}
-
-	// otherwise send their ip to the authorize server
-	if ( svs.authorizeAddress.type != NA_BAD ) {
-		svi.NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
-			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
-								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
-		Com_Printf("%s was banned from coming back\n", cl->name);
-	}
-}
-#endif
 
 /*
 ==================
@@ -1371,8 +1257,14 @@ SV_CompleteMapName
 ==================
 */
 static void SV_CompleteMapName( char *args, int argNum ) {
-	if( argNum == 2 ) {
-		svi.Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
+	if ( argNum == 2 ) {
+		int i;
+		char *s=args, *token=s;
+
+		for ( i=0; i<argNum; i++ )
+			s = COM_Parse( &token );
+
+		svi.Field_CompleteFilename( "maps", s, "bsp", qtrue, qfalse );
 	}
 }
 
@@ -1391,13 +1283,6 @@ void SV_AddOperatorCommands( void ) {
 
 	svi.Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
 	svi.Cmd_AddCommand ("kick", SV_Kick_f);
-#ifndef STANDALONE
-	if(!com_standalone->integer)
-	{
-		svi.Cmd_AddCommand ("banUser", SV_Ban_f);
-		svi.Cmd_AddCommand ("banClient", SV_BanNum_f);
-	}
-#endif
 	svi.Cmd_AddCommand ("kickbots", SV_KickBots_f);
 	svi.Cmd_AddCommand ("kickall", SV_KickAll_f);
 	svi.Cmd_AddCommand ("kicknum", SV_KickNum_f);

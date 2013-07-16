@@ -31,7 +31,8 @@ cvar_t *sv_voip;
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server
 
-cvar_t	*sv_fps = NULL;			// time rate for running non-clients
+cvar_t	*sv_snapshotRate;		// snapshots/sec sent to each client, also limited by sv_frametime
+cvar_t	*sv_frametime;			// time rate for running non-clients
 cvar_t	*sv_timeout;			// seconds without any message
 cvar_t	*sv_zombietime;			// seconds to sink messages after disconnect
 cvar_t	*sv_rconPassword;		// password for remote server commands
@@ -58,9 +59,6 @@ cvar_t	*sv_gametype;
 cvar_t	*sv_pure;
 cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-#ifndef STANDALONE
-cvar_t	*sv_strictAuth;
-#endif
 cvar_t	*sv_banFile;
 
 serverBan_t serverBans[SERVER_MAXBANS];
@@ -387,8 +385,7 @@ SVC_HashForAddress
 */
 static long SVC_HashForAddress( netadr_t address ) {
 	byte 		*ip = NULL;
-	size_t	size = 0;
-	int			i;
+	int			size=0, i;
 	long		hash = 0;
 
 	switch ( address.type ) {
@@ -397,8 +394,8 @@ static long SVC_HashForAddress( netadr_t address ) {
 		default: break;
 	}
 
-	for ( i = 0; i < size; i++ ) {
-		hash += (long)( ip[ i ] ) * ( i + 119 );
+	for ( i=0; i<size; i++ ) {
+		hash += (long)ip[i] * (i+119);
 	}
 
 	hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) );
@@ -458,14 +455,14 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 				bucket->next->prev = bucket->prev;
 			}
 
-			Com_Memset( bucket, 0, sizeof( leakyBucket_t ) );
+			memset( bucket, 0, sizeof( leakyBucket_t ) );
 		}
 
 		if ( bucket->type == NA_BAD ) {
 			bucket->type = address.type;
 			switch ( address.type ) {
-				case NA_IP:  Com_Memcpy( bucket->ipv._4, address.ip, 4 );   break;
-				case NA_IP6: Com_Memcpy( bucket->ipv._6, address.ip6, 16 ); break;
+				case NA_IP:  memcpy( bucket->ipv._4, address.ip, 4 );   break;
+				case NA_IP6: memcpy( bucket->ipv._6, address.ip6, 16 ); break;
 				default: break;
 			}
 
@@ -803,10 +800,6 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SV_GetChallenge(from);
 	} else if (!Q_stricmp(c, "connect")) {
 		SV_DirectConnect( from );
-#ifndef STANDALONE
-	} else if (!Q_stricmp(c, "ipAuthorize")) {
-		SV_AuthorizeIpPacket( from );
-#endif
 	} else if (!Q_stricmp(c, "rcon")) {
 		SVC_RemoteCommand( from, msg );
 	} else if (!Q_stricmp(c, "disconnect")) {
@@ -1023,21 +1016,48 @@ SV_FrameMsec
 Return time in millseconds until processing of the next server frame.
 ==================
 */
-int SV_FrameMsec()
-{
-	if(sv_fps)
-	{
-		int frameMsec;
+int SV_FrameMsec( void ) {
+	if ( sv_frametime ) {
+		int frameMsec = sv_frametime->integer;
 		
-		frameMsec = 1000.0f / sv_fps->value;
-		
-		if(frameMsec < sv.timeResidual)
+		if ( frameMsec < sv.timeResidual )
 			return 0;
 		else
 			return frameMsec - sv.timeResidual;
 	}
 	else
 		return 1;
+}
+
+/*
+==================
+SV_CheckCvars
+==================
+*/
+void SV_CheckCvars( void ) {
+	static int lastModHostname = -1;
+	qboolean changed = qfalse;
+	
+	if ( sv_hostname->modificationCount != lastModHostname ) {
+		char hostname[MAX_INFO_STRING];
+		char *c = hostname;
+		lastModHostname = sv_hostname->modificationCount;
+		
+		strcpy( hostname, sv_hostname->string );
+		while( *c )
+		{
+			if ( (*c == '\\') || (*c == ';') || (*c == '"'))
+			{
+				*c = '.';
+				changed = qtrue;
+			}
+			c++;
+		}
+		if( changed )
+		{
+			svi.Cvar_Set("sv_hostname", hostname );
+		}
+	}
 }
 
 /*
@@ -1076,15 +1096,14 @@ void SV_Frame( int msec ) {
 	}
 
 	// if it isn't time for the next frame, do nothing
-	if ( sv_fps->integer < 1 ) {
-		svi.Cvar_Set( "sv_fps", "10" );
+	if ( sv_frametime->integer < 1 ) {
+		svi.Cvar_Set( "sv_frametime", "25" );
 	}
 
-	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+	frameMsec = (int)(sv_frametime->value * com_timescale->value);
 	// don't let it scale below 1ms
-	if(frameMsec < 1)
-	{
-		svi.Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
+	if ( frameMsec < 1 ) {
+		svi.Cvar_Set( "timescale", va( "%f", sv_frametime->value ) );
 		frameMsec = 1;
 	}
 
@@ -1154,6 +1173,8 @@ void SV_Frame( int msec ) {
 
 	// send messages back to the clients
 	SV_SendClientMessages();
+
+	SV_CheckCvars();
 
 	// send a heartbeat to the master if needed
 	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);

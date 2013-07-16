@@ -104,40 +104,40 @@ typedef struct cgameImport_s {
 	void			(*CM_LoadMap)					( const char *mapname );
 	int				(*CM_NumInlineModels)			( void );
 	clipHandle_t	(*CM_InlineModel)				( int index );
-	clipHandle_t	(*CM_TempModel)					( const vec3_t mins, const vec3_t maxs, int capsule );
-	void			(*CM_Trace)						( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
-	void			(*CM_TransformedTrace)			( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, const vec3_t origin, const vec3_t angles, int capsule );
-	int				(*CM_PointContents)				( const vec3_t p, clipHandle_t model );
-	int				(*CM_TransformedPointContents)	( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
+	clipHandle_t	(*CM_TempModel)					( const vector3 *mins, const vector3 *maxs, int capsule );
+	void			(*CM_Trace)						( trace_t *results, const vector3 *start, const vector3 *end, const vector3 *mins, const vector3 *maxs, clipHandle_t model, int brushmask, int capsule );
+	void			(*CM_TransformedTrace)			( trace_t *results, const vector3 *start, const vector3 *end, const vector3 *mins, const vector3 *maxs, clipHandle_t model, int brushmask, const vector3 *origin, const vector3 *angles, int capsule );
+	int				(*CM_PointContents)				( const vector3 *p, clipHandle_t model );
+	int				(*CM_TransformedPointContents)	( const vector3 *p, clipHandle_t model, const vector3 *origin, const vector3 *angles );
 	
 	// sound
-	void			(*S_AddLoopingSound)			( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-	void			(*S_AddRealLoopingSound)		( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+	void			(*S_AddLoopingSound)			( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
+	void			(*S_AddRealLoopingSound)		( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 	void			(*S_ClearLoopingSounds)			( qboolean killall );
-	void			(*S_Respatialize)				( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
+	void			(*S_Respatialize)				( int entityNum, const vector3 *origin, vector3 axis[3], int inwater );
 	sfxHandle_t		(*S_RegisterSound)				( const char *sample, qboolean compressed );
-	void			(*S_StartSound)					( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
+	void			(*S_StartSound)					( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx );
 	void			(*S_StartBackgroundTrack)		( const char *intro, const char *loop );
 	void			(*S_StartLocalSound)			( sfxHandle_t sfx, int channelNum );
 	void			(*S_StopBackgroundTrack)		( void );
 	void			(*S_StopLoopingSound)			( int entityNum );
-	void			(*S_UpdateEntityPosition)		( int entityNum, const vec3_t origin );
+	void			(*S_UpdateEntityPosition)		( int entityNum, const vector3 *origin );
 
 	// renderer
-	void			(*R_AddAdditiveLightToScene)	( const vec3_t org, float intensity, float r, float g, float b );
-	void			(*R_AddLightToScene)			( const vec3_t org, float intensity, float r, float g, float b );
+	void			(*R_AddAdditiveLightToScene)	( const vector3 *org, float intensity, float r, float g, float b );
+	void			(*R_AddLightToScene)			( const vector3 *org, float intensity, float r, float g, float b );
 	void			(*R_AddPolysToScene)			( qhandle_t hShader, int numVerts, const polyVert_t *verts, int num );
 	void			(*R_AddRefEntityToScene)		( const refEntity_t *re );
 	void			(*R_ClearScene)					( void );
 	void			(*R_DrawStretchPic)				( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	void			(*R_DrawRotatedPic)				( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a, qboolean centered, qhandle_t hShader );
 	qboolean		(*R_GetEntityToken)				( char *buffer, int size );
-	qboolean		(*R_inPVS)						( const vec3_t p1, const vec3_t p2 );
+	qboolean		(*R_inPVS)						( const vector3 *p1, const vector3 *p2 );
 	int				(*R_LerpTag)					( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
-	int				(*R_LightForPoint)				( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+	int				(*R_LightForPoint)				( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir );
 	void			(*R_LoadWorld)					( const char *name );
-	int				(*R_MarkFragments)				( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
-	void			(*R_ModelBounds)				( qhandle_t model, vec3_t mins, vec3_t maxs );
+	int				(*R_MarkFragments)				( int numPoints, const vector3 *points, const vector3 *projection, int maxPoints, vector3 *pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+	void			(*R_ModelBounds)				( qhandle_t model, vector3 *mins, vector3 *maxs );
 	void			(*R_RegisterFont)				( const char *fontName, int pointSize, fontInfo_t *font );
 	qhandle_t		(*R_RegisterModel)				( const char *name );
 	qhandle_t		(*R_RegisterSkin)				( const char *name );
@@ -145,7 +145,7 @@ typedef struct cgameImport_s {
 	qhandle_t		(*R_RegisterShaderNoMip)		( const char *name );
 	void			(*R_RemapShader)				( const char *oldShader, const char *newShader, const char *offsetTime );
 	void			(*R_RenderScene)				( const refdef_t *fd );
-	void			(*R_SetColor)					( const float *rgba );
+	void			(*R_SetColor)					( const vector4 *rgba );
 
 	// misc
 	void			(*GetGLConfig)					( glconfig_t *glconfig );
@@ -158,7 +158,6 @@ typedef struct cgameImport_s {
 	void			(*SetUserCmdValue)				( int userCmdValue, float sensitivityScale );
 	int				(*MemoryRemaining)				( void );
 	int				(*RealTime)						( qtime_t *qtime );
-	void			(*Q_SnapVector)					( vec3_t vec );
 
 	// keys
 	qboolean		(*Key_IsDown)					( int keynum );

@@ -61,8 +61,8 @@ static		qboolean	s_soundMuted;
 dma_t		dma;
 
 static int			listener_number;
-static vec3_t		listener_origin;
-static vec3_t		listener_axis[3];
+static vector3		listener_origin;
+static vector3		listener_axis[3];
 
 int			s_soundtime;		// sample PAIRS
 int   		s_paintedtime; 		// sample PAIRS
@@ -202,7 +202,7 @@ void S_ChannelSetup( void ) {
 	channel_t *p, *q;
 
 	// clear all the sounds so they don't
-	Com_Memset( s_channels, 0, sizeof( s_channels ) );
+	memset( s_channels, 0, sizeof( s_channels ) );
 
 	p = s_channels;;
 	q = p + MAX_CHANNELS;
@@ -297,7 +297,7 @@ static sfx_t *S_FindName( const char *name ) {
 	}
 	
 	sfx = &s_knownSfx[i];
-	Com_Memset (sfx, 0, sizeof(*sfx));
+	memset (sfx, 0, sizeof(*sfx));
 	strcpy (sfx->soundName, name);
 
 	sfx->next = sfxHash[hash];
@@ -392,8 +392,8 @@ void S_Base_BeginRegistration( void ) {
 	if (s_numSfx == 0) {
 		SND_setup();
 
-		Com_Memset(s_knownSfx, '\0', sizeof(s_knownSfx));
-		Com_Memset(sfxHash, '\0', sizeof(sfx_t *) * LOOP_HASH);
+		memset(s_knownSfx, '\0', sizeof(s_knownSfx));
+		memset(sfxHash, '\0', sizeof(sfx_t *) * LOOP_HASH);
 
 		if ( com_developer->integer )
 			S_Base_RegisterSound("sound/feedback/hit.wav", qfalse);		// changed to a sound in baseq3
@@ -420,28 +420,28 @@ S_SpatializeOrigin
 Used for spatializing s_channels
 =================
 */
-void S_SpatializeOrigin (vec3_t origin, int master_vol, int *left_vol, int *right_vol)
+void S_SpatializeOrigin (vector3 *origin, int master_vol, int *left_vol, int *right_vol)
 {
-    vec_t		dot;
-    vec_t		dist;
-    vec_t		lscale, rscale, scale;
-    vec3_t		source_vec;
-    vec3_t		vec;
+    number		dot;
+    number		dist;
+    number		lscale, rscale, scale;
+    vector3		source_vec;
+    vector3		vec;
 
 	const float dist_mult = SOUND_ATTENUATE;
 	
 	// calculate stereo seperation and distance attenuation
-	VectorSubtract(origin, listener_origin, source_vec);
+	VectorSubtract(origin, &listener_origin, &source_vec);
 
-	dist = VectorNormalize(source_vec);
+	dist = VectorNormalize(&source_vec);
 	dist -= SOUND_FULLVOLUME;
 	if (dist < 0)
 		dist = 0;			// close enough to be at full volume
 	dist *= dist_mult;		// different attenuation levels
 	
-	VectorRotate( source_vec, listener_axis, vec );
+	VectorRotate( &source_vec, listener_axis, &vec );
 
-	dot = -vec[1];
+	dot = -vec.y;
 
 	if (dma.channels == 1)
 	{ // no attenuation = no spatialization
@@ -450,8 +450,8 @@ void S_SpatializeOrigin (vec3_t origin, int master_vol, int *left_vol, int *righ
 	}
 	else
 	{
-		rscale = 0.5 * (1.0 + dot);
-		lscale = 0.5 * (1.0 - dot);
+		rscale = 0.5f * (1.0f + dot);
+		lscale = 0.5f * (1.0f - dot);
 		if ( rscale < 0 ) {
 			rscale = 0;
 		}
@@ -461,13 +461,13 @@ void S_SpatializeOrigin (vec3_t origin, int master_vol, int *left_vol, int *righ
 	}
 
 	// add in distance effect
-	scale = (1.0 - dist) * rscale;
-	*right_vol = (master_vol * scale);
+	scale = (1.0f - dist) * rscale;
+	*right_vol = (int)(master_vol * scale);
 	if (*right_vol < 0)
 		*right_vol = 0;
 
-	scale = (1.0 - dist) * lscale;
-	*left_vol = (master_vol * scale);
+	scale = (1.0f - dist) * lscale;
+	*left_vol = (int)(master_vol * scale);
 	if (*left_vol < 0)
 		*left_vol = 0;
 }
@@ -483,15 +483,15 @@ S_Base_HearingThroughEntity
 Also see S_AL_HearingThroughEntity
 =================
 */
-static qboolean S_Base_HearingThroughEntity( int entityNum, vec3_t origin )
+static qboolean S_Base_HearingThroughEntity( int entityNum, vector3 *origin )
 {
 	float	distanceSq;
-	vec3_t	sorigin;
+	vector3	sorigin;
 
 	if (origin)
-		VectorCopy(origin, sorigin);
+		VectorCopy(origin, &sorigin);
 	else
-		VectorCopy(loopSounds[entityNum].origin, sorigin);
+		VectorCopy(&loopSounds[entityNum].origin, &sorigin);
 
 	if( listener_number == entityNum )
 	{
@@ -501,9 +501,7 @@ static qboolean S_Base_HearingThroughEntity( int entityNum, vec3_t origin )
 		// can't ask cgame since that would involve changing the API and hence mod
 		// compatibility. I don't think there is any way around this, but I'll leave
 		// the FIXME just in case anyone has a bright idea.
-		distanceSq = DistanceSquared(
-				sorigin,
-				listener_origin );
+		distanceSq = DistanceSquared( &sorigin, &listener_origin );
 
 		if( distanceSq > THIRD_PERSON_THRESHOLD_SQ )
 			return qfalse; //we're the player, but third person
@@ -523,11 +521,11 @@ if origin is NULL, the sound will be dynamically sourced from the entity
 Entchannel 0 will never override a playing sound
 ====================
 */
-static void S_Base_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, qboolean localSound ) {
+static void S_Base_StartSoundEx( vector3 *origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, qboolean localSound ) {
 	channel_t	*ch;
 	sfx_t		*sfx;
-  int i, oldest, chosen, time;
-  int	inplay, allowed;
+	int i, oldest, chosen, time;
+	int	inplay, allowed;
 	qboolean	fullVolume;
 
 	if ( !s_soundStarted || s_soundMuted ) {
@@ -629,7 +627,7 @@ static void S_Base_StartSoundEx( vec3_t origin, int entityNum, int entchannel, s
 	}
 
 	if (origin) {
-		VectorCopy (origin, ch->origin);
+		VectorCopy (origin, &ch->origin);
 		ch->fixed_origin = qtrue;
 	} else {
 		ch->fixed_origin = qfalse;
@@ -653,7 +651,7 @@ S_StartSound
 if origin is NULL, the sound will be dynamically sourced from the entity
 ====================
 */
-void S_Base_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) {
+void S_Base_StartSound( vector3 *origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) {
 	S_Base_StartSoundEx( origin, entityNum, entchannel, sfxHandle, qfalse );
 }
 
@@ -691,13 +689,13 @@ void S_Base_ClearSoundBuffer( void ) {
 		return;
 
 	// stop looping sounds
-	Com_Memset(loopSounds, 0, MAX_GENTITIES*sizeof(loopSound_t));
-	Com_Memset(loop_channels, 0, MAX_CHANNELS*sizeof(channel_t));
+	memset(loopSounds, 0, MAX_GENTITIES*sizeof(loopSound_t));
+	memset(loop_channels, 0, MAX_CHANNELS*sizeof(channel_t));
 	numLoopChannels = 0;
 
 	S_ChannelSetup();
 
-	Com_Memset(s_rawend, '\0', sizeof (s_rawend));
+	memset(s_rawend, '\0', sizeof (s_rawend));
 
 	if (dma.samplebits == 8)
 		clear = 0x80;
@@ -706,7 +704,7 @@ void S_Base_ClearSoundBuffer( void ) {
 
 	SNDDMA_BeginPainting ();
 	if (dma.buffer)
-		Com_Memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
+		memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
 	SNDDMA_Submit ();
 }
 
@@ -764,7 +762,7 @@ Called during entity generation for a frame
 Include velocity in case I get around to doing doppler...
 ==================
 */
-void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
+void S_Base_AddLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfxHandle ) {
 	sfx_t *sfx;
 
 	if ( !s_soundStarted || s_soundMuted ) {
@@ -786,8 +784,8 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
 	}
 
-	VectorCopy( origin, loopSounds[entityNum].origin );
-	VectorCopy( velocity, loopSounds[entityNum].velocity );
+	VectorCopy( origin, &loopSounds[entityNum].origin );
+	VectorCopy( velocity, &loopSounds[entityNum].velocity );
 	loopSounds[entityNum].active = qtrue;
 	loopSounds[entityNum].kill = qtrue;
 	loopSounds[entityNum].doppler = qfalse;
@@ -796,13 +794,13 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 	loopSounds[entityNum].sfx = sfx;
 
 	if (s_doppler->integer && VectorLengthSquared(velocity)>0.0) {
-		vec3_t	out;
+		vector3	out;
 		float	lena, lenb;
 
 		loopSounds[entityNum].doppler = qtrue;
-		lena = DistanceSquared(loopSounds[listener_number].origin, loopSounds[entityNum].origin);
-		VectorAdd(loopSounds[entityNum].origin, loopSounds[entityNum].velocity, out);
-		lenb = DistanceSquared(loopSounds[listener_number].origin, out);
+		lena = DistanceSquared(&loopSounds[listener_number].origin, &loopSounds[entityNum].origin);
+		VectorAdd(&loopSounds[entityNum].origin, &loopSounds[entityNum].velocity, &out);
+		lenb = DistanceSquared(&loopSounds[listener_number].origin, &out);
 		if ((loopSounds[entityNum].framenum+1) != cls.framecount) {
 			loopSounds[entityNum].oldDopplerScale = 1.0;
 		} else {
@@ -827,7 +825,7 @@ Called during entity generation for a frame
 Include velocity in case I get around to doing doppler...
 ==================
 */
-void S_Base_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
+void S_Base_AddRealLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfxHandle ) {
 	sfx_t *sfx;
 
 	if ( !s_soundStarted || s_soundMuted ) {
@@ -848,8 +846,8 @@ void S_Base_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_
 	if ( !sfx->soundLength ) {
 		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
 	}
-	VectorCopy( origin, loopSounds[entityNum].origin );
-	VectorCopy( velocity, loopSounds[entityNum].velocity );
+	VectorCopy( origin, &loopSounds[entityNum].origin );
+	VectorCopy( velocity, &loopSounds[entityNum].velocity );
 	loopSounds[entityNum].sfx = sfx;
 	loopSounds[entityNum].active = qtrue;
 	loopSounds[entityNum].kill = qfalse;
@@ -887,9 +885,9 @@ void S_AddLoopSounds (void) {
 		}
 
 		if (loop->kill) {
-			S_SpatializeOrigin( loop->origin, 127, &left_total, &right_total);			// 3d
+			S_SpatializeOrigin( &loop->origin, 127, &left_total, &right_total);			// 3d
 		} else {
-			S_SpatializeOrigin( loop->origin, 90,  &left_total, &right_total);			// sphere
+			S_SpatializeOrigin( &loop->origin, 90,  &left_total, &right_total);			// sphere
 		}
 
 		loop->sfx->lastTimeUsed = time;
@@ -902,9 +900,9 @@ void S_AddLoopSounds (void) {
 			loop2->mergeFrame = loopFrame;
 
 			if (loop2->kill) {
-				S_SpatializeOrigin( loop2->origin, 127, &left, &right);				// 3d
+				S_SpatializeOrigin( &loop2->origin, 127, &left, &right);				// 3d
 			} else {
-				S_SpatializeOrigin( loop2->origin, 90,  &left, &right);				// sphere
+				S_SpatializeOrigin( &loop2->origin, 90,  &left, &right);				// sphere
 			}
 
 			loop2->sfx->lastTimeUsed = time;
@@ -1002,7 +1000,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 	if(s_muted->integer)
 		intVolume = 0;
 	else
-		intVolume = 256 * volume * s_volume->value;
+		intVolume = (int)(256 * volume * s_volume->value);
 
 	if ( s_rawend[stream] < s_soundtime ) {
 		Com_DPrintf( "S_Base_RawSamples: resetting minimum: %i < %i\n", s_rawend[stream], s_soundtime );
@@ -1028,7 +1026,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 		{
 			for (i=0 ; ; i++)
 			{
-				src = i*scale;
+				src = (int)(i*scale);
 				if (src >= samples)
 					break;
 				dst = s_rawend[stream]&(MAX_RAW_SAMPLES-1);
@@ -1042,7 +1040,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 	{
 		for (i=0 ; ; i++)
 		{
-			src = i*scale;
+			src = (int)(i*scale);
 			if (src >= samples)
 				break;
 			dst = s_rawend[stream]&(MAX_RAW_SAMPLES-1);
@@ -1057,7 +1055,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 
 		for (i=0 ; ; i++)
 		{
-			src = i*scale;
+			src = (int)(i*scale);
 			if (src >= samples)
 				break;
 			dst = s_rawend[stream]&(MAX_RAW_SAMPLES-1);
@@ -1072,7 +1070,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 
 		for (i=0 ; ; i++)
 		{
-			src = i*scale;
+			src = (int)(i*scale);
 			if (src >= samples)
 				break;
 			dst = s_rawend[stream]&(MAX_RAW_SAMPLES-1);
@@ -1096,11 +1094,11 @@ S_UpdateEntityPosition
 let the sound system know where an entity currently is
 ======================
 */
-void S_Base_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
+void S_Base_UpdateEntityPosition( int entityNum, const vector3 *origin ) {
 	if ( entityNum < 0 || entityNum >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum );
 	}
-	VectorCopy( origin, loopSounds[entityNum].origin );
+	VectorCopy( origin, &loopSounds[entityNum].origin );
 }
 
 
@@ -1111,20 +1109,20 @@ S_Respatialize
 Change the volumes of all the playing sounds for changes in their positions
 ============
 */
-void S_Base_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwater ) {
+void S_Base_Respatialize( int entityNum, const vector3 *head, vector3 axis[3], int inwater ) {
 	int			i;
 	channel_t	*ch;
-	vec3_t		origin;
+	vector3		origin;
 
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
 
 	listener_number = entityNum;
-	VectorCopy(head, listener_origin);
-	VectorCopy(axis[0], listener_axis[0]);
-	VectorCopy(axis[1], listener_axis[1]);
-	VectorCopy(axis[2], listener_axis[2]);
+	VectorCopy(head, &listener_origin);
+	VectorCopy(&axis[0], &listener_axis[0]);
+	VectorCopy(&axis[1], &listener_axis[1]);
+	VectorCopy(&axis[2], &listener_axis[2]);
 
 	// update spatialization for dynamic sounds	
 	ch = s_channels;
@@ -1138,12 +1136,12 @@ void S_Base_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int 
 			ch->rightvol = ch->master_vol;
 		} else {
 			if (ch->fixed_origin) {
-				VectorCopy( ch->origin, origin );
+				VectorCopy( &ch->origin, &origin );
 			} else {
-				VectorCopy( loopSounds[ ch->entnum ].origin, origin );
+				VectorCopy( &loopSounds[ ch->entnum ].origin, &origin );
 			}
 
-			S_SpatializeOrigin (origin, ch->master_vol, &ch->leftvol, &ch->rightvol);
+			S_SpatializeOrigin (&origin, ch->master_vol, &ch->leftvol, &ch->rightvol);
 		}
 	}
 
@@ -1271,11 +1269,10 @@ void S_GetSoundtime(void)
 	}
 #endif
 
-	if ( dma.submission_chunk < 256 ) {
-		s_paintedtime = s_soundtime + s_mixPreStep->value * dma.speed;
-	} else {
+	if ( dma.submission_chunk < 256 )
+		s_paintedtime = (int)(s_soundtime + s_mixPreStep->value * dma.speed);
+	else
 		s_paintedtime = s_soundtime + dma.submission_chunk;
-	}
 }
 
 
@@ -1291,7 +1288,7 @@ void S_Update_(void) {
 		return;
 	}
 
-	thisTime = Com_Milliseconds();
+	thisTime = (float)Com_Milliseconds();
 
 	// Updates s_soundtime
 	S_GetSoundtime();
@@ -1311,14 +1308,14 @@ void S_Update_(void) {
 	}
 
 	ma = s_mixahead->value * dma.speed;
-	op = s_mixPreStep->value + sane*dma.speed*0.01;
+	op = s_mixPreStep->value + sane*dma.speed*0.01f;
 
 	if (op < ma) {
 		ma = op;
 	}
 
 	// mix ahead of current position
-	endtime = s_soundtime + ma;
+	endtime = (unsigned int)(s_soundtime + ma);
 
 	// mix to an even submission block size
 	endtime = (endtime + dma.submission_chunk-1)
@@ -1326,7 +1323,7 @@ void S_Update_(void) {
 
 	// never mix more than the complete buffer
 	samps = dma.samples >> (dma.channels-1);
-	if (endtime - s_soundtime > samps)
+	if (endtime - s_soundtime > (unsigned)samps)
 		endtime = s_soundtime + samps;
 
 
@@ -1565,7 +1562,7 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 		s_soundMuted = 1;
 //		s_numSfx = 0;
 
-		Com_Memset(sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
+		memset(sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
 
 		s_soundtime = 0;
 		s_paintedtime = 0;

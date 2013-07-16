@@ -155,8 +155,8 @@ void CG_ParseServerinfo( void ) {
 	int i;
 
 	info = CG_ConfigString( CS_SERVERINFO );
-	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	cgi.Cvar_Set("g_gametype", va("%i", cgs.gametype));
+	cgs.gametype = atoi( Info_ValueForKey( info, "sv_gametype" ) );
+	cgi.Cvar_Set("sv_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 
@@ -181,19 +181,13 @@ void CG_ParseServerinfo( void ) {
 	cgi.Cvar_Set("g_blueTeam", cgs.blueTeam);
 
 	//QtZ: Added
-	cgs.server.cinfo = atoi( Info_ValueForKey( info, "qtz_cinfo" ) );
 	Q_strncpyz( cgs.server.hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof( cgs.server.hostname ) );
 
-	cgi.Cvar_Set( "ui_about_unlagged",		va( "%i", atoi( Info_ValueForKey( info, "g_delagHitscan" ) ) ) );
-	//QTZFIXME: Physics HUD/UI alerts
-#if 0
-	cgi.Cvar_Set( "ui_about_aircontrol",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMAIRCONTROL) ) );
-	cgi.Cvar_Set( "ui_about_doublejump",	va( "%i", !!(cgs.server.cinfo & CINFO_CPMDOUBLEJUMP) ) );
-	cgi.Cvar_Set( "ui_about_bunnyhopping",	va( "%i", !!(cgs.server.cinfo & CINFO_BUNNYHOP) ) );
-	cgi.Cvar_Set( "ui_about_walljumping",	va( "%i", !!(cgs.server.cinfo & CINFO_WALLJUMP) ) );
-#endif
-	cgi.Cvar_Set( "ui_about_svfps",		va( "%i", atoi( Info_ValueForKey( info, "sv_fps" ) ) ) );
-	cgi.Cvar_Set( "ui_about_speed",		va( "%i", atoi( Info_ValueForKey( info, "g_speed" ) ) ) );
+	// fix bogus vote strings
+	Q_strncpyz( cgs.voteString, CG_ConfigString( CS_VOTE_STRING ), sizeof( cgs.voteString ) );
+
+	cgi.Cvar_Set( "ui_about_unlagged", va( "%i", atoi( Info_ValueForKey( info, "g_delagHitscan" ) ) ) );
+	cgi.Cvar_Set( "ui_about_svframetime", va( "%i", atoi( Info_ValueForKey( info, "sv_frametime" ) ) ) );
 }
 
 /*
@@ -330,18 +324,6 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 		cgi.S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
-	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
-		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
-		cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
-		cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
-		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
-		cgi.S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -460,7 +442,6 @@ static void CG_MapRestart( void ) {
 	cg.rewardTime = 0;
 	cg.rewardStack = 0;
 	cg.intermissionStarted = qfalse;
-	cg.levelShot = qfalse;
 
 	cgs.voteTime = 0;
 
@@ -473,7 +454,7 @@ static void CG_MapRestart( void ) {
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
+	if ( cg.warmup == 0 /* && cgs.gametype == GT_DUEL */) {
 		cgi.S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
 	}
@@ -684,7 +665,7 @@ int CG_GetVoiceChat( voiceChatList_t *voiceChatList, const char *id, sfxHandle_t
 
 	for ( i = 0; i < voiceChatList->numVoiceChats; i++ ) {
 		if ( !Q_stricmp( id, voiceChatList->voiceChats[i].id ) ) {
-			rnd = random() * voiceChatList->voiceChats[i].numSounds;
+			rnd = (int)(random() * voiceChatList->voiceChats[i].numSounds);
 			*snd = voiceChatList->voiceChats[i].sounds[rnd];
 			*chat = voiceChatList->voiceChats[i].chats[rnd];
 			return qtrue;
@@ -960,7 +941,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "cp" ) ) {
-		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_CenterPrint( CG_Argv(1), (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
 		return;
 	}
 
@@ -1052,13 +1033,6 @@ static void CG_ServerCommand( void ) {
 	// loaddeferred can be both a servercmd and a consolecmd
 	if ( !strcmp( cmd, "loaddefered" ) ) {	// FIXME: spelled wrong, but not changing for demo
 		CG_LoadDeferredPlayers();
-		return;
-	}
-
-	// clientLevelShot is sent before taking a special screenshot for
-	// the menu system during development
-	if ( !strcmp( cmd, "clientLevelShot" ) ) {
-		cg.levelShot = qtrue;
 		return;
 	}
 

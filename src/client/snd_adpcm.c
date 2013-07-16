@@ -245,7 +245,7 @@ int S_AdpcmMemoryNeeded( const wavinfo_t *info ) {
 	scale = (float)info->rate / dma.speed;
 
 	// calc number of samples at playback sampling rate
-	scaledSampleCount = info->samples / scale;
+	scaledSampleCount = (int)(info->samples / scale);
 
 	// calc memory need to store those samples using ADPCM at 4 bits per sample
 	sampleMemory = scaledSampleCount / 2;

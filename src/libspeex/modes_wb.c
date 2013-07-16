@@ -185,9 +185,9 @@ static const SpeexSBMode sb_wb_mode = {
 #ifdef FIXED_POINT
    29491, 19661, /* gamma1, gamma2 */
 #else
-   0.9, 0.6, /* gamma1, gamma2 */
+   0.9f, 0.6f, /* gamma1, gamma2 */
 #endif
-   QCONST16(.0002,15), /*lpc_floor*/
+   QCONST16(.0002f,15), /*lpc_floor*/
    QCONST16(0.9f,15),
    {NULL, &wb_submode1, &wb_submode2, &wb_submode3, &wb_submode4, NULL, NULL, NULL},
    3,
@@ -231,9 +231,9 @@ static const SpeexSBMode sb_uwb_mode = {
 #ifdef FIXED_POINT
    29491, 19661, /* gamma1, gamma2 */
 #else
-   0.9, 0.6, /* gamma1, gamma2 */
+   0.9f, 0.6f, /* gamma1, gamma2 */
 #endif
-   QCONST16(.0002,15), /*lpc_floor*/
+   QCONST16(.0002f,15), /*lpc_floor*/
    QCONST16(0.7f,15),
    {NULL, &wb_submode1, NULL, NULL, NULL, NULL, NULL, NULL},
    1,

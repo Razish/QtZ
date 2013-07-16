@@ -215,7 +215,7 @@ static const char *Cvar_Validate( cvar_t *var,
 
 	if( Q_isanumber( value ) )
 	{
-		valuef = atof( value );
+		valuef = (float)atof( value );
 
 		if( var->integral )
 		{
@@ -224,7 +224,7 @@ static const char *Cvar_Validate( cvar_t *var,
 				if( warn )
 					Com_Printf( "WARNING: cvar '%s' must be integral", var->name );
 
-				valuef = (int)valuef;
+				valuef = valuef;
 				changed = qtrue;
 			}
 		}
@@ -234,7 +234,7 @@ static const char *Cvar_Validate( cvar_t *var,
 		if( warn )
 			Com_Printf( "WARNING: cvar '%s' must be numeric", var->name );
 
-		valuef = atof( var->resetString );
+		valuef = (float)atof( var->resetString );
 		changed = qtrue;
 	}
 
@@ -444,7 +444,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags, const 
 		var->description = CopyString( description );
 	var->modified = qtrue;
 	var->modificationCount = 1;
-	var->value = atof (var->string);
+	var->value = (float)atof (var->string);
 	var->integer = atoi(var->string);
 	var->boolean = (qboolean)!!(var->integer);
 	var->resetString = CopyString( var_value );
@@ -483,25 +483,20 @@ Prints the value, default, latched string and description of the given variable
 ============
 */
 void Cvar_Print( cvar_t *v ) {
-	Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\"",
-			v->name, v->string );
+	Com_Printf("  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"", v->name, v->string );
 
-	if ( !( v->flags & CVAR_ROM ) ) {
-		if ( !Q_stricmp( v->string, v->resetString ) ) {
-			Com_Printf (", the default" );
-		} else {
-			Com_Printf (" default:\"%s" S_COLOR_WHITE "\"",
-					v->resetString );
-		}
+	if ( !(v->flags & CVAR_ROM) ) {
+		if ( Q_stricmp( v->string, v->resetString ) )
+			Com_Printf(" "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"", v->resetString );
 	}
 
-	Com_Printf ("\n");
+	Com_Printf( "\n" );
 
 	if ( v->latchedString )
-		Com_Printf( "latched: \"%s\"\n", v->latchedString );
+		Com_Printf( "  latched: \"%s\"\n", v->latchedString );
 
 	if ( v->description )
-		Com_Printf( "description: \"%s\"\n", v->description );
+		Com_Printf( "  "S_COLOR_GREY"%s\n", v->description );
 }
 
 /*
@@ -624,7 +619,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	
 	var->string = CopyString(value);
 	//QTZTODO: tokens
-	var->value = atof (var->string);
+	var->value = (float)atof (var->string);
 	var->integer = atoi (var->string);
 	var->boolean = (qboolean)!!(var->integer);
 
@@ -1067,7 +1062,7 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 	if(cv->hashNext)
 		cv->hashNext->hashPrev = cv->hashPrev;
 
-	Com_Memset(cv, '\0', sizeof(*cv));
+	memset(cv, '\0', sizeof(*cv));
 	
 	return next;
 }
@@ -1263,7 +1258,7 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 	cvar_t	*cv = NULL;
 	assert(vmCvar);
 
-	if ( (unsigned)vmCvar->handle >= cvar_numIndexes ) {
+	if ( vmCvar->handle >= cvar_numIndexes ) {
 		Com_Error( ERR_DROP, "Cvar_Update: handle out of range" );
 	}
 
@@ -1311,10 +1306,10 @@ Reads in all archived cvars
 */
 void Cvar_Init (void)
 {
-	Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
-	Com_Memset(hashTable, '\0', sizeof(hashTable));
+	memset(cvar_indexes, '\0', sizeof(cvar_indexes));
+	memset(hashTable, '\0', sizeof(hashTable));
 
-	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM|CVAR_SYSTEMINFO, "Indicates whether cheats are enabled or not" );
+	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO, "Indicates whether cheats are enabled or not" );
 
 	Cmd_AddCommand ("print", Cvar_Print_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);

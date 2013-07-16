@@ -189,7 +189,7 @@ static inline void filter_dc_notch16(const spx_int16_t *in, spx_word16_t radius,
 #ifdef FIXED_POINT
    den2 = MULT16_16_Q15(radius,radius) + MULT16_16_Q15(QCONST16(.7,15),MULT16_16_Q15(32767-radius,32767-radius));
 #else
-   den2 = radius*radius + .7*(1-radius)*(1-radius);
+   den2 = radius*radius + .7f*(1-radius)*(1-radius);
 #endif   
    /*printf ("%d %d %d %d %d %d\n", num[0], num[1], num[2], den[0], den[1], den[2]);*/
    for (i=0;i<len;i++)
@@ -446,7 +446,7 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
    }
 #else
    for (i=0;i<N;i++)
-      st->window[i] = .5-.5*cos(2*M_PI*i/N);
+      st->window[i] = .5f-.5f*cosf(2*M_PI*i/N);
 #endif
    for (i=0;i<=st->frame_size;i++)
       st->power_1[i] = FLOAT_ONE;
@@ -456,7 +456,7 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
       spx_word32_t sum = 0;
       /* Ratio of ~10 between adaptation rate of first and last block */
       spx_word16_t decay = SHR32(spx_exp(NEG16(DIV32_16(QCONST16(2.4,11),M))),1);
-      st->prop[0] = QCONST16(.7, 15);
+      st->prop[0] = QCONST16(.7f, 15);
       sum = EXTEND32(st->prop[0]);
       for (i=1;i<M;i++)
       {
@@ -470,13 +470,13 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
    }
    
    st->memX=st->memD=st->memE=0;
-   st->preemph = QCONST16(.9,15);
+   st->preemph = QCONST16(.9f,15);
    if (st->sampling_rate<12000)
-      st->notch_radius = QCONST16(.9, 15);
+      st->notch_radius = QCONST16(.9f, 15);
    else if (st->sampling_rate<24000)
-      st->notch_radius = QCONST16(.982, 15);
+      st->notch_radius = QCONST16(.982f, 15);
    else
-      st->notch_radius = QCONST16(.992, 15);
+      st->notch_radius = QCONST16(.992f, 15);
 
    st->notch_mem[0] = st->notch_mem[1] = 0;
    st->adapted = 0;
@@ -666,7 +666,7 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
    ss=DIV32_16(11469,M);
    ss_1 = SUB16(32767,ss);
 #else
-   ss=.35/M;
+   ss=.35f/M;
    ss_1 = 1-ss;
 #endif
 
@@ -1033,12 +1033,12 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
       tmp32 = SHR32(See,1);
    RER = FLOAT_EXTRACT16(FLOAT_SHL(FLOAT_DIV32(tmp32,See),15));
 #else
-   RER = (.0001*Sxx + 3.*MULT16_32_Q15(st->leak_estimate,Syy)) / See;
+   RER = (.0001f*Sxx + 3.f*MULT16_32_Q15(st->leak_estimate,Syy)) / See;
    /* Check for y in e (lower bound on RER) */
    if (RER < Sey*Sey/(1+See*Syy))
       RER = Sey*Sey/(1+See*Syy);
-   if (RER > .5)
-      RER = .5;
+   if (RER > .5f)
+      RER = .5f;
 #endif
 
    /* We consider that the filter has had minimal adaptation if the following is true*/
@@ -1060,10 +1060,10 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
          if (r>SHR32(e,1))
             r = SHR32(e,1);
 #else
-         if (r>.5*e)
-            r = .5*e;
+         if (r>.5f*e)
+            r = .5f*e;
 #endif
-         r = MULT16_32_Q15(QCONST16(.7,15),r) + MULT16_32_Q15(QCONST16(.3,15),(spx_word32_t)(MULT16_32_Q15(RER,e)));
+         r = MULT16_32_Q15(QCONST16(.7f,15),r) + MULT16_32_Q15(QCONST16(.3f,15),(spx_word32_t)(MULT16_32_Q15(RER,e)));
          /*st->power_1[i] = adapt_rate*r/(e*(1+st->power[i]));*/
          st->power_1[i] = FLOAT_SHL(FLOAT_DIV32_FLOAT(r,FLOAT_MUL32U(e,st->power[i]+10)),WEIGHT_SHIFT+16);
       }
@@ -1078,8 +1078,8 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
          if (tmp32 > SHR32(See,2))
             tmp32 = SHR32(See,2);
 #else
-         if (tmp32 > .25*See)
-            tmp32 = .25*See;
+         if (tmp32 > .25f*See)
+            tmp32 = .25f*See;
 #endif
          adapt_rate = FLOAT_EXTRACT16(FLOAT_SHL(FLOAT_DIV32(tmp32, See),15));
       }
@@ -1098,7 +1098,7 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
       for (i=0;i<st->frame_size;i++)
          st->last_y[i] = st->last_y[st->frame_size+i];
       for (i=0;i<st->frame_size;i++)
-         st->last_y[st->frame_size+i] = in[i]-out[i];
+         st->last_y[st->frame_size+i] = (spx_word16_t)(in[i]-out[i]);
    } else {
       /* If filter isn't adapted yet, all we can do is take the far end signal directly */
       /* moved earlier: for (i=0;i<N;i++)
@@ -1137,7 +1137,7 @@ void speex_echo_get_residual(SpeexEchoState *st, spx_word32_t *residual_echo, in
 #endif
    /* Estimate residual echo */
    for (i=0;i<=st->frame_size;i++)
-      residual_echo[i] = (spx_int32_t)MULT16_32_Q15(leak2,residual_echo[i]);
+      residual_echo[i] = (spx_word32_t)MULT16_32_Q15(leak2,residual_echo[i]);
    
 }
 
@@ -1160,11 +1160,11 @@ int speex_echo_ctl(SpeexEchoState *st, int request, void *ptr)
          st->beta_max = (.5f*st->frame_size)/st->sampling_rate;
 #endif
          if (st->sampling_rate<12000)
-            st->notch_radius = QCONST16(.9, 15);
+            st->notch_radius = QCONST16(.9f, 15);
          else if (st->sampling_rate<24000)
-            st->notch_radius = QCONST16(.982, 15);
+            st->notch_radius = QCONST16(.982f, 15);
          else
-            st->notch_radius = QCONST16(.992, 15);
+            st->notch_radius = QCONST16(.992f, 15);
          break;
       case SPEEX_ECHO_GET_SAMPLING_RATE:
          (*(int*)ptr) = st->sampling_rate;

@@ -20,10 +20,10 @@ void G_ResetTrail( gentity_t *ent ) {
 	// fill up the origin trails with data (assume the current position for the last 1/2 second or so)
 	ent->client->unlagged.trailHead = numTrails - 1;
 	for ( i = ent->client->unlagged.trailHead, time = level.time; i >= 0; i--, time -= frametime ) {
-		VectorCopy( ent->r.mins, ent->client->unlagged.trail[i].mins );
-		VectorCopy( ent->r.maxs, ent->client->unlagged.trail[i].maxs );
-		VectorCopy( ent->r.currentOrigin, ent->client->unlagged.trail[i].currentOrigin );
-		VectorCopy( ent->r.currentAngles, ent->client->unlagged.trail[i].currentAngles );
+		VectorCopy( &ent->r.mins, &ent->client->unlagged.trail[i].mins );
+		VectorCopy( &ent->r.maxs, &ent->client->unlagged.trail[i].maxs );
+		VectorCopy( &ent->r.currentOrigin, &ent->client->unlagged.trail[i].currentOrigin );
+		VectorCopy( &ent->r.currentAngles, &ent->client->unlagged.trail[i].currentAngles );
 		ent->client->unlagged.trail[i].leveltime = time;
 		ent->client->unlagged.trail[i].time = time;
 	}
@@ -70,10 +70,10 @@ void G_StoreTrail( gentity_t *ent ) {
 	}
 
 	// store all the collision-detection info and the time
-	VectorCopy( ent->r.mins, ent->client->unlagged.trail[head].mins );
-	VectorCopy( ent->r.maxs, ent->client->unlagged.trail[head].maxs );
-	VectorCopy( ent->r.currentOrigin, ent->client->unlagged.trail[head].currentOrigin );
-	VectorCopy( ent->r.currentAngles, ent->client->unlagged.trail[head].currentAngles );
+	VectorCopy( &ent->r.mins, &ent->client->unlagged.trail[head].mins );
+	VectorCopy( &ent->r.maxs, &ent->client->unlagged.trail[head].maxs );
+	VectorCopy( &ent->r.currentOrigin, &ent->client->unlagged.trail[head].currentOrigin );
+	VectorCopy( &ent->r.currentAngles, &ent->client->unlagged.trail[head].currentAngles );
 	ent->client->unlagged.trail[head].leveltime = level.time;
 	ent->client->unlagged.trail[head].time = newtime;
 
@@ -90,12 +90,12 @@ Used below to interpolate between two previous vectors
 Returns a vector "frac" times the distance between "start" and "end"
 =============
 */
-static void TimeShiftLerp( float frac, vec3_t start, vec3_t end, vec3_t result ) {
+static void TimeShiftLerp( float frac, vector3 *start, vector3 *end, vector3 *result ) {
 	float	comp = 1.0f - frac;
 
-	result[0] = frac * start[0] + comp * end[0];
-	result[1] = frac * start[1] + comp * end[1];
-	result[2] = frac * start[2] + comp * end[2];
+	result->x = frac * start->x + comp * end->x;
+	result->y = frac * start->y + comp * end->y;
+	result->z = frac * start->z + comp * end->z;
 }
 
 
@@ -109,9 +109,8 @@ Move a client back to where he was at the specified "time"
 void G_TimeShiftClient( gentity_t *ent, int time ) {
 	int		j, k;
 
-	if ( time > level.time ) {
+	if ( time > level.time )
 		time = level.time;
-	}
 
 	// find two entries in the origin trail whose times sandwich "time"
 	// assumes no two adjacent trail records have the same timestamp
@@ -122,9 +121,8 @@ void G_TimeShiftClient( gentity_t *ent, int time ) {
 
 		k = j;
 		j--;
-		if ( j < 0 ) {
+		if ( j < 0 )
 			j = numTrails - 1;
-		}
 	}
 	while ( j != ent->client->unlagged.trailHead );
 
@@ -133,10 +131,10 @@ void G_TimeShiftClient( gentity_t *ent, int time ) {
 		// make sure it doesn't get re-saved
 		if ( ent->client->unlagged.saved.leveltime != level.time ) {
 			// save the current origin and bounding box
-			VectorCopy( ent->r.mins, ent->client->unlagged.saved.mins );
-			VectorCopy( ent->r.maxs, ent->client->unlagged.saved.maxs );
-			VectorCopy( ent->r.currentOrigin, ent->client->unlagged.saved.currentOrigin );
-			VectorCopy( ent->r.currentAngles, ent->client->unlagged.saved.currentAngles );
+			VectorCopy( &ent->r.mins, &ent->client->unlagged.saved.mins );
+			VectorCopy( &ent->r.maxs, &ent->client->unlagged.saved.maxs );
+			VectorCopy( &ent->r.currentOrigin, &ent->client->unlagged.saved.currentOrigin );
+			VectorCopy( &ent->r.currentAngles, &ent->client->unlagged.saved.currentAngles );
 			ent->client->unlagged.saved.leveltime = level.time;
 		}
 
@@ -144,27 +142,27 @@ void G_TimeShiftClient( gentity_t *ent, int time ) {
 		// we shift the client's position back to where he was at "time"
 		if ( j != ent->client->unlagged.trailHead )
 		{
-			float	frac = (float)(ent->client->unlagged.trail[k].time - time) / (float)(ent->client->unlagged.trail[k].time - ent->client->unlagged.trail[j].time);
+			float frac = (float)(ent->client->unlagged.trail[k].time - time) / (float)(ent->client->unlagged.trail[k].time - ent->client->unlagged.trail[j].time);
 
 			// FOR TESTING ONLY
 //			Com_Printf( "level time: %d, fire time: %d, j time: %d, k time: %d\n", level.time, time, ent->client->trail[j].time, ent->client->trail[k].time );
 
 			// interpolate between the two origins to give position at time index "time"
-			TimeShiftLerp( frac, ent->client->unlagged.trail[k].currentOrigin, ent->client->unlagged.trail[j].currentOrigin, ent->r.currentOrigin );
-			ent->r.currentAngles[YAW] = LerpAngle( ent->client->unlagged.trail[k].currentAngles[YAW], ent->r.currentAngles[YAW], frac );
+			TimeShiftLerp( frac, &ent->client->unlagged.trail[k].currentOrigin, &ent->client->unlagged.trail[j].currentOrigin, &ent->r.currentOrigin );
+			ent->r.currentAngles.yaw = LerpAngle( ent->client->unlagged.trail[k].currentAngles.yaw, ent->r.currentAngles.yaw, frac );
 
 			// lerp these too, just for fun (and ducking)
-			TimeShiftLerp( frac, ent->client->unlagged.trail[k].mins, ent->client->unlagged.trail[j].mins, ent->r.mins );
-			TimeShiftLerp( frac, ent->client->unlagged.trail[k].maxs, ent->client->unlagged.trail[j].maxs, ent->r.maxs );
+			TimeShiftLerp( frac, &ent->client->unlagged.trail[k].mins, &ent->client->unlagged.trail[j].mins, &ent->r.mins );
+			TimeShiftLerp( frac, &ent->client->unlagged.trail[k].maxs, &ent->client->unlagged.trail[j].maxs, &ent->r.maxs );
 
 			// this will recalculate absmin and absmax
 			gi.SV_LinkEntity( (sharedEntity_t *)ent );
 		} else {
 			// we wrapped, so grab the earliest
-			VectorCopy( ent->client->unlagged.trail[k].currentAngles, ent->r.currentAngles );
-			VectorCopy( ent->client->unlagged.trail[k].currentOrigin, ent->r.currentOrigin );
-			VectorCopy( ent->client->unlagged.trail[k].mins, ent->r.mins );
-			VectorCopy( ent->client->unlagged.trail[k].maxs, ent->r.maxs );
+			VectorCopy( &ent->client->unlagged.trail[k].currentAngles, &ent->r.currentAngles );
+			VectorCopy( &ent->client->unlagged.trail[k].currentOrigin, &ent->r.currentOrigin );
+			VectorCopy( &ent->client->unlagged.trail[k].mins, &ent->r.mins );
+			VectorCopy( &ent->client->unlagged.trail[k].maxs, &ent->r.maxs );
 
 			// this will recalculate absmin and absmax
 			gi.SV_LinkEntity( (sharedEntity_t *)ent );
@@ -182,19 +180,16 @@ except for "skip"
 =====================
 */
 void G_TimeShiftAllClients( int time, gentity_t *skip ) {
-	int			i;
-	gentity_t	*ent;
+	int i;
+	gentity_t *ent;
 
-	if ( time > level.time ) {
+	if ( time > level.time )
 		time = level.time;
-	}
 
 	// for every client
-	ent = &g_entities[0];
-	for ( i = 0; i < MAX_CLIENTS; i++, ent++ ) {
-		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip ) {
+	for ( i=0, ent=g_entities; i<MAX_CLIENTS; i++, ent++ ) {
+		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip )
 			G_TimeShiftClient( ent, time );
-		}
 	}
 }
 
@@ -210,10 +205,10 @@ void G_UnTimeShiftClient( gentity_t *ent ) {
 	// if it was saved
 	if ( ent->client->unlagged.saved.leveltime == level.time ) {
 		// move it back
-		VectorCopy( ent->client->unlagged.saved.mins, ent->r.mins );
-		VectorCopy( ent->client->unlagged.saved.maxs, ent->r.maxs );
-		VectorCopy( ent->client->unlagged.saved.currentOrigin, ent->r.currentOrigin );
-		VectorCopy( ent->client->unlagged.saved.currentAngles, ent->r.currentAngles );
+		VectorCopy( &ent->client->unlagged.saved.mins, &ent->r.mins );
+		VectorCopy( &ent->client->unlagged.saved.maxs, &ent->r.maxs );
+		VectorCopy( &ent->client->unlagged.saved.currentOrigin, &ent->r.currentOrigin );
+		VectorCopy( &ent->client->unlagged.saved.currentAngles, &ent->r.currentAngles );
 		ent->client->unlagged.saved.leveltime = 0;
 
 		// this will recalculate absmin and absmax
@@ -230,19 +225,17 @@ except for "skip"
 =======================
 */
 void G_UnTimeShiftAllClients( gentity_t *skip ) {
-	int			i;
-	gentity_t	*ent;
+	int i;
+	gentity_t *ent;
 
-	ent = &g_entities[0];
-	for ( i = 0; i < MAX_CLIENTS; i++, ent++) {
-		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip ) {
+	for ( i=0, ent=g_entities; i<MAX_CLIENTS; i++, ent++) {
+		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip )
 			G_UnTimeShiftClient( ent );
-		}
 	}
 }
 
 void G_UpdateTrailData( void ) {
-	frametime = sv_fps.integer;
+	frametime = sv_frametime.integer;
 	historytime = g_delagHistory.integer;
 	numTrails = MIN( historytime/frametime, NUM_CLIENT_TRAILS );
 }

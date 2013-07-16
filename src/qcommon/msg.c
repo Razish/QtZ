@@ -45,7 +45,7 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 	if (!msgInit) {
 		MSG_initHuffman();
 	}
-	Com_Memset (buf, 0, sizeof(*buf));
+	memset (buf, 0, sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
 }
@@ -54,7 +54,7 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 	if (!msgInit) {
 		MSG_initHuffman();
 	}
-	Com_Memset (buf, 0, sizeof(*buf));
+	memset (buf, 0, sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
 	buf->oob = qtrue;
@@ -88,9 +88,9 @@ void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
 	if (length<src->cursize) {
 		Com_Error( ERR_DROP, "MSG_Copy: can't copy into a smaller msg_t buffer");
 	}
-	Com_Memcpy(buf, src, sizeof(msg_t));
+	memcpy(buf, src, sizeof(msg_t));
 	buf->data = data;
-	Com_Memcpy(buf->data, src->data, src->cursize);
+	memcpy(buf->data, src->data, src->cursize);
 }
 
 /*
@@ -667,6 +667,7 @@ usercmd_t communication
 */
 
 // ms is allways sent, the others are optional
+//QTZTODO: usercmd_t delta?
 #define	CM_ANGLE1 	(1<<0)
 #define	CM_ANGLE2 	(1<<1)
 #define	CM_ANGLE3 	(1<<2)
@@ -695,7 +696,7 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->forwardmove, to->forwardmove, 8 );
 	MSG_WriteDelta( msg, from->rightmove, to->rightmove, 8 );
 	MSG_WriteDelta( msg, from->upmove, to->upmove, 8 );
-	MSG_WriteDelta( msg, from->buttons, to->buttons, 16 );
+	MSG_WriteDelta( msg, from->buttons, to->buttons, 8 );
 	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
 }
 
@@ -723,7 +724,7 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	to->upmove = MSG_ReadDelta( msg, from->upmove, 8);
 	if( to->upmove == -128 )
 		to->upmove = -127;
-	to->buttons = MSG_ReadDelta( msg, from->buttons, 16);
+	to->buttons = MSG_ReadDelta( msg, from->buttons, 8);
 	to->weapon = MSG_ReadDelta( msg, from->weapon, 8);
 }
 
@@ -760,7 +761,7 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 	MSG_WriteDeltaKey( msg, key, from->forwardmove, to->forwardmove, 8 );
 	MSG_WriteDeltaKey( msg, key, from->rightmove, to->rightmove, 8 );
 	MSG_WriteDeltaKey( msg, key, from->upmove, to->upmove, 8 );
-	MSG_WriteDeltaKey( msg, key, from->buttons, to->buttons, 16 );
+	MSG_WriteDeltaKey( msg, key, from->buttons, to->buttons, 8 );
 	MSG_WriteDeltaKey( msg, key, from->weapon, to->weapon, 8 );
 }
 
@@ -790,7 +791,7 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->upmove = MSG_ReadDeltaKey( msg, key, from->upmove, 8);
 		if( to->upmove == -128 )
 			to->upmove = -127;
-		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 16);
+		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 8);
 		to->weapon = MSG_ReadDeltaKey( msg, key, from->weapon, 8);
 	} else {
 		to->angles[0] = from->angles[0];
@@ -840,16 +841,16 @@ typedef struct {
 netField_t	entityStateFields[] = 
 {
 { NETF(pos.trTime), 32 },
-{ NETF(pos.trBase[0]), 0 },
-{ NETF(pos.trBase[1]), 0 },
-{ NETF(pos.trDelta[0]), 0 },
-{ NETF(pos.trDelta[1]), 0 },
-{ NETF(pos.trBase[2]), 0 },
-{ NETF(apos.trBase[1]), 0 },
-{ NETF(pos.trDelta[2]), 0 },
-{ NETF(apos.trBase[0]), 0 },
+{ NETF(pos.trBase.x), 0 },
+{ NETF(pos.trBase.y), 0 },
+{ NETF(pos.trDelta.x), 0 },
+{ NETF(pos.trDelta.y), 0 },
+{ NETF(pos.trBase.z), 0 },
+{ NETF(apos.trBase.x), 0 },
+{ NETF(pos.trDelta.y), 0 },
+{ NETF(apos.trBase.x), 0 },
 { NETF(event), 10 },
-{ NETF(angles2[1]), 0 },
+{ NETF(angles2.y), 0 },
 { NETF(eType), 8 },
 { NETF(torsoAnim), 8 },
 { NETF(eventParm), 8 },
@@ -860,34 +861,34 @@ netField_t	entityStateFields[] =
 { NETF(otherEntityNum), GENTITYNUM_BITS },
 { NETF(weapon), 8 },
 { NETF(clientNum), 8 },
-{ NETF(angles[1]), 0 },
+{ NETF(angles.y), 0 },
 { NETF(pos.trDuration), 32 },
 { NETF(apos.trType), 8 },
-{ NETF(origin[0]), 0 },
-{ NETF(origin[1]), 0 },
-{ NETF(origin[2]), 0 },
+{ NETF(origin.x), 0 },
+{ NETF(origin.y), 0 },
+{ NETF(origin.z), 0 },
 { NETF(solid), 24 },
 { NETF(powerups), MAX_POWERUPS },
 { NETF(modelindex), 8 },
 { NETF(otherEntityNum2), GENTITYNUM_BITS },
 { NETF(loopSound), 8 },
 { NETF(generic1), 8 },
-{ NETF(origin2[2]), 0 },
-{ NETF(origin2[0]), 0 },
-{ NETF(origin2[1]), 0 },
+{ NETF(origin2.z), 0 },
+{ NETF(origin2.x), 0 },
+{ NETF(origin2.y), 0 },
 { NETF(modelindex2), 8 },
-{ NETF(angles[0]), 0 },
+{ NETF(angles.x), 0 },
 { NETF(time), 32 },
 { NETF(apos.trTime), 32 },
 { NETF(apos.trDuration), 32 },
-{ NETF(apos.trBase[2]), 0 },
-{ NETF(apos.trDelta[0]), 0 },
-{ NETF(apos.trDelta[1]), 0 },
-{ NETF(apos.trDelta[2]), 0 },
+{ NETF(apos.trBase.z), 0 },
+{ NETF(apos.trDelta.x), 0 },
+{ NETF(apos.trDelta.y), 0 },
+{ NETF(apos.trDelta.z), 0 },
 { NETF(time2), 32 },
-{ NETF(angles[2]), 0 },
-{ NETF(angles2[0]), 0 },
-{ NETF(angles2[2]), 0 },
+{ NETF(angles.z), 0 },
+{ NETF(angles2.x), 0 },
+{ NETF(angles2.z), 0 },
 { NETF(constantLight), 32 },
 { NETF(frame), 16 }
 };
@@ -1048,7 +1049,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	// check for a remove
 	if ( MSG_ReadBits( msg, 1 ) == 1 ) {
-		Com_Memset( to, 0, sizeof( *to ) );	
+		memset( to, 0, sizeof( *to ) );	
 		to->number = MAX_GENTITIES - 1;
 		if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
 			Com_Printf( "%3i: #%-3i remove\n", msg->readcount, number );
@@ -1099,7 +1100,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
 						// bias to allow equal parts positive and negative
 						trunc -= FLOAT_INT_BIAS;
-						*(float *)toF = trunc; 
+						*(float *)toF = (float)trunc; 
 						if ( print ) {
 							Com_Printf( "%s:%i ", field->name, trunc );
 						}
@@ -1157,21 +1158,22 @@ plyer_state_t communication
 netField_t	playerStateFields[] = 
 {
 { PSF(commandTime), 32 },				
-{ PSF(origin[0]), 0 },
-{ PSF(origin[1]), 0 },
+{ PSF(origin.x), 0 },
+{ PSF(origin.y), 0 },
 { PSF(bobCycle), 8 },
-{ PSF(velocity[0]), 0 },
-{ PSF(velocity[1]), 0 },
-{ PSF(viewangles[1]), 0 },
-{ PSF(viewangles[0]), 0 },
+{ PSF(velocity.x), 0 },
+{ PSF(velocity.y), 0 },
+{ PSF(viewangles.y), 0 },
+{ PSF(viewangles.x), 0 },
 { PSF(weaponTime), -16 },
-{ PSF(origin[2]), 0 },
-{ PSF(velocity[2]), 0 },
+{ PSF(origin.z), 0 },
+{ PSF(velocity.z), 0 },
 { PSF(legsTimer), 8 },
 { PSF(pm_time), -16 },
 { PSF(eventSequence), 16 },
 { PSF(torsoAnim), 8 },
 { PSF(movementDir), 4 },
+{ PSF(lastMovementDir), 4 },
 { PSF(events[0]), 8 },
 { PSF(legsAnim), 8 },
 { PSF(events[1]), 8 },
@@ -1180,9 +1182,7 @@ netField_t	playerStateFields[] =
 { PSF(weaponstate), 4 },
 { PSF(eFlags), 16 },
 { PSF(externalEvent), 10 },
-{ PSF(gravity), 16 },
-{ PSF(speed), 16 },
-{ PSF(delta_angles[1]), 16 },
+{ PSF(delta_angles.y), 16 },
 { PSF(externalEventParm), 8 },
 { PSF(viewheight), -8 },
 { PSF(damageEvent), 8 },
@@ -1191,19 +1191,17 @@ netField_t	playerStateFields[] =
 { PSF(damageCount), 8 },
 { PSF(generic1), 8 },
 { PSF(pm_type), 8 },					
-{ PSF(delta_angles[0]), 16 },
-{ PSF(delta_angles[2]), 16 },
+{ PSF(delta_angles.x), 16 },
+{ PSF(delta_angles.z), 16 },
 { PSF(torsoTimer), 12 },
 { PSF(eventParms[0]), 8 },
 { PSF(eventParms[1]), 8 },
 { PSF(clientNum), 8 },
 { PSF(weapon), 5 },
-{ PSF(viewangles[2]), 0 },
-{ PSF(grapplePoint[0]), 0 },
-{ PSF(grapplePoint[1]), 0 },
-{ PSF(grapplePoint[2]), 0 },
+{ PSF(viewangles.z), 0 },
 { PSF(jumppad_ent), GENTITYNUM_BITS },
 //QtZ: Added
+// but do we really need these? the client SHOULD be able to predict it anyway
 { PSF(bunnyHopTime), 16 },
 { PSF(doubleJumpTime), 16 },
 { PSF(wallJumpTime), 16 },
@@ -1229,7 +1227,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if (!from) {
 		from = &dummy;
-		Com_Memset (&dummy, 0, sizeof(dummy));
+		memset (&dummy, 0, sizeof(dummy));
 	}
 
 	numFields = ARRAY_LEN( playerStateFields );
@@ -1395,7 +1393,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 
 	if ( !from ) {
 		from = &dummy;
-		Com_Memset( &dummy, 0, sizeof( dummy ) );
+		memset( &dummy, 0, sizeof( dummy ) );
 	}
 	*to = *from;
 
@@ -1436,7 +1434,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 					trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
 					// bias to allow equal parts positive and negative
 					trunc -= FLOAT_INT_BIAS;
-					*(float *)toF = trunc; 
+					*(float *)toF = (float)trunc; 
 					if ( print ) {
 						Com_Printf( "%s:%i ", field->name, trunc );
 					}

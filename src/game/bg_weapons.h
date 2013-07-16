@@ -61,8 +61,8 @@ typedef struct weaponData_s
 
 	qboolean	canZoom;			// Boolean of whether you can zoom with this weapon
 
-	vec3_t		muzzle;				// Muzzle point of weapon
-	vec3_t		kickAngles;			// Only used client-side
+	vector3		muzzle;				// Muzzle point of weapon
+	vector3		kickAngles;			// Only used client-side
 } weaponData_t;
 
 typedef struct weaponName_s

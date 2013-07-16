@@ -62,11 +62,9 @@ cvar_t *in_mouseDebug = NULL; //QtZ: ran into a bug where we ended up with bogus
 
 static SDL_Joystick *stick = NULL;
 
-static qboolean mouseAvailable = qfalse;
 static qboolean mouseActive = qfalse;
 static qboolean keyRepeatEnabled = qfalse;
 
-static cvar_t *in_mouse             = NULL;
 #ifdef MACOS_X_ACCELERATION_HACK
 static cvar_t *in_disablemacosxmouseaccel = NULL;
 static double originalMouseSpeed = -1.0;
@@ -102,7 +100,7 @@ static LONG WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		if ( mouseRaw )
 		{
 			RAWINPUT ri;
-			unsigned int i = sizeof(ri);
+			int i = sizeof(ri);
 			
 			GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, &ri, &i, sizeof(RAWINPUTHEADER) );
 			
@@ -540,7 +538,7 @@ IN_ActivateMouse
 */
 static void IN_ActivateMouse( void )
 {
-	if (!mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
+	if ( !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
 #ifdef MACOS_X_ACCELERATION_HACK
@@ -623,9 +621,6 @@ static void IN_DeactivateMouse( void )
 	// but not when fullscreen
 	if( !Cvar_VariableIntegerValue("r_fullscreen") )
 		SDL_ShowCursor( 1 );
-
-	if( !mouseAvailable )
-		return;
 
 #ifdef MACOS_X_ACCELERATION_HACK
 	if (mouseActive) // mac os x mouse accel hack
@@ -1077,19 +1072,10 @@ static void IN_ProcessEvents( void )
 			}
 			break;
 			case SDL_ACTIVEEVENT:
-				if (e.active.state & SDL_APPINPUTFOCUS) {
-					Cvar_SetValue( "com_unfocused",	!e.active.gain);
-					//QtZ: Raw mouse input
-					#ifdef _WIN32
-						if (e.active.gain && in_mouse->integer == 3) {  //raw input stops working on winxp after losing focus. (why?)
-							IN_ShutdownRawMouse();
-							IN_InitRawMouse();
-						}
-					#endif
-				}
-				if (e.active.state & SDL_APPACTIVE) {
-					Cvar_SetValue( "com_minimized", !e.active.gain);
-				}
+				if ( e.active.state & SDL_APPINPUTFOCUS )
+					Cvar_SetValue( "com_unfocused",	(float)!e.active.gain);
+				if ( e.active.state & SDL_APPACTIVE )
+					Cvar_SetValue( "com_minimized", (float)!e.active.gain);
 				break;
 
 			default:
@@ -1123,12 +1109,12 @@ void IN_Frame( void )
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !( SDL_GetAppState() & SDL_APPINPUTFOCUS ) )
+	else if( !(SDL_GetAppState() & SDL_APPINPUTFOCUS) )
 	{
 		// Window not got focus
 		IN_DeactivateMouse( );
 	}
-	else
+	else if ( !mouseActive )
 		IN_ActivateMouse( );
 
 	/* in case we had to delay actual restart of video system... */
@@ -1174,7 +1160,6 @@ void IN_Init( void )
 	in_mouseDebug				= Cvar_Get( "in_mouseDebug",				"0",	CVAR_ARCHIVE,				NULL );
 
 	// mouse variables
-	in_mouse					= Cvar_Get( "in_mouse",						"1",	CVAR_ARCHIVE,				NULL );
 	in_nograb					= Cvar_Get( "in_nograb",					"0",	CVAR_ARCHIVE,				NULL );
 
 	in_joystick					= Cvar_Get( "in_joystick",					"0",	CVAR_ARCHIVE|CVAR_LATCH,	NULL );
@@ -1191,26 +1176,24 @@ void IN_Init( void )
 
 	//QtZ: Raw mouse input
 	#ifdef _WIN32
-		if (mouseRaw)
+		if ( mouseRaw )
 			IN_ShutdownRawMouse();
-		if (in_mouse->integer == 3 && IN_InitRawMouse())
-		{
-			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+		if ( IN_InitRawMouse() ) {
+			SDL_EventState( SDL_MOUSEMOTION, SDL_IGNORE );
+			SDL_EventState( SDL_MOUSEBUTTONDOWN, SDL_IGNORE );
+			SDL_EventState( SDL_MOUSEBUTTONUP, SDL_IGNORE );
 		} else {
-			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-			SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_ENABLE);
-			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_ENABLE);
+			SDL_EventState( SDL_MOUSEMOTION, SDL_ENABLE );
+			SDL_EventState( SDL_MOUSEBUTTONDOWN, SDL_ENABLE );
+			SDL_EventState( SDL_MOUSEBUTTONUP, SDL_ENABLE );
 		}
 	#endif
 
-	mouseAvailable = ( in_mouse->value != 0 );
-	IN_DeactivateMouse( );
+	IN_DeactivateMouse();
 
 	appState = SDL_GetAppState( );
-	Cvar_SetValue( "com_unfocused",	!( appState & SDL_APPINPUTFOCUS ) );
-	Cvar_SetValue( "com_minimized", !( appState & SDL_APPACTIVE ) );
+	Cvar_SetValue( "com_unfocused",	(float)!( appState & SDL_APPINPUTFOCUS ) );
+	Cvar_SetValue( "com_minimized", (float)!( appState & SDL_APPACTIVE ) );
 
 	IN_InitKeyLockStates( );
 
@@ -1231,8 +1214,6 @@ void IN_Shutdown( void )
 	#endif
 
 	IN_DeactivateMouse( );
-	mouseAvailable = qfalse;
-
 	IN_ShutdownJoystick( );
 }
 

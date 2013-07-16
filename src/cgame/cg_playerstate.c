@@ -92,8 +92,8 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		kick;
 	int			health;
 	float		scale;
-	vec3_t		dir;
-	vec3_t		angles;
+	vector3		dir;
+	vector3		angles;
 	float		dist;
 	float		yaw, pitch;
 
@@ -102,11 +102,10 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 
 	// the lower on health you are, the greater the view kick will be
 	health = cg.snap->ps.stats[STAT_HEALTH];
-	if ( health < 40 ) {
+	if ( health < 40 )
 		scale = 1;
-	} else {
-		scale = 40.0 / health;
-	}
+	else
+		scale = 40.0f / health;
 	kick = damage * scale;
 
 	if (kick < 5)
@@ -122,60 +121,50 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 		cg.v_dmg_pitch = -kick;
 	} else {
 		// positional
-		pitch = pitchByte / 255.0 * 360;
-		yaw = yawByte / 255.0 * 360;
+		pitch = pitchByte / 255.0f * 360;
+		yaw = yawByte / 255.0f * 360;
 
-		angles[PITCH] = pitch;
-		angles[YAW] = yaw;
-		angles[ROLL] = 0;
+		angles.pitch = pitch;
+		angles.yaw = yaw;
+		angles.roll = 0;
 
-		AngleVectors( angles, dir, NULL, NULL );
-		VectorSubtract( vec3_origin, dir, dir );
+		AngleVectors( &angles, &dir, NULL, NULL );
+		VectorSubtract( &vec3_origin, &dir, &dir );
 
-		front = DotProduct (dir, cg.refdef.viewaxis[0] );
-		left = DotProduct (dir, cg.refdef.viewaxis[1] );
-		up = DotProduct (dir, cg.refdef.viewaxis[2] );
+		front = DotProduct (&dir, &cg.refdef.viewaxis[0] );
+		left = DotProduct (&dir, &cg.refdef.viewaxis[1] );
+		up = DotProduct (&dir, &cg.refdef.viewaxis[2] );
 
-		dir[0] = front;
-		dir[1] = left;
-		dir[2] = 0;
-		dist = VectorLength( dir );
-		if ( dist < 0.1 ) {
+		dir.x = front;
+		dir.y = left;
+		dir.z = 0;
+		dist = VectorLength( &dir );
+		if ( dist < 0.1f )
 			dist = 0.1f;
-		}
 
 		cg.v_dmg_roll = kick * left;
 		
 		cg.v_dmg_pitch = -kick * front;
 
-		if ( front <= 0.1 ) {
+		if ( front <= 0.1f )
 			front = 0.1f;
-		}
+
 		cg.damageX = -left / front;
 		cg.damageY = up / dist;
 	}
 
 	// clamp the position
-	if ( cg.damageX > 1.0 ) {
-		cg.damageX = 1.0;
-	}
-	if ( cg.damageX < - 1.0 ) {
-		cg.damageX = -1.0;
-	}
-
-	if ( cg.damageY > 1.0 ) {
-		cg.damageY = 1.0;
-	}
-	if ( cg.damageY < - 1.0 ) {
-		cg.damageY = -1.0;
-	}
+	if ( cg.damageX >  1.0f )	cg.damageX =  1.0f;
+	if ( cg.damageX < -1.0f )	cg.damageX = -1.0f;
+	if ( cg.damageY >  1.0f )	cg.damageY =  1.0f;
+	if ( cg.damageY < -1.0f )	cg.damageY = -1.0f;
 
 	// don't let the screen flashes vary as much
-	if ( kick > 10 ) {
+	if ( kick > 10 )
 		kick = 10;
-	}
+
 	cg.damageValue = kick;
-	cg.v_dmg_time = cg.time + DAMAGE_TIME;
+	cg.v_dmg_time = (float)(cg.time + DAMAGE_TIME);
 	cg.damageTime = cg.snap->serverTime;
 }
 
@@ -216,7 +205,7 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 		cent = &cg_entities[ ps->clientNum ];
 		cent->currentState.event = ps->externalEvent;
 		cent->currentState.eventParm = ps->externalEventParm;
-		CG_EntityEvent( cent, cent->lerpOrigin );
+		CG_EntityEvent( cent, &cent->lerpOrigin );
 	}
 
 	cent = &cg.predictedPlayerEntity; // cg_entities[ ps->clientNum ];
@@ -231,7 +220,7 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 			event = ps->events[ i & (MAX_PS_EVENTS-1) ];
 			cent->currentState.event = event;
 			cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
-			CG_EntityEvent( cent, cent->lerpOrigin );
+			CG_EntityEvent( cent, &cent->lerpOrigin );
 
 			cg.predictableEvents[ i & (MAX_PREDICTED_EVENTS-1) ] = event;
 
@@ -264,7 +253,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 				event = ps->events[ i & (MAX_PS_EVENTS-1) ];
 				cent->currentState.event = event;
 				cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
-				CG_EntityEvent( cent, cent->lerpOrigin );
+				CG_EntityEvent( cent, &cent->lerpOrigin );
 
 				cg.predictableEvents[ i & (MAX_PREDICTED_EVENTS-1) ] = event;
 
@@ -527,7 +516,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 
 	// smooth the ducking viewheight change
 	if ( ps->viewheight != ops->viewheight ) {
-		cg.duckChange = ps->viewheight - ops->viewheight;
+		cg.duckChange = (float)(ps->viewheight - ops->viewheight);
 		if ( cg_instantDuck.integer )
 			cg.duckTime = cg.time - DUCK_TIME;
 		else

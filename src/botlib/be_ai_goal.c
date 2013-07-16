@@ -59,7 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //avoid dropped goal time
 #define AVOID_DROPPED_TIME		10
 //
-#define TRAVELTIME_SCALE		0.01
+#define TRAVELTIME_SCALE		0.01f
 //item flags
 #define IFL_NOTFREE				1		//not in free for all
 #define IFL_NOTTEAM				2		//not in team play
@@ -70,7 +70,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //location in the map "target_location"
 typedef struct maplocation_s
 {
-	vec3_t origin;
+	vector3 origin;
 	int areanum;
 	char name[MAX_EPAIRKEY];
 	struct maplocation_s *next;
@@ -79,7 +79,7 @@ typedef struct maplocation_s
 //camp spots "info_camp"
 typedef struct campspot_s
 {
-	vec3_t origin;
+	vector3 origin;
 	int areanum;
 	char name[MAX_EPAIRKEY];
 	float range;
@@ -95,9 +95,9 @@ typedef struct levelitem_s
 	int iteminfo;						//index into the item info
 	int flags;							//item flags
 	float weight;						//fixed roam weight
-	vec3_t origin;						//origin of the item
+	vector3 origin;						//origin of the item
 	int goalareanum;					//area the item is in
-	vec3_t goalorigin;					//goal origin within the area
+	vector3 goalorigin;					//goal origin within the area
 	int entitynum;						//entity number
 	float timeout;						//item is removed after this time
 	struct levelitem_s *prev, *next;
@@ -112,8 +112,8 @@ typedef struct iteminfo_s
 	int type;							//item type
 	int index;							//index in the inventory
 	float respawntime;					//respawn time
-	vec3_t mins;						//mins of the item
-	vec3_t maxs;						//maxs of the item
+	vector3 mins;						//mins of the item
+	vector3 maxs;						//maxs of the item
 	int number;							//number of the item info
 } iteminfo_t;
 
@@ -121,19 +121,18 @@ typedef struct iteminfo_s
 
 fielddef_t iteminfo_fields[] =
 {
-{"name", ITEMINFO_OFS(name), FT_STRING},
-{"model", ITEMINFO_OFS(model), FT_STRING},
-{"modelindex", ITEMINFO_OFS(modelindex), FT_INT},
-{"type", ITEMINFO_OFS(type), FT_INT},
-{"index", ITEMINFO_OFS(index), FT_INT},
-{"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
-{"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
-{"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
-{NULL, 0, 0}
+	{"name", ITEMINFO_OFS(name), FT_STRING},
+	{"model", ITEMINFO_OFS(model), FT_STRING},
+	{"modelindex", ITEMINFO_OFS(modelindex), FT_INT},
+	{"type", ITEMINFO_OFS(type), FT_INT},
+	{"index", ITEMINFO_OFS(index), FT_INT},
+	{"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
+	{"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
+	{"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
+	{NULL, 0, 0}
 };
 
-structdef_t iteminfo_struct =
-{
+structdef_t iteminfo_struct = {
 	sizeof(iteminfo_t), iteminfo_fields
 };
 
@@ -172,7 +171,7 @@ maplocation_t *maplocations = NULL;
 //camp spots
 campspot_t *campspots = NULL;
 //the game type
-int g_gametype = 0;
+int sv_gametype = 0;
 //additional dropped item weight
 libvar_t *droppedweight = NULL;
 
@@ -289,7 +288,7 @@ itemconfig_t *LoadItemConfig(char *filename)
 				return NULL;
 			} //end if
 			ii = &ic->iteminfo[ic->numiteminfo];
-			Com_Memset(ii, 0, sizeof(iteminfo_t));
+			memset(ii, 0, sizeof(iteminfo_t));
 			if (!PC_ExpectTokenType(source, TT_STRING, 0, &token))
 			{
 				FreeMemory(ic);
@@ -386,7 +385,7 @@ levelitem_t *AllocLevelItem(void)
 	} //end if
 	//
 	freelevelitems = freelevelitems->next;
-	Com_Memset(li, 0, sizeof(levelitem_t));
+	memset(li, 0, sizeof(levelitem_t));
 	return li;
 } //end of the function AllocLevelItem
 //===========================================================================
@@ -474,9 +473,9 @@ void BotInitInfoEntities(void)
 		if (!strcmp(classname, "target_location"))
 		{
 			ml = (maplocation_t *) GetClearedMemory(sizeof(maplocation_t));
-			AAS_VectorForBSPEpairKey(ent, "origin", ml->origin);
+			AAS_VectorForBSPEpairKey(ent, "origin", &ml->origin);
 			AAS_ValueForBSPEpairKey(ent, "message", ml->name, sizeof(ml->name));
-			ml->areanum = AAS_PointAreaNum(ml->origin);
+			ml->areanum = AAS_PointAreaNum(&ml->origin);
 			ml->next = maplocations;
 			maplocations = ml;
 			numlocations++;
@@ -485,17 +484,17 @@ void BotInitInfoEntities(void)
 		else if (!strcmp(classname, "info_camp"))
 		{
 			cs = (campspot_t *) GetClearedMemory(sizeof(campspot_t));
-			AAS_VectorForBSPEpairKey(ent, "origin", cs->origin);
+			AAS_VectorForBSPEpairKey(ent, "origin", &cs->origin);
 			//cs->origin[2] += 16;
 			AAS_ValueForBSPEpairKey(ent, "message", cs->name, sizeof(cs->name));
 			AAS_FloatForBSPEpairKey(ent, "range", &cs->range);
 			AAS_FloatForBSPEpairKey(ent, "weight", &cs->weight);
 			AAS_FloatForBSPEpairKey(ent, "wait", &cs->wait);
 			AAS_FloatForBSPEpairKey(ent, "random", &cs->random);
-			cs->areanum = AAS_PointAreaNum(cs->origin);
+			cs->areanum = AAS_PointAreaNum(&cs->origin);
 			if (!cs->areanum)
 			{
-				botimport.Print(PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
+				botimport.Print(PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin.x, cs->origin.y, cs->origin.z);
 				FreeMemory(cs);
 				continue;
 			} //end if
@@ -521,7 +520,7 @@ void BotInitLevelItems(void)
 {
 	int i, spawnflags, value;
 	char classname[MAX_EPAIRKEY];
-	vec3_t origin, end;
+	vector3 origin, end;
 	int ent, goalareanum;
 	itemconfig_t *ic;
 	levelitem_t *li;
@@ -568,7 +567,7 @@ void BotInitLevelItems(void)
 			continue;
 		} //end if
 		//get the origin of the item
-		if (!AAS_VectorForBSPEpairKey(ent, "origin", origin))
+		if (!AAS_VectorForBSPEpairKey(ent, "origin", &origin))
 		{
 			botimport.Print(PRT_ERROR, "item %s without origin\n", classname);
 			continue;
@@ -579,16 +578,16 @@ void BotInitLevelItems(void)
 		if (spawnflags & 1)
 		{
 			//if the item is not floating in water
-			if (!(AAS_PointContents(origin) & CONTENTS_WATER))
+			if (!(AAS_PointContents(&origin) & CONTENTS_WATER))
 			{
-				VectorCopy(origin, end);
-				end[2] -= 32;
-				trace = AAS_Trace(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, end, -1, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+				VectorCopy(&origin, &end);
+				end.z -= 32;
+				trace = AAS_Trace(&origin, &ic->iteminfo[i].mins, &ic->iteminfo[i].maxs, &end, -1, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
 				//if the item not near the ground
 				if (trace.fraction >= 1)
 				{
 					//if the item is not reachable from a jumppad
-					goalareanum = AAS_BestReachableFromJumpPadArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs);
+					goalareanum = AAS_BestReachableFromJumpPadArea(&origin, &ic->iteminfo[i].mins, &ic->iteminfo[i].maxs);
 					Log_Write("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
 					//botimport.Print(PRT_MESSAGE, "item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
 					if (!goalareanum) continue;
@@ -620,32 +619,30 @@ void BotInitLevelItems(void)
 		//if not a stationary item
 		if (!(spawnflags & 1))
 		{
-			if (!AAS_DropToFloor(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs))
+			if (!AAS_DropToFloor(&origin, &ic->iteminfo[i].mins, &ic->iteminfo[i].maxs))
 			{
-				botimport.Print(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
-												classname, origin[0], origin[1], origin[2]);
+				botimport.Print(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin.x, origin.y, origin.z);
 			} //end if
 		} //end if
 		//item info of the level item
 		li->iteminfo = i;
 		//origin of the item
-		VectorCopy(origin, li->origin);
+		VectorCopy(&origin, &li->origin);
 		//
 		if (goalareanum)
 		{
 			li->goalareanum = goalareanum;
-			VectorCopy(origin, li->goalorigin);
+			VectorCopy(&origin, &li->goalorigin);
 		} //end if
 		else
 		{
 			//get the item goal area and goal origin
-			li->goalareanum = AAS_BestReachableArea(origin,
-							ic->iteminfo[i].mins, ic->iteminfo[i].maxs,
-							li->goalorigin);
+			li->goalareanum = AAS_BestReachableArea(&origin,
+							&ic->iteminfo[i].mins, &ic->iteminfo[i].maxs,
+							&li->goalorigin);
 			if (!li->goalareanum)
 			{
-				botimport.Print(PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n",
-												classname, origin[0], origin[1], origin[2]);
+				botimport.Print(PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", classname, origin.x, origin.y, origin.z);
 			} //end if
 		} //end else
 		//
@@ -689,8 +686,8 @@ void BotResetAvoidGoals(int goalstate)
 
 	gs = BotGoalStateFromHandle(goalstate);
 	if (!gs) return;
-	Com_Memset(gs->avoidgoals, 0, MAX_AVOIDGOALS * sizeof(int));
-	Com_Memset(gs->avoidgoaltimes, 0, MAX_AVOIDGOALS * sizeof(float));
+	memset(gs->avoidgoals, 0, MAX_AVOIDGOALS * sizeof(int));
+	memset(gs->avoidgoaltimes, 0, MAX_AVOIDGOALS * sizeof(float));
 } //end of the function BotResetAvoidGoals
 //===========================================================================
 //
@@ -859,7 +856,7 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	for (; li; li = li->next)
 	{
 		//
-		if (g_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM) continue;
 		}
 		else {
@@ -870,10 +867,10 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 		if (!Q_stricmp(name, itemconfig->iteminfo[li->iteminfo].name))
 		{
 			goal->areanum = li->goalareanum;
-			VectorCopy(li->goalorigin, goal->origin);
+			VectorCopy(&li->goalorigin, &goal->origin);
 			goal->entitynum = li->entitynum;
-			VectorCopy(itemconfig->iteminfo[li->iteminfo].mins, goal->mins);
-			VectorCopy(itemconfig->iteminfo[li->iteminfo].maxs, goal->maxs);
+			VectorCopy(&itemconfig->iteminfo[li->iteminfo].mins, &goal->mins);
+			VectorCopy(&itemconfig->iteminfo[li->iteminfo].maxs, &goal->maxs);
 			goal->number = li->number;
 			goal->flags = GFL_ITEM;
 			if (li->timeout) goal->flags |= GFL_DROPPED;
@@ -892,17 +889,17 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 int BotGetMapLocationGoal(char *name, bot_goal_t *goal)
 {
 	maplocation_t *ml;
-	vec3_t mins = {-8, -8, -8}, maxs = {8, 8, 8};
+	vector3 mins = {-8, -8, -8}, maxs = {8, 8, 8};
 
 	for (ml = maplocations; ml; ml = ml->next)
 	{
 		if (!Q_stricmp(ml->name, name))
 		{
 			goal->areanum = ml->areanum;
-			VectorCopy(ml->origin, goal->origin);
+			VectorCopy(&ml->origin, &goal->origin);
 			goal->entitynum = 0;
-			VectorCopy(mins, goal->mins);
-			VectorCopy(maxs, goal->maxs);
+			VectorCopy(&mins, &goal->mins);
+			VectorCopy(&maxs, &goal->maxs);
 			return qtrue;
 		} //end if
 	} //end for
@@ -918,7 +915,7 @@ int BotGetNextCampSpotGoal(int num, bot_goal_t *goal)
 {
 	int i;
 	campspot_t *cs;
-	vec3_t mins = {-8, -8, -8}, maxs = {8, 8, 8};
+	vector3 mins = {-8, -8, -8}, maxs = {8, 8, 8};
 
 	if (num < 0) num = 0;
 	i = num;
@@ -927,10 +924,10 @@ int BotGetNextCampSpotGoal(int num, bot_goal_t *goal)
 		if (--i < 0)
 		{
 			goal->areanum = cs->areanum;
-			VectorCopy(cs->origin, goal->origin);
+			VectorCopy(&cs->origin, &goal->origin);
 			goal->entitynum = 0;
-			VectorCopy(mins, goal->mins);
-			VectorCopy(maxs, goal->maxs);
+			VectorCopy(&mins, &goal->mins);
+			VectorCopy(&maxs, &goal->maxs);
 			return num+1;
 		} //end if
 	} //end for
@@ -947,7 +944,7 @@ void BotFindEntityForLevelItem(levelitem_t *li)
 	int ent, modelindex;
 	itemconfig_t *ic;
 	aas_entityinfo_t entinfo;
-	vec3_t dir;
+	vector3 dir;
 
 	ic = itemconfig;
 	if (!itemconfig) return;
@@ -960,15 +957,16 @@ void BotFindEntityForLevelItem(levelitem_t *li)
 		//get info about the entity
 		AAS_EntityInfo(ent, &entinfo);
 		//if the entity is still moving
-		if (entinfo.origin[0] != entinfo.lastvisorigin[0] ||
-				entinfo.origin[1] != entinfo.lastvisorigin[1] ||
-				entinfo.origin[2] != entinfo.lastvisorigin[2]) continue;
+		if ( entinfo.origin.x != entinfo.lastvisorigin.x ||
+			 entinfo.origin.y != entinfo.lastvisorigin.y ||
+			 entinfo.origin.z != entinfo.lastvisorigin.z )
+			 continue;
 		//
 		if (ic->iteminfo[li->iteminfo].modelindex == modelindex)
 		{
 			//check if the entity is very close
-			VectorSubtract(li->origin, entinfo.origin, dir);
-			if (VectorLength(dir) < 30)
+			VectorSubtract(&li->origin, &entinfo.origin, &dir);
+			if (VectorLength(&dir) < 30)
 			{
 				//found an entity for this level item
 				li->entitynum = ent;
@@ -989,7 +987,7 @@ void BotFindEntityForLevelItem(levelitem_t *li)
 void BotUpdateEntityItems(void)
 {
 	int ent, i, modelindex;
-	vec3_t dir;
+	vector3 dir;
 	levelitem_t *li, *nextli;
 	aas_entityinfo_t entinfo;
 	itemconfig_t *ic;
@@ -1026,9 +1024,10 @@ void BotUpdateEntityItems(void)
 		//skip all floating items for now
 		//if (entinfo.groundent != ENTITYNUM_WORLD) continue;
 		//if the entity is still moving
-		if (entinfo.origin[0] != entinfo.lastvisorigin[0] ||
-				entinfo.origin[1] != entinfo.lastvisorigin[1] ||
-				entinfo.origin[2] != entinfo.lastvisorigin[2]) continue;
+		if ( entinfo.origin.x != entinfo.lastvisorigin.x ||
+			 entinfo.origin.y != entinfo.lastvisorigin.y ||
+			 entinfo.origin.z != entinfo.lastvisorigin.z )
+			 continue;
 		//check if the entity is already stored as a level item
 		for (li = levelitems; li; li = li->next)
 		{
@@ -1046,15 +1045,15 @@ void BotUpdateEntityItems(void)
 				} //end if
 				else
 				{
-					if (entinfo.origin[0] != li->origin[0] ||
-						entinfo.origin[1] != li->origin[1] ||
-						entinfo.origin[2] != li->origin[2])
+					if ( entinfo.origin.x != li->origin.x ||
+						 entinfo.origin.y != li->origin.y ||
+						 entinfo.origin.z != li->origin.z )
 					{
-						VectorCopy(entinfo.origin, li->origin);
+						VectorCopy(&entinfo.origin, &li->origin);
 						//also update the goal area number
-						li->goalareanum = AAS_BestReachableArea(li->origin,
-										ic->iteminfo[li->iteminfo].mins, ic->iteminfo[li->iteminfo].maxs,
-										li->goalorigin);
+						li->goalareanum = AAS_BestReachableArea(&li->origin,
+										&ic->iteminfo[li->iteminfo].mins, &ic->iteminfo[li->iteminfo].maxs,
+										&li->goalorigin);
 					} //end if
 					break;
 				} //end else
@@ -1067,7 +1066,7 @@ void BotUpdateEntityItems(void)
 			//if this level item is already linked
 			if (li->entitynum) continue;
 			//
-			if (g_gametype >= GT_TEAM) {
+			if (sv_gametype >= GT_TEAM) {
 				if (li->flags & IFL_NOTTEAM) continue;
 			}
 			else {
@@ -1077,22 +1076,20 @@ void BotUpdateEntityItems(void)
 			if (ic->iteminfo[li->iteminfo].modelindex == modelindex)
 			{
 				//check if the entity is very close
-				VectorSubtract(li->origin, entinfo.origin, dir);
-				if (VectorLength(dir) < 30)
+				VectorSubtract(&li->origin, &entinfo.origin, &dir);
+				if (VectorLength(&dir) < 30)
 				{
 					//found an entity for this level item
 					li->entitynum = ent;
 					//if the origin is different
-					if (entinfo.origin[0] != li->origin[0] ||
-						entinfo.origin[1] != li->origin[1] ||
-						entinfo.origin[2] != li->origin[2])
+					if ( !VectorCompare( &entinfo.origin, &li->origin ) )
 					{
 						//update the level item origin
-						VectorCopy(entinfo.origin, li->origin);
+						VectorCopy(&entinfo.origin, &li->origin);
 						//also update the goal area number
-						li->goalareanum = AAS_BestReachableArea(li->origin,
-										ic->iteminfo[li->iteminfo].mins, ic->iteminfo[li->iteminfo].maxs,
-										li->goalorigin);
+						li->goalareanum = AAS_BestReachableArea(&li->origin,
+										&ic->iteminfo[li->iteminfo].mins, &ic->iteminfo[li->iteminfo].maxs,
+										&li->goalorigin);
 					} //end if
 #ifdef DEBUG
 					Log_Write("linked item %s to an entity", ic->iteminfo[li->iteminfo].classname);
@@ -1123,11 +1120,11 @@ void BotUpdateEntityItems(void)
 		//set the item info index for the level item
 		li->iteminfo = i;
 		//origin of the item
-		VectorCopy(entinfo.origin, li->origin);
+		VectorCopy(&entinfo.origin, &li->origin);
 		//get the item goal area and goal origin
-		li->goalareanum = AAS_BestReachableArea(li->origin,
-									ic->iteminfo[i].mins, ic->iteminfo[i].maxs,
-									li->goalorigin);
+		li->goalareanum = AAS_BestReachableArea(&li->origin,
+									&ic->iteminfo[i].mins, &ic->iteminfo[i].maxs,
+									&li->goalorigin);
 		//never go for items dropped into jumppads
 		if (AAS_AreaJumpPad(li->goalareanum))
 		{
@@ -1189,7 +1186,7 @@ void BotPushGoal(int goalstate, bot_goal_t *goal)
 		return;
 	} //end if
 	gs->goalstacktop++;
-	Com_Memcpy(&gs->goalstack[gs->goalstacktop], goal, sizeof(bot_goal_t));
+	memcpy(&gs->goalstack[gs->goalstacktop], goal, sizeof(bot_goal_t));
 } //end of the function BotPushGoal
 //===========================================================================
 //
@@ -1232,7 +1229,7 @@ int BotGetTopGoal(int goalstate, bot_goal_t *goal)
 	gs = BotGoalStateFromHandle(goalstate);
 	if (!gs) return qfalse;
 	if (!gs->goalstacktop) return qfalse;
-	Com_Memcpy(goal, &gs->goalstack[gs->goalstacktop], sizeof(bot_goal_t));
+	memcpy(goal, &gs->goalstack[gs->goalstacktop], sizeof(bot_goal_t));
 	return qtrue;
 } //end of the function BotGetTopGoal
 //===========================================================================
@@ -1248,7 +1245,7 @@ int BotGetSecondGoal(int goalstate, bot_goal_t *goal)
 	gs = BotGoalStateFromHandle(goalstate);
 	if (!gs) return qfalse;
 	if (gs->goalstacktop <= 1) return qfalse;
-	Com_Memcpy(goal, &gs->goalstack[gs->goalstacktop-1], sizeof(bot_goal_t));
+	memcpy(goal, &gs->goalstack[gs->goalstacktop-1], sizeof(bot_goal_t));
 	return qtrue;
 } //end of the function BotGetSecondGoal
 //===========================================================================
@@ -1258,7 +1255,7 @@ int BotGetSecondGoal(int goalstate, bot_goal_t *goal)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelflags)
+int BotChooseLTGItem(int goalstate, vector3 *origin, int *inventory, int travelflags)
 {
 	int areanum, t, weightnum;
 	float weight, bestweight, avoidtime;
@@ -1293,11 +1290,11 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//best weight and item so far
 	bestweight = 0;
 	bestitem = NULL;
-	Com_Memset(&goal, 0, sizeof(bot_goal_t));
+	memset(&goal, 0, sizeof(bot_goal_t));
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}
@@ -1383,9 +1380,9 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	} //end if
 	//create a bot goal for this item
 	iteminfo = &ic->iteminfo[bestitem->iteminfo];
-	VectorCopy(bestitem->goalorigin, goal.origin);
-	VectorCopy(iteminfo->mins, goal.mins);
-	VectorCopy(iteminfo->maxs, goal.maxs);
+	VectorCopy(&bestitem->goalorigin, &goal.origin);
+	VectorCopy(&iteminfo->mins, &goal.mins);
+	VectorCopy(&iteminfo->maxs, &goal.maxs);
 	goal.areanum = bestitem->goalareanum;
 	goal.entitynum = bestitem->entitynum;
 	goal.number = bestitem->number;
@@ -1421,8 +1418,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelflags,
-														bot_goal_t *ltg, float maxtime)
+int BotChooseNBGItem(int goalstate, vector3 *origin, int *inventory, int travelflags, bot_goal_t *ltg, float maxtime)
 {
 	int areanum, t, weightnum, ltg_time;
 	float weight, bestweight, avoidtime;
@@ -1460,11 +1456,11 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//best weight and item so far
 	bestweight = 0;
 	bestitem = NULL;
-	Com_Memset(&goal, 0, sizeof(bot_goal_t));
+	memset(&goal, 0, sizeof(bot_goal_t));
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}
@@ -1519,7 +1515,7 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 					if (ltg && !li->timeout)
 					{
 						//get the travel time from the goal to the long term goal
-						t = AAS_AreaTravelTimeToGoalArea(li->goalareanum, li->goalorigin, ltg->areanum, travelflags);
+						t = AAS_AreaTravelTimeToGoalArea(li->goalareanum, &li->goalorigin, ltg->areanum, travelflags);
 					} //end if
 					//if the travel back is possible and doesn't take too long
 					if (t <= ltg_time)
@@ -1536,9 +1532,9 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 		return qfalse;
 	//create a bot goal for this item
 	iteminfo = &ic->iteminfo[bestitem->iteminfo];
-	VectorCopy(bestitem->goalorigin, goal.origin);
-	VectorCopy(iteminfo->mins, goal.mins);
-	VectorCopy(iteminfo->maxs, goal.maxs);
+	VectorCopy(&bestitem->goalorigin, &goal.origin);
+	VectorCopy(&iteminfo->mins, &goal.mins);
+	VectorCopy(&iteminfo->maxs, &goal.maxs);
 	goal.areanum = bestitem->goalareanum;
 	goal.entitynum = bestitem->entitynum;
 	goal.number = bestitem->number;
@@ -1574,26 +1570,27 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotTouchingGoal(vec3_t origin, bot_goal_t *goal)
+int BotTouchingGoal(vector3 *origin, bot_goal_t *goal)
 {
 	int i;
-	vec3_t boxmins, boxmaxs;
-	vec3_t absmins, absmaxs;
-	vec3_t safety_maxs = {0, 0, 0}; //{4, 4, 10};
-	vec3_t safety_mins = {0, 0, 0}; //{-4, -4, 0};
+	vector3 boxmins, boxmaxs;
+	vector3 absmins, absmaxs;
+	vector3 safety_maxs = {0, 0, 0}; //{4, 4, 10};
+	vector3 safety_mins = {0, 0, 0}; //{-4, -4, 0};
 
-	AAS_PresenceTypeBoundingBox(PRESENCE_NORMAL, boxmins, boxmaxs);
-	VectorSubtract(goal->mins, boxmaxs, absmins);
-	VectorSubtract(goal->maxs, boxmins, absmaxs);
-	VectorAdd(absmins, goal->origin, absmins);
-	VectorAdd(absmaxs, goal->origin, absmaxs);
+	AAS_PresenceTypeBoundingBox(PRESENCE_NORMAL, &boxmins, &boxmaxs);
+	VectorSubtract(&goal->mins, &boxmaxs, &absmins);
+	VectorSubtract(&goal->maxs, &boxmins, &absmaxs);
+	VectorAdd(&absmins, &goal->origin, &absmins);
+	VectorAdd(&absmaxs, &goal->origin, &absmaxs);
 	//make the box a little smaller for safety
-	VectorSubtract(absmaxs, safety_maxs, absmaxs);
-	VectorSubtract(absmins, safety_mins, absmins);
+	VectorSubtract(&absmaxs, &safety_maxs, &absmaxs);
+	VectorSubtract(&absmins, &safety_mins, &absmins);
 
-	for (i = 0; i < 3; i++)
-	{
-		if (origin[i] < absmins[i] || origin[i] > absmaxs[i]) return qfalse;
+	for ( i=0; i<3; i++ ) {
+		if ( origin->data[i] < absmins.data[i] ||
+			 origin->data[i] > absmaxs.data[i] )
+			return qfalse;
 	} //end for
 	return qtrue;
 } //end of the function BotTouchingGoal
@@ -1603,19 +1600,19 @@ int BotTouchingGoal(vec3_t origin, bot_goal_t *goal)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, bot_goal_t *goal)
+int BotItemGoalInVisButNotVisible(int viewer, vector3 *eye, vector3 *viewangles, bot_goal_t *goal)
 {
 	aas_entityinfo_t entinfo;
 	bsp_trace_t trace;
-	vec3_t middle;
+	vector3 middle;
 
 	if (!(goal->flags & GFL_ITEM)) return qfalse;
 	//
-	VectorAdd(goal->mins, goal->mins, middle);
-	VectorScale(middle, 0.5, middle);
-	VectorAdd(goal->origin, middle, middle);
+	VectorAdd(&goal->mins, &goal->mins, &middle);
+	VectorScale(&middle, 0.5, &middle);
+	VectorAdd(&goal->origin, &middle, &middle);
 	//
-	trace = AAS_Trace(eye, NULL, NULL, middle, viewer, CONTENTS_SOLID);
+	trace = AAS_Trace(eye, NULL, NULL, &middle, viewer, CONTENTS_SOLID);
 	//if the goal middle point is visible
 	if (trace.fraction >= 1)
 	{
@@ -1646,7 +1643,7 @@ void BotResetGoalState(int goalstate)
 
 	gs = BotGoalStateFromHandle(goalstate);
 	if (!gs) return;
-	Com_Memset(gs->goalstack, 0, MAX_GOALSTACK * sizeof(bot_goal_t));
+	memset(gs->goalstack, 0, MAX_GOALSTACK * sizeof(bot_goal_t));
 	gs->goalstacktop = 0;
 	BotResetAvoidGoals(goalstate);
 } //end of the function BotResetGoalState
@@ -1745,7 +1742,7 @@ int BotSetupGoalAI(void)
 	char *filename;
 
 	//check if teamplay is on
-	g_gametype = LibVarValue("g_gametype", "0");
+	sv_gametype = (int)LibVarValue("sv_gametype", "0");
 	//item configuration file
 	filename = LibVarString("itemconfig", "items.c");
 	//load the item configuration

@@ -114,8 +114,8 @@ typedef struct bot_activategoal_s
 	float justused_time;					//time the goal was used
 	int shoot;								//true if bot has to shoot to activate
 	int weapon;								//weapon to be used for activation
-	vec3_t target;							//target to shoot at to activate something
-	vec3_t origin;							//origin of the blocking entity to activate
+	vector3 target;							//target to shoot at to activate something
+	vector3 origin;							//origin of the blocking entity to activate
 	int areas[MAX_ACTIVATEAREAS];			//routing areas disabled by blocking entity
 	int numareas;							//number of disabled routing areas
 	int areasdisabled;						//true if the areas are disabled for the routing
@@ -137,10 +137,10 @@ typedef struct bot_state_s
 	bot_settings_t settings;						//several bot settings
 	int (*ainode)(struct bot_state_s *bs);			//current AI node
 	float thinktime;								//time the bot thinks this frame
-	vec3_t origin;									//origin of the bot
-	vec3_t velocity;								//velocity of the bot
+	vector3 origin;									//origin of the bot
+	vector3 velocity;								//velocity of the bot
 	int presencetype;								//presence type of the bot
-	vec3_t eye;										//eye coordinates of the bot
+	vector3 eye;										//eye coordinates of the bot
 	int areanum;									//the number of the area the bot is in
 	int inventory[MAX_ITEMS];						//string with items amounts the bot has
 	int tfl;										//the travel flags the bot uses
@@ -200,9 +200,9 @@ typedef struct bot_state_s
 	float blockedbyavoidspot_time;					//time blocked by an avoid spot
 	float predictobstacles_time;					//last time the bot predicted obstacles
 	int predictobstacles_goalareanum;				//last goal areanum the bot predicted obstacles for
-	vec3_t aimtarget;
-	vec3_t enemyvelocity;							//enemy velocity 0.5 secs ago during battle
-	vec3_t enemyorigin;								//enemy origin 0.5 secs ago during battle
+	vector3 aimtarget;
+	vector3 enemyvelocity;							//enemy velocity 0.5 secs ago during battle
+	vector3 enemyorigin;								//enemy origin 0.5 secs ago during battle
 	//
 	int character;									//the bot character
 	int ms;											//move state of the bot
@@ -212,11 +212,11 @@ typedef struct bot_state_s
 	//
 	int enemy;										//enemy entity number
 	int lastenemyareanum;							//last reachability area the enemy was in
-	vec3_t lastenemyorigin;							//last origin of the enemy in the reachability area
+	vector3 lastenemyorigin;							//last origin of the enemy in the reachability area
 	int weaponnum;									//current weapon number
-	vec3_t viewangles;								//current view angles
-	vec3_t ideal_viewangles;						//ideal view angles
-	vec3_t viewanglespeed;
+	vector3 viewangles;								//current view angles
+	vector3 ideal_viewangles;						//ideal view angles
+	vector3 viewanglespeed;
 	//
 	int ltgtype;									//long term goal type
 	// team goals
@@ -283,7 +283,7 @@ extern float floattime;
 // from the game source
 void	QDECL BotAI_Print(int type, char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 void	QDECL QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
-void	BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask);
+void	BotAI_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask);
 int		BotAI_GetClientState( int clientNum, playerState_t *state );
 int		BotAI_GetEntityState( int entityNum, entityState_t *state );
 int		BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state );

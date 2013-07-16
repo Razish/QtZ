@@ -99,7 +99,7 @@ tryagain:
 	strcat( path, "_flash.md3" );
 	pi->flashModel = uii.R_RegisterModel( path );
 
-	MAKERGB( pi->flashDlightColor, 1, 1, 1 );
+	VectorSet( &pi->flashDlightColor, 1, 1, 1 );
 }
 
 
@@ -221,7 +221,7 @@ static void UI_LegsSequencing( playerInfo_t *pi ) {
 
 	if ( pi->legsAnimationTimer > 0 ) {
 		if ( currentAnim == LEGS_JUMP ) {
-			jumpHeight = JUMP_HEIGHT * sin( M_PI * ( UI_TIMER_JUMP - pi->legsAnimationTimer ) / UI_TIMER_JUMP );
+			jumpHeight = JUMP_HEIGHT * sinf( M_PI * ( UI_TIMER_JUMP - pi->legsAnimationTimer ) / UI_TIMER_JUMP );
 		}
 		return;
 	}
@@ -251,13 +251,12 @@ static void UI_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	orientation_t	lerped;
 	
 	// lerp the tag
-	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
-		1.0 - parent->backlerp, tagName );
+	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
-	VectorCopy( parent->origin, entity->origin );
+	VectorCopy( &parent->origin, &entity->origin );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( entity->origin, lerped.origin[i], parent->axis[i], entity->origin );
+		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 	}
 
 	// cast away const because of compiler problems
@@ -271,20 +270,18 @@ static void UI_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 UI_PositionRotatedEntityOnTag
 ======================
 */
-static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
-							clipHandle_t parentModel, char *tagName ) {
+static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, clipHandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
-	vec3_t			tempAxis[3];
+	vector3			tempAxis[3];
 
 	// lerp the tag
-	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
-		1.0 - parent->backlerp, tagName );
+	uii.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
-	VectorCopy( parent->origin, entity->origin );
+	VectorCopy( &parent->origin, &entity->origin );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( entity->origin, lerped.origin[i], parent->axis[i], entity->origin );
+		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 	}
 
 	// cast away const because of compiler problems
@@ -372,7 +369,7 @@ static void UI_RunLerpFrame( playerInfo_t *ci, lerpFrame_t *lf, int newAnimation
 	if ( lf->frameTime == lf->oldFrameTime ) {
 		lf->backlerp = 0;
 	} else {
-		lf->backlerp = 1.0 - (float)( dp_realtime - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
+		lf->backlerp = 1.0f - (float)( dp_realtime - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
 	}
 }
 
@@ -443,13 +440,13 @@ static void UI_SwingAngles( float destination, float swingTolerance, float clamp
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
-	if ( scale < swingTolerance * 0.5 ) {
-		scale = 0.5;
+	scale = fabsf( swing );
+	if ( scale < swingTolerance * 0.5f ) {
+		scale = 0.5f;
 	} else if ( scale < swingTolerance ) {
-		scale = 1.0;
+		scale = 1.0f;
 	} else {
-		scale = 2.0;
+		scale = 2.0f;
 	}
 
 	// swing towards the destination angle
@@ -485,39 +482,21 @@ UI_MovedirAdjustment
 ======================
 */
 static float UI_MovedirAdjustment( playerInfo_t *pi ) {
-	vec3_t		relativeAngles;
-	vec3_t		moveVector;
+	vector3		relativeAngles;
+	vector3		moveVector;
 
-	VectorSubtract( pi->viewAngles, pi->moveAngles, relativeAngles );
-	AngleVectors( relativeAngles, moveVector, NULL, NULL );
-	if ( Q_fabs( moveVector[0] ) < 0.01 ) {
-		moveVector[0] = 0.0;
-	}
-	if ( Q_fabs( moveVector[1] ) < 0.01 ) {
-		moveVector[1] = 0.0;
-	}
+	VectorSubtract( &pi->viewAngles, &pi->moveAngles, &relativeAngles );
+	AngleVectors( &relativeAngles, &moveVector, NULL, NULL );
+	if ( Q_fabs( moveVector.x ) < 0.01 )	moveVector.x = 0.0;
+	if ( Q_fabs( moveVector.y ) < 0.01 )	moveVector.y = 0.0;
 
-	if ( moveVector[1] == 0 && moveVector[0] > 0 ) {
-		return 0;
-	}
-	if ( moveVector[1] < 0 && moveVector[0] > 0 ) {
-		return 22;
-	}
-	if ( moveVector[1] < 0 && moveVector[0] == 0 ) {
-		return 45;
-	}
-	if ( moveVector[1] < 0 && moveVector[0] < 0 ) {
-		return -22;
-	}
-	if ( moveVector[1] == 0 && moveVector[0] < 0 ) {
-		return 0;
-	}
-	if ( moveVector[1] > 0 && moveVector[0] < 0 ) {
-		return 22;
-	}
-	if ( moveVector[1] > 0 && moveVector[0] == 0 ) {
-		return  -45;
-	}
+	if ( moveVector.y == 0 && moveVector.x >  0 )	return   0;
+	if ( moveVector.y <  0 && moveVector.x >  0 )	return  22;
+	if ( moveVector.y <  0 && moveVector.x == 0 )	return  45;
+	if ( moveVector.y <  0 && moveVector.x <  0 )	return -22;
+	if ( moveVector.y == 0 && moveVector.x <  0 )	return   0;
+	if ( moveVector.y >  0 && moveVector.x <  0 )	return  22;
+	if ( moveVector.y >  0 && moveVector.x == 0 )	return -45;
 
 	return -22;
 }
@@ -528,15 +507,15 @@ static float UI_MovedirAdjustment( playerInfo_t *pi ) {
 UI_PlayerAngles
 ===============
 */
-static void UI_PlayerAngles( playerInfo_t *pi, vec3_t legs[3], vec3_t torso[3], vec3_t head[3] ) {
-	vec3_t		legsAngles, torsoAngles, headAngles;
+static void UI_PlayerAngles( playerInfo_t *pi, vector3 legs[3], vector3 torso[3], vector3 head[3] ) {
+	vector3		legsAngles, torsoAngles, headAngles;
 	float		dest;
 	float		adjust;
 
-	VectorCopy( pi->viewAngles, headAngles );
-	headAngles[YAW] = AngleMod( headAngles[YAW] );
-	VectorClear( legsAngles );
-	VectorClear( torsoAngles );
+	VectorCopy( &pi->viewAngles, &headAngles );
+	headAngles.yaw = AngleMod( headAngles.yaw );
+	VectorClear( &legsAngles );
+	VectorClear( &torsoAngles );
 
 	// --------- yaw -------------
 
@@ -551,34 +530,34 @@ static void UI_PlayerAngles( playerInfo_t *pi, vec3_t legs[3], vec3_t torso[3], 
 
 	// adjust legs for movement dir
 	adjust = UI_MovedirAdjustment( pi );
-	legsAngles[YAW] = headAngles[YAW] + adjust;
-	torsoAngles[YAW] = headAngles[YAW] + 0.25 * adjust;
+	legsAngles.yaw = headAngles.yaw + adjust;
+	torsoAngles.yaw = headAngles.yaw + 0.25f * adjust;
 
 
 	// torso
-	UI_SwingAngles( torsoAngles[YAW], 25, 90, SWINGSPEED, &pi->torso.yawAngle, &pi->torso.yawing );
-	UI_SwingAngles( legsAngles[YAW], 40, 90, SWINGSPEED, &pi->legs.yawAngle, &pi->legs.yawing );
+	UI_SwingAngles( torsoAngles.yaw, 25, 90, SWINGSPEED, &pi->torso.yawAngle, &pi->torso.yawing );
+	UI_SwingAngles( legsAngles.yaw, 40, 90, SWINGSPEED, &pi->legs.yawAngle, &pi->legs.yawing );
 
-	torsoAngles[YAW] = pi->torso.yawAngle;
-	legsAngles[YAW] = pi->legs.yawAngle;
+	torsoAngles.yaw = pi->torso.yawAngle;
+	legsAngles.yaw = pi->legs.yawAngle;
 
 	// --------- pitch -------------
 
 	// only show a fraction of the pitch angle in the torso
-	if ( headAngles[PITCH] > 180 ) {
-		dest = (-360 + headAngles[PITCH]) * 0.75;
+	if ( headAngles.pitch > 180 ) {
+		dest = (-360 + headAngles.pitch) * 0.75f;
 	} else {
-		dest = headAngles[PITCH] * 0.75;
+		dest = headAngles.pitch * 0.75f;
 	}
 	UI_SwingAngles( dest, 15, 30, 0.1f, &pi->torso.pitchAngle, &pi->torso.pitching );
-	torsoAngles[PITCH] = pi->torso.pitchAngle;
+	torsoAngles.pitch = pi->torso.pitchAngle;
 
 	// pull the angles back out of the hierarchial chain
-	AnglesSubtract( headAngles, torsoAngles, headAngles );
-	AnglesSubtract( torsoAngles, legsAngles, torsoAngles );
-	AnglesToAxis( legsAngles, legs );
-	AnglesToAxis( torsoAngles, torso );
-	AnglesToAxis( headAngles, head );
+	AnglesSubtract( &headAngles, &torsoAngles, &headAngles );
+	AnglesSubtract( &torsoAngles, &legsAngles, &torsoAngles );
+	AnglesToAxis( &legsAngles, legs );
+	AnglesToAxis( &torsoAngles, torso );
+	AnglesToAxis( &headAngles, head );
 }
 
 
@@ -587,12 +566,12 @@ static void UI_PlayerAngles( playerInfo_t *pi, vec3_t legs[3], vec3_t torso[3], 
 UI_PlayerFloatSprite
 ===============
 */
-static void UI_PlayerFloatSprite( playerInfo_t *pi, vec3_t origin, qhandle_t shader ) {
+static void UI_PlayerFloatSprite( playerInfo_t *pi, vector3 *origin, qhandle_t shader ) {
 	refEntity_t		ent;
 
 	memset( &ent, 0, sizeof( ent ) );
-	VectorCopy( origin, ent.origin );
-	ent.origin[2] += 48;
+	VectorCopy( origin, &ent.origin );
+	ent.origin.z += 48;
 	ent.reType = RT_SPRITE;
 	ent.customShader = shader;
 	ent.radius = 10;
@@ -620,7 +599,7 @@ float	UI_MachinegunSpinAngle( playerInfo_t *pi ) {
 			delta = COAST_TIME;
 		}
 
-		speed = 0.5 * ( SPIN_SPEED + (float)( COAST_TIME - delta ) / COAST_TIME );
+		speed = 0.5f * ( SPIN_SPEED + (float)( COAST_TIME - delta ) / COAST_TIME );
 		angle = pi->barrelAngle + delta * speed;
 	}
 
@@ -651,10 +630,10 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refEntity_t		gun;
 	refEntity_t		barrel;
 	refEntity_t		flash;
-	vec3_t			origin;
+	vector3			origin;
 	int				renderfx;
-	vec3_t			mins = {-16, -16, -24};
-	vec3_t			maxs = {16, 16, 32};
+	vector3			mins = {-16, -16, -24};
+	vector3			maxs = {16, 16, 32};
 	float			len;
 	float			xx;
 
@@ -692,21 +671,21 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	AxisClear( refdef.viewaxis );
 
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
+	refdef.x = (int)x;
+	refdef.y = (int)y;
+	refdef.width = (int)w;
+	refdef.height = (int)h;
 
-	refdef.fov_x = (int)((float)refdef.width / uiInfo.uiDC.xscale / SCREEN_WIDTH * 90.0f);
-	xx = refdef.width / uiInfo.uiDC.xscale / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( refdef.height / uiInfo.uiDC.yscale, xx );
+	refdef.fov_x = (float)refdef.width / uiInfo.uiDC.xscale / SCREEN_WIDTH * 90.0f;
+	xx = refdef.width / uiInfo.uiDC.xscale / tanf( refdef.fov_x / 360 * M_PI );
+	refdef.fov_y = atan2f( refdef.height / uiInfo.uiDC.yscale, xx );
 	refdef.fov_y *= ( 360 / (float)M_PI );
 
 	// calculate distance so the player nearly fills the box
-	len = 0.7 * ( maxs[2] - mins[2] );
-	origin[0] = len / tan( DEG2RAD(refdef.fov_x) * 0.5 );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
+	len = 0.7f * ( maxs.z - mins.z );
+	origin.x = len / tanf( DEG2RAD(refdef.fov_x) * 0.5f );
+	origin.y =  0.5f * ( mins.y + maxs.y );
+	origin.z = -0.5f * ( mins.z + maxs.z );
 
 	refdef.time = dp_realtime;
 
@@ -727,11 +706,11 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	legs.hModel = pi->legsModel;
 	legs.customSkin = pi->legsSkin;
 
-	VectorCopy( origin, legs.origin );
+	VectorCopy( &origin, &legs.origin );
 
-	VectorCopy( origin, legs.lightingOrigin );
+	VectorCopy( &origin, &legs.lightingOrigin );
 	legs.renderfx = renderfx;
-	VectorCopy (legs.origin, legs.oldorigin);
+	VectorCopy (&legs.origin, &legs.oldorigin);
 
 	uii.R_AddRefEntityToScene( &legs );
 
@@ -749,7 +728,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	torso.customSkin = pi->torsoSkin;
 
-	VectorCopy( origin, torso.lightingOrigin );
+	VectorCopy( &origin, &torso.lightingOrigin );
 
 	UI_PositionRotatedEntityOnTag( &torso, &legs, pi->legsModel, "tag_torso");
 
@@ -766,7 +745,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	}
 	head.customSkin = pi->headSkin;
 
-	VectorCopy( origin, head.lightingOrigin );
+	VectorCopy( &origin, &head.lightingOrigin );
 
 	UI_PositionRotatedEntityOnTag( &head, &torso, pi->torsoModel, "tag_head");
 
@@ -780,7 +759,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	if ( pi->currentWeapon != WP_NONE ) {
 		memset( &gun, 0, sizeof(gun) );
 		gun.hModel = pi->weaponModel;
-		VectorCopy( origin, gun.lightingOrigin );
+		VectorCopy( &origin, &gun.lightingOrigin );
 		UI_PositionEntityOnTag( &gun, &torso, pi->torsoModel, "tag_weapon");
 		gun.renderfx = renderfx;
 		uii.R_AddRefEntityToScene( &gun );
@@ -790,17 +769,17 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	// add the spinning barrel
 	//
 	{//if ( pi->realWeapon == WP_MACHINEGUN || pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
-		vec3_t	angles;
+		vector3	angles;
 
 		memset( &barrel, 0, sizeof(barrel) );
-		VectorCopy( origin, barrel.lightingOrigin );
+		VectorCopy( &origin, &barrel.lightingOrigin );
 		barrel.renderfx = renderfx;
 
 		barrel.hModel = pi->barrelModel;
-		angles[YAW] = 0;
-		angles[PITCH] = 0;
-		angles[ROLL] = UI_MachinegunSpinAngle( pi );
-		AnglesToAxis( angles, barrel.axis );
+		angles.yaw = 0;
+		angles.pitch = 0;
+		angles.roll = UI_MachinegunSpinAngle( pi );
+		AnglesToAxis( &angles, barrel.axis );
 
 		UI_PositionRotatedEntityOnTag( &barrel, &gun, pi->weaponModel, "tag_barrel");
 
@@ -814,16 +793,15 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		if ( pi->flashModel ) {
 			memset( &flash, 0, sizeof(flash) );
 			flash.hModel = pi->flashModel;
-			VectorCopy( origin, flash.lightingOrigin );
+			VectorCopy( &origin, &flash.lightingOrigin );
 			UI_PositionEntityOnTag( &flash, &gun, pi->weaponModel, "tag_flash");
 			flash.renderfx = renderfx;
 			uii.R_AddRefEntityToScene( &flash );
 		}
 
 		// make a dlight for the flash
-		if ( pi->flashDlightColor[0] || pi->flashDlightColor[1] || pi->flashDlightColor[2] ) {
-			uii.R_AddLightToScene( flash.origin, 200 + (rand()&31), pi->flashDlightColor[0],
-				pi->flashDlightColor[1], pi->flashDlightColor[2] );
+		if ( pi->flashDlightColor.r || pi->flashDlightColor.g || pi->flashDlightColor.b ) {
+			uii.R_AddLightToScene( &flash.origin, (float)(200 + (rand()&31)), pi->flashDlightColor.r, pi->flashDlightColor.g, pi->flashDlightColor.b );
 		}
 	}
 
@@ -831,21 +809,21 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	// add the chat icon
 	//
 	if ( pi->chat ) {
-		UI_PlayerFloatSprite( pi, origin, uii.R_RegisterShader( "sprites/balloon3" ) );
+		UI_PlayerFloatSprite( pi, &origin, uii.R_RegisterShader( "sprites/balloon3" ) );
 	}
 
 	//
 	// add an accent light
 	//
-	origin[0] -= 100;	// + = behind, - = in front
-	origin[1] += 100;	// + = left, - = right
-	origin[2] += 100;	// + = above, - = below
-	uii.R_AddLightToScene( origin, 500, 1.0, 1.0, 1.0 );
+	origin.x -= 100;	// + = behind, - = in front
+	origin.y += 100;	// + = left, - = right
+	origin.z += 100;	// + = above, - = below
+	uii.R_AddLightToScene( &origin, 500, 1.0, 1.0, 1.0 );
 
-	origin[0] -= 100;
-	origin[1] -= 100;
-	origin[2] -= 100;
-	uii.R_AddLightToScene( origin, 500, 1.0, 0.0, 0.0 );
+	origin.x -= 100;
+	origin.y -= 100;
+	origin.z -= 100;
+	uii.R_AddLightToScene( &origin, 500, 1.0, 0.0, 0.0 );
 
 	uii.R_RenderScene( &refdef );
 }
@@ -1075,12 +1053,12 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 		if ( !token ) {
 			break;
 		}
-		fps = atof( token );
+		fps = (float)atof( token );
 		if ( fps == 0 ) {
 			fps = 1;
 		}
-		animations[i].frameLerp = 1000 / fps;
-		animations[i].initialLerp = 1000 / fps;
+		animations[i].frameLerp = (int)(1000 / fps);
+		animations[i].initialLerp = (int)(1000 / fps);
 	}
 
 	if ( i != MAX_ANIMATIONS ) {
@@ -1219,17 +1197,17 @@ void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *he
 UI_PlayerInfo_SetInfo
 ===============
 */
-void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNumber, qboolean chat ) {
+void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vector3 *viewAngles, vector3 *moveAngles, weapon_t weaponNumber, qboolean chat ) {
 	int			currentAnim;
 	weapon_t	weaponNum;
 
 	pi->chat = chat;
 
 	// view angles
-	VectorCopy( viewAngles, pi->viewAngles );
+	VectorCopy( viewAngles, &pi->viewAngles );
 
 	// move angles
-	VectorCopy( moveAngles, pi->moveAngles );
+	VectorCopy( moveAngles, &pi->moveAngles );
 
 	if ( pi->newModel ) {
 		pi->newModel = qfalse;
@@ -1237,12 +1215,12 @@ void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_
 		jumpHeight = 0;
 		pi->pendingLegsAnim = 0;
 		UI_ForceLegsAnim( pi, legsAnim );
-		pi->legs.yawAngle = viewAngles[YAW];
+		pi->legs.yawAngle = viewAngles->yaw;
 		pi->legs.yawing = qfalse;
 
 		pi->pendingTorsoAnim = 0;
 		UI_ForceTorsoAnim( pi, torsoAnim );
-		pi->torso.yawAngle = viewAngles[YAW];
+		pi->torso.yawAngle = viewAngles->yaw;
 		pi->torso.yawing = qfalse;
 
 		if ( weaponNumber != -1 ) {

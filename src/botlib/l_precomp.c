@@ -276,7 +276,7 @@ token_t *PC_CopyToken(token_t *token)
 		return NULL;
 	} //end if
 //	freetokens = freetokens->next;
-	Com_Memcpy(t, token, sizeof(token_t));
+	memcpy(t, token, sizeof(token_t));
 	t->next = NULL;
 	numtokens++;
 	return t;
@@ -331,7 +331,7 @@ int PC_ReadSourceToken(source_t *source, token_t *token)
 		FreeScript(script);
 	} //end while
 	//copy the already available token
-	Com_Memcpy(token, source->tokens, sizeof(token_t));
+	memcpy(token, source->tokens, sizeof(token_t));
 	//free the read token
 	t = source->tokens;
 	source->tokens = source->tokens->next;
@@ -682,7 +682,7 @@ void PC_AddBuiltinDefines(source_t *source)
 	for (i = 0; builtin[i].string; i++)
 	{
 		define = (define_t *) GetMemory(sizeof(define_t));
-		Com_Memset(define, 0, sizeof(define_t));
+		memset(define, 0, sizeof(define_t));
 		define->name = (char *) GetMemory(strlen(builtin[i].string) + 1);
 		strcpy(define->name, builtin[i].string);
 		define->flags |= DEFINE_FIXED;
@@ -718,7 +718,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			sprintf(token->string, "%d", deftoken->line);
 #ifdef NUMBERVALUE
 			token->intvalue = deftoken->line;
-			token->floatvalue = deftoken->line;
+			token->floatvalue = (float)deftoken->line;
 #endif //NUMBERVALUE
 			token->type = TT_NUMBER;
 			token->subtype = TT_DECIMAL | TT_INTEGER;
@@ -1034,7 +1034,7 @@ int PC_Directive_include(source_t *source)
 #ifdef QUAKE
 	if (!script)
 	{
-		Com_Memset(&file, 0, sizeof(foundfile_t));
+		memset(&file, 0, sizeof(foundfile_t));
 		script = LoadScriptFile(path);
 		if (script) strncpy(script->filename, path, MAX_PATH);
 	} //end if
@@ -1218,7 +1218,7 @@ int PC_Directive_define(source_t *source)
 	} //end if
 	//allocate define
 	define = (define_t *) GetMemory(sizeof(define_t));
-	Com_Memset(define, 0, sizeof(define_t));
+	memset(define, 0, sizeof(define_t));
 	define->name = (char *) GetMemory(strlen(token.string) + 1);
 	strcpy(define->name, token.string);
 	//add the define to the source
@@ -1329,7 +1329,7 @@ define_t *PC_DefineFromString(char *string)
 
 	script = LoadScriptMemory(string, strlen(string), "*extern");
 	//create a new source
-	Com_Memset(&src, 0, sizeof(source_t));
+	memset(&src, 0, sizeof(source_t));
 	strncpy(src.filename, "*extern", MAX_PATH);
 	src.scriptstack = script;
 #if DEFINEHASHING
@@ -1998,7 +1998,7 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 		switch(o->operator)
 		{
 			case P_LOGIC_NOT:		v1->intvalue = !v1->intvalue;
-									v1->floatvalue = !v1->floatvalue; break;
+									v1->floatvalue = (float)!v1->floatvalue; break;
 			case P_BIN_NOT:			v1->intvalue = ~v1->intvalue;
 									break;
 			case P_MUL:				v1->intvalue *= v2->intvalue;
@@ -2023,21 +2023,21 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 			case P_SUB:				v1->intvalue -= v2->intvalue;
 									v1->floatvalue -= v2->floatvalue; break;
 			case P_LOGIC_AND:		v1->intvalue = v1->intvalue && v2->intvalue;
-									v1->floatvalue = v1->floatvalue && v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue && v2->floatvalue); break;
 			case P_LOGIC_OR:		v1->intvalue = v1->intvalue || v2->intvalue;
-									v1->floatvalue = v1->floatvalue || v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue || v2->floatvalue); break;
 			case P_LOGIC_GEQ:		v1->intvalue = v1->intvalue >= v2->intvalue;
-									v1->floatvalue = v1->floatvalue >= v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue >= v2->floatvalue); break;
 			case P_LOGIC_LEQ:		v1->intvalue = v1->intvalue <= v2->intvalue;
-									v1->floatvalue = v1->floatvalue <= v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue <= v2->floatvalue); break;
 			case P_LOGIC_EQ:		v1->intvalue = v1->intvalue == v2->intvalue;
-									v1->floatvalue = v1->floatvalue == v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue == v2->floatvalue); break;
 			case P_LOGIC_UNEQ:		v1->intvalue = v1->intvalue != v2->intvalue;
-									v1->floatvalue = v1->floatvalue != v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue != v2->floatvalue); break;
 			case P_LOGIC_GREATER:	v1->intvalue = v1->intvalue > v2->intvalue;
-									v1->floatvalue = v1->floatvalue > v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue > v2->floatvalue); break;
 			case P_LOGIC_LESS:		v1->intvalue = v1->intvalue < v2->intvalue;
-									v1->floatvalue = v1->floatvalue < v2->floatvalue; break;
+									v1->floatvalue = (float)(v1->floatvalue < v2->floatvalue); break;
 			case P_RSHIFT:			v1->intvalue >>= v2->intvalue;
 									break;
 			case P_LSHIFT:			v1->intvalue <<= v2->intvalue;
@@ -2562,7 +2562,7 @@ int PC_DollarDirective_evalint(source_t *source)
 
 #ifdef NUMBERVALUE
 	token.intvalue = abs(value);
-	token.floatvalue = token.intvalue;
+	token.floatvalue = (float)token.intvalue;
 #endif //NUMBERVALUE
 
 	PC_UnreadSourceToken(source, &token);
@@ -2592,7 +2592,7 @@ int PC_DollarDirective_evalfloat(source_t *source)
 	token.subtype = TT_FLOAT|TT_LONG|TT_DECIMAL;
 
 #ifdef NUMBERVALUE
-	token.floatvalue = fabs(value);
+	token.floatvalue = fabsf(value);
 	token.intvalue = (unsigned long) token.floatvalue;
 #endif //NUMBERVALUE
 
@@ -2781,7 +2781,7 @@ int PC_ReadToken(source_t *source, token_t *token)
 			} //end if
 		} //end if
 		//copy token for unreading
-		Com_Memcpy(&source->token, token, sizeof(token_t));
+		memcpy(&source->token, token, sizeof(token_t));
 		//found a token
 		return qtrue;
 	} //end while
@@ -2912,7 +2912,7 @@ int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token)
 	if (tok.type == type &&
 			(tok.subtype & subtype) == subtype)
 	{
-		Com_Memcpy(token, &tok, sizeof(token_t));
+		memcpy(token, &tok, sizeof(token_t));
 		return qtrue;
 	} //end if
 	//
@@ -3000,7 +3000,7 @@ source_t *LoadSourceFile(const char *filename)
 	script->next = NULL;
 
 	source = (source_t *) GetMemory(sizeof(source_t));
-	Com_Memset(source, 0, sizeof(source_t));
+	memset(source, 0, sizeof(source_t));
 
 	strncpy(source->filename, filename, MAX_PATH);
 	source->scriptstack = script;
@@ -3033,7 +3033,7 @@ source_t *LoadSourceMemory(char *ptr, int length, char *name)
 	script->next = NULL;
 
 	source = (source_t *) GetMemory(sizeof(source_t));
-	Com_Memset(source, 0, sizeof(source_t));
+	memset(source, 0, sizeof(source_t));
 
 	strncpy(source->filename, name, MAX_PATH);
 	source->scriptstack = script;

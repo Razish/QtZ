@@ -54,7 +54,7 @@ extern vmCvar_t	ui_spScores4;
 extern vmCvar_t	ui_spScores5;
 extern vmCvar_t	ui_spAwards;
 extern vmCvar_t	ui_spVideos;
-extern vmCvar_t	ui_spSkill;
+extern vmCvar_t	ui_difficulty;
 
 extern vmCvar_t	ui_spSelection;
 
@@ -303,26 +303,26 @@ extern sfxHandle_t	menu_out_sound;
 extern sfxHandle_t	menu_buzz_sound;
 extern sfxHandle_t	menu_null_sound;
 extern sfxHandle_t	weaponChangeSound;
-extern vec4_t		menu_text_color;
-extern vec4_t		menu_grayed_color;
-extern vec4_t		menu_dark_color;
-extern vec4_t		menu_highlight_color;
-extern vec4_t		menu_red_color;
-extern vec4_t		menu_black_color;
-extern vec4_t		menu_dim_color;
-extern vec4_t		color_black;
-extern vec4_t		color_white;
-extern vec4_t		color_yellow;
-extern vec4_t		color_blue;
-extern vec4_t		color_orange;
-extern vec4_t		color_red;
-extern vec4_t		color_dim;
-extern vec4_t		name_color;
-extern vec4_t		list_color;
-extern vec4_t		listbar_color;
-extern vec4_t		text_color_disabled; 
-extern vec4_t		text_color_normal;
-extern vec4_t		text_color_highlight;
+extern vector4		menu_text_color;
+extern vector4		menu_grayed_color;
+extern vector4		menu_dark_color;
+extern vector4		menu_highlight_color;
+extern vector4		menu_red_color;
+extern vector4		menu_black_color;
+extern vector4		menu_dim_color;
+extern vector4		color_black;
+extern vector4		color_white;
+extern vector4		color_yellow;
+extern vector4		color_blue;
+extern vector4		color_orange;
+extern vector4		color_red;
+extern vector4		color_dim;
+extern vector4		name_color;
+extern vector4		list_color;
+extern vector4		listbar_color;
+extern vector4		text_color_disabled; 
+extern vector4		text_color_normal;
+extern vector4		text_color_highlight;
 
 extern char	*ui_medalNames[];
 extern char	*ui_medalPicNames[];
@@ -334,7 +334,7 @@ extern char	*ui_medalSounds[];
 extern void			MField_Clear( mfield_t *edit );
 extern void			MField_KeyDownEvent( mfield_t *edit, int key );
 extern void			MField_CharEvent( mfield_t *edit, int ch );
-extern void			MField_Draw( mfield_t *edit, int x, int y, int style, vec4_t color );
+extern void			MField_Draw( mfield_t *edit, int x, int y, int style, vector4 *color );
 extern void			MenuField_Init( menufield_s* m );
 extern void			MenuField_Draw( menufield_s *f );
 extern sfxHandle_t	MenuField_Key( menufield_s* m, int* key );
@@ -520,12 +520,12 @@ typedef struct {
 	qhandle_t		weaponModel;
 	qhandle_t		barrelModel;
 	qhandle_t		flashModel;
-	vec3_t			flashDlightColor;
+	vector3			flashDlightColor;
 	int				muzzleFlashTime;
 
 	// currently in use drawing parms
-	vec3_t			viewAngles;
-	vec3_t			moveAngles;
+	vector3			viewAngles;
+	vector3			moveAngles;
 	weapon_t		currentWeapon;
 	int				legsAnim;
 	int				torsoAnim;
@@ -553,7 +553,7 @@ typedef struct {
 
 void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int time );
 void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *headmodel, char *teamName );
-void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNum, qboolean chat );
+void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vector3 *viewAngles, vector3 *moveAngles, weapon_t weaponNum, qboolean chat );
 qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName , const char *headName, const char *teamName);
 
 //
@@ -780,9 +780,10 @@ typedef struct {
 	int modCount;
 	int modIndex;
 
-	const char *demoList[MAX_DEMOS];
+	char demoList[MAX_DEMOS][MAX_QPATH];
 	int demoCount;
 	int demoIndex;
+	int loadedDemos;
 
 	const char *movieList[MAX_MOVIES];
 	int movieCount;
@@ -831,19 +832,19 @@ extern qboolean		UI_ConsoleCommand( int realTime );
 extern float		UI_ClampCvar( float min, float max, float value );
 extern void			UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 extern void			UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ); 
-extern void			UI_FillRect( float x, float y, float width, float height, const float *color );
-extern void			UI_DrawRect( float x, float y, float width, float height, const float *color );
+extern void			UI_FillRect( float x, float y, float width, float height, const vector4 *color );
+extern void			UI_DrawRect( float x, float y, float width, float height, const vector4 *color );
 extern void     UI_DrawTopBottom(float x, float y, float w, float h);
 extern void     UI_DrawSides(float x, float y, float w, float h);
 extern void			UI_UpdateScreen( void );
-extern void			UI_SetColor( const float *rgba );
-extern void			UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-extern void			UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color );
+extern void			UI_SetColor( const vector4 *rgba );
+extern void			UI_LerpColor(vector4 *a, vector4 *b, vector4 *c, float t);
+extern void			UI_DrawBannerString( int x, int y, const char* str, int style, vector4 *color );
 extern float		UI_ProportionalSizeScale( int style );
-extern void			UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color );
+extern void			UI_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color );
 extern int			UI_ProportionalStringWidth( const char* str );
-extern void			UI_DrawString( int x, int y, const char* str, int style, vec4_t color );
-extern void			UI_DrawChar( int x, int y, int ch, int style, vec4_t color );
+extern void			UI_DrawString( int x, int y, const char* str, int style, vector4 *color );
+extern void			UI_DrawChar( int x, int y, int ch, int style, vector4 *color );
 extern qboolean 	UI_CursorInRect (int x, int y, int width, int height);
 extern void			UI_AdjustFrom640( float *x, float *y, float *w, float *h );
 extern void			UI_DrawTextBox (int x, int y, int width, int lines);
@@ -859,80 +860,6 @@ extern void			UI_StartDemoLoop( void );
 extern qboolean		m_entersound;
 void UI_LoadBestScores(const char *map, int game);
 extern uiStatic_t	uis;
-
-//
-// ui_spLevel.c
-//
-void UI_SPLevelMenu_Cache( void );
-void UI_SPLevelMenu( void );
-void UI_SPLevelMenu_f( void );
-void UI_SPLevelMenu_ReInit( void );
-
-//
-// ui_spArena.c
-//
-void UI_SPArena_Start( const char *arenaInfo );
-
-//
-// ui_spPostgame.c
-//
-void UI_SPPostgameMenu_Cache( void );
-void UI_SPPostgameMenu_f( void );
-
-//
-// ui_spSkill.c
-//
-void UI_SPSkillMenu( const char *arenaInfo );
-void UI_SPSkillMenu_Cache( void );
-
-//
-// ui_addbots.c
-//
-void UI_AddBots_Cache( void );
-void UI_AddBotsMenu( void );
-
-//
-// ui_removebots.c
-//
-void UI_RemoveBots_Cache( void );
-void UI_RemoveBotsMenu( void );
-
-//
-// ui_teamorders.c
-//
-extern void UI_TeamOrdersMenu( void );
-extern void UI_TeamOrdersMenu_f( void );
-extern void UI_TeamOrdersMenu_Cache( void );
-
-//
-// ui_loadconfig.c
-//
-void UI_LoadConfig_Cache( void );
-void UI_LoadConfigMenu( void );
-
-//
-// ui_saveconfig.c
-//
-void UI_SaveConfigMenu_Cache( void );
-void UI_SaveConfigMenu( void );
-
-//
-// ui_display.c
-//
-void UI_DisplayOptionsMenu_Cache( void );
-void UI_DisplayOptionsMenu( void );
-
-//
-// ui_sound.c
-//
-void UI_SoundOptionsMenu_Cache( void );
-void UI_SoundOptionsMenu( void );
-
-//
-// ui_network.c
-//
-void UI_NetworkOptionsMenu_Cache( void );
-void UI_NetworkOptionsMenu( void );
 
 //
 // ui_gameinfo.c
@@ -973,25 +900,6 @@ void UI_SPUnlock_f( void );
 void UI_SPUnlockMedals_f( void );
 
 void UI_InitGameinfo( void );
-
-//
-// ui_login.c
-//
-void Login_Cache( void );
-void UI_LoginMenu( void );
-
-//
-// ui_signup.c
-//
-void Signup_Cache( void );
-void UI_SignupMenu( void );
-
-//
-// ui_rankstatus.c
-//
-void RankStatus_Cache( void );
-void UI_RankStatusMenu( void );
-
 
 // new ui 
 

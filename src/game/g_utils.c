@@ -240,7 +240,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	}
 
 	if (ent->targetShaderName && ent->targetShaderNewName) {
-		float f = level.time * 0.001;
+		float f = level.time * 0.001f;
 		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
 		gi.SV_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 	}
@@ -265,56 +265,6 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	}
 }
 
-
-/*
-=============
-TempVector
-
-This is just a convenience function
-for making temporary vectors for function calls
-=============
-*/
-float	*tv( float x, float y, float z ) {
-	static	int		index;
-	static	vec3_t	vecs[8];
-	float	*v;
-
-	// use an array so that multiple tempvectors won't collide
-	// for a while
-	v = vecs[index];
-	index = (index + 1)&7;
-
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-
-	return v;
-}
-
-
-/*
-=============
-VectorToString
-
-This is just a convenience function
-for printing vectors
-=============
-*/
-char	*vtos( const vec3_t v ) {
-	static	int		index;
-	static	char	str[8][32];
-	char	*s;
-
-	// use an array so that multiple vtos won't collide
-	s = str[index];
-	index = (index + 1)&7;
-
-	Com_sprintf (s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2]);
-
-	return s;
-}
-
-
 /*
 ===============
 G_SetMovedir
@@ -325,16 +275,16 @@ Angles will be cleared, because it is being used to represent a direction
 instead of an orientation.
 ===============
 */
-void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
-	static vec3_t VEC_UP		= {0, -1, 0};
-	static vec3_t MOVEDIR_UP	= {0, 0, 1};
-	static vec3_t VEC_DOWN		= {0, -2, 0};
-	static vec3_t MOVEDIR_DOWN	= {0, 0, -1};
+void G_SetMovedir( vector3 *angles, vector3 *movedir ) {
+	static vector3 VEC_UP		= { 0, -1,  0};
+	static vector3 MOVEDIR_UP	= { 0,  0,  1};
+	static vector3 VEC_DOWN		= { 0, -2,  0};
+	static vector3 MOVEDIR_DOWN	= { 0,  0, -1};
 
-	if ( VectorCompare (angles, VEC_UP) ) {
-		VectorCopy (MOVEDIR_UP, movedir);
-	} else if ( VectorCompare (angles, VEC_DOWN) ) {
-		VectorCopy (MOVEDIR_DOWN, movedir);
+	if ( VectorCompare (angles, &VEC_UP) ) {
+		VectorCopy (&MOVEDIR_UP, movedir);
+	} else if ( VectorCompare (angles, &VEC_DOWN) ) {
+		VectorCopy (&MOVEDIR_DOWN, movedir);
 	} else {
 		AngleVectors (angles, movedir, NULL, NULL);
 	}
@@ -342,15 +292,15 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 }
 
 
-float vectoyaw( const vec3_t vec ) {
+float vectoyaw( const vector3 *vec ) {
 	float	yaw;
 	
-	if (vec[YAW] == 0 && vec[PITCH] == 0) {
+	if (vec->yaw == 0 && vec->pitch == 0) {
 		yaw = 0;
 	} else {
-		if (vec[PITCH]) {
-			yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
-		} else if (vec[YAW] > 0) {
+		if (vec->pitch) {
+			yaw = ( atan2f( vec->yaw, vec->pitch) * 180 / M_PI );
+		} else if (vec->yaw > 0) {
 			yaw = 90;
 		} else {
 			yaw = 270;
@@ -483,9 +433,9 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event ) {
+gentity_t *G_TempEntity( vector3 *origin, int event ) {
 	gentity_t		*e;
-	vec3_t		snapped;
+	vector3		snapped;
 
 	e = G_Spawn();
 	e->s.eType = ET_EVENTS + event;
@@ -494,9 +444,9 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->eventTime = level.time;
 	e->freeAfterEvent = qtrue;
 
-	VectorCopy( origin, snapped );
-	SnapVector( snapped );		// save network bandwidth
-	G_SetOrigin( e, snapped );
+	VectorCopy( origin, &snapped );
+	VectorSnap( &snapped );		// save network bandwidth
+	G_SetOrigin( e, &snapped );
 
 	// find cluster for PVS
 	gi.SV_LinkEntity( (sharedEntity_t *)e );
@@ -526,11 +476,11 @@ void G_KillBox (gentity_t *ent) {
 	int			i, num;
 	int			touch[MAX_GENTITIES];
 	gentity_t	*hit;
-	vec3_t		mins, maxs;
+	vector3		mins, maxs;
 
-	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
-	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
-	num = gi.SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
+	VectorAdd( &ent->client->ps.origin, &ent->r.mins, &mins );
+	VectorAdd( &ent->client->ps.origin, &ent->r.maxs, &maxs );
+	num = gi.SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
@@ -603,7 +553,7 @@ G_Sound
 void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 	gentity_t	*te;
 
-	te = G_TempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
+	te = G_TempEntity( &ent->r.currentOrigin, EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
 }
 
@@ -618,14 +568,14 @@ G_SetOrigin
 Sets the pos trajectory for a fixed position
 ================
 */
-void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
-	VectorCopy( origin, ent->s.pos.trBase );
+void G_SetOrigin( gentity_t *ent, vector3 *origin ) {
+	VectorCopy( origin, &ent->s.pos.trBase );
 	ent->s.pos.trType = TR_STATIONARY;
 	ent->s.pos.trTime = 0;
 	ent->s.pos.trDuration = 0;
-	VectorClear( ent->s.pos.trDelta );
+	VectorClear( &ent->s.pos.trDelta );
 
-	VectorCopy( origin, ent->r.currentOrigin );
+	VectorCopy( origin, &ent->r.currentOrigin );
 }
 
 /*
@@ -636,30 +586,30 @@ DebugLine
   with r_debugSurface set to 2
 ================
 */
-int DebugLine(vec3_t start, vec3_t end, int color) {
-	vec3_t points[4], dir, cross, up = {0, 0, 1};
+int DebugLine(vector3 *start, vector3 *end, int color) {
+	vector3 points[4], dir, cross, up = {0, 0, 1};
 	float dot;
 
-	VectorCopy(start, points[0]);
-	VectorCopy(start, points[1]);
+	VectorCopy(start, &points[0]);
+	VectorCopy(start, &points[1]);
 	//points[1][2] -= 2;
-	VectorCopy(end, points[2]);
+	VectorCopy(end, &points[2]);
 	//points[2][2] -= 2;
-	VectorCopy(end, points[3]);
+	VectorCopy(end, &points[3]);
 
 
-	VectorSubtract(end, start, dir);
-	VectorNormalize(dir);
-	dot = DotProduct(dir, up);
-	if (dot > 0.99 || dot < -0.99) VectorSet(cross, 1, 0, 0);
-	else CrossProduct(dir, up, cross);
+	VectorSubtract(end, start, &dir);
+	VectorNormalize(&dir);
+	dot = DotProduct(&dir, &up);
+	if (dot > 0.99 || dot < -0.99) VectorSet(&cross, 1, 0, 0);
+	else CrossProduct(&dir, &up, &cross);
 
-	VectorNormalize(cross);
+	VectorNormalize(&cross);
 
-	VectorMA(points[0], 2, cross, points[0]);
-	VectorMA(points[1], -2, cross, points[1]);
-	VectorMA(points[2], -2, cross, points[2]);
-	VectorMA(points[3], 2, cross, points[3]);
+	VectorMA(&points[0],  2, &cross, &points[0]);
+	VectorMA(&points[1], -2, &cross, &points[1]);
+	VectorMA(&points[2], -2, &cross, &points[2]);
+	VectorMA(&points[3],  2, &cross, &points[3]);
 
 	return gi.DebugPolygonCreate(color, 4, points);
 }

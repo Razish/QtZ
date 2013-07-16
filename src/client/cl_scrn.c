@@ -91,7 +91,7 @@ SCR_FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void SCR_FillRect( float x, float y, float width, float height, const float *color ) {
+void SCR_FillRect( float x, float y, float width, float height, const vector4 *color ) {
 	re.SetColor( color );
 
 	SCR_AdjustFrom640( &x, &y, &width, &height );
@@ -134,18 +134,18 @@ static void SCR_DrawChar( int x, int y, float size, int ch ) {
 		return;
 	}
 
-	ax = x;
-	ay = y;
-	aw = size;
-	ah = size;
+	ax = (float)x;
+	ay = (float)y;
+	aw = (float)size;
+	ah = (float)size;
 	SCR_AdjustFrom640( &ax, &ay, &aw, &ah );
 
 	row = ch>>4;
 	col = ch&15;
 
-	frow = row*0.0625;
-	fcol = col*0.0625;
-	size = 0.0625;
+	frow = row*0.0625f;
+	fcol = col*0.0625f;
+	size = 0.0625f;
 
 	re.DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
@@ -175,11 +175,11 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 	row = ch>>4;
 	col = ch&15;
 
-	frow = row*0.0625;
-	fcol = col*0.0625;
-	size = 0.0625;
+	frow = row*0.0625f;
+	fcol = col*0.0625f;
+	size = 0.0625f;
 
-	re.DrawStretchPic( x, y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
+	re.DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cls.charSetShader );
@@ -206,7 +206,7 @@ void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
 	frow = row*size;
 	fcol = col*size;
 	
-	re.DrawStretchPic( x, y, SMALLCHAR_WIDTH*scale, SMALLCHAR_HEIGHT*scale,
+	re.DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH*scale, SMALLCHAR_HEIGHT*scale,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cls.charSetShader );
@@ -222,16 +222,14 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt( int x, int y, float size, const char *string, float *setColor, qboolean forceColor,
-		qboolean noColorEscape ) {
-	vec4_t		color;
+void SCR_DrawStringExt( int x, int y, float size, const char *string, vector4 *setColor, qboolean forceColor, qboolean noColorEscape ) {
+	vector4		color;
 	const char	*s;
 	int			xx;
 
 	// draw the drop shadow
-	color[0] = color[1] = color[2] = 0;
-	color[3] = setColor[3];
-	re.SetColor( color );
+	VectorSet4( &color, 0.0f, 0.0f, 0.0f, setColor->a );
+	re.SetColor( &color );
 	s = string;
 	xx = x;
 	while ( *s ) {
@@ -240,7 +238,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 			continue;
 		}
 		SCR_DrawChar( xx+2, y+2, size, *s );
-		xx += size;
+		xx += (int)size;
 		s++;
 	}
 
@@ -252,9 +250,9 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
-				color[3] = setColor[3];
-				re.SetColor( color );
+				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color.a = setColor->a;
+				re.SetColor( &color );
 			}
 			if ( !noColorEscape ) {
 				s += 2;
@@ -262,7 +260,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 			}
 		}
 		SCR_DrawChar( xx, y, size, *s );
-		xx += size;
+		xx += (int)size;
 		s++;
 	}
 	re.SetColor( NULL );
@@ -270,14 +268,13 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 
 
 void SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape ) {
-	float	color[4];
+	vector4 color;
 
-	color[0] = color[1] = color[2] = 1.0;
-	color[3] = alpha;
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qfalse, noColorEscape );
+	VectorSet4( &color, 1.0f, 1.0f, 1.0f, alpha );
+	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, &color, qfalse, noColorEscape );
 }
 
-void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape ) {
+void SCR_DrawBigStringColor( int x, int y, const char *s, vector4 *color, qboolean noColorEscape ) {
 	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qtrue, noColorEscape );
 }
 
@@ -290,9 +287,9 @@ Draws a multi-colored string with a drop shadow, optionally forcing
 to a fixed color.
 ==================
 */
-void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor,
+void SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor, qboolean forceColor,
 		qboolean noColorEscape ) {
-	vec4_t		color;
+	vector4		color;
 	const char	*s;
 	int			xx;
 
@@ -303,9 +300,9 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
-				color[3] = setColor[3];
-				re.SetColor( color );
+				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color.a = setColor->a;
+				re.SetColor( &color );
 			}
 			if ( !noColorEscape ) {
 				s += 2;
@@ -369,7 +366,7 @@ void SCR_DrawDemoRecording( void ) {
 	pos = FS_FTell( clc.demofile );
 	sprintf( string, "RECORDING %s: %ik", clc.demoName, pos / 1024 );
 
-	SCR_DrawStringExt( (SCREEN_WIDTH/2) - strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue, qfalse );
+	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - strlen( string ) * 4, 20, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
 }
 
 
@@ -408,7 +405,7 @@ void SCR_DrawVoipMeter( void ) {
 	buffer[i] = '\0';
 
 	sprintf( string, "VoIP: [%s]", buffer );
-	SCR_DrawStringExt( (SCREEN_WIDTH/2) - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
+	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - strlen( string ) * 4, 10, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
 }
 #endif
 
@@ -453,9 +450,8 @@ void SCR_DrawDebugGraph (void)
 	w = cls.glconfig.vidWidth;
 	x = 0;
 	y = cls.glconfig.vidHeight;
-	re.SetColor( g_color_table[0] );
-	re.DrawStretchPic(x, y - cl_graphheight->integer, 
-		w, cl_graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
+	re.SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
+	re.DrawStretchPic((float)x, (float)(y - cl_graphheight->integer), (float)w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
 	re.SetColor( NULL );
 
 	for (a=0 ; a<w ; a++)
@@ -467,7 +463,7 @@ void SCR_DrawDebugGraph (void)
 		if (v < 0)
 			v += cl_graphheight->integer * (1+(int)(-v / cl_graphheight->integer));
 		h = (int)v % cl_graphheight->integer;
-		re.DrawStretchPic( x+w-1-a, y - h, 1, h, 0, 0, 0, 0, cls.whiteShader );
+		re.DrawStretchPic( (float)(x+w-1-a), (float)(y - h), 1.0f, (float)h, 0, 0, 0, 0, cls.whiteShader );
 	}
 }
 
@@ -509,8 +505,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// unless they are displaying game renderings
 	if ( uiFullscreen || (clc.state != CA_ACTIVE && clc.state != CA_CINEMATIC) ) {
 		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
-			re.SetColor( g_color_table[0] );
-			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			re.SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
+			re.DrawStretchPic( 0, 0, (float)cls.glconfig.vidWidth, (float)cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
 			re.SetColor( NULL );
 		}
 	}

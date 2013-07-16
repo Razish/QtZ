@@ -53,45 +53,53 @@ static void CG_ForceModelUpdate( void ) {
 }
 
 static void CG_ForceColorUpdate( void ) {
-	int *color = NULL;
+	ivector3 *v = NULL;
 	int i=0;
 	
 	// enemy color
-	color = cg.forceModel.enemyColor;
-	if ( sscanf( cg_forceEnemyModelColor.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
-		MAKERGB( color, 0, 255, 0 );
+	v = &cg.forceModel.enemyColor;
+	if ( sscanf( cg_forceEnemyModelColor.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+		v->r = 0;
+		v->g = 255;
+		v->b = 0;
 	}
 	for ( i=0; i<3; i++ )
-		color[i] &= 0xFF;
+		v->data[i] &= 0xFF;
 
 	// ally color
-	color = cg.forceModel.allyColor;
-	if ( sscanf( cg_forceAllyModelColor.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
-		MAKERGB( color, 127, 127, 127 );
+	v = &cg.forceModel.allyColor;
+	if ( sscanf( cg_forceAllyModelColor.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+		v->r = 127;
+		v->g = 127;
+		v->b = 127;
 	}
 	for ( i=0; i<3; i++ )
-		color[i] &= 0xFF;
+		v->data[i] &= 0xFF;
 }
 
 static void CG_XHairColorUpdate( void ) {
-	int *color = NULL;
+	ivector3 *v = &cg.crosshair.baseColor;
 	int i=0;
 	
 	// base color
-	color = cg.crosshair.baseColor;
-	if ( sscanf( cg_crosshairColour.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
-		MAKERGB( color, 0, 255, 0 );
+	v = &cg.crosshair.baseColor;
+	if ( sscanf( cg_crosshairColour.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+		v->r = 0;
+		v->g = 255;
+		v->b = 0;
 	}
 	for ( i=0; i<3; i++ )
-		color[i] &= 0xFF;
+		v->data[i] &= 0xFF;
 
 	// feedback color
-	color = cg.crosshair.feedbackColor;
-	if ( sscanf( cg_crosshairFeedbackColour.string, "%i %i %i", &color[0], &color[1], &color[2] ) != 3 ) {
-		MAKERGB( color, 127, 127, 127 );
+	v = &cg.crosshair.feedbackColor;
+	if ( sscanf( cg_crosshairFeedbackColour.string, "%i %i %i", &v->r, &v->g, &v->b) != 3 ) {
+		v->r = 127;
+		v->g = 127;
+		v->b = 127;
 	}
 	for ( i=0; i<3; i++ )
-		color[i] &= 0xFF;
+		v->data[i] &= 0xFF;
 }
 
 static void CG_GunAlignUpdate( void ) {
@@ -113,7 +121,7 @@ static void CG_GunAlignUpdate( void ) {
 }
 
 static void CG_ViewVarsUpdate( void ) {
-	angle3 *a = NULL;
+	vector3	 *a = NULL;
 	number *n = NULL;
 	qboolean *b = NULL;
 
@@ -126,8 +134,8 @@ static void CG_ViewVarsUpdate( void ) {
 	}
 
 	// viewmodel drifting (pitch, yaw, roll, speed)
-	a = &cg.gunIdleDrift;
-	n = &cg.gunIdleDriftSpeed;
+	a = &cg.gunIdleDrift.amount;
+	n = &cg.gunIdleDrift.speed;
 	if ( sscanf( cg_gunIdleDrift.string, "%f %f %f %f", &a->pitch, &a->yaw, &a->roll, n ) != 4 ) {
 		a->pitch = 0.01f;
 		a->yaw = 0.01f;
@@ -136,13 +144,11 @@ static void CG_ViewVarsUpdate( void ) {
 	}
 
 	// view bobbing (pitch, roll, up, fall)
-	n = &cg.viewBob[0];
-	b = &cg.viewBobFall;
-	if ( sscanf( cg_viewBob.string, "%f %f %f %i", &n[0], &n[1], &n[2], b ) != 4 ) {
-		n[0] = 0.002f;
-		n[1] = 0.002f;
-		n[2] = 0.005f;
-		*b = qtrue;
+	if ( sscanf( cg_viewBob.string, "%f %f %f %i", &cg.viewBob.pitch, &cg.viewBob.roll, &cg.viewBob.up, &cg.viewBob.fall ) != 4 ) {
+		cg.viewBob.pitch	= 0.002f;
+		cg.viewBob.roll		= 0.002f;
+		cg.viewBob.up		= 0.005f;
+		cg.viewBob.fall		= qtrue;
 	}
 }
 
@@ -198,7 +204,6 @@ void CG_RegisterCvars( void ) {
 	cgs.localServer = atoi( var );
 
 	cgi.Cvar_Register( NULL, "model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
-	cgi.Cvar_Register( NULL, "team_model",		DEFAULT_TEAM_MODEL,	CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
 }
 
 /*
@@ -723,14 +728,14 @@ static void CG_RegisterGraphics( void ) {
 	cgs.numInlineModels = cgi.CM_NumInlineModels();
 	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
 		char	name[10];
-		vec3_t			mins, maxs;
+		vector3			mins, maxs;
 		int				j;
 
 		Com_sprintf( name, sizeof(name), "*%i", i );
 		cgs.inlineDrawModel[i] = cgi.R_RegisterModel( name );
-		cgi.R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
-		for ( j = 0 ; j < 3 ; j++ ) {
-			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
+		cgi.R_ModelBounds( cgs.inlineDrawModel[i], &mins, &maxs );
+		for ( j=0; j<3; j++ ) {
+			cgs.inlineModelMidpoints[i].data[j] = mins.data[j] + 0.5f * ( maxs.data[j] - mins.data[j] );
 		}
 	}
 
@@ -1041,7 +1046,7 @@ qboolean CG_Asset_Parse(int handle) {
 			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
 				return qfalse;
 			}
-			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
+			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor.a;
 			continue;
 		}
 	}
@@ -1321,7 +1326,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 				return "Ready";
 			}
 			if (team == -1) {
-				if (cgs.gametype == GT_TOURNAMENT) {
+				if (cgs.gametype == GT_DUEL) {
 					return va("%i/%i", info->wins, info->losses);
 				} else if (info->infoValid && info->team == TEAM_SPECTATOR ) {
 					return "Spectator";
@@ -1381,17 +1386,17 @@ static float CG_Cvar_Get(const char *cvar) {
 	char buff[128];
 	memset(buff, 0, sizeof(buff));
 	cgi.Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
-	return atof(buff);
+	return (float)atof(buff);
 }
 
-void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style) {
+void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const char *text, int cursorPos, char cursor, int limit, int style) {
 	CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
 }
 
 static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	switch (ownerDraw) {
 	case CG_GAME_TYPE:
-		return CG_Text_Width(gametypeNames[cgs.gametype], scale, 0);
+		return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, 0);
 	case CG_GAME_STATUS:
 		return CG_Text_Width(CG_GetGameStatusText(), scale, 0);
 		break;
@@ -1414,7 +1419,7 @@ static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 }
 
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return cgi.CIN_PlayCinematic(name, x, y, w, h, CIN_loop);
+	return cgi.CIN_PlayCinematic(name, (int)x, (int)y, (int)w, (int)h, CIN_loop);
 }
 
 static void CG_StopCinematic(int handle) {
@@ -1422,7 +1427,7 @@ static void CG_StopCinematic(int handle) {
 }
 
 static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
-	cgi.CIN_SetExtents(handle, x, y, w, h);
+	cgi.CIN_SetExtents(handle, (int)x, (int)y, (int)w, (int)h);
 	cgi.CIN_DrawCinematic(handle);
 }
 

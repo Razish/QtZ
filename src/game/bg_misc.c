@@ -48,29 +48,27 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 //RAZMARK: adding new weapons
 gitem_t bg_itemlist[] = {
 	// sorted alphabetically, case sensitive
-	{	"ammo_all",					"sound/ammo_pickup.wav",		{ "models/items/battery.md3",			NULL },									"icons/ammo_all",				"Ammo All",				50,			IT_AMMO,				-1,						"",			"" },
-	{	"holdable_medkit",			"sound/holdable_pickup.wav",	{ "models/holdable/medkit.md3",			"models/holdable/medkit_sphere.md3" },	"icons/holdable_medkit",		"Medkit",				60,			IT_HOLDABLE,			HI_MEDKIT,				"",			"sound/items/use_medkit.wav" },
-	{	"holdable_teleporter",		"sound/holdable_pickup.wav",	{ "models/holdable/teleporter.md3",		NULL },									"icons/holdable_teleporter",	"Personal Teleporter",	60,			IT_HOLDABLE,			HI_TELEPORTER,			"",			"" },
-	{	"item_armor_large",			"sound/item_pickup.wav",		{ "models/powerups/armor/large.md3",	NULL },									"icons/armor_large",			"50 Armor",				50,			IT_ARMOR,				0,						"",			"" },
-	{	"item_armor_medium",		"sound/item_pickup.wav",		{ "models/powerups/armor/medium.md3",	NULL },									"icons/armor_medium",			"25 Armor",				25,			IT_ARMOR,				0,						"",			"" },
-	{	"item_armor_mega",			"sound/item_pickup.wav",		{ "models/powerups/armor/mega.md3",		NULL },									"icons/armor_mega",				"Mega Armor",			100,		IT_ARMOR,				0,						"",			"" },
-	{	"item_armor_small",			"sound/item_pickup.wav",		{ "models/powerups/armor/small.md3",	NULL },									"icons/armor_small",			"5 Armor",				5,			IT_ARMOR,				0,						"",			"" },
-	{	"item_health_large",		"sound/item_pickup.wav",		{ "models/powerups/health/large.md3",	NULL },									"icons/health_large",			"50 Health",			50,			IT_HEALTH,				0,						"",			"" },
-	{	"item_health_medium",		"sound/item_pickup.wav",		{ "models/powerups/health/medium.md3",	NULL },									"icons/health_medium",			"25 Health",			25,			IT_HEALTH,				0,						"",			"" },
-	{	"item_health_mega",			"sound/item_pickup.wav",		{ "models/powerups/health/mega.md3",	NULL },									"icons/health_mega",			"Mega Health",			100,		IT_HEALTH,				0,						"",			"" },
-	{	"item_health_small",		"sound/item_pickup.wav",		{ "models/powerups/health/small.md3",	NULL },									"icons/health_small",			"5 Health",				5,			IT_HEALTH,				0,						"",			"" },
-	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
-	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
-	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
-	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
-	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
-	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
-	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
-	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			IT_WEAPON,				WP_MORTAR,				"",			"" },
-	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
-	{	"weapon_repeater",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_repeater",		"Repeater",				120,		IT_WEAPON,				WP_REPEATER,			"",			"" },
-	{	"weapon_splicer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_splicer",			"Splicer",				100,		IT_WEAPON,				WP_SPLICER,				"",			"" },
-	{	NULL,						NULL,							{ NULL,									NULL },									NULL,							NULL,					0,			IT_BAD,					0,						"",			"" },
+	//	classname					pickup sound					world model																		icon							pickup name				quantity	respawn		giType					giTag					precaches	sounds
+	{	"ammo_all",					"sound/ammo_pickup.wav",		{ "models/items/battery.md3",			NULL },									"icons/ammo_all",				"Ammo All",				50,			0,			IT_AMMO,				-1,						"",			"" },
+	{	"holdable_medkit",			"sound/holdable_pickup.wav",	{ "models/holdable/medkit.md3",			"models/holdable/medkit_sphere.md3" },	"icons/holdable_medkit",		"Medkit",				60,			0,			IT_HOLDABLE,			HI_MEDKIT,				"",			"sound/items/use_medkit.wav" },
+	{	"holdable_teleporter",		"sound/holdable_pickup.wav",	{ "models/holdable/teleporter.md3",		NULL },									"icons/holdable_teleporter",	"Personal Teleporter",	60,			0,			IT_HOLDABLE,			HI_TELEPORTER,			"",			"" },
+	{	"item_armor_large",			"sound/item_pickup.wav",		{ "models/powerups/armor/large.md3",	NULL },									"icons/armor_large",			"100 Armor",			100,		30,			IT_ARMOR,				0,						"",			"" },
+	{	"item_armor_medium",		"sound/item_pickup.wav",		{ "models/powerups/armor/medium.md3",	NULL },									"icons/armor_medium",			"50 Armor",				50,			30,			IT_ARMOR,				0,						"",			"" },
+	{	"item_armor_small",			"sound/item_pickup.wav",		{ "models/powerups/armor/small.md3",	NULL },									"icons/armor_small",			"25 Armor",				25,			30,			IT_ARMOR,				0,						"",			"" },
+	{	"item_health_large",		"sound/item_pickup.wav",		{ "models/powerups/health/large.md3",	NULL },									"icons/health_large",			"50 Health",			50,			35,			IT_HEALTH,				0,						"",			"" },
+	{	"item_health_medium",		"sound/item_pickup.wav",		{ "models/powerups/health/medium.md3",	NULL },									"icons/health_medium",			"25 Health",			25,			35,			IT_HEALTH,				0,						"",			"" },
+	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			0,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
+	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			0,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
+	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			0,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
+	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
+	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
+	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
+	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			0,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
+	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			0,			IT_WEAPON,				WP_MORTAR,				"",			"" },
+	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
+	{	"weapon_repeater",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_repeater",		"Repeater",				120,		0,			IT_WEAPON,				WP_REPEATER,			"",			"" },
+	{	"weapon_splicer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_splicer",			"Splicer",				100,		0,			IT_WEAPON,				WP_SPLICER,				"",			"" },
+	{	NULL,						NULL,							{ NULL,									NULL },									NULL,							NULL,					0,			0,			IT_BAD,					0,						"",			"" },
 };
 int bg_numItems = ARRAY_LEN( bg_itemlist );
 
@@ -158,18 +156,18 @@ grabbing them easier
 ============
 */
 qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
-	vec3_t		origin;
-	vec3_t mins=ITEM_MINS,maxs=ITEM_MAXS;
+	vector3 origin;
+	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
 
-	BG_EvaluateTrajectory( &item->pos, atTime, origin );
+	BG_EvaluateTrajectory( &item->pos, atTime, &origin );
 
 	// we are ignoring ducked differences here
-	if ( ps->origin[0] - origin[0] > maxs[0]
-		|| ps->origin[0] - origin[0] < mins[0]
-		|| ps->origin[1] - origin[1] > maxs[1]
-		|| ps->origin[1] - origin[1] < mins[1]
-		|| ps->origin[2] - origin[2] > maxs[2]
-		|| ps->origin[2] - origin[2] < mins[2] ) {
+	if ( ps->origin.x - origin.x > maxs.x ||
+		 ps->origin.x - origin.x < mins.x ||
+		 ps->origin.y - origin.y > maxs.y ||
+		 ps->origin.y - origin.y < mins.y ||
+		 ps->origin.z - origin.z > maxs.z ||
+		 ps->origin.z - origin.z < mins.z ) {
 		return qfalse;
 	}
 
@@ -186,60 +184,32 @@ Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
 */
-qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
-	gitem_t	*item;
-	int		upperBound;
 
-	if ( ent->modelindex < 0 || ent->modelindex >= bg_numItems ) {
+qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
+	gitem_t *item = NULL;
+
+	if ( ent->modelindex < 0 || ent->modelindex >= bg_numItems )
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
-	}
 
 	item = &bg_itemlist[ent->modelindex];
 
 	switch( item->giType ) {
 	case IT_WEAPON:
-		return qtrue;	// weapons are always picked up
+		return qtrue;
 
 	case IT_AMMO:
-		//QTZFIXME: proper ammo limits
-		if ( ps->ammo[ item->giTag ] >= 200 )
-			return qfalse;		// can't hold any more
+		if ( ps->ammo[item->giTag] >= weaponData[item->giTag].ammoMax )
+			return qfalse;
 		return qtrue;
 
 	case IT_ARMOR:
-		// we also clamp armor to the maxhealth for handicapping
-		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			upperBound = ps->stats[STAT_MAX_HEALTH];
-		}
-		else {
-			upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
-		}
-
-		if ( ps->stats[STAT_ARMOR] >= upperBound ) {
+		if ( ps->stats[STAT_ARMOR] >= item->quantity )
 			return qfalse;
-		}
-		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
-			return qfalse;
-		}
 		return qtrue;
 
 	case IT_HEALTH:
-		// small and mega healths will go over the max, otherwise
-		// don't pick up if already at max
-		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			upperBound = ps->stats[STAT_MAX_HEALTH];
-		}
-		else
-		if ( item->quantity == 5 || item->quantity == 100 ) {
-			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
-				return qfalse;
-			}
-			return qtrue;
-		}
-
-		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+		if ( ps->stats[STAT_HEALTH] >= MAX_HEALTH )
 			return qfalse;
-		}
 		return qtrue;
 
 	case IT_POWERUP:
@@ -247,35 +217,25 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	case IT_PERSISTANT_POWERUP:
 		// can only hold one item at a time
-		if ( ps->stats[STAT_PERSISTANT_POWERUP] ) {
+		if ( ps->stats[STAT_PERSISTANT_POWERUP] )
 			return qfalse;
-		}
 
 		// check team only
-		if( ( ent->generic1 & 2 ) && ( ps->persistant[PERS_TEAM] != TEAM_RED ) ) {
+		if ( !(ent->generic1 & (1<<ps->persistant[PERS_TEAM])) )
 			return qfalse;
-		}
-		if( ( ent->generic1 & 4 ) && ( ps->persistant[PERS_TEAM] != TEAM_BLUE ) ) {
-			return qfalse;
-		}
 
 		return qtrue;
 
 	case IT_TEAM: // team items, such as flags
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
-			if( item->giTag == PW_NEUTRALFLAG ) {
+			if( item->giTag == PW_NEUTRALFLAG )
 				return qtrue;
-			}
-			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
-				if (item->giTag == PW_BLUEFLAG  && ps->powerups[PW_NEUTRALFLAG] ) {
-					return qtrue;
-				}
-			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-				if (item->giTag == PW_REDFLAG  && ps->powerups[PW_NEUTRALFLAG] ) {
-					return qtrue;
-				}
-			}
+
+			if ( ps->powerups[PW_NEUTRALFLAG] &&
+				((ps->persistant[PERS_TEAM] == TEAM_RED && item->giTag == PW_BLUEFLAG)
+				|| (ps->persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_REDFLAG)) )
+				return qtrue;
 		}
 		if( gametype == GT_CTF ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
@@ -303,14 +263,12 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 		return qtrue;
 
-        case IT_BAD:
-            Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
-        default:
-#ifndef Q3_VM
-#ifndef NDEBUG
-          Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
-#endif
-#endif
+	case IT_BAD:
+		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
+	default:
+		#ifdef _DEBUG
+			Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
+		#endif
          break;
 	}
 
@@ -325,41 +283,41 @@ BG_EvaluateTrajectory
 
 ================
 */
-void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
+void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vector3 *result ) {
 	float		deltaTime;
 	float		phase;
 
 	switch( tr->trType ) {
 	case TR_STATIONARY:
 	case TR_INTERPOLATE:
-		VectorCopy( tr->trBase, result );
+		VectorCopy( &tr->trBase, result );
 		break;
 	case TR_LINEAR:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		deltaTime = ( atTime - tr->trTime ) * 0.001f;	// milliseconds to seconds
+		VectorMA( &tr->trBase, deltaTime, &tr->trDelta, result );
 		break;
 	case TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = sin( deltaTime * M_PI * 2 );
-		VectorMA( tr->trBase, phase, tr->trDelta, result );
+		phase = sinf( deltaTime * M_PI * 2 );
+		VectorMA( &tr->trBase, phase, &tr->trDelta, result );
 		break;
 	case TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration ) {
 			atTime = tr->trTime + tr->trDuration;
 		}
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		deltaTime = ( atTime - tr->trTime ) * 0.001f;	// milliseconds to seconds
 		if ( deltaTime < 0 ) {
 			deltaTime = 0;
 		}
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		VectorMA( &tr->trBase, deltaTime, &tr->trDelta, result );
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;		// FIXME: local gravity...
+		deltaTime = ( atTime - tr->trTime ) * 0.001f;	// milliseconds to seconds
+		VectorMA( &tr->trBase, deltaTime, &tr->trDelta, result );
+		result->z -= 0.5f * DEFAULT_GRAVITY * deltaTime * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trType );
 		break;
 	}
 }
@@ -371,7 +329,7 @@ BG_EvaluateTrajectoryDelta
 For determining velocity at a given time
 ================
 */
-void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
+void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vector3 *result ) {
 	float	deltaTime;
 	float	phase;
 
@@ -381,28 +339,28 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		VectorClear( result );
 		break;
 	case TR_LINEAR:
-		VectorCopy( tr->trDelta, result );
+		VectorCopy( &tr->trDelta, result );
 		break;
 	case TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
-		phase *= 0.5;
-		VectorScale( tr->trDelta, phase, result );
+		phase = cosf( deltaTime * M_PI * 2 );	// derivative of sin = cos
+		phase *= 0.5f;
+		VectorScale( &tr->trDelta, phase, result );
 		break;
 	case TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration ) {
 			VectorClear( result );
 			return;
 		}
-		VectorCopy( tr->trDelta, result );
+		VectorCopy( &tr->trDelta, result );
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorCopy( tr->trDelta, result );
-		result[2] -= DEFAULT_GRAVITY * deltaTime;		// FIXME: local gravity...
+		deltaTime = ( atTime - tr->trTime ) * 0.001f;	// milliseconds to seconds
+		VectorCopy( &tr->trDelta, result );
+		result->z -= DEFAULT_GRAVITY * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trType );
 		break;
 	}
 }
@@ -524,7 +482,7 @@ BG_TouchJumpPad
 ========================
 */
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
-	vec3_t	angles;
+	vector3	angles;
 	float p;
 	int effectNum;
 
@@ -537,8 +495,8 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	// then don't play the event sound again if we are in a fat trigger
 	if ( ps->jumppad_ent != jumppad->number ) {
 
-		vectoangles( jumppad->origin2, angles);
-		p = fabs( AngleNormalize180( angles[PITCH] ) );
+		vectoangles( &jumppad->origin2, &angles);
+		p = fabsf( AngleNormalize180( angles.pitch ) );
 		if( p < 45 ) {
 			effectNum = 0;
 		} else {
@@ -550,7 +508,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	ps->jumppad_ent = jumppad->number;
 	ps->jumppad_frame = ps->pmove_framecount;
 	// give the player the velocity from the jumppad
-	VectorCopy( jumppad->origin2, ps->velocity );
+	VectorCopy( &jumppad->origin2, &ps->velocity );
 }
 
 /*
@@ -562,7 +520,7 @@ and after local prediction on the client
 ========================
 */
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap ) {
-	int		i;
+	int i;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
 		s->eType = ET_INVISIBLE;
@@ -575,20 +533,21 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	s->number = ps->clientNum;
 
 	s->pos.trType = TR_INTERPOLATE;
-	VectorCopy( ps->origin, s->pos.trBase );
+	VectorCopy( &ps->origin, &s->pos.trBase );
 	if ( snap ) {
-		SnapVector( s->pos.trBase );
+		VectorSnap( &s->pos.trBase );
 	}
 	// set the trDelta for flag direction
-	VectorCopy( ps->velocity, s->pos.trDelta );
+	VectorCopy( &ps->velocity, &s->pos.trDelta );
 
 	s->apos.trType = TR_INTERPOLATE;
-	VectorCopy( ps->viewangles, s->apos.trBase );
+	VectorCopy( &ps->viewangles, &s->apos.trBase );
 	if ( snap ) {
-		SnapVector( s->apos.trBase );
+		VectorSnap( &s->apos.trBase );
 	}
 
-	s->angles2[YAW] = ps->movementDir;
+	s->angles2.yaw = (float)ps->movementDir;
+
 	s->legsAnim = ps->legsAnim;
 	s->torsoAnim = ps->torsoAnim;
 	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
@@ -604,11 +563,11 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 		s->event = ps->externalEvent;
 		s->eventParm = ps->externalEventParm;
 	} else if ( ps->entityEventSequence < ps->eventSequence ) {
-		int		seq;
+		int seq;
 
-		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS )
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
-		}
+
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
 		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
@@ -639,7 +598,7 @@ and after local prediction on the client
 */
 #ifdef PROJECT_GAME
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
-	int		i;
+	int i;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
 		s->eType = ET_INVISIBLE;
@@ -652,24 +611,25 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->number = ps->clientNum;
 
 	s->pos.trType = TR_LINEAR_STOP;
-	VectorCopy( ps->origin, s->pos.trBase );
+	VectorCopy( &ps->origin, &s->pos.trBase );
 	if ( snap ) {
-		SnapVector( s->pos.trBase );
+		VectorSnap( &s->pos.trBase );
 	}
 	// set the trDelta for flag direction and linear prediction
-	VectorCopy( ps->velocity, s->pos.trDelta );
+	VectorCopy( &ps->velocity, &s->pos.trDelta );
 	// set the time for linear prediction
 	s->pos.trTime = time;
 	// set maximum extra polation time
-	s->pos.trDuration = 1000/sv_fps.integer; // 1000 / sv_fps (default = 20)
+	s->pos.trDuration = sv_frametime.integer;
 
 	s->apos.trType = TR_INTERPOLATE;
-	VectorCopy( ps->viewangles, s->apos.trBase );
+	VectorCopy( &ps->viewangles, &s->apos.trBase );
 	if ( snap ) {
-		SnapVector( s->apos.trBase );
+		VectorSnap( &s->apos.trBase );
 	}
 
-	s->angles2[YAW] = ps->movementDir;
+	s->angles2.yaw = (float)ps->movementDir;
+
 	s->legsAnim = ps->legsAnim;
 	s->torsoAnim = ps->torsoAnim;
 	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
@@ -687,9 +647,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	} else if ( ps->entityEventSequence < ps->eventSequence ) {
 		int		seq;
 
-		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS )
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
-		}
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
 		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
@@ -732,11 +691,45 @@ int weaponFromMOD[MOD_MAX] = {
 	WP_NONE,
 };
 
-const char *gametypeNames[GT_NUM_GAMETYPES] = {
-	"Deathmatch",
-	"Tournament",
-	// team games
-	"Team Deathmatch",
-	"Capture The Flag",
-	"One Flag Capture The Flag"
+const char *gametypeStringShort[GT_NUM_GAMETYPES] = {
+	"DM",
+	"1v1",
+	"TDM",
+	"CTF",
+	"1FCTF"
 };
+
+const char *BG_GetGametypeString( int gametype )
+{
+	switch ( gametype )
+	{
+	case GT_DEATHMATCH:
+		return "Deathmatch";
+	case GT_DUEL:
+		return "Duel";
+
+	case GT_TEAM:
+		return "Team Deathmatch";
+	case GT_CTF:
+		return "Capture The Flag";
+	case GT_1FCTF:
+		return "1-flag CTF";
+
+	default:
+		return "Unknown Gametype";
+	}
+}
+
+int BG_GetGametypeForString( const char *gametype )
+{
+		 if ( !Q_stricmp( gametype, "ffa" )
+			||!Q_stricmp( gametype, "dm" )
+			||!Q_stricmp( gametype, "deathmatch" ) )	return GT_DEATHMATCH;
+	else if ( !Q_stricmp( gametype, "duel" ) )			return GT_DUEL;
+	else if ( !Q_stricmp( gametype, "tdm" )
+			||!Q_stricmp( gametype, "tffa" )
+			||!Q_stricmp( gametype, "team" ) )			return GT_TEAM;
+	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
+	else if ( !Q_stricmp( gametype, "1fctf" ) )			return GT_1FCTF;
+	else												return -1;
+}

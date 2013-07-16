@@ -250,7 +250,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 			if (skill < 0 || (signed)token.intvalue == skill)
 			{
 				foundcharacter = qtrue;
-				ch->skill = token.intvalue;
+				ch->skill = (float)token.intvalue;
 				while(PC_ExpectAnyToken(source, &token))
 				{
 					if (!strcmp(token.string, "}")) break;
@@ -498,7 +498,7 @@ int BotLoadCharacterSkill(char *charfile, float skill)
 	int ch, defaultch;
 
 	defaultch = BotLoadCachedCharacter(DEFAULT_CHARACTER, skill, qfalse);
-	ch = BotLoadCachedCharacter(charfile, skill, LibVarGetValue("bot_reloadcharacters"));
+	ch = BotLoadCachedCharacter(charfile, skill, (int)LibVarGetValue("bot_reloadcharacters"));
 
 	if (defaultch && ch)
 	{

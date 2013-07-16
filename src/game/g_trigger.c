@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 void InitTrigger( gentity_t *self ) {
-	if (!VectorCompare (self->s.angles, vec3_origin))
-		G_SetMovedir (self->s.angles, self->movedir);
+	if (!VectorCompare (&self->s.angles, &vec3_origin))
+		G_SetMovedir (&self->s.angles, &self->movedir);
 
 	gi.SV_SetBrushModel( (sharedEntity_t *)self, self->model );
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from gi.SV_SetBrushModel
@@ -63,12 +63,12 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 
 	if ( ent->wait > 0 ) {
 		ent->think = multi_wait;
-		ent->nextthink = level.time + ( ent->wait + ent->random * crandom() ) * 1000;
+		ent->nextthink = level.time + (int)(( ent->wait + ent->random * crandom() ) * 1000);
 	} else {
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
 		ent->touch = 0;
-		ent->nextthink = level.time + (1000/sv_fps.integer);
+		ent->nextthink = level.time + sv_frametime.integer;
 		ent->think = G_FreeEntity;
 	}
 }
@@ -96,7 +96,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( ent->random >= ent->wait && ent->wait >= 0 ) {
-		ent->random = ent->wait - (1000/sv_fps.integer);
+		ent->random = ent->wait - sv_frametime.integer;
 		G_Printf( "trigger_multiple has random >= wait\n" );
 	}
 
@@ -159,12 +159,12 @@ Calculate origin2 so the target apogee will be hit
 */
 void AimAtTarget( gentity_t *self ) {
 	gentity_t	*ent;
-	vec3_t		origin;
+	vector3		origin;
 	float		height, gravity, time, forward;
 	float		dist;
 
-	VectorAdd( self->r.absmin, self->r.absmax, origin );
-	VectorScale ( origin, 0.5, origin );
+	VectorAdd( &self->r.absmin, &self->r.absmax, &origin );
+	VectorScale ( &origin, 0.5, &origin );
 
 	ent = G_PickTarget( self->target );
 	if ( !ent ) {
@@ -172,23 +172,23 @@ void AimAtTarget( gentity_t *self ) {
 		return;
 	}
 
-	height = ent->s.origin[2] - origin[2];
-	gravity = g_gravity.value;
-	time = sqrt( height / ( .5 * gravity ) );
+	height = ent->s.origin.z - origin.z;
+	gravity = pm_gravity.value;
+	time = sqrtf( height / ( .5 * gravity ) );
 	if ( !time ) {
 		G_FreeEntity( self );
 		return;
 	}
 
 	// set s.origin2 to the push velocity
-	VectorSubtract ( ent->s.origin, origin, self->s.origin2 );
-	self->s.origin2[2] = 0;
-	dist = VectorNormalize( self->s.origin2);
+	VectorSubtract ( &ent->s.origin, &origin, &self->s.origin2 );
+	self->s.origin2.z = 0;
+	dist = VectorNormalize( &self->s.origin2);
 
 	forward = dist / time;
-	VectorScale( self->s.origin2, forward, self->s.origin2 );
+	VectorScale( &self->s.origin2, forward, &self->s.origin2 );
 
-	self->s.origin2[2] = time * gravity;
+	self->s.origin2.z = time * gravity;
 }
 
 
@@ -208,7 +208,7 @@ void SP_trigger_push( gentity_t *self ) {
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
-	self->nextthink = level.time + (1000/sv_fps.integer);
+	self->nextthink = level.time + sv_frametime.integer;
 	gi.SV_LinkEntity ((sharedEntity_t *)self);
 }
 
@@ -222,7 +222,7 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 
-	VectorCopy (self->s.origin2, activator->client->ps.velocity);
+	VectorCopy (&self->s.origin2, &activator->client->ps.velocity);
 
 	// play fly sound every 1.5 seconds
 	if ( activator->fly_sound_debounce_time < level.time ) {
@@ -240,8 +240,8 @@ void SP_target_push( gentity_t *self ) {
 	if (!self->speed) {
 		self->speed = 1000;
 	}
-	G_SetMovedir (self->s.angles, self->s.origin2);
-	VectorScale (self->s.origin2, self->speed, self->s.origin2);
+	G_SetMovedir (&self->s.angles, &self->s.origin2);
+	VectorScale (&self->s.origin2, self->speed, &self->s.origin2);
 
 	if ( self->spawnflags & 1 ) {
 		self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
@@ -249,10 +249,10 @@ void SP_target_push( gentity_t *self ) {
 		self->noise_index = G_SoundIndex("sound/misc/windfly.wav");
 	}
 	if ( self->target ) {
-		VectorCopy( self->s.origin, self->r.absmin );
-		VectorCopy( self->s.origin, self->r.absmax );
+		VectorCopy( &self->s.origin, &self->r.absmin );
+		VectorCopy( &self->s.origin, &self->r.absmax );
 		self->think = AimAtTarget;
-		self->nextthink = level.time + (1000/sv_fps.integer);
+		self->nextthink = level.time + sv_frametime.integer;
 	}
 	self->use = Use_target_push;
 }
@@ -288,9 +288,9 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	}
 
 	if ( self->s.generic1 )
-		TeleportPlayerSeamless( other, dest->s.origin, dest->s.angles );
+		TeleportPlayerSeamless( other, &dest->s.origin, &dest->s.angles );
 	else
-		TeleportPlayer( other, dest->s.origin, dest->s.angles );
+		TeleportPlayer( other, &dest->s.origin, &dest->s.angles );
 }
 
 
@@ -369,7 +369,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( self->spawnflags & 16 ) {
 		self->timestamp = level.time + 1000;
 	} else {
-		self->timestamp = level.time + (1000/sv_fps.integer);
+		self->timestamp = level.time + sv_frametime.integer;
 	}
 
 	// play sound
@@ -429,7 +429,7 @@ so, the basic time between firing is a random time between
 void func_timer_think( gentity_t *self ) {
 	G_UseTargets (self, self->activator);
 	// set time before next firing
-	self->nextthink = level.time + 1000 * ( self->wait + crandom() * self->random );
+	self->nextthink = level.time + (int)(1000 * ( self->wait + crandom() * self->random ));
 }
 
 void func_timer_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
@@ -453,12 +453,12 @@ void SP_func_timer( gentity_t *self ) {
 	self->think = func_timer_think;
 
 	if ( self->random >= self->wait ) {
-		self->random = self->wait - (1000/sv_fps.integer);
-		G_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
+		self->random = self->wait - sv_frametime.integer;
+		G_Printf( "func_timer at %s has random >= wait\n", vtos( &self->s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {
-		self->nextthink = level.time + (1000/sv_fps.integer);
+		self->nextthink = level.time + sv_frametime.integer;
 		self->activator = self;
 	}
 

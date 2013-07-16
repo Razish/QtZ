@@ -136,7 +136,7 @@ void QDECL BotAI_Print(int type, char *fmt, ...) {
 BotAI_Trace
 ==================
 */
-void BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
+void BotAI_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask) {
 	trace_t trace;
 
 	gi.SV_Trace(&trace, start, mins, maxs, end, passent, contentmask);
@@ -144,9 +144,9 @@ void BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, 
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
 	bsptrace->fraction = trace.fraction;
-	VectorCopy(trace.endpos, bsptrace->endpos);
+	VectorCopy(&trace.endpos, &bsptrace->endpos);
 	bsptrace->plane.dist = trace.plane.dist;
-	VectorCopy(trace.plane.normal, bsptrace->plane.normal);
+	VectorCopy(&trace.plane.normal, &bsptrace->plane.normal);
 	bsptrace->plane.signbits = trace.plane.signbits;
 	bsptrace->plane.type = trace.plane.type;
 	bsptrace->surface.value = trace.surfaceFlags;
@@ -246,7 +246,7 @@ void QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
 BotTestAAS
 ==================
 */
-void BotTestAAS(vec3_t origin) {
+void BotTestAAS(vector3 *origin) {
 	int areanum;
 	aas_areainfo_t info;
 
@@ -545,7 +545,7 @@ void BotInterbreedBots(void) {
 	// get rankings for all the bots
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		if ( botstates[i] && botstates[i]->inuse ) {
-			ranks[i] = botstates[i]->num_kills * 2 - botstates[i]->num_deaths;
+			ranks[i] = (float)botstates[i]->num_kills * 2 - (float)botstates[i]->num_deaths;
 		}
 		else {
 			ranks[i] = -1;
@@ -579,7 +579,7 @@ void BotWriteInterbreeded(char *filename) {
 	// get the best bot
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		if ( botstates[i] && botstates[i]->inuse ) {
-			rank = botstates[i]->num_kills * 2 - botstates[i]->num_deaths;
+			rank = (float)botstates[i]->num_kills * 2 - (float)botstates[i]->num_deaths;
 		}
 		else {
 			rank = -1;
@@ -629,8 +629,8 @@ void BotInterbreeding(void) {
 	gi.Cvar_Update(&bot_interbreedchar);
 	if (!strlen(bot_interbreedchar.string)) return;
 	//make sure we are in tournament mode
-	if (gametype != GT_TOURNAMENT) {
-		gi.Cvar_Set("g_gametype", va("%d", GT_TOURNAMENT));
+	if (gametype != GT_DUEL) {
+		gi.Cvar_Set("sv_gametype", va("%d", GT_DUEL));
 		ExitLevel();
 		return;
 	}
@@ -738,7 +738,7 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	float diff, factor, maxchange, anglespeed, disired_speed;
 	int i;
 
-	if (bs->ideal_viewangles[PITCH] > 180) bs->ideal_viewangles[PITCH] -= 360;
+	if (bs->ideal_viewangles.pitch > 180) bs->ideal_viewangles.pitch -= 360;
 	//
 	if (bs->enemy >= 0) {
 		factor = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_VIEW_FACTOR, 0.01f, 1);
@@ -748,42 +748,44 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 		factor = 0.05f;
 		maxchange = 360;
 	}
-	if (maxchange < 240) maxchange = 240;
+	if (maxchange < 240)
+		maxchange = 240;
 	maxchange *= thinktime;
 	for (i = 0; i < 2; i++) {
 		//
 		if (bot_challenge.integer) {
 			//smooth slowdown view model
-			diff = abs(AngleDifference(bs->viewangles[i], bs->ideal_viewangles[i]));
+			diff = fabsf(AngleDifference(bs->viewangles.data[i], bs->ideal_viewangles.data[i]));
 			anglespeed = diff * factor;
 			if (anglespeed > maxchange) anglespeed = maxchange;
-			bs->viewangles[i] = BotChangeViewAngle(bs->viewangles[i],
-											bs->ideal_viewangles[i], anglespeed);
+			bs->viewangles.data[i] = BotChangeViewAngle(bs->viewangles.data[i],
+											bs->ideal_viewangles.data[i], anglespeed);
 		}
 		else {
 			//over reaction view model
-			bs->viewangles[i] = AngleMod(bs->viewangles[i]);
-			bs->ideal_viewangles[i] = AngleMod(bs->ideal_viewangles[i]);
-			diff = AngleDifference(bs->viewangles[i], bs->ideal_viewangles[i]);
+			bs->viewangles.data[i] = AngleMod(bs->viewangles.data[i]);
+			bs->ideal_viewangles.data[i] = AngleMod(bs->ideal_viewangles.data[i]);
+			diff = AngleDifference(bs->viewangles.data[i], bs->ideal_viewangles.data[i]);
 			disired_speed = diff * factor;
-			bs->viewanglespeed[i] += (bs->viewanglespeed[i] - disired_speed);
-			if (bs->viewanglespeed[i] > 180) bs->viewanglespeed[i] = maxchange;
-			if (bs->viewanglespeed[i] < -180) bs->viewanglespeed[i] = -maxchange;
-			anglespeed = bs->viewanglespeed[i];
-			if (anglespeed > maxchange) anglespeed = maxchange;
+			bs->viewanglespeed.data[i] += (bs->viewanglespeed.data[i] - disired_speed);
+			if (bs->viewanglespeed.data[i] >  180) bs->viewanglespeed.data[i] =  maxchange;
+			if (bs->viewanglespeed.data[i] < -180) bs->viewanglespeed.data[i] = -maxchange;
+			anglespeed = bs->viewanglespeed.data[i];
+			if (anglespeed >  maxchange) anglespeed =  maxchange;
 			if (anglespeed < -maxchange) anglespeed = -maxchange;
-			bs->viewangles[i] += anglespeed;
-			bs->viewangles[i] = AngleMod(bs->viewangles[i]);
+			bs->viewangles.data[i] += anglespeed;
+			bs->viewangles.data[i] = AngleMod(bs->viewangles.data[i]);
 			//demping
-			bs->viewanglespeed[i] *= 0.45 * (1 - factor);
+			bs->viewanglespeed.data[i] *= 0.45f * (1 - factor);
 		}
 		//BotAI_Print(PRT_MESSAGE, "ideal_angles %f %f\n", bs->ideal_viewangles[0], bs->ideal_viewangles[1], bs->ideal_viewangles[2]);`
 		//bs->viewangles[i] = bs->ideal_viewangles[i];
 	}
 	//bs->viewangles[PITCH] = 0;
-	if (bs->viewangles[PITCH] > 180) bs->viewangles[PITCH] -= 360;
+	if (bs->viewangles.pitch > 180)
+		bs->viewangles.pitch -= 360;
 	//elementary action: view
-	gi.ea->EA_View(bs->client, bs->viewangles);
+	gi.ea->EA_View(bs->client, &bs->viewangles);
 }
 
 /*
@@ -791,8 +793,8 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 BotInputToUserCommand
 ==============
 */
-void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time) {
-	vec3_t angles, forward, right;
+void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, ivector3 *delta_angles, int time) {
+	vector3 angles, forward, right;
 	short temp;
 	int j;
 	float f, r, u, m;
@@ -807,28 +809,30 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 		bi->actionflags &= ~ACTION_DELAYEDJUMP;
 	}
 	//set the buttons
-	if (bi->actionflags & ACTION_RESPAWN) ucmd->buttons = BUTTON_ATTACK;
-	if (bi->actionflags & ACTION_ATTACK) ucmd->buttons |= BUTTON_ATTACK;
-	if (bi->actionflags & ACTION_TALK) ucmd->buttons |= BUTTON_TALK;
-	if (bi->actionflags & ACTION_GESTURE) ucmd->buttons |= BUTTON_GESTURE;
-	if (bi->actionflags & ACTION_USE) ucmd->buttons |= BUTTON_USE_HOLDABLE;
-	if (bi->actionflags & ACTION_WALK) ucmd->buttons |= BUTTON_WALKING;
-	if (bi->actionflags & ACTION_AFFIRMATIVE) ucmd->buttons |= BUTTON_AFFIRMATIVE;
-	if (bi->actionflags & ACTION_NEGATIVE) ucmd->buttons |= BUTTON_NEGATIVE;
-	if (bi->actionflags & ACTION_GETFLAG) ucmd->buttons |= BUTTON_GETFLAG;
-	if (bi->actionflags & ACTION_GUARDBASE) ucmd->buttons |= BUTTON_GUARDBASE;
-	if (bi->actionflags & ACTION_PATROL) ucmd->buttons |= BUTTON_PATROL;
-	if (bi->actionflags & ACTION_FOLLOWME) ucmd->buttons |= BUTTON_FOLLOWME;
+	if (bi->actionflags & ACTION_RESPAWN)		ucmd->buttons = BUTTON_ATTACK;
+	if (bi->actionflags & ACTION_ATTACK)		ucmd->buttons |= BUTTON_ATTACK;
+	if (bi->actionflags & ACTION_TALK)			ucmd->buttons |= BUTTON_TALK;
+	if (bi->actionflags & ACTION_GESTURE)		ucmd->buttons |= BUTTON_GESTURE;
+	if (bi->actionflags & ACTION_USE)			ucmd->buttons |= BUTTON_USE_HOLDABLE;
+	if (bi->actionflags & ACTION_WALK)			ucmd->buttons |= BUTTON_WALKING;
+#if 0
+	if (bi->actionflags & ACTION_AFFIRMATIVE)	ucmd->buttons |= BUTTON_AFFIRMATIVE;
+	if (bi->actionflags & ACTION_NEGATIVE)		ucmd->buttons |= BUTTON_NEGATIVE;
+	if (bi->actionflags & ACTION_GETFLAG)		ucmd->buttons |= BUTTON_GETFLAG;
+	if (bi->actionflags & ACTION_GUARDBASE)		ucmd->buttons |= BUTTON_GUARDBASE;
+	if (bi->actionflags & ACTION_PATROL)		ucmd->buttons |= BUTTON_PATROL;
+	if (bi->actionflags & ACTION_FOLLOWME)		ucmd->buttons |= BUTTON_FOLLOWME;
+#endif
 	//
 	ucmd->weapon = bi->weapon;
 	//set the view angles
 	//NOTE: the ucmd->angles are the angles WITHOUT the delta angles
-	ucmd->angles[PITCH] = ANGLE2SHORT(bi->viewangles[PITCH]);
-	ucmd->angles[YAW] = ANGLE2SHORT(bi->viewangles[YAW]);
-	ucmd->angles[ROLL] = ANGLE2SHORT(bi->viewangles[ROLL]);
+	ucmd->angles[0] = ANGLE2SHORT(bi->viewangles.pitch);
+	ucmd->angles[1] = ANGLE2SHORT(bi->viewangles.yaw);
+	ucmd->angles[2] = ANGLE2SHORT(bi->viewangles.roll);
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
-		temp = ucmd->angles[j] - delta_angles[j];
+		temp = ucmd->angles[j] - delta_angles->data[j];
 		/*NOTE: disabled because temp should be mod first
 		if ( j == PITCH ) {
 			// don't let the player look up or down more than 90 degrees
@@ -841,25 +845,25 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//NOTE: movement is relative to the REAL view angles
 	//get the horizontal forward and right vector
 	//get the pitch in the range [-180, 180]
-	if (bi->dir[2]) angles[PITCH] = bi->viewangles[PITCH];
-	else angles[PITCH] = 0;
-	angles[YAW] = bi->viewangles[YAW];
-	angles[ROLL] = 0;
-	AngleVectors(angles, forward, right, NULL);
+	if (bi->dir.z) angles.pitch = bi->viewangles.pitch;
+	else angles.pitch = 0;
+	angles.yaw = bi->viewangles.yaw;
+	angles.roll = 0;
+	AngleVectors(&angles, &forward, &right, NULL);
 	//bot input speed is in the range [0, 400]
 	bi->speed = bi->speed * 127 / 400;
 	//set the view independent movement
-	f = DotProduct(forward, bi->dir);
-	r = DotProduct(right, bi->dir);
-	u = abs(forward[2]) * bi->dir[2];
-	m = fabs(f);
+	f = DotProduct(&forward, &bi->dir);
+	r = DotProduct(&right, &bi->dir);
+	u = fabsf(forward.z) * bi->dir.z;
+	m = fabsf(f);
 
-	if (fabs(r) > m) {
-		m = fabs(r);
+	if (fabsf(r) > m) {
+		m = fabsf(r);
 	}
 
-	if (fabs(u) > m) {
-		m = fabs(u);
+	if (fabsf(u) > m) {
+		m = fabsf(u);
 	}
 
 	if (m > 0) {
@@ -868,18 +872,16 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 		u *= bi->speed / m;
 	}
 
-	ucmd->forwardmove = f;
-	ucmd->rightmove = r;
-	ucmd->upmove = u;
+	ucmd->forwardmove = (signed char)f;
+	ucmd->rightmove = (signed char)r;
+	ucmd->upmove = (signed char)u;
 
-	if (bi->actionflags & ACTION_MOVEFORWARD) ucmd->forwardmove = 127;
-	if (bi->actionflags & ACTION_MOVEBACK) ucmd->forwardmove = -127;
-	if (bi->actionflags & ACTION_MOVELEFT) ucmd->rightmove = -127;
-	if (bi->actionflags & ACTION_MOVERIGHT) ucmd->rightmove = 127;
-	//jump/moveup
-	if (bi->actionflags & ACTION_JUMP) ucmd->upmove = 127;
-	//crouch/movedown
-	if (bi->actionflags & ACTION_CROUCH) ucmd->upmove = -127;
+	if ( bi->actionflags & ACTION_MOVEFORWARD )	ucmd->forwardmove = 127;
+	if ( bi->actionflags & ACTION_MOVEBACK )	ucmd->forwardmove = -127;
+	if ( bi->actionflags & ACTION_MOVERIGHT )	ucmd->rightmove = 127;
+	if ( bi->actionflags & ACTION_MOVELEFT )	ucmd->rightmove = -127;
+	if ( bi->actionflags & ACTION_JUMP )		ucmd->upmove = 127;
+	if ( bi->actionflags & ACTION_CROUCH )		ucmd->upmove = -127;
 }
 
 /*
@@ -893,7 +895,7 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 
 	//add the delta angles to the bot's current view angles
 	for (j = 0; j < 3; j++) {
-		bs->viewangles[j] = AngleMod(bs->viewangles[j] + SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
+		bs->viewangles.data[j] = AngleMod(bs->viewangles.data[j] + SHORT2ANGLE(bs->cur_ps.delta_angles.data[j]));
 	}
 	//change the bot view angles
 	BotChangeViewAngles(bs, (float) elapsed_time / 1000);
@@ -904,10 +906,10 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 		if (bs->lastucmd.buttons & BUTTON_ATTACK) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
 	}
 	//convert the bot input to a usercmd
-	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time);
+	BotInputToUserCommand(&bi, &bs->lastucmd, &bs->cur_ps.delta_angles, time);
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
-		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
+		bs->viewangles.data[j] = AngleMod(bs->viewangles.data[j] - SHORT2ANGLE(bs->cur_ps.delta_angles.data[j]));
 	}
 }
 
@@ -919,7 +921,7 @@ BotAIRegularUpdate
 void BotAIRegularUpdate(void) {
 	if (regularupdate_time < FloatTime()) {
 		gi.ai->BotUpdateEntityItems();
-		regularupdate_time = FloatTime() + 0.3;
+		regularupdate_time = FloatTime() + 0.3f;
 	}
 }
 
@@ -1008,31 +1010,29 @@ int BotAI(int client, float thinktime) {
 		}
 		else if (!Q_stricmp(buf, "scores"))
 			{ /*FIXME: parse scores?*/ }
-		else if (!Q_stricmp(buf, "clientLevelShot"))
-			{ /*ignore*/ }
 	}
 	//add the delta angles to the bot's current view angles
 	for (j = 0; j < 3; j++) {
-		bs->viewangles[j] = AngleMod(bs->viewangles[j] + SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
+		bs->viewangles.data[j] = AngleMod(bs->viewangles.data[j] + SHORT2ANGLE(bs->cur_ps.delta_angles.data[j]));
 	}
 	//increase the local time of the bot
 	bs->ltime += thinktime;
 	//
 	bs->thinktime = thinktime;
 	//origin of the bot
-	VectorCopy(bs->cur_ps.origin, bs->origin);
+	VectorCopy(&bs->cur_ps.origin, &bs->origin);
 	//eye coordinates of the bot
-	VectorCopy(bs->cur_ps.origin, bs->eye);
-	bs->eye[2] += bs->cur_ps.viewheight;
+	VectorCopy(&bs->cur_ps.origin, &bs->eye);
+	bs->eye.z += bs->cur_ps.viewheight;
 	//get the area the bot is in
-	bs->areanum = BotPointAreaNum(bs->origin);
+	bs->areanum = BotPointAreaNum(&bs->origin);
 	//the real AI
 	BotDeathmatchAI(bs, thinktime);
 	//set the weapon selection every AI frame
 	gi.ea->EA_SelectWeapon(bs->client, bs->weaponnum);
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
-		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
+		bs->viewangles.data[j] = AngleMod(bs->viewangles.data[j] - SHORT2ANGLE(bs->cur_ps.delta_angles.data[j]));
 	}
 	//everything was ok
 	return qtrue;
@@ -1080,15 +1080,15 @@ void BotWriteSessionData(bot_state_t *bs) {
 		bs->lastgoal_teamgoal.flags,
 		bs->lastgoal_teamgoal.iteminfo,
 		bs->lastgoal_teamgoal.number,
-		bs->lastgoal_teamgoal.origin[0],
-		bs->lastgoal_teamgoal.origin[1],
-		bs->lastgoal_teamgoal.origin[2],
-		bs->lastgoal_teamgoal.mins[0],
-		bs->lastgoal_teamgoal.mins[1],
-		bs->lastgoal_teamgoal.mins[2],
-		bs->lastgoal_teamgoal.maxs[0],
-		bs->lastgoal_teamgoal.maxs[1],
-		bs->lastgoal_teamgoal.maxs[2]
+		bs->lastgoal_teamgoal.origin.x,
+		bs->lastgoal_teamgoal.origin.y,
+		bs->lastgoal_teamgoal.origin.z,
+		bs->lastgoal_teamgoal.mins.x,
+		bs->lastgoal_teamgoal.mins.y,
+		bs->lastgoal_teamgoal.mins.z,
+		bs->lastgoal_teamgoal.maxs.x,
+		bs->lastgoal_teamgoal.maxs.y,
+		bs->lastgoal_teamgoal.maxs.z
 		);
 
 	var = va( "botsession%i", bs->client );
@@ -1121,15 +1121,15 @@ void BotReadSessionData(bot_state_t *bs) {
 		&bs->lastgoal_teamgoal.flags,
 		&bs->lastgoal_teamgoal.iteminfo,
 		&bs->lastgoal_teamgoal.number,
-		&bs->lastgoal_teamgoal.origin[0],
-		&bs->lastgoal_teamgoal.origin[1],
-		&bs->lastgoal_teamgoal.origin[2],
-		&bs->lastgoal_teamgoal.mins[0],
-		&bs->lastgoal_teamgoal.mins[1],
-		&bs->lastgoal_teamgoal.mins[2],
-		&bs->lastgoal_teamgoal.maxs[0],
-		&bs->lastgoal_teamgoal.maxs[1],
-		&bs->lastgoal_teamgoal.maxs[2]
+		&bs->lastgoal_teamgoal.origin.x,
+		&bs->lastgoal_teamgoal.origin.y,
+		&bs->lastgoal_teamgoal.origin.z,
+		&bs->lastgoal_teamgoal.mins.x,
+		&bs->lastgoal_teamgoal.mins.y,
+		&bs->lastgoal_teamgoal.mins.z,
+		&bs->lastgoal_teamgoal.maxs.x,
+		&bs->lastgoal_teamgoal.maxs.y,
+		&bs->lastgoal_teamgoal.maxs.z
 		);
 }
 
@@ -1470,15 +1470,15 @@ int BotAIStartFrame(int time) {
 			//
 			memset(&state, 0, sizeof(bot_entitystate_t));
 			//
-			VectorCopy(ent->r.currentOrigin, state.origin);
+			VectorCopy(&ent->r.currentOrigin, &state.origin);
 			if (i < MAX_CLIENTS) {
-				VectorCopy(ent->s.apos.trBase, state.angles);
+				VectorCopy(&ent->s.apos.trBase, &state.angles);
 			} else {
-				VectorCopy(ent->r.currentAngles, state.angles);
+				VectorCopy(&ent->r.currentAngles, &state.angles);
 			}
-			VectorCopy(ent->s.origin2, state.old_origin);
-			VectorCopy(ent->r.mins, state.mins);
-			VectorCopy(ent->r.maxs, state.maxs);
+			VectorCopy(&ent->s.origin2, &state.old_origin);
+			VectorCopy(&ent->r.mins, &state.mins);
+			VectorCopy(&ent->r.maxs, &state.maxs);
 			state.type = ent->s.eType;
 			state.flags = ent->s.eFlags;
 			if (ent->r.bmodel) state.solid = SOLID_BSP;
@@ -1562,9 +1562,9 @@ int BotInitLibrary(void) {
 	gi.Cvar_VariableStringBuffer("max_levelitems", buf, sizeof(buf));
 	if (strlen(buf)) gi.BotLibVarSet("max_levelitems", buf);
 	//game type
-	gi.Cvar_VariableStringBuffer("g_gametype", buf, sizeof(buf));
+	gi.Cvar_VariableStringBuffer("sv_gametype", buf, sizeof(buf));
 	if (!strlen(buf)) strcpy(buf, "0");
-	gi.BotLibVarSet("g_gametype", buf);
+	gi.BotLibVarSet("sv_gametype", buf);
 	//bot developer mode and log file
 	gi.BotLibVarSet("bot_developer", bot_developer.string);
 	gi.Cvar_VariableStringBuffer("logfile", buf, sizeof(buf));

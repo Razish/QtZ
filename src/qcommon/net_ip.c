@@ -269,7 +269,7 @@ static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t famil
 Sys_StringToSockaddr
 =============
 */
-static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int sadr_len, sa_family_t family)
+static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, size_t sadr_len, sa_family_t family)
 {
 	struct addrinfo hints;
 	struct addrinfo *res = NULL;
@@ -971,7 +971,7 @@ void NET_SetMulticast6(void)
 		Com_Printf("WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
 			   "please set cvar %s to a sane value.\n", net_mcast6addr->name);
 		
-		Cvar_SetValue(net_enabled->name, net_enabled->integer | NET_DISABLEMCAST);
+		Cvar_SetValue(net_enabled->name, (float)(net_enabled->integer | NET_DISABLEMCAST));
 		
 		return;
 	}
@@ -1369,7 +1369,7 @@ void NET_OpenIP( void ) {
 			ip6_socket = NET_IP6Socket(net_ip6->string, port6 + i, &boundto, &err);
 			if (ip6_socket != INVALID_SOCKET)
 			{
-				Cvar_SetValue( "net_port6", port6 + i );
+				Cvar_SetValue( "net_port6", (float)(port6 + i) );
 				break;
 			}
 			else
@@ -1387,7 +1387,7 @@ void NET_OpenIP( void ) {
 		for( i = 0 ; i < 10 ; i++ ) {
 			ip_socket = NET_IPSocket( net_ip->string, port + i, &err );
 			if (ip_socket != INVALID_SOCKET) {
-				Cvar_SetValue( "net_port", port + i );
+				Cvar_SetValue( "net_port", (float)(port + i) );
 
 				if (net_socksEnabled->integer)
 					NET_OpenSocks( port + i );

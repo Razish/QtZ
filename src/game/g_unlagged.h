@@ -10,7 +10,7 @@ void G_UnTimeShiftAllClients( gentity_t *skip );
 //NT - client origin trails
 #define NUM_CLIENT_TRAILS 10
 typedef struct {
-	vec3_t	mins, maxs;
-	vec3_t	currentOrigin, currentAngles;
+	vector3	mins, maxs;
+	vector3	currentOrigin, currentAngles;
 	int		time, leveltime;
 } clientTrail_t;

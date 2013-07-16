@@ -123,7 +123,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 	int		t;
 	int		t2;
 	int		step;
-	vec3_t	newOrigin;
+	vector3	newOrigin;
 	localEntity_t	*blood;
 
 	step = 150;
@@ -131,9 +131,9 @@ void CG_BloodTrail( localEntity_t *le ) {
 	t2 = step * ( cg.time / step );
 
 	for ( ; t <= t2; t += step ) {
-		BG_EvaluateTrajectory( &le->pos, t, newOrigin );
+		BG_EvaluateTrajectory( &le->pos, t, &newOrigin );
 
-		blood = CG_SmokePuff( newOrigin, vec3_origin, 
+		blood = CG_SmokePuff( &newOrigin, &vec3_origin, 
 					  20,		// radius
 					  1, 1, 1, 1,	// color
 					  2000,		// trailTime
@@ -144,7 +144,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 		// use the optimized version
 		blood->leType = LE_FALL_SCALE_FADE;
 		// drop a total of 40 units over its lifetime
-		blood->pos.trDelta[2] = 40;
+		blood->pos.trDelta.z = 40;
 	}
 }
 
@@ -155,24 +155,10 @@ CG_FragmentBounceMark
 ================
 */
 void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
-	int			radius;
+		 if ( le->leMarkType == LEMT_BLOOD )	CG_ImpactMark( cgs.media.bloodMarkShader, &trace->endpos, &trace->plane.normal, random()*360, 1, 1, 1, 1, qtrue, 16.0f+flrand( 0, 31 ), qfalse );
+	else if ( le->leMarkType == LEMT_BURN )		CG_ImpactMark( cgs.media.burnMarkShader, &trace->endpos, &trace->plane.normal, random()*360, 1, 1, 1, 1, qtrue, 8.0f+flrand( 0, 15 ), qfalse );
 
-	if ( le->leMarkType == LEMT_BLOOD ) {
-
-		radius = 16 + (rand()&31);
-		CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, random()*360,
-			1,1,1,1, qtrue, radius, qfalse );
-	} else if ( le->leMarkType == LEMT_BURN ) {
-
-		radius = 8 + (rand()&15);
-		CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, random()*360,
-			1,1,1,1, qtrue, radius, qfalse );
-	}
-
-
-	// don't allow a fragment to make multiple marks, or they
-	// pile up while settling
-	le->leMarkType = LEMT_NONE;
+	le->leMarkType = LEMT_NONE; // don't allow a fragment to make multiple marks, or they pile up while settling
 }
 
 /*
@@ -187,17 +173,14 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			int r = rand()&3;
 			sfxHandle_t	s;
 
-			if ( r == 0 ) {
-				s = cgs.media.gibBounce1Sound;
-			} else if ( r == 1 ) {
-				s = cgs.media.gibBounce2Sound;
-			} else {
-				s = cgs.media.gibBounce3Sound;
-			}
-			cgi.S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
-		}
-	} else if ( le->leBounceSoundType == LEBS_BRASS ) {
+				 if ( r == 0 )	s = cgs.media.gibBounce1Sound;
+			else if ( r == 1 )	s = cgs.media.gibBounce2Sound;
+			else				s = cgs.media.gibBounce3Sound;
 
+			cgi.S_StartSound( &trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+		}
+	}
+	else if ( le->leBounceSoundType == LEBS_BRASS ) {
 	}
 
 	// don't allow a fragment to make multiple bounce sounds,
@@ -212,29 +195,32 @@ CG_ReflectVelocity
 ================
 */
 void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
-	vec3_t	velocity;
+	vector3	velocity;
 	float	dot;
 	int		hitTime;
 
 	// reflect the velocity on the trace plane
-	hitTime = cg.time - cg.frametime + cg.frametime * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &le->pos, hitTime, velocity );
-	dot = DotProduct( velocity, trace->plane.normal );
-	VectorMA( velocity, -2*dot, trace->plane.normal, le->pos.trDelta );
+	hitTime = cg.time - cg.frametime + (int)(cg.frametime * trace->fraction);
+	BG_EvaluateTrajectoryDelta( &le->pos, hitTime, &velocity );
+	dot = DotProduct( &velocity, &trace->plane.normal );
+	VectorMA( &velocity, -2*dot, &trace->plane.normal, &le->pos.trDelta );
 
-	VectorScale( le->pos.trDelta, le->bounceFactor, le->pos.trDelta );
+	VectorScale( &le->pos.trDelta, le->bounceFactor, &le->pos.trDelta );
 
-	VectorCopy( trace->endpos, le->pos.trBase );
+	VectorCopy( &trace->endpos, &le->pos.trBase );
 	le->pos.trTime = cg.time;
 
 
 	// check for stop, making sure that even on low FPS systems it doesn't bobble
-	if ( trace->allsolid || 
-		( trace->plane.normal[2] > 0 && 
-		( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) ) {
+	if ( trace->allsolid
+		|| (trace->plane.normal.z > 0
+			&& (le->pos.trDelta.z < 40 || le->pos.trDelta.z < -cg.frametime * le->pos.trDelta.z)
+			)
+		)
+	{
 		le->pos.trType = TR_STATIONARY;
-	} else {
-
+	}
+	else {
 	}
 }
 
@@ -244,7 +230,7 @@ CG_AddFragment
 ================
 */
 void CG_AddFragment( localEntity_t *le ) {
-	vec3_t	newOrigin;
+	vector3	newOrigin;
 	trace_t	trace;
 
 	if (le->forceAlpha)
@@ -263,12 +249,12 @@ void CG_AddFragment( localEntity_t *le ) {
 			// we must use an explicit lighting origin, otherwise the
 			// lighting would be lost as soon as the origin went
 			// into the ground
-			VectorCopy( le->refEntity.origin, le->refEntity.lightingOrigin );
+			VectorCopy( &le->refEntity.origin, &le->refEntity.lightingOrigin );
 			le->refEntity.renderfx |= RF_LIGHTING_ORIGIN;
-			oldZ = le->refEntity.origin[2];
-			le->refEntity.origin[2] -= 16 * ( 1.0 - (float)t / SINK_TIME );
+			oldZ = le->refEntity.origin.z;
+			le->refEntity.origin.z -= 16 * ( 1.0f - (float)t / SINK_TIME );
 			cgi.R_AddRefEntityToScene( &le->refEntity );
-			le->refEntity.origin[2] = oldZ;
+			le->refEntity.origin.z = oldZ;
 		} else {
 			cgi.R_AddRefEntityToScene( &le->refEntity );
 		}
@@ -277,19 +263,19 @@ void CG_AddFragment( localEntity_t *le ) {
 	}
 
 	// calculate new position
-	BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
+	BG_EvaluateTrajectory( &le->pos, cg.time, &newOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
+	CG_Trace( &trace, &le->refEntity.origin, NULL, NULL, &newOrigin, -1, CONTENTS_SOLID );
 	if ( trace.fraction == 1.0 ) {
 		// still in free fall
-		VectorCopy( newOrigin, le->refEntity.origin );
+		VectorCopy( &newOrigin, &le->refEntity.origin );
 
 		if ( le->leFlags & LEF_TUMBLE ) {
-			vec3_t angles;
+			vector3 angles;
 
-			BG_EvaluateTrajectory( &le->angles, cg.time, angles );
-			AnglesToAxis( angles, le->refEntity.axis );
+			BG_EvaluateTrajectory( &le->angles, cg.time, &angles );
+			AnglesToAxis( &angles, le->refEntity.axis );
 		}
 
 		cgi.R_AddRefEntityToScene( &le->refEntity );
@@ -305,7 +291,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( CG_PointContents( &trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
@@ -346,12 +332,12 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	re = &le->refEntity;
 
 	c = ( le->endTime - cg.time ) * le->lifeRate;
-	c *= 0xff;
+	c *= 255;
 
-	re->shaderRGBA[0] = le->color[0] * c;
-	re->shaderRGBA[1] = le->color[1] * c;
-	re->shaderRGBA[2] = le->color[2] * c;
-	re->shaderRGBA[3] = le->color[3] * c;
+	re->shaderRGBA[0] = (byte)(le->color.r * c);
+	re->shaderRGBA[1] = (byte)(le->color.g * c);
+	re->shaderRGBA[2] = (byte)(le->color.b * c);
+	re->shaderRGBA[3] = (byte)(le->color.a * c);
 
 	cgi.R_AddRefEntityToScene( re );
 }
@@ -368,16 +354,16 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 
 	AxisCopy( axisDefault, ent->axis );
 
-	VectorScale( ent->axis[0], le->radius * frac, ent->axis[0] );
-	VectorScale( ent->axis[1], le->radius * frac, ent->axis[1] );
-	VectorScale( ent->axis[2], le->radius * 0.5f * frac, ent->axis[2] );
+	VectorScale( &ent->axis[0], le->radius * frac, &ent->axis[0] );
+	VectorScale( &ent->axis[1], le->radius * frac, &ent->axis[1] );
+	VectorScale( &ent->axis[2], le->radius * frac*0.5f, &ent->axis[2] );
 
 	frac = 1.0f - frac;
 
-	ent->shaderRGBA[0] = le->color[0] * frac;
-	ent->shaderRGBA[1] = le->color[1] * frac;
-	ent->shaderRGBA[2] = le->color[2] * frac;
-	ent->shaderRGBA[3] = le->color[3] * frac;
+	ent->shaderRGBA[0] = (byte)(le->color.r * frac);
+	ent->shaderRGBA[1] = (byte)(le->color.g * frac);
+	ent->shaderRGBA[2] = (byte)(le->color.b * frac);
+	ent->shaderRGBA[3] = (byte)(le->color.a * frac);
 
 	// add the entity
 	cgi.R_AddRefEntityToScene( ent );
@@ -391,32 +377,32 @@ CG_AddMoveScaleFade
 static void CG_AddMoveScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
-	vec3_t		delta;
+	vector3		delta;
 	float		len;
 
 	re = &le->refEntity;
 
 	if ( le->fadeInTime > le->startTime && cg.time < le->fadeInTime ) {
 		// fade / grow time
-		c = 1.0 - (float) ( le->fadeInTime - cg.time ) / ( le->fadeInTime - le->startTime );
+		c = 1.0f - (float) ( le->fadeInTime - cg.time ) / ( le->fadeInTime - le->startTime );
 	}
 	else {
 		// fade / grow time
 		c = ( le->endTime - cg.time ) * le->lifeRate;
 	}
 
-	re->shaderRGBA[3] = 0xff * c * le->color[3];
+	re->shaderRGBA[3] = (byte)(255 * c * le->color.a);
 
 	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
-		re->radius = le->radius * ( 1.0 - c ) + 8;
+		re->radius = le->radius * ( 1.0f - c ) + 8;
 	}
 
-	BG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
+	BG_EvaluateTrajectory( &le->pos, cg.time, &re->origin );
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
-	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
-	len = VectorLength( delta );
+	VectorSubtract( &re->origin, &cg.refdef.vieworg, &delta );
+	len = VectorLength( &delta );
 	if ( len < le->radius ) {
 		CG_FreeLocalEntity( le );
 		return;
@@ -433,7 +419,7 @@ CG_AddPuff
 static void CG_AddPuff( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
-	vec3_t		delta;
+	vector3		delta;
 	float		len;
 
 	re = &le->refEntity;
@@ -441,20 +427,20 @@ static void CG_AddPuff( localEntity_t *le ) {
 	// fade / grow time
 	c = ( le->endTime - cg.time ) / (float)( le->endTime - le->startTime );
 
-	re->shaderRGBA[0] = le->color[0] * c;
-	re->shaderRGBA[1] = le->color[1] * c;
-	re->shaderRGBA[2] = le->color[2] * c;
+	re->shaderRGBA[0] = (byte)(le->color.r * c);
+	re->shaderRGBA[1] = (byte)(le->color.g * c);
+	re->shaderRGBA[2] = (byte)(le->color.b * c);
 
 	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
-		re->radius = le->radius * ( 1.0 - c ) + 8;
+		re->radius = le->radius * ( 1.0f - c ) + 8;
 	}
 
-	BG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
+	BG_EvaluateTrajectory( &le->pos, cg.time, &re->origin );
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
-	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
-	len = VectorLength( delta );
+	VectorSubtract( &re->origin, &cg.refdef.vieworg, &delta );
+	len = VectorLength( &delta );
 	if ( len < le->radius ) {
 		CG_FreeLocalEntity( le );
 		return;
@@ -475,7 +461,7 @@ There are often many of these, so it needs to be simple.
 static void CG_AddScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
-	vec3_t		delta;
+	vector3		delta;
 	float		len;
 
 	re = &le->refEntity;
@@ -483,13 +469,13 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 	// fade / grow time
 	c = ( le->endTime - cg.time ) * le->lifeRate;
 
-	re->shaderRGBA[3] = 0xff * c * le->color[3];
-	re->radius = le->radius * ( 1.0 - c ) + 8;
+	re->shaderRGBA[3] = (byte)(255 * c * le->color.a);
+	re->radius = le->radius * ( 1.0f - c ) + 8;
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
-	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
-	len = VectorLength( delta );
+	VectorSubtract( &re->origin, &cg.refdef.vieworg, &delta );
+	len = VectorLength( &delta );
 	if ( len < le->radius ) {
 		CG_FreeLocalEntity( le );
 		return;
@@ -512,7 +498,7 @@ There are often 100+ of these, so it needs to be simple.
 static void CG_AddFallScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
-	vec3_t		delta;
+	vector3		delta;
 	float		len;
 
 	re = &le->refEntity;
@@ -520,16 +506,15 @@ static void CG_AddFallScaleFade( localEntity_t *le ) {
 	// fade time
 	c = ( le->endTime - cg.time ) * le->lifeRate;
 
-	re->shaderRGBA[3] = 0xff * c * le->color[3];
+	re->shaderRGBA[3] = (byte)(255 * c * le->color.a);
 
-	re->origin[2] = le->pos.trBase[2] - ( 1.0 - c ) * le->pos.trDelta[2];
+	re->origin.z = le->pos.trBase.z - ( 1.0f - c ) * le->pos.trDelta.z;
 
-	re->radius = le->radius * ( 1.0 - c ) + 16;
+	re->radius = le->radius * ( 1.0f - c ) + 16;
 
-	// if the view would be "inside" the sprite, kill the sprite
-	// so it doesn't add too much overdraw
-	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
-	len = VectorLength( delta );
+	// if the view would be "inside" the sprite, kill the sprite so it doesn't add too much overdraw
+	VectorSubtract( &re->origin, &cg.refdef.vieworg, &delta );
+	len = VectorLength( &delta );
 	if ( len < le->radius ) {
 		CG_FreeLocalEntity( le );
 		return;
@@ -558,13 +543,13 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 		float		light;
 
 		light = (float)( cg.time - ex->startTime ) / ( ex->endTime - ex->startTime );
-		if ( light < 0.5 ) {
-			light = 1.0;
+		if ( light < 0.5f ) {
+			light = 1.0f;
 		} else {
-			light = 1.0 - ( light - 0.5 ) * 2;
+			light = 1.0f - ( light - 0.5f ) * 2;
 		}
 		light = ex->light * light;
-		cgi.R_AddLightToScene(ent->origin, light, ex->lightColor[0], ex->lightColor[1], ex->lightColor[2] );
+		cgi.R_AddLightToScene(&ent->origin, light, ex->lightColor.r, ex->lightColor.g, ex->lightColor.b );
 	}
 }
 
@@ -587,10 +572,10 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	re.shaderRGBA[0] = 0xff;
 	re.shaderRGBA[1] = 0xff;
 	re.shaderRGBA[2] = 0xff;
-	re.shaderRGBA[3] = 0xff * c * 0.33;
+	re.shaderRGBA[3] = (byte)(255 * c * 0.33f);
 
 	re.reType = RT_SPRITE;
-	re.radius = 42 * ( 1.0 - c ) + 30;
+	re.radius = 42 * ( 1.0f - c ) + 30;
 
 	cgi.R_AddRefEntityToScene( &re );
 
@@ -599,13 +584,13 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 		float		light;
 
 		light = (float)( cg.time - le->startTime ) / ( le->endTime - le->startTime );
-		if ( light < 0.5 ) {
-			light = 1.0;
+		if ( light < 0.5f ) {
+			light = 1.0f;
 		} else {
-			light = 1.0 - ( light - 0.5 ) * 2;
+			light = 1.0f - ( light - 0.5f ) * 2;
 		}
 		light = le->light * light;
-		cgi.R_AddLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2] );
+		cgi.R_AddLightToScene(&re.origin, light, le->lightColor.r, le->lightColor.g, le->lightColor.b );
 	}
 }
 
@@ -631,7 +616,7 @@ CG_AddScorePlum
 
 void CG_AddScorePlum( localEntity_t *le ) {
 	refEntity_t	*re;
-	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
+	vector3		origin, delta, dir, vec, up = {0, 0, 1};
 	float		c, len;
 	int			i, score, digits[10], numdigits, negative;
 
@@ -639,7 +624,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 
 	c = ( le->endTime - cg.time ) * le->lifeRate;
 
-	score = le->radius;
+	score = (int)le->radius;
 	if (score < 0) {
 		re->shaderRGBA[0] = 0xff;
 		re->shaderRGBA[1] = 0x11;
@@ -661,25 +646,25 @@ void CG_AddScorePlum( localEntity_t *le ) {
 
 	}
 	if (c < 0.25)
-		re->shaderRGBA[3] = 0xff * 4 * c;
+		re->shaderRGBA[3] = (byte)(0xff * 4 * c);
 	else
 		re->shaderRGBA[3] = 0xff;
 
 	re->radius = NUMBER_SIZE / 2;
 
-	VectorCopy(le->pos.trBase, origin);
-	origin[2] += 110 - c * 100;
+	VectorCopy(&le->pos.trBase, &origin);
+	origin.z += 110 - c * 100;
 
-	VectorSubtract(cg.refdef.vieworg, origin, dir);
-	CrossProduct(dir, up, vec);
-	VectorNormalize(vec);
+	VectorSubtract(&cg.refdef.vieworg, &origin, &dir);
+	CrossProduct(&dir, &up, &vec);
+	VectorNormalize(&vec);
 
-	VectorMA(origin, -10 + 20 * sin(c * 2 * M_PI), vec, origin);
+	VectorMA(&origin, -10 + 20 * sinf(c * 2 * M_PI), &vec, &origin);
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
-	VectorSubtract( origin, cg.refdef.vieworg, delta );
-	len = VectorLength( delta );
+	VectorSubtract( &origin, &cg.refdef.vieworg, &delta );
+	len = VectorLength( &delta );
 	if ( len < 20 ) {
 		CG_FreeLocalEntity( le );
 		return;
@@ -702,7 +687,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 
 	for (i = 0; i < numdigits; i++) {
-		VectorMA(origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re->origin);
+		VectorMA(&origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, &vec, &re->origin);
 		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
 		cgi.R_AddRefEntityToScene( re );
 	}

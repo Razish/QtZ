@@ -132,7 +132,7 @@ typedef struct {
 	// the server sends a delta each frame which is added to the locally
 	// tracked view angles to account for standing on rotating objects,
 	// and teleport direction changes
-	vec3_t		viewangles;
+	vector3		viewangles;
 
 	int			serverId;			// included in each client message so the server
 												// can tell if it is for a prior map_restart
@@ -382,21 +382,18 @@ extern	cvar_t	*cl_pitchspeed;
 extern	cvar_t	*cl_run;
 extern	cvar_t	*cl_anglespeedkey;
 
-extern	cvar_t	*cl_sensitivity;
 extern	cvar_t	*cl_freelook;
-
-extern	cvar_t	*cl_mouseAccel;
-extern	cvar_t	*cl_mouseAccelOffset;
-extern	cvar_t	*cl_mouseAccelStyle;
 extern	cvar_t	*cl_showMouseRate;
 
 extern	cvar_t	*in_mouseDebug;
 
-extern	cvar_t	*m_pitch;
-extern	cvar_t	*m_yaw;
+extern	cvar_t	*m_sensitivity;
+extern	cvar_t	*m_filter;
+extern	cvar_t	*m_accel;
+extern	cvar_t	*m_accelOffset;
+extern	cvar_t	*m_accelStyle;
 extern	cvar_t	*m_forward;
 extern	cvar_t	*m_side;
-extern	cvar_t	*m_filter;
 
 extern	cvar_t	*j_pitch;
 extern	cvar_t	*j_yaw;
@@ -441,6 +438,7 @@ extern	cvar_t	*cl_voipSendTarget;
 extern	cvar_t	*cl_voipGainDuringCapture;
 extern	cvar_t	*cl_voipCaptureMult;
 extern	cvar_t	*cl_voipShowMeter;
+extern	cvar_t	*cl_voipIgnoreSelf;
 extern	cvar_t	*cl_voip;
 #endif
 
@@ -570,14 +568,13 @@ void	SCR_DebugGraph (float value);
 int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
 
 void	SCR_AdjustFrom640( float *x, float *y, float *w, float *h );
-void	SCR_FillRect( float x, float y, float width, float height, 
-					 const float *color );
+void	SCR_FillRect( float x, float y, float width, float height, const vector4 *color );
 void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 
 void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape );	// ignores embedded color control characters
-void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawBigStringColor( int x, int y, const char *s, vector4 *color, qboolean noColorEscape );	// ignores embedded color control characters
+void	SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor, qboolean forceColor, qboolean noColorEscape );
 void	SCR_DrawSmallChar( int x, int y, int ch );
 void	SCR_DrawSmallChar2( int x, int y, int ch, float scale );
 
