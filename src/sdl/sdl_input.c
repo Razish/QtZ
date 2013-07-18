@@ -1197,7 +1197,8 @@ void IN_Init( void )
 
 	IN_InitKeyLockStates( );
 
-	IN_InitJoystick( );
+	if ( in_joystick->integer )
+		IN_InitJoystick( );
 	Com_DPrintf( "------------------------------------\n" );
 }
 
