@@ -733,15 +733,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 		{//We don't need this event for ourself - the client draws its own weapon effects in CG_FireWeapon
 			return;
 		}
-#if 0
-		if(es->clientNum == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
-		{
-			if(cg_drawGun.integer == 2)
-				VectorMA(es->origin2, 8, cg.refdef.viewaxis[1], es->origin2);
-			else if(cg_drawGun.integer == 3)
-				VectorMA(es->origin2, 4, cg.refdef.viewaxis[1], es->origin2);
-		}
-#endif
+
 		//RAZTODO: Calculate muzzle from es->clientNum
 		//RAZFIXME: Make sure this works
 	//	CG_RailTrail(ci, es->origin2, es->pos.trBase);

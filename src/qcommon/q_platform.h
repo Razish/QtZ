@@ -77,10 +77,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define Q3_LITTLE_ENDIAN
 
 		#define DLL_EXT ".dll"
-	#endif
 
 	// Win32
-	#if defined(_WIN32) || defined(__WIN32__)
+	#elif defined(_WIN32) || defined(__WIN32__)
 
 		#undef QDECL
 		#define QDECL __cdecl
@@ -107,10 +106,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		#define DLL_EXT ".dll"
 
-	#endif
-
 	// MAC OS X
-	#if defined(MACOS_X) || defined(__APPLE_CC__)
+	#elif defined(MACOS_X) || defined(__APPLE_CC__)
 
 		// make sure this is defined, just for sanity's sake...
 		#ifndef MACOS_X
@@ -135,10 +132,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		#define DLL_EXT ".dylib"
 
-	#endif
-
 	// Linux
-	#if defined(__linux__) || defined(__FreeBSD_kernel__)
+	#elif defined(__linux__) || defined(__FreeBSD_kernel__)
 
 		#include <endian.h>
 
@@ -195,10 +190,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		#define DLL_EXT ".so"
 
-	#endif
-
 	// BSD
-	#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 
 		#include <sys/types.h>
 		#include <machine/endian.h>
@@ -235,10 +228,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		
 		#define DLL_EXT ".so"
 
-	#endif
-
 	// SUNOS
-	#ifdef __sun
+	#elif defined(__sun)
 
 		#include <stdint.h>
 		#include <sys/byteorder.h>
@@ -261,10 +252,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		
 		#define DLL_EXT ".so"
 
-	#endif
-
 	// IRIX
-	#ifdef __sgi
+	#elif defined(__sgi)
 	
 		#define OS_STRING "irix"
 		#define QINLINE __inline

@@ -280,7 +280,7 @@ void Cmd_Exec_f( void ) {
 		return;
 	}
 
-	Com_sprintf( filename, sizeof( filename ), "cfg/%s", Cmd_ArgsFrom( 1 ) );
+	Com_sprintf( filename, sizeof( filename ), "cfg/%s", Cmd_Argv( 1 ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
 	FS_ReadFile( filename, &f.v );
 	if ( !f.c ) {
@@ -844,35 +844,9 @@ void Cmd_List_f (void)
 Cmd_CompleteCfgName
 ==================
 */
-extern const char *completionString;
 void Cmd_CompleteCfgName( char *args, int argNum ) {
 	if ( argNum == 2 )
-	{
-		//QtZ: Attempt to traverse directories for tab completion
-		//	This allows things like /exec cfg/phys_<TAB>
-		//	default behaviour will only search "/" of the FS, not any subdirectories
-		int i=0;
-		char *s=args, *token=s;
-
-		for ( i=0; i<argNum; i++ )
-			s = COM_Parse( &token );
-
-		if ( Q_strchrs( s, "/\\" ) ) {
-			const char *pos = s + strlen( s )-1;
-
-			// find the last path separator
-			while ( pos-s > 0 && *pos != '/' && *pos != '\\' )
-				pos--;
-
-			if ( pos-s > 0 ) {
-				char realdir[MAX_QPATH] = {0};
-				Com_sprintf( realdir, sizeof( realdir )/*(pos-s) + 4*/, "cfg/%s", s );
-				realdir[pos-s+4] = '\0';
-				Field_CompleteFilename( realdir, pos+1, "cfg", qfalse, qtrue );
-			}
-		}
-		Field_CompleteFilename( "cfg/", s, "cfg", qfalse, qtrue );
-	}
+		Field_CompleteFilename( "cfg/", "cfg", qfalse, qtrue );
 }
 
 /*

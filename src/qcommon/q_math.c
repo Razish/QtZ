@@ -1062,6 +1062,21 @@ QINLINE qboolean VectorCompare( const vector3 *vec1, const vector3 *vec2 ) {
 	return qfalse;
 }
 
+#if _MSC_VER // windows
+
+	#include <float.h>
+	#pragma fenv_access( on )
+
+	static QINLINE float roundfloat( float n ) {
+		return (n < 0.0f) ? ceilf(n + 0.5f) : floorf(n + 0.5f);
+	}
+
+#else // linux, mac
+
+	#include <fenv.h>
+
+#endif
+
 /*
 ======================
 VectorSnap
@@ -1070,60 +1085,27 @@ Round a vector to integers for more efficient network transmission
 ======================
 */
 QINLINE void VectorSnap( vector3 *v ) {
-	#ifdef USE_SSE
-		__asm1__( align 16 );
-		__asm4__( ssemask dword 0x0FFFFFFFF, 0x0FFFFFFFF, 0x0FFFFFFFF, 0x00000000 );
-		__asm1__( ssecw dword 0x00001F80 );
+#if _MSC_VER
+	unsigned int oldcontrol, newcontrol;
 
-		#ifdef idx64
-			__asm2__( sub rsp, 8 );
-			__asm2__( movaps xmm1, ssemask );	// initialize the mask register
-			__asm2__( movups xmm0, [rcx] );		// here is stored our vector. Read 4 values in one go
-			__asm2__( movaps xmm2, xmm0 );		// keep a copy of the original data
-			__asm2__( andps xmm0, xmm1 );		// set the fourth value to zero in xmm0
-			__asm2__( andnps xmm1, xmm2 );		// copy fourth value to xmm1 and set rest to zero
-			__asm2__( cvtps2dq xmm0, xmm0 );	// convert 4 single fp to int
-			__asm2__( cvtdq2ps xmm0, xmm0 );	// convert 4 int to single fp
-			__asm2__( orps xmm0, xmm1 );		// combine all 4 values again
-			__asm2__( movups [rcx], xmm0 );		// write 3 rounded and 1 unchanged values back to memory
-			__asm1__( ret );
-		#else
-			__asm1__( fpucw 0x037F );
-			__asm2__( mov eax, dword ptr 4[esp] );	// store address of vector in eax
-			__asm2__( movaps xmm1, ssemask );		// initialize the mask register for maskmovdqu
-			__asm2__( movups xmm0, [eax] );			// here is stored our vector. Read 4 values in one go
-			__asm2__( movaps xmm2, xmm0 );			// keep a copy of the original data
-			__asm2__( andps xmm0, xmm1 );			// set the fourth value to zero in xmm0
-			__asm2__( andnps xmm1, xmm2 );			// copy fourth value to xmm1 and set rest to zero
-			__asm2__( cvtps2dq xmm0, xmm0 );		// convert 4 single fp to int
-			__asm2__( cvtdq2ps xmm0, xmm0 );		// convert 4 int to single fp
-			__asm2__( orps xmm0, xmm1 );			// combine all 4 values again
-			__asm2__( movups [eax], xmm0 );			// write 3 rounded and 1 unchanged values back to memory
-			__asm1__( ret );
-		#endif
-	#else
-	//QTZTODO: Replace with OpenJK pure C version
-		static int i;
-		static float f;
-		float *fp = (float*)v;
+	_controlfp_s( &oldcontrol, 0, 0 );
+	_controlfp_s( &newcontrol, _RC_NEAR, _MCW_RC );
 
-		f = *fp;
-		qasm1( fld f )
-		qasm1( fistp i )
-		*fp = (float)i;
-		fp++;
+	v->x = roundfloat( v->x );
+	v->y = roundfloat( v->y );
+	v->z = roundfloat( v->z );
 
-		f = *fp;
-		qasm1( fld f )
-		qasm1( fistp i )
-		*fp = (float)i;
-		fp++;
+	_controlfp_s( &newcontrol, oldcontrol, _MCW_RC );
+#else // pure c99
+	int oldround = fegetround();
+	fesetround( FE_TONEAREST );
 
-		f = *fp;
-		qasm1( fld f )
-		qasm1( fistp i )
-		*fp = (float)i;
-	#endif
+	v->x = nearbyint( v->x );
+	v->y = nearbyint( v->y );
+	v->z = nearbyint( v->z );
+
+	fesetround( oldround );
+#endif
 }
 
 /*

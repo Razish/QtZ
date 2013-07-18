@@ -458,7 +458,6 @@ static void CG_MapRestart( void ) {
 		cgi.S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
 	}
-	cgi.Cvar_Set("cg_thirdPerson", "0");
 }
 
 #define MAX_VOICEFILESIZE	16384

@@ -3567,9 +3567,9 @@ void FS_Flush( fileHandle_t f ) {
 	fflush(fsh[f].handleFiles.file.o);
 }
 
-void FS_FilenameCompletion( const char *dir, const char *filename, const char *ext, qboolean stripExt, void(*callback)( const char *s ), qboolean allowNonPureFilesOnDisk ) {
+void FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt, void(*callback)( const char *s ), qboolean allowNonPureFilesOnDisk ) {
 	int		i, nfiles;
-	char	currentFile[MAX_STRING_CHARS], **filenames;
+	char	**filenames, filename[MAX_STRING_CHARS];
 
 	filenames = FS_ListFilteredFiles( dir, ext, NULL, &nfiles, allowNonPureFilesOnDisk );
 
@@ -3577,21 +3577,13 @@ void FS_FilenameCompletion( const char *dir, const char *filename, const char *e
 
 	// pass all the files to callback (FindMatches)
 	for ( i=0; i<nfiles; i++ ) {
-		char fullpath[MAX_QPATH] = {0};
-		const char *pos = NULL;
-
 		FS_ConvertPath( filenames[i] );
-		Q_strncpyz( currentFile, filenames[i], MAX_STRING_CHARS );
+		Q_strncpyz( filename, filenames[i], MAX_STRING_CHARS );
 
 		if ( stripExt )
-			COM_StripExtension( currentFile, currentFile, sizeof( currentFile ) );
+			COM_StripExtension( filename, filename, sizeof( filename ) );
 
-		pos = Q_strchrs( dir, "/\\" );
-		if ( dir && pos && dir[strlen(dir)-1] != '\\' && dir[strlen(dir)-1] != '/' )
-			Com_sprintf( fullpath, sizeof( fullpath ), "%s%c%s", pos+1, PATH_SEP, currentFile );
-		else
-			Com_sprintf( fullpath, sizeof( fullpath ), "%s", currentFile );
-		callback( fullpath );
+		callback( filename );
 	}
 	FS_FreeFileList( filenames );
 }

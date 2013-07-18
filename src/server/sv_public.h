@@ -81,7 +81,7 @@ typedef struct serverImport_s {
 	char *			(*Cvar_VariableString)				( const char *var_name );
 	void			(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
 	float			(*Cvar_VariableValue)				( const char *var_name );
-	void			(*Field_CompleteFilename)			( const char *dir, const char *filename, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
+	void			(*Field_CompleteFilename)			( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
 	void			(*FS_ClearPakReferences)			( int flags );
 	void			(*FS_FCloseFile)					( fileHandle_t f );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );

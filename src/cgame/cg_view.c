@@ -195,78 +195,6 @@ CG_OffsetThirdPersonView
 ===============
 */
 #define	FOCUS_DISTANCE	512
-#define THIRDPERSON_ANGLE (0.0f)
-#define THIRDPERSON_RANGE (80.0f)
-static void CG_OffsetThirdPersonView( void ) {
-	vector3		forward, right, up;
-	vector3		view;
-	vector3		focusAngles;
-	trace_t		trace;
-	static vector3 mins = { -4, -4, -4 }, maxs = { 4, 4, 4 };
-	vector3		focusPoint;
-	float		focusDist;
-	float		forwardScale, sideScale;
-
-	cg.refdef.vieworg.z += cg.predictedPlayerState.viewheight;
-
-	VectorCopy( &cg.refdefViewAngles, &focusAngles );
-
-	// if dead, look at killer
-	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-		focusAngles.yaw = (float)cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-		cg.refdefViewAngles.yaw = (float)cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-	}
-
-	if ( focusAngles.pitch > 45 ) {
-		focusAngles.pitch = 45;		// don't go too far overhead
-	}
-	AngleVectors( &focusAngles, &forward, NULL, NULL );
-
-	VectorMA( &cg.refdef.vieworg, FOCUS_DISTANCE, &forward, &focusPoint );
-
-	VectorCopy( &cg.refdef.vieworg, &view );
-
-	view.z += 8;
-
-	cg.refdefViewAngles.pitch *= 0.5;
-
-	AngleVectors( &cg.refdefViewAngles, &forward, &right, &up );
-
-	forwardScale = cosf( THIRDPERSON_ANGLE / 180 * M_PI );
-	sideScale = sinf( THIRDPERSON_ANGLE / 180 * M_PI );
-	VectorMA( &view, -THIRDPERSON_RANGE * forwardScale, &forward, &view );
-	VectorMA( &view, -THIRDPERSON_RANGE * sideScale, &right, &view );
-
-	// trace a ray from the origin to the viewpoint to make sure the view isn't
-	// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
-
-	if (!com_cameraMode.integer) {
-		CG_Trace( &trace, &cg.refdef.vieworg, &mins, &maxs, &view, cg.predictedPlayerState.clientNum, MASK_SOLID );
-
-		if ( trace.fraction != 1.0 ) {
-			VectorCopy( &trace.endpos, &view );
-			view.z += (1.0f - trace.fraction) * 32;
-			// try another trace to this position, because a tunnel may have the ceiling
-			// close enogh that this is poking out
-
-			CG_Trace( &trace, &cg.refdef.vieworg, &mins, &maxs, &view, cg.predictedPlayerState.clientNum, MASK_SOLID );
-			VectorCopy( &trace.endpos, &view );
-		}
-	}
-
-
-	VectorCopy( &view, &cg.refdef.vieworg );
-
-	// select pitch to look at focus point from vieword
-	VectorSubtract( &focusPoint, &cg.refdef.vieworg, &focusPoint );
-	focusDist = sqrtf( focusPoint.x * focusPoint.x + focusPoint.y * focusPoint.y );
-	if ( focusDist < 1 ) {
-		focusDist = 1;	// should never happen
-	}
-	cg.refdefViewAngles.pitch = -180 / M_PI * atan2f( focusPoint.z, focusDist );
-	cg.refdefViewAngles.yaw -= THIRDPERSON_ANGLE;
-}
-
 
 // this causes a compiler bug on mac MrC compiler
 static void CG_StepOffset( void ) {
@@ -654,13 +582,8 @@ static int CG_CalcViewValues( void ) {
 		}
 	}
 
-	if ( cg.renderingThirdPerson ) {
-		// back away from character
-		CG_OffsetThirdPersonView();
-	} else {
-		// offset for local bobbing and kicks
-		CG_OffsetFirstPersonView();
-	}
+	// offset for local bobbing and kicks
+	CG_OffsetFirstPersonView();
 
 	// position eye relative to origin
 	AnglesToAxis( &cg.refdefViewAngles, cg.refdef.viewaxis );
@@ -784,16 +707,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// update cg.predictedPlayerState
 	CG_PredictPlayerState();
 
-	// decide on third person view
-	cg.renderingThirdPerson = qfalse;//cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
-
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
 
 	// first person blend blobs, done after AnglesToAxis
-	if ( !cg.renderingThirdPerson ) {
-		CG_DamageBlendBlob();
-	}
+	CG_DamageBlendBlob();
 
 	// build the render lists
 	if ( !cg.hyperspace ) {

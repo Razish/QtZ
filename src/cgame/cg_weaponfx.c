@@ -247,7 +247,7 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 				//	particleShader = cgi.R_RegisterShader( "gfx/effects/caustic1" ),
 					muzzleShader = cgi.R_RegisterShader( "gfx/efx/wp/divergence/muzzle" );
 	vector4 color = { 1.0f };
-	float			trailTime = 750.0f;
+	float			trailTime = 250.0f;
 
 	if ( cgs.gametype >= GT_TEAM )
 	{
@@ -259,7 +259,7 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 			VectorSet4( &color, 0.0f, 0.878431f, 1.0f, 1.0f );
 	}
 	else {
-		VectorCopy( &ci->color1, (vector3 *)&color );
+		VectorCopy( &ci->color2, (vector3 *)&color );
 		color.a = 1.0f;
 	}
 
@@ -289,11 +289,11 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	//Glow
 	leGlow->leType = LE_FADE_RGB;
 	leGlow->startTime = cg.time;
-	leGlow->endTime = cg.time + (int)(trailTime*1.33333f);
+	leGlow->endTime = cg.time + (int)(trailTime*3.0f);
 	leGlow->lifeRate = 1.0f / (leGlow->endTime - leGlow->startTime);
-	reGlow->shaderTime = cg.time / (trailTime*1.33333f);
+	reGlow->shaderTime = cg.time / (trailTime);
 	reGlow->reType = RT_LINE;
-	reGlow->radius = 3.0f;
+	reGlow->radius = 1.5f;
 	reGlow->customShader = trailShader;
 	VectorCopy(start, &reGlow->origin);
 	VectorCopy(end, &reGlow->oldorigin);
@@ -301,19 +301,19 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	reGlow->shaderRGBA[1] = (byte)(color.g * 255);
 	reGlow->shaderRGBA[2] = (byte)(color.b * 255);
 	reGlow->shaderRGBA[3] = 255;
-	leGlow->color.r = (byte)(color.r * 0.75f);
-	leGlow->color.g = (byte)(color.g * 0.75f);
-	leGlow->color.b = (byte)(color.b * 0.75f);
+	leGlow->color.r = (byte)(color.r * 255);
+	leGlow->color.g = (byte)(color.g * 255);
+	leGlow->color.b = (byte)(color.b * 255);
 	leGlow->color.a = 0.7f;
 
 	//Core
 	leCore->leType = LE_FADE_RGB;
 	leCore->startTime = cg.time;
-	leCore->endTime = cg.time + (int)(trailTime*1.33333f);
+	leCore->endTime = cg.time + (int)trailTime;
 	leCore->lifeRate = 1.0f / (leCore->endTime - leCore->startTime);
-	reCore->shaderTime = cg.time / (trailTime*1.33333f);
+	reCore->shaderTime = cg.time / (trailTime);
 	reCore->reType = RT_LINE;
-	reCore->radius = 1.5f;
+	reCore->radius = 1.0f;
 	reCore->customShader = trailShader;
 	VectorCopy(start, &reCore->origin);
 	VectorCopy(end, &reCore->oldorigin);

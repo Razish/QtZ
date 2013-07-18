@@ -1028,14 +1028,10 @@ CL_CompleteDemoName
 static void CL_CompleteDemoName( char *args, int argNum )
 {
 	if ( argNum == 2 ) {
-		int i=0;
-		char *s=args, *token=s, demoExt[16] = {0};
+		char demoExt[16] = {0};
 
-		for ( i=0; i<argNum; i++ )
-			s = COM_Parse( &token );
-
-		Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMO_EXTENSION, com_protocol->integer);
-		Field_CompleteFilename( "demos", s, demoExt, qtrue, qtrue );
+		Com_sprintf( demoExt, sizeof( demoExt ), ".%s%d", DEMO_EXTENSION, com_protocol->integer );
+		Field_CompleteFilename( "demos", demoExt, qtrue, qtrue );
 	}
 }
 

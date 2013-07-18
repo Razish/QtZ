@@ -919,40 +919,85 @@ void Cvar_Reset_f( void ) {
 ============
 Cvar_WriteVariables
 
-Appends lines containing "set variable value" for all variables
+Appends lines containing "seta variable value" for all variables
 with the archive flag set to qtrue.
 ============
 */
-void Cvar_WriteVariables(fileHandle_t f)
-{
-	cvar_t	*var;
-	char	buffer[1024];
 
-	for (var = cvar_vars; var; var = var->next)
-	{
-		if(!var->name || Q_stricmp( var->name, "cl_cdkey" ) == 0)
-			continue;
+//#define DEBUG_CVAR_SORT
 
-		if( var->flags & CVAR_ARCHIVE ) {
-			// write the latched value, even if it hasn't taken effect yet
-			if ( var->latchedString ) {
-				if( strlen( var->name ) + strlen( var->latchedString ) + 10 > sizeof( buffer ) ) {
-					Com_Printf( S_COLOR_YELLOW "WARNING: value of variable "
-							"\"%s\" too long to write to file\n", var->name );
-					continue;
-				}
-				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->latchedString);
-			} else {
-				if( strlen( var->name ) + strlen( var->string ) + 10 > sizeof( buffer ) ) {
-					Com_Printf( S_COLOR_YELLOW "WARNING: value of variable "
-							"\"%s\" too long to write to file\n", var->name );
-					continue;
-				}
-				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->string);
+typedef struct cvarSerialise_s {
+	char *name, *value;
+} cvarSerialise_t;
+
+static int cvarSort( const void *cvar1, const void *cvar2 ) {
+	return strcmp( ((cvarSerialise_t *)cvar1)->name, ((cvarSerialise_t *)cvar2)->name );
+}
+
+void Cvar_WriteVariables( fileHandle_t f ) {
+	cvar_t *var;
+	char buffer[MAX_STRING_CHARS] = {0};
+	int i=0, writeCount=0, totalCount=0, size=0;
+	cvarSerialise_t *list = NULL, *listPtr = NULL;
+#ifdef DEBUG_CVAR_SORT
+	cvarSerialise_t *testList = NULL, *testListPtr = NULL;
+#endif
+
+	for ( var=cvar_vars; var; var=var->next ) {
+		char *value = var->latchedString ? var->latchedString : var->string;
+		if ( var->name && (var->flags & CVAR_ARCHIVE) && stricmp( var->resetString, value ) ) {
+			if ( strlen( var->name ) + strlen( var->latchedString ? var->latchedString : var->string ) + 9 >= sizeof( buffer ) )
+				continue;
+			writeCount++;
+		}
+		totalCount++;
+	}
+
+	// allocate the working space for sorting
+	size = sizeof( cvarSerialise_t ) * writeCount;
+	list = (cvarSerialise_t *)Z_Malloc( size );
+	memset( list, 0, size );
+#ifdef DEBUG_CVAR_SORT
+	testList = (cvarSerialise_t *)Z_Malloc( size );
+	memset( testList, 0, size );
+#endif
+
+	for ( var=cvar_vars, listPtr=list; var; var=var->next ) {
+		char *value = var->latchedString ? var->latchedString : var->string;
+		if ( var->name && (var->flags & CVAR_ARCHIVE) && stricmp( var->resetString, value ) ) {
+			if ( strlen( var->name ) + strlen( value ) + 9 >= sizeof( buffer ) ) {
+				Com_Printf( S_COLOR_YELLOW "WARNING: value of variable \"%s\" too long to write to file\n", var->name );
+				continue;
 			}
-			FS_Write( buffer, strlen( buffer ), f );
+			listPtr->name = var->name;
+			listPtr->value = value;
+			listPtr++;
 		}
 	}
+
+#ifdef DEBUG_CVAR_SORT
+	memcpy( testList, list, size );
+#endif
+	qsort( list, writeCount, sizeof( cvarSerialise_t ), cvarSort );
+#ifdef DEBUG_CVAR_SORT
+	for ( i=0, listPtr = list, testListPtr=testList; i<writeCount; i++, listPtr++, testListPtr++ ) {
+		Com_Printf( "%s = %s\n", listPtr->name, testListPtr->name );
+	}
+#endif
+
+	for ( i=0, listPtr=list; i<writeCount; i++, listPtr++ ) {
+		Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", listPtr->name, listPtr->value );
+		FS_Write( buffer, strlen( buffer ), f );
+	}
+
+	Com_DPrintf( "Wrote %i/%i cvars to file\n", writeCount, totalCount );
+
+	Z_Free( list );
+	list = listPtr = NULL;
+#ifdef DEBUG_CVAR_SORT
+	Z_Free( testList );
+	testList = testListPtr = NULL;
+#endif
 }
 
 /*

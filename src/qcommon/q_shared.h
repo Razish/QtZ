@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRODUCT_VERSION				"0.4"
 #define QTZ_VERSION					PRODUCT_NAME" "PRODUCT_VERSION
 #define BASEGAME					"qtz"
-#define CLIENT_WINDOW_TITLE     	"QuantiZe ["PRODUCT_VERSION"]"
+#define CLIENT_WINDOW_TITLE     	"QuantiZe ["PRODUCT_VERSION"]" ARCH_STRING
 #define CLIENT_WINDOW_MIN_TITLE 	PRODUCT_NAME
 #define HOMEPATH_NAME_UNIX			".qtz"
 #define HOMEPATH_NAME_WIN			"QtZ"

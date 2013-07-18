@@ -1864,9 +1864,7 @@ static void CG_DrawCrosshair(void)
 
 	if ( !cg_drawCrosshair.integer
 		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
-	//	|| cg.renderingThirdPerson
-		|| (cg.zoomed && cg_crosshairDisableZoomed.boolean ) //zoom mask?
-		)
+		|| (cg.zoomed && cg_crosshairDisableZoomed.boolean) )//zoom mask?
 		return;
 
 	if ( cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR &&
@@ -1968,10 +1966,6 @@ static void CG_DrawCrosshair3D(void)
 		return;
 	}
 
-	if ( cg.renderingThirdPerson ) {
-		return;
-	}
-
 	w = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
@@ -2064,9 +2058,6 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 	if ( !cg_drawCrosshairNames.boolean ) {
-		return;
-	}
-	if ( cg.renderingThirdPerson ) {
 		return;
 	}
 

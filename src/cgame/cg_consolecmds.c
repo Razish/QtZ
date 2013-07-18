@@ -122,30 +122,6 @@ static void CG_scrollScoresUp_f( void) {
 	}
 }
 
-
-static void CG_spWin_f( void) {
-	cgi.Cvar_Set("cg_cameraOrbit", "2");
-	cgi.Cvar_Set("cg_cameraOrbitDelay", "35");
-	cgi.Cvar_Set("cg_thirdPerson", "1");
-	cgi.Cvar_Set("cg_thirdPersonAngle", "0");
-	cgi.Cvar_Set("cg_thirdPersonRange", "100");
-	CG_AddBufferedSound(cgs.media.winnerSound);
-	//cgi.S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
-	CG_CenterPrint("YOU WIN!", (int)(SCREEN_HEIGHT * .30f), 0);
-}
-
-static void CG_spLose_f( void) {
-	cgi.Cvar_Set("cg_cameraOrbit", "2");
-	cgi.Cvar_Set("cg_cameraOrbitDelay", "35");
-	cgi.Cvar_Set("cg_thirdPerson", "1");
-	cgi.Cvar_Set("cg_thirdPersonAngle", "0");
-	cgi.Cvar_Set("cg_thirdPersonRange", "100");
-	CG_AddBufferedSound(cgs.media.loserSound);
-	//cgi.S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
-	CG_CenterPrint("YOU LOSE...", (int)(SCREEN_HEIGHT * .30f), 0);
-}
-
-
 static void CG_TellTarget_f( void ) {
 	int		clientNum;
 	char	command[128];

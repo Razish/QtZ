@@ -430,15 +430,12 @@ static void CG_ColorFromString( const char *v, vector3 *color ) {
 		return;
 	}
 
-	if ( val & 1 ) {
-		color->b = 1.0f;
-	}
-	if ( val & 2 ) {
-		color->g = 1.0f;
-	}
-	if ( val & 4 ) {
-		color->r = 1.0f;
-	}
+	VectorCopy( &g_color_table[val], color );
+	/*
+	if ( val & 1 )	color->b = 1.0f;
+	if ( val & 2 )	color->g = 1.0f;
+	if ( val & 4 )	color->r = 1.0f;
+	*/
 }
 
 /*
@@ -1160,7 +1157,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 
 	ci = &cgs.clientinfo[ cent->currentState.number ];
 
-	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson) {
+	if ( cent->currentState.number == cg.snap->ps.clientNum ) {
 		return;
 	}
 	if ( cent->currentState.eFlags & EF_DEAD ) {
@@ -1451,7 +1448,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	int				rf;
 	refEntity_t		ent;
 
-	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
+	if ( cent->currentState.number == cg.snap->ps.clientNum ) {
 		rf = RF_THIRD_PERSON;		// only show in mirrors
 	} else {
 		rf = 0;
@@ -1795,13 +1792,7 @@ void CG_Player( centity_t *cent ) {
 	// get the player model information
 	renderfx = 0;
 	if ( cent->currentState.number == cg.snap->ps.clientNum) {
-		if (!cg.renderingThirdPerson) {
-			renderfx = RF_THIRD_PERSON;			// only draw in mirrors
-		} else {
-			if (com_cameraMode.integer) {
-				return;
-			}
-		}
+		renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 	}
 
 

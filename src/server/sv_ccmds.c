@@ -1264,7 +1264,7 @@ static void SV_CompleteMapName( char *args, int argNum ) {
 		for ( i=0; i<argNum; i++ )
 			s = COM_Parse( &token );
 
-		svi.Field_CompleteFilename( "maps", s, "bsp", qtrue, qfalse );
+		svi.Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
 	}
 }
 

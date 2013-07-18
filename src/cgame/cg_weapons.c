@@ -510,7 +510,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 	cgi.R_AddRefEntityToScene( &flash );
 
-	if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
+	if ( ps || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		// add lightning bolt
 	//	CG_LightningBolt( nonPredictedCent, flash.origin );
 
@@ -547,13 +547,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	if ( ps->pm_type == PM_INTERMISSION ) {
 		return;
 	}
-
-	// no gun if in third person view or a camera is active
-	//if ( cg.renderingThirdPerson || cg.cameraMode) {
-	if ( cg.renderingThirdPerson ) {
-		return;
-	}
-
 
 	// allow the gun to be completely removed
 	if ( !cg_drawGun.integer ) {
@@ -878,13 +871,13 @@ Caused by an EV_FIRE_WEAPON event
 */
 void CG_FireWeapon( centity_t *cent, int special ) {
 	entityState_t *ent;
-	int				c;
-	weaponInfo_t	*weap;
+	int c;
+	weaponInfo_t *weap;
 
 	ent = &cent->currentState;
-	if ( ent->weapon == WP_NONE ) {
+	if ( ent->weapon == WP_NONE )
 		return;
-	}
+
 	if ( ent->weapon >= WP_NUM_WEAPONS ) {
 		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
@@ -911,29 +904,25 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 		VectorMA( &start, 8192, &fwd, &end );
 		CG_Trace( &tr, &start, &mins, &maxs, &end, ent->number, MASK_SHOT );
 
-		if (ent->number == cg.snap->ps.clientNum && !cg.renderingThirdPerson && (cg.lastFPFlashPoint.x ||cg.lastFPFlashPoint.y || cg.lastFPFlashPoint.z) )
+		if (ent->number == cg.snap->ps.clientNum && (cg.lastFPFlashPoint.x ||cg.lastFPFlashPoint.y || cg.lastFPFlashPoint.z) )
 			VectorCopy(&cg.lastFPFlashPoint, &muzzle);
 
 		weap->fireFunc( cent, &muzzle, &tr.endpos );
 	}
 
 	// play quad sound if needed
-	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
+	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) )
 		cgi.S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
-	}
 
 	// play a sound
 	for ( c = 0 ; c < 4 ; c++ ) {
-		if ( !weap->flashSound[c] ) {
+		if ( !weap->flashSound[c] )
 			break;
-		}
 	}
 	if ( c > 0 ) {
 		c = rand() % c;
 		if ( weap->flashSound[c] )
-		{
 			cgi.S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
-		}
 	}
 
 	// do brass ejection

@@ -479,7 +479,6 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4
 
 void UI_ShowPostGame(qboolean newHigh) {
 	uii.Cvar_Set ("cg_cameraOrbit", "0");
-	uii.Cvar_Set("cg_thirdPerson", "0");
 	uiInfo.soundHighScore = newHigh;
 	UI_SetActiveMenu(UIMENU_POSTGAME);
 }
@@ -2743,7 +2742,6 @@ static void UI_StartSkirmish(qboolean next) {
 	uii.Cvar_Set("ui_pure", va("%i", temp));
 
 	uii.Cvar_Set("cg_cameraOrbit", "0");
-	uii.Cvar_Set("cg_thirdPerson", "0");
 	uii.Cvar_Set("cg_drawTimer", "1");
 	uii.Cvar_Set("g_doWarmup", "1");
 	uii.Cvar_Set("g_warmup", "15");
@@ -2899,7 +2897,6 @@ static void UI_RunMenuScript(char **args) {
 		if (Q_stricmp(name, "StartServer") == 0) {
 			int i, clients, oldclients;
 			float skill;
-			uii.Cvar_Set( "cg_thirdPerson", "0");
 			uii.Cvar_Set( "cg_cameraOrbit", "0");
 			uii.Cvar_Set( "dedicated", va( "%d", Q_clampi( 0, ui_dedicated.integer, 2 ) ) );
 			uii.Cvar_Set( "sv_gametype", va( "%d", Q_clampi( 0, ui_gameType.integer, GT_NUM_GAMETYPES-1 ) ) );
@@ -3039,7 +3036,6 @@ static void UI_RunMenuScript(char **args) {
 			uiInfo.serverStatusInfo.numLines = 0;
 			Menu_SetFeederSelection(NULL, FEEDER_FINDPLAYER, 0, NULL);
 		} else if (Q_stricmp(name, "JoinServer") == 0) {
-			uii.Cvar_Set("cg_thirdPerson", "0");
 			uii.Cvar_Set("cg_cameraOrbit", "0");
 			if (uiInfo.serverStatus.currentServer >= 0 && uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers) {
 				uii.LAN_GetServerAddressString(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, 1024);

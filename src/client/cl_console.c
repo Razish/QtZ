@@ -304,15 +304,8 @@ Cmd_CompleteTxtName
 ==================
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
-	if( argNum == 2 ) {
-		int i;
-		char *s=args, *token=s;
-
-		for ( i=0; i<argNum; i++ )
-			s = COM_Parse( &token );
-
-		Field_CompleteFilename( "", s, "txt", qfalse, qtrue );
-	}
+	if ( argNum == 2 )
+		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 }
 
 
