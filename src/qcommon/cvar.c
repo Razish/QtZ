@@ -945,7 +945,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 
 	for ( var=cvar_vars; var; var=var->next ) {
 		char *value = var->latchedString ? var->latchedString : var->string;
-		if ( var->name && (var->flags & CVAR_ARCHIVE) && stricmp( var->resetString, value ) ) {
+		if ( var->name && (var->flags & CVAR_ARCHIVE) && (stricmp( var->resetString, value ) || (var->flags&CVAR_USER_CREATED)) ) {
 			if ( strlen( var->name ) + strlen( var->latchedString ? var->latchedString : var->string ) + 9 >= sizeof( buffer ) )
 				continue;
 			writeCount++;
@@ -964,7 +964,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 
 	for ( var=cvar_vars, listPtr=list; var; var=var->next ) {
 		char *value = var->latchedString ? var->latchedString : var->string;
-		if ( var->name && (var->flags & CVAR_ARCHIVE) && stricmp( var->resetString, value ) ) {
+		if ( var->name && (var->flags & CVAR_ARCHIVE) && (stricmp( var->resetString, value ) || (var->flags&CVAR_USER_CREATED)) ) {
 			if ( strlen( var->name ) + strlen( value ) + 9 >= sizeof( buffer ) ) {
 				Com_Printf( S_COLOR_YELLOW "WARNING: value of variable \"%s\" too long to write to file\n", var->name );
 				continue;
