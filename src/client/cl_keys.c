@@ -1050,15 +1050,15 @@ void Key_Bind_f (void)
 
 	b = Key_StringToKeynum( Cmd_Argv( 1 ) );
 	if ( b == -1 ) {
-		Com_Printf( "  \"%s\" isn't a valid key\n", Cmd_Argv( 1 ) );
+		Com_Printf( "  \"%s\" isn't a valid key\n", Key_KeynumToString( b ) );
 		return;
 	}
 
 	if ( c == 2 ) {
 		if ( keys[b].binding )
-			Com_Printf( "  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"\n", Cmd_Argv( 1 ), keys[b].binding );
+			Com_Printf( "  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"\n", Key_KeynumToString( b ), keys[b].binding );
 		else
-			Com_Printf( "  \"%s\" is not bound\n", Cmd_Argv( 1 ) );
+			Com_Printf( "  \"%s\" is not bound\n", Key_KeynumToString( b ) );
 		return;
 	}
 	
