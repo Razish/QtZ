@@ -1354,7 +1354,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 
 	gi.Cmd_Argv( 1, msg, sizeof( msg ) );
 
-	if ( msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1' ) {
+	if ( tolower( msg[0] ) == 'y' || msg[0] == '1' ) {
 		level.voteYes++;
 		ent->client->pers.vote = 1;
 		gi.SV_SetConfigstring( CS_VOTE_YES, va("%i", level.voteYes ) );
