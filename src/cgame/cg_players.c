@@ -430,7 +430,7 @@ static void CG_ColorFromString( const char *v, vector3 *color ) {
 		return;
 	}
 
-	VectorCopy( &g_color_table[val], color );
+	VectorCopy( (vector3*)&g_color_table[val], color );
 	/*
 	if ( val & 1 )	color->b = 1.0f;
 	if ( val & 2 )	color->g = 1.0f;
