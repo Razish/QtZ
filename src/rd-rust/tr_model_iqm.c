@@ -917,10 +917,10 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
 	float		jointMats[IQM_MAX_JOINTS * 12];
 	int		i;
 
-	vector3		*outXYZ = &tess.xyz[tess.numVertexes];
-	vector3		*outNormal = &tess.normal[tess.numVertexes];
-	vector2		*outTexCoord = &tess.texCoords[tess.numVertexes][0];
-	color4ub_t	*outColor = &tess.vertexColors[tess.numVertexes];
+	vector3		*outXYZ;
+	vector3		*outNormal;
+	vector2		*outTexCoord;
+	color4ub_t	*outColor;
 
 	int	frame = data->num_frames ? (backEnd.currentEntity->e.frame % data->num_frames) : 0;
 	int	oldframe = data->num_frames ? (backEnd.currentEntity->e.oldframe % data->num_frames) : 0;
@@ -931,6 +931,11 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
 	glIndex_t	base;
 
 	RB_CHECKOVERFLOW( surf->num_vertexes, surf->num_triangles * 3 );
+
+	outXYZ = &tess.xyz[tess.numVertexes];
+	outNormal = &tess.normal[tess.numVertexes];
+	outTexCoord = &tess.texCoords[tess.numVertexes][0];
+	outColor = &tess.vertexColors[tess.numVertexes];
 
 	// compute interpolated joint matrices
 	if ( data->num_joints > 0 )
