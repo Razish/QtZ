@@ -306,16 +306,16 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 		LL( mesh->num_triangles );
 
 		// check ioq3 limits
-		if ( mesh->num_vertexes > SHADER_MAX_VERTEXES ) 
+		if ( mesh->num_vertexes >= SHADER_MAX_VERTEXES ) 
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i verts on a surface (%i).\n",
-				  mod_name, SHADER_MAX_VERTEXES, mesh->num_vertexes );
+				  mod_name, SHADER_MAX_VERTEXES-1, mesh->num_vertexes );
 			return qfalse;
 		}
-		if ( mesh->num_triangles*3 > SHADER_MAX_INDEXES ) 
+		if ( mesh->num_triangles*3 >= SHADER_MAX_INDEXES ) 
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i triangles on a surface (%i).\n",
-				  mod_name, SHADER_MAX_INDEXES / 3, mesh->num_triangles );
+				  mod_name, (SHADER_MAX_INDEXES / 3)-1, mesh->num_triangles );
 			return qfalse;
 		}
 

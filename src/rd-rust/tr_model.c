@@ -465,14 +465,14 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
         LL(surf->ofsXyzNormals);
         LL(surf->ofsEnd);
 		
-		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
+		if ( surf->numVerts >= SHADER_MAX_VERTEXES ) {
 			ri.Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i verts on a surface (%i).\n",
-				mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+				mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 			return qfalse;
 		}
-		if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) {
+		if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES ) {
 			ri.Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i triangles on a surface (%i).\n",
-				mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+				mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 			return qfalse;
 		}
 	
@@ -742,16 +742,16 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			// numBoneReferences and BoneReferences generally seem to be unused
 			
 			// now do the checks that may fail.
-			if ( surf->numVerts > SHADER_MAX_VERTEXES ) 
+			if ( surf->numVerts >= SHADER_MAX_VERTEXES ) 
 			{
 				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i verts on a surface (%i).\n",
-					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+					  mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 				return qfalse;
 			}
-			if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) 
+			if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES-1 ) 
 			{
 				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i triangles on a surface (%i).\n",
-					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+					  mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 				return qfalse;
 			}
 			// lowercase the surface name so skin compares are faster
@@ -932,15 +932,16 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	// swap all the frames
 	frameSize = (size_t)( &((md4Frame_t *)0)->bones[ md4->numBones ] );
     for ( i = 0 ; i < md4->numFrames ; i++) {
+		unsigned int b;
 	    frame = (md4Frame_t *) ( (byte *)md4 + md4->ofsFrames + i * frameSize );
     	frame->radius = LittleFloat( frame->radius );
-        for ( j = 0 ; j < 3 ; j++ ) {
-            frame->bounds[0].data[j] = LittleFloat( frame->bounds[0].data[j] );
-            frame->bounds[1].data[j] = LittleFloat( frame->bounds[1].data[j] );
-	    	frame->localOrigin.data[j] = LittleFloat( frame->localOrigin.data[j] );
+        for ( b = 0 ; b < 3 ; b++ ) {
+            frame->bounds[0].data[b] = LittleFloat( frame->bounds[0].data[b] );
+            frame->bounds[1].data[b] = LittleFloat( frame->bounds[1].data[b] );
+	    	frame->localOrigin.data[b] = LittleFloat( frame->localOrigin.data[b] );
         }
-		for ( j = 0 ; j < md4->numBones * sizeof( md4Bone_t ) / 4 ; j++ ) {
-			((float *)frame->bones)[j] = LittleFloat( ((float *)frame->bones)[j] );
+		for ( b = 0 ; b < md4->numBones * sizeof( md4Bone_t ) / 4 ; b++ ) {
+			((float *)frame->bones)[b] = LittleFloat( ((float *)frame->bones)[b] );
 		}
 	}
 
@@ -958,14 +959,14 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 			LL(surf->ofsVerts);
 			LL(surf->ofsEnd);
 			
-			if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
+			if ( surf->numVerts >= SHADER_MAX_VERTEXES-1 ) {
 				ri.Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i verts on a surface (%i).\n",
-					mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+					mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 				return qfalse;
 			}
-			if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) {
+			if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES-1 ) {
 				ri.Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i triangles on a surface (%i).\n",
-					mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+					mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 				return qfalse;
 			}
 
