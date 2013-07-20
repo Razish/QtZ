@@ -947,7 +947,7 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
 			// no blend joint, use identity matrix
 			for ( j=0; j<3; j++ ) {
 				for ( k=0; k<4; k++ )
-					vtxMat[4*j+k] = (k == j) ? 1 : 0;
+					vtxMat[4*j+k] = (k == j) ? 1.0f : 0.0f;
 			}
 		}
 		else {
