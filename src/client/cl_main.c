@@ -2876,11 +2876,15 @@ CL_ShutdownRef
 ============
 */
 void CL_ShutdownRef( void ) {
-	if ( !re.Shutdown ) {
-		return;
+	if ( re.Shutdown ) {
+		re.Shutdown( qtrue );
 	}
-	re.Shutdown( qtrue );
 	memset( &re, 0, sizeof( re ) );
+
+	if ( rendererLib ) {
+		Sys_UnloadLibrary( rendererLib );
+		rendererLib = NULL;
+	}
 }
 
 /*
