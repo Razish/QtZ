@@ -28,10 +28,11 @@
 							Fast fire time
 							Limited range
 	WP_DIVERGENCE		--	Penetrating hitscan
-							Very high damage at 100% charge (115)
-							Headshot multiplier (1.65)
-							2500ms fire time (115 + 69 assuming two very quick body shots)
+							Very high damage at 100% charge (115 body, 132 head)
+							Headshot multiplier (1.15)
+							2500ms fire time (115/132 + 69/79 assuming two very quick body shots)
 							Will only be 60% charged by 2500ms, takes 4166ms for full charge
+							Spamming two shots will deal 184/211 damage
 
 	WP_NUM_WEAPONS
 */

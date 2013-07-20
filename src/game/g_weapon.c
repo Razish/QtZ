@@ -346,7 +346,7 @@ static void WP_Mortar_Fire( gentity_t *ent, int special )
 
 // see bg_weapons.h for balance reasoning
 #define DIVERGENCE_DAMAGE (115)
-#define DIVERGENCE_HEADSHOT_MULTIPLIER (1.65f)
+#define DIVERGENCE_HEADSHOT_MULTIPLIER (1.15f)
 #define DIVERGENCE_TRACES (3)
 #define DIVERGENCE_RANGE (8192)
 #define DIVERGENCE_SIZE (0.5f)
