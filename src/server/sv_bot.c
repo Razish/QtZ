@@ -457,7 +457,7 @@ int SV_BotLibSetup( void ) {
 		return -1;
 	}
 
-	botlib_export->BotLibVarSet( "basegame", com_basegame->string );
+	botlib_export->BotLibVarSet( "basegame", svi.Cvar_Get( "com_basegame", BASEGAME, 0, NULL )->string );
 
 	return botlib_export->BotLibSetup();
 }
