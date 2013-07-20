@@ -1314,11 +1314,7 @@ void RB_RenderThread( void ) {
 			return;	// all done, renderer is shutting down
 		}
 
-		renderThreadActive = qtrue;
-
 		RB_ExecuteRenderCommands( data );
-
-		renderThreadActive = qfalse;
 	}
 }
 
