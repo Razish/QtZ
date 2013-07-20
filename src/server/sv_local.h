@@ -282,6 +282,25 @@ extern	cvar_t	*sv_voip;
 //
 // sv_main.c
 //
+typedef struct leakyBucket_s {
+	netadrtype_t type;
+	union {
+		byte _4[4];
+		byte _6[16];
+	} ipv;
+
+	int lastTime;
+	signed char burst;
+
+	long hash;
+	struct leakyBucket_s *prev, *next;
+} leakyBucket_t;
+
+extern leakyBucket_t outboundLeakyBucket;
+
+qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period );
+qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period );
+
 void SV_FinalMessage (char *message);
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
