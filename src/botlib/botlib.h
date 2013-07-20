@@ -440,9 +440,10 @@ typedef botlib_export_t* (QDECL *GetBotLibAPI_t)( int apiVersion, botlib_import_
 
 name:						default:			module(s):			description:
 
-"basedir"					""					l_utils.c			base directory
-"gamedir"					""					l_utils.c			game directory
-"cddir"						""					l_utils.c			CD directory
+"basedir"					""					-					base directory
+"homedir"					""					be_interface.c		home directory
+"gamedir"					""					be_interface.c		mod game directory
+"basegame"					""					be_interface.c		base game directory
 
 "log"						"0"					l_log.c				enable/disable creating a log file
 "maxclients"				"4"					be_interface.c		maximum number of clients
