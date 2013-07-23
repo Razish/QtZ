@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\freetype;..\SDL12\include;..\libcurl;..\AL;..\libspeex\include;..\zlib;..\jpeg-8c;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;USE_ICON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -102,7 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\freetype;..\SDL12\include;..\libcurl;..\AL;..\libspeex\include;..\zlib;..\jpeg-8c;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;__WIN64__;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;__WIN64__;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;USE_ICON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -116,7 +116,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>.;..;..\freetype;..\SDL12\include;..\libcurl;..\AL;..\libspeex\include;..\zlib;..\jpeg-8c;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;USE_ICON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>.;..;..\freetype;..\SDL12\include;..\libcurl;..\AL;..\libspeex\include;..\zlib;..\jpeg-8c;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;__WIN64__;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;__WIN64__;USE_RENDERER_DLOPEN;USE_INTERNAL_JPEG;BUILD_FREETYPE;USE_ICON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -1113,7 +1113,6 @@ extern	cvar_t	*r_facePlaneCull;		// enables culling of planar surfaces with back
 extern	cvar_t	*r_nocurves;
 extern	cvar_t	*r_showcluster;
 
-extern cvar_t	*r_mode;				// video mode
 extern cvar_t	*r_fullscreen;
 extern cvar_t	*r_noborder;
 extern cvar_t	*r_gamma;
@@ -1314,7 +1313,6 @@ image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicm
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
 image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrapClampMode );
-qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
 void		R_GammaCorrect( byte *buffer, int bufSize );

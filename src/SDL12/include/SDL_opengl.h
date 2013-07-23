@@ -99,13 +99,13 @@ extern "C" {
 #endif
 
 #ifndef APIENTRY
-#define APIENTRY
+	#define APIENTRY
 #endif
 #ifndef APIENTRYP
-#define APIENTRYP APIENTRY *
+	#define APIENTRYP APIENTRY *
 #endif
 #ifndef GLAPI
-#define GLAPI extern
+	#define GLAPI extern
 #endif
 
 /*************************************************************/

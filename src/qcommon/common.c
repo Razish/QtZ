@@ -3553,6 +3553,10 @@ Perform Tab expansion
 */
 void Field_AutoComplete( field_t *field )
 {
+	//QtZ: Don't complete empty fields.
+	if ( !field || !field->buffer[0] )
+		return;
+
 	completionField = field;
 
 	Field_CompleteCommand( completionField->buffer, qtrue, qtrue );

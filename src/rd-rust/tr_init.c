@@ -124,7 +124,6 @@ cvar_t	*r_vertexLight;
 cvar_t	*r_uiFullScreen;
 cvar_t	*r_shadows;
 cvar_t	*r_flares;
-cvar_t	*r_mode;
 cvar_t	*r_nobind;
 cvar_t	*r_singleShader;
 cvar_t	*r_roundImagesDown;
@@ -151,8 +150,6 @@ cvar_t	*r_lodCurveError;
 cvar_t	*r_fullscreen;
 cvar_t  *r_noborder;
 
-cvar_t	*r_customwidth;
-cvar_t	*r_customheight;
 cvar_t	*r_customPixelAspect;
 
 cvar_t	*r_overBrightBits;
@@ -224,7 +221,6 @@ static void InitOpenGL( void )
 	//
 	// GLimp_Init directly or indirectly references the following cvars:
 	//		- r_fullscreen
-	//		- r_mode
 	//		- r_(color|depth|stencil)bits
 	//		- r_ignorehwgamma
 	//		- r_gamma
@@ -296,78 +292,6 @@ void GL_CheckErrors( void ) {
 
 	ri.Error( ERR_FATAL, "GL_CheckErrors: %s", s );
 }
-
-
-/*
-** R_GetModeInfo
-*/
-typedef struct vidmode_s
-{
-	const char *description;
-	int width, height;
-	float pixelAspect;		// pixel width / height
-} vidmode_t;
-
-vidmode_t r_vidModes[] =
-{
-	{ "Mode  0: 320x240",		320,	240,	1 },
-	{ "Mode  1: 400x300",		400,	300,	1 },
-	{ "Mode  2: 512x384",		512,	384,	1 },
-	{ "Mode  3: 640x480",		640,	480,	1 },
-	{ "Mode  4: 800x600",		800,	600,	1 },
-	{ "Mode  5: 960x720",		960,	720,	1 },
-	{ "Mode  6: 1024x768",		1024,	768,	1 },
-	{ "Mode  7: 1152x864",		1152,	864,	1 },
-	{ "Mode  8: 1280x1024",		1280,	1024,	1 },
-	{ "Mode  9: 1600x1200",		1600,	1200,	1 },
-	{ "Mode 10: 2048x1536",		2048,	1536,	1 },
-	{ "Mode 11: 856x480 (wide)",856,	480,	1 }
-};
-static int	s_numVidModes = ARRAY_LEN( r_vidModes );
-
-qboolean R_GetModeInfo( int *width, int *height, float *windowAspect, int mode ) {
-	vidmode_t	*vm;
-	float			pixelAspect;
-
-	if ( mode < -1 ) {
-		return qfalse;
-	}
-	if ( mode >= s_numVidModes ) {
-		return qfalse;
-	}
-
-	if ( mode == -1 ) {
-		*width = r_customwidth->integer;
-		*height = r_customheight->integer;
-		pixelAspect = r_customPixelAspect->value;
-	} else {
-		vm = &r_vidModes[mode];
-
-		*width  = vm->width;
-		*height = vm->height;
-		pixelAspect = vm->pixelAspect;
-	}
-
-	*windowAspect = (float)*width / ( *height * pixelAspect );
-
-	return qtrue;
-}
-
-/*
-** R_ModeList_f
-*/
-static void R_ModeList_f( void )
-{
-	int i;
-
-	ri.Printf( PRINT_ALL, "\n" );
-	for ( i = 0; i < s_numVidModes; i++ )
-	{
-		ri.Printf( PRINT_ALL, "%s\n", r_vidModes[i].description );
-	}
-	ri.Printf( PRINT_ALL, "\n" );
-}
-
 
 /* 
 ============================================================================== 
@@ -769,15 +693,12 @@ void R_PrintLongString(const char *string) {
 GfxInfo_f
 ================
 */
-void GfxInfo_f( void ) 
-{
-	const char *enablestrings[] =
-	{
+void GfxInfo_f( void ) {
+	const char *enablestrings[] = {
 		"disabled",
 		"enabled"
 	};
-	const char *fsstrings[] =
-	{
+	const char *fsstrings[] = {
 		"windowed",
 		"fullscreen"
 	};
@@ -785,29 +706,22 @@ void GfxInfo_f( void )
 	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
-	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: " );
-	R_PrintLongString( glConfig.extensions_string );
+	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: " ); R_PrintLongString( glConfig.extensions_string );
 	ri.Printf( PRINT_ALL, "\n" );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.numTextureUnits );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
-	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
+	ri.Printf( PRINT_ALL, "DIMENSIONS: %d x %d %s hz:", glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
+
 	if ( glConfig.displayFrequency )
-	{
-		ri.Printf( PRINT_ALL, "%d\n", glConfig.displayFrequency );
-	}
+		ri.Printf( PRINT_ALL, "FREQUENCY: %d\n", glConfig.displayFrequency );
 	else
-	{
-		ri.Printf( PRINT_ALL, "N/A\n" );
-	}
+		ri.Printf( PRINT_ALL, "FREQUENCY: N/A\n" );
+
 	if ( glConfig.deviceSupportsGamma )
-	{
 		ri.Printf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
-	}
 	else
-	{
 		ri.Printf( PRINT_ALL, "GAMMA: software w/ %d overbright bits\n", tr.overbrightBits );
-	}
 
 	// rendering primitives
 	{
@@ -817,21 +731,13 @@ void GfxInfo_f( void )
 		ri.Printf( PRINT_ALL, "rendering primitives: " );
 		primitives = r_primitives->integer;
 		if ( primitives == 0 ) {
-			if ( qglLockArraysEXT ) {
-				primitives = 2;
-			} else {
-				primitives = 1;
-			}
+			if ( qglLockArraysEXT )		primitives = 2;
+			else						primitives = 1;
 		}
-		if ( primitives == -1 ) {
-			ri.Printf( PRINT_ALL, "none\n" );
-		} else if ( primitives == 2 ) {
-			ri.Printf( PRINT_ALL, "single glDrawElements\n" );
-		} else if ( primitives == 1 ) {
-			ri.Printf( PRINT_ALL, "multiple glArrayElement\n" );
-		} else if ( primitives == 3 ) {
-			ri.Printf( PRINT_ALL, "multiple glColor4ubv + glTexCoord2fv + glVertex3fv\n" );
-		}
+			 if ( primitives == -1 )	ri.Printf( PRINT_ALL, "none\n" );
+		else if ( primitives == 2 )		ri.Printf( PRINT_ALL, "single glDrawElements\n" );
+		else if ( primitives == 1 )		ri.Printf( PRINT_ALL, "multiple glArrayElement\n" );
+		else if ( primitives == 3 )		ri.Printf( PRINT_ALL, "multiple glColor4ubv + glTexCoord2fv + glVertex3fv\n" );
 	}
 
 	ri.Printf( PRINT_ALL, "texturemode: %s\n", r_textureMode->string );
@@ -880,11 +786,8 @@ void R_Register( void )
 	r_overBrightBits					= ri.Cvar_Get( "r_overBrightBits",					"0",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_mapOverBrightBits					= ri.Cvar_Get( "r_mapOverBrightBits",				"2",								CVAR_LATCH,					NULL );
 	r_ignorehwgamma						= ri.Cvar_Get( "r_ignorehwgamma",					"0",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	r_mode								= ri.Cvar_Get( "r_mode",							"3",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	r_fullscreen						= ri.Cvar_Get( "r_fullscreen",						"1",								CVAR_ARCHIVE,				NULL );
-	r_noborder							= ri.Cvar_Get( "r_noborder",						"0",								CVAR_ARCHIVE,				NULL );
-	r_customwidth						= ri.Cvar_Get( "r_customWidth",						"1600",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	r_customheight						= ri.Cvar_Get( "r_customHeight",					"1024",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
+	r_fullscreen						= ri.Cvar_Get( "r_fullscreen",						"0",								CVAR_ARCHIVE,				NULL );
+	r_noborder							= ri.Cvar_Get( "r_noborder",						"1",								CVAR_ARCHIVE,				NULL );
 	r_customPixelAspect					= ri.Cvar_Get( "r_customPixelAspect",				"1",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_simpleMipMaps						= ri.Cvar_Get( "r_simpleMipMaps",					"0",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_vertexLight						= ri.Cvar_Get( "r_vertexLight",						"0",								CVAR_ARCHIVE|CVAR_LATCH,	NULL );
@@ -999,7 +902,6 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "shaderlist", R_ShaderList_f );
 	ri.Cmd_AddCommand( "skinlist", R_SkinList_f );
 	ri.Cmd_AddCommand( "modellist", R_Modellist_f );
-	ri.Cmd_AddCommand( "modelist", R_ModeList_f );
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShotJPEG_f );
 	ri.Cmd_AddCommand( "screenshot_png", R_ScreenShotPNG_f );
 	ri.Cmd_AddCommand( "screenshot_tga", R_ScreenShotTGA_f );

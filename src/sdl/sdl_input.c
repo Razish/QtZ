@@ -1069,9 +1069,8 @@ static void IN_ProcessEvents( void )
 				char width[32], height[32];
 				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
 				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
-				Cvar_Set( "r_customwidth", width );
-				Cvar_Set( "r_customheight", height );
-				Cvar_Set( "r_mode", "-1" );
+				Cvar_Set( "vid_width", width );
+				Cvar_Set( "vid_height", height );
 				/* wait until user stops dragging for 1 second, so
 				   we aren't constantly recreating the GL context while
 				   he tries to drag...*/
