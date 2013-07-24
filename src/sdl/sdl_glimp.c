@@ -60,8 +60,7 @@ static SDL_Surface *screen = NULL;
 static const SDL_VideoInfo *videoInfo = NULL;
 
 cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
-cvar_t *r_allowResize; // make window resizable
-cvar_t *r_centerWindow;
+cvar_t *vid_centerWindow;
 cvar_t *r_sdlDriver;
 
 //QtZ: in_disableLockKeys, vid_xpos, vid_ypos from iodfe
@@ -198,24 +197,19 @@ GLimp_SetMode
 */
 static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 	const char *glstring;
-	int sdlcolorbits;
 	int colorbits, depthbits, stencilbits;
 	int tcolorbits, tdepthbits, tstencilbits;
-	int samples, i=0;
+	int sdlcolorbits, samples, i=0;
 	SDL_Surface *vidscreen = NULL;
-	Uint32 flags = SDL_OPENGL;
+	Uint32 flags = SDL_OPENGL|SDL_RESIZABLE;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	if ( r_allowResize->integer )
-		flags |= SDL_RESIZABLE;
-
-	if( videoInfo == NULL )
-	{
+	if ( videoInfo == NULL ) {
 		static SDL_VideoInfo sVideoInfo;
 		static SDL_PixelFormat sPixelFormat;
 
-		videoInfo = SDL_GetVideoInfo( );
+		videoInfo = SDL_GetVideoInfo();
 
 		// Take a copy of the videoInfo
 		memcpy( &sPixelFormat, videoInfo->vfmt, sizeof( SDL_PixelFormat ) );
@@ -225,9 +219,8 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 		videoInfo = &sVideoInfo;
 
 		if ( videoInfo->current_h > 0 ) {
-			// Guess the display aspect ratio through the desktop resolution
-			// by assuming (relatively safely) that it is set at or close to
-			// the display's native aspect ratio
+			// Guess the display aspect ratio through the desktop resolution by assuming (relatively safely)
+			//	that it is set at or close to the display's native aspect ratio
 			displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
 
 			ri.Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect );
@@ -630,8 +623,7 @@ void GLimp_Init( void )
 {
 	r_allowSoftwareGL	= ri.Cvar_Get( "r_allowSoftwareGL",		"0",	CVAR_LATCH,		NULL );
 	r_sdlDriver			= ri.Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL );
-	r_allowResize		= ri.Cvar_Get( "r_allowResize",			"0",	CVAR_ARCHIVE,	NULL );
-	r_centerWindow		= ri.Cvar_Get( "r_centerWindow",		"1",	CVAR_ARCHIVE,	NULL );
+	vid_centerWindow	= ri.Cvar_Get( "vid_centerWindow",		"1",	CVAR_ARCHIVE,	NULL );
 
 	//QtZ: in_disableLockKeys, vid_xpos, vid_ypos from iodfe
 	vid_width			= ri.Cvar_Get( "vid_width",				"0",	CVAR_ARCHIVE,	NULL );
@@ -646,7 +638,7 @@ void GLimp_Init( void )
 		ri.Cvar_Set( "vid_width", "0" );
 		ri.Cvar_Set( "vid_height", "0" );
 		ri.Cvar_Set( "r_fullscreen", "0" );
-		ri.Cvar_Set( "r_centerWindow", "1" );
+		ri.Cvar_Set( "vid_centerWindow", "1" );
 		ri.Cvar_Set( "com_abnormalExit", "0" );
 		//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
 		ri.Cvar_Set( "vid_xpos", "100" );
@@ -654,7 +646,7 @@ void GLimp_Init( void )
 		//~QtZ
 	}
 
-	ri.Sys_SetEnv( "SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "" );
+	ri.Sys_SetEnv( "SDL_VIDEO_CENTERED", vid_centerWindow->integer ? "1" : "" );
 
 	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
 	ri.Sys_SetEnv( "SDL_VIDEO_WINDOW_POS", va( "%d,%d", vid_xpos->integer, vid_ypos->integer ) );
