@@ -483,20 +483,20 @@ Prints the value, default, latched string and description of the given variable
 ============
 */
 void Cvar_Print( cvar_t *v ) {
-	Com_Printf("  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"", v->name, v->string );
+	Com_Printf(" \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE, v->name, v->string );
 
 	if ( !(v->flags & CVAR_ROM) ) {
 		if ( Q_stricmp( v->string, v->resetString ) )
-			Com_Printf(" "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"", v->resetString );
+			Com_Printf(" "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE, v->resetString );
 	}
 
 	Com_Printf( "\n" );
 
 	if ( v->latchedString )
-		Com_Printf( "  latched: \"%s\"\n", v->latchedString );
+		Com_Printf( " latched: \"%s\"\n", v->latchedString );
 
 	if ( v->description )
-		Com_Printf( "  "S_COLOR_GREY"%s\n", v->description );
+		Com_Printf( " "S_COLOR_GREY"%s\n", v->description );
 }
 
 /*
@@ -1006,73 +1006,46 @@ Cvar_List_f
 ============
 */
 void Cvar_List_f( void ) {
-	cvar_t	*var;
-	int		i;
-	char	*match;
+	cvar_t *var;
+	int i;
+	char *match = NULL;
 
-	if ( Cmd_Argc() > 1 ) {
+	if ( Cmd_Argc() > 1 )
 		match = Cmd_Argv( 1 );
-	} else {
-		match = NULL;
-	}
 
-	i = 0;
-	for (var = cvar_vars ; var ; var = var->next, i++)
-	{
-		if(!var->name || (match && !Com_Filter(match, var->name, qfalse)))
+	for ( var=cvar_vars, i=0; var; var=var->next, i++ ) {
+		if ( !var->name || (match && !Com_Filter( match, var->name, qfalse )) )
 			continue;
 
-		if (var->flags & CVAR_SERVERINFO) {
-			Com_Printf("S");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_SYSTEMINFO) {
-			Com_Printf("s");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USERINFO) {
-			Com_Printf("U");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ROM) {
-			Com_Printf("R");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_INIT) {
-			Com_Printf("I");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ARCHIVE) {
-			Com_Printf("A");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_LATCH) {
-			Com_Printf("L");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_CHEAT) {
-			Com_Printf("C");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USER_CREATED) {
-			Com_Printf("?");
-		} else {
-			Com_Printf(" ");
-		}
+		if (var->flags & CVAR_SERVERINFO)	Com_Printf( "S" );	else Com_Printf( " " );
+		if (var->flags & CVAR_SYSTEMINFO)	Com_Printf( "s" );	else Com_Printf( " " );
+		if (var->flags & CVAR_USERINFO)		Com_Printf( "U" );	else Com_Printf( " " );
+		if (var->flags & CVAR_ROM)			Com_Printf( "R" );	else Com_Printf( " " );
+		if (var->flags & CVAR_INIT)			Com_Printf( "I" );	else Com_Printf( " " );
+		if (var->flags & CVAR_ARCHIVE)		Com_Printf( "A" );	else Com_Printf( " " );
+		if (var->flags & CVAR_LATCH)		Com_Printf( "L" );	else Com_Printf( " " );
+		if (var->flags & CVAR_CHEAT)		Com_Printf( "C" );	else Com_Printf( " " );
+		if (var->flags & CVAR_USER_CREATED)	Com_Printf( "?" );	else Com_Printf( " " );
 
-		Com_Printf (" %s \"%s\"\n", var->name, var->string);
+		Com_Printf( " %s \"%s\"\n", var->name, var->string );
 	}
 
-	Com_Printf ("\n%i total cvars\n", i);
-	Com_Printf ("%i cvar indexes\n", cvar_numIndexes);
+	Com_Printf( "\n%i total cvars\n", i );
+	if ( i != cvar_numIndexes )
+		Com_Printf( "%i cvar indexes\n", cvar_numIndexes );
+}
+
+void Cvar_ListChanged_f( void ) {
+	cvar_t *var;
+	int i;
+
+	for ( var=cvar_vars, i=0; var; var=var->next, i++ ) {
+		char *value = var->latchedString ? var->latchedString : var->string;
+		if ( !var->name || !var->modificationCount || !strcmp( value, var->resetString ) )
+			continue;
+
+		Com_Printf( " \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"] "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]\n", var->name, value, var->resetString );
+	}
 }
 
 /*
@@ -1373,5 +1346,6 @@ void Cvar_Init (void)
 	Cmd_SetCommandCompletionFunc("unset", Cvar_CompleteCvarName);
 
 	Cmd_AddCommand ("cvarlist", Cvar_List_f);
+	Cmd_AddCommand ("cvar_modified", Cvar_ListChanged_f);
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
 }

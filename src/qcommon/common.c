@@ -3352,7 +3352,7 @@ PrintMatches
 */
 static void PrintMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) )
-		Com_Printf( "    %s\n", s );
+		Com_Printf( "  %s\n", s );
 }
 
 /*
@@ -3366,7 +3366,7 @@ static void PrintCvarMatches( const char *s ) {
 
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
 		Com_TruncateLongString( value, Cvar_VariableString( s ) );
-		Com_Printf( "    %s = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]\n", s, value );
+		Com_Printf( " \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]\n", s, value );
 	}
 }
 
