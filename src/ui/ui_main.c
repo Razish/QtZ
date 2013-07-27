@@ -1235,30 +1235,6 @@ static void UI_DrawNetFilter(rectDef_t *rect, float scale, vector4 *color, int t
 	Text_Paint(rect->x, rect->y, scale, color, va("Filter: %s", serverFilters[ui_serverFilterType.integer].description), 0, 0, textStyle);
 }
 
-
-static void UI_DrawTier(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
-	int i;
-	i = (int)uii.Cvar_VariableValue( "ui_currentTier" );
-	if (i < 0 || i >= uiInfo.tierCount) {
-		i = 0;
-	}
-	Text_Paint(rect->x, rect->y, scale, color, va("Tier: %s", uiInfo.tierList[i].tierName),0, 0, textStyle);
-}
-
-static void UI_DrawTierMap(rectDef_t *rect, int index) {
-	int i;
-	i = (int)uii.Cvar_VariableValue( "ui_currentTier" );
-	if (i < 0 || i >= uiInfo.tierCount) {
-		i = 0;
-	}
-
-	if (uiInfo.tierList[i].mapHandles[index] == -1) {
-		uiInfo.tierList[i].mapHandles[index] = uii.R_RegisterShader(va("gfx/maps/%s", uiInfo.tierList[i].maps[index]));
-	}
-
-	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.tierList[i].mapHandles[index]);
-}
-
 static const char *UI_EnglishMapName(const char *map) {
 	int i;
 	for (i = 0; i < uiInfo.mapCount; i++) {
@@ -1268,35 +1244,6 @@ static const char *UI_EnglishMapName(const char *map) {
 	}
 	return "";
 }
-
-static void UI_DrawTierMapName(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
-	int i, j;
-	i = (int)uii.Cvar_VariableValue( "ui_currentTier" );
-	if (i < 0 || i >= uiInfo.tierCount) {
-		i = 0;
-	}
-	j = (int)uii.Cvar_VariableValue("ui_currentMap");
-	if (j < 0 || j > MAPS_PER_TIER) {
-		j = 0;
-	}
-
-	Text_Paint(rect->x, rect->y, scale, color, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), 0, 0, textStyle);
-}
-
-static void UI_DrawTierGameType(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
-	int i, j;
-	i = (int)uii.Cvar_VariableValue( "ui_currentTier" );
-	if (i < 0 || i >= uiInfo.tierCount) {
-		i = 0;
-	}
-	j = (int)uii.Cvar_VariableValue("ui_currentMap");
-	if (j < 0 || j > MAPS_PER_TIER) {
-		j = 0;
-	}
-
-	Text_Paint(rect->x, rect->y, scale, color, BG_GetGametypeString( uiInfo.tierList[i].gameTypes[j] ) , 0, 0, textStyle);
-}
-
 
 static const char *UI_AIFromName(const char *name) {
 	int j;
@@ -1546,12 +1493,6 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			ui_serverFilterType.integer = 0;
 		}
 		s = va("Filter: %s", serverFilters[ui_serverFilterType.integer].description );
-		break;
-	case UI_TIER:
-		break;
-	case UI_TIER_MAPNAME:
-		break;
-	case UI_TIER_GAMETYPE:
 		break;
 	case UI_ALLMAPS_SELECTION:
 		break;
@@ -1891,21 +1832,6 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	case UI_NETFILTER:
 		UI_DrawNetFilter(&rect, scale, color, textStyle);
 		break;
-	case UI_TIER:
-		UI_DrawTier(&rect, scale, color, textStyle);
-		break;
-	case UI_OPPONENTMODEL:
-		UI_DrawOpponent(&rect);
-		break;
-	case UI_TIERMAP1:
-		UI_DrawTierMap(&rect, 0);
-		break;
-	case UI_TIERMAP2:
-		UI_DrawTierMap(&rect, 1);
-		break;
-	case UI_TIERMAP3:
-		UI_DrawTierMap(&rect, 2);
-		break;
 	case UI_PLAYERLOGO:
 		UI_DrawPlayerLogo(&rect, color);
 		break;
@@ -1923,12 +1849,6 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		break;
 	case UI_OPPONENTLOGO_NAME:
 		UI_DrawOpponentLogoName(&rect, color);
-		break;
-	case UI_TIER_MAPNAME:
-		UI_DrawTierMapName(&rect, scale, color, textStyle);
-		break;
-	case UI_TIER_GAMETYPE:
-		UI_DrawTierGameType(&rect, scale, color, textStyle);
 		break;
 	case UI_ALLMAPS_SELECTION:
 		UI_DrawAllMapsSelection(&rect, scale, color, textStyle, qtrue);
@@ -2163,7 +2083,6 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
 
 		uii.Cvar_Set("ui_gameType", va("%d", ui_gameType.integer));
 		UI_SetCapFragLimits(qtrue);
-		UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, ui_gameType.integer);
 		if (resetMap && oldCount != UI_MapCountByGameType()) {
 			uii.Cvar_Set( "ui_currentMap", "0");
 			Menu_SetFeederSelection(NULL, FEEDER_MAPS, 0, NULL);
@@ -2972,10 +2891,6 @@ static void UI_RunMenuScript(char **args) {
 			Controls_GetConfig();
 		} else if (Q_stricmp(name, "clearError") == 0) {
 			uii.Cvar_Set("com_errorMessage", "");
-		} else if (Q_stricmp(name, "loadGameInfo") == 0) {
-			UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, ui_gameType.integer);
-		} else if (Q_stricmp(name, "resetScores") == 0) {
-			UI_ClearScores();
 		} else if (Q_stricmp(name, "RefreshServers") == 0) {
 			UI_StartServerRefresh(qtrue);
 			UI_BuildServerDisplayList(qtrue);
@@ -4130,7 +4045,6 @@ static void UI_FeederSelection(float feederID, int index) {
 			ui_currentMap.integer = actual;
 			uii.Cvar_Set("ui_currentMap", va("%d", actual));
 			uiInfo.mapList[ui_currentMap.integer].cinematic = uii.CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentMap.integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
-			UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, ui_gameType.integer);
 			uii.Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap.integer].opponentName);
 			updateOpponentModel = qtrue;
 		} else {
@@ -4638,7 +4552,6 @@ void UI_Init( qboolean inGameLoad ) {
 	Menus_CloseAll();
 
 	uii.LAN_LoadCachedServers();
-	UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, ui_gameType.integer);
 
 	UI_BuildQ3Model_List();
 	UI_LoadBots();
@@ -5138,7 +5051,6 @@ vmCvar_t	ui_netSource;
 vmCvar_t	ui_serverFilterType;
 vmCvar_t	ui_opponentName;
 vmCvar_t	ui_menuFiles;
-vmCvar_t	ui_currentTier;
 vmCvar_t	ui_currentMap;
 vmCvar_t	ui_currentNetMap;
 vmCvar_t	ui_mapIndex;
@@ -5254,7 +5166,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_blueteam5, "ui_blueteam5", "0", CVAR_ARCHIVE },
 	{ &ui_netSource, "ui_netSource", "0", CVAR_ARCHIVE },
 	{ &ui_menuFiles, "ui_menuFiles", "ui/menus.txt", CVAR_ARCHIVE },
-	{ &ui_currentTier, "ui_currentTier", "0", CVAR_ARCHIVE },
 	{ &ui_currentMap, "ui_currentMap", "0", CVAR_ARCHIVE },
 	{ &ui_currentNetMap, "ui_currentNetMap", "0", CVAR_ARCHIVE },
 	{ &ui_mapIndex, "ui_mapIndex", "0", CVAR_ARCHIVE },

@@ -95,7 +95,6 @@ extern vmCvar_t	ui_serverFilterType;
 extern vmCvar_t	ui_dedicated;
 extern vmCvar_t	ui_opponentName;
 extern vmCvar_t	ui_menuFiles;
-extern vmCvar_t	ui_currentTier;
 extern vmCvar_t	ui_currentMap;
 extern vmCvar_t	ui_currentNetMap;
 extern vmCvar_t	ui_mapIndex;
@@ -348,7 +347,6 @@ void UI_LoadMenus(const char *menuFile, qboolean reset);
 void UI_SetActiveMenu( uiMenuCommand_t menu );
 int UI_AdjustTimeByGame(int time);
 void UI_ShowPostGame(qboolean newHigh);
-void UI_ClearScores( void );
 void UI_LoadArenas(void);
 
 //
@@ -609,8 +607,6 @@ typedef struct {
 #define GAMES_TEAMPLAY		2
 #define GAMES_TOURNEY		3
 #define GAMES_CTF			4
-#define MAPS_PER_TIER 3
-#define MAX_TIERS 16
 #define MAX_MODS 64
 #define MAX_DEMOS 2048 //512
 #define MAX_MOVIES 256
@@ -659,13 +655,6 @@ typedef struct {
 	qhandle_t levelShot;
 	qboolean active;
 } mapInfo;
-
-typedef struct {
-	const char *tierName;
-	const char *maps[MAPS_PER_TIER];
-	int gameTypes[MAPS_PER_TIER];
-	qhandle_t mapHandles[MAPS_PER_TIER];
-} tierInfo;
 
 typedef struct serverFilter_s {
 	const char *description;
@@ -769,10 +758,6 @@ typedef struct {
 	int mapCount;
 	mapInfo mapList[MAX_MAPS];
 
-
-	int tierCount;
-	tierInfo tierList[MAX_TIERS];
-
 	int skillIndex;
 
 	modInfo_t modList[MAX_MODS];
@@ -857,7 +842,6 @@ extern char			*UI_Cvar_VariableString( const char *var_name );
 extern void			UI_Refresh( int time );
 extern void			UI_StartDemoLoop( void );
 extern qboolean		m_entersound;
-void UI_LoadBestScores(const char *map, int game);
 extern uiStatic_t	uis;
 
 //
@@ -876,8 +860,6 @@ const char *UI_GetArenaInfoByNumber( int num );
 const char *UI_GetArenaInfoByMap( const char *map );
 const char *UI_GetSpecialArenaInfo( const char *tag );
 int UI_GetNumArenas( void );
-int UI_GetNumSPArenas( void );
-int UI_GetNumSPTiers( void );
 
 char *UI_GetBotInfoByNumber( int num );
 char *UI_GetBotInfoByName( const char *name );
@@ -885,11 +867,6 @@ int UI_GetNumBots( void );
 void UI_LoadBots( void );
 char *UI_GetBotNameByNumber( int num );
 
-void UI_GetBestScore( int level, int *score, int *skill );
-void UI_SetBestScore( int level, int score );
-int UI_TierCompleted( int levelWon );
-qboolean UI_ShowTierVideo( int tier );
-qboolean UI_CanShowTierVideo( int tier );
 int  UI_GetCurrentGame( void );
 void UI_NewGame( void );
 void UI_LogAwardData( int award, int data );
