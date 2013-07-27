@@ -2979,7 +2979,7 @@ static void FS_Startup( const char *gameName )
 	fs_homepath		= Cvar_Get( "fs_homepath",	homePath,					CVAR_INIT|CVAR_PROTECTED,	NULL );
 	fs_gamedirvar	= Cvar_Get( "fs_game",		"",							CVAR_INIT|CVAR_SYSTEMINFO,	NULL );
 
-	fs_missing		= Cvar_Get( "fs_missing",	"0",						CVAR_LATCH,					NULL );
+	fs_missing		= Cvar_Get( "fs_missing",	"0",						CVAR_INIT,					NULL );
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
