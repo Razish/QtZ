@@ -61,7 +61,6 @@ tryagain:
 	pi->realWeapon = weaponNum;
 	pi->weaponModel = 0;
 	pi->barrelModel = 0;
-	pi->flashModel = 0;
 
 	if ( weaponNum == WP_NONE ) {
 		return;
@@ -93,11 +92,6 @@ tryagain:
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_barrel.md3" );
 	pi->barrelModel = uii.R_RegisterModel( path );
-
-	strcpy( path, item->world_model[0] );
-	COM_StripExtension(path, path, sizeof(path));
-	strcat( path, "_flash.md3" );
-	pi->flashModel = uii.R_RegisterModel( path );
 
 	VectorSet( &pi->flashDlightColor, 1, 1, 1 );
 }
@@ -790,15 +784,6 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	// add muzzle flash
 	//
 	if ( dp_realtime <= pi->muzzleFlashTime ) {
-		if ( pi->flashModel ) {
-			memset( &flash, 0, sizeof(flash) );
-			flash.hModel = pi->flashModel;
-			VectorCopy( &origin, &flash.lightingOrigin );
-			UI_PositionEntityOnTag( &flash, &gun, pi->weaponModel, "tag_flash");
-			flash.renderfx = renderfx;
-			uii.R_AddRefEntityToScene( &flash );
-		}
-
 		// make a dlight for the flash
 		if ( pi->flashDlightColor.r || pi->flashDlightColor.g || pi->flashDlightColor.b ) {
 			uii.R_AddLightToScene( &flash.origin, (float)(200 + (rand()&31)), pi->flashDlightColor.r, pi->flashDlightColor.g, pi->flashDlightColor.b );

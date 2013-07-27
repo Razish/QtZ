@@ -39,13 +39,11 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	weaponInfo = &cg_weapons[weaponNum];
 
-	if ( weaponNum == 0 ) {
+	if ( weaponNum == WP_NONE )
 		return;
-	}
 
-	if ( weaponInfo->registered ) {
+	if ( weaponInfo->registered )
 		return;
-	}
 
 	memset( weaponInfo, 0, sizeof( *weaponInfo ) );
 	weaponInfo->registered = qtrue;
@@ -56,9 +54,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 			break;
 		}
 	}
-	if ( !item->classname ) {
+	if ( !item->classname )
 		CG_Error( "Couldn't find weapon %i", weaponNum );
-	}
+
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
 	// load cmodel before model so filecache works
@@ -66,9 +64,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	// calc midpoint for rotation
 	cgi.R_ModelBounds( weaponInfo->weaponModel, &mins, &maxs );
-	for ( i = 0 ; i < 3 ; i++ ) {
-		weaponInfo->weaponMidpoint.data[i] = mins.data[i] + 0.5f * ( maxs.data[i] - mins.data[i] );
-	}
+	for ( i=0; i<3; i++ )
+		weaponInfo->weaponMidpoint.data[i] = mins.data[i] + 0.5f * (maxs.data[i] - mins.data[i]);
 
 	weaponInfo->weaponIcon = cgi.R_RegisterShader( item->icon );
 	weaponInfo->ammoIcon = cgi.R_RegisterShader( item->icon );
@@ -84,11 +81,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
-	strcat( path, "_flash" );
-	weaponInfo->flashModel = cgi.R_RegisterModel( path );
-
-	strcpy( path, item->world_model[0] );
-	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_barrel" );
 	weaponInfo->barrelModel = cgi.R_RegisterModel( path );
 
@@ -97,9 +89,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 	strcat( path, "_hand" );
 	weaponInfo->handsModel = cgi.R_RegisterModel( path );
 
-	if ( !weaponInfo->handsModel ) {
-		weaponInfo->handsModel = cgi.R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
-	}
+	if ( !weaponInfo->handsModel )
+		weaponInfo->handsModel = cgi.R_RegisterModel( "models/weapons/temp/temp.md3" );
 
 	switch ( weaponNum ) {
 	//RAZMARK: ADDING NEW WEAPONS
@@ -350,16 +341,14 @@ sound should only be done on the world model case.
 =============
 */
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team ) {
-	refEntity_t	gun;
-	refEntity_t	barrel;
-	refEntity_t	flash;
-	vector3		angles;
-	weapon_t	weaponNum;
-	weaponInfo_t	*weapon;
-	centity_t	*nonPredictedCent;
-	orientation_t	lerped;
+	refEntity_t gun, barrel;
+	vector3 angles;
+	weapon_t weaponNum;
+	weaponInfo_t *weapon = NULL;
+	centity_t *nonPredictedCent = NULL;
+	orientation_t lerped;
 
-	weaponNum = cent->currentState.weapon;
+	weaponNum = (weapon_t)cent->currentState.weapon;
 
 	CG_RegisterWeapon( weaponNum );
 	weapon = &cg_weapons[weaponNum];
@@ -372,37 +361,21 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	// set custom shading for railgun refire rate
 	if( weaponNum == WP_DIVERGENCE ) {
-#if 0
-		clientInfo_t *ci = &cgs.clientinfo[cent->currentState.clientNum];
-		if( cent->pe.railFireTime + 1500 > cg.time ) {
-			int scale = 255 * ( cg.time - cent->pe.railFireTime ) / 1500;
-			gun.shaderRGBA[0] = ( ci->c1RGBA[0] * scale ) >> 8;
-			gun.shaderRGBA[1] = ( ci->c1RGBA[1] * scale ) >> 8;
-			gun.shaderRGBA[2] = ( ci->c1RGBA[2] * scale ) >> 8;
-			gun.shaderRGBA[3] = 255;
-		}
-		else {
-			Byte4Copy( ci->c1RGBA, gun.shaderRGBA );
-		}
-#else`
 		float cooldown = MIN( (float)cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime );
 		float cdPoint =  cooldown / (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime;
-		float blueHue = 200.0f/1.0f, redHue = 8.0f;
+		float blueHue = 200.0f, redHue = 10.0f;
 		vector3 rgb = {0.0f};
 		float hue = blueHue + cdPoint*(redHue - blueHue);
 		HSL2RGB( hue/360.0f, 1.0f, 0.5f, &rgb.r, &rgb.g, &rgb.b );
-	//	Com_Printf( "%.2f, %.2f, %.2f\n", (float)cg.predictedPlayerState.qtz.weaponCooldown[cg.predictedPlayerState.weapon], (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime, hue );
 		gun.shaderRGBA[0] = (byte)(rgb.r*255);
 		gun.shaderRGBA[1] = (byte)(rgb.g*255);
 		gun.shaderRGBA[2] = (byte)(rgb.b*255);
 		gun.shaderRGBA[3] = 255;
-#endif
 	}
 
 	gun.hModel = weapon->weaponModel;
-	if (!gun.hModel) {
+	if ( !gun.hModel )
 		return;
-	}
 
 	if ( !ps ) {
 		// add weapon ready sound
@@ -458,65 +431,15 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// if the index of the nonPredictedCent is not the same as the clientNum
 	// then this is a fake player (like on teh single player podiums), so
 	// go ahead and use the cent
-	if( ( nonPredictedCent - cg_entities ) != cent->currentState.clientNum ) {
+	if ( (nonPredictedCent - cg_entities) != cent->currentState.clientNum )
 		nonPredictedCent = cent;
-	}
 
-	memset( &flash, 0, sizeof( flash ) );
+	memset( &barrel, 0, sizeof( barrel ) );
 //	VectorCopy( parent->lightingOrigin, flash.lightingOrigin );
 
-	CG_PositionEntityOnTag( &flash, &gun, gun.hModel, "tag_flash");
+	CG_PositionEntityOnTag( &barrel, &gun, gun.hModel, "tag_flash");
 	//QtZ: Added from JA
-	VectorCopy(&flash.origin, &cg.lastFPFlashPoint);
-
-	flash.shadowPlane = parent->shadowPlane;
-	flash.renderfx = parent->renderfx;
-
-	flash.hModel = weapon->flashModel;
-	if (!flash.hModel) {
-		return;
-	}
-	angles.yaw = 0;
-	angles.pitch = 0;
-	angles.roll = crandom() * 10;
-	AnglesToAxis( &angles, flash.axis );
-
-	// colorize the railgun blast
-	if ( weaponNum == WP_DIVERGENCE ) {
-#if 0
-		clientInfo_t	*ci;
-
-		ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-		flash.shaderRGBA[0] = 255 * ci->color1[0];
-		flash.shaderRGBA[1] = 255 * ci->color1[1];
-		flash.shaderRGBA[2] = 255 * ci->color1[2];
-#else
-		vector3 flashColour = { 0.0f, 0.878431f, 1.0f };
-
-		if ( cgs.gametype >= GT_TEAM )
-		{
-			if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_RED )
-				VectorSet( &flashColour, 1.0f, 0.0f, 0.0f );
-			else if ( cgs.clientinfo[ cent->currentState.clientNum ].team == TEAM_BLUE )
-				VectorSet( &flashColour, 0.0f, 0.0f, 1.0f );
-		}
-
-		flash.shaderRGBA[0] = (byte)(flashColour.r*255);
-		flash.shaderRGBA[1] = (byte)(flashColour.g*255);
-		flash.shaderRGBA[2] = (byte)(flashColour.b*255);
-#endif
-	}
-
-	CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
-	cgi.R_AddRefEntityToScene( &flash );
-
-	if ( ps || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
-		// add lightning bolt
-	//	CG_LightningBolt( nonPredictedCent, flash.origin );
-
-		if ( weapon->flashDlightColor.r || weapon->flashDlightColor.g || weapon->flashDlightColor.b )
-			cgi.R_AddLightToScene( &flash.origin, (float)(300 + (rand()&31)), weapon->flashDlightColor.r, weapon->flashDlightColor.g, weapon->flashDlightColor.b );
-	}
+	VectorCopy( &barrel.origin, &cg.lastFPFlashPoint );
 }
 
 /*

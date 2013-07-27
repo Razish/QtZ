@@ -243,14 +243,11 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	localEntity_t	*leCore = CG_AllocLocalEntity(),	*leGlow = CG_AllocLocalEntity(),	*leMuzzle = CG_AllocLocalEntity();
 	refEntity_t		*reCore = &leCore->refEntity,		*reGlow = &leGlow->refEntity,		*reMuzzle = &leMuzzle->refEntity;
 	clientInfo_t	*ci = &cgs.clientinfo[cent->currentState.number];
-	int				trailShader = cgi.R_RegisterShader( "divergenceCore" ),
-				//	particleShader = cgi.R_RegisterShader( "gfx/effects/caustic1" ),
-					muzzleShader = cgi.R_RegisterShader( "gfx/efx/wp/divergence/muzzle" );
+	int				trailShader = cgi.R_RegisterShader( "divergenceCore" ), muzzleShader = cgi.R_RegisterShader( "divergenceMuzzle" );
 	vector4 color = { 1.0f };
-	float			trailTime = 250.0f;
+	int				trailTime = 600;
 
-	if ( cgs.gametype >= GT_TEAM )
-	{
+	if ( cgs.gametype >= GT_TEAM ) {
 		if ( ci->team == TEAM_RED )
 			VectorSet4( &color, 1.0f, 0.0f, 0.0f, 1.0f );
 		else if ( ci->team == TEAM_BLUE )
@@ -259,27 +256,28 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 			VectorSet4( &color, 0.0f, 0.878431f, 1.0f, 1.0f );
 	}
 	else {
-		VectorCopy( &ci->color2, (vector3 *)&color );
-		color.a = 1.0f;
+		VectorSet4( &color, 1.0f, 0.13888890f, 0.0f, 1.0f );
 	}
 
 	//MUZZLE
 	leMuzzle->leFlags = LEF_PUFF_DONT_SCALE;
 	leMuzzle->leType = LE_FADE_RGB;//LE_SCALE_FADE;
 	leMuzzle->startTime = cg.time;
-	leMuzzle->endTime = cg.time + (int)trailTime;
+	leMuzzle->endTime = cg.time + (int)((float)trailTime*0.75f);
 	leMuzzle->lifeRate = 1.0f / (leMuzzle->endTime - leMuzzle->startTime);
-
-	reMuzzle->shaderTime = cg.time / trailTime;
+	reMuzzle->shaderTime = (float)cg.time / (float)trailTime;
 	reMuzzle->reType = RT_SPRITE;
-	reMuzzle->radius = 5.8f;
+	reMuzzle->radius = 4.0f;
 	reMuzzle->customShader = muzzleShader;
 
 	reMuzzle->shaderRGBA[0] = (byte)(color.r*255);
 	reMuzzle->shaderRGBA[1] = (byte)(color.g*255);
 	reMuzzle->shaderRGBA[2] = (byte)(color.b*255);
-	reMuzzle->shaderRGBA[3] = (byte)(color.a*255);
-	VectorSet4( &leMuzzle->color, color.r*0.75f, color.g*0.75f, color.b*0.75f, 1.0f );
+	reMuzzle->shaderRGBA[3] = 255;
+	leMuzzle->color.r = (byte)(color.r * 255);
+	leMuzzle->color.g = (byte)(color.g * 255);
+	leMuzzle->color.b = (byte)(color.b * 255);
+	leMuzzle->color.a = 1.0f;
 
 	VectorCopy( start, &reMuzzle->origin );
 	VectorCopy( start, &reMuzzle->oldorigin );
@@ -289,14 +287,14 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	//Glow
 	leGlow->leType = LE_FADE_RGB;
 	leGlow->startTime = cg.time;
-	leGlow->endTime = cg.time + (int)(trailTime*3.0f);
+	leGlow->endTime = cg.time + trailTime;
 	leGlow->lifeRate = 1.0f / (leGlow->endTime - leGlow->startTime);
-	reGlow->shaderTime = cg.time / (trailTime);
+	reGlow->shaderTime = (float)cg.time / (float)trailTime;
 	reGlow->reType = RT_LINE;
 	reGlow->radius = 1.5f;
 	reGlow->customShader = trailShader;
-	VectorCopy(start, &reGlow->origin);
-	VectorCopy(end, &reGlow->oldorigin);
+	VectorCopy( start, &reGlow->origin );
+	VectorCopy( end, &reGlow->oldorigin );
 	reGlow->shaderRGBA[0] = (byte)(color.r * 255);
 	reGlow->shaderRGBA[1] = (byte)(color.g * 255);
 	reGlow->shaderRGBA[2] = (byte)(color.b * 255);
@@ -309,14 +307,14 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	//Core
 	leCore->leType = LE_FADE_RGB;
 	leCore->startTime = cg.time;
-	leCore->endTime = cg.time + (int)trailTime;
+	leCore->endTime = cg.time + trailTime;
 	leCore->lifeRate = 1.0f / (leCore->endTime - leCore->startTime);
-	reCore->shaderTime = cg.time / (trailTime);
+	reCore->shaderTime = (float)cg.time / (float)trailTime;
 	reCore->reType = RT_LINE;
 	reCore->radius = 1.0f;
 	reCore->customShader = trailShader;
-	VectorCopy(start, &reCore->origin);
-	VectorCopy(end, &reCore->oldorigin);
+	VectorCopy( start, &reCore->origin );
+	VectorCopy( end, &reCore->oldorigin );
 	reCore->shaderRGBA[0] = 255;
 	reCore->shaderRGBA[1] = 255;
 	reCore->shaderRGBA[2] = 255;

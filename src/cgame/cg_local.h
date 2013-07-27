@@ -449,7 +449,6 @@ typedef struct weaponInfo_s {
 	qhandle_t		handsModel;			// the hands don't actually draw, they just position the weapon
 	qhandle_t		weaponModel;
 	qhandle_t		barrelModel;
-	qhandle_t		flashModel;
 
 	vector3			weaponMidpoint;		// so it will rotate centered instead of by tag
 

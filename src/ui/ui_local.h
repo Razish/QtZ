@@ -519,7 +519,6 @@ typedef struct {
 
 	qhandle_t		weaponModel;
 	qhandle_t		barrelModel;
-	qhandle_t		flashModel;
 	vector3			flashDlightColor;
 	int				muzzleFlashTime;
 

@@ -63,7 +63,7 @@ gitem_t bg_itemlist[] = {
 	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
 	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
 	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
-	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_divergence",		"Divergence",			10,			0,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
+	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/divergence/divergence.md3", NULL },							"icons/weapon_divergence",		"Divergence",			10,			0,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
 	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			0,			IT_WEAPON,				WP_MORTAR,				"",			"" },
 	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
 	{	"weapon_repeater",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_repeater",		"Repeater",				120,		0,			IT_WEAPON,				WP_REPEATER,			"",			"" },
