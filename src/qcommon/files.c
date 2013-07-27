@@ -273,9 +273,8 @@ static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
 char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
 
-#ifdef FS_MISSING
-FILE*		missingFiles = NULL;
-#endif
+FILE *missingFiles = NULL;
+cvar_t *fs_missing;
 
 /* C99 defines __func__ */
 #ifndef __func__
@@ -1310,14 +1309,12 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 	        
 	}
 	
-#ifdef FS_MISSING
-	if(missingFiles)
-		fprintf(missingFiles, "%s\n", filename);
-#endif
+	if ( fs_missing->integer && missingFiles )
+		fprintf( missingFiles, "%s\n", filename );
 
-        if(file)
-        	*file = 0;
-        	
+	if ( file )
+		*file = 0;
+
 	return -1;
 }
 
@@ -2915,11 +2912,8 @@ void FS_Shutdown( qboolean closemfp ) {
 	Cmd_RemoveCommand( "touchFile" );
 	Cmd_RemoveCommand( "which" );
 
-#ifdef FS_MISSING
-	if (closemfp) {
-		fclose(missingFiles);
-	}
-#endif
+	if ( fs_missing->integer && closemfp )
+		fclose( missingFiles );
 }
 
 /*
@@ -2985,6 +2979,8 @@ static void FS_Startup( const char *gameName )
 	fs_homepath		= Cvar_Get( "fs_homepath",	homePath,					CVAR_INIT|CVAR_PROTECTED,	NULL );
 	fs_gamedirvar	= Cvar_Get( "fs_game",		"",							CVAR_INIT|CVAR_SYSTEMINFO,	NULL );
 
+	fs_missing		= Cvar_Get( "fs_missing",	"0",						CVAR_LATCH,					NULL );
+
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
@@ -3042,11 +3038,9 @@ static void FS_Startup( const char *gameName )
 
 	Com_Printf( "----------------------\n" );
 
-#ifdef FS_MISSING
-	if (missingFiles == NULL) {
+	if ( fs_missing->integer && missingFiles == NULL )
 		missingFiles = Sys_FOpen( "\\missing.txt", "ab" );
-	}
-#endif
+
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
 }
 
