@@ -920,11 +920,10 @@ static void PM_CrashLand( void ) {
 	float		a, b, c, den;
 
 	// decide which landing animation to use
-	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
+	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP )
 		PM_ForceLegsAnim( LEGS_LANDB );
-	} else {
+	else
 		PM_ForceLegsAnim( LEGS_LAND );
-	}
 
 	pm->ps->legsTimer = TIMER_LAND;
 
@@ -938,35 +937,28 @@ static void PM_CrashLand( void ) {
 	c = -dist;
 
 	den =  b * b - 4 * a * c;
-	if ( den < 0 ) {
+	if ( den < 0 )
 		return;
-	}
-	t = (-b - sqrtf( den ) ) / ( 2 * a );
+
+	t = (-b - sqrtf( den )) / (2 * a);
 
 	delta = vel + t * acc;
 	delta = delta*delta * 0.0001f;
 
-	// ducking while falling doubles damage
-	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		delta *= 2;
-	}
+	delta *= 0.75f;
 
 	// never take falling damage if completely underwater
-	if ( pm->waterlevel == 3 ) {
+	if ( pm->waterlevel == 3 )
 		return;
-	}
 
 	// reduce falling damage if there is standing water
-	if ( pm->waterlevel == 2 ) {
+	if ( pm->waterlevel == 2 )
 		delta *= 0.25f;
-	}
-	if ( pm->waterlevel == 1 ) {
+	if ( pm->waterlevel == 1 )
 		delta *= 0.5f;
-	}
 
-	if ( delta < 1 ) {
+	if ( delta < 1 )
 		return;
-	}
 
 	// create a local entity event to play the sound
 
