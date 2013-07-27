@@ -746,7 +746,7 @@ void R_Register( void )
 	r_customPixelAspect					= ri.Cvar_Get( "r_customPixelAspect",				"1",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_simpleMipMaps						= ri.Cvar_Get( "r_simpleMipMaps",					"0",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_vertexLight						= ri.Cvar_Get( "r_vertexLight",						"0",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	r_uiFullScreen						= ri.Cvar_Get( "r_uifullscreen",					"0",						CVAR_NONE,					NULL );
+	r_uiFullScreen						= ri.Cvar_Get( "r_uifullscreen",					"1",						CVAR_NONE,					NULL );
 	r_subdivisions						= ri.Cvar_Get( "r_subdivisions",					"4",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_stereoEnabled						= ri.Cvar_Get( "r_stereoEnabled",					"0",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
 	r_ignoreFastPath					= ri.Cvar_Get( "r_ignoreFastPath",					"1",						CVAR_ARCHIVE|CVAR_LATCH,	NULL );
@@ -949,7 +949,8 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand ("modellist");
-	ri.Cmd_RemoveCommand ("screenshotJPEG");
+	ri.Cmd_RemoveCommand ("screenshot_tga");
+	ri.Cmd_RemoveCommand ("screenshot_png");
 	ri.Cmd_RemoveCommand ("screenshot");
 	ri.Cmd_RemoveCommand ("imagelist");
 	ri.Cmd_RemoveCommand ("shaderlist");
