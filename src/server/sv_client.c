@@ -1022,7 +1022,14 @@ The client is going to disconnect, so remove the connection immediately  FIXME: 
 =================
 */
 static void SV_Disconnect_f( client_t *cl ) {
-	SV_DropClient( cl, "disconnected" );
+	if ( svi.Cmd_Argc() > 1 ) {
+		char reason[MAX_STRING_CHARS] = {0};
+		Q_strncpyz( reason, svi.Cmd_Argv( 1 ), sizeof( reason ) );
+		Q_strstrip( reason, "\r\n;\"", NULL );
+		SV_DropClient( cl, va( "disconnected: %s", reason ) );
+	}
+	else
+		SV_DropClient( cl, "disconnected" );
 }
 
 /*

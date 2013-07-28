@@ -23,14 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // sv_public.h
 
-#define	SERVER_API_VERSION	1
+#define	SERVER_API_VERSION	2
 
 typedef struct serverImport_s {
 	void			(*Error)							( int code, const char *fmt, ... );
 	void			(*Print)							( const char *fmt, ... );
 	void			(*Cbuf_AddText)						( const char *text );
 	void			(*Cbuf_ExecuteText)					( int exec_when, const char *text );
-	void			(*CL_Disconnect)					( qboolean showMainMenu );
+	void			(*CL_Disconnect)					( qboolean showMainMenu, const char *reason );
 	void			(*CL_MapLoading)					( void );
 	void			(*CL_StartHunkUsers)				( qboolean rendererOnly );
 	void			(*CL_ShutdownAll)					( qboolean shutdownRef );

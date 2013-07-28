@@ -251,7 +251,6 @@ typedef enum errorParm_e {
 	ERR_FATAL,					// exit the entire game with a popup window
 	ERR_DROP,					// print to console and disconnect from game
 	ERR_SERVERDISCONNECT,		// don't kill server
-	ERR_DISCONNECT,				// client disconnected from the server
 	//QTZFIXME: Remove CD checks
 	ERR_NEED_CD					// pop up the need-cd dialog
 } errorParm_t;

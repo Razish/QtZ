@@ -919,7 +919,7 @@ void CL_DemoCompleted( void )
 		}
 	}
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect( qtrue, "Demo completed" );
 	CL_NextDemo();
 }
 
@@ -1061,7 +1061,7 @@ void CL_PlayDemo_f( void ) {
 	// open the demo file
 	arg = Cmd_Argv(1);
 	
-	CL_Disconnect( qtrue );
+	CL_Disconnect( qtrue, "Playing demo" );
 
 	// check for an extension .DEMOEXT_?? (?? is protocol)
 	ext_test = strrchr(arg, '.');
@@ -1270,7 +1270,7 @@ void CL_MapLoading( void ) {
 	} else {
 		// clear nextmap so the cinematic shutdown doesn't execute it
 		Cvar_Set( "nextmap", "" );
-		CL_Disconnect( qtrue );
+		CL_Disconnect( qtrue, "Loading map" );
 		Q_strncpyz( clc.servername, "localhost", sizeof(clc.servername) );
 		clc.state = CA_CHALLENGING;		// so the connect screen is drawn
 		Key_SetCatcher( 0 );
@@ -1340,7 +1340,7 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect( qboolean showMainMenu ) {
+void CL_Disconnect( qboolean showMainMenu, const char *reason ) {
 	if ( !com_cl_running || !com_cl_running->integer ) {
 		return;
 	}
@@ -1404,7 +1404,13 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
 	if ( clc.state >= CA_CONNECTED ) {
-		CL_AddReliableCommand("disconnect", qtrue);
+		char cmd[MAX_STRING_CHARS] = {0}, *pCmd = cmd;
+		if ( reason )
+			Com_sprintf( cmd, sizeof( cmd ), "disconnect %s", reason );
+		else
+			pCmd = "disconnect";
+
+		CL_AddReliableCommand( pCmd, qtrue );
 		CL_WritePacket();
 		CL_WritePacket();
 		CL_WritePacket();
@@ -1548,7 +1554,14 @@ CL_Disconnect_f
 void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
 	if ( clc.state != CA_DISCONNECTED && clc.state != CA_CINEMATIC ) {
-		Com_Error (ERR_DISCONNECT, "Disconnected from server");
+		if ( Cmd_Argc() > 1 ) {
+			char reason[MAX_STRING_CHARS] = {0};
+			Q_strncpyz( reason, Cmd_Argv( 1 ), sizeof( reason ) );
+			Q_strstrip( reason, "\r\n;\"", NULL );
+			CL_Disconnect( qtrue, reason );
+		}
+		else
+			CL_Disconnect( qtrue, NULL );
 	}
 }
 
@@ -1615,7 +1628,7 @@ void CL_Connect_f( void ) {
 	sve.Frame( 0 );
 
 	noGameRestart = qtrue;
-	CL_Disconnect( qtrue );
+	CL_Disconnect( qtrue, "Joining another server" ); //QTZTODO: Server name/address?
 	Con_Close();
 
 	Q_strncpyz( clc.servername, server, sizeof(clc.servername) );
@@ -2647,7 +2660,7 @@ void CL_CheckTimeout( void ) {
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			Com_Printf ("\nServer connection timed out.\n");
-			CL_Disconnect( qtrue );
+			CL_Disconnect( qtrue, "server timed out" );
 			return;
 		}
 	} else {
@@ -3496,35 +3509,35 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 
 	noGameRestart = quit;
 
-	if(disconnect)
-		CL_Disconnect(qtrue);
+	if ( disconnect )
+		CL_Disconnect( qtrue, "client shutdown" );
 	
-	CL_ClearMemory(qtrue);
+	CL_ClearMemory( qtrue );
 	CL_Snd_Shutdown();
 
-	Cmd_RemoveCommand ("cmd");
-	Cmd_RemoveCommand ("configstrings");
-	Cmd_RemoveCommand ("clientinfo");
-	Cmd_RemoveCommand ("snd_restart");
-	Cmd_RemoveCommand ("vid_restart");
-	Cmd_RemoveCommand ("disconnect");
-	Cmd_RemoveCommand ("record");
-	Cmd_RemoveCommand ("demo");
-	Cmd_RemoveCommand ("cinematic");
-	Cmd_RemoveCommand ("stoprecord");
-	Cmd_RemoveCommand ("connect");
-	Cmd_RemoveCommand ("reconnect");
-	Cmd_RemoveCommand ("localservers");
-	Cmd_RemoveCommand ("globalservers");
-	Cmd_RemoveCommand ("rcon");
-	Cmd_RemoveCommand ("ping");
-	Cmd_RemoveCommand ("serverstatus");
-	Cmd_RemoveCommand ("showip");
-	Cmd_RemoveCommand ("fs_openedList");
-	Cmd_RemoveCommand ("fs_referencedList");
-	Cmd_RemoveCommand ("model");
-	Cmd_RemoveCommand ("video");
-	Cmd_RemoveCommand ("stopvideo");
+	Cmd_RemoveCommand( "cmd" );
+	Cmd_RemoveCommand( "configstrings" );
+	Cmd_RemoveCommand( "clientinfo" );
+	Cmd_RemoveCommand( "snd_restart" );
+	Cmd_RemoveCommand( "vid_restart" );
+	Cmd_RemoveCommand( "disconnect" );
+	Cmd_RemoveCommand( "record" );
+	Cmd_RemoveCommand( "demo" );
+	Cmd_RemoveCommand( "cinematic" );
+	Cmd_RemoveCommand( "stoprecord" );
+	Cmd_RemoveCommand( "connect" );
+	Cmd_RemoveCommand( "reconnect" );
+	Cmd_RemoveCommand( "localservers" );
+	Cmd_RemoveCommand( "globalservers" );
+	Cmd_RemoveCommand( "rcon" );
+	Cmd_RemoveCommand( "ping" );
+	Cmd_RemoveCommand( "serverstatus" );
+	Cmd_RemoveCommand( "showip" );
+	Cmd_RemoveCommand( "fs_openedList" );
+	Cmd_RemoveCommand( "fs_referencedList" );
+	Cmd_RemoveCommand( "model" );
+	Cmd_RemoveCommand( "video" );
+	Cmd_RemoveCommand( "stopvideo" );
 
 	CL_ShutdownInput();
 	Con_Shutdown();

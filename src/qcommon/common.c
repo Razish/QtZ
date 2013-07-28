@@ -290,12 +290,12 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	Q_vsnprintf (com_errorMessage, sizeof(com_errorMessage),fmt,argptr);
 	va_end (argptr);
 
-	if (code != ERR_DISCONNECT && code != ERR_NEED_CD)
-		Cvar_Set("com_errorMessage", com_errorMessage);
+	if ( code != ERR_NEED_CD )
+		Cvar_Set( "com_errorMessage", com_errorMessage );
 
-	if (code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT) {
+	if ( code == ERR_SERVERDISCONNECT ) {
 		sve.Shutdown( "Server disconnected" );
-		CL_Disconnect( qtrue );
+		CL_Disconnect( qtrue, NULL );
 		CL_FlushMemory( );
 
 		// make sure we can get at our local stuff
@@ -305,7 +305,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else if (code == ERR_DROP) {
 		Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
 		sve.Shutdown (va("Server crashed: %s",  com_errorMessage));
-		CL_Disconnect( qtrue );
+		CL_Disconnect( qtrue, "Server crashed" );
 		CL_FlushMemory( );
 
 		FS_PureServerSetLoadedPaks("", "");
@@ -314,7 +314,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else if ( code == ERR_NEED_CD ) {
 		sve.Shutdown( "Server didn't have CD" );
 		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect( qtrue );
+			CL_Disconnect( qtrue, "Missing CD" );
 			CL_FlushMemory( );
 
 			CL_CDDialog();
@@ -2363,10 +2363,9 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
 		if(com_sv_running->integer)
 			sve.Shutdown("Game directory changed");
 
-		if(clWasRunning)
-		{
-			if(disconnect)
-				CL_Disconnect(qfalse);
+		if ( clWasRunning ) {
+			if ( disconnect )
+				CL_Disconnect( qfalse, "Game restart" );
 				
 			CL_Shutdown("Game directory changed", disconnect, qfalse);
 		}

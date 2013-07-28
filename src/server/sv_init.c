@@ -819,6 +819,6 @@ void SV_Shutdown( char *finalmsg ) {
 
 	// disconnect any local clients
 	if( sv_killserver->integer != 2 )
-		svi.CL_Disconnect( qfalse );
+		svi.CL_Disconnect( qfalse, "Server shutdown" );
 }
 

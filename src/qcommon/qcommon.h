@@ -876,7 +876,7 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
-void CL_Disconnect( qboolean showMainMenu );
+void CL_Disconnect( qboolean showMainMenu, const char *reason );
 void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
