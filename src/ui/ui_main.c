@@ -4667,18 +4667,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			uii.Key_SetCatcher( KEYCATCH_UI );
 			Menus_ActivateByName("team");
 			return;
-		case UIMENU_NEED_CD:
-			// no cd check in TA
-			//uii.Key_SetCatcher( KEYCATCH_UI );
-			//Menus_ActivateByName("needcd");
-			//UI_ConfirmMenu( "Insert the CD", NULL, NeedCDAction );
-			return;
-		case UIMENU_BAD_CD_KEY:
-			// no cd check in TA
-			//uii.Key_SetCatcher( KEYCATCH_UI );
-			//Menus_ActivateByName("badcd");
-			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
-			return;
 		case UIMENU_POSTGAME:
 			uii.Cvar_Set( "sv_killserver", "1" );
 			uii.Key_SetCatcher( KEYCATCH_UI );
@@ -4687,7 +4675,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			}
 			Menus_CloseAll();
 			Menus_ActivateByName("endofgame");
-			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
 			return;
 		case UIMENU_INGAME:
 			uii.Cvar_Set( "cl_paused", "1" );
@@ -5030,8 +5017,6 @@ vmCvar_t	ui_server14;
 vmCvar_t	ui_server15;
 vmCvar_t	ui_server16;
 
-vmCvar_t	ui_cdkeychecked;
-
 vmCvar_t	ui_redteam;
 vmCvar_t	ui_redteam1;
 vmCvar_t	ui_redteam2;
@@ -5144,7 +5129,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_server14, "server14", "", CVAR_ARCHIVE },
 	{ &ui_server15, "server15", "", CVAR_ARCHIVE },
 	{ &ui_server16, "server16", "", CVAR_ARCHIVE },
-	{ &ui_cdkeychecked, "ui_cdkeychecked", "0", CVAR_ROM },
 	{ &ui_new, "ui_new", "0", CVAR_TEMP },
 	{ &ui_debug, "ui_debug", "0", CVAR_TEMP },
 	{ &ui_initialized, "ui_initialized", "0", CVAR_TEMP },

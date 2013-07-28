@@ -163,17 +163,6 @@ void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
-/*
-===============
-CL_CDDialog
-
-Called by Com_Error when a cd is needed
-===============
-*/
-void CL_CDDialog( void ) {
-	cls.cddialog = qtrue;	// start it next frame
-}
-
 #ifdef USE_MUMBLE
 static
 void CL_UpdateMumble(void)
@@ -1651,12 +1640,9 @@ void CL_Connect_f( void ) {
 	else
 		CL_UpdateGUID( NULL, 0 );
 
-	// if we aren't playing on a lan, we need to authenticate
-	// with the cd key
-	if(NET_IsLocalAddress(clc.serverAddress))
+	if ( NET_IsLocalAddress( clc.serverAddress ) )
 		clc.state = CA_CHALLENGING;
-	else
-	{
+	else {
 		clc.state = CA_CONNECTING;
 		
 		// Set a client challenge number that ideally is mirrored back by the server.
@@ -2741,11 +2727,7 @@ void CL_Frame ( int msec ) {
 	}
 #endif
 
-	if ( cls.cddialog ) {
-		// bring up the cd error dialog if needed
-		cls.cddialog = qfalse;
-		uie.SetActiveMenu( UIMENU_NEED_CD );
-	} else	if ( clc.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI)
 		&& !com_sv_running->integer /*&& uivm*/ ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();

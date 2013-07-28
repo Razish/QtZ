@@ -250,9 +250,7 @@ typedef enum printParm_e {
 typedef enum errorParm_e {
 	ERR_FATAL,					// exit the entire game with a popup window
 	ERR_DROP,					// print to console and disconnect from game
-	ERR_SERVERDISCONNECT,		// don't kill server
-	//QTZFIXME: Remove CD checks
-	ERR_NEED_CD					// pop up the need-cd dialog
+	ERR_SERVERDISCONNECT		// don't kill server
 } errorParm_t;
 
 
@@ -1309,10 +1307,6 @@ typedef enum _flag_status {
 #define SAY_ALL		0
 #define SAY_TEAM	1
 #define SAY_TELL	2
-
-#define CDKEY_LEN 16
-#define CDCHKSUM_LEN 2
-
 
 #define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
 #define LERP2( a, b, w ) ( (a) + (w)*((b) - (a)) )

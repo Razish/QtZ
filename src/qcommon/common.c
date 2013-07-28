@@ -290,8 +290,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	Q_vsnprintf (com_errorMessage, sizeof(com_errorMessage),fmt,argptr);
 	va_end (argptr);
 
-	if ( code != ERR_NEED_CD )
-		Cvar_Set( "com_errorMessage", com_errorMessage );
+	Cvar_Set( "com_errorMessage", com_errorMessage );
 
 	if ( code == ERR_SERVERDISCONNECT ) {
 		sve.Shutdown( "Server disconnected" );
@@ -309,21 +308,6 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		CL_FlushMemory( );
 
 		FS_PureServerSetLoadedPaks("", "");
-		com_errorEntered = qfalse;
-		longjmp (abortframe, -1);
-	} else if ( code == ERR_NEED_CD ) {
-		sve.Shutdown( "Server didn't have CD" );
-		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect( qtrue, "Missing CD" );
-			CL_FlushMemory( );
-
-			CL_CDDialog();
-		} else {
-			Com_Printf("Server didn't have CD\n" );
-		}
-
-		FS_PureServerSetLoadedPaks("", "");
-
 		com_errorEntered = qfalse;
 		longjmp (abortframe, -1);
 	} else {
