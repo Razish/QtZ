@@ -327,12 +327,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		memset (&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
-		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
+		pm.tracemask = 0; // spectators can fly through walls
 		pm.trace = gi.SV_Trace;
 		pm.pointcontents = gi.SV_PointContents;
 
 		// perform a pmove
-		Pmove (&pm);
+		Pmove( &pm );
 		// save results of pmove
 		VectorCopy( &client->ps.origin, &ent->s.origin );
 
@@ -343,11 +343,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
-	// attack button cycles through spectators
+	// mouse buttons cycle through players
 	if ( (client->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK) )
 		Cmd_FollowNext_f( ent );
 
-	else if ( client->sess.spectatorState == SPECTATOR_FOLLOW && (client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK) )
+	else if ( (client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK) && client->sess.spectatorState == SPECTATOR_FOLLOW )
 		Cmd_FollowPrev_f( ent );
 }
 

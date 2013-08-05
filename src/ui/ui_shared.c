@@ -141,7 +141,7 @@ static unsigned hashForString(const char *str) {
 	hash = 0;
 	i = 0;
 	while (str[i] != '\0') {
-		letter = tolower(str[i]);
+		letter = (char)tolower(str[i]);
 		hash+=(unsigned)(letter)*(i+119);
 		i++;
 	}

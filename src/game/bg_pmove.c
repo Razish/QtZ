@@ -40,15 +40,10 @@ pml_t		pml;
 float pm_stopspeed = 100.0f;
 float pm_duckScale = 0.25f;
 float pm_swimScale = 0.50f;
-
 float pm_wateraccelerate = 4.0f;
 float pm_flyaccelerate = 8.0f;
-
 float pm_waterfriction = 1.0f;
-float pm_flightfriction = 3.0f;
 float pm_spectatorfriction = 5.0f;
-
-int		c_pmove = 0;
 
 /*
 ===============
@@ -228,42 +223,19 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vector3 *wishDir, float wishSpeed, float accel ) {
-#if 0
-
-	int i;
-	float addSpeed, accelSpeed, currentSpeed;
-
-	currentSpeed = DotProduct( &pm->ps->velocity, wishDir );
-	addSpeed = wishSpeed - currentSpeed;
-
-	if ( addSpeed <= 0 )
-		return;
-
-	accelSpeed = Q_cap( accel*pml.frametime*wishSpeed, addSpeed );
-
-	for ( i=0; i<3; i++ )
-		pm->ps->velocity.data[i] += accelSpeed*wishDir->data[i];	
-
-#else
-
-	float xyspeed, pushLen, canPush, dot;
+	float pushLen, canPush;
 	vector3 wishVelocity, pushDir;
-
-	xyspeed = sqrtf( pm->ps->velocity.x*pm->ps->velocity.x + pm->ps->velocity.y*pm->ps->velocity.y );
-	dot = DotProduct( &pm->ps->velocity, wishDir );
 
 	VectorScale( wishDir, wishSpeed, &wishVelocity );
 	VectorSubtract( &wishVelocity, &pm->ps->velocity, &pushDir );
 	pushLen = VectorNormalize( &pushDir );
 
 	canPush = accel * wishSpeed * pml.frametime;
-	if (canPush > pushLen)
+	if ( canPush > pushLen )
 		canPush = pushLen;
 
 	pm->ps->velocity.x += canPush * pushDir.x;
 	pm->ps->velocity.y += canPush * pushDir.y;
-
-#endif
 }
 
 /*
@@ -525,7 +497,7 @@ static void PM_WaterMove( void ) {
 		wishvel.y = 0;
 		wishvel.z = -60;		// sink towards bottom
 	} else {
-		for (i=0 ; i<3 ; i++)
+		for (i=0; i<3; i++)
 			wishvel.data[i] = scale * pml.forward.data[i]*pm->cmd.forwardmove + scale * pml.right.data[i]*pm->cmd.rightmove;
 
 		wishvel.z += scale * pm->cmd.upmove;
@@ -614,32 +586,26 @@ PM_AirMove
 ===================
 */
 
-void PM_AirControl( vector3 *wishdir, float wishspeed ) {
-	float zspeed, speed, dot, k;
-	static int locked = 0;
+void PM_AirControl( vector3 *wishDir, float wishspeed ) {
+	float zspeed, speed, dot;
 
-	if ( (pm->ps->pm_flags & PMF_SELFKNOCKBACK) && locked < pm->cmd.serverTime-350  ) {
-		locked = pm->cmd.serverTime;
-		pm->ps->pm_flags &= ~PMF_SELFKNOCKBACK;
-	}
+	if ( wishspeed <= 0.0f )
+		return;
 
-	if ( pm->ps->movementDir != pm->ps->lastMovementDir || wishspeed <= 0.0f || locked > pm->cmd.serverTime-350 )
-		return; // can't control movement if not moving forward or backward
-
+	// save the speed
 	zspeed = pm->ps->velocity.z;
 	pm->ps->velocity.z = 0;
 	speed = VectorNormalize( &pm->ps->velocity );
 
-	dot = DotProduct( &pm->ps->velocity, wishdir );
-	k = pm_airControl.value * dot * pml.frametime;
-
-//	if ( dot > 0.5f ) { // within 45 degrees of current velocity
-		pm->ps->velocity.x = wishdir->x + (wishdir->x*k);
-		pm->ps->velocity.y = wishdir->y + (wishdir->y*k);
+	dot = DotProduct( &pm->ps->velocity, wishDir );
+	if ( dot > 0.0f ) {
+		VectorLerp( &pm->ps->velocity, dot, wishDir, &pm->ps->velocity );
+		pm->ps->velocity.x = wishDir->x * dot;
+		pm->ps->velocity.y = wishDir->y * dot;
 		VectorNormalize( &pm->ps->velocity );
-//	}
+	}
 	
-	speed += pm_airControlWishspeed.value * dot * pml.frametime;
+	// accelerate based on angle
 	pm->ps->velocity.x *= speed;
 	pm->ps->velocity.y *= speed;
 	pm->ps->velocity.z  = zspeed;
@@ -678,18 +644,11 @@ static void PM_AirMove( void ) {
 	wishspeed = VectorNormalize( &wishdir );
 	wishspeed *= scale;
 
-	{//if ( !pm->ps->movementDir || pm->ps->movementDir == 4 ) {
-		if (wishspeed > pm_airControlWishspeed.value)
-			wishspeed = pm_airControlWishspeed.value;	
-	}
-	if ( pml.groundPlane )
-		PM_Accelerate( &wishdir, wishspeed, pm_acceleration.value );
-	else
-		PM_AirControl( &wishdir, wishspeed );
-
-	// we may have a ground plane that is very steep. Even though we don't have a groundentity, slide along the steep plane
+	PM_Accelerate( &wishdir, wishspeed, pm_acceleration.value );
 	if ( pml.groundPlane )
 		PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
+	else
+		PM_AirControl( &wishdir, wishspeed );
 
 	PM_StepSlideMove( qtrue );
 }
@@ -771,23 +730,16 @@ static void PM_WalkMove( void ) {
 
 	PM_Accelerate (&wishdir, wishspeed, pm_acceleration.value);
 
-	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+	if ( (pml.groundTrace.surfaceFlags & SURF_SLICK) || (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) )
 		pm->ps->velocity.z -= pm_gravity.value * pml.frametime;
-	} else {
-		// don't reset the z velocity for slopes
-	//	pm->ps->velocity[2] = 0;
-	}
 
-	vel = VectorLength(&pm->ps->velocity);
+	vel = VectorLength( &pm->ps->velocity );
 
 	// slide along the ground plane
-	PM_ClipVelocity (&pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
+	PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
 
-	if ( pm_overbounce.boolean )
-	{// don't decrease velocity when going up or down a slope
+	if ( pm_overbounce.boolean ) {
+		// don't decrease velocity when going up or down a slope
 		VectorNormalize( &pm->ps->velocity );
 		VectorScale( &pm->ps->velocity, vel, &pm->ps->velocity );
 	}
@@ -797,9 +749,6 @@ static void PM_WalkMove( void ) {
 		return;
 
 	PM_StepSlideMove( qfalse );
-
-	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
 }
 
 
@@ -1682,7 +1631,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 
 	// circularly clamp the angles with deltas
 	for ( i=0; i<3; i++ ) {
-		temp = cmd->angles[i] + ps->delta_angles.data[i];
+		temp = cmd->angles[i] + (short)ps->delta_angles.data[i];
 		if ( i == 0/*PITCH*/ ) {
 			// don't let the player look up or down more than 90 degrees
 			if ( temp > 16000 ) {
@@ -1708,10 +1657,6 @@ PmoveSingle
 */
 void PmoveSingle (pmove_t *pmove) {
 	pm = pmove;
-
-	// this counter lets us debug movement problems with a journal
-	// by setting a conditional breakpoint fot the previous frame
-	c_pmove++;
 
 	// clear results
 	pm->numtouch = 0;

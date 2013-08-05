@@ -123,7 +123,6 @@ static void CG_GunAlignUpdate( void ) {
 static void CG_ViewVarsUpdate( void ) {
 	vector3	 *a = NULL;
 	number *n = NULL;
-	qboolean *b = NULL;
 
 	// viewmodel bobbing (pitch, yaw, roll)
 	a = &cg.gunBob;

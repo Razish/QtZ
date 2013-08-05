@@ -150,22 +150,22 @@ typedef enum {
 } weaponstate_t;
 
 // pmove->pm_flags
-#define	PMF_DUCKED			0x0001
-#define	PMF_JUMP_HELD		0x0002
+#define	PMF_DUCKED			0x0001	// crouching
+#define	PMF_JUMP_HELD		0x0002	// holding jump
 #define	PMF_BACKWARDS_JUMP	0x0004	// go into backwards land
 #define	PMF_BACKWARDS_RUN	0x0008	// coast down to backwards run
 #define	PMF_TIME_LAND		0x0010	// pm_time is time before rejump
 #define	PMF_TIME_KNOCKBACK	0x0020	// pm_time is an air-accelerate only time
 #define	PMF_TIME_WATERJUMP	0x0040	// pm_time is waterjump
 #define	PMF_RESPAWNED		0x0080	// clear after attack and jump buttons come up
-#define	PMF_USE_ITEM_HELD	0x0100	// 
-#define PMF_FOLLOW			0x0200	// 
-#define PMF_SCOREBOARD		0x0400	// spectate following another player
-#define PMF_INVULEXPAND		0x0800	// spectate as a scoreboard
-#define PMF_SELFKNOCKBACK	0x1000	// no air control if rocket jumping off a wall
-#define PMF_UNUSED03		0x2000	// invulnerability sphere set to full size
-#define PMF_UNUSED02		0x4000	// invulnerability sphere set to full size
-#define PMF_UNUSED01		0x8000	// invulnerability sphere set to full size
+#define	PMF_USE_ITEM_HELD	0x0100	// using a holdable item this frame
+#define PMF_FOLLOW			0x0200	// spectate following another player
+#define PMF_SCOREBOARD		0x0400	// spectate as a scoreboard
+#define PMF_INVULEXPAND		0x0800	// ???
+#define PMF_UNUSED04		0x1000	// unused
+#define PMF_UNUSED03		0x2000	// unused
+#define PMF_UNUSED02		0x4000	// unused
+#define PMF_UNUSED01		0x8000	// unused
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 

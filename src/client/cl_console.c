@@ -213,7 +213,7 @@ void Con_Dump_f (void)
 				break;
 		}
 		strcat( buffer, "\n" );
-		FS_Write(buffer, strlen(buffer), f);
+		FS_Write(buffer, (int)strlen(buffer), f);
 	}
 
 	FS_FCloseFile( f );
@@ -599,6 +599,7 @@ void Con_DrawSolidConsole( float frac ) {
 //	qhandle_t		conShader;
 	int				currentColor;
 	vector4			color = { 1.0f, 0.788f, 0.054f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
+	char			version[] = CLIENT_WINDOW_TITLE;
 
 	lines = (int)(cls.glconfig.vidHeight * frac);
 	if (lines <= 0)
@@ -623,14 +624,14 @@ void Con_DrawSolidConsole( float frac ) {
 
 
 	// draw the version number
-	i = strlen( QTZ_VERSION );
+	i = (int)strlen( version );
 
 	re.SetColor( &shadowColour );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, QTZ_VERSION[x], 1.125f );
+		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, version[x], 1.0f );
 	re.SetColor( &color );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH*1.25f), (int)(lines - SMALLCHAR_HEIGHT*1.3f), QTZ_VERSION[x], 1.125f );
+		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH), (int)(lines - SMALLCHAR_HEIGHT*1.3f), version[x], 1.0f );
 
 
 	// draw the text

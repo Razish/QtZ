@@ -843,9 +843,6 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			targ->client->ps.pm_time = t;
 			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 		}
-		if ( OnSameTeam( targ, attacker ) || targ == attacker ) {
-			targ->client->ps.pm_flags |= PMF_SELFKNOCKBACK;
-		}
 	}
 
 	//QtZ: Moved this up here to bypass friendly fire checks

@@ -2367,6 +2367,10 @@ void CG_DrawTimedMenus( void ) {
 	}
 }
 
+void CG_DrawDebugInfo( void ) {
+	CG_Text_Paint( 32.0f, 128.0f, 0.25f, &colorWhite, va( "movement dir: %d", cg.predictedPlayerState.movementDir ), 0.0f, -1, 0 );
+}
+
 /*
 =================
 CG_Draw2D
@@ -2410,6 +2414,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			if ( cg_drawStatus.boolean ) {
 				Menu_PaintAll();
 				CG_DrawTimedMenus();
+#ifdef _DEBUG
+				CG_DrawDebugInfo();
+#endif
 			}
 #endif // QTZRELIC
       
