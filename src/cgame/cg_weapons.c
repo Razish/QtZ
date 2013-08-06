@@ -456,7 +456,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	clientInfo_t	*ci;
 	vector3			angles;
 	weaponInfo_t	*weapon;
-	float	cgFov = cg_fov.value;
+	float cgFov = cg_fovViewmodel.integer ? cg_fovViewmodel.value : cg_fov.value;
 
 	if (cgFov < 1)
 		cgFov = 1;
@@ -501,7 +501,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	{
 		vector3 gunLerp = { 0.0f };
-		float point = 1.0f + (zoomFov-cg_zoomFov.value)/(cgFov-cg_zoomFov.value) * -1.0f;
+		float point = 1.0f + (zoomFov-cg_zoomFov.value)/(cg_fov.value-cg_zoomFov.value) * -1.0f;
 
 		//lerp from base position to zoom position by how far we've zoomed
 		VectorLerp( &cg.gunAlign.basePos, point, &cg.gunAlign.zoomPos, &gunLerp );
@@ -513,6 +513,12 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	}
 
 	AnglesToAxis( &angles, hand.axis );
+
+	if ( cg_fovViewmodel.integer ) {
+		float fracDistFOV = tanf( cg.refdef.fov_x * ( M_PI/180 ) * 0.5f );
+		float fracWeapFOV = ( 1.0f / fracDistFOV ) * tanf( cgFov * ( M_PI/180 ) * 0.5f );
+		VectorScale( &hand.axis[0], fracWeapFOV, &hand.axis[0] );
+	}
 
 	// map torso animations to weapon animations
 	// get clientinfo for animation map

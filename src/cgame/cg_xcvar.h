@@ -58,6 +58,7 @@ XCVAR_DEF( cg_forceEnemyModelColor,			"0 255 0",				CG_ForceColorUpdate,	CVAR_AR
 XCVAR_DEF( cg_footsteps,					"1",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_fov,							"90",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_fovAspectAdjust,				"1",					NULL,					CVAR_ARCHIVE,				"Automatically scale the field of view for non 4:3 aspect ratios" )
+XCVAR_DEF( cg_fovViewmodel,					"0",					NULL,					CVAR_ARCHIVE,				"Field of view for first-person view models. 0 = inherit from cg_fov" )
 XCVAR_DEF( cg_gibs,							"1",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_gunAlign,						"0.0 0.0 0.0",			CG_GunAlignUpdate,		CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_gunBob,						"0.005 0.01 0.005",		CG_ViewVarsUpdate,		CVAR_ARCHIVE,				NULL )
