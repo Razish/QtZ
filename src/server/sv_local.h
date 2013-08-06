@@ -217,6 +217,8 @@ typedef struct {
 	netadr_t	redirectAddress;			// for rcon return messages
 
 	netadr_t	authorizeAddress;			// for rcon return messages
+
+	qboolean	gameStarted;				// gvm is loaded
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
@@ -235,7 +237,7 @@ typedef struct
 extern	serverImport_t	svi;
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
-extern	gameExport_t	ge;					// game virtual machine
+extern	gameExport_t	*game;				// game virtual machine
 extern	botlib_export_t	*botlib_export;
 
 extern	cvar_t	*sv_snapshotRate;

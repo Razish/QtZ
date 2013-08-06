@@ -51,7 +51,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 	int			i;
 
 	if ( soundName[0] != '*' ) {
-		return cgi.S_RegisterSound( soundName, qfalse );
+		return trap->S_RegisterSound( soundName, qfalse );
 	}
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
@@ -65,7 +65,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 		}
 	}
 
-	CG_Error( "Unknown custom sound: %s", soundName );
+	trap->Error( ERR_DROP, "Unknown custom sound: %s", soundName );
 	return 0;
 }
 
@@ -101,18 +101,18 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	animations = ci->animations;
 
 	// load the file
-	len = cgi.FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		CG_Printf( "File %s too long\n", filename );
-		cgi.FS_Close( f );
+		trap->Print( "File %s too long\n", filename );
+		trap->FS_Close( f );
 		return qfalse;
 	}
-	cgi.FS_Read( text, len, f );
+	trap->FS_Read( text, len, f );
 	text[len] = 0;
-	cgi.FS_Close( f );
+	trap->FS_Close( f );
 
 	// parse the text
 	text_p = text;
@@ -147,7 +147,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 			} else if ( !Q_stricmp( token, "energy" ) ) {
 				ci->footsteps = FOOTSTEP_ENERGY;
 			} else {
-				CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
+				trap->Print( "Bad footsteps parm in %s: %s\n", filename, token );
 			}
 			continue;
 		} else if ( !Q_stricmp( token, "headoffset" ) ) {
@@ -247,7 +247,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	}
 
 	if ( i != MAX_ANIMATIONS ) {
-		CG_Printf( "Error parsing animation file: %s\n", filename );
+		trap->Print( "Error parsing animation file: %s\n", filename );
 		return qfalse;
 	}
 
@@ -298,7 +298,7 @@ CG_FileExists
 static qboolean	CG_FileExists(const char *filename) {
 	int len;
 
-	len = cgi.FS_Open( filename, NULL, FS_READ );
+	len = trap->FS_Open( filename, NULL, FS_READ );
 	if (len>0) {
 		return qtrue;
 	}
@@ -331,19 +331,19 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName )
 
 	//lower
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "lower", "skin" ) )
-		ci->legsSkin = cgi.R_RegisterSkin( filename );
+		ci->legsSkin = trap->R_RegisterSkin( filename );
 	if ( !ci->legsSkin )
 		Com_Printf( "Leg skin load failure: %s\n", filename );
 
 	//torso
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "upper", "skin" ) )
-		ci->torsoSkin = cgi.R_RegisterSkin( filename );
+		ci->torsoSkin = trap->R_RegisterSkin( filename );
 	if ( !ci->torsoSkin )
 		Com_Printf( "Torso skin load failure: %s\n", filename );
 
 	//head
 	if ( CG_FindClientModelFile( filename, sizeof( filename ), modelName, "head", "skin" ) )
-		ci->headSkin = cgi.R_RegisterSkin( filename );
+		ci->headSkin = trap->R_RegisterSkin( filename );
 	if ( !ci->headSkin )
 		Com_Printf( "Head skin load failure: %s\n", filename );
 
@@ -365,7 +365,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//legs
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
-	ci->legsModel = cgi.R_RegisterModel( filename );
+	ci->legsModel = trap->R_RegisterModel( filename );
 	if ( !ci->legsModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -374,7 +374,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//torso
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
-	ci->torsoModel = cgi.R_RegisterModel( filename );
+	ci->torsoModel = trap->R_RegisterModel( filename );
 	if ( !ci->torsoModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -383,7 +383,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
 	//head
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
-	ci->headModel = cgi.R_RegisterModel( filename );
+	ci->headModel = trap->R_RegisterModel( filename );
 	if ( !ci->headModel )
 	{
 		Com_Printf( "Failed to load model file %s\n", filename );
@@ -405,7 +405,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 	}
 
 	if ( CG_FindClientModelFile( filename, sizeof(filename), modelName, "icon", "tga" ) )
-		ci->modelIcon = cgi.R_RegisterShaderNoMip( filename );
+		ci->modelIcon = trap->R_RegisterShaderNoMip( filename );
 
 	if ( !ci->modelIcon )
 		return qfalse;
@@ -455,7 +455,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	if ( !CG_RegisterClientModelname( ci, ci->modelName ) )
 	{
 		if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL ) )
-			CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
+			trap->Error( ERR_DROP, "DEFAULT_MODEL ("DEFAULT_MODEL") failed to register" );
 
 		modelloaded = qfalse;
 	}
@@ -464,7 +464,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	if ( ci->torsoModel ) {
 		orientation_t tag;
 		// if the torso model has the "tag_flag"
-		if ( cgi.R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" ) ) {
+		if ( trap->R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" ) ) {
 			ci->newAnims = qtrue;
 		}
 	}
@@ -482,9 +482,9 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 		ci->sounds[i] = 0;
 		// if the model didn't load use the sounds of the default model
 		if (modelloaded)
-			ci->sounds[i] = cgi.S_RegisterSound( va("sound/player/%s/%s", dir, s + 1), qfalse );
+			ci->sounds[i] = trap->S_RegisterSound( va("sound/player/%s/%s", dir, s + 1), qfalse );
 		if ( !ci->sounds[i] )
-			ci->sounds[i] = cgi.S_RegisterSound( va("sound/player/%s/%s", fallback, s + 1), qfalse );
+			ci->sounds[i] = trap->S_RegisterSound( va("sound/player/%s/%s", fallback, s + 1), qfalse );
 	}
 
 	ci->deferred = qfalse;
@@ -617,7 +617,7 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 	}
 
 	// we should never get here...
-	CG_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
+	trap->Print( "CG_SetDeferredClientInfo: no valid clients!\n" );
 
 	CG_LoadClientInfo( clientNum, ci );
 }
@@ -714,7 +714,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// so we can avoid loading checks if possible
 	if ( !CG_ScanForExistingClientInfo( &newInfo ) )
 	{
-		qboolean forceDefer = (qboolean)!!(cgi.MemoryRemaining() < 4000000);
+		qboolean forceDefer = (qboolean)!!(trap->MemoryRemaining() < 4000000);
 
 		// if we are defering loads, just have it pick the first valid
 		if ( forceDefer || (cg_deferPlayers.integer && !cg.loading ) )
@@ -723,7 +723,7 @@ void CG_NewClientInfo( int clientNum ) {
 			
 			if ( forceDefer )
 			{// if we are low on memory, leave them with this model
-				CG_Printf( "Memory is low. Using deferred model.\n" );
+				trap->Print( "Memory is low. Using deferred model.\n" );
 				newInfo.deferred = qfalse;
 			}
 		}
@@ -755,8 +755,8 @@ void CG_LoadDeferredPlayers( void ) {
 	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
 		if ( ci->infoValid && ci->deferred ) {
 			// if we are low on memory, leave it deferred
-			if ( cgi.MemoryRemaining() < 0x400000 ) { // < 4 Mb
-				CG_Printf( "Memory is low. Using deferred model.\n" );
+			if ( trap->MemoryRemaining() < 0x400000 ) { // < 4 Mb
+				trap->Print( "Memory is low. Using deferred model.\n" );
 				ci->deferred = qfalse;
 				continue;
 			}
@@ -789,7 +789,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS ) {
-		CG_Error( "Bad animation number: %i", newAnimation );
+		trap->Error( ERR_DROP, "Bad animation number: %i", newAnimation );
 	}
 
 	anim = &ci->animations[ newAnimation ];
@@ -1066,7 +1066,7 @@ static void CG_PlayerAngles( centity_t *cent, vector3 legs[3], vector3 torso[3],
 	} else {
 		dir = (int)cent->currentState.angles2.yaw;
 		if ( dir < 0 || dir > 7 ) {
-			CG_Error( "Bad player movement angle" );
+			trap->Error( ERR_DROP, "Bad player movement angle" );
 		}
 	}
 	legsAngles.yaw = headAngles.yaw + movementOffsets[ dir ];
@@ -1245,7 +1245,7 @@ static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
 	AnglesToAxis( &angles, ent.axis );
 
 	ent.hModel = hModel;
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 }
 
 
@@ -1278,7 +1278,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
-	cgi.R_AddRefEntityToScene( &pole );
+	trap->R_AddRefEntityToScene( &pole );
 
 	// show the flag model
 	memset( &flag, 0, sizeof(flag) );
@@ -1378,7 +1378,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	pole.nonNormalizedAxes = qtrue;
 	//!QtZ
 
-	cgi.R_AddRefEntityToScene( &flag );
+	trap->R_AddRefEntityToScene( &flag );
 }
 
 
@@ -1398,7 +1398,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
-		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
+		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
 	}
 
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
@@ -1410,7 +1410,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0, 0.2f, 0.2f );
+		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0, 0.2f, 0.2f );
 	}
 
 	// blueflag
@@ -1421,7 +1421,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
-		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
+		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 0.2f, 0.2f, 1.0f );
 	}
 
 	// neutralflag
@@ -1432,7 +1432,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
-		cgi.R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0f, 1.0f, 1.0f );
+		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0f, 1.0f, 1.0f );
 	}
 }
 
@@ -1465,7 +1465,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	ent.shaderRGBA[1] = 255;
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = 255;
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 }
 
 
@@ -1554,7 +1554,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	VectorCopy( &cent->lerpOrigin, &end );
 	end.z -= SHADOW_DISTANCE;
 
-	cgi.CM_Trace( &trace, &cent->lerpOrigin, &end, &mins, &maxs, 0, MASK_PLAYERSOLID, qfalse );
+	trap->CM_Trace( &trace, &cent->lerpOrigin, &end, &mins, &maxs, 0, MASK_PLAYERSOLID, qfalse );
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
@@ -1619,7 +1619,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	}
 
 	// trace down to find the surface
-	cgi.CM_Trace( &trace, &start, &end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
+	trap->CM_Trace( &trace, &start, &end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
@@ -1666,7 +1666,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	cgi.R_AddPolysToScene( cgs.media.wakeMarkShader, 4, verts, 1 );
+	trap->R_AddPolysToScene( cgs.media.wakeMarkShader, 4, verts, 1 );
 }
 
 
@@ -1692,7 +1692,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		MAKERGB( ent->shaderRGBA, color->r, color->g, color->b );
 	}
 
-	cgi.R_AddRefEntityToScene( ent );
+	trap->R_AddRefEntityToScene( ent );
 
 	if ( state->powerups & ( 1 << PW_QUAD ) )
 	{
@@ -1700,12 +1700,12 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			ent->customShader = cgs.media.redQuadShader;
 		else
 			ent->customShader = cgs.media.quadShader;
-		cgi.R_AddRefEntityToScene( ent );
+		trap->R_AddRefEntityToScene( ent );
 	}
 	if ( state->powerups & ( 1 << PW_REGEN ) ) {
 		if ( ((cg.time/100) % 10) == 1 ) {
 			ent->customShader = cgs.media.regenShader;
-			cgi.R_AddRefEntityToScene( ent );
+			trap->R_AddRefEntityToScene( ent );
 		}
 	}
 }
@@ -1721,7 +1721,7 @@ int CG_LightVerts( vector3 *normal, int numVerts, polyVert_t *verts )
 	float incoming;
 	vector3 ambientLight, lightDir, directedLight;
 
-	cgi.R_LightForPoint( &verts[0].xyz, &ambientLight, &directedLight, &lightDir );
+	trap->R_LightForPoint( &verts[0].xyz, &ambientLight, &directedLight, &lightDir );
 
 	for (i = 0; i < numVerts; i++) {
 		incoming = DotProduct (normal, &lightDir);
@@ -1779,7 +1779,7 @@ void CG_Player( centity_t *cent ) {
 	// multiple corpses on the level using the same clientinfo
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		CG_Error( "Bad clientNum on player entity");
+		trap->Error( ERR_DROP, "Bad clientNum on player entity");
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -1867,7 +1867,7 @@ void CG_Player( centity_t *cent ) {
 		powerup.frame = 0;
 		powerup.oldframe = 0;
 		powerup.customSkin = 0;
-		cgi.R_AddRefEntityToScene( &powerup );
+		trap->R_AddRefEntityToScene( &powerup );
 	}
 
 	t = cg.time - ci->medkitUsageTime;
@@ -1894,7 +1894,7 @@ void CG_Player( centity_t *cent ) {
 			powerup.shaderRGBA[2] = 0xff;
 			powerup.shaderRGBA[3] = 0xff;
 		}
-		cgi.R_AddRefEntityToScene( &powerup );
+		trap->R_AddRefEntityToScene( &powerup );
 	}
 
 	//

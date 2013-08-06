@@ -288,9 +288,9 @@ CL_MouseEvent
 */
 void CL_MouseEvent( int dx, int dy, int time ) {
 	if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
-		uie.MouseEvent( dx, dy );
+		ui->MouseEvent( dx, dy );
 	} else if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
-		cge.MouseEvent( dx, dy );
+		cgame->MouseEvent( dx, dy );
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
 		cl.mouseDy[cl.mouseIndex] += dy;

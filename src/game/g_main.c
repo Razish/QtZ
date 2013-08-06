@@ -54,28 +54,6 @@ static const cvarTable_t gameCvarTable[] = {
 };
 static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
-void QDECL G_Printf( const char *fmt, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, fmt);
-	Q_vsnprintf (text, sizeof(text), fmt, argptr);
-	va_end (argptr);
-
-	gi.Print( text );
-}
-
-void QDECL G_Error( const char *fmt, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, fmt);
-	Q_vsnprintf (text, sizeof(text), fmt, argptr);
-	va_end (argptr);
-
-	gi.Error( ERR_DROP, text );
-}
-
 /*
 ================
 G_FindTeams
@@ -129,7 +107,7 @@ void G_FindTeams( void ) {
 		}
 	}
 
-	G_Printf ("%i teams with %i entities\n", c, c2);
+	trap->Print ("%i teams with %i entities\n", c, c2);
 }
 
 /*
@@ -142,7 +120,7 @@ void G_RegisterCvars( void ) {
 	const cvarTable_t *cv;
 
 	for ( i=0, cv=gameCvarTable; i<gameCvarTableSize; i++, cv++ ) {
-		gi.Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
+		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
 		if ( cv->update )
 			cv->update();
 	}
@@ -160,13 +138,13 @@ void G_UpdateCvars( void ) {
 	for ( i=0, cv=gameCvarTable; i<gameCvarTableSize; i++, cv++ ) {
 		if ( cv->vmCvar ) {
 			int modCount = cv->vmCvar->modificationCount;
-			gi.Cvar_Update( cv->vmCvar );
+			trap->Cvar_Update( cv->vmCvar );
 			if ( cv->vmCvar->modificationCount > modCount ) {
 				if ( cv->update )
 					cv->update();
 
 				if ( cv->trackChange )
-					gi.SV_GameSendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string ) );
+					trap->SV_GameSendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string ) );
 			}
 		}
 	}
@@ -178,20 +156,20 @@ void G_CacheGametype( void ) {
 	{
 		int gt = BG_GetGametypeForString( sv_gametype.string );
 		if ( gt == -1 ) {
-			G_Printf( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", sv_gametype.string );
+			trap->Print( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", sv_gametype.string );
 			level.gametype = GT_DEATHMATCH;
 		}
 		else
 			level.gametype = (gametype_t)gt;
 	}
 	else if ( sv_gametype.integer < 0 || level.gametype >= GT_NUM_GAMETYPES ) {
-		G_Printf( "sv_gametype %i is out of range, defaulting to 0\n", level.gametype );
+		trap->Print( "sv_gametype %i is out of range, defaulting to 0\n", level.gametype );
 		level.gametype = GT_DEATHMATCH;
 	}
 	else
 		level.gametype = (gametype_t)atoi( sv_gametype.string );
 
-	gi.Cvar_Set( "sv_gametype", va( "%i", level.gametype ) );
+	trap->Cvar_Set( "sv_gametype", va( "%i", level.gametype ) );
 }
 
 /*
@@ -219,16 +197,16 @@ void G_InitGame( int levelTime, int randomSeed, qboolean restart ) {
 
 	if ( g_log.string[0] )
 	{
-		gi.FS_Open( g_log.string, &level.logFile, g_logSync.integer ? FS_APPEND_SYNC : FS_APPEND );
+		trap->FS_Open( g_log.string, &level.logFile, g_logSync.integer ? FS_APPEND_SYNC : FS_APPEND );
 		if ( level.logFile )
-			G_Printf( "Logging to %s\n", g_log.string );
+			trap->Print( "Logging to %s\n", g_log.string );
 		else
-			G_Printf( "WARNING: Couldn't open logfile: %s\n", g_log.string );
+			trap->Print( "WARNING: Couldn't open logfile: %s\n", g_log.string );
 	}
 	else
-		G_Printf( "Not logging game events to disk.\n" );
+		trap->Print( "Not logging game events to disk.\n" );
 
-	gi.SV_GetServerinfo( cs, sizeof( cs ) );
+	trap->SV_GetServerinfo( cs, sizeof( cs ) );
 	G_LogPrintf( "------------------------------------------------------------\n" );
 	G_LogPrintf( "InitGame: %s\n", cs );
 	G_LogPrintf( "\n\nBuild date: %s", __DATE__ );
@@ -263,7 +241,7 @@ void G_InitGame( int levelTime, int randomSeed, qboolean restart ) {
 	}
 
 	// let the server system know where the entites are
-	gi.SV_LocateGameData( (sharedEntity_t*)level.gentities, level.num_entities, sizeof( gentity_t ), &level.clients[0].ps, sizeof( level.clients[0] ) );
+	trap->SV_LocateGameData( (sharedEntity_t*)level.gentities, level.num_entities, sizeof( gentity_t ), &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
@@ -282,9 +260,9 @@ void G_InitGame( int levelTime, int randomSeed, qboolean restart ) {
 
 	SaveRegisteredItems();
 
-	G_Printf ("-----------------------------------\n");
+	trap->Print ("-----------------------------------\n");
 
-	if ( gi.Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots();
@@ -301,19 +279,19 @@ G_ShutdownGame
 =================
 */
 void G_ShutdownGame( qboolean restart ) {
-	G_Printf ("==== ShutdownGame ====\n");
+	trap->Print ("==== ShutdownGame ====\n");
 
 	if ( level.logFile ) {
 		G_LogPrintf("ShutdownGame:\n" );
 		G_LogPrintf("------------------------------------------------------------\n" );
-		gi.FS_Close( level.logFile );
+		trap->FS_Close( level.logFile );
 		level.logFile = 0;
 	}
 
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
-	if ( gi.Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAIShutdown( restart );
 	}
 }
@@ -321,28 +299,6 @@ void G_ShutdownGame( qboolean restart ) {
 
 
 //===================================================================
-
-void QDECL Com_Error ( int level, const char *error, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, error);
-	Q_vsnprintf (text, sizeof(text), error, argptr);
-	va_end (argptr);
-
-	gi.Error( ERR_DROP, text );
-}
-
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, msg);
-	Q_vsnprintf (text, sizeof(text), msg, argptr);
-	va_end (argptr);
-
-	gi.Print( text );
-}
 
 /*
 ========================================================================
@@ -640,18 +596,18 @@ void CalculateRanks( void ) {
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
 	if ( level.gametype >= GT_TEAM ) {
-		gi.SV_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
-		gi.SV_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
+		trap->SV_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
+		trap->SV_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
 	} else {
 		if ( level.numConnectedClients == 0 ) {
-			gi.SV_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
-			gi.SV_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
+			trap->SV_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
+			trap->SV_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
 		} else if ( level.numConnectedClients == 1 ) {
-			gi.SV_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			gi.SV_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
+			trap->SV_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
+			trap->SV_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
 		} else {
-			gi.SV_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			gi.SV_SetConfigstring( CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
+			trap->SV_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
+			trap->SV_SetConfigstring( CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
 		}
 	}
 
@@ -814,7 +770,7 @@ void ExitLevel (void) {
 	if ( level.gametype == GT_DUEL  ) {
 		if ( !level.restarted ) {
 			RemoveTournamentLoser();
-			gi.Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
+			trap->Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = qtrue;
 			level.changemap = NULL;
 			level.intermissiontime = 0;
@@ -822,14 +778,14 @@ void ExitLevel (void) {
 		return;	
 	}
 
-	gi.Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
-	gi.Cvar_VariableStringBuffer( "d1", d1, sizeof(d1) );
+	trap->Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
+	trap->Cvar_VariableStringBuffer( "d1", d1, sizeof(d1) );
 
 	if( !Q_stricmp( nextmap, "map_restart 0" ) && Q_stricmp( d1, "" ) ) {
-		gi.Cvar_Set( "nextmap", "vstr d2" );
-		gi.Cbuf_ExecuteText( EXEC_APPEND, "vstr d1\n" );
+		trap->Cvar_Set( "nextmap", "vstr d2" );
+		trap->Cbuf_ExecuteText( EXEC_APPEND, "vstr d1\n" );
 	} else {
-		gi.Cbuf_ExecuteText( EXEC_APPEND, "vstr nextmap\n" );
+		trap->Cbuf_ExecuteText( EXEC_APPEND, "vstr nextmap\n" );
 	}
 
 	level.changemap = NULL;
@@ -885,14 +841,14 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_end( argptr );
 
 	if ( dedicated.integer ) {
-		G_Printf( "%s", string + 7 );
+		trap->Print( "%s", string + 7 );
 	}
 
 	if ( !level.logFile ) {
 		return;
 	}
 
-	gi.FS_Write( string, strlen( string ), level.logFile );
+	trap->FS_Write( string, strlen( string ), level.logFile );
 }
 
 /*
@@ -913,7 +869,7 @@ void LogExit( const char *string ) {
 
 	// this will keep the clients from playing any voice sounds
 	// that will get cut off when the queued intermission starts
-	gi.SV_SetConfigstring( CS_INTERMISSION, "1" );
+	trap->SV_SetConfigstring( CS_INTERMISSION, "1" );
 
 	// don't send more than 32 scores (FIXME?)
 	numSorted = level.numConnectedClients;
@@ -1088,7 +1044,7 @@ void CheckExitRules( void ) {
 
 	if ( timelimit.integer && !level.warmupTime ) {
 		if ( level.time - level.startTime >= timelimit.integer*60000 ) {
-			gi.SV_GameSendServerCommand( -1, "print \"Timelimit hit.\n\"");
+			trap->SV_GameSendServerCommand( -1, "print \"Timelimit hit.\n\"");
 			LogExit( "Timelimit hit." );
 			return;
 		}
@@ -1096,13 +1052,13 @@ void CheckExitRules( void ) {
 
 	if ( level.gametype < GT_CTF && fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= fraglimit.integer ) {
-			gi.SV_GameSendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
+			trap->SV_GameSendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= fraglimit.integer ) {
-			gi.SV_GameSendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
+			trap->SV_GameSendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
 			return;
 		}
@@ -1118,7 +1074,7 @@ void CheckExitRules( void ) {
 
 			if ( cl->ps.persistant[PERS_SCORE] >= fraglimit.integer ) {
 				LogExit( "Fraglimit hit." );
-				gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
+				trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
 					cl->pers.netname ) );
 				return;
 			}
@@ -1128,13 +1084,13 @@ void CheckExitRules( void ) {
 	if ( level.gametype >= GT_CTF && capturelimit.integer ) {
 
 		if ( level.teamScores[TEAM_RED] >= capturelimit.integer ) {
-			gi.SV_GameSendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			trap->SV_GameSendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
 			LogExit( "Capturelimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= capturelimit.integer ) {
-			gi.SV_GameSendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			trap->SV_GameSendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
 			LogExit( "Capturelimit hit." );
 			return;
 		}
@@ -1177,7 +1133,7 @@ void CheckTournament( void ) {
 		if ( level.numPlayingClients != 2 ) {
 			if ( level.warmupTime != -1 ) {
 				level.warmupTime = -1;
-				gi.SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 				G_LogPrintf( "Warmup:\n" );
 			}
 			return;
@@ -1203,7 +1159,7 @@ void CheckTournament( void ) {
 					level.warmupTime = 0;
 				}
 
-				gi.SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 			}
 			return;
 		}
@@ -1211,8 +1167,8 @@ void CheckTournament( void ) {
 		// if the warmup time has counted down, restart
 		if ( level.time > level.warmupTime ) {
 			level.warmupTime += 10000;
-			gi.Cvar_Set( "g_restarted", "1" );
-			gi.Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
+			trap->Cvar_Set( "g_restarted", "1" );
+			trap->Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = qtrue;
 			return;
 		}
@@ -1234,7 +1190,7 @@ void CheckTournament( void ) {
 		if ( notEnough ) {
 			if ( level.warmupTime != -1 ) {
 				level.warmupTime = -1;
-				gi.SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 				G_LogPrintf( "Warmup:\n" );
 			}
 			return; // still waiting for team members
@@ -1259,15 +1215,15 @@ void CheckTournament( void ) {
 				level.warmupTime = 0;
 			}
 
-			gi.SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+			trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 			return;
 		}
 
 		// if the warmup time has counted down, restart
 		if ( level.time > level.warmupTime ) {
 			level.warmupTime += 10000;
-			gi.Cvar_Set( "g_restarted", "1" );
-			gi.Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
+			trap->Cvar_Set( "g_restarted", "1" );
+			trap->Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = qtrue;
 			return;
 		}
@@ -1285,7 +1241,7 @@ void CheckVote( void ) {
 		level.voteExecuteTime = 0;
 
 		if ( !level.votePoll )
-			gi.Cbuf_ExecuteText( EXEC_APPEND, va("%s\n", level.voteString ) );
+			trap->Cbuf_ExecuteText( EXEC_APPEND, va("%s\n", level.voteString ) );
 
 		if ( level.votingGametype ) {
 			if ( level.gametype != level.votingGametypeTo )
@@ -1293,7 +1249,7 @@ void CheckVote( void ) {
 				const char *nextMap = G_RefreshNextMap( level.votingGametypeTo );
 
 				if ( nextMap && nextMap[0] )
-					gi.Cbuf_ExecuteText( EXEC_APPEND, va("map %s\n", nextMap ) );
+					trap->Cbuf_ExecuteText( EXEC_APPEND, va("map %s\n", nextMap ) );
 			}
 
 			//otherwise, just leave the map until a restart
@@ -1309,23 +1265,23 @@ void CheckVote( void ) {
 		return;
 
 	if ( level.time-level.voteTime >= VOTE_TIME || level.voteYes + level.voteNo == 0 )
-		gi.SV_GameSendServerCommand( -1, va( "print \"Vote failed. (%s)\n\"", level.voteStringClean ) );
+		trap->SV_GameSendServerCommand( -1, va( "print \"Vote failed. (%s)\n\"", level.voteStringClean ) );
 	else {
 		if ( level.voteYes > level.numVotingClients/2 ) {
 			// execute the command, then remove the vote
-			gi.SV_GameSendServerCommand( -1, va( "print \"Vote passed. (%s)\n\"", level.voteStringClean ) );
+			trap->SV_GameSendServerCommand( -1, va( "print \"Vote passed. (%s)\n\"", level.voteStringClean ) );
 			level.voteExecuteTime = level.time + level.voteExecuteDelay;
 		}
 
 		// same behavior as a timeout
 		else if ( level.voteNo >= (level.numVotingClients+1)/2 )
-			gi.SV_GameSendServerCommand( -1, va( "print \"Vote failed. (%s)\n\"", level.voteStringClean ) );
+			trap->SV_GameSendServerCommand( -1, va( "print \"Vote failed. (%s)\n\"", level.voteStringClean ) );
 
 		else // still waiting for a majority
 			return;
 	}
 	level.voteTime = 0;
-	gi.SV_SetConfigstring( CS_VOTE_TIME, "" );
+	trap->SV_SetConfigstring( CS_VOTE_TIME, "" );
 
 }
 
@@ -1350,7 +1306,7 @@ void CheckReady( void ) {
 		if ( lastPrint < level.time-g_warmupPrintDelay.integer ) {
 			char msg[MAX_STRING_CHARS/2] = {0};
 			Com_sprintf( msg, sizeof( msg ), "^2Waiting for players to ready up!\n%i more needed\n\nType /ready", ((level.numConnectedClients+1)/2)-readyCount, level.numConnectedClients );
-			gi.SV_GameSendServerCommand( -1, va( "cp \"%s\"", msg ) );
+			trap->SV_GameSendServerCommand( -1, va( "cp \"%s\"", msg ) );
 			Com_Printf( "%s\n", msg );
 			lastPrint = level.time;
 		}
@@ -1368,7 +1324,7 @@ void PrintTeam(int team, char *message) {
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if (level.clients[i].sess.sessionTeam != team)
 			continue;
-		gi.SV_GameSendServerCommand( i, message );
+		trap->SV_GameSendServerCommand( i, message );
 	}
 }
 
@@ -1447,9 +1403,9 @@ void CheckCvars( void ) {
 	if ( g_password.modificationCount != lastMod ) {
 		lastMod = g_password.modificationCount;
 		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) ) {
-			gi.Cvar_Set( "g_needpass", "1" );
+			trap->Cvar_Set( "g_needpass", "1" );
 		} else {
-			gi.Cvar_Set( "g_needpass", "0" );
+			trap->Cvar_Set( "g_needpass", "0" );
 		}
 	}
 }
@@ -1479,7 +1435,7 @@ void G_RunThink (gentity_t *ent) {
 	
 	ent->nextthink = 0;
 	if (!ent->think) {
-		G_Error ( "NULL ent->think");
+		trap->Error ( ERR_DROP, "NULL ent->think");
 	}
 	ent->think (ent);
 }
@@ -1520,15 +1476,15 @@ void G_RunFrame( int levelTime ) {
 		//	handle start/end times there?
 		if ( lastCSTime < level.time - 500 ) {
 			lastCSTime += 500;
-			gi.SV_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
+			trap->SV_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
 			if ( level.warmupTime > 0 )
-				gi.SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime ) );
+				trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime ) );
 		}
 	}
 	if ( level.pause.state == PAUSE_PAUSED )
 	{
 		if ( lastMsgTime < level.time-500 ) {
-			gi.SV_GameSendServerCommand( -1, va( "cp \"Match has been paused.\n%.0f seconds remaining\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
+			trap->SV_GameSendServerCommand( -1, va( "cp \"Match has been paused.\n%.0f seconds remaining\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
 			lastMsgTime = level.time;
 		}
 
@@ -1538,13 +1494,13 @@ void G_RunFrame( int levelTime ) {
 	if ( level.pause.state == PAUSE_UNPAUSING )
 	{
 		if ( lastMsgTime < level.time-500 ) {
-			gi.SV_GameSendServerCommand( -1, va( "cp \"MATCH IS UNPAUSING\nin %.0f...\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
+			trap->SV_GameSendServerCommand( -1, va( "cp \"MATCH IS UNPAUSING\nin %.0f...\n\"", ceil((level.pause.time-level.time)/1000.0f)) );
 			lastMsgTime = level.time;
 		}
 
 		if ( level.time > level.pause.time ) {
 			level.pause.state = PAUSE_NONE;
-			gi.SV_GameSendServerCommand( -1, "cp \"Fight!\n\"" );
+			trap->SV_GameSendServerCommand( -1, "cp \"Fight!\n\"" );
 		}
 	}
 
@@ -1578,7 +1534,7 @@ void G_RunFrame( int levelTime ) {
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
 				ent->unlinkAfterEvent = qfalse;
-				gi.SV_UnlinkEntity( (sharedEntity_t *)ent );
+				trap->SV_UnlinkEntity( (sharedEntity_t *)ent );
 			}
 		}
 
@@ -1645,23 +1601,25 @@ void G_RunFrame( int levelTime ) {
 
 /*
 ============
-GetGameAPI
+GetModuleAPI
 ============
 */
 
-gameImport_t gi;
+gameImport_t *trap = NULL;
 
-Q_EXPORT gameExport_t* QDECL GetGameAPI( int apiVersion, gameImport_t *import )
+Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import )
 {
 	static gameExport_t ge = {0};
 	
 	assert( import );
-	gi = *import;
+	trap = import;
+	Com_Printf	= trap->Print;
+	Com_Error	= trap->Error;
 
 	memset( &ge, 0, sizeof( ge ) );
 
 	if ( apiVersion != GAME_API_VERSION ) {
-		gi.Print( "Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion );
+		trap->Print( "Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion );
 		return NULL;
 	}
 

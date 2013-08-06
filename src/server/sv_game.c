@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sv_local.h"
 
 static void *gameLib = NULL;
-gameExport_t ge;
+gameExport_t *game = NULL;
 
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
@@ -330,14 +330,13 @@ Called every time a map changes
 ===============
 */
 void SV_ShutdownGameProgs( void ) {
-	if ( !gameLib )
+	if ( !svs.gameStarted )
 		return;
 
-	ge.Shutdown( qfalse );
+	game->Shutdown( qfalse );
 	svi.Sys_UnloadDll( gameLib );
 	gameLib = NULL;
-
-	memset( &ge, 0, sizeof( ge ) );
+	game = NULL;
 }
 
 /*
@@ -363,7 +362,7 @@ static void SV_InitGameVM( qboolean restart ) {
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	ge.Init( sv.time, svi.Com_Milliseconds(), restart );
+	game->Init( sv.time, svi.Com_Milliseconds(), restart );
 }
 
 
@@ -379,7 +378,7 @@ void SV_RestartGameProgs( void ) {
 	if ( !gameLib )
 		return;
 
-	ge.Shutdown( qtrue );
+	game->Shutdown( qtrue );
 
 	// do a restart instead of a free
 //	if ( !gvm )
@@ -400,96 +399,98 @@ void SV_InitGameProgs( void ) {
 	cvar_t	*var;
 	//FIXME these are temp while I make bots run in vm
 	extern int	bot_enable;
-	gameImport_t		gi;
-	gameExport_t		*ret;
-	GetGameAPI_t		GetGameAPI;
+	static gameImport_t gameTrap;
+	GetGameAPI_t		GetModuleAPI;
 	char				dllName[MAX_OSPATH] = "game"ARCH_STRING DLL_EXT;
 
 	var = svi.Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL );
 	if ( var )	bot_enable = var->integer;
 	else		bot_enable = 0;
 
+	svs.gameStarted = qtrue;
+
 	// load the dll or bytecode
-	if( !(gameLib = svi.Sys_LoadDll( va( "%s/%s", svi.FS_GetCurrentGameDir(), dllName ), qfalse )) )
-	{
+	if ( !(gameLib = svi.Sys_LoadDll( va( "%s/%s", svi.FS_GetCurrentGameDir(), dllName ), qfalse )) ) {
 		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		svs.gameStarted = qfalse;
 		Com_Error( ERR_FATAL, "Failed to load game" );
 	}
 
-	GetGameAPI = (GetGameAPI_t)Sys_LoadFunction( gameLib, "GetGameAPI");
-	if( !GetGameAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetGameAPI: '%s'",  Sys_LibraryError() );
+	GetModuleAPI = (GetGameAPI_t)Sys_LoadFunction( gameLib, "GetModuleAPI");
+	if ( !GetModuleAPI ) {
+		svs.gameStarted = qfalse;
+		Com_Error( ERR_FATAL, "Can't load symbol GetModuleAPI: '%s'",  Sys_LibraryError() );
+	}
 
 	// set up the game imports
-	gi.Print						= svi.Print;
-	gi.Error						= svi.Error;
-	gi.Milliseconds					= svi.Sys_Milliseconds;
-	gi.Cvar_Register				= svi.Cvar_Register;
-	gi.Cvar_Update					= svi.Cvar_Update;
-	gi.Cvar_Set						= svi.Cvar_SetSafe;
-	gi.Cvar_VariableIntegerValue	= svi.Cvar_VariableIntegerValue;
-	gi.Cvar_VariableStringBuffer	= svi.Cvar_VariableStringBuffer;
-	gi.Cmd_Argc						= svi.Cmd_Argc;
-	gi.Cmd_Argv						= svi.Cmd_ArgvBuffer;
-	gi.Cbuf_ExecuteText				= svi.Cbuf_ExecuteText;
-	gi.FS_Open						= svi.FS_FOpenFileByMode;
-	gi.FS_Read						= svi.FS_Read2;
-	gi.FS_Write						= svi.FS_Write;
-	gi.FS_Close						= svi.FS_FCloseFile;
-	gi.FS_GetFileList				= svi.FS_GetFileList;
-	gi.FS_Seek						= svi.FS_Seek;
-	gi.SV_LocateGameData			= SV_LocateGameData;
-	gi.SV_GameDropClient			= SV_GameDropClient;
-	gi.SV_GameSendServerCommand		= SV_GameSendServerCommand;
-	gi.SV_SetConfigstring			= SV_SetConfigstring;
-	gi.SV_GetConfigstring			= SV_GetConfigstring;
-	gi.SV_GetUserinfo				= SV_GetUserinfo;
-	gi.SV_SetUserinfo				= SV_SetUserinfo;
-	gi.SV_GetServerinfo				= SV_GetServerinfo;
-	gi.SV_SetBrushModel				= SV_SetBrushModel;
-	gi.SV_Trace						= SV_GameTrace;
-	gi.SV_EntityContact				= SV_EntityContact;
-	gi.SV_PointContents				= SV_PointContents;
-	gi.SV_InPVS						= SV_InPVS;
-	gi.SV_InPVSIgnorePortals		= SV_InPVSIgnorePortals;
-	gi.SV_AdjustAreaPortalState		= SV_AdjustAreaPortalState;
-	gi.CM_AreasConnected			= svi.CM_AreasConnected;
-	gi.SV_LinkEntity				= SV_LinkEntity;
-	gi.SV_UnlinkEntity				= SV_UnlinkEntity;
-	gi.SV_AreaEntities				= SV_AreaEntities;
-	gi.SV_BotAllocateClient			= SV_BotAllocateClient;
-	gi.SV_BotFreeClient				= SV_BotFreeClient;
-	gi.SV_GetUsercmd				= SV_GetUsercmd;
-	gi.SV_GetEntityToken			= SV_GetEntityToken;
-	gi.DebugPolygonCreate			= BotImport_DebugPolygonCreate;
-	gi.DebugPolygonDelete			= BotImport_DebugPolygonDelete;
-	gi.RealTime						= svi.Com_RealTime;
-	gi.SV_BotLibSetup				= SV_BotLibSetup;
-	gi.SV_BotLibShutdown			= SV_BotLibShutdown;
-	gi.BotLibVarSet					= botlib_export->BotLibVarSet;
-	gi.BotLibVarGet					= botlib_export->BotLibVarGet;
-	gi.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
-	gi.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
-	gi.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
-	gi.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
-	gi.PC_SourceFileAndLine			= botlib_export->PC_SourceFileAndLine;
-	gi.BotLibStartFrame				= botlib_export->BotLibStartFrame;
-	gi.BotLibLoadMap				= botlib_export->BotLibLoadMap;
-	gi.BotLibUpdateEntity			= botlib_export->BotLibUpdateEntity;
-	gi.BotLibTest					= botlib_export->Test;
-	gi.SV_BotGetSnapshotEntity		= SV_BotGetSnapshotEntity;
-	gi.SV_BotGetConsoleMessage		= SV_BotGetConsoleMessage;
-	gi.SV_ClientThink				= SV_GameClientThink;
-	gi.aas							= &botlib_export->aas;
-	gi.ea							= &botlib_export->ea;
-	gi.ai							= &botlib_export->ai;
-
+	gameTrap.Print						= svi.Print;
+	gameTrap.Error						= svi.Error;
+	gameTrap.Milliseconds				= svi.Sys_Milliseconds;
+	gameTrap.Cvar_Register				= svi.Cvar_Register;
+	gameTrap.Cvar_Update				= svi.Cvar_Update;
+	gameTrap.Cvar_Set					= svi.Cvar_SetSafe;
+	gameTrap.Cvar_VariableIntegerValue	= svi.Cvar_VariableIntegerValue;
+	gameTrap.Cvar_VariableStringBuffer	= svi.Cvar_VariableStringBuffer;
+	gameTrap.Cmd_Argc					= svi.Cmd_Argc;
+	gameTrap.Cmd_Argv					= svi.Cmd_ArgvBuffer;
+	gameTrap.Cbuf_ExecuteText			= svi.Cbuf_ExecuteText;
+	gameTrap.FS_Open					= svi.FS_FOpenFileByMode;
+	gameTrap.FS_Read					= svi.FS_Read2;
+	gameTrap.FS_Write					= svi.FS_Write;
+	gameTrap.FS_Close					= svi.FS_FCloseFile;
+	gameTrap.FS_GetFileList				= svi.FS_GetFileList;
+	gameTrap.FS_Seek					= svi.FS_Seek;
+	gameTrap.SV_LocateGameData			= SV_LocateGameData;
+	gameTrap.SV_GameDropClient			= SV_GameDropClient;
+	gameTrap.SV_GameSendServerCommand	= SV_GameSendServerCommand;
+	gameTrap.SV_SetConfigstring			= SV_SetConfigstring;
+	gameTrap.SV_GetConfigstring			= SV_GetConfigstring;
+	gameTrap.SV_GetUserinfo				= SV_GetUserinfo;
+	gameTrap.SV_SetUserinfo				= SV_SetUserinfo;
+	gameTrap.SV_GetServerinfo			= SV_GetServerinfo;
+	gameTrap.SV_SetBrushModel			= SV_SetBrushModel;
+	gameTrap.SV_Trace					= SV_GameTrace;
+	gameTrap.SV_EntityContact			= SV_EntityContact;
+	gameTrap.SV_PointContents			= SV_PointContents;
+	gameTrap.SV_InPVS					= SV_InPVS;
+	gameTrap.SV_InPVSIgnorePortals		= SV_InPVSIgnorePortals;
+	gameTrap.SV_AdjustAreaPortalState	= SV_AdjustAreaPortalState;
+	gameTrap.CM_AreasConnected			= svi.CM_AreasConnected;
+	gameTrap.SV_LinkEntity				= SV_LinkEntity;
+	gameTrap.SV_UnlinkEntity			= SV_UnlinkEntity;
+	gameTrap.SV_AreaEntities			= SV_AreaEntities;
+	gameTrap.SV_BotAllocateClient		= SV_BotAllocateClient;
+	gameTrap.SV_BotFreeClient			= SV_BotFreeClient;
+	gameTrap.SV_GetUsercmd				= SV_GetUsercmd;
+	gameTrap.SV_GetEntityToken			= SV_GetEntityToken;
+	gameTrap.DebugPolygonCreate			= BotImport_DebugPolygonCreate;
+	gameTrap.DebugPolygonDelete			= BotImport_DebugPolygonDelete;
+	gameTrap.RealTime					= svi.Com_RealTime;
+	gameTrap.SV_BotLibSetup				= SV_BotLibSetup;
+	gameTrap.SV_BotLibShutdown			= SV_BotLibShutdown;
+	gameTrap.BotLibVarSet				= botlib_export->BotLibVarSet;
+	gameTrap.BotLibVarGet				= botlib_export->BotLibVarGet;
+	gameTrap.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
+	gameTrap.PC_LoadSourceHandle		= botlib_export->PC_LoadSourceHandle;
+	gameTrap.PC_FreeSourceHandle		= botlib_export->PC_FreeSourceHandle;
+	gameTrap.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
+	gameTrap.PC_SourceFileAndLine		= botlib_export->PC_SourceFileAndLine;
+	gameTrap.BotLibStartFrame			= botlib_export->BotLibStartFrame;
+	gameTrap.BotLibLoadMap				= botlib_export->BotLibLoadMap;
+	gameTrap.BotLibUpdateEntity			= botlib_export->BotLibUpdateEntity;
+	gameTrap.BotLibTest					= botlib_export->Test;
+	gameTrap.SV_BotGetSnapshotEntity	= SV_BotGetSnapshotEntity;
+	gameTrap.SV_BotGetConsoleMessage	= SV_BotGetConsoleMessage;
+	gameTrap.SV_ClientThink				= SV_GameClientThink;
+	gameTrap.aas						= &botlib_export->aas;
+	gameTrap.ea							= &botlib_export->ea;
+	gameTrap.ai							= &botlib_export->ai;
 
 	// init the cgame module and grab the exports
-	ret = GetGameAPI( GAME_API_VERSION, &gi );
-	if ( !(ret = GetGameAPI( GAME_API_VERSION, &gi )) )
+	if ( !(game = GetModuleAPI( GAME_API_VERSION, &gameTrap )) ) {
+		svs.gameStarted = qfalse;
 		Com_Error( ERR_FATAL, "Couldn't initialize game" );
-	ge = *ret;
+	}
 
 	SV_InitGameVM( qfalse );
 }
@@ -506,6 +507,6 @@ qboolean SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME )
 		return qfalse;
 
-	return ge.ConsoleCommand();
+	return game->ConsoleCommand();
 }
 

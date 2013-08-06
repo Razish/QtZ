@@ -66,7 +66,7 @@ CG_FreeMarkPoly
 */
 void CG_FreeMarkPoly( markPoly_t *le ) {
 	if ( !le->prevMark ) {
-		CG_Error( "CG_FreeLocalEntity: not active" );
+		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
 	}
 
 	// remove from the doubly linked active list
@@ -142,7 +142,7 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 	}
 
 	if ( radius <= 0 ) {
-		CG_Error( "CG_ImpactMark called with <= 0 radius" );
+		trap->Error( ERR_DROP, "CG_ImpactMark called with <= 0 radius" );
 	}
 
 	//if ( markTotal >= MAX_MARK_POLYS ) {
@@ -167,7 +167,7 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 
 	// get the fragments
 	VectorScale( dir, -20, &projection );
-	numFragments = cgi.R_MarkFragments( 4, originalPoints, &projection, MAX_MARK_POINTS, &markPoints[0], MAX_MARK_FRAGMENTS, markFragments );
+	numFragments = trap->R_MarkFragments( 4, originalPoints, &projection, MAX_MARK_POINTS, &markPoints[0], MAX_MARK_FRAGMENTS, markFragments );
 
 	colors[0] = (byte)(red * 255);
 	colors[1] = (byte)(green * 255);
@@ -199,7 +199,7 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 
 		// if it is a temporary (shadow) mark, add it immediately and forget about it
 		if ( temporary ) {
-			cgi.R_AddPolysToScene( markShader, mf->numPoints, verts, 1 );
+			trap->R_AddPolysToScene( markShader, mf->numPoints, verts, 1 );
 			continue;
 		}
 
@@ -285,6 +285,6 @@ void CG_AddMarks( void ) {
 		}
 
 
-		cgi.R_AddPolysToScene( mp->markShader, mp->poly.numVerts, mp->verts, 1 );
+		trap->R_AddPolysToScene( mp->markShader, mp->poly.numVerts, mp->verts, 1 );
 	}
 }

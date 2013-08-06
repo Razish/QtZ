@@ -253,7 +253,7 @@ static void LogLight( trRefEntity_t *ent ) {
 		 if ( ent->directedLight.g > max2 )	max2 = ent->directedLight.g;
 	else if ( ent->directedLight.b > max2 )	max2 = ent->directedLight.b;
 
-	ri.Printf( PRINT_ALL, "amb:%.2f  dir:%.2f\n", max1, max2 );
+	ri->Printf( PRINT_ALL, "amb:%.2f  dir:%.2f\n", max1, max2 );
 }
 
 /*
@@ -352,9 +352,9 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// save out the byte packet version
-	((byte *)&ent->ambientLightInt)[0] = (byte)ri.ftol(ent->ambientLight.r);
-	((byte *)&ent->ambientLightInt)[1] = (byte)ri.ftol(ent->ambientLight.g);
-	((byte *)&ent->ambientLightInt)[2] = (byte)ri.ftol(ent->ambientLight.b);
+	((byte *)&ent->ambientLightInt)[0] = (byte)ri->ftol(ent->ambientLight.r);
+	((byte *)&ent->ambientLightInt)[1] = (byte)ri->ftol(ent->ambientLight.g);
+	((byte *)&ent->ambientLightInt)[2] = (byte)ri->ftol(ent->ambientLight.b);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 	
 	// transform the direction to local space

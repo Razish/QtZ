@@ -71,20 +71,20 @@ void CG_TestModel_f (void) {
 	vector3		angles;
 
 	memset( &cg.testModelEntity, 0, sizeof(cg.testModelEntity) );
-	if ( cgi.Cmd_Argc() < 2 ) {
+	if ( trap->Cmd_Argc() < 2 ) {
 		return;
 	}
 
 	Q_strncpyz (cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
-	cg.testModelEntity.hModel = cgi.R_RegisterModel( cg.testModelName );
+	cg.testModelEntity.hModel = trap->R_RegisterModel( cg.testModelName );
 
-	if ( cgi.Cmd_Argc() == 3 ) {
+	if ( trap->Cmd_Argc() == 3 ) {
 		cg.testModelEntity.backlerp = (float)atof( CG_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}
 	if (! cg.testModelEntity.hModel ) {
-		CG_Printf( "Can't register model\n" );
+		trap->Print( "Can't register model\n" );
 		return;
 	}
 
@@ -114,7 +114,7 @@ void CG_TestGun_f (void) {
 
 void CG_TestModelNextFrame_f (void) {
 	cg.testModelEntity.frame++;
-	CG_Printf( "frame %i\n", cg.testModelEntity.frame );
+	trap->Print( "frame %i\n", cg.testModelEntity.frame );
 }
 
 void CG_TestModelPrevFrame_f (void) {
@@ -122,12 +122,12 @@ void CG_TestModelPrevFrame_f (void) {
 	if ( cg.testModelEntity.frame < 0 ) {
 		cg.testModelEntity.frame = 0;
 	}
-	CG_Printf( "frame %i\n", cg.testModelEntity.frame );
+	trap->Print( "frame %i\n", cg.testModelEntity.frame );
 }
 
 void CG_TestModelNextSkin_f (void) {
 	cg.testModelEntity.skinNum++;
-	CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
+	trap->Print( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
 void CG_TestModelPrevSkin_f (void) {
@@ -135,14 +135,14 @@ void CG_TestModelPrevSkin_f (void) {
 	if ( cg.testModelEntity.skinNum < 0 ) {
 		cg.testModelEntity.skinNum = 0;
 	}
-	CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
+	trap->Print( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
 static void CG_AddTestModel (void) {
 	// re-register the model, because the level may have changed
-	cg.testModelEntity.hModel = cgi.R_RegisterModel( cg.testModelName );
+	cg.testModelEntity.hModel = trap->R_RegisterModel( cg.testModelName );
 	if (! cg.testModelEntity.hModel ) {
-		CG_Printf ("Can't register model\n");
+		trap->Print ("Can't register model\n");
 		return;
 	}
 
@@ -159,7 +159,7 @@ static void CG_AddTestModel (void) {
 		cg.testModelEntity.origin.z += cg.refdef.viewaxis[2].z * cg.gunAlign.basePos.z;
 	}
 
-	cgi.R_AddRefEntityToScene( &cg.testModelEntity );
+	trap->R_AddRefEntityToScene( &cg.testModelEntity );
 }
 
 
@@ -395,7 +395,7 @@ static int CG_CalcFov( void ) {
 				static int zoomSoundTime = 0;
 				if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 				{
-					cgi.S_StartSound(&cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
+					trap->S_StartSound(&cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
 					zoomSoundTime = cg.time + 300;
 				}
 			}
@@ -419,7 +419,7 @@ static int CG_CalcFov( void ) {
 				static int zoomSoundTime = 0;
 				if ( zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 )
 				{
-					cgi.S_StartSound( &cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
+					trap->S_StartSound( &cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
 					zoomSoundTime = cg.time + 300;
 				}
 			}
@@ -514,7 +514,7 @@ static void CG_DamageBlendBlob( void ) {
 	ent.shaderRGBA[1] = 255;
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = (byte)(200 * ( 1.0f - ((float)t / maxTime) ));
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 }
 
 /*
@@ -540,7 +540,7 @@ static int CG_CalcViewValues( void ) {
 /*
 	if (cg.cameraMode) {
 		vector3 origin, angles;
-		if (cgi.getCameraInfo(cg.time, &origin, &angles)) {
+		if (trap->getCameraInfo(cg.time, &origin, &angles)) {
 			VectorCopy(origin, cg.refdef.vieworg);
 			angles[ROLL] = 0;
 			VectorCopy(angles, cg.refdefViewAngles);
@@ -619,7 +619,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			cgi.S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			trap->S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }
@@ -647,7 +647,7 @@ CG_PlayBufferedSounds
 static void CG_PlayBufferedSounds( void ) {
 	if ( cg.soundTime < cg.time ) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-			cgi.S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
+			trap->S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
 			cg.soundTime = cg.time + 750;
@@ -683,10 +683,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// any looped sounds will be respecified as entities
 	// are added to the render list
-	cgi.S_ClearLoopingSounds(qfalse);
+	trap->S_ClearLoopingSounds(qfalse);
 
 	// clear all the render lists
-	cgi.R_ClearScene();
+	trap->R_ClearScene();
 
 	// set up cg.snap and possibly cg.nextSnap
 	CG_ProcessSnapshots();
@@ -699,7 +699,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	// let the client system know what our weapon and zoom settings are
-	cgi.SetUserCmdValue( cg.weaponSelect, cg.zoomSensitivity );
+	trap->SetUserCmdValue( cg.weaponSelect, cg.zoomSensitivity );
 
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
@@ -739,7 +739,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	CG_PowerupTimerSounds();
 
 	// update audio positions
-	cgi.S_Respatialize( cg.snap->ps.clientNum, &cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
+	trap->S_Respatialize( cg.snap->ps.clientNum, &cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
 	// make sure the lagometerSample and frame timing isn't done twice when in stereo
 	if ( stereoView != STEREO_RIGHT ) {
@@ -762,7 +762,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				timescale.value = cg_timescaleFadeEnd.value;
 		}
 		if (cg_timescaleFadeSpeed.value) {
-			cgi.Cvar_Set("timescale", va("%f", timescale.value));
+			trap->Cvar_Set("timescale", va("%f", timescale.value));
 		}
 	}
 

@@ -61,7 +61,7 @@ void G_StoreTrail( gentity_t *ent ) {
 	} else {
 		// calculate the actual server time
 		// (we set level.frameStartTime every G_RunFrame)
-		newtime = level.previousTime + gi.Milliseconds() - level.frameStartTime;
+		newtime = level.previousTime + trap->Milliseconds() - level.frameStartTime;
 		if ( newtime > level.time ) {
 			newtime = level.time;
 		} else if ( newtime <= level.previousTime ) {
@@ -156,7 +156,7 @@ void G_TimeShiftClient( gentity_t *ent, int time ) {
 			TimeShiftLerp( frac, &ent->client->unlagged.trail[k].maxs, &ent->client->unlagged.trail[j].maxs, &ent->r.maxs );
 
 			// this will recalculate absmin and absmax
-			gi.SV_LinkEntity( (sharedEntity_t *)ent );
+			trap->SV_LinkEntity( (sharedEntity_t *)ent );
 		} else {
 			// we wrapped, so grab the earliest
 			VectorCopy( &ent->client->unlagged.trail[k].currentAngles, &ent->r.currentAngles );
@@ -165,7 +165,7 @@ void G_TimeShiftClient( gentity_t *ent, int time ) {
 			VectorCopy( &ent->client->unlagged.trail[k].maxs, &ent->r.maxs );
 
 			// this will recalculate absmin and absmax
-			gi.SV_LinkEntity( (sharedEntity_t *)ent );
+			trap->SV_LinkEntity( (sharedEntity_t *)ent );
 		}
 	}
 }
@@ -212,7 +212,7 @@ void G_UnTimeShiftClient( gentity_t *ent ) {
 		ent->client->unlagged.saved.leveltime = 0;
 
 		// this will recalculate absmin and absmax
-		gi.SV_LinkEntity( (sharedEntity_t *)ent );
+		trap->SV_LinkEntity( (sharedEntity_t *)ent );
 	}
 }
 

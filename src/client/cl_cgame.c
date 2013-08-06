@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern botlib_export_t *botlib_export;
 
-static void *cgameLib;
-cgameExport_t cge;
+static void *cgameLib = NULL;
+cgameExport_t *cgame = NULL;
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
@@ -386,11 +386,10 @@ void CL_ShutdownCGame( void ) {
 	if ( !cgameLib )
 		return;
 
-	cge.Shutdown();
+	cgame->Shutdown();
 	Sys_UnloadDll( cgameLib );
 	cgameLib = NULL;
-
-	memset( &cge, 0, sizeof( cge ) );
+	cgame = NULL;
 }
 
 static int	FloatAsInt( float f ) {
@@ -411,9 +410,8 @@ void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
 	int					t1, t2;
-	cgameImport_t		cgi;
-	cgameExport_t		*ret;
-	GetCGameAPI_t		GetCGameAPI;
+	static cgameImport_t cgameTrap;
+	GetCGameAPI_t		GetModuleAPI;
 	char				dllName[MAX_OSPATH] = "cgame"ARCH_STRING DLL_EXT;
 
 	t1 = Sys_Milliseconds();
@@ -433,111 +431,112 @@ void CL_InitCGame( void ) {
 		Com_Error( ERR_FATAL, "Failed to load cgame" );
 	}
 
-	GetCGameAPI = (GetCGameAPI_t)Sys_LoadFunction( cgameLib, "GetCGameAPI");
-	if( !GetCGameAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetCGameAPI: '%s'",  Sys_LibraryError() );
+	memset( &cgameTrap, 0, sizeof( cgameTrap ) );
+
+	GetModuleAPI = (GetCGameAPI_t)Sys_LoadFunction( cgameLib, "GetModuleAPI");
+	if( !GetModuleAPI )
+		Com_Error( ERR_FATAL, "Can't load symbol GetModuleAPI: '%s'",  Sys_LibraryError() );
 
 	// set up the cgame imports
-	cgi.Print						= Com_Printf;
-	cgi.Error						= Com_Error;
-	cgi.Milliseconds				= Sys_Milliseconds;
-	cgi.Cvar_Register				= Cvar_Register;
-	cgi.Cvar_Update					= Cvar_Update;
-	cgi.Cvar_Set					= Cvar_SetSafe;
-	cgi.Cvar_VariableStringBuffer	= Cvar_VariableStringBuffer;
-	cgi.Cmd_Argc					= Cmd_Argc;
-	cgi.Cmd_Argv					= Cmd_ArgvBuffer;
-	cgi.Cmd_Args					= Cmd_ArgsBuffer;
-	cgi.SendConsoleCommand			= Cbuf_AddText;
-	cgi.AddCommand					= Cmd_AddCommand;
-	cgi.RemoveCommand				= Cmd_RemoveCommand;
-	cgi.SendClientCommand			= CL_AddReliableCommand2;
-	cgi.FS_Open						= FS_FOpenFileByMode;
-	cgi.FS_Read						= FS_Read2;
-	cgi.FS_Write					= FS_Write;
-	cgi.FS_Close					= FS_FCloseFile;
-	cgi.FS_Seek						= FS_Seek;
-	cgi.UpdateScreen				= SCR_UpdateScreen;
-	cgi.CM_LoadMap					= CL_CM_LoadMap;
-	cgi.CM_NumInlineModels			= CM_NumInlineModels;
-	cgi.CM_InlineModel				= CM_InlineModel;
-	cgi.CM_TempModel				= CM_TempBoxModel; // may not be a box
-	cgi.CM_Trace					= CM_BoxTrace; // may not be a box
-	cgi.CM_TransformedTrace			= CM_TransformedBoxTrace; // may not be a box
-	cgi.CM_PointContents			= CM_PointContents;
-	cgi.CM_TransformedPointContents	= CM_TransformedPointContents;
-	cgi.S_AddLoopingSound			= S_AddLoopingSound;
-	cgi.S_AddRealLoopingSound		= S_AddRealLoopingSound;
-	cgi.S_ClearLoopingSounds		= S_ClearLoopingSounds;
-	cgi.S_Respatialize				= S_Respatialize;
-	cgi.S_RegisterSound				= S_RegisterSound;
-	cgi.S_StartSound				= S_StartSound;
-	cgi.S_StartBackgroundTrack		= S_StartBackgroundTrack;
-	cgi.S_StartLocalSound			= S_StartLocalSound;
-	cgi.S_StopBackgroundTrack		= S_StopBackgroundTrack;
-	cgi.S_StopLoopingSound			= S_StopLoopingSound;
-	cgi.S_UpdateEntityPosition		= S_UpdateEntityPosition;
-	cgi.R_AddAdditiveLightToScene	= re.AddAdditiveLightToScene;
-	cgi.R_AddLightToScene			= re.AddLightToScene;
-	cgi.R_AddPolysToScene			= re.AddPolyToScene;
-	cgi.R_AddRefEntityToScene		= re.AddRefEntityToScene;
-	cgi.R_ClearScene				= re.ClearScene;
-	cgi.R_DrawStretchPic			= re.DrawStretchPic;
-	cgi.R_DrawRotatedPic			= re.DrawRotatedPic;
-	cgi.R_GetEntityToken			= re.GetEntityToken;
-	cgi.R_inPVS						= re.inPVS;
-	cgi.R_LerpTag					= re.LerpTag;
-	cgi.R_LightForPoint				= re.LightForPoint;
-	cgi.R_LoadWorld					= re.LoadWorld;
-	cgi.R_MarkFragments				= re.MarkFragments;
-	cgi.R_ModelBounds				= re.ModelBounds;
-	cgi.R_RegisterFont				= re.RegisterFont;
-	cgi.R_RegisterModel				= re.RegisterModel;
-	cgi.R_RegisterSkin				= re.RegisterSkin;
-	cgi.R_RegisterShader			= re.RegisterShader;
-	cgi.R_RegisterShaderNoMip		= re.RegisterShaderNoMip;
-	cgi.R_RemapShader				= re.RemapShader;
-	cgi.R_RenderScene				= re.RenderScene;
-	cgi.R_SetColor					= re.SetColor;
-	cgi.GetGLConfig					= CL_GetGlconfig;
-	cgi.GetGameState				= CL_GetGameState;
-	cgi.GetCurrentSnapshotNumber	= CL_GetCurrentSnapshotNumber;
-	cgi.GetSnapshot					= CL_GetSnapshot;
-	cgi.GetServerCommand			= CL_GetServerCommand;
-	cgi.GetCurrentCmdNumber			= CL_GetCurrentCmdNumber;
-	cgi.GetUserCmd					= CL_GetUserCmd;
-	cgi.SetUserCmdValue				= CL_SetUserCmdValue;
-	cgi.MemoryRemaining				= Hunk_MemoryRemaining;
-	cgi.RealTime					= Com_RealTime;
-	cgi.Key_IsDown					= Key_IsDown;
-	cgi.Key_GetCatcher				= Key_GetCatcher;
-	cgi.Key_SetCatcher				= Key_SetCatcher;
-	cgi.Key_GetKey					= Key_GetKey;
-	cgi.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
-	cgi.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
-	cgi.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
-	cgi.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
-	cgi.PC_SourceFileAndLine		= botlib_export->PC_SourceFileAndLine;
-	cgi.CIN_PlayCinematic			= CIN_PlayCinematic;
-	cgi.CIN_StopCinematic			= CIN_StopCinematic;
-	cgi.CIN_RunCinematic			= CIN_RunCinematic;
-	cgi.CIN_DrawCinematic			= CIN_DrawCinematic;
-	cgi.CIN_SetExtents				= CIN_SetExtents;
+	cgameTrap.Print							= Com_Printf;
+	cgameTrap.Error							= Com_Error;
+	cgameTrap.Milliseconds					= Sys_Milliseconds;
+	cgameTrap.Cvar_Register					= Cvar_Register;
+	cgameTrap.Cvar_Update					= Cvar_Update;
+	cgameTrap.Cvar_Set						= Cvar_SetSafe;
+	cgameTrap.Cvar_VariableStringBuffer		= Cvar_VariableStringBuffer;
+	cgameTrap.Cmd_Argc						= Cmd_Argc;
+	cgameTrap.Cmd_Argv						= Cmd_ArgvBuffer;
+	cgameTrap.Cmd_Args						= Cmd_ArgsBuffer;
+	cgameTrap.SendConsoleCommand			= Cbuf_AddText;
+	cgameTrap.AddCommand					= Cmd_AddCommand;
+	cgameTrap.RemoveCommand					= Cmd_RemoveCommand;
+	cgameTrap.SendClientCommand				= CL_AddReliableCommand2;
+	cgameTrap.FS_Open						= FS_FOpenFileByMode;
+	cgameTrap.FS_Read						= FS_Read2;
+	cgameTrap.FS_Write						= FS_Write;
+	cgameTrap.FS_Close						= FS_FCloseFile;
+	cgameTrap.FS_Seek						= FS_Seek;
+	cgameTrap.UpdateScreen					= SCR_UpdateScreen;
+	cgameTrap.CM_LoadMap					= CL_CM_LoadMap;
+	cgameTrap.CM_NumInlineModels			= CM_NumInlineModels;
+	cgameTrap.CM_InlineModel				= CM_InlineModel;
+	cgameTrap.CM_TempModel					= CM_TempBoxModel; // may not be a box
+	cgameTrap.CM_Trace						= CM_BoxTrace; // may not be a box
+	cgameTrap.CM_TransformedTrace			= CM_TransformedBoxTrace; // may not be a box
+	cgameTrap.CM_PointContents				= CM_PointContents;
+	cgameTrap.CM_TransformedPointContents	= CM_TransformedPointContents;
+	cgameTrap.S_AddLoopingSound				= S_AddLoopingSound;
+	cgameTrap.S_AddRealLoopingSound			= S_AddRealLoopingSound;
+	cgameTrap.S_ClearLoopingSounds			= S_ClearLoopingSounds;
+	cgameTrap.S_Respatialize				= S_Respatialize;
+	cgameTrap.S_RegisterSound				= S_RegisterSound;
+	cgameTrap.S_StartSound					= S_StartSound;
+	cgameTrap.S_StartBackgroundTrack		= S_StartBackgroundTrack;
+	cgameTrap.S_StartLocalSound				= S_StartLocalSound;
+	cgameTrap.S_StopBackgroundTrack			= S_StopBackgroundTrack;
+	cgameTrap.S_StopLoopingSound			= S_StopLoopingSound;
+	cgameTrap.S_UpdateEntityPosition		= S_UpdateEntityPosition;
+	cgameTrap.R_AddAdditiveLightToScene		= re->AddAdditiveLightToScene;
+	cgameTrap.R_AddLightToScene				= re->AddLightToScene;
+	cgameTrap.R_AddPolysToScene				= re->AddPolyToScene;
+	cgameTrap.R_AddRefEntityToScene			= re->AddRefEntityToScene;
+	cgameTrap.R_ClearScene					= re->ClearScene;
+	cgameTrap.R_DrawStretchPic				= re->DrawStretchPic;
+	cgameTrap.R_DrawRotatedPic				= re->DrawRotatedPic;
+	cgameTrap.R_GetEntityToken				= re->GetEntityToken;
+	cgameTrap.R_inPVS						= re->inPVS;
+	cgameTrap.R_LerpTag						= re->LerpTag;
+	cgameTrap.R_LightForPoint				= re->LightForPoint;
+	cgameTrap.R_LoadWorld					= re->LoadWorld;
+	cgameTrap.R_MarkFragments				= re->MarkFragments;
+	cgameTrap.R_ModelBounds					= re->ModelBounds;
+	cgameTrap.R_RegisterFont				= re->RegisterFont;
+	cgameTrap.R_RegisterModel				= re->RegisterModel;
+	cgameTrap.R_RegisterSkin				= re->RegisterSkin;
+	cgameTrap.R_RegisterShader				= re->RegisterShader;
+	cgameTrap.R_RegisterShaderNoMip			= re->RegisterShaderNoMip;
+	cgameTrap.R_RemapShader					= re->RemapShader;
+	cgameTrap.R_RenderScene					= re->RenderScene;
+	cgameTrap.R_SetColor					= re->SetColor;
+	cgameTrap.GetGLConfig					= CL_GetGlconfig;
+	cgameTrap.GetGameState					= CL_GetGameState;
+	cgameTrap.GetCurrentSnapshotNumber		= CL_GetCurrentSnapshotNumber;
+	cgameTrap.GetSnapshot					= CL_GetSnapshot;
+	cgameTrap.GetServerCommand				= CL_GetServerCommand;
+	cgameTrap.GetCurrentCmdNumber			= CL_GetCurrentCmdNumber;
+	cgameTrap.GetUserCmd					= CL_GetUserCmd;
+	cgameTrap.SetUserCmdValue				= CL_SetUserCmdValue;
+	cgameTrap.MemoryRemaining				= Hunk_MemoryRemaining;
+	cgameTrap.RealTime						= Com_RealTime;
+	cgameTrap.Key_IsDown					= Key_IsDown;
+	cgameTrap.Key_GetCatcher				= Key_GetCatcher;
+	cgameTrap.Key_SetCatcher				= Key_SetCatcher;
+	cgameTrap.Key_GetKey					= Key_GetKey;
+	cgameTrap.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
+	cgameTrap.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
+	cgameTrap.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
+	cgameTrap.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
+	cgameTrap.PC_SourceFileAndLine			= botlib_export->PC_SourceFileAndLine;
+	cgameTrap.CIN_PlayCinematic				= CIN_PlayCinematic;
+	cgameTrap.CIN_StopCinematic				= CIN_StopCinematic;
+	cgameTrap.CIN_RunCinematic				= CIN_RunCinematic;
+	cgameTrap.CIN_DrawCinematic				= CIN_DrawCinematic;
+	cgameTrap.CIN_SetExtents				= CIN_SetExtents;
 
 	// init the cgame module and grab the exports
-	if ( !(ret = GetCGameAPI( CGAME_API_VERSION, &cgi )) ) {
+	if ( !(cgame = GetModuleAPI( CGAME_API_VERSION, &cgameTrap )) ) {
+		cls.cgameStarted = qfalse;
 		Com_Error( ERR_FATAL, "Couldn't initialize cgame" );
 		return;
 	}
-
-	cge = *ret;
 
 	clc.state = CA_LOADING;
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	cge.Init( clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	cgame->Init( clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
@@ -553,7 +552,7 @@ void CL_InitCGame( void ) {
 
 	// have the renderer touch all its images, so they are present
 	// on the card even if the driver does deferred loading
-	re.EndRegistration();
+	re->EndRegistration();
 
 	// make sure everything is paged in
 	if ( !Sys_LowPhysicalMemory() )
@@ -572,10 +571,10 @@ See if the current console command is claimed by the cgame
 ====================
 */
 qboolean CL_GameCommand( void ) {
-	if ( !cge.ConsoleCommand )
+	if ( !cls.cgameStarted )
 		return qfalse;
 
-	return cge.ConsoleCommand();
+	return cgame->ConsoleCommand();
 }
 
 
@@ -586,7 +585,7 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
-	cge.DrawActiveFrame( cl.serverTime, stereo, clc.demoplaying );
+	cgame->DrawActiveFrame( cl.serverTime, stereo, clc.demoplaying );
 }
 
 

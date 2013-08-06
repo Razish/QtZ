@@ -102,7 +102,7 @@ static void CG_ClipMoveToEntities ( const vector3 *start, const vector3 *mins, c
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = cgi.CM_InlineModel( ent->modelindex );
+			cmodel = trap->CM_InlineModel( ent->modelindex );
 			VectorCopy( &cent->lerpAngles, &angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, &origin );
 		} else {
@@ -116,13 +116,13 @@ static void CG_ClipMoveToEntities ( const vector3 *start, const vector3 *mins, c
 			bmins.z = (float)-zd;
 			bmaxs.z = (float) zu;
 
-			cmodel = cgi.CM_TempModel( &bmins, &bmaxs, qfalse );
+			cmodel = trap->CM_TempModel( &bmins, &bmaxs, qfalse );
 			VectorCopy( &vec3_origin, &angles );
 			VectorCopy( &cent->lerpOrigin, &origin );
 		}
 
 
-		cgi.CM_TransformedTrace( &trace, start, end, mins, maxs, cmodel,  mask, &origin, &angles, qfalse );
+		trap->CM_TransformedTrace( &trace, start, end, mins, maxs, cmodel,  mask, &origin, &angles, qfalse );
 
 		if (trace.allsolid || trace.fraction < tr->fraction) {
 			trace.entityNum = ent->number;
@@ -145,7 +145,7 @@ void	CG_Trace( trace_t *result, const vector3 *start, const vector3 *mins, const
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
-	cgi.CM_Trace( &t, start, end, mins, maxs, 0, mask, qfalse );
+	trap->CM_Trace( &t, start, end, mins, maxs, 0, mask, qfalse );
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t);
@@ -165,7 +165,7 @@ int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int			contents;
 
-	contents = cgi.CM_PointContents (point, 0);
+	contents = trap->CM_PointContents (point, 0);
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
 		cent = cg_solidEntities[ i ];
@@ -180,12 +180,12 @@ int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = cgi.CM_InlineModel( ent->modelindex );
+		cmodel = trap->CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
 
-		contents |= cgi.CM_TransformedPointContents( point, cmodel, &cent->lerpOrigin, &cent->lerpAngles );
+		contents |= trap->CM_TransformedPointContents( point, cmodel, &cent->lerpOrigin, &cent->lerpAngles );
 	}
 
 	return contents;
@@ -217,8 +217,8 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 		usercmd_t	cmd;
 		int			cmdNum;
 
-		cmdNum = cgi.GetCurrentCmdNumber();
-		cgi.GetUserCmd( cmdNum, &cmd );
+		cmdNum = trap->GetCurrentCmdNumber();
+		trap->GetUserCmd( cmdNum, &cmd );
 
 		PM_UpdateViewAngles( out, &cmd );
 	}
@@ -350,12 +350,12 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = cgi.CM_InlineModel( ent->modelindex );
+		cmodel = trap->CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
 
-		cgi.CM_Trace( &trace, &cg.predictedPlayerState.origin, &cg.predictedPlayerState.origin, &cg_pmove.mins, &cg_pmove.maxs, cmodel, -1, qfalse );
+		trap->CM_Trace( &trace, &cg.predictedPlayerState.origin, &cg.predictedPlayerState.origin, &cg_pmove.mins, &cg_pmove.maxs, cmodel, -1, qfalse );
 
 		if ( !trace.startsolid ) {
 			continue;
@@ -452,23 +452,23 @@ void CG_PredictPlayerState( void ) {
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predictedPlayerState;
 
-	current = cgi.GetCurrentCmdNumber();
+	current = trap->GetCurrentCmdNumber();
 
 	// if we don't have the commands right after the snapshot, we
 	// can't accurately predict a current position, so just freeze at
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
-	cgi.GetUserCmd( cmdNum, &oldestCmd );
+	trap->GetUserCmd( cmdNum, &oldestCmd );
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime 
 		&& oldestCmd.serverTime < cg.time ) {	// special check for map_restart
 		#ifdef DEBUG_PREDICTION
-			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
+			trap->Print ("exceeded PACKET_BACKUP on commands\n");
 		#endif
 		return;
 	}
 
 	// get the latest command so we can know which commands are from previous map_restarts
-	cgi.GetUserCmd( current, &latestCmd );
+	trap->GetUserCmd( current, &latestCmd );
 
 	// get the most recent information we have, even if
 	// the server time is beyond our current cg.time,
@@ -486,7 +486,7 @@ void CG_PredictPlayerState( void ) {
 	moved = qfalse;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
-		cgi.GetUserCmd( cmdNum, &cg_pmove.cmd );
+		trap->GetUserCmd( cmdNum, &cg_pmove.cmd );
 
 		PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
 
@@ -513,7 +513,7 @@ void CG_PredictPlayerState( void ) {
 				// a teleport will not cause an error decay
 				VectorClear( &cg.predictedError );
 				#ifdef DEBUG_PREDICTION
-					CG_Printf( "PredictionTeleport\n" );
+					trap->Print( "PredictionTeleport\n" );
 				#endif
 				cg.thisFrameTeleport = qfalse;
 			} else {
@@ -523,7 +523,7 @@ void CG_PredictPlayerState( void ) {
 
 				#ifdef DEBUG_PREDICTION
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
-						CG_Printf("prediction error\n");
+						trap->Print("prediction error\n");
 					}
 				#endif
 
@@ -531,7 +531,7 @@ void CG_PredictPlayerState( void ) {
 				len = VectorLength( &delta );
 				if ( len > 0.1 ) {
 					#ifdef DEBUG_PREDICTION
-					//	CG_Printf("Prediction miss: %f\n", len);
+					//	trap->Print("Prediction miss: %f\n", len);
 					#endif
 					if ( cg_errorDecay.integer ) {
 						int		t;
@@ -544,7 +544,7 @@ void CG_PredictPlayerState( void ) {
 						}
 						#ifdef DEBUG_PREDICTION
 							if ( f > 0 )
-								CG_Printf("Double prediction decay: %f\n", f);
+								trap->Print("Double prediction decay: %f\n", f);
 						#endif
 						VectorScale( &cg.predictedError, f, &cg.predictedError );
 					} else {
@@ -581,7 +581,7 @@ void CG_PredictPlayerState( void ) {
 
 	#ifdef _DEBUG
 		if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {
-			CG_Printf("WARNING: dropped event\n");
+			trap->Print("WARNING: dropped event\n");
 		}
 	#endif
 
@@ -590,7 +590,7 @@ void CG_PredictPlayerState( void ) {
 
 	#ifdef _DEBUG
 		if (cg.eventSequence > cg.predictedPlayerState.eventSequence) {
-			CG_Printf("WARNING: double event\n");
+			trap->Print("WARNING: double event\n");
 			cg.eventSequence = cg.predictedPlayerState.eventSequence;
 		}
 	#endif

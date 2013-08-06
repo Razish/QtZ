@@ -42,7 +42,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
+		ri->Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -83,7 +83,7 @@ void GL_SelectTexture( int unit )
 		qglClientActiveTextureARB( GL_TEXTURE1_ARB );
 		GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
 	} else {
-		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
+		ri->Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 	}
 
 	glState.currenttmu = unit;
@@ -175,7 +175,7 @@ void GL_TexEnv( int env )
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
 	default:
-		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed", env );
+		ri->Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed", env );
 		break;
 	}
 }
@@ -250,7 +250,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				srcFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits" );
+				ri->Error( ERR_DROP, "GL_State: invalid src blend state bits" );
 				break;
 			}
 
@@ -282,7 +282,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				dstFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits" );
+				ri->Error( ERR_DROP, "GL_State: invalid dst blend state bits" );
 				break;
 			}
 
@@ -713,7 +713,7 @@ void	RB_SetGL2D (void) {
 	qglDisable( GL_CLIP_PLANE0 );
 
 	// set time for 2D shaders
-	backEnd.refdef.time = ri.Milliseconds();
+	backEnd.refdef.time = ri->Milliseconds();
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
@@ -741,7 +741,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	start = 0;
 	if ( r_speeds->integer ) {
-		start = ri.Milliseconds();
+		start = ri->Milliseconds();
 	}
 
 	// make sure rows and cols are powers of 2
@@ -750,7 +750,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	for ( j = 0 ; ( 1 << j ) < rows ; j++ ) {
 	}
 	if ( ( 1 << i ) != cols || ( 1 << j ) != rows) {
-		ri.Error (ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
+		ri->Error (ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
 	}
 
 	GL_Bind( tr.scratchImage[client] );
@@ -773,8 +773,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 
 	if ( r_speeds->integer ) {
-		end = ri.Milliseconds();
-		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
+		end = ri->Milliseconds();
+		ri->Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
 	RB_SetGL2D();
@@ -1067,7 +1067,7 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-	start = ri.Milliseconds();
+	start = ri->Milliseconds();
 
 	for ( i=0 ; i<tr.numImages ; i++ ) {
 		image = tr.images[i];
@@ -1098,8 +1098,8 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-	end = ri.Milliseconds();
-	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
+	end = ri->Milliseconds();
+	ri->Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
 
 }
 
@@ -1168,7 +1168,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		long sum = 0;
 		unsigned char *stencilReadback;
 
-		stencilReadback = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
+		stencilReadback = ri->Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
 		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {
@@ -1176,7 +1176,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		}
 
 		backEnd.pc.c_overDraw += sum;
-		ri.Hunk_FreeTempMemory( stencilReadback );
+		ri->Hunk_FreeTempMemory( stencilReadback );
 	}
 
 
@@ -1204,7 +1204,7 @@ smp extensions, or asynchronously by another thread.
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
 
-	t1 = ri.Milliseconds ();
+	t1 = ri->Milliseconds ();
 
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));
@@ -1242,7 +1242,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering on this thread
-			t2 = ri.Milliseconds();
+			t2 = ri->Milliseconds();
 			backEnd.pc.msec = t2 - t1;
 			return;
 		}

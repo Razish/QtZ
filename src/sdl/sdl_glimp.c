@@ -83,7 +83,7 @@ GLimp_Shutdown
 */
 void GLimp_Shutdown( void )
 {
-	ri.IN_Shutdown();
+	ri->IN_Shutdown();
 
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 	screen = NULL;
@@ -157,13 +157,13 @@ static void GLimp_DetectAvailableModes(void)
 
 	if( !modes )
 	{
-		ri.Printf( PRINT_WARNING, "Can't get list of available modes\n" );
+		ri->Printf( PRINT_WARNING, "Can't get list of available modes\n" );
 		return;
 	}
 
 	if( modes == (SDL_Rect **)-1 )
 	{
-		ri.Printf( PRINT_ALL, "Display supports any resolution\n" );
+		ri->Printf( PRINT_ALL, "Display supports any resolution\n" );
 		return; // can set any resolution
 	}
 
@@ -179,14 +179,14 @@ static void GLimp_DetectAvailableModes(void)
 		if( strlen( newModeString ) < (int)sizeof( buf ) - strlen( buf ) )
 			Q_strcat( buf, sizeof( buf ), newModeString );
 		else
-			ri.Printf( PRINT_WARNING, "Skipping mode %ux%x, buffer too small\n", modes[i]->w, modes[i]->h );
+			ri->Printf( PRINT_WARNING, "Skipping mode %ux%x, buffer too small\n", modes[i]->w, modes[i]->h );
 	}
 
 	if( *buf )
 	{
 		buf[ strlen( buf ) - 1 ] = 0;
-		ri.Printf( PRINT_ALL, "Available modes: '%s'\n", buf );
-		ri.Cvar_Set( "r_availableModes", buf );
+		ri->Printf( PRINT_ALL, "Available modes: '%s'\n", buf );
+		ri->Cvar_Set( "r_availableModes", buf );
 	}
 }
 
@@ -203,7 +203,7 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 	SDL_Surface *vidscreen = NULL;
 	Uint32 flags = SDL_OPENGL|SDL_RESIZABLE;
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
+	ri->Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
 	if ( videoInfo == NULL ) {
 		static SDL_VideoInfo sVideoInfo;
@@ -223,10 +223,10 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 			//	that it is set at or close to the display's native aspect ratio
 			displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
 
-			ri.Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect );
+			ri->Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect );
 		}
 		else
-			ri.Printf( PRINT_ALL, "Cannot estimate display aspect, assuming 1.333\n" );
+			ri->Printf( PRINT_ALL, "Cannot estimate display aspect, assuming 1.333\n" );
 	}
 
 	if ( vid_width->integer == 0 && vid_height->integer == 0 ) {
@@ -238,7 +238,7 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 		else {
 			glConfig.vidWidth = 640;
 			glConfig.vidHeight = 480;
-			ri.Printf( PRINT_ALL, "Cannot determine display resolution, assuming 640x480\n" );
+			ri->Printf( PRINT_ALL, "Cannot determine display resolution, assuming 640x480\n" );
 		}
 
 		glConfig.windowAspect = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
@@ -249,7 +249,7 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 		glConfig.windowAspect = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
 	}
 
-	ri.Printf( PRINT_ALL, "setting resolution: %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
+	ri->Printf( PRINT_ALL, "setting resolution: %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
 
 	if ( fullscreen ) {
 		flags |= SDL_FULLSCREEN;
@@ -369,13 +369,13 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 		{
 			if( SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 ) < 0 )
 			{
-				ri.Printf( PRINT_ALL, "Unable to guarantee accelerated visual with libSDL < 1.2.10\n" );
+				ri->Printf( PRINT_ALL, "Unable to guarantee accelerated visual with libSDL < 1.2.10\n" );
 			}
 		}
 #endif
 
 		if ( SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, r_swapInterval->integer ) < 0 )
-			ri.Printf( PRINT_ALL, "r_swapInterval requires libSDL >= 1.2.10\n" );
+			ri->Printf( PRINT_ALL, "r_swapInterval requires libSDL >= 1.2.10\n" );
 
 #ifdef USE_ICON
 		{
@@ -402,13 +402,13 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 
 		if (!(vidscreen = SDL_SetVideoMode(glConfig.vidWidth, glConfig.vidHeight, colorbits, flags)))
 		{
-			ri.Printf( PRINT_DEVELOPER, "SDL_SetVideoMode failed: %s\n", SDL_GetError( ) );
+			ri->Printf( PRINT_DEVELOPER, "SDL_SetVideoMode failed: %s\n", SDL_GetError( ) );
 			continue;
 		}
 
 		opengl_context = GLimp_GetCurrentContext();
 
-		ri.Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
+		ri->Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
 				sdlcolorbits, sdlcolorbits, sdlcolorbits, tdepthbits, tstencilbits);
 
 		glConfig.colorBits = tcolorbits;
@@ -420,14 +420,14 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 	GLimp_DetectAvailableModes();
 
 	if ( !vidscreen ) {
-		ri.Printf( PRINT_ALL, "Couldn't get a visual\n" );
+		ri->Printf( PRINT_ALL, "Couldn't get a visual\n" );
 		return RSERR_INVALID_MODE;
 	}
 
 	screen = vidscreen;
 
 	glstring = (char *) qglGetString (GL_RENDERER);
-	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glstring );
+	ri->Printf( PRINT_ALL, "GL_RENDERER: %s\n", glstring );
 
 	return RSERR_OK;
 }
@@ -446,19 +446,19 @@ static qboolean GLimp_StartDriverAndSetMode( qboolean fullscreen, qboolean nobor
 		int ret = SDL_Init( SDL_INIT_VIDEO );
 
 		if ( ret < 0 ) {
-			ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%d: %s)\n", ret, SDL_GetError() );
+			ri->Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%d: %s)\n", ret, SDL_GetError() );
 			return qfalse;
 		}
 
 		SDL_VideoDriverName( driverName, sizeof( driverName ) - 1 );
-		ri.Printf( PRINT_ALL, "SDL using driver \"%s\"\n", driverName );
-		ri.Cvar_Set( "r_sdlDriver", driverName );
+		ri->Printf( PRINT_ALL, "SDL using driver \"%s\"\n", driverName );
+		ri->Cvar_Set( "r_sdlDriver", driverName );
 	}
 
-	if ( fullscreen && ri.Cvar_VariableIntegerValue( "in_nograb" ) )
+	if ( fullscreen && ri->Cvar_VariableIntegerValue( "in_nograb" ) )
 	{
-		ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n" );
-		ri.Cvar_Set( "r_fullscreen", "0" );
+		ri->Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n" );
+		ri->Cvar_Set( "r_fullscreen", "0" );
 		r_fullscreen->modified = qfalse;
 		fullscreen = qfalse;
 	}
@@ -467,7 +467,7 @@ static qboolean GLimp_StartDriverAndSetMode( qboolean fullscreen, qboolean nobor
 
 	switch ( err ) {
 		case RSERR_INVALID_MODE:
-			ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode\n" );
+			ri->Printf( PRINT_ALL, "...WARNING: could not set the given mode\n" );
 			return qfalse;
 		default:
 			break;
@@ -493,11 +493,11 @@ GLimp_InitExtensions
 static void GLimp_InitExtensions( void )
 {
 	if ( !r_allowExtensions->integer ) {
-		ri.Printf( PRINT_ALL, "* IGNORING OPENGL EXTENSIONS *\n" );
+		ri->Printf( PRINT_ALL, "* IGNORING OPENGL EXTENSIONS *\n" );
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
+	ri->Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
 
 	glConfig.textureCompression = TC_NONE;
 
@@ -507,13 +507,13 @@ static void GLimp_InitExtensions( void )
 	{
 		if ( r_ext_compressed_textures->value ) {
 			glConfig.textureCompression = TC_S3TC_ARB;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+			ri->Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
 		}
 		else
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n" );
+			ri->Printf( PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n" );
 	}
 	else
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
+		ri->Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
 
 	// GL_S3_s3tc ... legacy extension before GL_EXT_texture_compression_s3tc.
 	if (glConfig.textureCompression == TC_NONE)
@@ -521,13 +521,13 @@ static void GLimp_InitExtensions( void )
 		if ( GLimp_HaveExtension( "GL_S3_s3tc" ) ) {
 			if ( r_ext_compressed_textures->value ) {
 				glConfig.textureCompression = TC_S3TC;
-				ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
+				ri->Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
 			}
 			else
-				ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
+				ri->Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
 		}
 		else
-			ri.Printf( PRINT_ALL, "...GL_S3_s3tc not found\n" );
+			ri->Printf( PRINT_ALL, "...GL_S3_s3tc not found\n" );
 	}
 
 
@@ -536,15 +536,15 @@ static void GLimp_InitExtensions( void )
 	if ( GLimp_HaveExtension( "EXT_texture_env_add" ) ) {
 		if ( r_ext_texture_env_add->integer ) {
 			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
+			ri->Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		}
 		else {
 			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
+			ri->Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
 	else
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+		ri->Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
 
 	// GL_ARB_multitexture
 	qglMultiTexCoord2fARB = NULL;
@@ -561,54 +561,54 @@ static void GLimp_InitExtensions( void )
 				qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
 				glConfig.numTextureUnits = (int) glint;
 				if ( glConfig.numTextureUnits > 1 )
-					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
+					ri->Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				else {
 					qglMultiTexCoord2fARB = NULL;
 					qglActiveTextureARB = NULL;
 					qglClientActiveTextureARB = NULL;
-					ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
+					ri->Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
 				}
 			}
 		}
 		else
-			ri.Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
+			ri->Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
 	}
 	else
-		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+		ri->Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
 
 	// GL_EXT_compiled_vertex_array
 	if ( GLimp_HaveExtension( "GL_EXT_compiled_vertex_array" ) ) {
 		if ( r_ext_compiled_vertex_array->value ) {
-			ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
+			ri->Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
 			qglLockArraysEXT = ( void ( APIENTRY * )( GLint, GLint ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
 			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
 			if (!qglLockArraysEXT || !qglUnlockArraysEXT)
-				ri.Error (ERR_FATAL, "bad getprocaddress");
+				ri->Error (ERR_FATAL, "bad getprocaddress");
 		}
 		else
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
+			ri->Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
 	}
 	else
-		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+		ri->Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 
 	textureFilterAnisotropic = qfalse;
 	if ( GLimp_HaveExtension( "GL_EXT_texture_filter_anisotropic" ) ) {
 		if ( r_ext_texture_filter_anisotropic->integer ) {
 			qglGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat *)&glConfig.maxTextureFilterAnisotropy );
 			if ( glConfig.maxTextureFilterAnisotropy <= 0 ) {
-				ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
+				ri->Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
 				glConfig.maxTextureFilterAnisotropy = 0;
 			}
 			else {
-				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %.2f)\n", glConfig.maxTextureFilterAnisotropy );
+				ri->Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %.2f)\n", glConfig.maxTextureFilterAnisotropy );
 				textureFilterAnisotropic = qtrue;
 			}
 		}
 		else
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
+			ri->Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
 	}
 	else
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
+		ri->Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
 }
 
 /*
@@ -621,52 +621,52 @@ of OpenGL
 */
 void GLimp_Init( void )
 {
-	r_allowSoftwareGL	= ri.Cvar_Get( "r_allowSoftwareGL",		"0",	CVAR_LATCH,		NULL );
-	r_sdlDriver			= ri.Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL );
-	vid_centerWindow	= ri.Cvar_Get( "vid_centerWindow",		"1",	CVAR_ARCHIVE,	NULL );
+	r_allowSoftwareGL	= ri->Cvar_Get( "r_allowSoftwareGL",		"0",	CVAR_LATCH,		NULL );
+	r_sdlDriver			= ri->Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL );
+	vid_centerWindow	= ri->Cvar_Get( "vid_centerWindow",		"1",	CVAR_ARCHIVE,	NULL );
 
 	//QtZ: in_disableLockKeys, vid_xpos, vid_ypos from iodfe
-	vid_width			= ri.Cvar_Get( "vid_width",				"0",	CVAR_ARCHIVE,	NULL );
-	vid_height			= ri.Cvar_Get( "vid_height",			"0",	CVAR_ARCHIVE,	NULL );
-	vid_xpos			= ri.Cvar_Get( "vid_xpos",				"100",	CVAR_ARCHIVE,	NULL );
-	vid_ypos			= ri.Cvar_Get( "vid_ypos",				"100",	CVAR_ARCHIVE,	NULL );
-	in_disableLockKeys	= ri.Cvar_Get( "in_disableLockKeys",	"0",	CVAR_ARCHIVE,	NULL );
+	vid_width			= ri->Cvar_Get( "vid_width",				"0",	CVAR_ARCHIVE,	NULL );
+	vid_height			= ri->Cvar_Get( "vid_height",			"0",	CVAR_ARCHIVE,	NULL );
+	vid_xpos			= ri->Cvar_Get( "vid_xpos",				"100",	CVAR_ARCHIVE,	NULL );
+	vid_ypos			= ri->Cvar_Get( "vid_ypos",				"100",	CVAR_ARCHIVE,	NULL );
+	in_disableLockKeys	= ri->Cvar_Get( "in_disableLockKeys",	"0",	CVAR_ARCHIVE,	NULL );
 	//~QtZ
 
-	if ( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
+	if ( ri->Cvar_VariableIntegerValue( "com_abnormalExit" ) )
 	{
-		ri.Cvar_Set( "vid_width", "0" );
-		ri.Cvar_Set( "vid_height", "0" );
-		ri.Cvar_Set( "r_fullscreen", "0" );
-		ri.Cvar_Set( "vid_centerWindow", "1" );
-		ri.Cvar_Set( "com_abnormalExit", "0" );
+		ri->Cvar_Set( "vid_width", "0" );
+		ri->Cvar_Set( "vid_height", "0" );
+		ri->Cvar_Set( "r_fullscreen", "0" );
+		ri->Cvar_Set( "vid_centerWindow", "1" );
+		ri->Cvar_Set( "com_abnormalExit", "0" );
 		//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
-		ri.Cvar_Set( "vid_xpos", "100" );
-		ri.Cvar_Set( "vid_ypos", "100" );
+		ri->Cvar_Set( "vid_xpos", "100" );
+		ri->Cvar_Set( "vid_ypos", "100" );
 		//~QtZ
 	}
 
-	ri.Sys_SetEnv( "SDL_VIDEO_CENTERED", vid_centerWindow->integer ? "1" : "" );
+	ri->Sys_SetEnv( "SDL_VIDEO_CENTERED", vid_centerWindow->integer ? "1" : "" );
 
 	//QtZ: in_disableLockKeys, r_xpos, r_ypos from iodfe
-	ri.Sys_SetEnv( "SDL_VIDEO_WINDOW_POS", va( "%d,%d", vid_xpos->integer, vid_ypos->integer ) );
-	ri.Sys_SetEnv( "SDL_DISABLE_LOCK_KEYS", in_disableLockKeys->integer ? "1" : "" ); //putting this here because it needs vid_restart anyway
+	ri->Sys_SetEnv( "SDL_VIDEO_WINDOW_POS", va( "%d,%d", vid_xpos->integer, vid_ypos->integer ) );
+	ri->Sys_SetEnv( "SDL_DISABLE_LOCK_KEYS", in_disableLockKeys->integer ? "1" : "" ); //putting this here because it needs vid_restart anyway
 	//~QtZ
 
-	ri.Sys_GLimpInit( );
+	ri->Sys_GLimpInit( );
 
 	// Create the window and set up the context
 	if ( GLimp_StartDriverAndSetMode( r_fullscreen->boolean, r_noborder->boolean ) )
 		goto success;
 
 	// Try again, this time in a platform specific "safe mode"
-	ri.Sys_GLimpSafeInit();
+	ri->Sys_GLimpSafeInit();
 
 	if ( GLimp_StartDriverAndSetMode( r_fullscreen->boolean, qfalse ) )
 		goto success;
 
 	// Nothing worked, give up
-	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
+	ri->Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
 
 success:
 	// This values force the UI to disable driver selection
@@ -695,10 +695,10 @@ success:
 	// initialize extensions
 	GLimp_InitExtensions( );
 
-	ri.Cvar_Get( "r_availableModes", "", CVAR_ROM, NULL );
+	ri->Cvar_Get( "r_availableModes", "", CVAR_ROM, NULL );
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
-	ri.IN_Init( );
+	ri->IN_Init( );
 }
 
 
@@ -729,10 +729,10 @@ void GLimp_EndFrame( void )
 			// Find out the current state
 			fullscreen = !!( s->flags & SDL_FULLSCREEN );
 				
-			if( r_fullscreen->integer && ri.Cvar_VariableIntegerValue( "in_nograb" ) )
+			if( r_fullscreen->integer && ri->Cvar_VariableIntegerValue( "in_nograb" ) )
 			{
-				ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
-				ri.Cvar_Set( "r_fullscreen", "0" );
+				ri->Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
+				ri->Cvar_Set( "r_fullscreen", "0" );
 				r_fullscreen->modified = qfalse;
 			}
 
@@ -747,9 +747,9 @@ void GLimp_EndFrame( void )
 		{
 			// SDL_WM_ToggleFullScreen didn't work, so do it the slow way
 			if( !sdlToggled )
-				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart");
+				ri->Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 
-			ri.IN_Restart( );
+			ri->IN_Restart( );
 		}
 
 		r_fullscreen->modified = qfalse;
@@ -761,7 +761,7 @@ void GLimp_RenderThreadWrapper( void *arg ) {
 }
 
 qboolean GLimp_SpawnRenderThread( void (*function)( void ) ) {
-	ri.Printf( PRINT_WARNING, "ERROR: SMP support was disabled at compile time\n");
+	ri->Printf( PRINT_WARNING, "ERROR: SMP support was disabled at compile time\n");
 	return qfalse;
 }
 

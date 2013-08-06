@@ -55,20 +55,20 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 	}
 	if ( !item->classname )
-		CG_Error( "Couldn't find weapon %i", weaponNum );
+		trap->Error( ERR_DROP, "Couldn't find weapon %i", weaponNum );
 
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = cgi.R_RegisterModel( item->world_model[0] );
+	weaponInfo->weaponModel = trap->R_RegisterModel( item->world_model[0] );
 
 	// calc midpoint for rotation
-	cgi.R_ModelBounds( weaponInfo->weaponModel, &mins, &maxs );
+	trap->R_ModelBounds( weaponInfo->weaponModel, &mins, &maxs );
 	for ( i=0; i<3; i++ )
 		weaponInfo->weaponMidpoint.data[i] = mins.data[i] + 0.5f * (maxs.data[i] - mins.data[i]);
 
-	weaponInfo->weaponIcon = cgi.R_RegisterShader( item->icon );
-	weaponInfo->ammoIcon = cgi.R_RegisterShader( item->icon );
+	weaponInfo->weaponIcon = trap->R_RegisterShader( item->icon );
+	weaponInfo->ammoIcon = trap->R_RegisterShader( item->icon );
 
 	for ( ammo=bg_itemlist, i=0; i<bg_numItems-1; ammo++, i++ ) {
 		if ( ammo->giType == IT_AMMO && ammo->giTag == weaponNum ) {
@@ -76,36 +76,36 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 	}
 	if ( ammo->classname && ammo->world_model[0] ) {
-		weaponInfo->ammoModel = cgi.R_RegisterModel( ammo->world_model[0] );
+		weaponInfo->ammoModel = trap->R_RegisterModel( ammo->world_model[0] );
 	}
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_barrel" );
-	weaponInfo->barrelModel = cgi.R_RegisterModel( path );
+	weaponInfo->barrelModel = trap->R_RegisterModel( path );
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_hand" );
-	weaponInfo->handsModel = cgi.R_RegisterModel( path );
+	weaponInfo->handsModel = trap->R_RegisterModel( path );
 
 	if ( !weaponInfo->handsModel )
-		weaponInfo->handsModel = cgi.R_RegisterModel( "models/weapons/temp/temp.md3" );
+		weaponInfo->handsModel = trap->R_RegisterModel( "models/weapons/temp/temp.md3" );
 
 	switch ( weaponNum ) {
 	//RAZMARK: ADDING NEW WEAPONS
 	case WP_QUANTIZER:
 		weaponInfo->missileTrailFunc					= FX_Quantizer_Missile;
-//		cgs.effects.weapons.quantizerShotEffect			= cgi.FX_RegisterEffect( "quantizer/shot" );
+//		cgs.effects.weapons.quantizerShotEffect			= trap->FX_RegisterEffect( "quantizer/shot" );
 
 		weaponInfo->missileHitWallFunc					= FX_Quantizer_HitWall;
-//		cgs.effects.weapons.quantizerHitWallEffect		= cgi.FX_RegisterEffect( "quantizer/hitwall" );
+//		cgs.effects.weapons.quantizerHitWallEffect		= trap->FX_RegisterEffect( "quantizer/hitwall" );
 
 		weaponInfo->missileHitPlayerFunc				= FX_Quantizer_HitPlayer;
-//		cgs.effects.weapons.quantizerHitPlayerEffect	= cgi.FX_RegisterEffect( "quantizer/hitplayer" );
+//		cgs.effects.weapons.quantizerHitPlayerEffect	= trap->FX_RegisterEffect( "quantizer/hitplayer" );
 
-		weaponInfo->flashSound[0]						= cgi.S_RegisterSound( "sound/weapons/quantizer/fire", qfalse );
-//		weaponInfo->muzzleEffect						= cgi.FX_RegisterEffect( "quantizer/muzzle" );
+		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/quantizer/fire", qfalse );
+//		weaponInfo->muzzleEffect						= trap->FX_RegisterEffect( "quantizer/muzzle" );
 		break;
 
 	case WP_REPEATER:
@@ -113,7 +113,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->missileHitPlayerFunc				= FX_Repeater_HitPlayer;
 		weaponInfo->missileHitWallFunc					= FX_Repeater_HitWall;
 
-		weaponInfo->flashSound[0]						= cgi.S_RegisterSound( "sound/weapons/repeater/fire", qfalse );
+		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/repeater/fire", qfalse );
 		break;
 
 	case WP_SPLICER:
@@ -121,10 +121,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->missileHitPlayerFunc				= FX_Splicer_HitPlayer;
 		weaponInfo->missileHitWallFunc					= FX_Splicer_HitWall;
 
-		weaponInfo->flashSound[0]						= cgi.S_RegisterSound( "sound/weapons/splicer/fire", qfalse );
+		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/splicer/fire", qfalse );
 
-		cgs.media.weapons.splicerCore					= cgi.R_RegisterShader( "splicerCore" ); // weapons.shader
-		cgs.media.weapons.splicerFlare					= cgi.R_RegisterShader( "splicerFlare" ); // weapons.shader
+		cgs.media.weapons.splicerCore					= trap->R_RegisterShader( "splicerCore" ); // weapons.shader
+		cgs.media.weapons.splicerFlare					= trap->R_RegisterShader( "splicerFlare" ); // weapons.shader
 		break;
 
 	case WP_MORTAR:
@@ -132,8 +132,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->missileHitPlayerFunc				= FX_Mortar_HitPlayer;
 		weaponInfo->missileHitWallFunc					= FX_Mortar_HitWall;
 
-		weaponInfo->flashSound[0]						= cgi.S_RegisterSound( "sound/weapons/mortar/fire", qfalse );
-		cgs.media.weapons.mortarProjectile				= cgi.R_RegisterModel( "models/weapons/mortar/projectile.md3" );
+		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/mortar/fire", qfalse );
+		cgs.media.weapons.mortarProjectile				= trap->R_RegisterModel( "models/weapons/mortar/projectile.md3" );
 		weaponInfo->firingSound							= NULL_SOUND;
 		weaponInfo->missileModel						= NULL_HANDLE;
 		weaponInfo->missileSound						= NULL_SOUND;
@@ -142,14 +142,14 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_DIVERGENCE:
 		weaponInfo->fireFunc							= FX_Divergence_Fire;
 
-		weaponInfo->readySound							= cgi.S_RegisterSound( "sound/weapons/divergence/idle", qfalse );
-		weaponInfo->flashSound[0]						= cgi.S_RegisterSound( "sound/weapons/divergence/fire", qfalse );
-		cgs.media.weapons.divergenceCore				= cgi.R_RegisterShader( "divergenceCore" ); // weapons.shader
+		weaponInfo->readySound							= trap->S_RegisterSound( "sound/weapons/divergence/idle", qfalse );
+		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/divergence/fire", qfalse );
+		cgs.media.weapons.divergenceCore				= trap->R_RegisterShader( "divergenceCore" ); // weapons.shader
 		break;
 
 	 default:
 		VectorSet( &weaponInfo->flashDlightColor, 1, 1, 1 );
-		weaponInfo->flashSound[0] = cgi.S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
+		weaponInfo->flashSound[0] = trap->S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
 		break;
 	}
 }
@@ -166,7 +166,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	gitem_t			*item;
 
 	if ( itemNum < 0 || itemNum >= bg_numItems ) {
-		CG_Error( "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems-1 );
+		trap->Error( ERR_DROP, "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems-1 );
 	}
 
 	itemInfo = &cg_items[ itemNum ];
@@ -179,9 +179,9 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	memset( itemInfo, 0, sizeof( *itemInfo ) );
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = cgi.R_RegisterModel( item->world_model[0] );
+	itemInfo->models[0] = trap->R_RegisterModel( item->world_model[0] );
 
-	itemInfo->icon = cgi.R_RegisterShader( item->icon );
+	itemInfo->icon = trap->R_RegisterShader( item->icon );
 
 	if ( item->giType == IT_WEAPON ) {
 		CG_RegisterWeapon( item->giTag );
@@ -193,7 +193,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH || 
 		item->giType == IT_ARMOR || item->giType == IT_HOLDABLE ) {
 		if ( item->world_model[1] ) {
-			itemInfo->models[1] = cgi.R_RegisterModel( item->world_model[1] );
+			itemInfo->models[1] = trap->R_RegisterModel( item->world_model[1] );
 		}
 	}
 }
@@ -322,11 +322,11 @@ CG_AddWeaponWithPowerups
 */
 static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	// add powerup effects
-	cgi.R_AddRefEntityToScene( gun );
+	trap->R_AddRefEntityToScene( gun );
 
 	if ( powerups & ( 1 << PW_QUAD ) ) {
 		gun->customShader = cgs.media.quadWeaponShader;
-		cgi.R_AddRefEntityToScene( gun );
+		trap->R_AddRefEntityToScene( gun );
 	}
 }
 
@@ -382,14 +382,14 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		cent->pe.lightningFiring = qfalse;
 		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
-			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->firingSound );
+			trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->firingSound );
 			cent->pe.lightningFiring = qtrue;
 		} else if ( weapon->readySound ) {
-			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->readySound );
+			trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->readySound );
 		}
 	}
 
-	cgi.R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, "tag_weapon");
+	trap->R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, "tag_weapon");
 	VectorCopy(&parent->origin, &gun.origin);
 
 	VectorMA(&gun.origin, lerped.origin.x, &parent->axis[0], &gun.origin);
@@ -558,7 +558,7 @@ void CG_DrawWeaponSelect( void ) {
 	if ( !color ) {
 		return;
 	}
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	// showing weapon select clears pickup item display, but not the blend blob
 	cg.itemPickupTime = 0;
@@ -608,7 +608,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 
@@ -717,7 +717,7 @@ void CG_Weapon_f( void ) {
 	if ( cg.snap->ps.pm_type == PM_FREEZE )
 		return;
 
-	cgi.Cmd_Args( args, sizeof( args ) );
+	trap->Cmd_Args( args, sizeof( args ) );
 	num = CG_WeaponForString( args );
 	if ( num == WP_NONE )
 		num = atoi( args );
@@ -802,7 +802,7 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 		return;
 
 	if ( ent->weapon >= WP_NUM_WEAPONS ) {
-		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
+		trap->Error( ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
 	weap = &cg_weapons[ ent->weapon ];
@@ -835,7 +835,7 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) )
-		cgi.S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 
 	// play a sound
 	for ( c = 0 ; c < 4 ; c++ ) {
@@ -845,7 +845,7 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 	if ( c > 0 ) {
 		c = rand() % c;
 		if ( weap->flashSound[c] )
-			cgi.S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
+			trap->S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
 	}
 
 	// do brass ejection
@@ -896,7 +896,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vector3 *origin, vector3 *dir
 	}
 
 	if ( sfx ) {
-		cgi.S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
+		trap->S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
 
 	//

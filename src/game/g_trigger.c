@@ -27,8 +27,8 @@ void InitTrigger( gentity_t *self ) {
 	if (!VectorCompare (&self->s.angles, &vec3_origin))
 		G_SetMovedir (&self->s.angles, &self->movedir);
 
-	gi.SV_SetBrushModel( (sharedEntity_t *)self, self->model );
-	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from gi.SV_SetBrushModel
+	trap->SV_SetBrushModel( (sharedEntity_t *)self, self->model );
+	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap->SV_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }
 
@@ -97,14 +97,14 @@ void SP_trigger_multiple( gentity_t *ent ) {
 
 	if ( ent->random >= ent->wait && ent->wait >= 0 ) {
 		ent->random = ent->wait - sv_frametime.integer;
-		G_Printf( "trigger_multiple has random >= wait\n" );
+		trap->Print( "trigger_multiple has random >= wait\n" );
 	}
 
 	ent->touch = Touch_Multi;
 	ent->use = Use_Multi;
 
 	InitTrigger( ent );
-	gi.SV_LinkEntity ((sharedEntity_t *)ent);
+	trap->SV_LinkEntity ((sharedEntity_t *)ent);
 }
 
 
@@ -209,7 +209,7 @@ void SP_trigger_push( gentity_t *self ) {
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
 	self->nextthink = level.time + sv_frametime.integer;
-	gi.SV_LinkEntity ((sharedEntity_t *)self);
+	trap->SV_LinkEntity ((sharedEntity_t *)self);
 }
 
 
@@ -283,7 +283,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 
 	dest = 	G_PickTarget( self->target );
 	if (!dest) {
-		G_Printf ("Couldn't find teleporter destination\n");
+		trap->Print ("Couldn't find teleporter destination\n");
 		return;
 	}
 
@@ -323,7 +323,7 @@ void SP_trigger_teleport( gentity_t *self ) {
 	self->s.eType = ET_TELEPORT_TRIGGER;
 	self->touch = trigger_teleporter_touch;
 
-	gi.SV_LinkEntity ((sharedEntity_t *)self);
+	trap->SV_LinkEntity ((sharedEntity_t *)self);
 }
 
 
@@ -349,9 +349,9 @@ NO_PROTECTION	*nothing* stops the damage
 */
 void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	if ( self->r.linked ) {
-		gi.SV_UnlinkEntity( (sharedEntity_t *)self );
+		trap->SV_UnlinkEntity( (sharedEntity_t *)self );
 	} else {
-		gi.SV_LinkEntity( (sharedEntity_t *)self );
+		trap->SV_LinkEntity( (sharedEntity_t *)self );
 	}
 }
 
@@ -398,10 +398,10 @@ void SP_trigger_hurt( gentity_t *self ) {
 
 	// link in to the world if starting active
 	if ( self->spawnflags & 1 ) {
-		gi.SV_UnlinkEntity ((sharedEntity_t *)self);
+		trap->SV_UnlinkEntity ((sharedEntity_t *)self);
 	}
 	else {
-		gi.SV_LinkEntity ((sharedEntity_t *)self);
+		trap->SV_LinkEntity ((sharedEntity_t *)self);
 	}
 }
 
@@ -454,7 +454,7 @@ void SP_func_timer( gentity_t *self ) {
 
 	if ( self->random >= self->wait ) {
 		self->random = self->wait - sv_frametime.integer;
-		G_Printf( "func_timer at %s has random >= wait\n", vtos( &self->s.origin ) );
+		trap->Print( "func_timer at %s has random >= wait\n", vtos( &self->s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {

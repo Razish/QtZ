@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 
-#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ ri.ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ ri->ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
 static float *TableForFunc( genFunc_t func ) 
 {
@@ -48,7 +48,7 @@ static float *TableForFunc( genFunc_t func )
 		break;
 	}
 
-	ri.Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'", func, tess.shader->name );
+	ri->Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'", func, tess.shader->name );
 	return NULL;
 }
 
@@ -356,9 +356,9 @@ static void AutospriteDeform( void ) {
 	vector3	leftDir, upDir;
 
 	if ( tess.numVertexes & 3 )
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count\n", tess.shader->name );
+		ri->Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count\n", tess.shader->name );
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 )
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count\n", tess.shader->name );
+		ri->Printf( PRINT_WARNING, "Autosprite shader %s had odd index count\n", tess.shader->name );
 
 	oldVerts = tess.numVertexes;
 	tess.numVertexes = 0;
@@ -431,9 +431,9 @@ static void Autosprite2Deform( void ) {
 	vector3	forward;
 
 	if ( tess.numVertexes & 3 )
-		ri.Printf( PRINT_WARNING, "Autosprite2 shader %s had odd vertex count", tess.shader->name );
+		ri->Printf( PRINT_WARNING, "Autosprite2 shader %s had odd vertex count", tess.shader->name );
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 )
-		ri.Printf( PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.shader->name );
+		ri->Printf( PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.shader->name );
 
 	if ( backEnd.currentEntity != &tr.worldEntity ) {
 		GlobalVectorToLocal( &backEnd.viewParms.or.axis[0], &forward );
@@ -691,7 +691,7 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 		glow = 1;
 	}
 
-	v = ri.ftol(255 * glow);
+	v = ri->ftol(255 * glow);
 	color[0] = color[1] = color[2] = v;
 	color[3] = 255;
 	v = *(int *)color;
@@ -1168,9 +1168,9 @@ static void RB_CalcDiffuseColor_scalar( unsigned char *colors )
 			*(int *)&colors[i*4] = ambientLightInt;
 			continue;
 		}
-		colors[i*4+0] = Q_clampi( 0, ri.ftol( ambientLight.r + incoming * directedLight.r ), 255 );
-		colors[i*4+1] = Q_clampi( 0, ri.ftol( ambientLight.g + incoming * directedLight.g ), 255 );
-		colors[i*4+2] = Q_clampi( 0, ri.ftol( ambientLight.b + incoming * directedLight.b ), 255 );
+		colors[i*4+0] = Q_clampi( 0, ri->ftol( ambientLight.r + incoming * directedLight.r ), 255 );
+		colors[i*4+1] = Q_clampi( 0, ri->ftol( ambientLight.g + incoming * directedLight.g ), 255 );
+		colors[i*4+2] = Q_clampi( 0, ri->ftol( ambientLight.b + incoming * directedLight.b ), 255 );
 		colors[i*4+3] = 255;
 	}
 }

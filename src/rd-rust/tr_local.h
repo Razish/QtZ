@@ -803,7 +803,7 @@ void		R_ModelBounds( qhandle_t handle, vector3 *mins, vector3 *maxs );
 void		R_Modellist_f (void);
 
 //====================================================
-extern	refimport_t		ri;
+extern	refimport_t		*ri;
 
 #define	MAX_DRAWIMAGES			2048
 #define	MAX_SKINS				1024

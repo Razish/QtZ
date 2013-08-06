@@ -123,7 +123,7 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 	w = width * scale;
 	h = height * scale;
 	CG_AdjustFrom640( &x, &y, &w, &h );
-	cgi.R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
+	trap->R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
 }
 
 void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *text, float adjust, int limit, int style) {
@@ -142,7 +142,7 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 		// TTimo: FIXME
 		//		const unsigned char *s = text;
 		const char *s = text;
-		cgi.R_SetColor( color );
+		trap->R_SetColor( color );
 		memcpy(&newColor, color, sizeof(vector4));
 		len = strlen(text);
 		if (limit > 0 && len > limit) {
@@ -156,7 +156,7 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 			if ( Q_IsColorString( s ) ) {
 				memcpy( &newColor, &g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
 				newColor.a = color->a;
-				cgi.R_SetColor( &newColor );
+				trap->R_SetColor( &newColor );
 				s += 2;
 				continue;
 			} else {
@@ -164,7 +164,7 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack.a = newColor.a;
-					cgi.R_SetColor( &colorBlack );
+					trap->R_SetColor( &colorBlack );
 					CG_Text_PaintChar(x + ofs, y - yadj + ofs, 
 						(float)glyph->imageWidth,
 						(float)glyph->imageHeight,
@@ -175,7 +175,7 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 						glyph->t2,
 						glyph->glyph);
 					colorBlack.a = 1.0;
-					cgi.R_SetColor( &newColor );
+					trap->R_SetColor( &newColor );
 				}
 				CG_Text_PaintChar(x, y - yadj, 
 					(float)glyph->imageWidth,
@@ -192,7 +192,7 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 				count++;
 			}
 		}
-		cgi.R_SetColor( NULL );
+		trap->R_SetColor( NULL );
 	}
 }
 
@@ -300,9 +300,9 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 
 	refdef.time = cg.time;
 
-	cgi.R_ClearScene();
-	cgi.R_AddRefEntityToScene( &ent );
-	cgi.R_RenderScene( &refdef );
+	trap->R_ClearScene();
+	trap->R_AddRefEntityToScene( &ent );
+	trap->R_RenderScene( &refdef );
 }
 
 /*
@@ -328,7 +328,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vector3 *he
 		}
 
 		// offset the origin y and z to center the head
-		cgi.R_ModelBounds( cm, &mins, &maxs );
+		trap->R_ModelBounds( cm, &mins, &maxs );
 
 		origin.z = -0.5f * ( mins.z + maxs.z );
 		origin.y =  0.5f * ( mins.y + maxs.y );
@@ -373,7 +373,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 		cm = cgs.media.redFlagModel;
 
 		// offset the origin y and z to center the flag
-		cgi.R_ModelBounds( cm, &mins, &maxs );
+		trap->R_ModelBounds( cm, &mins, &maxs );
 
 		origin.z = -0.5f * ( mins.z + maxs.z );
 		origin.y =  0.5f * ( mins.y + maxs.y );
@@ -507,9 +507,9 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 	} else {
 		return;
 	}
-	cgi.R_SetColor( &hcolor );
+	trap->R_SetColor( &hcolor );
 	CG_DrawPic( (float)x, (float)y, (float)w, (float)h, cgs.media.teamStatusBar );
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 /*
@@ -593,10 +593,10 @@ static void CG_DrawStatusBar( void ) {
 					color = 1;	// red
 				}
 			}
-			cgi.R_SetColor( colors[color] );
+			trap->R_SetColor( colors[color] );
 			
 			CG_DrawField (0, 432, 3, value);
-			cgi.R_SetColor( NULL );
+			trap->R_SetColor( NULL );
 
 			// if we didn't draw a 3D icon, draw a 2D icon for ammo
 			if ( !cg_draw3dIcons.boolean && cg_drawIcons.boolean ) {
@@ -615,20 +615,20 @@ static void CG_DrawStatusBar( void ) {
 	//
 	value = ps->stats[STAT_HEALTH];
 	if ( value > 100 ) {
-		cgi.R_SetColor( colors[3] );		// white
+		trap->R_SetColor( colors[3] );		// white
 	} else if (value > 25) {
-		cgi.R_SetColor( colors[0] );	// green
+		trap->R_SetColor( colors[0] );	// green
 	} else if (value > 0) {
 		color = (cg.time >> 8) & 1;	// flash
-		cgi.R_SetColor( colors[color] );
+		trap->R_SetColor( colors[color] );
 	} else {
-		cgi.R_SetColor( colors[1] );	// red
+		trap->R_SetColor( colors[1] );	// red
 	}
 
 	// stretch the health up when taking damage
 	CG_DrawField ( 185, 432, 3, value);
 	CG_ColorForHealth( hcolor );
-	cgi.R_SetColor( hcolor );
+	trap->R_SetColor( hcolor );
 
 
 	//
@@ -636,9 +636,9 @@ static void CG_DrawStatusBar( void ) {
 	//
 	value = ps->stats[STAT_ARMOR];
 	if (value > 0 ) {
-		cgi.R_SetColor( colors[0] );
+		trap->R_SetColor( colors[0] );
 		CG_DrawField (370, 432, 3, value);
-		cgi.R_SetColor( NULL );
+		trap->R_SetColor( NULL );
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
 		if ( !cg_draw3dIcons.boolean && cg_drawIcons.boolean ) {
 			CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
@@ -741,7 +741,7 @@ static float CG_DrawFPS( float y ) {
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
-	t = cgi.Milliseconds();
+	t = trap->Milliseconds();
 	frameTime = t - previous;
 	previous = t;
 
@@ -786,7 +786,7 @@ static float CG_DrawFPS( float y ) {
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
-	t = cgi.Milliseconds();
+	t = trap->Milliseconds();
 	frameTime = t - previous;
 	previous = t;
 	if ( t - lastupdate > 50 ) {// don't sample faster than this
@@ -943,9 +943,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 		hcolor.b = 1.0f;
 		hcolor.a = 0.33f;
 	}
-	cgi.R_SetColor( &hcolor );
+	trap->R_SetColor( &hcolor );
 	CG_DrawPic( (float)x, y, (float)w, (float)h, cgs.media.teamStatusBar );
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
@@ -1003,7 +1003,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 					if ( (item=BG_FindItemForPowerup( (powerup_t)pw )) ) {
 						CG_DrawPic( (float)xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
-						cgi.R_RegisterShader( item->icon ) );
+						trap->R_RegisterShader( item->icon ) );
 						if ( right )	xx -= TINYCHAR_WIDTH;
 						else			xx += TINYCHAR_WIDTH;
 					}
@@ -1249,19 +1249,19 @@ static float CG_DrawPowerups( float y ) {
 
 		  y -= ICON_SIZE;
 
-		  cgi.R_SetColor( colors[color] );
+		  trap->R_SetColor( colors[color] );
 		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000 );
 
 		  t = ps->powerups[ sorted[i] ];
 		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
-			  cgi.R_SetColor( NULL );
+			  trap->R_SetColor( NULL );
 		  } else {
 			  vector4	modulate;
 
 			  f = (float)( t - cg.time ) / POWERUP_BLINK_TIME;
 			  f -= (int)f;
 			  modulate[0] = modulate[1] = modulate[2] = modulate[3] = f;
-			  cgi.R_SetColor( modulate );
+			  trap->R_SetColor( modulate );
 		  }
 
 		  if ( cg.powerupActive == sorted[i] && 
@@ -1273,10 +1273,10 @@ static float CG_DrawPowerups( float y ) {
 		  }
 
 		  CG_DrawPic( SCREEN_WIDTH - size, y + ICON_SIZE / 2 - size / 2, 
-			  size, size, cgi.R_RegisterShader( item->icon ) );
+			  size, size, trap->R_RegisterShader( item->icon ) );
     }
 	}
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 
 	return y;
 }
@@ -1324,10 +1324,10 @@ static int CG_DrawPickupItem( int y ) {
 		fadeColor = CG_FadeColor( cg.itemPickupTime, 3000 );
 		if ( fadeColor ) {
 			CG_RegisterItemVisuals( value );
-			cgi.R_SetColor( fadeColor );
+			trap->R_SetColor( fadeColor );
 			CG_DrawPic( 8, y, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
 			CG_DrawBigString( ICON_SIZE + 16, y + (ICON_SIZE/2 - BIGCHAR_HEIGHT/2), bg_itemlist[ value ].pickup_name, fadeColor[0] );
-			cgi.R_SetColor( NULL );
+			trap->R_SetColor( NULL );
 		}
 	}
 	
@@ -1405,9 +1405,9 @@ static void CG_DrawTeamInfo( void ) {
 			hcolor[3] = 0.33f;
 		}
 
-		cgi.R_SetColor( hcolor );
+		trap->R_SetColor( hcolor );
 		CG_DrawPic( CHATLOC_X, CHATLOC_Y - h, SCREEN_WIDTH, h, cgs.media.teamStatusBar );
-		cgi.R_SetColor( NULL );
+		trap->R_SetColor( NULL );
 
 		hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
 		hcolor[3] = 1.0f;
@@ -1466,13 +1466,13 @@ static void CG_DrawReward( void ) {
 			cg.rewardTime = cg.time;
 			cg.rewardStack--;
 			color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
-			cgi.S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
+			trap->S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
 		} else {
 			return;
 		}
 	}
 
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	/*
 	count = cg.rewardCount[0]/10;				// number of big rewards to draw
@@ -1509,7 +1509,7 @@ static void CG_DrawReward( void ) {
 			x += ICON_SIZE;
 		}
 	}
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 
@@ -1596,8 +1596,8 @@ static void CG_DrawDisconnect( void ) {
 //		return;
 
 	// draw the phone jack if we are completely past our buffers
-	cmdNum = cgi.GetCurrentCmdNumber() - CMD_BACKUP + 1;
-	cgi.GetUserCmd( cmdNum, &cmd );
+	cmdNum = trap->GetCurrentCmdNumber() - CMD_BACKUP + 1;
+	trap->GetUserCmd( cmdNum, &cmd );
 	if ( cmd.serverTime <= cg.snap->ps.commandTime
 		|| cmd.serverTime > cg.time ) {	// special check for map_restart
 		return;
@@ -1616,7 +1616,7 @@ static void CG_DrawDisconnect( void ) {
 	x = SCREEN_WIDTH - ICON_SIZE;
 	y = SCREEN_HEIGHT - ICON_SIZE;
 
-	CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cgi.R_RegisterShader("gfx/2d/net.tga" ) );
+	CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, trap->R_RegisterShader("gfx/2d/net.tga" ) );
 }
 
 
@@ -1651,7 +1651,7 @@ static void CG_DrawLagometer( void ) {
 	y = (int)SCREEN_HEIGHT - ICON_SIZE-96;
 #endif // QTZRELIC
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 	CG_DrawPic( (float)x, (float)y, (float)ICON_SIZE, (float)ICON_SIZE, cgs.media.lagometerShader );
 
 	ax = (float)x;
@@ -1674,22 +1674,22 @@ static void CG_DrawLagometer( void ) {
 		if ( v > 0 ) {
 			if ( color != 1 ) {
 				color = 1;
-				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
+				trap->R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
 			}
 			if ( v > range ) {
 				v = range;
 			}
-			cgi.R_DrawStretchPic ( ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+			trap->R_DrawStretchPic ( ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
 		} else if ( v < 0 ) {
 			if ( color != 2 ) {
 				color = 2;
-				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_BLUE)] );
+				trap->R_SetColor( &g_color_table[ColorIndex(COLOR_BLUE)] );
 			}
 			v = -v;
 			if ( v > range ) {
 				v = range;
 			}
-			cgi.R_DrawStretchPic( ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+			trap->R_DrawStretchPic( ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
 		}
 	}
 
@@ -1704,29 +1704,29 @@ static void CG_DrawLagometer( void ) {
 			if ( lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED ) {
 				if ( color != 5 ) {
 					color = 5;	// YELLOW for rate delay
-					cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
+					trap->R_SetColor( &g_color_table[ColorIndex(COLOR_YELLOW)] );
 				}
 			} else {
 				if ( color != 3 ) {
 					color = 3;
-					cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
+					trap->R_SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
 				}
 			}
 			v = v * vscale;
 			if ( v > range ) {
 				v = range;
 			}
-			cgi.R_DrawStretchPic( ax + aw - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+			trap->R_DrawStretchPic( ax + aw - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
 		} else if ( v < 0 ) {
 			if ( color != 4 ) {
 				color = 4;		// RED for dropped snapshots
-				cgi.R_SetColor( &g_color_table[ColorIndex(COLOR_RED)] );
+				trap->R_SetColor( &g_color_table[ColorIndex(COLOR_RED)] );
 			}
-			cgi.R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
+			trap->R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
 		}
 	}
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 
 	if ( bg_synchronousClients.boolean ) {
 		CG_DrawBigString( x, y, "snc", 1.0 );
@@ -1795,7 +1795,7 @@ static void CG_DrawCenterString( void ) {
 		return;
 	}
 
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	start = cg.centerPrint;
 
@@ -1837,7 +1837,7 @@ static void CG_DrawCenterString( void ) {
 		start++;
 	}
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 
@@ -1885,11 +1885,11 @@ static void CG_DrawCrosshair(void)
 			if ( cdmax < 0.2f )
 				colour.a = finalFade;
 
-			cgi.R_SetColor( &colour );
+			trap->R_SetColor( &colour );
 			if ( angle/360.0f < cdmax )
 				CG_DrawRotatePic2( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic );
 		}
-		cgi.R_SetColor( NULL );
+		trap->R_SetColor( NULL );
 	}
 
 	// set color based on health
@@ -1904,7 +1904,7 @@ static void CG_DrawCrosshair(void)
 		finalColour.b = LERP2( cg.crosshair.feedbackColor.b/255.0f, cg.crosshair.baseColor.b/255.0f, point );
 		finalColour.a = 1.0f;
 	}
-	cgi.R_SetColor( &finalColour );
+	trap->R_SetColor( &finalColour );
 
 	w = h = cg_crosshairSize.value;
 
@@ -1933,9 +1933,9 @@ static void CG_DrawCrosshair(void)
 
 	for ( i=0; i<NUM_CROSSHAIRS; i++ ) {
 		if ( cg_drawCrosshair.integer & (1<<i) )
-			cgi.R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshair.images[i] );
+			trap->R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshair.images[i] );
 	}
-//	cgi.R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
+//	trap->R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 //		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
 //		w, h, 0, 0, 1, 1, hShader );
 }
@@ -1986,9 +1986,9 @@ static void CG_DrawCrosshair3D(void)
 	// We are going to trace to the next shootable object and place the crosshair in front of it.
 
 	// first get all the important renderer information
-	cgi.Cvar_VariableStringBuffer("r_zProj", rendererinfos, sizeof(rendererinfos));
+	trap->Cvar_VariableStringBuffer("r_zProj", rendererinfos, sizeof(rendererinfos));
 	zProj = (float)atof(rendererinfos);
-	cgi.Cvar_VariableStringBuffer("r_stereoSeparation", rendererinfos, sizeof(rendererinfos));
+	trap->Cvar_VariableStringBuffer("r_stereoSeparation", rendererinfos, sizeof(rendererinfos));
 	stereoSep = zProj / (float)atof(rendererinfos);
 	
 	xmax = zProj * tanf(cg.refdef.fov_x * M_PI / 360.0f);
@@ -2008,7 +2008,7 @@ static void CG_DrawCrosshair3D(void)
 	ent.radius = w / SCREEN_WIDTH * xmax * trace.fraction * maxdist / zProj;
 	ent.customShader = hShader;
 
-	cgi.R_AddRefEntityToScene(&ent);
+	trap->R_AddRefEntityToScene(&ent);
 }
 
 
@@ -2067,7 +2067,7 @@ static void CG_DrawCrosshairNames( void ) {
 	// draw the name of the player being looked at
 	color = CG_FadeColor( cg.crosshairClientTime, 1000 );
 	if ( !color ) {
-		cgi.R_SetColor( NULL );
+		trap->R_SetColor( NULL );
 		return;
 	}
 
@@ -2080,7 +2080,7 @@ static void CG_DrawCrosshairNames( void ) {
 	w = (float)CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( (SCREEN_WIDTH/2) - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #endif // QTZRELIC
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 
@@ -2115,7 +2115,7 @@ static void CG_DrawVote(void) {
 	// play a talk beep whenever it is modified
 	if ( cgs.voteModified ) {
 		cgs.voteModified = qfalse;
-		cgi.S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+		trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 	}
 
 	sec = ( VOTE_TIME - ( cg.time - cgs.voteTime ) ) / 1000;
@@ -2318,13 +2318,13 @@ static void CG_DrawWarmup( void ) {
 		cg.warmupCount = sec;
 		switch ( sec ) {
 		case 0:
-			cgi.S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+			trap->S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
 			break;
 		case 1:
-			cgi.S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+			trap->S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
 			break;
 		case 2:
-			cgi.S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+			trap->S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
 			break;
 		default:
 			break;
@@ -2361,7 +2361,7 @@ void CG_DrawTimedMenus( void ) {
 		int t = cg.time - cg.voiceTime;
 		if ( t > 2500 ) {
 			Menus_CloseByName("voiceMenu");
-			cgi.Cvar_Set("cl_conXOffset", "0");
+			trap->Cvar_Set("cl_conXOffset", "0");
 			cg.voiceTime = 0;
 		}
 	}
@@ -2486,7 +2486,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		CG_DrawCrosshair3D();
 
 	// draw 3D view
-	cgi.R_RenderScene( &cg.refdef );
+	trap->R_RenderScene( &cg.refdef );
 
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);

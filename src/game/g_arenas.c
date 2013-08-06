@@ -117,5 +117,5 @@ void UpdateTournamentInfo( void ) {
 		}
 		strcat( msg, buf );
 	}
-	gi.Cbuf_ExecuteText( EXEC_APPEND, msg );
+	trap->Cbuf_ExecuteText( EXEC_APPEND, msg );
 }

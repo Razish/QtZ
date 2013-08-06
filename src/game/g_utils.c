@@ -90,7 +90,7 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create ) {
 	}
 
 	for ( i=1 ; i<max ; i++ ) {
-		gi.SV_GetConfigstring( start + i, s, sizeof( s ) );
+		trap->SV_GetConfigstring( start + i, s, sizeof( s ) );
 		if ( !s[0] ) {
 			break;
 		}
@@ -104,10 +104,10 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create ) {
 	}
 
 	if ( i == max ) {
-		G_Error( "G_FindConfigstringIndex: overflow" );
+		trap->Error( ERR_DROP, "G_FindConfigstringIndex: overflow" );
 	}
 
-	gi.SV_SetConfigstring( start + i, name );
+	trap->SV_SetConfigstring( start + i, name );
 
 	return i;
 }
@@ -137,7 +137,7 @@ void G_TeamCommand( team_t team, char *cmd ) {
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 			if ( level.clients[i].sess.sessionTeam == team ) {
-				gi.SV_GameSendServerCommand( i, va("%s", cmd ));
+				trap->SV_GameSendServerCommand( i, va("%s", cmd ));
 			}
 		}
 	}
@@ -197,7 +197,7 @@ gentity_t *G_PickTarget (char *targetname)
 
 	if (!targetname)
 	{
-		G_Printf("G_PickTarget called with NULL targetname\n");
+		trap->Print("G_PickTarget called with NULL targetname\n");
 		return NULL;
 	}
 
@@ -213,7 +213,7 @@ gentity_t *G_PickTarget (char *targetname)
 
 	if (!num_choices)
 	{
-		G_Printf("G_PickTarget: target %s not found\n", targetname);
+		trap->Print("G_PickTarget: target %s not found\n", targetname);
 		return NULL;
 	}
 
@@ -242,7 +242,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	if (ent->targetShaderName && ent->targetShaderNewName) {
 		float f = level.time * 0.001f;
 		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
-		gi.SV_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
+		trap->SV_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 	}
 
 	if ( !ent->target ) {
@@ -252,14 +252,14 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	t = NULL;
 	while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) {
 		if ( t == ent ) {
-			G_Printf ("WARNING: Entity used itself.\n");
+			trap->Print ("WARNING: Entity used itself.\n");
 		} else {
 			if ( t->use ) {
 				t->use (t, ent, activator);
 			}
 		}
 		if ( !ent->inuse ) {
-			G_Printf("entity was removed while using targets\n");
+			trap->Print("entity was removed while using targets\n");
 			return;
 		}
 	}
@@ -367,16 +367,16 @@ gentity_t *G_Spawn( void ) {
 	}
 	if ( i == ENTITYNUM_MAX_NORMAL ) {
 		for (i = 0; i < MAX_GENTITIES; i++) {
-			G_Printf("%4i: %s\n", i, g_entities[i].classname);
+			trap->Print("%4i: %s\n", i, g_entities[i].classname);
 		}
-		G_Error( "G_Spawn: no free entities" );
+		trap->Error( ERR_DROP, "G_Spawn: no free entities" );
 	}
 	
 	// open up a new slot
 	level.num_entities++;
 
 	// let the server system know that there are more entities
-	gi.SV_LocateGameData( (sharedEntity_t *)level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap->SV_LocateGameData( (sharedEntity_t *)level.gentities, level.num_entities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );
@@ -412,7 +412,7 @@ Marks the entity as free
 =================
 */
 void G_FreeEntity( gentity_t *ed ) {
-	gi.SV_UnlinkEntity ((sharedEntity_t *)ed);		// unlink from world
+	trap->SV_UnlinkEntity ((sharedEntity_t *)ed);		// unlink from world
 
 	if ( ed->neverFree ) {
 		return;
@@ -449,7 +449,7 @@ gentity_t *G_TempEntity( vector3 *origin, int event ) {
 	G_SetOrigin( e, &snapped );
 
 	// find cluster for PVS
-	gi.SV_LinkEntity( (sharedEntity_t *)e );
+	trap->SV_LinkEntity( (sharedEntity_t *)e );
 
 	return e;
 }
@@ -480,7 +480,7 @@ void G_KillBox (gentity_t *ent) {
 
 	VectorAdd( &ent->client->ps.origin, &ent->r.mins, &mins );
 	VectorAdd( &ent->client->ps.origin, &ent->r.maxs, &maxs );
-	num = gi.SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
+	num = trap->SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
@@ -524,7 +524,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 	int		bits;
 
 	if ( !event ) {
-		G_Printf( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
+		trap->Print( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
 		return;
 	}
 
@@ -611,5 +611,5 @@ int DebugLine(vector3 *start, vector3 *end, int color) {
 	VectorMA(&points[2], -2, &cross, &points[2]);
 	VectorMA(&points[3],  2, &cross, &points[3]);
 
-	return gi.DebugPolygonCreate(color, 4, points);
+	return trap->DebugPolygonCreate(color, 4, points);
 }

@@ -86,7 +86,7 @@ qboolean SpotWouldTelefrag( gentity_t *spot ) {
 
 	VectorAdd( &spot->s.origin, &playerMins, &mins );
 	VectorAdd( &spot->s.origin, &playerMaxs, &maxs );
-	num = gi.SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
+	num = trap->SV_AreaEntities( &mins, &maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
@@ -240,7 +240,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vector3 *avoidPoint, vector3 *origin
 		spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
 
 		if (!spot)
-			G_Error( "Couldn't find a spawn point" );
+			trap->Error( ERR_DROP, "Couldn't find a spawn point" );
 
 		VectorCopy (&spot->s.origin, origin);
 		origin->z += 9;
@@ -286,7 +286,7 @@ gentity_t *SelectSpawnPoint ( vector3 *avoidPoint, vector3 *origin, vector3 *ang
 
 	// find a single player start spot
 	if (!spot) {
-		G_Error( "Couldn't find a spawn point" );
+		trap->Error( ERR_DROP, "Couldn't find a spawn point" );
 	}
 
 	VectorCopy (spot->s.origin, origin);
@@ -383,7 +383,7 @@ After sitting around for five seconds, fall into the ground and dissapear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
-		gi.SV_UnlinkEntity( (sharedEntity_t *)ent );
+		trap->SV_UnlinkEntity( (sharedEntity_t *)ent );
 		ent->physicsObject = qfalse;
 		return;	
 	}
@@ -403,10 +403,10 @@ void CopyToBodyQue( gentity_t *ent ) {
 	gentity_t		*body;
 	int			contents;
 
-	gi.SV_UnlinkEntity ((sharedEntity_t *)ent);
+	trap->SV_UnlinkEntity ((sharedEntity_t *)ent);
 
 	// if client is in a nodrop area, don't leave the body
-	contents = gi.SV_PointContents( &ent->s.origin, -1 );
+	contents = trap->SV_PointContents( &ent->s.origin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		return;
 	}
@@ -474,7 +474,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 
 	VectorCopy ( &body->s.pos.trBase, &body->r.currentOrigin );
-	gi.SV_LinkEntity ((sharedEntity_t *)body);
+	trap->SV_LinkEntity ((sharedEntity_t *)body);
 }
 
 //======================================================================
@@ -674,7 +674,7 @@ ClientUserInfoChanged
 Called from ClientConnect when the player first connects and
 directly by the server system when the player updates a userinfo variable.
 
-The game can override any of the settings and call gi.SV_SetUserinfo
+The game can override any of the settings and call trap->SV_SetUserinfo
 if desired.
 ============
 */
@@ -694,14 +694,14 @@ void ClientUserinfoChanged( int clientNum ) {
 	ent = g_entities + clientNum;
 	client = ent->client;
 
-	gi.SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	trap->SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	//QTZTODO: Userinfo validation ala JA++
 	// check for malformed or illegal info strings
 	if ( !Info_Validate(userinfo) ) {
 		strcpy (userinfo, "\\name\\badinfo");
 		// don't keep those clients and userinfo
-		gi.SV_GameDropClient(clientNum, "Invalid userinfo");
+		trap->SV_GameDropClient(clientNum, "Invalid userinfo");
 	}
 
 	// check for local client
@@ -731,7 +731,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( client->pers.connected == CON_CONNECTED ) {
 		if ( strcmp( oldname, client->pers.netname ) ) {
-			gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
+			trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
 				client->pers.netname) );
 		}
 	}
@@ -795,7 +795,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
-	gi.SV_SetConfigstring( CS_PLAYERS+clientNum, s );
+	trap->SV_SetConfigstring( CS_PLAYERS+clientNum, s );
 
 	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
@@ -832,7 +832,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	ent = &g_entities[ clientNum ];
 
-	gi.SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	trap->SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
  	// IP filtering
  	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
@@ -890,7 +890,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
-		gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
+		trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
 	}
 
 	if ( level.gametype >= GT_TEAM &&
@@ -904,7 +904,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// for statistics
 //	client->areabits = areabits;
 //	if ( !client->areabits )
-//		client->areabits = G_Alloc( (gi.aas->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
+//		client->areabits = G_Alloc( (trap->aas->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }
@@ -928,7 +928,7 @@ void ClientBegin( int clientNum ) {
 	client = level.clients + clientNum;
 
 	if ( ent->r.linked ) {
-		gi.SV_UnlinkEntity( (sharedEntity_t *)ent );
+		trap->SV_UnlinkEntity( (sharedEntity_t *)ent );
 	}
 	G_InitGentity( ent );
 	ent->touch = 0;
@@ -953,7 +953,7 @@ void ClientBegin( int clientNum ) {
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( level.gametype != GT_DUEL  ) {
-			gi.SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
+			trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
@@ -1065,7 +1065,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->airOutTime = level.time + 12000;
 
-	gi.SV_GetUserinfo( index, userinfo, sizeof(userinfo) );
+	trap->SV_GetUserinfo( index, userinfo, sizeof(userinfo) );
 
 	// clear entity values
 	client->ps.eFlags = flags;
@@ -1105,7 +1105,7 @@ void ClientSpawn(gentity_t *ent) {
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
-	gi.SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	trap->SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, &spawn_angles );
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1142,7 +1142,7 @@ void ClientSpawn(gentity_t *ent) {
 			tent = G_TempEntity(&ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 			tent->s.clientNum = ent->s.clientNum;
 
-			gi.SV_LinkEntity ((sharedEntity_t *)ent);
+			trap->SV_LinkEntity ((sharedEntity_t *)ent);
 		}
 	} else {
 		// move players to intermission
@@ -1170,11 +1170,11 @@ void G_ClearVote( gentity_t *ent ) {
 	if ( ent->client->gameFlags & GF_VOTED ) {
 		if ( ent->client->pers.vote == 1 ) {
 			level.voteYes--;
-			gi.SV_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
+			trap->SV_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
 		}
 		else if ( ent->client->pers.vote == 2 ) {
 			level.voteNo--;
-			gi.SV_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
+			trap->SV_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
 		}
 	}
 	ent->client->gameFlags &= ~(GF_VOTED);
@@ -1189,7 +1189,7 @@ Called when a player drops from the server.
 Will not be called between levels.
 
 This should NOT be called directly by any game logic,
-call gi.SV_GameDropClient(), which will call this and do
+call trap->SV_GameDropClient(), which will call this and do
 server system housekeeping.
 ============
 */
@@ -1268,13 +1268,13 @@ void ClientDisconnect( int clientNum ) {
 	if( level.gametype == GT_DUEL && ent->client->sess.sessionTeam == TEAM_FREE &&
 		level.intermissiontime ) {
 
-		gi.Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
+		trap->Cbuf_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
 		level.restarted = qtrue;
 		level.changemap = NULL;
 		level.intermissiontime = 0;
 	}
 
-	gi.SV_UnlinkEntity ((sharedEntity_t *)ent);
+	trap->SV_UnlinkEntity ((sharedEntity_t *)ent);
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
@@ -1285,7 +1285,7 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearVote( ent );
 
-	gi.SV_SetConfigstring( CS_PLAYERS + clientNum, "");
+	trap->SV_SetConfigstring( CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
 

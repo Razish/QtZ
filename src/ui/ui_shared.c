@@ -23,6 +23,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // string allocation/managment
 
 #include "ui_shared.h"
+#ifdef PROJECT_CGAME
+	#include "cgame/cg_local.h"
+#elif PROJECT_UI
+	#include "ui/ui_local.h"
+#endif
 
 #define SCROLL_TIME_START			500
 #define SCROLL_TIME_ADJUST			150
@@ -261,7 +266,7 @@ static __attribute__ ((format (printf, 2, 3))) void PC_SourceWarning(int handle,
 
 	filename[0] = '\0';
 	line = 0;
-	trap_PC_SourceFileAndLine(handle, filename, &line);
+	trap->PC_SourceFileAndLine(handle, filename, &line);
 
 	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
 }
@@ -284,7 +289,7 @@ static __attribute__ ((format (printf, 2, 3))) void PC_SourceError(int handle, c
 
 	filename[0] = '\0';
 	line = 0;
-	trap_PC_SourceFileAndLine(handle, filename, &line);
+	trap->PC_SourceFileAndLine(handle, filename, &line);
 
 	Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
 }
@@ -334,10 +339,10 @@ qboolean PC_Float_Parse(int handle, float *f) {
 	pc_token_t token;
 	int negative = qfalse;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (token.string[0] == '-') {
-		if (!trap_PC_ReadToken(handle, &token))
+		if (!trap->PC_ReadTokenHandle(handle, &token))
 			return qfalse;
 		negative = qtrue;
 	}
@@ -414,10 +419,10 @@ qboolean PC_Int_Parse(int handle, int *i) {
 	pc_token_t token;
 	int negative = qfalse;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (token.string[0] == '-') {
-		if (!trap_PC_ReadToken(handle, &token))
+		if (!trap->PC_ReadTokenHandle(handle, &token))
 			return qfalse;
 		negative = qtrue;
 	}
@@ -491,7 +496,7 @@ PC_String_Parse
 qboolean PC_String_Parse(int handle, const char **out) {
 	pc_token_t token;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 
 	*(out) = String_Alloc(token.string);
@@ -511,14 +516,14 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 	// scripts start with { and have ; separated command lists.. commands are command, arg.. 
 	// basically we want everything between the { } as it will be interpreted at run time
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (Q_stricmp(token.string, "{") != 0) {
 		return qfalse;
 	}
 
 	while ( 1 ) {
-		if (!trap_PC_ReadToken(handle, &token))
+		if (!trap->PC_ReadTokenHandle(handle, &token))
 			return qfalse;
 
 		if (Q_stricmp(token.string, "}") == 0) {
@@ -3139,13 +3144,13 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 				return qtrue;
 			}
 
-			if ( key == K_HOME || key == K_KP_HOME) {// || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == K_HOME || key == K_KP_HOME) {// || ( tolower(key) == 'a' && trap->Key_IsDown( K_CTRL ) ) ) {
 				item->cursorPos = 0;
 				editPtr->paintOffset = 0;
 				return qtrue;
 			}
 
-			if ( key == K_END || key == K_KP_END)  {// ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == K_END || key == K_KP_END)  {// ( tolower(key) == 'e' && trap->Key_IsDown( K_CTRL ) ) ) {
 				item->cursorPos = len;
 				if(item->cursorPos > editPtr->maxPaintChars) {
 					editPtr->paintOffset = len - editPtr->maxPaintChars;
@@ -4183,11 +4188,6 @@ void Item_Text_Paint(itemDef_t *item) {
 	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, &color, textPtr, 0, 0, item->textStyle);
 }
 
-
-
-//float			trap_Cvar_VariableValue( const char *var_name );
-//void			trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
-
 void Item_TextField_Paint(itemDef_t *item) {
 	char buff[1024];
 	vector4 newColor, lowLight;
@@ -4441,17 +4441,17 @@ void Controls_SetConfig(qboolean restart)
 	//if ( s_controls.invertmouse.curvalue )
 	//	DC->setCVar("m_pitch", va("%f),-fabs( DC->getCVarValue( "m_pitch" ) ) );
 	//else
-	//	trap_Cvar_SetValue( "m_pitch", fabs( trap_Cvar_VariableValue( "m_pitch" ) ) );
+	//	trap->Cvar_SetValue( "m_pitch", fabs( trap_Cvar_VariableValue( "m_pitch" ) ) );
 
-	//trap_Cvar_SetValue( "m_filter", s_controls.smoothmouse.curvalue );
-	//trap_Cvar_SetValue( "cl_run", s_controls.alwaysrun.curvalue );
-	//trap_Cvar_SetValue( "cg_autoswitch", s_controls.autoswitch.curvalue );
-	//trap_Cvar_SetValue( "m_sensitivity", s_controls.sensitivity.curvalue );
-	//trap_Cvar_SetValue( "in_joystick", s_controls.joyenable.curvalue );
-	//trap_Cvar_SetValue( "joy_threshold", s_controls.joythreshold.curvalue );
-	//trap_Cvar_SetValue( "cl_freelook", s_controls.freelook.curvalue );
+	//trap->Cvar_SetValue( "m_filter", s_controls.smoothmouse.curvalue );
+	//trap->Cvar_SetValue( "cl_run", s_controls.alwaysrun.curvalue );
+	//trap->Cvar_SetValue( "cg_autoswitch", s_controls.autoswitch.curvalue );
+	//trap->Cvar_SetValue( "m_sensitivity", s_controls.sensitivity.curvalue );
+	//trap->Cvar_SetValue( "in_joystick", s_controls.joyenable.curvalue );
+	//trap->Cvar_SetValue( "joy_threshold", s_controls.joythreshold.curvalue );
+	//trap->Cvar_SetValue( "cl_freelook", s_controls.freelook.curvalue );
 	DC->executeText(EXEC_APPEND, "in_restart\n");
-	//trap_Cmd_ExecuteText( EXEC_APPEND, "in_restart\n" );
+	//trap->Cmd_ExecuteText( EXEC_APPEND, "in_restart\n" );
 }
 
 /*
@@ -6238,7 +6238,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	multiPtr->count = 0;
 	multiPtr->strDef = qtrue;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (*token.string != '{') {
 		return qfalse;
@@ -6246,7 +6246,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 
 	pass = 0;
 	while ( 1 ) {
-		if (!trap_PC_ReadToken(handle, &token)) {
+		if (!trap->PC_ReadTokenHandle(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
@@ -6286,14 +6286,14 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
 	multiPtr->count = 0;
 	multiPtr->strDef = qfalse;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (*token.string != '{') {
 		return qfalse;
 	}
 
 	while ( 1 ) {
-		if (!trap_PC_ReadToken(handle, &token)) {
+		if (!trap->PC_ReadTokenHandle(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
@@ -6479,13 +6479,13 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 	keywordHash_t *key;
 
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (*token.string != '{') {
 		return qfalse;
 	}
 	while ( 1 ) {
-		if (!trap_PC_ReadToken(handle, &token)) {
+		if (!trap->PC_ReadTokenHandle(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
@@ -7088,7 +7088,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 	pc_token_t token;
 	keywordHash_t *key;
 
-	if (!trap_PC_ReadToken(handle, &token))
+	if (!trap->PC_ReadTokenHandle(handle, &token))
 		return qfalse;
 	if (*token.string != '{') {
 		return qfalse;
@@ -7097,7 +7097,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 	while ( 1 ) {
 
 		memset(&token, 0, sizeof(pc_token_t));
-		if (!trap_PC_ReadToken(handle, &token)) {
+		if (!trap->PC_ReadTokenHandle(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu");
 			return qfalse;
 		}

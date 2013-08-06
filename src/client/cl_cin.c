@@ -1439,7 +1439,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	if (cinTable[currentHandle].alterGameState) {
 		// close the menu
 		if ( cls.uiStarted )
-			uie.SetActiveMenu( UIMENU_NONE );
+			ui->SetActiveMenu( UIMENU_NONE );
 	} else {
 		cinTable[currentHandle].playonwalls = cl_inGameVideo->integer;
 	}
@@ -1576,13 +1576,13 @@ void CIN_DrawCinematic (int handle) {
 
 		CIN_ResampleCinematic(handle, buf2);
 
-		re.DrawStretchRaw( (int)x, (int)y, (int)w, (int)h, 256, 256, (byte *)buf2, handle, qtrue);
+		re->DrawStretchRaw( (int)x, (int)y, (int)w, (int)h, 256, 256, (byte *)buf2, handle, qtrue);
 		cinTable[handle].dirty = qfalse;
 		Hunk_FreeTempMemory(buf2);
 		return;
 	}
 
-	re.DrawStretchRaw( (int)x, (int)y, (int)w, (int)h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty);
+	re->DrawStretchRaw( (int)x, (int)y, (int)w, (int)h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty);
 	cinTable[handle].dirty = qfalse;
 }
 
@@ -1665,12 +1665,12 @@ void CIN_UploadCinematic(int handle) {
 
 			CIN_ResampleCinematic(handle, buf2);
 
-			re.UploadCinematic( cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, 256, 256, (byte *)buf2, handle, qtrue);
+			re->UploadCinematic( cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, 256, 256, (byte *)buf2, handle, qtrue);
 			cinTable[handle].dirty = qfalse;
 			Hunk_FreeTempMemory(buf2);
 		} else {
 			// Upload video at normal resolution
-			re.UploadCinematic( cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, cinTable[handle].drawX, cinTable[handle].drawY,
+			re->UploadCinematic( cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, cinTable[handle].drawX, cinTable[handle].drawY,
 				cinTable[handle].buf, handle, cinTable[handle].dirty);
 			cinTable[handle].dirty = qfalse;
 		}

@@ -61,7 +61,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	for (i = 0; i < 10; i++) {
 		VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
 
-		gi.SV_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+		trap->SV_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
 		// if not the first trace (the lightning bounced of an invulnerability sphere)
 		if (i) {
@@ -264,7 +264,7 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 
 	VectorMA( &start, (float)range, &forward, &end );
 
-	gi.SV_Trace( &trace, &muzzle, &mins, &maxs, &end, ent->s.number, MASK_SHOT );
+	trap->SV_Trace( &trace, &muzzle, &mins, &maxs, &end, ent->s.number, MASK_SHOT );
 
 	if ( trace.entityNum == ENTITYNUM_NONE )
 	{
@@ -382,7 +382,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	while ( traces )
 	{
 		VectorMA( &start, (float)range, &forward, &end );
-		gi.SV_Trace( &tr, &start, &mins, &maxs, &end, ignore, MASK_SHOT );
+		trap->SV_Trace( &tr, &start, &mins, &maxs, &end, ignore, MASK_SHOT );
 
 		traceEnt = &g_entities[tr.entityNum];
 

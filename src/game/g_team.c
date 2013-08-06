@@ -97,7 +97,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	
 	va_start (argptr,fmt);
 	if (Q_vsnprintf (msg, sizeof(msg), fmt, argptr) >= sizeof(msg)) {
-		G_Error ( "PrintMsg overrun" );
+		trap->Error ( ERR_DROP, "PrintMsg overrun" );
 	}
 	va_end (argptr);
 
@@ -105,7 +105,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	while ((p = strchr(msg, '"')) != NULL)
 		*p = '\'';
 
-	gi.SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
+	trap->SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
 }
 
 /*
@@ -219,7 +219,7 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 			st[1] = 0;
 		}
 
-		gi.SV_SetConfigstring( CS_FLAGSTATUS, st );
+		trap->SV_SetConfigstring( CS_FLAGSTATUS, st );
 	}
 }
 
@@ -393,9 +393,9 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	VectorSubtract(&attacker->r.currentOrigin, &flag->r.currentOrigin, &v2);
 
 	if ( ( ( VectorLength(&v1) < CTF_TARGET_PROTECT_RADIUS &&
-		gi.SV_InPVS(&flag->r.currentOrigin, &targ->r.currentOrigin ) ) ||
+		trap->SV_InPVS(&flag->r.currentOrigin, &targ->r.currentOrigin ) ) ||
 		( VectorLength(&v2) < CTF_TARGET_PROTECT_RADIUS &&
-		gi.SV_InPVS(&flag->r.currentOrigin, &attacker->r.currentOrigin ) ) ) &&
+		trap->SV_InPVS(&flag->r.currentOrigin, &attacker->r.currentOrigin ) ) ) &&
 		attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam) {
 
 		// we defended the base flag
@@ -416,9 +416,9 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		VectorSubtract(&attacker->r.currentOrigin, &carrier->r.currentOrigin, &v1);
 
 		if ( ( ( VectorLength(&v1) < CTF_ATTACKER_PROTECT_RADIUS &&
-			gi.SV_InPVS(&carrier->r.currentOrigin, &targ->r.currentOrigin ) ) ||
+			trap->SV_InPVS(&carrier->r.currentOrigin, &targ->r.currentOrigin ) ) ||
 			( VectorLength(&v2) < CTF_ATTACKER_PROTECT_RADIUS &&
-				gi.SV_InPVS(&carrier->r.currentOrigin, &attacker->r.currentOrigin ) ) ) &&
+				trap->SV_InPVS(&carrier->r.currentOrigin, &attacker->r.currentOrigin ) ) ) &&
 			attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam) {
 			AddScore(attacker, &targ->r.currentOrigin, CTF_CARRIER_PROTECT_BONUS);
 			attacker->client->pers.teamState.carrierdefense++;
@@ -508,7 +508,7 @@ void Team_ReturnFlagSound( gentity_t *ent, int team ) {
 	gentity_t	*te;
 
 	if (ent == NULL) {
-		G_Printf ("Warning:  NULL passed to Team_ReturnFlagSound\n");
+		trap->Print ("Warning:  NULL passed to Team_ReturnFlagSound\n");
 		return;
 	}
 
@@ -526,7 +526,7 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 	gentity_t	*te;
 
 	if (ent == NULL) {
-		G_Printf ("Warning:  NULL passed to Team_TakeFlagSound\n");
+		trap->Print ("Warning:  NULL passed to Team_TakeFlagSound\n");
 		return;
 	}
 
@@ -564,7 +564,7 @@ void Team_CaptureFlagSound( gentity_t *ent, int team ) {
 	gentity_t	*te;
 
 	if (ent == NULL) {
-		G_Printf ("Warning:  NULL passed to Team_CaptureFlagSound\n");
+		trap->Print ("Warning:  NULL passed to Team_CaptureFlagSound\n");
 		return;
 	}
 
@@ -834,7 +834,7 @@ gentity_t *Team_GetLocation(gentity_t *ent)
 			continue;
 		}
 
-		if ( !gi.SV_InPVS( &origin, &eloc->r.currentOrigin ) ) {
+		if ( !trap->SV_InPVS( &origin, &eloc->r.currentOrigin ) ) {
 			continue;
 		}
 
@@ -1036,7 +1036,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		}
 	}
 
-	gi.SV_GameSendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
+	trap->SV_GameSendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
 }
 
 void CheckTeamStatus(void) {

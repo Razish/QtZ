@@ -355,9 +355,9 @@ extern	qboolean	cl_oldGameSet;
 
 //=============================================================================
 
-extern	cgameExport_t	cge;	// interface to cgame .dll
-extern	uiExport_t		uie;	// interface to ui .dll
-extern	refexport_t		re;		// interface to refresh .dll
+extern	cgameExport_t	*cgame;	// interface to cgame .dll
+extern	uiExport_t		*ui;	// interface to ui .dll
+extern	refexport_t		*re;		// interface to refresh .dll
 
 
 //

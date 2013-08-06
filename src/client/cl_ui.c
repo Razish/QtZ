@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern	botlib_export_t	*botlib_export;
 
-static void *uiLib;
-uiExport_t uie;
+static void *uiLib = NULL;
+uiExport_t *ui = NULL;
 
 /*
 ====================
@@ -674,11 +674,9 @@ void CL_ShutdownUI( void ) {
 	if ( !uiLib )
 		return;
 
-	uie.Shutdown();
+	ui->Shutdown();
 	Sys_UnloadDll( uiLib );
 	uiLib = NULL;
-
-	memset( &uie, 0, sizeof( uie ) );
 }
 
 /*
@@ -688,9 +686,8 @@ CL_InitUI
 */
 
 void CL_InitUI( void ) {
-	uiImport_t		uii;
-	uiExport_t		*ret;
-	GetUIAPI_t		GetUIAPI;
+	static uiImport_t uiTrap;
+	GetUIAPI_t		GetModuleAPI;
 	char			dllName[MAX_OSPATH] = "ui"ARCH_STRING DLL_EXT;
 
 	// load the dll or bytecode
@@ -700,103 +697,105 @@ void CL_InitUI( void ) {
 		Com_Error( ERR_FATAL, "Failed to load ui" );
 	}
 
-	GetUIAPI = (GetUIAPI_t)Sys_LoadFunction( uiLib, "GetUIAPI");
-	if( !GetUIAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetUIAPI: '%s'",  Sys_LibraryError() );
+	memset( &uiTrap, 0, sizeof( uiTrap ) );
+
+	GetModuleAPI = (GetUIAPI_t)Sys_LoadFunction( uiLib, "GetModuleAPI");
+	if( !GetModuleAPI )
+		Com_Error( ERR_FATAL, "Can't load symbol GetModuleAPI: '%s'",  Sys_LibraryError() );
 
 	// set up the ui imports
-	uii.Print						= Com_Printf;
-	uii.Error						= Com_Error;
-	uii.Milliseconds				= Sys_Milliseconds;
-	uii.Cvar_InfoStringBuffer		= Cvar_InfoStringBuffer;
-	uii.Cvar_Register				= Cvar_Register;
-	uii.Cvar_Reset					= Cvar_Reset;
-	uii.Cvar_Set					= Cvar_SetSafe;
-	uii.Cvar_SetValue				= Cvar_SetValueSafe;
-	uii.Cvar_Update					= Cvar_Update;
-	uii.Cvar_VariableStringBuffer	= Cvar_VariableStringBuffer;
-	uii.Cvar_VariableValue			= Cvar_VariableValue;
-	uii.Cmd_Argc					= Cmd_Argc;
-	uii.Cmd_Argv					= Cmd_ArgvBuffer;
-	uii.Cbuf_ExecuteText			= Cbuf_ExecuteText;
-	uii.FS_Open						= FS_FOpenFileByMode;
-	uii.FS_Read						= FS_Read2;
-	uii.FS_Write					= FS_Write;
-	uii.FS_Close					= FS_FCloseFile;
-	uii.FS_GetFileList				= FS_GetFileList;
-	uii.FS_Seek						= FS_Seek;
-	uii.S_RegisterSound				= S_RegisterSound;
-	uii.S_StartBackgroundTrack		= S_StartBackgroundTrack;
-	uii.S_StartLocalSound			= S_StartLocalSound;
-	uii.S_StopBackgroundTrack		= S_StopBackgroundTrack;
-	uii.R_AddLightToScene			= re.AddLightToScene;
-	uii.R_AddPolyToScene			= re.AddPolyToScene;
-	uii.R_AddRefEntityToScene		= re.AddRefEntityToScene;
-	uii.R_ClearScene				= re.ClearScene;
-	uii.R_DrawStretchPic			= re.DrawStretchPic;
-	uii.R_LerpTag					= re.LerpTag;
-	uii.R_ModelBounds				= re.ModelBounds;
-	uii.R_RegisterFont				= re.RegisterFont;
-	uii.R_RegisterModel				= re.RegisterModel;
-	uii.R_RegisterSkin				= re.RegisterSkin;
-	uii.R_RegisterShader			= re.RegisterShader;
-	uii.R_RemapShader				= re.RemapShader;
-	uii.R_RenderScene				= re.RenderScene;
-	uii.R_SetColor					= re.SetColor;
-	uii.UpdateScreen				= SCR_UpdateScreen;
-	uii.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
-	uii.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
-	uii.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
-	uii.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
-	uii.PC_SourceFileAndLine		= botlib_export->PC_SourceFileAndLine;
-	uii.GetClipboardData			= CL_GetClipboardData;
-	uii.GetGLConfig					= CL_GetGlconfig;
-	uii.GetClientState				= GetClientState;
-	uii.GetConfigString				= GetConfigString;
-	uii.MemoryRemaining				= Hunk_MemoryRemaining;
-	uii.RealTime					= Com_RealTime;
-	uii.Key_ClearStates				= Key_ClearStates;
-	uii.Key_GetBindingBuf			= Key_GetBindingBuf;
-	uii.Key_GetCatcher				= Key_GetCatcher;
-	uii.Key_GetOverstrikeMode		= Key_GetOverstrikeMode;
-	uii.Key_IsDown					= Key_IsDown;
-	uii.Key_KeynumToStringBuf		= Key_KeynumToStringBuf;
-	uii.Key_SetBinding				= Key_SetBinding;
-	uii.Key_SetCatcher				= Key_SetCatcher;
-	uii.Key_SetOverstrikeMode		= Key_SetOverstrikeMode;
-	uii.LAN_AddServer				= LAN_AddServer;
-	uii.LAN_ClearPing				= LAN_ClearPing;
-	uii.LAN_CompareServers			= LAN_CompareServers;
-	uii.LAN_GetPing					= LAN_GetPing;
-	uii.LAN_GetPingInfo				= LAN_GetPingInfo;
-	uii.LAN_GetPingQueueCount		= LAN_GetPingQueueCount;
-	uii.LAN_GetServerAddressString	= LAN_GetServerAddressString;
-	uii.LAN_GetServerCount			= LAN_GetServerCount;
-	uii.LAN_GetServerInfo			= LAN_GetServerInfo;
-	uii.LAN_GetServerPing			= LAN_GetServerPing;
-	uii.LAN_LoadCachedServers		= LAN_LoadCachedServers;
-	uii.LAN_MarkServerVisible		= LAN_MarkServerVisible;
-	uii.LAN_RemoveServer			= LAN_RemoveServer;
-	uii.LAN_ResetPings				= LAN_ResetPings;
-	uii.LAN_SaveServersToCache		= LAN_SaveServersToCache;
-	uii.LAN_ServerIsVisible			= LAN_ServerIsVisible;
-	uii.LAN_GetServerStatus			= LAN_GetServerStatus;
-	uii.LAN_UpdateVisiblePings		= LAN_UpdateVisiblePings;
-	uii.CIN_DrawCinematic			= CIN_DrawCinematic;
-	uii.CIN_PlayCinematic			= CIN_PlayCinematic;
-	uii.CIN_RunCinematic			= CIN_RunCinematic;
-	uii.CIN_SetExtents				= CIN_SetExtents;
-	uii.CIN_StopCinematic			= CIN_StopCinematic;
+	uiTrap.Print						= Com_Printf;
+	uiTrap.Error						= Com_Error;
+	uiTrap.Milliseconds					= Sys_Milliseconds;
+	uiTrap.Cvar_InfoStringBuffer		= Cvar_InfoStringBuffer;
+	uiTrap.Cvar_Register				= Cvar_Register;
+	uiTrap.Cvar_Reset					= Cvar_Reset;
+	uiTrap.Cvar_Set						= Cvar_SetSafe;
+	uiTrap.Cvar_SetValue				= Cvar_SetValueSafe;
+	uiTrap.Cvar_Update					= Cvar_Update;
+	uiTrap.Cvar_VariableStringBuffer	= Cvar_VariableStringBuffer;
+	uiTrap.Cvar_VariableValue			= Cvar_VariableValue;
+	uiTrap.Cmd_Argc						= Cmd_Argc;
+	uiTrap.Cmd_Argv						= Cmd_ArgvBuffer;
+	uiTrap.Cbuf_ExecuteText				= Cbuf_ExecuteText;
+	uiTrap.FS_Open						= FS_FOpenFileByMode;
+	uiTrap.FS_Read						= FS_Read2;
+	uiTrap.FS_Write						= FS_Write;
+	uiTrap.FS_Close						= FS_FCloseFile;
+	uiTrap.FS_GetFileList				= FS_GetFileList;
+	uiTrap.FS_Seek						= FS_Seek;
+	uiTrap.S_RegisterSound				= S_RegisterSound;
+	uiTrap.S_StartBackgroundTrack		= S_StartBackgroundTrack;
+	uiTrap.S_StartLocalSound			= S_StartLocalSound;
+	uiTrap.S_StopBackgroundTrack		= S_StopBackgroundTrack;
+	uiTrap.R_AddLightToScene			= re->AddLightToScene;
+	uiTrap.R_AddPolyToScene				= re->AddPolyToScene;
+	uiTrap.R_AddRefEntityToScene		= re->AddRefEntityToScene;
+	uiTrap.R_ClearScene					= re->ClearScene;
+	uiTrap.R_DrawStretchPic				= re->DrawStretchPic;
+	uiTrap.R_LerpTag					= re->LerpTag;
+	uiTrap.R_ModelBounds				= re->ModelBounds;
+	uiTrap.R_RegisterFont				= re->RegisterFont;
+	uiTrap.R_RegisterModel				= re->RegisterModel;
+	uiTrap.R_RegisterSkin				= re->RegisterSkin;
+	uiTrap.R_RegisterShader				= re->RegisterShader;
+	uiTrap.R_RemapShader				= re->RemapShader;
+	uiTrap.R_RenderScene				= re->RenderScene;
+	uiTrap.R_SetColor					= re->SetColor;
+	uiTrap.UpdateScreen					= SCR_UpdateScreen;
+	uiTrap.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
+	uiTrap.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
+	uiTrap.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
+	uiTrap.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
+	uiTrap.PC_SourceFileAndLine			= botlib_export->PC_SourceFileAndLine;
+	uiTrap.GetClipboardData				= CL_GetClipboardData;
+	uiTrap.GetGLConfig					= CL_GetGlconfig;
+	uiTrap.GetClientState				= GetClientState;
+	uiTrap.GetConfigString				= GetConfigString;
+	uiTrap.MemoryRemaining				= Hunk_MemoryRemaining;
+	uiTrap.RealTime						= Com_RealTime;
+	uiTrap.Key_ClearStates				= Key_ClearStates;
+	uiTrap.Key_GetBindingBuf			= Key_GetBindingBuf;
+	uiTrap.Key_GetCatcher				= Key_GetCatcher;
+	uiTrap.Key_GetOverstrikeMode		= Key_GetOverstrikeMode;
+	uiTrap.Key_IsDown					= Key_IsDown;
+	uiTrap.Key_KeynumToStringBuf		= Key_KeynumToStringBuf;
+	uiTrap.Key_SetBinding				= Key_SetBinding;
+	uiTrap.Key_SetCatcher				= Key_SetCatcher;
+	uiTrap.Key_SetOverstrikeMode		= Key_SetOverstrikeMode;
+	uiTrap.LAN_AddServer				= LAN_AddServer;
+	uiTrap.LAN_ClearPing				= LAN_ClearPing;
+	uiTrap.LAN_CompareServers			= LAN_CompareServers;
+	uiTrap.LAN_GetPing					= LAN_GetPing;
+	uiTrap.LAN_GetPingInfo				= LAN_GetPingInfo;
+	uiTrap.LAN_GetPingQueueCount		= LAN_GetPingQueueCount;
+	uiTrap.LAN_GetServerAddressString	= LAN_GetServerAddressString;
+	uiTrap.LAN_GetServerCount			= LAN_GetServerCount;
+	uiTrap.LAN_GetServerInfo			= LAN_GetServerInfo;
+	uiTrap.LAN_GetServerPing			= LAN_GetServerPing;
+	uiTrap.LAN_LoadCachedServers		= LAN_LoadCachedServers;
+	uiTrap.LAN_MarkServerVisible		= LAN_MarkServerVisible;
+	uiTrap.LAN_RemoveServer				= LAN_RemoveServer;
+	uiTrap.LAN_ResetPings				= LAN_ResetPings;
+	uiTrap.LAN_SaveServersToCache		= LAN_SaveServersToCache;
+	uiTrap.LAN_ServerIsVisible			= LAN_ServerIsVisible;
+	uiTrap.LAN_GetServerStatus			= LAN_GetServerStatus;
+	uiTrap.LAN_UpdateVisiblePings		= LAN_UpdateVisiblePings;
+	uiTrap.CIN_DrawCinematic			= CIN_DrawCinematic;
+	uiTrap.CIN_PlayCinematic			= CIN_PlayCinematic;
+	uiTrap.CIN_RunCinematic				= CIN_RunCinematic;
+	uiTrap.CIN_SetExtents				= CIN_SetExtents;
+	uiTrap.CIN_StopCinematic			= CIN_StopCinematic;
 
 	// init the ui module and grab the exports
-	if ( !(ret = GetUIAPI( UI_API_VERSION, &uii )) ) {
+	if ( !(ui = GetModuleAPI( UI_API_VERSION, &uiTrap )) ) {
+		cls.uiStarted = qfalse;
 		Com_Error( ERR_FATAL, "Couldn't initialize ui" );
 		return;
 	}
-	uie = *ret;
 
 	// init for this gamestate
-	uie.Init( (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
+	ui->Init( (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
 }
 
 /*
@@ -807,8 +806,8 @@ See if the current console command is claimed by the ui
 ====================
 */
 qboolean UI_GameCommand( void ) {
-	if ( !uie.ConsoleCommand )
+	if ( !cls.uiStarted )
 		return qfalse;
 
-	return uie.ConsoleCommand( cls.realtime );
+	return ui->ConsoleCommand( cls.realtime );
 }

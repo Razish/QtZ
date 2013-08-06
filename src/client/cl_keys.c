@@ -1277,23 +1277,23 @@ void CL_KeyDownEvent( int key, unsigned time )
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-			cge.EventHandling( CGAME_EVENT_NONE );
+			cgame->EventHandling( CGAME_EVENT_NONE );
 			return;
 		}
 
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
-				uie.SetActiveMenu( UIMENU_INGAME );
+				ui->SetActiveMenu( UIMENU_INGAME );
 			}
 			else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				uie.SetActiveMenu( UIMENU_MAIN );
+				ui->SetActiveMenu( UIMENU_MAIN );
 			}
 			return;
 		}
 
-		uie.KeyEvent( key, qtrue );
+		ui->KeyEvent( key, qtrue );
 		return;
 	}
 
@@ -1302,10 +1302,10 @@ void CL_KeyDownEvent( int key, unsigned time )
 		Console_Key( key );
 	}
 	else if ( Key_GetCatcher() & KEYCATCH_UI ) {
-		if ( cls.uiStarted ) uie.KeyEvent( key, qtrue );
+		if ( cls.uiStarted ) ui->KeyEvent( key, qtrue );
 	}
 	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
-		if ( cls.cgameStarted ) cge.KeyEvent( key, qtrue );
+		if ( cls.cgameStarted ) cgame->KeyEvent( key, qtrue );
 	}
 	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
@@ -1351,9 +1351,9 @@ void CL_KeyUpEvent( int key, unsigned time )
 		CL_ParseBinding( key, qfalse, time );
 
 	if ( (Key_GetCatcher() & KEYCATCH_UI) && cls.uiStarted ) {
-		uie.KeyEvent( key, qfalse );
+		ui->KeyEvent( key, qfalse );
 	} else if ( (Key_GetCatcher() & KEYCATCH_CGAME) && cls.cgameStarted ) {
-		cge.KeyEvent( key, qfalse );
+		cgame->KeyEvent( key, qfalse );
 	}
 }
 
@@ -1392,7 +1392,7 @@ void CL_CharEvent( int key ) {
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
 	{
-		uie.KeyEvent( key|K_CHAR_FLAG, qtrue );
+		ui->KeyEvent( key|K_CHAR_FLAG, qtrue );
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) 
 	{

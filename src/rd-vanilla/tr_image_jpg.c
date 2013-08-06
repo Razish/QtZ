@@ -51,7 +51,7 @@ static void R_JPGErrorExit(j_common_ptr cinfo)
   /* Let the memory manager delete any temp files before we die */
   jpeg_destroy(cinfo);
   
-  ri.Error(ERR_FATAL, "%s", buffer);
+  ri->Error(ERR_FATAL, "%s", buffer);
 }
 
 static void R_JPGOutputMessage(j_common_ptr cinfo)
@@ -62,7 +62,7 @@ static void R_JPGOutputMessage(j_common_ptr cinfo)
   (*cinfo->err->format_message) (cinfo, buffer);
   
   /* Send it to stderr, adding a newline */
-  ri.Printf(PRINT_ALL, "%s\n", buffer);
+  ri->Printf(PRINT_ALL, "%s\n", buffer);
 }
 
 void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *height)
@@ -103,7 +103,7 @@ void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *heigh
    * requires it in order to read binary files.
    */
 
-  len = ri.FS_ReadFile ( ( char * ) filename, &fbuffer.v);
+  len = ri->FS_ReadFile ( ( char * ) filename, &fbuffer.v);
   if (!fbuffer.b || len < 0) {
 	return;
   }
@@ -166,17 +166,17 @@ void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *heigh
     )
   {
     // Free the memory to make sure we don't leak memory
-    ri.FS_FreeFile (fbuffer.v);
+    ri->FS_FreeFile (fbuffer.v);
     jpeg_destroy_decompress(&cinfo);
   
-    ri.Error(ERR_DROP, "LoadJPG: %s has an invalid image format: %dx%d*4=%d, components: %d", filename,
+    ri->Error(ERR_DROP, "LoadJPG: %s has an invalid image format: %dx%d*4=%d, components: %d", filename,
 		    cinfo.output_width, cinfo.output_height, pixelcount * 4, cinfo.output_components);
   }
 
   memcount = pixelcount * 4;
   row_stride = cinfo.output_width * cinfo.output_components;
 
-  out = ri.Malloc(memcount);
+  out = ri->Malloc(memcount);
 
   *width = cinfo.output_width;
   *height = cinfo.output_height;
@@ -230,7 +230,7 @@ void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *heigh
    * so as to simplify the setjmp error logic above.  (Actually, I don't
    * think that jpeg_destroy can do an error exit, but why assume anything...)
    */
-  ri.FS_FreeFile (fbuffer.v);
+  ri->FS_FreeFile (fbuffer.v);
 
   /* At this point you may want to check to see whether any corrupt-data
    * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
@@ -298,7 +298,7 @@ empty_output_buffer (j_compress_ptr cinfo)
   jpeg_destroy_compress(cinfo);
   
   // Make crash fatal or we would probably leak memory.
-  ri.Error(ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of %d bytes",
+  ri->Error(ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of %d bytes",
            dest->size);
 
   return FALSE;
@@ -428,10 +428,10 @@ void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
   size_t bufSize;
 
   bufSize = image_width * image_height * 3;
-  out = ri.Hunk_AllocateTempMemory(bufSize);
+  out = ri->Hunk_AllocateTempMemory(bufSize);
 
   bufSize = RE_SaveJPGToBuffer(out, bufSize, quality, image_width, image_height, image_buffer, padding);
-  ri.FS_WriteFile(filename, out, bufSize);
+  ri->FS_WriteFile(filename, out, bufSize);
 
-  ri.Hunk_FreeTempMemory(out);
+  ri->Hunk_FreeTempMemory(out);
 }

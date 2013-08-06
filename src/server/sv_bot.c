@@ -437,9 +437,9 @@ SV_BotFrame
 void SV_BotFrame( int time ) {
 	if (!bot_enable) return;
 	//NOTE: maybe the game is already shutdown
-	if (!ge.BotAIStartFrame)
+	if (!svs.gameStarted)
 		return;
-	ge.BotAIStartFrame( time );
+	game->BotAIStartFrame( time );
 }
 
 /*

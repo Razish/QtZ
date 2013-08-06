@@ -95,7 +95,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		}
 
 		// if not line of sight, no sound
-		gi.SV_Trace( &tr, &client->ps.origin, NULL, NULL, &ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
+		trap->SV_Trace( &tr, &client->ps.origin, NULL, NULL, &ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
 		if ( tr.fraction != 1.0 ) {
 			continue;
 		}
@@ -228,7 +228,7 @@ void RespawnItem( gentity_t *ent ) {
 		int	count, choice;
 
 		if ( !ent->teammaster )
-			G_Error( "RespawnItem: bad teammaster");
+			trap->Error( ERR_DROP, "RespawnItem: bad teammaster");
 		master = ent->teammaster;
 
 		for ( count=0, ent=master; ent; ent=ent->teamchain, count++ ) ;
@@ -239,7 +239,7 @@ void RespawnItem( gentity_t *ent ) {
 	ent->r.contents = CONTENTS_TRIGGER;
 	ent->s.eFlags &= ~EF_NODRAW;
 	ent->r.svFlags &= ~SVF_NOCLIENT;
-	gi.SV_LinkEntity ((sharedEntity_t *)ent);
+	trap->SV_LinkEntity ((sharedEntity_t *)ent);
 
 	if ( ent->item->giType == IT_POWERUP ) {
 		// play powerup spawn sound to all clients
@@ -388,7 +388,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 	}
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
 
@@ -436,7 +436,7 @@ gentity_t *LaunchItem( gitem_t *item, vector3 *origin, vector3 *velocity ) {
 
 	dropped->flags = FL_DROPPED_ITEM;
 
-	gi.SV_LinkEntity ((sharedEntity_t *)dropped);
+	trap->SV_LinkEntity ((sharedEntity_t *)dropped);
 
 	return dropped;
 }
@@ -508,9 +508,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 	} else {
 		// drop to floor
 		VectorSet( &dest, ent->s.origin.x, ent->s.origin.y, ent->s.origin.z - 4096 );
-		gi.SV_Trace( &tr, &ent->s.origin, &ent->r.mins, &ent->r.maxs, &dest, ent->s.number, MASK_SOLID );
+		trap->SV_Trace( &tr, &ent->s.origin, &ent->r.mins, &ent->r.maxs, &dest, ent->s.number, MASK_SOLID );
 		if ( tr.startsolid ) {
-			G_Printf ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(&ent->s.origin));
+			trap->Print ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(&ent->s.origin));
 			G_FreeEntity( ent );
 			return;
 		}
@@ -541,7 +541,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	}
 
 
-	gi.SV_LinkEntity ((sharedEntity_t *)ent);
+	trap->SV_LinkEntity ((sharedEntity_t *)ent);
 }
 
 
@@ -563,11 +563,11 @@ void G_CheckTeamItems( void ) {
 		// check for the two flags
 		item = BG_FindItem( "team_CTF_redflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
 		}
 		item = BG_FindItem( "team_CTF_blueflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
 		}
 	}
 	if( level.gametype == GT_1FCTF ) {
@@ -576,15 +576,15 @@ void G_CheckTeamItems( void ) {
 		// check for all three flags
 		item = BG_FindItem( "team_CTF_redflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
 		}
 		item = BG_FindItem( "team_CTF_blueflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
 		}
 		item = BG_FindItem( "team_CTF_neutralflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_neutralflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_neutralflag in map\n" );
 		}
 	}
 }
@@ -611,7 +611,7 @@ The item will be added to the precache list
 */
 void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
-		G_Error( "RegisterItem: NULL" );
+		trap->Error( ERR_DROP, "RegisterItem: NULL" );
 	}
 	itemRegistered[ item - bg_itemlist ] = qtrue;
 }
@@ -641,8 +641,8 @@ void SaveRegisteredItems( void ) {
 	}
 	string[ bg_numItems ] = 0;
 
-	G_Printf( "%i items registered\n", count );
-	gi.SV_SetConfigstring(CS_ITEMS, string);
+	trap->Print( "%i items registered\n", count );
+	trap->SV_SetConfigstring(CS_ITEMS, string);
 }
 
 /*
@@ -655,7 +655,7 @@ int G_ItemDisabled( gitem_t *item ) {
 	char name[128];
 
 	Com_sprintf(name, sizeof(name), "disable_%s", item->classname);
-	return gi.Cvar_VariableIntegerValue( name );
+	return trap->Cvar_VariableIntegerValue( name );
 }
 
 /*
@@ -765,7 +765,7 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	gi.SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, ent->r.ownerNum, mask );
+	trap->SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, ent->r.ownerNum, mask );
 
 	VectorCopy( &tr.endpos, &ent->r.currentOrigin );
 
@@ -773,7 +773,7 @@ void G_RunItem( gentity_t *ent ) {
 		tr.fraction = 0;
 	}
 
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );	// FIXME: avoid this for stationary?
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );	// FIXME: avoid this for stationary?
 
 	// check think function
 	G_RunThink( ent );
@@ -783,7 +783,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// if it is in a nodrop volume, remove it
-	contents = gi.SV_PointContents( &ent->r.currentOrigin, -1 );
+	contents = trap->SV_PointContents( &ent->r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
 			Team_FreeEntity(ent);

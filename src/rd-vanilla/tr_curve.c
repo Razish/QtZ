@@ -297,22 +297,22 @@ srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 	size = (width * height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
 
 #ifdef PATCH_STITCHING
-	grid = /*ri.Hunk_Alloc*/ ri.Malloc( size );
+	grid = /*ri->Hunk_Alloc*/ ri->Malloc( size );
 	memset(grid, 0, size);
 
-	grid->widthLodError = /*ri.Hunk_Alloc*/ ri.Malloc( width * 4 );
+	grid->widthLodError = /*ri->Hunk_Alloc*/ ri->Malloc( width * 4 );
 	memcpy( grid->widthLodError, errorTable[0], width * 4 );
 
-	grid->heightLodError = /*ri.Hunk_Alloc*/ ri.Malloc( height * 4 );
+	grid->heightLodError = /*ri->Hunk_Alloc*/ ri->Malloc( height * 4 );
 	memcpy( grid->heightLodError, errorTable[1], height * 4 );
 #else
-	grid = ri.Hunk_Alloc( size );
+	grid = ri->Hunk_Alloc( size );
 	memset(grid, 0, size);
 
-	grid->widthLodError = ri.Hunk_Alloc( width * 4 );
+	grid->widthLodError = ri->Hunk_Alloc( width * 4 );
 	memcpy( grid->widthLodError, errorTable[0], width * 4 );
 
-	grid->heightLodError = ri.Hunk_Alloc( height * 4 );
+	grid->heightLodError = ri->Hunk_Alloc( height * 4 );
 	memcpy( grid->heightLodError, errorTable[1], height * 4 );
 #endif
 
@@ -346,9 +346,9 @@ R_FreeSurfaceGridMesh
 =================
 */
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid ) {
-	ri.Free(grid->widthLodError);
-	ri.Free(grid->heightLodError);
-	ri.Free(grid);
+	ri->Free(grid->widthLodError);
+	ri->Free(grid->heightLodError);
+	ri->Free(grid);
 }
 
 /*

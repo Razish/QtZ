@@ -319,7 +319,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 //			// disconnect the client from the game first so any flags the
 //			// player might have are dropped
-//			ge.ClientDisconnect( newcl - svs.clients );
+//			game->ClientDisconnect( newcl - svs.clients );
 			//
 			goto gotnewcl;
 		}
@@ -404,7 +404,7 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	if ( (denied = ge.ClientConnect( clientNum, qtrue, qfalse )) ) {
+	if ( (denied = game->ClientConnect( clientNum, qtrue, qfalse )) ) {
 		svi.NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf ("Game rejected a connection: %s.\n", denied);
 		return;
@@ -506,7 +506,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 
 	// call the prog function for removing a client
 	// this will remove the body, among other things
-	ge.ClientDisconnect( drop - svs.clients );
+	game->ClientDisconnect( drop - svs.clients );
 
 	// add the disconnect command
 	SV_SendServerCommand( drop, "disconnect \"%s\"", reason);
@@ -649,7 +649,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	ge.ClientBegin( client - svs.clients );
+	game->ClientBegin( client - svs.clients );
 }
 
 /*
@@ -1284,7 +1284,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 	SV_UserinfoChanged( cl );
 	// call prog code to allow overrides
-	ge.ClientUserinfoChanged( cl - svs.clients );
+	game->ClientUserinfoChanged( cl - svs.clients );
 }
 
 
@@ -1368,7 +1368,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		// pass unknown strings to the game
 		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
 			svi.Cmd_Args_Sanitize();
-			ge.ClientCommand( cl - svs.clients );
+			game->ClientCommand( cl - svs.clients );
 		}
 	}
 	else if (!bProcessed)
@@ -1448,7 +1448,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
-	ge.ClientThink( cl - svs.clients );
+	game->ClientThink( cl - svs.clients );
 }
 
 /*

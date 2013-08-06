@@ -234,7 +234,7 @@ static struct BufferedFile *ReadBufferedFile(const char *name)
 	 *  Allocate control struct.
 	 */
 
-	BF = ri.Malloc(sizeof(struct BufferedFile));
+	BF = ri->Malloc(sizeof(struct BufferedFile));
 	if(!BF)
 	{
 		return(NULL);
@@ -253,7 +253,7 @@ static struct BufferedFile *ReadBufferedFile(const char *name)
 	 *  Read the file.
 	 */
 
-	BF->Length = ri.FS_ReadFile((char *) name, &buffer.v);
+	BF->Length = ri->FS_ReadFile((char *) name, &buffer.v);
 	BF->Buffer = buffer.b;
 
 	/*
@@ -262,7 +262,7 @@ static struct BufferedFile *ReadBufferedFile(const char *name)
 
 	if(!(BF->Buffer && (BF->Length > 0)))
 	{
-		ri.Free(BF);
+		ri->Free(BF);
 
 		return(NULL);
 	}
@@ -287,10 +287,10 @@ static void CloseBufferedFile(struct BufferedFile *BF)
 	{
 		if(BF->Buffer)
 		{
-			ri.FS_FreeFile(BF->Buffer);
+			ri->FS_FreeFile(BF->Buffer);
 		}
 
-		ri.Free(BF);
+		ri->Free(BF);
 	}
 }
 
@@ -625,7 +625,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 
 	BufferedFileRewind(BF, BytesToRewind);
 
-	CompressedData = ri.Malloc(CompressedDataLength);
+	CompressedData = ri->Malloc(CompressedDataLength);
 	if(!CompressedData)
 	{
 		return(-1);
@@ -646,7 +646,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 		CH = BufferedFileRead(BF, PNG_ChunkHeader_Size);
 		if(!CH)
 		{
-			ri.Free(CompressedData); 
+			ri->Free(CompressedData); 
 
 			return(-1);
 		}
@@ -680,14 +680,14 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 			OrigCompressedData = BufferedFileRead(BF, Length);
 			if(!OrigCompressedData)
 			{
-				ri.Free(CompressedData); 
+				ri->Free(CompressedData); 
 
 				return(-1);
 			}
 
 			if(!BufferedFileSkip(BF, PNG_ChunkCRC_Size))
 			{
-				ri.Free(CompressedData); 
+				ri->Free(CompressedData); 
 
 				return(-1);
 			}
@@ -718,7 +718,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	puffResult = puff(puffDest, &puffDestLen, puffSrc, &puffSrcLen);
 	if(!((puffResult == 0) && (puffDestLen > 0)))
 	{
-		ri.Free(CompressedData);
+		ri->Free(CompressedData);
 
 		return(-1);
 	}
@@ -727,10 +727,10 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	 *  Allocate the buffer for the uncompressed data.
 	 */
 
-	DecompressedData = ri.Malloc(puffDestLen);
+	DecompressedData = ri->Malloc(puffDestLen);
 	if(!DecompressedData)
 	{
-		ri.Free(CompressedData);
+		ri->Free(CompressedData);
 
 		return(-1);
 	}
@@ -753,7 +753,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	 *  The compressed data is not needed anymore.
 	 */
 
-	ri.Free(CompressedData);
+	ri->Free(CompressedData);
 
 	/*
 	 *  Check if the last puff() was successfull.
@@ -761,7 +761,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 
 	if(!((puffResult == 0) && (puffDestLen > 0)))
 	{
-		ri.Free(DecompressedData);
+		ri->Free(DecompressedData);
 
 		return(-1);
 	}
@@ -2064,7 +2064,7 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 	{
 		CloseBufferedFile(ThePNG);
 
-		ri.Printf( PRINT_WARNING, "%s: invalid image size\n", name );
+		ri->Printf( PRINT_WARNING, "%s: invalid image size\n", name );
 
 		return; 
 	}
@@ -2400,10 +2400,10 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 	 *  Allocate output buffer.
 	 */
 
-	OutBuffer = ri.Malloc(IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL); 
+	OutBuffer = ri->Malloc(IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL); 
 	if(!OutBuffer)
 	{
-		ri.Free(DecompressedData); 
+		ri->Free(DecompressedData); 
 		CloseBufferedFile(ThePNG);
 
 		return;  
@@ -2419,8 +2419,8 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 		{
 			if(!DecodeImageNonInterlaced(IHDR, OutBuffer, DecompressedData, DecompressedDataLength, HasTransparentColour, TransparentColour, OutPal))
 			{
-				ri.Free(OutBuffer); 
-				ri.Free(DecompressedData); 
+				ri->Free(OutBuffer); 
+				ri->Free(DecompressedData); 
 				CloseBufferedFile(ThePNG);
 
 				return;
@@ -2433,8 +2433,8 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 		{
 			if(!DecodeImageInterlaced(IHDR, OutBuffer, DecompressedData, DecompressedDataLength, HasTransparentColour, TransparentColour, OutPal))
 			{
-				ri.Free(OutBuffer); 
-				ri.Free(DecompressedData); 
+				ri->Free(OutBuffer); 
+				ri->Free(DecompressedData); 
 				CloseBufferedFile(ThePNG);
 
 				return;
@@ -2445,8 +2445,8 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 
 		default :
 		{
-			ri.Free(OutBuffer); 
-			ri.Free(DecompressedData); 
+			ri->Free(OutBuffer); 
+			ri->Free(DecompressedData); 
 			CloseBufferedFile(ThePNG);
 
 			return;
@@ -2477,7 +2477,7 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 	 *  DecompressedData is not needed anymore.
 	 */
 
-	ri.Free(DecompressedData); 
+	ri->Free(DecompressedData); 
 
 	/*
 	 *  We have all data, so close the file.
@@ -2492,10 +2492,10 @@ void user_read_data( png_structp png_ptr, png_bytep data, png_size_t length ) {
 }
 void user_write_data( png_structp png_ptr, png_bytep data, png_size_t length ) {
 	fileHandle_t fp = (fileHandle_t)png_get_io_ptr( png_ptr );
-	ri.FS_Write( data, length, fp );
+	ri->FS_Write( data, length, fp );
 }
 void user_flush_data( png_structp png_ptr ) {
-	//TODO: ri.FS_Flush?
+	//TODO: ri->FS_Flush?
 }
 
 #ifdef _MSC_VER
@@ -2519,7 +2519,7 @@ int RE_SavePNG( char *filename, byte *buf, size_t width, size_t height, int byte
 	*/
 	int depth = 8;
 
-	fp = ri.FS_FOpenFileWrite( filename );
+	fp = ri->FS_FOpenFileWrite( filename );
 	if ( !fp ) {
 		goto fopen_failed;
 	}
@@ -2587,7 +2587,7 @@ png_failure:
 png_create_info_struct_failed:
 	png_destroy_write_struct (&png_ptr, &info_ptr);
 png_create_write_struct_failed:
-	ri.FS_FCloseFile( fp );
+	ri->FS_FCloseFile( fp );
 fopen_failed:
 	return status;
 }

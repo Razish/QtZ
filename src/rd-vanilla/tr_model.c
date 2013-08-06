@@ -69,7 +69,7 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 		else
 			Com_sprintf(namebuf, sizeof(namebuf), "%s.%s", filename, fext);
 
-		ri.FS_ReadFile( namebuf, &buf.v );
+		ri->FS_ReadFile( namebuf, &buf.v );
 		if(!buf.u)
 			continue;
 		
@@ -81,10 +81,10 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 			if (ident == MD3_IDENT)
 				loaded = R_LoadMD3(mod, lod, buf.u, name);
 			else
-				ri.Printf(PRINT_WARNING,"R_RegisterMD3: unknown fileid for %s\n", name);
+				ri->Printf(PRINT_WARNING,"R_RegisterMD3: unknown fileid for %s\n", name);
 		}
 		
-		ri.FS_FreeFile(buf.v);
+		ri->FS_FreeFile(buf.v);
 
 		if(loaded)
 		{
@@ -109,7 +109,7 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 	}
 
 #ifdef _DEBUG
-	ri.Printf(PRINT_WARNING,"R_RegisterMD3: couldn't load %s\n", name);
+	ri->Printf(PRINT_WARNING,"R_RegisterMD3: couldn't load %s\n", name);
 #endif
 
 	mod->type = MOD_BAD;
@@ -132,7 +132,7 @@ qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 	qboolean loaded = qfalse;
 	int filesize;
 
-	filesize = ri.FS_ReadFile(name, (void **) &buf.v);
+	filesize = ri->FS_ReadFile(name, (void **) &buf.v);
 	if(!buf.u)
 	{
 		mod->type = MOD_BAD;
@@ -143,11 +143,11 @@ qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 	if(ident == MDR_IDENT)
 		loaded = R_LoadMDR(mod, buf.u, filesize, name);
 
-	ri.FS_FreeFile (buf.v);
+	ri->FS_FreeFile (buf.v);
 	
 	if(!loaded)
 	{
-		ri.Printf(PRINT_WARNING,"R_RegisterMDR: couldn't load mdr file %s\n", name);
+		ri->Printf(PRINT_WARNING,"R_RegisterMDR: couldn't load mdr file %s\n", name);
 		mod->type = MOD_BAD;
 		return 0;
 	}
@@ -170,7 +170,7 @@ qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 	qboolean loaded = qfalse;
 	int filesize;
 
-	filesize = ri.FS_ReadFile(name, (void **) &buf.v);
+	filesize = ri->FS_ReadFile(name, (void **) &buf.v);
 	if(!buf.u)
 	{
 		mod->type = MOD_BAD;
@@ -179,11 +179,11 @@ qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 	
 	loaded = R_LoadIQM(mod, buf.u, filesize, name);
 
-	ri.FS_FreeFile (buf.v);
+	ri->FS_FreeFile (buf.v);
 	
 	if(!loaded)
 	{
-		ri.Printf(PRINT_WARNING,"R_RegisterIQM: couldn't load iqm file %s\n", name);
+		ri->Printf(PRINT_WARNING,"R_RegisterIQM: couldn't load iqm file %s\n", name);
 		mod->type = MOD_BAD;
 		return 0;
 	}
@@ -242,7 +242,7 @@ model_t *R_AllocModel( void ) {
 		return NULL;
 	}
 
-	mod = ri.Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = ri->Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -273,12 +273,12 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	char		altName[ MAX_QPATH ];
 
 	if ( !name || !name[0] ) {
-		ri.Printf( PRINT_ALL, "RE_RegisterModel: NULL name\n" );
+		ri->Printf( PRINT_ALL, "RE_RegisterModel: NULL name\n" );
 		return 0;
 	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		ri.Printf( PRINT_ALL, "Model name exceeds MAX_QPATH\n" );
+		ri->Printf( PRINT_ALL, "Model name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -298,7 +298,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	// allocate a new model_t
 
 	if ( ( mod = R_AllocModel() ) == NULL ) {
-		ri.Printf( PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
+		ri->Printf( PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
 		return 0;
 	}
 
@@ -367,7 +367,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		{
 			if( orgNameFailed )
 			{
-				ri.Printf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n",
+				ri->Printf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n",
 						name, altName );
 			}
 
@@ -400,7 +400,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 	version = LittleLong (pinmodel->version);
 	if (version != MD3_VERSION) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
+		ri->Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MD3_VERSION);
 		return qfalse;
 	}
@@ -408,7 +408,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 	mod->type = MOD_MESH;
 	size = LittleLong(pinmodel->ofsEnd);
 	mod->dataSize += size;
-	mod->md3[lod] = ri.Hunk_Alloc( size, h_low );
+	mod->md3[lod] = ri->Hunk_Alloc( size, h_low );
 
 	memcpy (mod->md3[lod], buffer, LittleLong(pinmodel->ofsEnd) );
 
@@ -423,7 +423,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
     LL(mod->md3[lod]->ofsEnd);
 
 	if ( mod->md3[lod]->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
+		ri->Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
 		return qfalse;
 	}
     
@@ -466,12 +466,12 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
         LL(surf->ofsEnd);
 		
 		if ( surf->numVerts >= SHADER_MAX_VERTEXES ) {
-			ri.Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i verts on a surface (%i).\n",
+			ri->Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i verts on a surface (%i).\n",
 				mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 			return qfalse;
 		}
 		if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES ) {
-			ri.Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i triangles on a surface (%i).\n",
+			ri->Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i triangles on a surface (%i).\n",
 				mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 			return qfalse;
 		}
@@ -563,7 +563,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	pinmodel->version = LittleLong(pinmodel->version);
 	if (pinmodel->version != MDR_VERSION) 
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has wrong version (%i should be %i)\n", mod_name, pinmodel->version, MDR_VERSION);
+		ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has wrong version (%i should be %i)\n", mod_name, pinmodel->version, MDR_VERSION);
 		return qfalse;
 	}
 
@@ -571,7 +571,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	
 	if(size > filesize)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMDR: Header of %s is broken. Wrong filesize declared!\n", mod_name);
+		ri->Printf(PRINT_WARNING, "R_LoadMDR: Header of %s is broken. Wrong filesize declared!\n", mod_name);
 		return qfalse;
 	}
 	
@@ -595,12 +595,12 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	if(pinmodel->numBones < 0 ||
 		sizeof(*mdr) + pinmodel->numFrames * (sizeof(*frame) + (pinmodel->numBones - 1) * sizeof(*frame->bones)) > size)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+		ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 		return qfalse;
 	}
 
 	mod->dataSize += size;
-	mod->modelData = mdr = ri.Hunk_Alloc( size, h_low );
+	mod->modelData = mdr = ri->Hunk_Alloc( size, h_low );
 
 	// Copy all the values over from the file and fix endian issues in the process, if necessary.
 	
@@ -617,7 +617,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 
 	if ( mdr->numFrames < 1 ) 
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has no frames\n", mod_name);
+		ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has no frames\n", mod_name);
 		return qfalse;
 	}
 
@@ -709,7 +709,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 		// simple bounds check
 		if((byte *) (lod + 1) > (byte *) mdr + size)
 		{
-			ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+			ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 			return qfalse;
 		}
 
@@ -725,7 +725,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			// simple bounds check
 			if((byte *) (surf + 1) > (byte *) mdr + size)
 			{
-				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+				ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 				return qfalse;
 			}
 
@@ -744,13 +744,13 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			// now do the checks that may fail.
 			if ( surf->numVerts > SHADER_MAX_VERTEXES ) 
 			{
-				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i verts on a surface (%i).\n",
+				ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i verts on a surface (%i).\n",
 					  mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 				return qfalse;
 			}
 			if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES-1 ) 
 			{
-				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i triangles on a surface (%i).\n",
+				ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has more than %i triangles on a surface (%i).\n",
 					  mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 				return qfalse;
 			}
@@ -777,7 +777,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 				// simple bounds check
 				if(curv->numWeights < 0 || (byte *) (v + 1) + (curv->numWeights - 1) * sizeof(*weight) > (byte *) mdr + size)
 				{
-					ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+					ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 					return qfalse;
 				}
 
@@ -818,7 +818,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			// simple bounds check
 			if(surf->numTriangles < 0 || (byte *) (tri + surf->numTriangles) > (byte *) mdr + size)
 			{
-				ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+				ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 				return qfalse;
 			}
 
@@ -856,7 +856,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	// simple bounds check
 	if(mdr->numTags < 0 || (byte *) (tag + mdr->numTags) > (byte *) mdr + size)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
+		ri->Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 		return qfalse;
 	}
 	
@@ -901,7 +901,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 
 	version = LittleLong (pinmodel->version);
 	if (version != MD4_VERSION) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD4: %s has wrong version (%i should be %i)\n",
+		ri->Printf( PRINT_WARNING, "R_LoadMD4: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MD4_VERSION);
 		return qfalse;
 	}
@@ -909,7 +909,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	mod->type = MOD_MD4;
 	size = LittleLong(pinmodel->ofsEnd);
 	mod->dataSize += size;
-	mod->modelData = md4 = ri.Hunk_Alloc( size, h_low );
+	mod->modelData = md4 = ri->Hunk_Alloc( size, h_low );
 
 	memcpy(md4, buffer, size);
 
@@ -923,7 +923,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
     md4->ofsEnd = size;
 
 	if ( md4->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD4: %s has no frames\n", mod_name );
+		ri->Printf( PRINT_WARNING, "R_LoadMD4: %s has no frames\n", mod_name );
 		return qfalse;
 	}
 
@@ -960,12 +960,12 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 			LL(surf->ofsEnd);
 			
 			if ( surf->numVerts >= SHADER_MAX_VERTEXES-1 ) {
-				ri.Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i verts on a surface (%i).\n",
+				ri->Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i verts on a surface (%i).\n",
 					mod_name, SHADER_MAX_VERTEXES-1, surf->numVerts );
 				return qfalse;
 			}
 			if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES-1 ) {
-				ri.Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i triangles on a surface (%i).\n",
+				ri->Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i triangles on a surface (%i).\n",
 					mod_name, (SHADER_MAX_INDEXES / 3)-1, surf->numTriangles );
 				return qfalse;
 			}
@@ -1098,14 +1098,14 @@ void R_Modellist_f( void ) {
 				lods++;
 			}
 		}
-		ri.Printf( PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
+		ri->Printf( PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
 		total += mod->dataSize;
 	}
-	ri.Printf( PRINT_ALL, "%8i : Total models\n", total );
+	ri->Printf( PRINT_ALL, "%8i : Total models\n", total );
 
 #if	0		// not working right with new hunk
 	if ( tr.world ) {
-		ri.Printf( PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name );
+		ri->Printf( PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name );
 	}
 #endif
 }

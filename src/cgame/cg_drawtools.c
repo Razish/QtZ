@@ -52,12 +52,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void CG_FillRect( float x, float y, float width, float height, const vector4 *color ) {
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	cgi.R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader );
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 /*
@@ -70,15 +70,15 @@ Coords are virtual 640x480
 void CG_DrawSides(float x, float y, float w, float h, float size) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenXScale;
-	cgi.R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	cgi.R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenYScale;
-	cgi.R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	cgi.R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 /*
 ================
@@ -88,12 +88,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void CG_DrawRect( float x, float y, float width, float height, float size, const vector4 *color ) {
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	CG_DrawTopBottom(x, y, width, height, size);
 	CG_DrawSides(x, y, width, height, size);
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 
@@ -107,7 +107,7 @@ Coordinates are 640*480 virtual values
 */
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	cgi.R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 //QtZ: Added from JA
@@ -122,7 +122,7 @@ rotates around the upper right corner of the passed in point
 */
 void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	cgi.R_DrawRotatedPic( x, y, width, height, 0, 0, 1, 1, angle, qfalse, hShader );
+	trap->R_DrawRotatedPic( x, y, width, height, 0, 0, 1, 1, angle, qfalse, hShader );
 }
 
 /*
@@ -136,7 +136,7 @@ Actually rotates around the center point of the passed in coordinates
 */
 void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	cgi.R_DrawRotatedPic( x, y, width, height, 0, 0, 1, 1, angle, qtrue, hShader );
+	trap->R_DrawRotatedPic( x, y, width, height, 0, 0, 1, 1, angle, qtrue, hShader );
 }
 //~QtZ
 
@@ -173,7 +173,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	fcol = col*0.0625f;
 	size = 0.0625f;
 
-	cgi.R_DrawStretchPic( ax, ay, aw, ah,
+	trap->R_DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cgs.media.charsetShader );
@@ -203,7 +203,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const vector4 *setColor
 	if (shadow) {
 		color.r = color.g = color.b = 0;
 		color.a = setColor->a;
-		cgi.R_SetColor( &color );
+		trap->R_SetColor( &color );
 		s = string;
 		xx = x;
 		cnt = 0;
@@ -223,13 +223,13 @@ void CG_DrawStringExt( int x, int y, const char *string, const vector4 *setColor
 	s = string;
 	xx = x;
 	cnt = 0;
-	cgi.R_SetColor( setColor );
+	trap->R_SetColor( setColor );
 	while ( *s && cnt < maxChars) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
 				color.a = setColor->a;
-				cgi.R_SetColor( &color );
+				trap->R_SetColor( &color );
 			}
 			s += 2;
 			continue;
@@ -239,7 +239,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const vector4 *setColor
 		cnt++;
 		s++;
 	}
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
@@ -304,7 +304,7 @@ static void CG_TileClearBox( int x, int y, int w, int h, qhandle_t hShader ) {
 	t1 = y/64.0f;
 	s2 = (x+w)/64.0f;
 	t2 = (y+h)/64.0f;
-	cgi.R_DrawStretchPic( (float)x, (float)y, (float)w, (float)h, s1, t1, s2, t2, hShader );
+	trap->R_DrawStretchPic( (float)x, (float)y, (float)w, (float)h, s1, t1, s2, t2, hShader );
 }
 
 
@@ -628,7 +628,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vector4 *color 
 	float	fheight;
 
 	// draw the colored text
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 	
 	ax = x * cgs.screenXScale + cgs.screenXBias;
 	ay = y * cgs.screenYScale;
@@ -648,13 +648,13 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vector4 *color 
 			fheight = (float)PROPB_HEIGHT / 256.0f;
 			aw = (float)propMapB[ch][2] * cgs.screenXScale;
 			ah = (float)PROPB_HEIGHT * cgs.screenYScale;
-			cgi.R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, cgs.media.charsetPropB );
+			trap->R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, cgs.media.charsetPropB );
 			ax += (aw + (float)PROPB_GAP_WIDTH * cgs.screenXScale);
 		}
 		s++;
 	}
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 void UI_DrawBannerString( int x, int y, const char* str, int style, vector4 *color ) {
@@ -738,7 +738,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *
 	float	fheight;
 
 	// draw the colored text
-	cgi.R_SetColor( color );
+	trap->R_SetColor( color );
 	
 	ax = x * cgs.screenXScale + cgs.screenXBias;
 	ay = y * cgs.screenYScale;
@@ -756,7 +756,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *
 			fheight = (float)PROP_HEIGHT / 256.0f;
 			aw = (float)propMap[ch][2] * cgs.screenXScale * sizeScale;
 			ah = (float)PROP_HEIGHT * cgs.screenYScale * sizeScale;
-			cgi.R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, charset );
+			trap->R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, charset );
 		} else {
 			aw = 0;
 		}
@@ -765,7 +765,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *
 		s++;
 	}
 
-	cgi.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 /*

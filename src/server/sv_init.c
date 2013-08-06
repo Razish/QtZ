@@ -411,6 +411,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
+	svs.gameStarted = qfalse;
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
@@ -509,7 +510,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// run a few frames to allow everything to settle
 	for (i = 0;i < 3; i++)
 	{
-		ge.RunFrame( sv.time );
+		game->RunFrame( sv.time );
 		SV_BotFrame (sv.time);
 		sv.time += 100;
 		svs.time += 100;
@@ -535,7 +536,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 			}
 
 			// connect the client again
-			denied = ge.ClientConnect( i, qfalse, isBot );	// firstTime = qfalse
+			denied = game->ClientConnect( i, qfalse, isBot );	// firstTime = qfalse
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -559,14 +560,14 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					client->deltaMessage = -1;
 					client->lastSnapshotTime = 0;	// generate a snapshot immediately
 
-					ge.ClientBegin( i );
+					game->ClientBegin( i );
 				}
 			}
 		}
 	}	
 
 	// run another frame to allow things to look at all the players
-	ge.RunFrame( sv.time );
+	game->RunFrame( sv.time );
 	SV_BotFrame (sv.time);
 	sv.time += 100;
 	svs.time += 100;
@@ -797,6 +798,7 @@ void SV_Shutdown( char *finalmsg ) {
 	SV_RemoveOperatorCommands();
 	SV_MasterShutdown();
 	SV_ShutdownGameProgs();
+	svs.gameStarted = qfalse;
 
 	// free current level
 	SV_ClearServer();

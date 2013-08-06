@@ -131,10 +131,10 @@ static void CG_TransitionSnapshot( void ) {
 	int					i;
 
 	if ( !cg.snap ) {
-		CG_Error( "CG_TransitionSnapshot: NULL cg.snap" );
+		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
 	}
 	if ( !cg.nextSnap ) {
-		CG_Error( "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
 	}
 
 	// execute any server string commands before transitioning entities
@@ -261,7 +261,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 	snapshot_t	*dest;
 
 	if ( cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000 ) {
-		CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i\n", 
+		trap->Print( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i\n", 
 			cg.latestSnapshotNum, cgs.processedSnapshotNum );
 	}
 
@@ -275,9 +275,9 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 
 		// try to read the snapshot from the client system
 		cgs.processedSnapshotNum++;
-		r = cgi.GetSnapshot( cgs.processedSnapshotNum, dest );
+		r = trap->GetSnapshot( cgs.processedSnapshotNum, dest );
 
-		// FIXME: why would cgi.GetSnapshot return a snapshot with the same server time
+		// FIXME: why would trap->GetSnapshot return a snapshot with the same server time
 		if ( cg.snap && r && dest->serverTime == cg.snap->serverTime ) {
 			//continue;
 		}
@@ -329,11 +329,11 @@ void CG_ProcessSnapshots( void ) {
 	int				n;
 
 	// see what the latest snapshot the client system has is
-	cgi.GetCurrentSnapshotNumber( &n, &cg.latestSnapshotTime );
+	trap->GetCurrentSnapshotNumber( &n, &cg.latestSnapshotTime );
 	if ( n != cg.latestSnapshotNum ) {
 		if ( n < cg.latestSnapshotNum ) {
 			// this should never happen
-			CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+			trap->Error( ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -374,7 +374,7 @@ void CG_ProcessSnapshots( void ) {
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
-				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
+				trap->Error( ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
 			}
 		}
 
@@ -389,14 +389,14 @@ void CG_ProcessSnapshots( void ) {
 
 	// assert our valid conditions upon exiting
 	if ( cg.snap == NULL ) {
-		CG_Error( "CG_ProcessSnapshots: cg.snap == NULL" );
+		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
 		cg.time = cg.snap->serverTime;
 	}
 	if ( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time ) {
-		CG_Error( "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
+		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 	}
 
 }

@@ -789,8 +789,13 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
-void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+#if defined( PROJECT_GAME ) || defined( PROJECT_CGAME ) || defined( PROJECT_UI )
+	void (*Com_Error)	( int level, const char *error, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+	void (*Com_Printf)	( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+#else
+	void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+	void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+#endif
 
 vector3 *tv( float x, float y, float z );
 char *vtos( const vector3 *v );
@@ -1199,7 +1204,7 @@ typedef struct entityState_s {
 	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
 	int		frame;
 
-	int		solid;			// for client side prediction, gi.SV_LinkEntity sets this properly
+	int		solid;			// for client side prediction, trap->SV_LinkEntity sets this properly
 
 	int		event;			// impulse events -- muzzle flashes, footsteps, etc
 	int		eventParm;

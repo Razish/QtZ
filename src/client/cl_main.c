@@ -48,9 +48,7 @@ cvar_t	*cl_voipIgnoreSelf;
 cvar_t	*cl_voip;
 #endif
 
-#ifdef USE_RENDERER_DLOPEN
 cvar_t	*cl_renderer;
-#endif
 
 cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
@@ -131,10 +129,8 @@ char				cl_oldGame[MAX_QPATH];
 qboolean			cl_oldGameSet;
 
 // Structure containing functions exported from refresh DLL
-refexport_t	re;
-#ifdef USE_RENDERER_DLOPEN
+refexport_t	*re = NULL;
 static void	*rendererLib = NULL;
-#endif
 
 ping_t	cl_pinglist[MAX_PINGREQUESTS];
 
@@ -344,12 +340,12 @@ void CL_VoipParseTargets(void)
 			{
 				if(!Q_stricmpn(target, "attacker", 8))
 				{
-					val = cge.LastAttacker();
+					val = cgame->LastAttacker();
 					target += 8;
 				}
 				else if(!Q_stricmpn(target, "crosshair", 9))
 				{
-					val = cge.CrosshairPlayer();
+					val = cgame->CrosshairPlayer();
 					target += 9;
 				}
 				else
@@ -1176,8 +1172,8 @@ void CL_ShutdownAll(qboolean shutdownRef)
 	// shutdown the renderer
 	if(shutdownRef)
 		CL_ShutdownRef();
-	else if(re.Shutdown)
-		re.Shutdown(qfalse);		// don't destroy window or context
+	else if ( re )
+		re->Shutdown(qfalse);		// don't destroy window or context
 
 	cls.uiStarted = qfalse;
 	cls.cgameStarted = qfalse;
@@ -1384,7 +1380,7 @@ void CL_Disconnect( qboolean showMainMenu, const char *reason ) {
 	}
 
 	if ( cls.uiStarted && showMainMenu ) {
-		uie.SetActiveMenu( UIMENU_NONE );
+		ui->SetActiveMenu( UIMENU_NONE );
 	}
 
 	SCR_StopCinematic ();
@@ -2728,10 +2724,10 @@ void CL_Frame ( int msec ) {
 #endif
 
 	if ( clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI)
-		&& !com_sv_running->integer /*&& uivm*/ ) {
+		&& !com_sv_running->integer && cls.uiStarted ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		uie.SetActiveMenu( UIMENU_MAIN );
+		ui->SetActiveMenu( UIMENU_MAIN );
 	}
 
 	// if recording an avi, lock to a fixed fps
@@ -2871,10 +2867,10 @@ CL_ShutdownRef
 ============
 */
 void CL_ShutdownRef( void ) {
-	if ( re.Shutdown ) {
-		re.Shutdown( qtrue );
+	if ( re ) {
+		re->Shutdown( qtrue );
 	}
-	memset( &re, 0, sizeof( re ) );
+	re = NULL;
 
 	if ( rendererLib ) {
 		Sys_UnloadLibrary( rendererLib );
@@ -2889,12 +2885,12 @@ CL_InitRenderer
 */
 void CL_InitRenderer( void ) {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig );
+	re->BeginRegistration( &cls.glconfig );
 
 	// load character sets
-	cls.charSetShader = re.RegisterShaderNoMip( "gfx/2d/bigchars" );
-	cls.whiteShader = re.RegisterShader( "white" );
-	cls.consoleShader = re.RegisterShader( "console" );
+	cls.charSetShader = re->RegisterShaderNoMip( "gfx/2d/bigchars" );
+	cls.whiteShader = re->RegisterShader( "white" );
+	cls.consoleShader = re->RegisterShader( "console" );
 	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 	g_consoleField.widthInChars = g_console_field_width;
 }
@@ -2964,105 +2960,98 @@ CL_InitRef
 ============
 */
 void CL_InitRef( void ) {
-	refimport_t	ri;
-	refexport_t	*ret;
-#ifdef USE_RENDERER_DLOPEN
+	static refimport_t rdImport;
 	GetRefAPI_t		GetRefAPI;
 	char			dllName[MAX_OSPATH];
-#endif
+
+	memset( &rdImport, 0, sizeof( rdImport ) );
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
-#ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get( "cl_renderer", "rd-rust", CVAR_ARCHIVE|CVAR_LATCH, "Controls which renderer to use" );
 
-	Com_sprintf(dllName, sizeof(dllName), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
+	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
-	if(!(rendererLib = Sys_LoadDll(dllName, qfalse)) && strcmp(cl_renderer->string, cl_renderer->resetString))
+	if ( !(rendererLib = Sys_LoadDll( dllName, qfalse )) && strcmp( cl_renderer->string, cl_renderer->resetString ) )
 	{
-		Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
-		Cvar_ForceReset("cl_renderer");
+		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		Cvar_ForceReset( "cl_renderer" );
 
-		Com_sprintf(dllName, sizeof(dllName), "rd-vanilla_" ARCH_STRING DLL_EXT);
-		rendererLib = Sys_LoadDll(dllName, qfalse);
+		Com_sprintf( dllName, sizeof( dllName ), "rd-vanilla_" ARCH_STRING DLL_EXT );
+		rendererLib = Sys_LoadDll( dllName, qfalse );
 	}
 
-	if(!rendererLib)
-	{
-		Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
-		Com_Error(ERR_FATAL, "Failed to load renderer");
+	if ( !rendererLib ) {
+		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
+		Com_Error( ERR_FATAL, "Failed to load renderer" );
 	}
 
-	GetRefAPI = Sys_LoadFunction(rendererLib, "GetRefAPI");
-	if(!GetRefAPI)
-	{
-		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError());
+	GetRefAPI = (GetRefAPI_t)Sys_LoadFunction( rendererLib, "GetRefAPI" );
+	if ( !GetRefAPI ) {
+		Com_Error( ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError() );
 	}
-#endif
 
-	ri.Cmd_AddCommand = Cmd_AddCommand;
-	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
-	ri.Cmd_Argc = Cmd_Argc;
-	ri.Cmd_Argv = Cmd_Argv;
-	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
-	ri.Printf = CL_RefPrintf;
-	ri.Error = Com_Error;
-	ri.Milliseconds = CL_ScaledMilliseconds;
-	ri.Malloc = CL_RefMalloc;
-	ri.Free = Z_Free;
+	rdImport.Cmd_AddCommand = Cmd_AddCommand;
+	rdImport.Cmd_RemoveCommand = Cmd_RemoveCommand;
+	rdImport.Cmd_Argc = Cmd_Argc;
+	rdImport.Cmd_Argv = Cmd_Argv;
+	rdImport.Cmd_ExecuteText = Cbuf_ExecuteText;
+	rdImport.Printf = CL_RefPrintf;
+	rdImport.Error = Com_Error;
+	rdImport.Milliseconds = CL_ScaledMilliseconds;
+	rdImport.Malloc = CL_RefMalloc;
+	rdImport.Free = Z_Free;
 #ifdef HUNK_DEBUG
-	ri.Hunk_AllocDebug = Hunk_AllocDebug;
+	rdImport.Hunk_AllocDebug = Hunk_AllocDebug;
 #else
-	ri.Hunk_Alloc = Hunk_Alloc;
+	rdImport.Hunk_Alloc = Hunk_Alloc;
 #endif
-	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
-	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
+	rdImport.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
+	rdImport.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 
-	ri.CM_ClusterPVS = CM_ClusterPVS;
-	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
+	rdImport.CM_ClusterPVS = CM_ClusterPVS;
+	rdImport.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
-	ri.FS_ReadFile = FS_ReadFile;
-	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_Write = FS_Write;
-	ri.FS_FOpenFileWrite = FS_FOpenFileWrite;
-	ri.FS_FCloseFile = FS_FCloseFile;
-	ri.FS_WriteFile = FS_WriteFile;
-	ri.FS_FreeFileList = FS_FreeFileList;
-	ri.FS_ListFiles = FS_ListFiles;
-	ri.FS_FileIsInPAK = FS_FileIsInPAK;
-	ri.FS_FileExists = FS_FileExists;
-	ri.Cvar_Get = Cvar_Get;
-	ri.Cvar_Set = Cvar_Set;
-	ri.Cvar_SetValue = Cvar_SetValue;
-	ri.Cvar_CheckRange = Cvar_CheckRange;
-	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
+	rdImport.FS_ReadFile = FS_ReadFile;
+	rdImport.FS_FreeFile = FS_FreeFile;
+	rdImport.FS_Write = FS_Write;
+	rdImport.FS_FOpenFileWrite = FS_FOpenFileWrite;
+	rdImport.FS_FCloseFile = FS_FCloseFile;
+	rdImport.FS_WriteFile = FS_WriteFile;
+	rdImport.FS_FreeFileList = FS_FreeFileList;
+	rdImport.FS_ListFiles = FS_ListFiles;
+	rdImport.FS_FileIsInPAK = FS_FileIsInPAK;
+	rdImport.FS_FileExists = FS_FileExists;
+	rdImport.Cvar_Get = Cvar_Get;
+	rdImport.Cvar_Set = Cvar_Set;
+	rdImport.Cvar_SetValue = Cvar_SetValue;
+	rdImport.Cvar_CheckRange = Cvar_CheckRange;
+	rdImport.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
 
 	// cinematic stuff
 
-	ri.CIN_UploadCinematic = CIN_UploadCinematic;
-	ri.CIN_PlayCinematic = CIN_PlayCinematic;
-	ri.CIN_RunCinematic = CIN_RunCinematic;
+	rdImport.CIN_UploadCinematic = CIN_UploadCinematic;
+	rdImport.CIN_PlayCinematic = CIN_PlayCinematic;
+	rdImport.CIN_RunCinematic = CIN_RunCinematic;
   
-	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
+	rdImport.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
-	ri.IN_Init = IN_Init;
-	ri.IN_Shutdown = IN_Shutdown;
-	ri.IN_Restart = IN_Restart;
+	rdImport.IN_Init = IN_Init;
+	rdImport.IN_Shutdown = IN_Shutdown;
+	rdImport.IN_Restart = IN_Restart;
 
-	ri.ftol = Q_ftol;
+	rdImport.ftol = Q_ftol;
 
-	ri.Sys_SetEnv = Sys_SetEnv;
-	ri.Sys_GLimpSafeInit = Sys_GLimpSafeInit;
-	ri.Sys_GLimpInit = Sys_GLimpInit;
-	ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
+	rdImport.Sys_SetEnv = Sys_SetEnv;
+	rdImport.Sys_GLimpSafeInit = Sys_GLimpSafeInit;
+	rdImport.Sys_GLimpInit = Sys_GLimpInit;
+	rdImport.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
 
-	if ( !(ret = GetRefAPI( REF_API_VERSION, &ri )) ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+	if ( !(re = GetRefAPI( REF_API_VERSION, &rdImport )) ) {
+		Com_Error( ERR_FATAL, "Couldn't initialize refresh" );
 		return;
 	}
 	Com_Printf( "-------------------------------\n");
-
-	re = *ret;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );

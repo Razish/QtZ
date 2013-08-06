@@ -49,7 +49,7 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
-		gi.SV_UnlinkEntity( (sharedEntity_t *)t );
+		trap->SV_UnlinkEntity( (sharedEntity_t *)t );
 	}
 }
 
@@ -140,7 +140,7 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
 	if ( activator->client && ( ent->spawnflags & 4 ) ) {
-		gi.SV_GameSendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
+		trap->SV_GameSendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
 		return;
 	}
 
@@ -154,7 +154,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
 		return;
 	}
 
-	gi.SV_GameSendServerCommand( -1, va("cp \"%s\"", ent->message ));
+	trap->SV_GameSendServerCommand( -1, va("cp \"%s\"", ent->message ));
 }
 
 void SP_target_print( gentity_t *ent ) {
@@ -202,7 +202,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( !G_SpawnString( "noise", "NOSOUND", &s ) ) {
-		G_Error( "target_speaker without a noise key at %s", vtos( &ent->s.origin ) );
+		trap->Error( ERR_DROP, "target_speaker without a noise key at %s", vtos( &ent->s.origin ) );
 	}
 
 	// force all client relative sounds to be "activator" speakers that
@@ -240,7 +240,7 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
 
@@ -266,7 +266,7 @@ void target_laser_think (gentity_t *self) {
 	// fire forward and see what we hit
 	VectorMA (&self->s.origin, 2048, &self->movedir, &end);
 
-	gi.SV_Trace( &tr, &self->s.origin, NULL, NULL, &end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
+	trap->SV_Trace( &tr, &self->s.origin, NULL, NULL, &end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
@@ -275,7 +275,7 @@ void target_laser_think (gentity_t *self) {
 
 	VectorCopy (&tr.endpos, &self->s.origin2);
 
-	gi.SV_LinkEntity( (sharedEntity_t *)self );
+	trap->SV_LinkEntity( (sharedEntity_t *)self );
 	self->nextthink = level.time + sv_frametime.integer;
 }
 
@@ -288,7 +288,7 @@ void target_laser_on (gentity_t *self)
 
 void target_laser_off (gentity_t *self)
 {
-	gi.SV_UnlinkEntity( (sharedEntity_t *)self );
+	trap->SV_UnlinkEntity( (sharedEntity_t *)self );
 	self->nextthink = 0;
 }
 
@@ -310,7 +310,7 @@ void target_laser_start (gentity_t *self)
 	if (self->target) {
 		ent = G_Find (NULL, FOFS(targetname), self->target);
 		if (!ent) {
-			G_Printf ("%s at %s: %s is a bad target\n", self->classname, vtos(&self->s.origin), self->target);
+			trap->Print ("%s at %s: %s is a bad target\n", self->classname, vtos(&self->s.origin), self->target);
 		}
 		self->enemy = ent;
 	} else {
@@ -347,7 +347,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 		return;
 	dest = 	G_PickTarget( self->target );
 	if (!dest) {
-		G_Printf ("Couldn't find teleporter destination\n");
+		trap->Print ("Couldn't find teleporter destination\n");
 		return;
 	}
 
@@ -359,7 +359,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter( gentity_t *self ) {
 	if (!self->targetname)
-		G_Printf("untargeted %s at %s\n", self->classname, vtos(&self->s.origin));
+		trap->Print("untargeted %s at %s\n", self->classname, vtos(&self->s.origin));
 
 	self->use = target_teleporter_use;
 }
@@ -430,7 +430,7 @@ static void target_location_linkup(gentity_t *ent)
 
 	level.locationHead = NULL;
 
-	gi.SV_SetConfigstring( CS_LOCATIONS, "unknown" );
+	trap->SV_SetConfigstring( CS_LOCATIONS, "unknown" );
 
 	for (i = 0, ent = g_entities, n = 1;
 			i < level.num_entities;
@@ -438,7 +438,7 @@ static void target_location_linkup(gentity_t *ent)
 		if (ent->classname && !Q_stricmp(ent->classname, "target_location")) {
 			// lets overload some variables!
 			ent->health = n; // use for location marking
-			gi.SV_SetConfigstring( CS_LOCATIONS + n, ent->message );
+			trap->SV_SetConfigstring( CS_LOCATIONS + n, ent->message );
 			n++;
 			ent->nextTrain = level.locationHead;
 			level.locationHead = ent;

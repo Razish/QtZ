@@ -476,14 +476,3 @@ qboolean UI_OutOfMemory( void );
 void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);
 void Controls_SetDefaults( void );
-
-// lazy...
-#if defined(PROJECT_CGAME)
-	#include "../cgame/cg_local.h"
-	#define trap_PC_ReadToken			cgi.PC_ReadTokenHandle
-	#define trap_PC_SourceFileAndLine	cgi.PC_SourceFileAndLine
-#elif defined(PROJECT_UI)
-	#include "ui_local.h"
-	#define trap_PC_ReadToken			uii.PC_ReadTokenHandle
-	#define trap_PC_SourceFileAndLine	uii.PC_SourceFileAndLine
-#endif

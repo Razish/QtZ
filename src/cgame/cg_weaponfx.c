@@ -12,18 +12,18 @@ void FX_Quantizer_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	if ( VectorNormalize2( &cent->currentState.pos.trDelta, &forward ) == 0.0f )
 		forward.z = 1.0f;
 
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.quantizerShotEffect, cent->lerpOrigin, forward, -1, -1 );
-	cgi.R_AddLightToScene( &cent->lerpOrigin, 200, 0.13f, 0.13f, 0.87f );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.quantizerShotEffect, cent->lerpOrigin, forward, -1, -1 );
+	trap->R_AddLightToScene( &cent->lerpOrigin, 200, 0.13f, 0.13f, 0.87f );
 }
 
 void FX_Quantizer_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.quantizerHitWallEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.quantizerHitWallEffect, origin, dir, -1, -1 );
 }
 
 void FX_Quantizer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.quantizerHitPlayerEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.quantizerHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
@@ -38,18 +38,18 @@ void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	if ( VectorNormalize2( &cent->currentState.pos.trDelta, &forward ) == 0.0f )
 		forward.z = 1.0f;
 
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.repeaterShotEffect, cent->lerpOrigin, forward, -1, -1 );
-	cgi.R_AddLightToScene( &cent->lerpOrigin, 200, 0.87f, 0.13f, 0.13f );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.repeaterShotEffect, cent->lerpOrigin, forward, -1, -1 );
+	trap->R_AddLightToScene( &cent->lerpOrigin, 200, 0.87f, 0.13f, 0.13f );
 }
 
 void FX_Repeater_HitWall(  centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.repeaterHitWallEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.repeaterHitWallEffect, origin, dir, -1, -1 );
 }
 
 void FX_Repeater_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.repeaterHitPlayerEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.repeaterHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
@@ -133,7 +133,7 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 
 	beam.reType = RT_ELECTRICITY;
 	beam.customShader = cgs.media.weapons.splicerCore;
-	cgi.R_AddRefEntityToScene( &beam );
+	trap->R_AddRefEntityToScene( &beam );
 
 	// add the impact flare if it hit something
 	if ( trace.fraction < 1.0 ) {
@@ -144,18 +144,18 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 		flare.customShader = cgs.media.weapons.splicerFlare;
 		VectorCopy( &trace.endpos, &flare.origin );
 
-		cgi.R_AddRefEntityToScene( &flare );
+		trap->R_AddRefEntityToScene( &flare );
 	}
 }
 
 void FX_Splicer_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.splicerHitWallEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.splicerHitWallEffect, origin, dir, -1, -1 );
 }
 
 void FX_Splicer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.splicerHitPlayerEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.splicerHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
@@ -201,36 +201,36 @@ void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 
 	MAKERGB( ent.shaderRGBA, 128, 43, 255 );
 	ent.shaderRGBA[3] = 48;
-	ent.customShader = cgi.R_RegisterShaderNoMip( "gfx/effects/shock_ripple" );
+	ent.customShader = trap->R_RegisterShaderNoMip( "gfx/effects/shock_ripple" );
 //	ent.renderfx = (RF_RGB_TINT|RF_FORCE_ENT_ALPHA);
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 
 	MAKERGB( ent.shaderRGBA, 255, 255, 255 );
 	ent.shaderRGBA[3] = 255;
-	ent.customShader	= cgi.R_RegisterShaderNoMip( "gfx/effects/caustic1" );
+	ent.customShader	= trap->R_RegisterShaderNoMip( "gfx/effects/caustic1" );
 //	ent.renderfx		= (RF_RGB_TINT|RF_MINLIGHT);
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 
 	scale = (1.15f + Q_fabs( sinf( cg.time / 80.0f ) )*0.65f);
 	VectorScale( &ent.axis[0], scale, &ent.axis[0] );
 	VectorScale( &ent.axis[1], scale, &ent.axis[1] );
 	VectorScale( &ent.axis[2], scale, &ent.axis[2] );
 	MAKERGB( ent.shaderRGBA, 51, 119, 255 );
-	ent.customShader = cgi.R_RegisterShaderNoMip( "gfx/effects/eplosion_wave" );
+	ent.customShader = trap->R_RegisterShaderNoMip( "gfx/effects/eplosion_wave" );
 //	ent.renderfx = (RF_RGB_TINT|RF_ALPHA_DEPTH);
-	cgi.R_AddRefEntityToScene( &ent );
+	trap->R_AddRefEntityToScene( &ent );
 
-	cgi.R_AddLightToScene( &cent->lerpOrigin, 400, 0.13f, 0.43f, 0.87f );
+	trap->R_AddLightToScene( &cent->lerpOrigin, 400, 0.13f, 0.43f, 0.87f );
 }
 
 void FX_Mortar_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.mortarHitWallEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.mortarHitWallEffect, origin, dir, -1, -1 );
 }
 
 void FX_Mortar_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
 {
-//	cgi.FX_PlayEffectID( cgs.effects.weapons.mortarHitPlayerEffect, origin, dir, -1, -1 );
+//	trap->FX_PlayEffectID( cgs.effects.weapons.mortarHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
@@ -243,7 +243,7 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	localEntity_t	*leCore = CG_AllocLocalEntity(),	*leGlow = CG_AllocLocalEntity(),	*leMuzzle = CG_AllocLocalEntity();
 	refEntity_t		*reCore = &leCore->refEntity,		*reGlow = &leGlow->refEntity,		*reMuzzle = &leMuzzle->refEntity;
 	clientInfo_t	*ci = &cgs.clientinfo[cent->currentState.number];
-	int				trailShader = cgi.R_RegisterShader( "divergenceCore" ), muzzleShader = cgi.R_RegisterShader( "divergenceMuzzle" );
+	int				trailShader = trap->R_RegisterShader( "divergenceCore" ), muzzleShader = trap->R_RegisterShader( "divergenceMuzzle" );
 	vector4 color = { 1.0f };
 	int				trailTime = 600;
 

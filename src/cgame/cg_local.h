@@ -1075,9 +1075,6 @@ const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 const char *CG_Cvar_VariableString( const char *var_name );
 
-void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-void QDECL CG_Error( const char *msg, ... ) __attribute__ ((noreturn, format (printf, 1, 2)));
-
 void CG_StartMusic( void );
 
 void CG_UpdateCvars( void );
@@ -1349,4 +1346,4 @@ void	CG_ParticleExplosion (char *animStr, vector3 *origin, vector3 *vel, int dur
 extern qboolean		initparticles;
 int CG_NewParticleArea ( int num );
 
-extern cgameImport_t cgi;
+extern cgameImport_t *trap;

@@ -295,7 +295,7 @@ void TossClientPersistantPowerups( gentity_t *ent ) {
 	powerup->r.svFlags &= ~SVF_NOCLIENT;
 	powerup->s.eFlags &= ~EF_NODRAW;
 	powerup->r.contents = CONTENTS_TRIGGER;
-	gi.SV_LinkEntity( (sharedEntity_t *)powerup );
+	trap->SV_LinkEntity( (sharedEntity_t *)powerup );
 
 	ent->client->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
 	ent->client->persistantPowerup = NULL;
@@ -582,7 +582,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
 
 	// never gib in a nodrop
-	contents = gi.SV_PointContents( &self->r.currentOrigin, -1 );
+	contents = trap->SV_PointContents( &self->r.currentOrigin, -1 );
 
 	if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP)) || meansOfDeath == MOD_SUICIDE) {
 		// gib death
@@ -624,7 +624,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		deathAnim = ( deathAnim + 1 ) % 3;
 	}
 
-	gi.SV_LinkEntity ((sharedEntity_t *)self);
+	trap->SV_LinkEntity ((sharedEntity_t *)self);
 
 }
 
@@ -901,8 +901,8 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			damage,
 			take,
 			asave );
-		gi.SV_GameSendServerCommand( attacker-g_entities, va( "chat \"%s\"", tmp ) );
-		G_Printf( tmp );
+		trap->SV_GameSendServerCommand( attacker-g_entities, va( "chat \"%s\"", tmp ) );
+		trap->Print( tmp );
 	}
 
 	// add to the damage inflicted on a player this frame
@@ -977,7 +977,7 @@ qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	VectorScale (&midpoint, 0.5, &midpoint);
 
 	VectorCopy (&midpoint, &dest);
-	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
+	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
 
@@ -986,28 +986,28 @@ qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	VectorCopy (&midpoint, &dest);
 	dest.x += 15.0;
 	dest.y += 15.0;
-	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
+	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
 	dest.x += 15.0;
 	dest.y -= 15.0;
-	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
+	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
 	dest.x -= 15.0;
 	dest.y += 15.0;
-	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
+	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
 	dest.x -= 15.0;
 	dest.y -= 15.0;
-	gi.SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
+	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0)
 		return qtrue;
 
@@ -1042,7 +1042,7 @@ qboolean G_RadiusDamage( vector3 *origin, gentity_t *attacker, float damage, flo
 		maxs.data[i] = origin->data[i] + radius;
 	}
 
-	numListedEntities = gi.SV_AreaEntities( &mins, &maxs, entityList, MAX_GENTITIES );
+	numListedEntities = trap->SV_AreaEntities( &mins, &maxs, entityList, MAX_GENTITIES );
 
 	for ( e = 0 ; e < numListedEntities ; e++ ) {
 		ent = &g_entities[entityList[ e ]];

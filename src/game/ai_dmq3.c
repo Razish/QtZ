@@ -114,9 +114,9 @@ BotSetUserInfo
 void BotSetUserInfo(bot_state_t *bs, char *key, char *value) {
 	char userinfo[MAX_INFO_STRING];
 
-	gi.SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
+	trap->SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
 	Info_SetValueForKey(userinfo, key, value);
-	gi.SV_SetUserinfo(bs->client, userinfo);
+	trap->SV_SetUserinfo(bs->client, userinfo);
 	ClientUserinfoChanged( bs->client );
 }
 
@@ -397,8 +397,8 @@ int BotSetLastOrderedTask(bot_state_t *bs) {
 
 				tb = BotTeamFlag(bs);
 				eb = BotEnemyFlag(bs);
-				tt = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, tb->areanum, TFL_DEFAULT);
-				et = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, eb->areanum, TFL_DEFAULT);
+				tt = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, tb->areanum, TFL_DEFAULT);
+				et = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, eb->areanum, TFL_DEFAULT);
 				// if the travel time towards the enemy base is larger than towards our base
 				if (et > tt) {
 					//get an alternative route goal towards the enemy base
@@ -421,7 +421,7 @@ void BotRefuseOrder(bot_state_t *bs) {
 		return;
 	// if the bot was ordered to do something
 	if ( bs->order_time && bs->order_time > FloatTime() - 10 ) {
-		gi.ea->EA_Action(bs->client, ACTION_NEGATIVE);
+		trap->ea->EA_Action(bs->client, ACTION_NEGATIVE);
 		BotVoiceChat(bs, bs->decisionmaker, VOICECHAT_NO);
 		bs->order_time = 0;
 	}
@@ -1015,11 +1015,11 @@ int BotPointAreaNum(vector3 *origin) {
 	int areanum, numareas, areas[10];
 	vector3 end;
 
-	areanum = gi.aas->AAS_PointAreaNum(origin);
+	areanum = trap->aas->AAS_PointAreaNum(origin);
 	if (areanum) return areanum;
 	VectorCopy(origin, &end);
 	end.z += 10;
-	numareas = gi.aas->AAS_TraceAreas(origin, &end, areas, NULL, 10);
+	numareas = trap->aas->AAS_TraceAreas(origin, &end, areas, NULL, 10);
 	if (numareas > 0) return areas[0];
 	return 0;
 }
@@ -1036,7 +1036,7 @@ char *ClientName(int client, char *name, int size) {
 		BotAI_Print(PRT_ERROR, "ClientName: client out of range\n");
 		return "[client out of range]";
 	}
-	gi.SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
+	trap->SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
 	strncpy(name, Info_ValueForKey(buf, "n"), size-1);
 	name[size-1] = '\0';
 	Q_CleanStr( name );
@@ -1055,7 +1055,7 @@ char *ClientSkin(int client, char *skin, int size) {
 		BotAI_Print(PRT_ERROR, "ClientSkin: client out of range\n");
 		return "[client out of range]";
 	}
-	gi.SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
+	trap->SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
 	strncpy(skin, Info_ValueForKey(buf, "model"), size-1);
 	skin[size-1] = '\0';
 	return skin;
@@ -1072,9 +1072,9 @@ int ClientFromName(char *name) {
 	static int maxclients;
 
 	if (!maxclients)
-		maxclients = gi.Cvar_VariableIntegerValue("sv_maxclients");
+		maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
-		gi.SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
+		trap->SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
 		Q_CleanStr( buf );
 		if (!Q_stricmp(Info_ValueForKey(buf, "n"), name)) return i;
 	}
@@ -1092,11 +1092,11 @@ int ClientOnSameTeamFromName(bot_state_t *bs, char *name) {
 	static int maxclients;
 
 	if (!maxclients)
-		maxclients = gi.Cvar_VariableIntegerValue("sv_maxclients");
+		maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		if (!BotSameTeam(bs, i))
 			continue;
-		gi.SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
+		trap->SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
 		Q_CleanStr( buf );
 		if (!Q_stricmp(Info_ValueForKey(buf, "n"), name)) return i;
 	}
@@ -1200,14 +1200,14 @@ void BotChooseWeapon(bot_state_t *bs) {
 
 	if (bs->cur_ps.weaponstate == WEAPON_RAISING ||
 			bs->cur_ps.weaponstate == WEAPON_DROPPING) {
-		gi.ea->EA_SelectWeapon(bs->client, bs->weaponnum);
+		trap->ea->EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
 	else {
-		newweaponnum = gi.ai->BotChooseBestFightWeapon(bs->ws, bs->inventory);
+		newweaponnum = trap->ai->BotChooseBestFightWeapon(bs->ws, bs->inventory);
 		if (bs->weaponnum != newweaponnum) bs->weaponchange_time = FloatTime();
 		bs->weaponnum = newweaponnum;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
-		gi.ea->EA_SelectWeapon(bs->client, bs->weaponnum);
+		trap->ea->EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
 }
 
@@ -1245,7 +1245,7 @@ void BotSetupForMovement(bot_state_t *bs) {
 	//
 	VectorCopy(&bs->viewangles, &initmove.viewangles);
 	//
-	gi.ai->BotInitMoveState(bs->ms, &initmove);
+	trap->ai->BotInitMoveState(bs->ms, &initmove);
 }
 
 /*
@@ -1274,7 +1274,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 					// tell the leader we want to be on offence
 					BotVoiceChat(bs, leader, VOICECHAT_WANTONOFFENSE);
 					//BotAI_BotInitialChat(bs, "wantoffence", NULL);
-					//gi.ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
+					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 				}
 				else if (g_difficulty.integer <= 3) {
 					if ( bs->ltgtype != LTG_GETFLAG &&
@@ -1285,7 +1285,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 									// tell the leader we want to be on offence
 									BotVoiceChat(bs, leader, VOICECHAT_WANTONOFFENSE);
 									//BotAI_BotInitialChat(bs, "wantoffence", NULL);
-									//gi.ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
+									//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 							}
 					}
 				}
@@ -1300,7 +1300,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 					// tell the leader we want to be on defense
 					BotVoiceChat(bs, -1, VOICECHAT_WANTONDEFENSE);
 					//BotAI_BotInitialChat(bs, "wantdefence", NULL);
-					//gi.ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
+					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 				}
 				else if (g_difficulty.integer <= 3) {
 					if ( bs->ltgtype != LTG_DEFENDKEYAREA ) {
@@ -1310,7 +1310,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 								// tell the leader we want to be on defense
 								BotVoiceChat(bs, -1, VOICECHAT_WANTONDEFENSE);
 								//BotAI_BotInitialChat(bs, "wantdefence", NULL);
-								//gi.ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
+								//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 						}
 					}
 				}
@@ -1384,7 +1384,7 @@ void BotBattleUseItems(bot_state_t *bs)
 	if ( bs->inventory[INVENTORY_HEALTH] < 60 )
 	{
 		if ( bs->inventory[INVENTORY_MEDKIT] > 0 )
-			gi.ea->EA_Use( bs->client );
+			trap->ea->EA_Use( bs->client );
 	}
 }
 
@@ -1417,7 +1417,7 @@ BotIsObserver
 qboolean BotIsObserver(bot_state_t *bs) {
 	char buf[MAX_INFO_STRING];
 	if (bs->cur_ps.pm_type == PM_SPECTATOR) return qtrue;
-	gi.SV_GetConfigstring(CS_PLAYERS+bs->client, buf, sizeof(buf));
+	trap->SV_GetConfigstring(CS_PLAYERS+bs->client, buf, sizeof(buf));
 	if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) return qtrue;
 	return qfalse;
 }
@@ -1443,7 +1443,7 @@ qboolean BotInLavaOrSlime(bot_state_t *bs) {
 
 	VectorCopy(&bs->origin, &feet);
 	feet.z -= 23;
-	return (gi.aas->AAS_PointContents(&feet) & (CONTENTS_LAVA|CONTENTS_SLIME));
+	return (trap->aas->AAS_PointContents(&feet) & (CONTENTS_LAVA|CONTENTS_SLIME));
 }
 
 /*
@@ -1676,7 +1676,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 		//if the bot has insufficient armor
 		if (bs->inventory[INVENTORY_ARMOR] < 40) return qfalse;
 	}
-	rocketjumper = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1);
+	rocketjumper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1);
 	if (rocketjumper < 0.5) return qfalse;
 	return qtrue;
 }
@@ -1725,7 +1725,7 @@ void BotGoCamp(bot_state_t *bs, bot_goal_t *goal) {
 	//set the team goal
 	memcpy(&bs->teamgoal, goal, sizeof(bot_goal_t));
 	//get the team goal time
-	camper = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
+	camper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
 	if (camper > 0.99) bs->teamgoal_time = FloatTime() + 99999;
 	else bs->teamgoal_time = FloatTime() + 120 + 180 * camper + random() * 15;
 	//set the last time the bot started camping
@@ -1746,7 +1746,7 @@ int BotWantsToCamp(bot_state_t *bs) {
 	int cs, traveltime, besttraveltime;
 	bot_goal_t goal, bestgoal;
 
-	camper = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
+	camper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
 	if (camper < 0.1) return qfalse;
 	//if the bot has a team goal
 	if (bs->ltgtype == LTG_TEAMHELP ||
@@ -1776,8 +1776,8 @@ int BotWantsToCamp(bot_state_t *bs) {
 
 	//find the closest camp spot
 	besttraveltime = 99999;
-	for (cs = gi.ai->BotGetNextCampSpotGoal(0, &goal); cs; cs = gi.ai->BotGetNextCampSpotGoal(cs, &goal)) {
-		traveltime = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, goal.areanum, TFL_DEFAULT);
+	for (cs = trap->ai->BotGetNextCampSpotGoal(0, &goal); cs; cs = trap->ai->BotGetNextCampSpotGoal(cs, &goal)) {
+		traveltime = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, goal.areanum, TFL_DEFAULT);
 		if (traveltime && traveltime < besttraveltime) {
 			besttraveltime = traveltime;
 			memcpy(&bestgoal, &goal, sizeof(bot_goal_t));
@@ -1800,10 +1800,10 @@ void BotDontAvoid(bot_state_t *bs, char *itemname) {
 	bot_goal_t goal;
 	int num;
 
-	num = gi.ai->BotGetLevelItemGoal(-1, itemname, &goal);
+	num = trap->ai->BotGetLevelItemGoal(-1, itemname, &goal);
 	while(num >= 0) {
-		gi.ai->BotRemoveFromAvoidGoals(bs->gs, goal.number);
-		num = gi.ai->BotGetLevelItemGoal(num, itemname, &goal);
+		trap->ai->BotRemoveFromAvoidGoals(bs->gs, goal.number);
+		num = trap->ai->BotGetLevelItemGoal(num, itemname, &goal);
 	}
 }
 
@@ -1871,7 +1871,7 @@ void BotRoamGoal(bot_state_t *bs, vector3 *goal) {
 			//
 			if (!trace.startsolid) {
 				trace.endpos.z++;
-				pc = gi.SV_PointContents(&trace.endpos, bs->entitynum);
+				pc = trap->SV_PointContents(&trace.endpos, bs->entitynum);
 				if (!(pc & (CONTENTS_LAVA | CONTENTS_SLIME))) {
 					VectorCopy(&bestorg, goal);
 					return;
@@ -1908,15 +1908,15 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		//initialize the movement state
 		BotSetupForMovement(bs);
 		//move towards the goal
-		gi.ai->BotMoveToGoal(&moveresult, bs->ms, &goal, tfl);
+		trap->ai->BotMoveToGoal(&moveresult, bs->ms, &goal, tfl);
 		return moveresult;
 	}
 	//
 	memset(&moveresult, 0, sizeof(bot_moveresult_t));
 	//
-	attack_skill = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
-	jumper = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
-	croucher = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
+	attack_skill = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+	jumper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
+	croucher = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
 	//if the bot is really stupid
 	if (attack_skill < 0.2) return moveresult;
 	//initialize the movement state
@@ -1959,10 +1959,10 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	if (attack_skill <= 0.4) {
 		//just walk to or away from the enemy
 		if (dist > attack_dist + attack_range) {
-			if (gi.ai->BotMoveInDirection(bs->ms, &forward, 400, movetype)) return moveresult;
+			if (trap->ai->BotMoveInDirection(bs->ms, &forward, 400, movetype)) return moveresult;
 		}
 		if (dist < attack_dist - attack_range) {
-			if (gi.ai->BotMoveInDirection(bs->ms, &backward, 400, movetype)) return moveresult;
+			if (trap->ai->BotMoveInDirection(bs->ms, &backward, 400, movetype)) return moveresult;
 		}
 		return moveresult;
 	}
@@ -2004,7 +2004,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 			}
 		}
 		//perform the movement
-		if (gi.ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype))
+		if (trap->ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype))
 			return moveresult;
 		//movement failed, flip the strafe direction
 		bs->flags ^= BFL_STRAFERIGHT;
@@ -2091,7 +2091,7 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 	vectoangles(&dir, &entangles);
 	if (!InFieldOfVision(viewangles, fov, &entangles)) return 0;
 	//
-	pc = gi.aas->AAS_PointContents(eye);
+	pc = trap->aas->AAS_PointContents(eye);
 	infog = (pc & CONTENTS_FOG);
 	inwater = (pc & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER));
 	//
@@ -2106,7 +2106,7 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 		VectorCopy(eye, &start);
 		VectorCopy(&middle, &end);
 		//if the entity is in water, lava or slime
-		if (gi.aas->AAS_PointContents(&middle) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) {
+		if (trap->aas->AAS_PointContents(&middle) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) {
 			contents_mask |= (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER);
 		}
 		//if eye is in water, lava or slime
@@ -2136,7 +2136,7 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 		if (trace.fraction >= 1 || trace.ent == hitent) {
 			//check for fog, assuming there's only one fog brush where
 			//either the viewer or the entity is in or both are in
-			otherinfog = (gi.aas->AAS_PointContents(&middle) & CONTENTS_FOG);
+			otherinfog = (trap->aas->AAS_PointContents(&middle) & CONTENTS_FOG);
 			if (infog && otherinfog) {
 				VectorSubtract(&trace.endpos, eye, &dir);
 				squaredfogdist = VectorLengthSquared(&dir);
@@ -2185,8 +2185,8 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 	aas_entityinfo_t entinfo, curenemyinfo;
 	vector3 dir, angles;
 
-	alertness = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_ALERTNESS, 0, 1);
-	easyfragger = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1);
+	alertness = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_ALERTNESS, 0, 1);
+	easyfragger = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1);
 	//check if the health decreased
 	healthdecrease = bs->lasthealth > bs->inventory[INVENTORY_HEALTH];
 	//remember the current health value
@@ -2456,23 +2456,23 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	//
 	//BotAI_Print(PRT_MESSAGE, "client %d: aiming at client %d\n", bs->entitynum, bs->enemy);
 	//
-	aim_skill = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1);
-	aim_accuracy = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
+	aim_skill = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1);
+	aim_accuracy = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
 	//
 	if (aim_skill > 0.95f) {
 		//don't aim too early
-		reactiontime = 0.5f * gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
+		reactiontime = 0.5f * trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 		if (bs->enemysight_time > FloatTime() - reactiontime) return;
 		if (bs->teleport_time > FloatTime() - reactiontime) return;
 	}
 
 	//get the weapon information
-	gi.ai->BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	trap->ai->BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
 
 	//RAZMARK: Adding new weapons
 	//get the weapon specific aim accuracy and or aim skill
 //	if ( wi.number == WP_MACHINEGUN )
-//		aim_accuracy = gi.Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
+//		aim_accuracy = trap->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
 
 	aim_accuracy = 0.46f;
 
@@ -2552,7 +2552,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 						//
 						VectorClear(&cmdmove);
 						//AAS_ClearShownDebugLines();
-						gi.aas->AAS_PredictClientMovement(&move, bs->enemy, &origin,
+						trap->aas->AAS_PredictClientMovement(&move, bs->enemy, &origin,
 							PRESENCE_CROUCH, qfalse,
 							&dir, &cmdmove, 0,
 							(int)(dist * 10 / wi.speed), 0.1f, 0, 0, qfalse);
@@ -2628,7 +2628,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 				VectorSet(&goal.mins, -8, -8, -8);
 				VectorSet(&goal.maxs, 8, 8, 8);
 				//
-				if (gi.ai->BotPredictVisiblePosition(&bs->lastenemyorigin, bs->lastenemyareanum, &goal, TFL_DEFAULT, &target)) {
+				if (trap->ai->BotPredictVisiblePosition(&bs->lastenemyorigin, bs->lastenemyareanum, &goal, TFL_DEFAULT, &target)) {
 					VectorSubtract(&target, &bs->eye, &dir);
 					if (VectorLengthSquared(&dir) > Square(80)) {
 						VectorCopy(&target, &bestorigin);
@@ -2677,7 +2677,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			if (bs->ideal_viewangles.pitch > 180)
 				bs->ideal_viewangles.pitch -= 360;
 			VectorCopy(&bs->ideal_viewangles, &bs->viewangles);
-			gi.ea->EA_View(bs->client, &bs->viewangles);
+			trap->ea->EA_View(bs->client, &bs->viewangles);
 		}
 	}
 }
@@ -2714,14 +2714,14 @@ void BotCheckAttack(bot_state_t *bs) {
 		}
 	}
 	//
-	reactiontime = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
+	reactiontime = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;
 	//if changing weapons
 	if (bs->weaponchange_time > FloatTime() - 0.1) return;
 	//check fire throttle characteristic
 	if (bs->firethrottlewait_time > FloatTime()) return;
-	firethrottle = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
+	firethrottle = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
 	if (bs->firethrottleshoot_time < FloatTime()) {
 		if (random() > firethrottle) {
 			bs->firethrottlewait_time = FloatTime() + firethrottle;
@@ -2749,7 +2749,7 @@ void BotCheckAttack(bot_state_t *bs) {
 		return;
 
 	//get the weapon info
-	gi.ai->BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	trap->ai->BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
 	//get the start point shooting from
 	VectorCopy(&bs->origin, &start);
 	start.z += bs->cur_ps.viewheight;
@@ -2786,11 +2786,11 @@ void BotCheckAttack(bot_state_t *bs) {
 	//if fire has to be release to activate weapon
 	if (wi.flags & WFL_FIRERELEASED) {
 		if (bs->flags & BFL_ATTACKED) {
-			gi.ea->EA_Attack(bs->client);
+			trap->ea->EA_Attack(bs->client);
 		}
 	}
 	else {
-		gi.ea->EA_Attack(bs->client);
+		trap->ea->EA_Attack(bs->client);
 	}
 	bs->flags ^= BFL_ATTACKED;
 }
@@ -2808,7 +2808,7 @@ void BotMapScripts(bot_state_t *bs) {
 	aas_entityinfo_t entinfo;
 	vector3 dir;
 
-	gi.SV_GetServerinfo(info, sizeof(info));
+	trap->SV_GetServerinfo(info, sizeof(info));
 
 	strncpy(mapname, Info_ValueForKey( info, "mapname" ), sizeof(mapname)-1);
 	mapname[sizeof(mapname)-1] = '\0';
@@ -2857,14 +2857,14 @@ void BotMapScripts(bot_state_t *bs) {
 			bs->flags |= BFL_IDEALVIEWSET;
 			VectorSubtract(&buttonorg, &bs->eye, &dir);
 			vectoangles(&dir, &bs->ideal_viewangles);
-			aim_accuracy = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
+			aim_accuracy = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
 			bs->ideal_viewangles.pitch += 8 * crandom() * (1 - aim_accuracy);
 			bs->ideal_viewangles.pitch = AngleMod(bs->ideal_viewangles.pitch);
 			bs->ideal_viewangles.yaw += 8 * crandom() * (1 - aim_accuracy);
 			bs->ideal_viewangles.yaw = AngleMod(bs->ideal_viewangles.yaw);
 			//
 			if (InFieldOfVision(&bs->viewangles, 20, &bs->ideal_viewangles)) {
-				gi.ea->EA_Attack(bs->client);
+				trap->ea->EA_Attack(bs->client);
 			}
 		}
 	}
@@ -2950,7 +2950,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 	activategoal->shoot = qfalse;
 	VectorClear(&activategoal->target);
 	//create a bot goal towards the button
-	gi.aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
+	trap->aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
 	if (!*model)
 		return qfalse;
 	modelindex = atoi(model+1);
@@ -2959,10 +2959,10 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 	VectorClear(&angles);
 	entitynum = BotModelMinsMaxs(modelindex, ET_MOVER, 0, &mins, &maxs);
 	//get the lip of the button
-	gi.aas->AAS_FloatForBSPEpairKey(bspent, "lip", &lip);
+	trap->aas->AAS_FloatForBSPEpairKey(bspent, "lip", &lip);
 	if (!lip) lip = 4;
 	//get the move direction from the angle
-	gi.aas->AAS_FloatForBSPEpairKey(bspent, "angle", &angle);
+	trap->aas->AAS_FloatForBSPEpairKey(bspent, "angle", &angle);
 	VectorSet(&angles, 0, angle, 0);
 	BotSetMovedir(&angles, &movedir);
 	//button size
@@ -2974,7 +2974,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 	dist = fabsf(movedir.x) * size.x + fabsf(movedir.y) * size.y + fabsf(movedir.z) * size.z;
 	dist *= 0.5f;
 	//
-	gi.aas->AAS_FloatForBSPEpairKey(bspent, "health", &health);
+	trap->aas->AAS_FloatForBSPEpairKey(bspent, "health", &health);
 	//if the button is shootable
 	if (health) {
 		//calculate the shoot target
@@ -3000,7 +3000,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 		else {
 			//create a goal from where the button is visible and shoot at the button from there
 			//add bounding box size to the dist
-			gi.aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &bboxmins, &bboxmaxs);
+			trap->aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &bboxmins, &bboxmaxs);
 			for (i = 0; i < 3; i++) {
 				if ( movedir.data[i] < 0 )	dist += fabsf(movedir.data[i]) * fabsf(bboxmaxs.data[i]);
 				else						dist += fabsf(movedir.data[i]) * fabsf(bboxmins.data[i]);
@@ -3012,10 +3012,10 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 			start.z += 24;
 			VectorCopy(&start, &end);
 			end.z -= 512;
-			numareas = gi.aas->AAS_TraceAreas(&start, &end, areas, points, 10);
+			numareas = trap->aas->AAS_TraceAreas(&start, &end, areas, points, 10);
 			//
 			for (i = numareas-1; i >= 0; i--) {
-				if (gi.aas->AAS_AreaReachability(areas[i])) {
+				if (trap->aas->AAS_AreaReachability(areas[i])) {
 					break;
 				}
 			}
@@ -3045,7 +3045,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 	}
 	else {
 		//add bounding box size to the dist
-		gi.aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &bboxmins, &bboxmaxs);
+		trap->aas->AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &bboxmins, &bboxmaxs);
 		for (i = 0; i < 3; i++) {
 			if ( movedir.data[i] < 0 )	dist += fabsf(movedir.data[i]) * fabsf(bboxmaxs.data[i]);
 			else						dist += fabsf(movedir.data[i]) * fabsf(bboxmins.data[i]);
@@ -3057,10 +3057,10 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 		start.z += 24;
 		VectorCopy(&start, &end);
 		end.z -= 100;
-		numareas = gi.aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
+		numareas = trap->aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
 		//
 		for (i = 0; i < numareas; i++) {
-			if (gi.aas->AAS_AreaReachability(areas[i])) {
+			if (trap->aas->AAS_AreaReachability(areas[i])) {
 				break;
 			}
 		}
@@ -3097,7 +3097,7 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 	vector3 mins, maxs, origin, angles;
 
 	//shoot at the shootable door
-	gi.aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
+	trap->aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
 	if (!*model)
 		return qfalse;
 	modelindex = atoi(model+1);
@@ -3135,7 +3135,7 @@ int BotTriggerMultipleActivateGoal(bot_state_t *bs, int bspent, bot_activategoal
 	activategoal->shoot = qfalse;
 	VectorClear(&activategoal->target);
 	//create a bot goal towards the trigger
-	gi.aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
+	trap->aas->AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
 	if (!*model)
 		return qfalse;
 	modelindex = atoi(model+1);
@@ -3152,10 +3152,10 @@ int BotTriggerMultipleActivateGoal(bot_state_t *bs, int bspent, bot_activategoal
 	start.z += 24;
 	VectorCopy(&start, &end);
 	end.z -= 100;
-	numareas = gi.aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
+	numareas = trap->aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
 	//
 	for (i = 0; i < numareas; i++) {
-		if (gi.aas->AAS_AreaReachability(areas[i])) {
+		if (trap->aas->AAS_AreaReachability(areas[i])) {
 			break;
 		}
 	}
@@ -3239,7 +3239,7 @@ void BotEnableActivateGoalAreas(bot_activategoal_t *activategoal, int enable) {
 	if (activategoal->areasdisabled == !enable)
 		return;
 	for (i = 0; i < activategoal->numareas; i++)
-		gi.aas->AAS_EnableRoutingArea( activategoal->areas[i], enable );
+		trap->aas->AAS_EnableRoutingArea( activategoal->areas[i], enable );
 	activategoal->areasdisabled = !enable;
 }
 
@@ -3294,22 +3294,22 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 	memset(activategoal, 0, sizeof(bot_activategoal_t));
 	BotEntityInfo(entitynum, &entinfo);
 	Com_sprintf(model, sizeof( model ), "*%d", entinfo.modelindex);
-	for (ent = gi.aas->AAS_NextBSPEntity(0); ent; ent = gi.aas->AAS_NextBSPEntity(ent)) {
-		if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "model", tmpmodel, sizeof(tmpmodel))) continue;
+	for (ent = trap->aas->AAS_NextBSPEntity(0); ent; ent = trap->aas->AAS_NextBSPEntity(ent)) {
+		if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "model", tmpmodel, sizeof(tmpmodel))) continue;
 		if (!strcmp(model, tmpmodel)) break;
 	}
 	if (!ent) {
 		BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity found with model %s\n", model);
 		return 0;
 	}
-	gi.aas->AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname));
+	trap->aas->AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname));
 	if (!*classname) {
 		BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model %s has no classname\n", model);
 		return 0;
 	}
 	//if it is a door
 	if (!strcmp(classname, "func_door")) {
-		if (gi.aas->AAS_FloatForBSPEpairKey(ent, "health", &health)) {
+		if (trap->aas->AAS_FloatForBSPEpairKey(ent, "health", &health)) {
 			//if the door has health then the door must be shot to open
 			if (health) {
 				BotFuncDoorActivateGoal(bs, ent, activategoal);
@@ -3317,34 +3317,34 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			}
 		}
 		//
-		gi.aas->AAS_IntForBSPEpairKey(ent, "spawnflags", &spawnflags);
+		trap->aas->AAS_IntForBSPEpairKey(ent, "spawnflags", &spawnflags);
 		// if the door starts open then just wait for the door to return
 		if ( spawnflags & 1 )
 			return 0;
 		//get the door origin
-		if (!gi.aas->AAS_VectorForBSPEpairKey(ent, "origin", &origin)) {
+		if (!trap->aas->AAS_VectorForBSPEpairKey(ent, "origin", &origin)) {
 			VectorClear(&origin);
 		}
 		//if the door is open or opening already
 		if (!VectorCompare(&origin, &entinfo.origin))
 			return 0;
 		// store all the areas the door is in
-		gi.aas->AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model));
+		trap->aas->AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model));
 		if (*model) {
 			modelindex = atoi(model+1);
 			if (modelindex) {
 				VectorClear(&angles);
 				BotModelMinsMaxs(modelindex, ET_MOVER, 0, &absmins, &absmaxs);
 				//
-				numareas = gi.aas->AAS_BBoxAreas(&absmins, &absmaxs, areas, MAX_ACTIVATEAREAS*2);
+				numareas = trap->aas->AAS_BBoxAreas(&absmins, &absmaxs, areas, MAX_ACTIVATEAREAS*2);
 				// store the areas with reachabilities first
 				for (i = 0; i < numareas; i++) {
 					if (activategoal->numareas >= MAX_ACTIVATEAREAS)
 						break;
-					if ( !gi.aas->AAS_AreaReachability(areas[i]) ) {
+					if ( !trap->aas->AAS_AreaReachability(areas[i]) ) {
 						continue;
 					}
-					gi.aas->AAS_AreaInfo(areas[i], &areainfo);
+					trap->aas->AAS_AreaInfo(areas[i], &areainfo);
 					if (areainfo.contents & AREACONTENTS_MOVER) {
 						activategoal->areas[activategoal->numareas++] = areas[i];
 					}
@@ -3353,10 +3353,10 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 				for (i = 0; i < numareas; i++) {
 					if (activategoal->numareas >= MAX_ACTIVATEAREAS)
 						break;
-					if ( gi.aas->AAS_AreaReachability(areas[i]) ) {
+					if ( trap->aas->AAS_AreaReachability(areas[i]) ) {
 						continue;
 					}
-					gi.aas->AAS_AreaInfo(areas[i], &areainfo);
+					trap->aas->AAS_AreaInfo(areas[i], &areainfo);
 					if (areainfo.contents & AREACONTENTS_MOVER) {
 						activategoal->areas[activategoal->numareas++] = areas[i];
 					}
@@ -3369,19 +3369,19 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		return 0;
 	}
 	// get the targetname so we can find an entity with a matching target
-	if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0]))) {
+	if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0]))) {
 		if (bot_developer.integer) {
 			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
 		}
 		return 0;
 	}
 	// allow tree-like activation
-	cur_entities[0] = gi.aas->AAS_NextBSPEntity(0);
+	cur_entities[0] = trap->aas->AAS_NextBSPEntity(0);
 	for (i = 0; i >= 0 && i < 10;) {
-		for (ent = cur_entities[i]; ent; ent = gi.aas->AAS_NextBSPEntity(ent)) {
-			if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "target", target, sizeof(target))) continue;
+		for (ent = cur_entities[i]; ent; ent = trap->aas->AAS_NextBSPEntity(ent)) {
+			if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "target", target, sizeof(target))) continue;
 			if (!strcmp(targetname[i], target)) {
-				cur_entities[i] = gi.aas->AAS_NextBSPEntity(ent);
+				cur_entities[i] = trap->aas->AAS_NextBSPEntity(ent);
 				break;
 			}
 		}
@@ -3392,7 +3392,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			i--;
 			continue;
 		}
-		if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname))) {
+		if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname))) {
 			if (bot_developer.integer) {
 				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
 			}
@@ -3410,11 +3410,11 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 				 bs->activatestack->start_time < FloatTime() - 2)
 				continue;
 			// if the bot is in a reachability area
-			if ( gi.aas->AAS_AreaReachability(bs->areanum) ) {
+			if ( trap->aas->AAS_AreaReachability(bs->areanum) ) {
 				// disable all areas the blocking entity is in
 				BotEnableActivateGoalAreas( activategoal, qfalse );
 				//
-				t = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, activategoal->goal.areanum, bs->tfl);
+				t = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, activategoal->goal.areanum, bs->tfl);
 				// if the button is not reachable
 				if (!t) {
 					continue;
@@ -3435,11 +3435,11 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 				 bs->activatestack->start_time < FloatTime() - 2)
 				continue;
 			// if the bot is in a reachability area
-			if ( gi.aas->AAS_AreaReachability(bs->areanum) ) {
+			if ( trap->aas->AAS_AreaReachability(bs->areanum) ) {
 				// disable all areas the blocking entity is in
 				BotEnableActivateGoalAreas( activategoal, qfalse );
 				//
-				t = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, activategoal->goal.areanum, bs->tfl);
+				t = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, activategoal->goal.areanum, bs->tfl);
 				// if the trigger is not reachable
 				if (!t) {
 					continue;
@@ -3454,9 +3454,9 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		}
 		// the actual button or trigger might be linked through a target_relay or target_delay
 		else if (!strcmp(classname, "target_relay") || !strcmp(classname, "target_delay")) {
-			if (gi.aas->AAS_ValueForBSPEpairKey(ent, "targetname", targetname[i+1], sizeof(targetname[0]))) {
+			if (trap->aas->AAS_ValueForBSPEpairKey(ent, "targetname", targetname[i+1], sizeof(targetname[0]))) {
 				i++;
-				cur_entities[i] = gi.aas->AAS_NextBSPEntity(0);
+				cur_entities[i] = trap->aas->AAS_NextBSPEntity(0);
 			}
 		}
 	}
@@ -3504,7 +3504,7 @@ void BotPrintActivateGoalInfo(bot_state_t *bs, bot_activategoal_t *activategoal,
 	char buf[128];
 
 	ClientName(bs->client, netname, sizeof(netname));
-	gi.aas->AAS_ValueForBSPEpairKey(bspent, "classname", classname, sizeof(classname));
+	trap->aas->AAS_ValueForBSPEpairKey(bspent, "classname", classname, sizeof(classname));
 	if (activategoal->shoot) {
 		Com_sprintf(buf, sizeof(buf), "%s: I have to shoot at a %s from %1.1f %1.1f %1.1f in area %d\n",
 						netname, classname,
@@ -3521,7 +3521,7 @@ void BotPrintActivateGoalInfo(bot_state_t *bs, bot_activategoal_t *activategoal,
 						activategoal->goal.origin.z,
 						activategoal->goal.areanum);
 	}
-	gi.ea->EA_Say(bs->client, buf);
+	trap->ea->EA_Say(bs->client, buf);
 }
 
 /*
@@ -3537,7 +3537,7 @@ void BotRandomMove(bot_state_t *bs, bot_moveresult_t *moveresult) {
 	angles.z = 0;
 	AngleVectors(&angles, &dir, NULL, NULL);
 
-	gi.ai->BotMoveInDirection(bs->ms, &dir, 400, MOVE_WALK);
+	trap->ai->BotMoveInDirection(bs->ms, &dir, 400, MOVE_WALK);
 
 	moveresult->failure = qfalse;
 	VectorCopy(&dir, &moveresult->movedir);
@@ -3596,7 +3596,7 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 			// if the bot is not in a reachability area it'll still
 			// need some dynamic obstacle avoidance, otherwise return
 			if (!(moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) &&
-				gi.aas->AAS_AreaReachability(bs->areanum))
+				trap->aas->AAS_AreaReachability(bs->areanum))
 				return;
 		}
 		else {
@@ -3632,16 +3632,16 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 	//
 	if (bs->flags & BFL_AVOIDRIGHT) VectorNegate(&sideward, &sideward);
 	// try to crouch straight forward?
-	if (movetype != MOVE_CROUCH || !gi.ai->BotMoveInDirection(bs->ms, &hordir, 400, movetype)) {
+	if (movetype != MOVE_CROUCH || !trap->ai->BotMoveInDirection(bs->ms, &hordir, 400, movetype)) {
 		// perform the movement
-		if (!gi.ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype)) {
+		if (!trap->ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype)) {
 			// flip the avoid direction flag
 			bs->flags ^= BFL_AVOIDRIGHT;
 			// flip the direction
 			// VectorNegate(sideward, sideward);
 			VectorMA(&sideward, -1, &hordir, &sideward);
 			// move in the other direction
-			gi.ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype);
+			trap->ai->BotMoveInDirection(bs->ms, &sideward, 400, movetype);
 		}
 	}
 	//
@@ -3680,7 +3680,7 @@ int BotAIPredictObstacles(bot_state_t *bs, bot_goal_t *goal) {
 	bs->predictobstacles_time = FloatTime();
 
 	// predict at most 100 areas or 10 seconds ahead
-	gi.aas->AAS_PredictRoute(&route, bs->areanum, &bs->origin,
+	trap->aas->AAS_PredictRoute(&route, bs->areanum, &bs->origin,
 							goal->areanum, bs->tfl, 100, 1000,
 							RSE_USETRAVELTYPE|RSE_ENTERCONTENTS,
 							AREACONTENTS_MOVER, TFL_BRIDGE, 0);
@@ -3740,9 +3740,9 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 	//the name of this bot
 	ClientName(bs->client, botname, sizeof(botname));
 	//
-	while((handle = gi.ai->BotNextConsoleMessage(bs->cs, &m)) != 0) {
+	while((handle = trap->ai->BotNextConsoleMessage(bs->cs, &m)) != 0) {
 		//if the chat state is flooded with messages the bot will read them quickly
-		if (gi.ai->BotNumConsoleMessages(bs->cs) < 10) {
+		if (trap->ai->BotNumConsoleMessages(bs->cs) < 10) {
 			//if it is a chat message the bot needs some time to read it
 			if (m.type == CMS_CHAT && m.time > FloatTime() - (1 + random())) break;
 		}
@@ -3752,46 +3752,46 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 		//replace synonyms in the netname
 		if (m.type == CMS_CHAT) {
 			//
-			if (gi.ai->BotFindMatch(m.message, &match, MTCONTEXT_REPLYCHAT)) {
+			if (trap->ai->BotFindMatch(m.message, &match, MTCONTEXT_REPLYCHAT)) {
 				ptr = m.message + match.variables[MESSAGE].offset;
 			}
 		}
 		//unify the white spaces in the message
-		gi.ai->UnifyWhiteSpaces(ptr);
+		trap->ai->UnifyWhiteSpaces(ptr);
 		//replace synonyms in the right context
 		context = BotSynonymContext(bs);
-		gi.ai->BotReplaceSynonyms(ptr, context);
+		trap->ai->BotReplaceSynonyms(ptr, context);
 		//if there's no match
 		if (!BotMatchMessage(bs, m.message)) {
 			//if it is a chat message
 			if (m.type == CMS_CHAT && !bot_nochat.integer) {
 				//
-				if (!gi.ai->BotFindMatch(m.message, &match, MTCONTEXT_REPLYCHAT)) {
-					gi.ai->BotRemoveConsoleMessage(bs->cs, handle);
+				if (!trap->ai->BotFindMatch(m.message, &match, MTCONTEXT_REPLYCHAT)) {
+					trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
 					continue;
 				}
 				//don't use eliza chats with team messages
 				if (match.subtype & ST_TEAM) {
-					gi.ai->BotRemoveConsoleMessage(bs->cs, handle);
+					trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
 					continue;
 				}
 				//
-				gi.ai->BotMatchVariable(&match, NETNAME, netname, sizeof(netname));
-				gi.ai->BotMatchVariable(&match, MESSAGE, message, sizeof(message));
+				trap->ai->BotMatchVariable(&match, NETNAME, netname, sizeof(netname));
+				trap->ai->BotMatchVariable(&match, MESSAGE, message, sizeof(message));
 				//if this is a message from the bot self
 				if (bs->client == ClientFromName(netname)) {
-					gi.ai->BotRemoveConsoleMessage(bs->cs, handle);
+					trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
 					continue;
 				}
 				//unify the message
-				gi.ai->UnifyWhiteSpaces(message);
+				trap->ai->UnifyWhiteSpaces(message);
 				//
-				gi.Cvar_Update(&bot_testrchat);
+				trap->Cvar_Update(&bot_testrchat);
 				if (bot_testrchat.integer) {
 					//
-					gi.BotLibVarSet("bot_testrchat", "1");
+					trap->BotLibVarSet("bot_testrchat", "1");
 					//if bot replies with a chat message
-					if (gi.ai->BotReplyChat(bs->cs, message, context, CONTEXT_REPLY,
+					if (trap->ai->BotReplyChat(bs->cs, message, context, CONTEXT_REPLY,
 															NULL, NULL,
 															NULL, NULL,
 															NULL, NULL,
@@ -3804,16 +3804,16 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 				}
 				//if at a valid chat position and not chatting already and not in teamplay
 				else if (bs->ainode != AINode_Stand && BotValidChatPosition(bs) && !TeamPlayIsOn()) {
-					chat_reply = gi.ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_REPLY, 0, 1);
+					chat_reply = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_REPLY, 0, 1);
 					if (random() < 1.5 / (NumBots()+1) && random() < chat_reply) {
 						//if bot replies with a chat message
-						if (gi.ai->BotReplyChat(bs->cs, message, context, CONTEXT_REPLY,
+						if (trap->ai->BotReplyChat(bs->cs, message, context, CONTEXT_REPLY,
 																NULL, NULL,
 																NULL, NULL,
 																NULL, NULL,
 																botname, netname)) {
 							//remove the console message
-							gi.ai->BotRemoveConsoleMessage(bs->cs, handle);
+							trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
 							bs->stand_time = FloatTime() + BotChatTime(bs);
 							AIEnter_Stand(bs, "BotCheckConsoleMessages: reply chat");
 							//EA_Say(bs->client, bs->cs.chatmessage);
@@ -3824,7 +3824,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 			}
 		}
 		//remove the console message
-		gi.ai->BotRemoveConsoleMessage(bs->cs, handle);
+		trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
 	}
 }
 
@@ -3903,7 +3903,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 				BotAI_Print(PRT_ERROR, "EV_GLOBAL_SOUND: eventParm (%d) out of range\n", state->eventParm);
 				break;
 			}
-			gi.SV_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof(buf));
+			trap->SV_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof(buf));
 			if (!strcmp(buf, "sound/items/poweruprespawn.wav")) {
 				//powerup respawned... go get it
 				BotGoForPowerups(bs);
@@ -3993,7 +3993,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 					break;
 				}
 				//check out the sound
-				gi.SV_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof(buf));
+				trap->SV_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof(buf));
 			}
 			break;
 		}
@@ -4052,7 +4052,7 @@ void BotCheckSnapshot(bot_state_t *bs) {
 	entityState_t state;
 
 	//remove all avoid spots
-	gi.ai->BotAddAvoidSpot(bs->ms, &vec3_origin, 0, AVOID_CLEAR);
+	trap->ai->BotAddAvoidSpot(bs->ms, &vec3_origin, 0, AVOID_CLEAR);
 	//
 	ent = 0;
 	while( ( ent = BotAI_GetSnapshotEntity( bs->client, ent, &state ) ) != -1 ) {
@@ -4074,7 +4074,7 @@ BotCheckAir
 ==================
 */
 void BotCheckAir(bot_state_t *bs) {
-	if ( gi.aas->AAS_PointContents( &bs->eye ) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA) )
+	if ( trap->aas->AAS_PointContents( &bs->eye ) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA) )
 		return;
 	bs->lastair_time = FloatTime();
 }
@@ -4093,7 +4093,7 @@ bot_goal_t *BotAlternateRoute(bot_state_t *bs, bot_goal_t *goal) {
 		if (bs->reachedaltroutegoal_time)
 			return goal;
 		// travel time towards alternative route goal
-		t = gi.aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, bs->altroutegoal.areanum, bs->tfl);
+		t = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, bs->altroutegoal.areanum, bs->tfl);
 		if (t && t < 20) {
 			//BotAI_Print(PRT_MESSAGE, "reached alternate route goal\n");
 			bs->reachedaltroutegoal_time = FloatTime();
@@ -4151,17 +4151,17 @@ void BotSetupAlternativeRouteGoals(void) {
 	if (altroutegoals_setup)
 		return;
 	if (gametype == GT_CTF) {
-		if (gi.ai->BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
 			BotAI_Print(PRT_WARNING, "No alt routes without Neutral Flag\n");
 		if (ctf_neutralflag.areanum) {
 			//
-			red_numaltroutegoals = gi.aas->AAS_AlternativeRouteGoals(
+			red_numaltroutegoals = trap->aas->AAS_AlternativeRouteGoals(
 										&ctf_neutralflag.origin, ctf_neutralflag.areanum,
 										&ctf_redflag.origin, ctf_redflag.areanum, TFL_DEFAULT,
 										red_altroutegoals, MAX_ALTROUTEGOALS,
 										ALTROUTEGOAL_CLUSTERPORTALS|
 										ALTROUTEGOAL_VIEWPORTALS);
-			blue_numaltroutegoals = gi.aas->AAS_AlternativeRouteGoals(
+			blue_numaltroutegoals = trap->aas->AAS_AlternativeRouteGoals(
 										&ctf_neutralflag.origin, ctf_neutralflag.areanum,
 										&ctf_blueflag.origin, ctf_blueflag.areanum, TFL_DEFAULT,
 										blue_altroutegoals, MAX_ALTROUTEGOALS,
@@ -4170,15 +4170,15 @@ void BotSetupAlternativeRouteGoals(void) {
 		}
 	}
 	else if (gametype == GT_1FCTF) {
-		if (gi.ai->BotGetLevelItemGoal(-1, "Neutral Obelisk", &neutralobelisk) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Neutral Obelisk", &neutralobelisk) < 0)
 			BotAI_Print(PRT_WARNING, "One Flag CTF without Neutral Obelisk\n");
-		red_numaltroutegoals = gi.aas->AAS_AlternativeRouteGoals(
+		red_numaltroutegoals = trap->aas->AAS_AlternativeRouteGoals(
 									&ctf_neutralflag.origin, ctf_neutralflag.areanum,
 									&ctf_redflag.origin, ctf_redflag.areanum, TFL_DEFAULT,
 									red_altroutegoals, MAX_ALTROUTEGOALS,
 									ALTROUTEGOAL_CLUSTERPORTALS|
 									ALTROUTEGOAL_VIEWPORTALS);
-		blue_numaltroutegoals = gi.aas->AAS_AlternativeRouteGoals(
+		blue_numaltroutegoals = trap->aas->AAS_AlternativeRouteGoals(
 									&ctf_neutralflag.origin, ctf_neutralflag.areanum,
 									&ctf_blueflag.origin, ctf_blueflag.areanum, TFL_DEFAULT,
 									blue_altroutegoals, MAX_ALTROUTEGOALS,
@@ -4203,23 +4203,23 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 		bs->setupcount--;
 		if (bs->setupcount > 0) return;
 		//get the gender characteristic
-		gi.ai->Characteristic_String(bs->character, CHARACTERISTIC_GENDER, gender, sizeof(gender));
+		trap->ai->Characteristic_String(bs->character, CHARACTERISTIC_GENDER, gender, sizeof(gender));
 		//set the bot gender
-		gi.SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
+		trap->SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
 		Info_SetValueForKey(userinfo, "sex", gender);
-		gi.SV_SetUserinfo(bs->client, userinfo);
+		trap->SV_SetUserinfo(bs->client, userinfo);
 		//set the team
 		if ( !bs->map_restart && level.gametype != GT_DUEL ) {
 			Com_sprintf(buf, sizeof(buf), "team %s", bs->settings.team);
-			gi.ea->EA_Command(bs->client, buf);
+			trap->ea->EA_Command(bs->client, buf);
 		}
 		//set the chat gender
-		if (gender[0] == 'm') gi.ai->BotSetChatGender(bs->cs, CHAT_GENDERMALE);
-		else if (gender[0] == 'f')  gi.ai->BotSetChatGender(bs->cs, CHAT_GENDERFEMALE);
-		else  gi.ai->BotSetChatGender(bs->cs, CHAT_GENDERLESS);
+		if (gender[0] == 'm') trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERMALE);
+		else if (gender[0] == 'f')  trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERFEMALE);
+		else  trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERLESS);
 		//set the chat name
 		ClientName(bs->client, name, sizeof(name));
-		gi.ai->BotSetChatName(bs->cs, name, bs->client);
+		trap->ai->BotSetChatName(bs->cs, name, bs->client);
 		//
 		bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
 		bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
@@ -4270,8 +4270,8 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	if (!bs->inuse) return;
 	//if the bot executed too many AI nodes
 	if (i >= MAX_NODESWITCHES) {
-		gi.ai->BotDumpGoalStack(bs->gs);
-		gi.ai->BotDumpAvoidGoals(bs->gs);
+		trap->ai->BotDumpGoalStack(bs->gs);
+		trap->ai->BotDumpAvoidGoals(bs->gs);
 		BotDumpNodeSwitches(bs);
 		ClientName(bs->client, name, sizeof(name));
 		BotAI_Print(PRT_ERROR, "%s at %1.1f switched more than %d AI nodes\n", name, FloatTime(), MAX_NODESWITCHES);
@@ -4348,18 +4348,18 @@ int BotGoalForBSPEntity( char *classname, bot_goal_t *goal ) {
 	int ent, numareas, areas[10];
 
 	memset(goal, 0, sizeof(bot_goal_t));
-	for (ent = gi.aas->AAS_NextBSPEntity(0); ent; ent = gi.aas->AAS_NextBSPEntity(ent)) {
-		if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "classname", value, sizeof(value)))
+	for (ent = trap->aas->AAS_NextBSPEntity(0); ent; ent = trap->aas->AAS_NextBSPEntity(ent)) {
+		if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "classname", value, sizeof(value)))
 			continue;
 		if (!strcmp(value, classname)) {
-			if (!gi.aas->AAS_VectorForBSPEpairKey(ent, "origin", &origin))
+			if (!trap->aas->AAS_VectorForBSPEpairKey(ent, "origin", &origin))
 				return qfalse;
 			VectorCopy(&origin, &goal->origin);
 			VectorCopy(&origin, &start);
 			start.z -= 32;
 			VectorCopy(&origin, &end);
 			end.z += 32;
-			numareas = gi.aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
+			numareas = trap->aas->AAS_TraceAreas(&start, &end, areas, NULL, 10);
 			if (!numareas)
 				return qfalse;
 			goal->areanum = areas[0];
@@ -4379,33 +4379,33 @@ void BotSetupDeathmatchAI(void) {
 	char model[128];
 
 	gametype = level.gametype;
-	maxclients = gi.Cvar_VariableIntegerValue("sv_maxclients");
+	maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 
-	gi.Cvar_Register( &bot_rocketjump, "bot_rocketjump", "1", 0, NULL);
-	gi.Cvar_Register( &bot_grapple, "bot_grapple", "0", 0, NULL);
-	gi.Cvar_Register( &bot_fastchat, "bot_fastchat", "0", 0, NULL);
-	gi.Cvar_Register( &bot_nochat, "bot_nochat", "0", 0, NULL);
-	gi.Cvar_Register( &bot_testrchat, "bot_testrchat", "0", 0, NULL);
-	gi.Cvar_Register( &bot_challenge, "bot_challenge", "0", 0, NULL);
-	gi.Cvar_Register( &bot_predictobstacles, "bot_predictobstacles", "1", 0, NULL);
+	trap->Cvar_Register( &bot_rocketjump, "bot_rocketjump", "1", 0, NULL);
+	trap->Cvar_Register( &bot_grapple, "bot_grapple", "0", 0, NULL);
+	trap->Cvar_Register( &bot_fastchat, "bot_fastchat", "0", 0, NULL);
+	trap->Cvar_Register( &bot_nochat, "bot_nochat", "0", 0, NULL);
+	trap->Cvar_Register( &bot_testrchat, "bot_testrchat", "0", 0, NULL);
+	trap->Cvar_Register( &bot_challenge, "bot_challenge", "0", 0, NULL);
+	trap->Cvar_Register( &bot_predictobstacles, "bot_predictobstacles", "1", 0, NULL);
 	//
 	if (gametype == GT_CTF) {
-		if (gi.ai->BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
 			BotAI_Print(PRT_WARNING, "CTF without Red Flag\n");
-		if (gi.ai->BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
 			BotAI_Print(PRT_WARNING, "CTF without Blue Flag\n");
 	}
 	else if (gametype == GT_1FCTF) {
-		if (gi.ai->BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
 			BotAI_Print(PRT_WARNING, "One Flag CTF without Neutral Flag\n");
-		if (gi.ai->BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
 			BotAI_Print(PRT_WARNING, "One Flag CTF without Red Flag\n");
-		if (gi.ai->BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
+		if (trap->ai->BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
 			BotAI_Print(PRT_WARNING, "One Flag CTF without Blue Flag\n");
 	}
 	max_bspmodelindex = 0;
-	for (ent = gi.aas->AAS_NextBSPEntity(0); ent; ent = gi.aas->AAS_NextBSPEntity(ent)) {
-		if (!gi.aas->AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model))) continue;
+	for (ent = trap->aas->AAS_NextBSPEntity(0); ent; ent = trap->aas->AAS_NextBSPEntity(ent)) {
+		if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model))) continue;
 		if (model[0] == '*') {
 			modelnum = atoi(model+1);
 			if (modelnum > max_bspmodelindex)

@@ -154,7 +154,7 @@ void CG_ScorePlum( int client, vector3 *org, int score ) {
 		le->pos.trBase.z -= 20;
 	}
 
-	//CG_Printf( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
+	//trap->Print( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
 	VectorCopy(org, &lastPos);
 
 
@@ -182,7 +182,7 @@ localEntity_t *CG_MakeExplosion( vector3 *origin, vector3 *dir,
 	vector3			tmpVec, newOrigin;
 
 	if ( msec <= 0 ) {
-		CG_Error( "CG_MakeExplosion: msec = %i", msec );
+		trap->Error( ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
 	}
 
 	// skew the time a bit so they aren't all in sync

@@ -114,7 +114,7 @@ Con_MessageMode3_f
 ================
 */
 void Con_MessageMode3_f (void) {
-	chat_playerNum = cge.CrosshairPlayer();
+	chat_playerNum = cgame->CrosshairPlayer();
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -131,7 +131,7 @@ Con_MessageMode4_f
 ================
 */
 void Con_MessageMode4_f (void) {
-	chat_playerNum = cge.LastAttacker();
+	chat_playerNum = cgame->LastAttacker();
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -500,7 +500,7 @@ void Con_DrawInput (void) {
 
 	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
 
-	re.SetColor( &con.color );
+	re->SetColor( &con.color );
 
 	SCR_DrawSmallChar( (int)con.xadjust + 1 * SMALLCHAR_WIDTH, y, CONSOLE_PROMPT_CHAR );
 
@@ -525,7 +525,7 @@ void Con_DrawNotify (void)
 	int		currentColor;
 
 	currentColor = 7;
-	re.SetColor( &g_color_table[currentColor] );
+	re->SetColor( &g_color_table[currentColor] );
 
 	v = 0;
 	for (i= con.current-NUM_CON_TIMES+1 ; i<=con.current ; i++)
@@ -550,7 +550,7 @@ void Con_DrawNotify (void)
 			}
 			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
 				currentColor = (text[x]>>8)&Q_COLORBITS;
-				re.SetColor( &g_color_table[currentColor] );
+				re->SetColor( &g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( cl_conXOffset->integer + (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
 		}
@@ -558,7 +558,7 @@ void Con_DrawNotify (void)
 		v += SMALLCHAR_HEIGHT;
 	}
 
-	re.SetColor( NULL );
+	re->SetColor( NULL );
 
 	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) )
 		return;
@@ -626,10 +626,10 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw the version number
 	i = (int)strlen( version );
 
-	re.SetColor( &shadowColour );
+	re->SetColor( &shadowColour );
 	for ( x=0; x<i; x++ )
 		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, version[x], 1.0f );
-	re.SetColor( &color );
+	re->SetColor( &color );
 	for ( x=0; x<i; x++ )
 		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH), (int)(lines - SMALLCHAR_HEIGHT*1.3f), version[x], 1.0f );
 
@@ -643,7 +643,7 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw from the bottom up
 	if (con.display != con.current)
 	{// draw arrows to show the buffer is backscrolled
-		re.SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
+		re->SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
 		for (x=0 ; x<con.linewidth ; x+=4)
 			SCR_DrawSmallChar( (int)(con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, '^' );
 		y -= SMALLCHAR_HEIGHT;
@@ -657,7 +657,7 @@ void Con_DrawSolidConsole( float frac ) {
 	}
 
 	currentColor = 7;
-	re.SetColor( &g_color_table[currentColor] );
+	re->SetColor( &g_color_table[currentColor] );
 
 	for (i=0 ; i<rows ; i++, y -= SMALLCHAR_HEIGHT, row--)
 	{
@@ -677,7 +677,7 @@ void Con_DrawSolidConsole( float frac ) {
 
 			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
 				currentColor = (text[x]>>8)&Q_COLORBITS;
-				re.SetColor( &g_color_table[currentColor] );
+				re->SetColor( &g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff );
 		}
@@ -686,7 +686,7 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw the input prompt, user text, and cursor if desired
 	Con_DrawInput ();
 
-	re.SetColor( NULL );
+	re->SetColor( NULL );
 }
 
 

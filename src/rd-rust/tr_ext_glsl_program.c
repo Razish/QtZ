@@ -81,7 +81,7 @@ static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shade
 
 		glDeleteObjectARB (shader->id);
 		free ((void*)shaderCode);
-		ri.Cvar_Set( "r_postprocess_enable", "0" );
+		ri->Cvar_Set( "r_postprocess_enable", "0" );
 
 		return NULL;
 	}
@@ -97,7 +97,7 @@ static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shade
 		R_EXT_GLSL_OutputInfoLog (shader->id);
 
 		glDeleteObjectARB (shader->id);
-		ri.Cvar_Set( "r_postprocess_enable", "0" );
+		ri->Cvar_Set( "r_postprocess_enable", "0" );
 
 		return NULL;
 	}

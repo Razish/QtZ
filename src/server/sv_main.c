@@ -1147,7 +1147,7 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		ge.RunFrame( sv.time );
+		game->RunFrame( sv.time );
 	}
 
 	if ( com_speeds->integer ) {

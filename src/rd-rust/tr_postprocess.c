@@ -44,21 +44,21 @@ static const char *ShaderSource( const char *path )
 	const char *contents = NULL;
 	static char buf[1024*64] = {0};
 
-	ri.FS_ReadFile( path, (void **)&contents );
+	ri->FS_ReadFile( path, (void **)&contents );
 
 	if ( !contents )
 	{
-		ri.Error( ERR_DROP, "Couldn't load GLSL shader %s\n", path );
+		ri->Error( ERR_DROP, "Couldn't load GLSL shader %s\n", path );
 		tr.postprocessing.loaded = qfalse;
 		return NULL;
 	}
 
 	else
 	{
-		ri.Printf( PRINT_DEVELOPER, "Loading GLSL shader %s\n", path );
+		ri->Printf( PRINT_DEVELOPER, "Loading GLSL shader %s\n", path );
 		Q_strncpyz( buf, contents, sizeof( buf ) );
 		COM_Compress( buf );
-		ri.FS_FreeFile( (void *)contents );
+		ri->FS_FreeFile( (void *)contents );
 		return &buf[0];
 	}
 }
@@ -159,7 +159,7 @@ static void LoadShaders( void )
 
 void R_EXT_Init( void )
 {
-	ri.Printf( PRINT_ALL, "----------------------------\n" );
+	ri->Printf( PRINT_ALL, "----------------------------\n" );
 	Com_Printf( "Loading visual extensions...\n" );
 
 	tr.postprocessing.loaded = qfalse;
@@ -167,7 +167,7 @@ void R_EXT_Init( void )
 		return;
 	tr.postprocessing.loaded = qtrue;
 
-	ri.Printf( PRINT_ALL, "----------------------------\n" );
+	ri->Printf( PRINT_ALL, "----------------------------\n" );
 
 	CreateFramebuffers();
 	LoadShaders();
@@ -238,7 +238,7 @@ static float adaptedMaxLuminance	= 1.0f;
 static float lastFrameTime			= 0.0f;
 static void CalculateLightAdaptation( void )
 {
-	float	time = ri.Milliseconds() / 1000.0f;
+	float	time = ri->Milliseconds() / 1000.0f;
 	float	dt;
 	vector4	currentFrameLuminance = { 0.0f };
 	float tau = 1.0f;

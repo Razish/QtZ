@@ -43,9 +43,9 @@ void SCR_DrawNamedPic( float x, float y, float width, float height, const char *
 
 	assert( width != 0 );
 
-	hShader = re.RegisterShader( picname );
+	hShader = re->RegisterShader( picname );
 	SCR_AdjustFrom640( &x, &y, &width, &height );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	re->DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 
@@ -92,12 +92,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void SCR_FillRect( float x, float y, float width, float height, const vector4 *color ) {
-	re.SetColor( color );
+	re->SetColor( color );
 
 	SCR_AdjustFrom640( &x, &y, &width, &height );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
+	re->DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
 
-	re.SetColor( NULL );
+	re->SetColor( NULL );
 }
 
 
@@ -110,7 +110,7 @@ Coordinates are 640*480 virtual values
 */
 void SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
 	SCR_AdjustFrom640( &x, &y, &width, &height );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	re->DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 
@@ -147,7 +147,7 @@ static void SCR_DrawChar( int x, int y, float size, int ch ) {
 	fcol = col*0.0625f;
 	size = 0.0625f;
 
-	re.DrawStretchPic( ax, ay, aw, ah,
+	re->DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cls.charSetShader );
@@ -179,7 +179,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 	fcol = col*0.0625f;
 	size = 0.0625f;
 
-	re.DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
+	re->DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cls.charSetShader );
@@ -206,7 +206,7 @@ void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
 	frow = row*size;
 	fcol = col*size;
 	
-	re.DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH*scale, SMALLCHAR_HEIGHT*scale,
+	re->DrawStretchPic( (float)x, (float)y, SMALLCHAR_WIDTH*scale, SMALLCHAR_HEIGHT*scale,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   cls.charSetShader );
@@ -229,7 +229,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, vector4 *s
 
 	// draw the drop shadow
 	VectorSet4( &color, 0.0f, 0.0f, 0.0f, setColor->a );
-	re.SetColor( &color );
+	re->SetColor( &color );
 	s = string;
 	xx = x;
 	while ( *s ) {
@@ -246,13 +246,13 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, vector4 *s
 	// draw the colored text
 	s = string;
 	xx = x;
-	re.SetColor( setColor );
+	re->SetColor( setColor );
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
 				color.a = setColor->a;
-				re.SetColor( &color );
+				re->SetColor( &color );
 			}
 			if ( !noColorEscape ) {
 				s += 2;
@@ -263,7 +263,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, vector4 *s
 		xx += (int)size;
 		s++;
 	}
-	re.SetColor( NULL );
+	re->SetColor( NULL );
 }
 
 
@@ -296,13 +296,13 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor
 	// draw the colored text
 	s = string;
 	xx = x;
-	re.SetColor( setColor );
+	re->SetColor( setColor );
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( &color, &g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
 				color.a = setColor->a;
-				re.SetColor( &color );
+				re->SetColor( &color );
 			}
 			if ( !noColorEscape ) {
 				s += 2;
@@ -313,7 +313,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor
 		xx += SMALLCHAR_WIDTH;
 		s++;
 	}
-	re.SetColor( NULL );
+	re->SetColor( NULL );
 }
 
 
@@ -450,9 +450,9 @@ void SCR_DrawDebugGraph (void)
 	w = cls.glconfig.vidWidth;
 	x = 0;
 	y = cls.glconfig.vidHeight;
-	re.SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
-	re.DrawStretchPic((float)x, (float)(y - cl_graphheight->integer), (float)w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
-	re.SetColor( NULL );
+	re->SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
+	re->DrawStretchPic((float)x, (float)(y - cl_graphheight->integer), (float)w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
+	re->SetColor( NULL );
 
 	for (a=0 ; a<w ; a++)
 	{
@@ -463,7 +463,7 @@ void SCR_DrawDebugGraph (void)
 		if (v < 0)
 			v += cl_graphheight->integer * (1+(int)(-v / cl_graphheight->integer));
 		h = (int)v % cl_graphheight->integer;
-		re.DrawStretchPic( (float)(x+w-1-a), (float)(y - h), 1.0f, (float)h, 0, 0, 0, 0, cls.whiteShader );
+		re->DrawStretchPic( (float)(x+w-1-a), (float)(y - h), 1.0f, (float)h, 0, 0, 0, 0, cls.whiteShader );
 	}
 }
 
@@ -497,17 +497,17 @@ This will be called twice if rendering in stereo mode
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
 
-	re.BeginFrame( stereoFrame );
+	re->BeginFrame( stereoFrame );
 
-	uiFullscreen = (cls.uiStarted && uie.IsFullscreen());
+	uiFullscreen = (cls.uiStarted && ui->IsFullscreen());
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
 	if ( uiFullscreen || (clc.state != CA_ACTIVE && clc.state != CA_CINEMATIC) ) {
 		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
-			re.SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
-			re.DrawStretchPic( 0, 0, (float)cls.glconfig.vidWidth, (float)cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-			re.SetColor( NULL );
+			re->SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
+			re->DrawStretchPic( 0, 0, (float)cls.glconfig.vidWidth, (float)cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			re->SetColor( NULL );
 		}
 	}
 
@@ -524,15 +524,15 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_DISCONNECTED:
 			// force menu up
 			S_StopAllSounds();
-			uie.SetActiveMenu( UIMENU_MAIN );
+			ui->SetActiveMenu( UIMENU_MAIN );
 			break;
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
-			uie.Refresh( cls.realtime );
-			uie.DrawConnectScreen( qfalse );
+			ui->Refresh( cls.realtime );
+			ui->DrawConnectScreen( qfalse );
 			break;
 		case CA_LOADING:
 		case CA_PRIMED:
@@ -542,8 +542,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			// also draw the connection information, so it doesn't
 			// flash away too briefly on local or lan games
 			// refresh to update the time
-			uie.Refresh( cls.realtime );
-			uie.DrawConnectScreen( qtrue );
+			ui->Refresh( cls.realtime );
+			ui->DrawConnectScreen( qtrue );
 			break;
 		case CA_ACTIVE:
 			// always supply STEREO_CENTER as vieworg offset is now done by the engine.
@@ -557,8 +557,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( Key_GetCatcher( ) & KEYCATCH_UI /*&& uivm*/ ) {
-		uie.Refresh( cls.realtime );
+	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.uiStarted ) {
+		ui->Refresh( cls.realtime );
 	}
 
 	// console draws next
@@ -605,9 +605,9 @@ void SCR_UpdateScreen( void ) {
 		}
 
 		if ( com_speeds->integer ) {
-			re.EndFrame( &time_frontend, &time_backend );
+			re->EndFrame( &time_frontend, &time_backend );
 		} else {
-			re.EndFrame( NULL, NULL );
+			re->EndFrame( NULL, NULL );
 		}
 	}
 	

@@ -27,30 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **********************************************************************/
 #include "ui_local.h"
 
-qboolean		m_entersound;		// after a frame, so caching won't disrupt the sound
-
-void QDECL Com_Error( int level, const char *error, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, error);
-	Q_vsnprintf (text, sizeof(text), error, argptr);
-	va_end (argptr);
-
-	uii.Error( level, text );
-}
-
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, msg);
-	Q_vsnprintf (text, sizeof(text), msg, argptr);
-	va_end (argptr);
-
-	uii.Print( text );
-}
-
+qboolean m_entersound;		// after a frame, so caching won't disrupt the sound
 qboolean newUI = qfalse;
 
 
@@ -72,14 +49,14 @@ UI_StartDemoLoop
 =================
 */
 void UI_StartDemoLoop( void ) {
-	uii.Cbuf_ExecuteText( EXEC_APPEND, "d1\n" );
+	trap->Cbuf_ExecuteText( EXEC_APPEND, "d1\n" );
 }
 
 
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];
 
-	uii.Cmd_Argv( arg, buffer, sizeof( buffer ) );
+	trap->Cmd_Argv( arg, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -88,7 +65,7 @@ char *UI_Argv( int arg ) {
 char *UI_Cvar_VariableString( const char *var_name ) {
 	static char	buffer[MAX_STRING_CHARS];
 
-	uii.Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+	trap->Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -128,7 +105,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
 
 	if ( Q_stricmp (cmd, "remapShader") == 0 ) {
-		if (uii.Cmd_Argc() == 4) {
+		if (trap->Cmd_Argc() == 4) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
 			char shader3[MAX_QPATH];
@@ -137,7 +114,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
 			Q_strncpyz(shader3, UI_Argv(3), sizeof(shader3));
 			
-			uii.R_RemapShader(shader1, shader2, shader3);
+			trap->R_RemapShader(shader1, shader2, shader3);
 			return qtrue;
 		}
 	}
@@ -181,9 +158,9 @@ void UI_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 void UI_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
 	qhandle_t	hShader;
 
-	hShader = uii.R_RegisterShader( picname );
+	hShader = trap->R_RegisterShader( picname );
 	UI_AdjustFrom640( &x, &y, &width, &height );
-	uii.R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
@@ -213,7 +190,7 @@ void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
 	}
 	
 	UI_AdjustFrom640( &x, &y, &w, &h );
-	uii.R_DrawStretchPic( x, y, w, h, s0, t0, s1, t1, hShader );
+	trap->R_DrawStretchPic( x, y, w, h, s0, t0, s1, t1, hShader );
 }
 
 /*
@@ -224,24 +201,24 @@ Coordinates are 640*480 virtual values
 =================
 */
 void UI_FillRect( float x, float y, float width, float height, const vector4 *color ) {
-	uii.R_SetColor( color );
+	trap->R_SetColor( color );
 
 	UI_AdjustFrom640( &x, &y, &width, &height );
-	uii.R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 
-	uii.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 void UI_DrawSides(float x, float y, float w, float h) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
-	uii.R_DrawStretchPic( x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	uii.R_DrawStretchPic( x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	trap->R_DrawStretchPic( x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	trap->R_DrawStretchPic( x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
 void UI_DrawTopBottom(float x, float y, float w, float h) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
-	uii.R_DrawStretchPic( x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	uii.R_DrawStretchPic( x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	trap->R_DrawStretchPic( x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	trap->R_DrawStretchPic( x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 /*
 ================
@@ -251,20 +228,20 @@ Coordinates are 640*480 virtual values
 =================
 */
 void UI_DrawRect( float x, float y, float width, float height, const vector4 *color ) {
-	uii.R_SetColor( color );
+	trap->R_SetColor( color );
 
   UI_DrawTopBottom(x, y, width, height);
   UI_DrawSides(x, y, width, height);
 
-	uii.R_SetColor( NULL );
+	trap->R_SetColor( NULL );
 }
 
 void UI_SetColor( const vector4 *rgba ) {
-	uii.R_SetColor( rgba );
+	trap->R_SetColor( rgba );
 }
 
 void UI_UpdateScreen( void ) {
-	uii.UpdateScreen();
+	trap->UpdateScreen();
 }
 
 

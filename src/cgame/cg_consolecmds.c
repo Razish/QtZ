@@ -38,8 +38,8 @@ void CG_TargetCommand_f( void ) {
 		return;
 	}
 
-	cgi.Cmd_Argv( 1, test, 4 );
-	cgi.SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	trap->Cmd_Argv( 1, test, 4 );
+	trap->SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
 /*
@@ -50,7 +50,7 @@ Debugging command to print the current position
 =============
 */
 static void CG_Viewpos_f (void) {
-	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg.x, (int)cg.refdef.vieworg.y, (int)cg.refdef.vieworg.z, (int)cg.refdefViewAngles.yaw);
+	trap->Print ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg.x, (int)cg.refdef.vieworg.y, (int)cg.refdef.vieworg.z, (int)cg.refdefViewAngles.yaw);
 }
 
 
@@ -61,7 +61,7 @@ static void CG_ScoresDown_f( void ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
-		cgi.SendClientCommand( "score" );
+		trap->SendClientCommand( "score" );
 
 		// leave the current scores up if they were already
 		// displayed, but if this is the first hit, clear them out
@@ -94,7 +94,7 @@ static void CG_LoadHud_f( void) {
 	String_Init();
 	Menu_Reset();
 	
-	cgi.Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
+	trap->Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
 	hudSet = buff;
 	if (hudSet[0] == '\0') {
 		hudSet = "ui/hud.txt";
@@ -132,9 +132,9 @@ static void CG_TellTarget_f( void ) {
 		return;
 	}
 
-	cgi.Cmd_Args( message, 128 );
+	trap->Cmd_Args( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	cgi.SendClientCommand( command );
+	trap->SendClientCommand( command );
 }
 
 static void CG_TellAttacker_f( void ) {
@@ -147,9 +147,9 @@ static void CG_TellAttacker_f( void ) {
 		return;
 	}
 
-	cgi.Cmd_Args( message, 128 );
+	trap->Cmd_Args( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	cgi.SendClientCommand( command );
+	trap->SendClientCommand( command );
 }
 
 static void CG_VoiceTellTarget_f( void ) {
@@ -162,9 +162,9 @@ static void CG_VoiceTellTarget_f( void ) {
 		return;
 	}
 
-	cgi.Cmd_Args( message, 128 );
+	trap->Cmd_Args( message, 128 );
 	Com_sprintf( command, 128, "vtell %i %s", clientNum, message );
-	cgi.SendClientCommand( command );
+	trap->SendClientCommand( command );
 }
 
 static void CG_VoiceTellAttacker_f( void ) {
@@ -177,9 +177,9 @@ static void CG_VoiceTellAttacker_f( void ) {
 		return;
 	}
 
-	cgi.Cmd_Args( message, 128 );
+	trap->Cmd_Args( message, 128 );
 	Com_sprintf( command, 128, "vtell %i %s", clientNum, message );
-	cgi.SendClientCommand( command );
+	trap->SendClientCommand( command );
 }
 
 static void CG_NextTeamMember_f( void ) {
@@ -223,17 +223,17 @@ static void CG_NextOrder_f( void ) {
 
 
 static void CG_ConfirmOrder_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_YES));
-	cgi.SendConsoleCommand("+button5; wait; -button5");
+	trap->SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_YES));
+	trap->SendConsoleCommand("+button5; wait; -button5");
 	if (cg.time < cgs.acceptOrderTime) {
-		cgi.SendClientCommand(va("teamtask %d\n", cgs.acceptTask));
+		trap->SendClientCommand(va("teamtask %d\n", cgs.acceptTask));
 		cgs.acceptOrderTime = 0;
 	}
 }
 
 static void CG_DenyOrder_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_NO));
-	cgi.SendConsoleCommand("+button6; wait; -button6");
+	trap->SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_NO));
+	trap->SendConsoleCommand("+button6; wait; -button6");
 	if (cg.time < cgs.acceptOrderTime) {
 		cgs.acceptOrderTime = 0;
 	}
@@ -241,65 +241,65 @@ static void CG_DenyOrder_f (void ) {
 
 static void CG_TaskOffense_f (void ) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
-		cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONGETFLAG));
+		trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONGETFLAG));
 	} else {
-		cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONOFFENSE));
+		trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONOFFENSE));
 	}
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_OFFENSE));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_OFFENSE));
 }
 
 static void CG_TaskDefense_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONDEFENSE));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_DEFENSE));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONDEFENSE));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_DEFENSE));
 }
 
 static void CG_TaskPatrol_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONPATROL));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_PATROL));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONPATROL));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_PATROL));
 }
 
 static void CG_TaskCamp_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONCAMPING));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_CAMP));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONCAMPING));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_CAMP));
 }
 
 static void CG_TaskFollow_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOW));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_FOLLOW));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOW));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_FOLLOW));
 }
 
 static void CG_TaskRetrieve_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONRETURNFLAG));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_RETRIEVE));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONRETURNFLAG));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_RETRIEVE));
 }
 
 static void CG_TaskEscort_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOWCARRIER));
-	cgi.SendClientCommand(va("teamtask %d\n", TEAMTASK_ESCORT));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOWCARRIER));
+	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_ESCORT));
 }
 
 static void CG_TaskOwnFlag_f (void ) {
-	cgi.SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_IHAVEFLAG));
+	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_IHAVEFLAG));
 }
 
 static void CG_TauntKillInsult_f (void ) {
-	cgi.SendConsoleCommand("cmd vsay kill_insult\n");
+	trap->SendConsoleCommand("cmd vsay kill_insult\n");
 }
 
 static void CG_TauntPraise_f (void ) {
-	cgi.SendConsoleCommand("cmd vsay praise\n");
+	trap->SendConsoleCommand("cmd vsay praise\n");
 }
 
 static void CG_TauntTaunt_f (void ) {
-	cgi.SendConsoleCommand("cmd vtaunt\n");
+	trap->SendConsoleCommand("cmd vtaunt\n");
 }
 
 static void CG_TauntDeathInsult_f (void ) {
-	cgi.SendConsoleCommand("cmd vsay death_insult\n");
+	trap->SendConsoleCommand("cmd vsay death_insult\n");
 }
 
 static void CG_TauntGauntlet_f (void ) {
-	cgi.SendConsoleCommand("cmd vsay kill_guantlet\n");
+	trap->SendConsoleCommand("cmd vsay kill_guantlet\n");
 }
 
 static void CG_TaskSuicide_f (void ) {
@@ -312,56 +312,10 @@ static void CG_TaskSuicide_f (void ) {
 	}
 
 	Com_sprintf( command, 128, "tell %i suicide", clientNum );
-	cgi.SendClientCommand( command );
+	trap->SendClientCommand( command );
 }
 
-
-
-/*
-==================
-CG_TeamMenu_f
-==================
-*/
-/*
-static void CG_TeamMenu_f( void ) {
-  if (cgi.Key_GetCatcher() & KEYCATCH_CGAME) {
-    CG_EventHandling(CGAME_EVENT_NONE);
-    cgi.Key_SetCatcher(0);
-  } else {
-    CG_EventHandling(CGAME_EVENT_TEAMMENU);
-    //cgi.Key_SetCatcher(KEYCATCH_CGAME);
-  }
-}
-*/
-
-/*
-==================
-CG_EditHud_f
-==================
-*/
-/*
-static void CG_EditHud_f( void ) {
-  //cls.keyCatchers ^= KEYCATCH_CGAME;
-  //VM_Call (cgvm, CG_EVENT_HANDLING, (cls.keyCatchers & KEYCATCH_CGAME) ? CGAME_EVENT_EDITHUD : CGAME_EVENT_NONE);
-}
-*/
-
-
-/*
-static void CG_Camera_f( void ) {
-	char name[1024];
-	cgi.Cmd_Argv( 1, name, sizeof(name));
-	if (cgi.loadCamera(name)) {
-		cg.cameraMode = qtrue;
-		cgi.startCamera(cg.time);
-	} else {
-		CG_Printf ("Unable to load camera %s\n",name);
-	}
-}
-*/
-
-
-typedef struct {
+typedef struct consoleCommand_s {
 	char	*cmd;
 	void	(*function)(void);
 } consoleCommand_t;
@@ -452,39 +406,39 @@ void CG_InitConsoleCommands( void ) {
 	int		i;
 
 	for ( i=0; i<ARRAY_LEN( commands ); i++ )
-		cgi.AddCommand( commands[i].cmd, NULL );
+		trap->AddCommand( commands[i].cmd, NULL );
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	cgi.AddCommand( "kill", NULL );
-	cgi.AddCommand( "say", NULL );
-	cgi.AddCommand( "say_team", NULL );
-	cgi.AddCommand( "tell", NULL );
-	cgi.AddCommand( "vsay", NULL );
-	cgi.AddCommand( "vsay_team", NULL );
-	cgi.AddCommand( "vtell", NULL );
-	cgi.AddCommand( "vtaunt", NULL );
-	cgi.AddCommand( "vosay", NULL );
-	cgi.AddCommand( "vosay_team", NULL );
-	cgi.AddCommand( "votell", NULL );
-	cgi.AddCommand( "give", NULL );
-	cgi.AddCommand( "god", NULL );
-	cgi.AddCommand( "notarget", NULL );
-	cgi.AddCommand( "noclip", NULL );
-	cgi.AddCommand( "where", NULL );
-	cgi.AddCommand( "team", NULL );
-	cgi.AddCommand( "follow", NULL );
-	cgi.AddCommand( "follownext", NULL );
-	cgi.AddCommand( "followprev", NULL );
-	cgi.AddCommand( "addbot", NULL );
-	cgi.AddCommand( "setviewpos", NULL );
-	cgi.AddCommand( "callvote", NULL );
-	cgi.AddCommand( "vote", NULL );
-	cgi.AddCommand( "callteamvote", NULL );
-	cgi.AddCommand( "teamvote", NULL );
-	cgi.AddCommand( "stats", NULL );
-	cgi.AddCommand( "teamtask", NULL );
-	cgi.AddCommand( "loaddefered", NULL );	// spelled wrong, but not changing for demo
+	trap->AddCommand( "kill", NULL );
+	trap->AddCommand( "say", NULL );
+	trap->AddCommand( "say_team", NULL );
+	trap->AddCommand( "tell", NULL );
+	trap->AddCommand( "vsay", NULL );
+	trap->AddCommand( "vsay_team", NULL );
+	trap->AddCommand( "vtell", NULL );
+	trap->AddCommand( "vtaunt", NULL );
+	trap->AddCommand( "vosay", NULL );
+	trap->AddCommand( "vosay_team", NULL );
+	trap->AddCommand( "votell", NULL );
+	trap->AddCommand( "give", NULL );
+	trap->AddCommand( "god", NULL );
+	trap->AddCommand( "notarget", NULL );
+	trap->AddCommand( "noclip", NULL );
+	trap->AddCommand( "where", NULL );
+	trap->AddCommand( "team", NULL );
+	trap->AddCommand( "follow", NULL );
+	trap->AddCommand( "follownext", NULL );
+	trap->AddCommand( "followprev", NULL );
+	trap->AddCommand( "addbot", NULL );
+	trap->AddCommand( "setviewpos", NULL );
+	trap->AddCommand( "callvote", NULL );
+	trap->AddCommand( "vote", NULL );
+	trap->AddCommand( "callteamvote", NULL );
+	trap->AddCommand( "teamvote", NULL );
+	trap->AddCommand( "stats", NULL );
+	trap->AddCommand( "teamtask", NULL );
+	trap->AddCommand( "loaddefered", NULL );	// spelled wrong, but not changing for demo
 }

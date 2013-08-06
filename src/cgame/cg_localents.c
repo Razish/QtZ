@@ -58,7 +58,7 @@ CG_FreeLocalEntity
 */
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
-		CG_Error( "CG_FreeLocalEntity: not active" );
+		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
 		return;
 	}
 
@@ -177,7 +177,7 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			else if ( r == 1 )	s = cgs.media.gibBounce2Sound;
 			else				s = cgs.media.gibBounce3Sound;
 
-			cgi.S_StartSound( &trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			trap->S_StartSound( &trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
 		}
 	}
 	else if ( le->leBounceSoundType == LEBS_BRASS ) {
@@ -253,10 +253,10 @@ void CG_AddFragment( localEntity_t *le ) {
 			le->refEntity.renderfx |= RF_LIGHTING_ORIGIN;
 			oldZ = le->refEntity.origin.z;
 			le->refEntity.origin.z -= 16 * ( 1.0f - (float)t / SINK_TIME );
-			cgi.R_AddRefEntityToScene( &le->refEntity );
+			trap->R_AddRefEntityToScene( &le->refEntity );
 			le->refEntity.origin.z = oldZ;
 		} else {
-			cgi.R_AddRefEntityToScene( &le->refEntity );
+			trap->R_AddRefEntityToScene( &le->refEntity );
 		}
 
 		return;
@@ -278,7 +278,7 @@ void CG_AddFragment( localEntity_t *le ) {
 			AnglesToAxis( &angles, le->refEntity.axis );
 		}
 
-		cgi.R_AddRefEntityToScene( &le->refEntity );
+		trap->R_AddRefEntityToScene( &le->refEntity );
 
 		// add a blood trail
 		if ( le->leBounceSoundType == LEBS_BLOOD ) {
@@ -307,7 +307,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		// reflect the velocity on the trace plane
 		CG_ReflectVelocity( le, &trace );
 
-		cgi.R_AddRefEntityToScene( &le->refEntity );
+		trap->R_AddRefEntityToScene( &le->refEntity );
 	}
 }
 
@@ -339,7 +339,7 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	re->shaderRGBA[2] = (byte)(le->color.b * c);
 	re->shaderRGBA[3] = (byte)(le->color.a * c);
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 static void CG_AddFadeScaleModel( localEntity_t *le )
@@ -366,7 +366,7 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 	ent->shaderRGBA[3] = (byte)(le->color.a * frac);
 
 	// add the entity
-	cgi.R_AddRefEntityToScene( ent );
+	trap->R_AddRefEntityToScene( ent );
 }
 
 /*
@@ -408,7 +408,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 /*
@@ -446,7 +446,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 		return;
 	}
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 /*
@@ -481,7 +481,7 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 
@@ -520,7 +520,7 @@ static void CG_AddFallScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 
@@ -536,7 +536,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 	ent = &ex->refEntity;
 
 	// add the entity
-	cgi.R_AddRefEntityToScene(ent);
+	trap->R_AddRefEntityToScene(ent);
 
 	// add the dlight
 	if ( ex->light ) {
@@ -549,7 +549,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 			light = 1.0f - ( light - 0.5f ) * 2;
 		}
 		light = ex->light * light;
-		cgi.R_AddLightToScene(&ent->origin, light, ex->lightColor.r, ex->lightColor.g, ex->lightColor.b );
+		trap->R_AddLightToScene(&ent->origin, light, ex->lightColor.r, ex->lightColor.g, ex->lightColor.b );
 	}
 }
 
@@ -577,7 +577,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	re.reType = RT_SPRITE;
 	re.radius = 42 * ( 1.0f - c ) + 30;
 
-	cgi.R_AddRefEntityToScene( &re );
+	trap->R_AddRefEntityToScene( &re );
 
 	// add the dlight
 	if ( le->light ) {
@@ -590,7 +590,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 			light = 1.0f - ( light - 0.5f ) * 2;
 		}
 		light = le->light * light;
-		cgi.R_AddLightToScene(&re.origin, light, le->lightColor.r, le->lightColor.g, le->lightColor.b );
+		trap->R_AddLightToScene(&re.origin, light, le->lightColor.r, le->lightColor.g, le->lightColor.b );
 	}
 }
 
@@ -604,7 +604,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
-	cgi.R_AddRefEntityToScene( &le->refEntity );
+	trap->R_AddRefEntityToScene( &le->refEntity );
 }
 
 /*
@@ -689,7 +689,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	for (i = 0; i < numdigits; i++) {
 		VectorMA(&origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, &vec, &re->origin);
 		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
-		cgi.R_AddRefEntityToScene( re );
+		trap->R_AddRefEntityToScene( re );
 	}
 }
 
@@ -736,7 +736,7 @@ void CG_AddOLine( localEntity_t *le )
 
 	re->reType = RT_ORIENTEDLINE;
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 #endif
 
@@ -755,7 +755,7 @@ void CG_AddLine( localEntity_t *le )
 
 	re->reType = RT_LINE;
 
-	cgi.R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 //==============================================================================
@@ -783,7 +783,7 @@ void CG_AddLocalEntities( void ) {
 		}
 		switch ( le->leType ) {
 		default:
-			CG_Error( "Bad leType: %i", le->leType );
+			trap->Error( ERR_DROP, "Bad leType: %i", le->leType );
 			break;
 
 		case LE_MARK:

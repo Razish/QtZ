@@ -153,7 +153,7 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 
 	LL( header->version );
 	if( header->version != IQM_VERSION ) {
-		ri.Printf(PRINT_WARNING, "R_LoadIQM: %s is a unsupported IQM version (%d), only version %d is supported.\n",
+		ri->Printf(PRINT_WARNING, "R_LoadIQM: %s is a unsupported IQM version (%d), only version %d is supported.\n",
 				mod_name, header->version, IQM_VERSION);
 		return qfalse;
 	}
@@ -191,7 +191,7 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 
 	// check ioq3 joint limit
 	if ( header->num_joints > IQM_MAX_JOINTS ) {
-		ri.Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %d joints (%d).\n", mod_name, IQM_MAX_JOINTS, header->num_joints);
+		ri->Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %d joints (%d).\n", mod_name, IQM_MAX_JOINTS, header->num_joints);
 		return qfalse;
 	}
 
@@ -308,13 +308,13 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 		// check ioq3 limits
 		if ( mesh->num_vertexes >= SHADER_MAX_VERTEXES ) 
 		{
-			ri.Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i verts on a surface (%i).\n",
+			ri->Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i verts on a surface (%i).\n",
 				  mod_name, SHADER_MAX_VERTEXES-1, mesh->num_vertexes );
 			return qfalse;
 		}
 		if ( mesh->num_triangles*3 >= SHADER_MAX_INDEXES ) 
 		{
-			ri.Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i triangles on a surface (%i).\n",
+			ri->Printf(PRINT_WARNING, "R_LoadIQM: %s has more than %i triangles on a surface (%i).\n",
 				  mod_name, (SHADER_MAX_INDEXES / 3)-1, mesh->num_triangles );
 			return qfalse;
 		}
@@ -435,7 +435,7 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 	size += joint_names;					// joint names
 
 	mod->type = MOD_IQM;
-	iqmData = (iqmData_t *)ri.Hunk_Alloc( size, h_low );
+	iqmData = (iqmData_t *)ri->Hunk_Alloc( size, h_low );
 	mod->modelData = iqmData;
 
 	// fill header
@@ -777,7 +777,7 @@ void R_AddIQMSurfaces( trRefEntity_t *ent ) {
 	     || (ent->e.frame < 0)
 	     || (ent->e.oldframe >= data->num_frames)
 	     || (ent->e.oldframe < 0) ) {
-		ri.Printf( PRINT_DEVELOPER, "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
+		ri->Printf( PRINT_DEVELOPER, "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
 			   ent->e.oldframe, ent->e.frame,
 			   tr.currentModel->name );
 		ent->e.frame = 0;

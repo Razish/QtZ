@@ -38,7 +38,7 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qha
 	orientation_t	lerped;
 	
 	// lerp the tag
-	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
+	trap->R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy( &parent->origin, &entity->origin );
@@ -66,7 +66,7 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 
 //AxisClear( entity->axis );
 	// lerp the tag
-	cgi.R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
+	trap->R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy( &parent->origin, &entity->origin );
@@ -102,9 +102,9 @@ void CG_SetEntitySoundPosition( centity_t *cent ) {
 
 		v = &cgs.inlineModelMidpoints[ cent->currentState.modelindex ];
 		VectorAdd( &cent->lerpOrigin, v, &origin );
-		cgi.S_UpdateEntityPosition( cent->currentState.number, &origin );
+		trap->S_UpdateEntityPosition( cent->currentState.number, &origin );
 	} else {
-		cgi.S_UpdateEntityPosition( cent->currentState.number, &cent->lerpOrigin );
+		trap->S_UpdateEntityPosition( cent->currentState.number, &cent->lerpOrigin );
 	}
 }
 
@@ -123,10 +123,10 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// add loop sound
 	if ( cent->currentState.loopSound ) {
 		if (cent->currentState.eType != ET_SPEAKER) {
-			cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
+			trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		} else {
-			cgi.S_AddRealLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
+			trap->S_AddRealLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, 
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		}
 	}
@@ -142,7 +142,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 		g = (float)((cl >> 8)	& 0xFF) / 255.0f;
 		b = (float)((cl >> 16)	& 0xFF) / 255.0f;
 		i = (float)((cl >> 24)	& 0xFF) * 4.0f;
-		cgi.R_AddLightToScene( &cent->lerpOrigin, i, r, g, b );
+		trap->R_AddLightToScene( &cent->lerpOrigin, i, r, g, b );
 	}
 }
 
@@ -185,7 +185,7 @@ static void CG_General( centity_t *cent ) {
 	AnglesToAxis( &cent->lerpAngles, ent.axis );
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene (&ent);
+	trap->R_AddRefEntityToScene (&ent);
 }
 
 /*
@@ -204,7 +204,7 @@ static void CG_Speaker( centity_t *cent ) {
 		return;
 	}
 
-	cgi.S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
+	trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
@@ -227,7 +227,7 @@ static void CG_Item( centity_t *cent ) {
 
 	es = &cent->currentState;
 	if ( es->modelindex >= bg_numItems ) {
-		CG_Error( "Bad item index %i on entity", es->modelindex );
+		trap->Error( ERR_DROP, "Bad item index %i on entity", es->modelindex );
 	}
 
 	// if set to invisible, skip
@@ -246,7 +246,7 @@ static void CG_Item( centity_t *cent ) {
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
-		cgi.R_AddRefEntityToScene(&ent);
+		trap->R_AddRefEntityToScene(&ent);
 		return;
 	}
 
@@ -319,11 +319,11 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( &ent.axis[1], 1.5, &ent.axis[1] );
 		VectorScale( &ent.axis[2], 1.5, &ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
-		cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, cgs.media.weaponHoverSound );
+		trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, cgs.media.weaponHoverSound );
 	}
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
+	trap->R_AddRefEntityToScene(&ent);
 
 	if ( item->giType == IT_WEAPON && wi->barrelModel ) {
 		refEntity_t	barrel;
@@ -341,7 +341,7 @@ static void CG_Item( centity_t *cent ) {
 		AxisCopy( ent.axis, barrel.axis );
 		barrel.nonNormalizedAxes = ent.nonNormalizedAxes;
 
-		cgi.R_AddRefEntityToScene( &barrel );
+		trap->R_AddRefEntityToScene( &barrel );
 	}
 
 	// accompanying rings / spheres for powerups
@@ -369,7 +369,7 @@ static void CG_Item( centity_t *cent ) {
 					VectorScale( &ent.axis[2], frac, &ent.axis[2] );
 					ent.nonNormalizedAxes = qtrue;
 				}
-				cgi.R_AddRefEntityToScene( &ent );
+				trap->R_AddRefEntityToScene( &ent );
 			}
 		}
 	}
@@ -413,13 +413,13 @@ static void CG_Missile( centity_t *cent ) {
 
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		cgi.R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+		trap->R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
 			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
 	}
 */
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		cgi.R_AddLightToScene(&cent->lerpOrigin, weapon->missileDlight, 
+		trap->R_AddLightToScene(&cent->lerpOrigin, weapon->missileDlight, 
 			weapon->missileDlightColor.r, weapon->missileDlightColor.g, weapon->missileDlightColor.z );
 	}
 
@@ -429,7 +429,7 @@ static void CG_Missile( centity_t *cent ) {
 
 		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, &velocity );
 
-		cgi.S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &velocity, weapon->missileSound );
+		trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &velocity, weapon->missileSound );
 	}
 
 	// create the render entity
@@ -487,13 +487,13 @@ static void CG_Mover( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
+	trap->R_AddRefEntityToScene(&ent);
 
 	// add the secondary model
 	if ( s1->modelindex2 ) {
 		ent.skinNum = 0;
 		ent.hModel = cgs.gameModels[s1->modelindex2];
-		cgi.R_AddRefEntityToScene(&ent);
+		trap->R_AddRefEntityToScene(&ent);
 	}
 
 }
@@ -521,7 +521,7 @@ void CG_Beam( centity_t *cent ) {
 	ent.renderfx = RF_NOSHADOW;
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
+	trap->R_AddRefEntityToScene(&ent);
 }
 
 
@@ -554,7 +554,7 @@ static void CG_Portal( centity_t *cent ) {
 	ent.skinNum = (int)(s1->clientNum/256.0f * 360);	// roll offset
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
+	trap->R_AddRefEntityToScene(&ent);
 }
 
 
@@ -610,7 +610,7 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	// it would be an internal error to find an entity that interpolates without
 	// a snapshot ahead of the current one
 	if ( cg.nextSnap == NULL ) {
-		CG_Error( "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
+		trap->Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
 	}
 
 	f = cg.frameInterpolation;
@@ -693,7 +693,7 @@ static void CG_TeamBase( centity_t *cent ) {
 		else {
 			model.hModel = cgs.media.neutralFlagBaseModel;
 		}
-		cgi.R_AddRefEntityToScene( &model );
+		trap->R_AddRefEntityToScene( &model );
 	}
 }
 
@@ -717,7 +717,7 @@ static void CG_AddCEntity( centity_t *cent ) {
 
 	switch ( cent->currentState.eType ) {
 	default:
-		CG_Error( "Bad entity type: %i", cent->currentState.eType );
+		trap->Error( ERR_DROP, "Bad entity type: %i", cent->currentState.eType );
 		break;
 	case ET_INVISIBLE:
 	case ET_PUSH_TRIGGER:

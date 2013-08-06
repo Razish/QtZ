@@ -222,8 +222,8 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	double v;
 
 	if ( bundle->isVideoMap ) {
-		ri.CIN_RunCinematic(bundle->videoMapHandle);
-		ri.CIN_UploadCinematic(bundle->videoMapHandle);
+		ri->CIN_RunCinematic(bundle->videoMapHandle);
+		ri->CIN_UploadCinematic(bundle->videoMapHandle);
 		return;
 	}
 
@@ -235,7 +235,7 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	// it is necessary to do this messy calc to make sure animations line up
 	// exactly with waveforms of the same frequency
 	v = tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE;
-	index = (__int64)v;//ri.ftol(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
+	index = (__int64)v;//ri->ftol(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
 	index >>= FUNCTABLE_SIZE2;
 
 	if ( index < 0 ) {
@@ -688,9 +688,9 @@ static void ProjectDlightTexture_scalar( void ) {
 				}
 			}
 			clipBits[i] = clip;
-			colors[0] = (byte)ri.ftol(floatColor.r * modulate);
-			colors[1] = (byte)ri.ftol(floatColor.g * modulate);
-			colors[2] = (byte)ri.ftol(floatColor.b * modulate);
+			colors[0] = (byte)ri->ftol(floatColor.r * modulate);
+			colors[1] = (byte)ri->ftol(floatColor.g * modulate);
+			colors[2] = (byte)ri->ftol(floatColor.b * modulate);
 			colors[3] = 255;
 		}
 
@@ -1095,7 +1095,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 				break;
 
 			default:
-				ri.Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'", pStage->bundle[b].texMods[tm].type, tess.shader->name );
+				ri->Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'", pStage->bundle[b].texMods[tm].type, tess.shader->name );
 				break;
 			}
 		}
@@ -1480,9 +1480,9 @@ void RB_EndSurface( void ) {
 	}
 
 	if (input->indexes[SHADER_MAX_INDEXES-1] != 0)
-		ri.Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
+		ri->Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
 	if (input->xyz[SHADER_MAX_VERTEXES-1].x != 0)
-		ri.Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
+		ri->Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 
 	if ( tess.shader == tr.shadowShader ) {
 		RB_ShadowTessEnd();

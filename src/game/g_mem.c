@@ -37,7 +37,7 @@ void *G_Alloc( int size ) {
 	char	*p;
 
 	if ( allocPoint + size > POOLSIZE ) {
-	  G_Error( "G_Alloc: failed on allocation of %i bytes", size );
+	  trap->Error( ERR_DROP, "G_Alloc: failed on allocation of %i bytes", size );
 		return NULL;
 	}
 
@@ -53,5 +53,5 @@ void G_InitMemory( void ) {
 }
 
 void Svcmd_GameMem_f( void ) {
-	G_Printf( "Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE );
+	trap->Print( "Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE );
 }

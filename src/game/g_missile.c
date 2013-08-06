@@ -233,7 +233,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		}
 	}
 
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
 //QtZ: Old Q3 style, replaced by JA's method above
@@ -269,7 +269,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		}
 	}
 
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 #endif
 
@@ -358,7 +358,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		g_entities[ent->r.ownerNum].client->accuracy_hits++;
 #endif
 
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
 /*
@@ -384,18 +384,18 @@ void G_RunMissile( gentity_t *ent ) {
 		passent = ent->r.ownerNum;
 	}
 	// trace a line from the previous position to the current position
-	gi.SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, passent, ent->clipmask );
+	trap->SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, passent, ent->clipmask );
 
 	if ( tr.startsolid || tr.allsolid ) {
 		// make sure the tr.entityNum is set to the entity we're stuck in
-		gi.SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &ent->r.currentOrigin, passent, ent->clipmask );
+		trap->SV_Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &ent->r.currentOrigin, passent, ent->clipmask );
 		tr.fraction = 0;
 	}
 	else {
 		VectorCopy( &tr.endpos, &ent->r.currentOrigin );
 	}
 
-	gi.SV_LinkEntity( (sharedEntity_t *)ent );
+	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 
 	if ( tr.fraction != 1 ) {
 		// never explode or bounce on sky
