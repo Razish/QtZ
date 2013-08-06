@@ -1540,7 +1540,7 @@ Returns the Z component of the surface being shadowed
 */
 #define	SHADOW_DISTANCE		128
 static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
-	vector3		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
+	vector3		end, mins = {MINS_X, MINS_Y, 0}, maxs = {MAXS_X, MAXS_Y, 2};
 	trace_t		trace;
 	float		alpha;
 

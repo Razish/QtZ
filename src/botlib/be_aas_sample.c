@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
+#include "game/bg_public.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
@@ -73,8 +74,8 @@ void AAS_PresenceTypeBoundingBox(int presencetype, vector3 *mins, vector3 *maxs)
 {
 	int index;
 	//bounding box size for each presence type
-	vector3 boxmins[NUM_PRESENCE_TYPES] = { {0, 0, 0}, {-15, -15, -24}, {-15, -15, -24} };
-	vector3 boxmaxs[NUM_PRESENCE_TYPES] = { {0, 0, 0}, { 15,  15,  32}, { 15,  15,   8} };
+	vector3 boxmins[NUM_PRESENCE_TYPES] = { {0, 0, 0}, {MINS_X, MINS_Y, MINS_Z}, {MINS_X, MINS_Y, MINS_Z} };
+	vector3 boxmaxs[NUM_PRESENCE_TYPES] = { {0, 0, 0}, {MAXS_X, MAXS_Y, MAXS_Z}, {MAXS_X, MAXS_Y, 8} };
 
 		 if ( presencetype == PRESENCE_NORMAL ) index = 1;
 	else if ( presencetype == PRESENCE_CROUCH ) index = 2;

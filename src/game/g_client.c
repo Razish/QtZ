@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_client.c -- client functions that don't happen every frame
 
-static vector3	playerMins = {-15, -15, -24};
-static vector3	playerMaxs = {15, 15, 32};
+static const vector3 playerMins = { MINS_X, MINS_Y, MINS_Z };
+static const vector3 playerMaxs = { MAXS_X, MAXS_Y, MAXS_Z };
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.

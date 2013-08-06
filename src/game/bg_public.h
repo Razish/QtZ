@@ -44,8 +44,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11
 
-#define	ITEM_MINS			{ -16.0f,	-16.0f,	  0.0f }		// item sizes are needed for client side pickup detection
-#define	ITEM_MAXS			{  16.0f,	 16.0f,	 64.0f }		// item sizes are needed for client side pickup detection
+// item sizes are needed for client side pickup detection
+#define	ITEM_MINS			{ -16.0f, -16.0f,  0.0f }
+#define	ITEM_MAXS			{  16.0f,  16.0f, 64.0f }
+
+#define MAXS_X				(15)
+#define MAXS_Y				(15)
+#define MAXS_Z				(32)
+#define MINS_X				(-MAXS_X)
+#define MINS_Y				(-MAXS_Y)
+#define MINS_Z				(-24)
 
 #define	LIGHTNING_RANGE		768
 
@@ -53,7 +61,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
-#define	MINS_Z				-24
 #define	DEFAULT_VIEWHEIGHT	26
 #define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16

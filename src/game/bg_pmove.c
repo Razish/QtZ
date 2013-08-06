@@ -1151,11 +1151,11 @@ static void PM_CheckDuck (void)
 
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
 
-	pm->mins.x = -15;
-	pm->mins.y = -15;
+	pm->mins.x = MINS_X;
+	pm->mins.y = MINS_Y;
 
-	pm->maxs.x = 15;
-	pm->maxs.y = 15;
+	pm->maxs.x = MAXS_X;
+	pm->maxs.y = MAXS_Y;
 
 	pm->mins.z = MINS_Z;
 

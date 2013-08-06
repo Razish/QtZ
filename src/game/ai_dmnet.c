@@ -115,7 +115,7 @@ BotGetAirGoal
 */
 int BotGetAirGoal(bot_state_t *bs, bot_goal_t *goal) {
 	bsp_trace_t bsptrace;
-	vector3 end, mins = {-15, -15, -2}, maxs = {15, 15, 2};
+	vector3 end, mins = {MINS_X, MINS_Y, -2}, maxs = {MAXS_X, MAXS_Y, 2};
 	int areanum;
 
 	//trace up until we hit solid
@@ -132,11 +132,11 @@ int BotGetAirGoal(bot_state_t *bs, bot_goal_t *goal) {
 			VectorCopy(&bsptrace.endpos, &goal->origin);
 			goal->origin.z -= 2;
 			goal->areanum = areanum;
-			goal->mins.x = -15;
-			goal->mins.y = -15;
+			goal->mins.x = MINS_X;
+			goal->mins.y = MINS_Y;
 			goal->mins.z = -1;
-			goal->maxs.x = 15;
-			goal->maxs.y = 15;
+			goal->maxs.x = MAXS_X;
+			goal->maxs.y = MAXS_Y;
 			goal->maxs.z = 1;
 			goal->flags = GFL_AIR;
 			goal->number = 0;
