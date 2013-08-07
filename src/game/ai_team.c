@@ -271,14 +271,10 @@ BotSayTeamOrders
 ==================
 */
 void BotSayTeamOrder(bot_state_t *bs, int toclient) {
-#ifdef QTZRELIC
-	BotSayTeamOrderAlways(bs, toclient);
-#else
 	// voice chats only
 	char buf[MAX_MESSAGE_SIZE];
 
 	trap->ai->BotGetChatMessage(bs->cs, buf, sizeof(buf));
-#endif // QTZRELIC
 }
 
 /*

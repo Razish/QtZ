@@ -1438,7 +1438,7 @@ void Menus_CloseByName ( const char *p )
 	menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
 }
 
-void Menus_CloseAll() 
+void Menus_CloseAll( void ) 
 {
 	int i;
 

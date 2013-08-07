@@ -2557,7 +2557,7 @@ static void UI_LoadDemosInDirectory( const char *directory )
 	char	demolist[MAX_DEMOLIST] = {0}, *demoname = NULL;
 	char	fileList[MAX_DEMOLIST] = {0}, *fileName = NULL;
 	char	demoExt[32] = {0};
-	int		i=0, j=0, len=0, numFiles=0;
+	int		i=0, len=0, numFiles=0;
 	int		protocol = (int)trap->Cvar_VariableValue( "com_protocol" );
 
 	if ( !protocol )

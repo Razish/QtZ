@@ -29,9 +29,7 @@ static qboolean IQM_CheckRange( iqmHeader_t *header, unsigned int offset, int co
 	// return true if the range specified by offset, count and size
 	// doesn't fit into the file
 	return ( count <= 0 ||
-		 offset < 0 ||
 		 offset > header->filesize ||
-		 offset + count * size < 0 ||
 		 offset + count * size > header->filesize );
 }
 // "multiply" 3x4 matrices, these are assumed to be the top 3 rows

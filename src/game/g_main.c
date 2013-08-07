@@ -861,7 +861,6 @@ Append information about this game to the log file
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
-	qboolean won = qtrue;
 
 	G_LogPrintf( "Exit: %s\n", string );
 

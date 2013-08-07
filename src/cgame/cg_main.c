@@ -366,10 +366,6 @@ static void CG_RegisterSounds( void ) {
 			cgs.media.yourTeamTookEnemyFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_team_flag.wav", qtrue );
 		}
 
-#ifdef QTZRELIC
-		cgs.media.youHaveFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_you_flag.wav", qtrue );
-		cgs.media.holyShitSound = trap->S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
-#else
 		if ( cgs.gametype == GT_1FCTF ) {
 			// FIXME: get a replacement for this sound ?
 			cgs.media.neutralFlagReturnedSound = trap->S_RegisterSound( "sound/teamplay/flagreturn_opponent.wav", qtrue );
@@ -381,7 +377,6 @@ static void CG_RegisterSounds( void ) {
 			cgs.media.youHaveFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_you_flag.wav", qtrue );
 			cgs.media.holyShitSound = trap->S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
 		}
-#endif // QTZRELIC
 	}
 
 	cgs.media.tracerSound = trap->S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
@@ -638,12 +633,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.bloodExplosionShader = trap->R_RegisterShader( "bloodExplosion" );
 
-#ifdef QTZRELIC
-	cgs.media.teleportEffectModel = trap->R_RegisterModel( "models/misc/telep.md3" );
-	cgs.media.teleportEffectShader = trap->R_RegisterShader( "teleportEffect" );
-#else
 	cgs.media.teleportEffectModel = trap->R_RegisterModel( "models/powerups/pop.md3" );
-#endif // QTZRELIC
 
 	cgs.media.guardPowerupModel = trap->R_RegisterModel( "models/powerups/guard_player.md3" );
 	cgs.media.medkitUsageModel = trap->R_RegisterModel( "models/powerups/regen.md3" );

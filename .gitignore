@@ -17,6 +17,7 @@
 *.ncb
 *.suo
 .build
+[Bb]uild/
 qkey
 servercache.dat
 games.log
@@ -42,3 +43,6 @@ stderr.txt
 *.idb
 *.pk3
 *.pk4
+*.psd
+*.old
+*.orig

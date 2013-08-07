@@ -390,7 +390,7 @@ void CL_CaptureVoip(void)
 	qboolean initialFrame = qfalse;
 	qboolean finalFrame = qfalse;
 
-#if USE_MUMBLE
+#ifdef USE_MUMBLE
 	// if we're using Mumble, don't try to handle VoIP transmission ourselves.
 	if (cl_useMumble->integer)
 		return;

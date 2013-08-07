@@ -296,29 +296,20 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 
 	// hit changes
 	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
-#ifdef QTZRELIC
-		trap->S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-#else
 		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
-		if (armor > 50 ) {
-			trap->S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
-		} else if (armor || health > 100) {
-			trap->S_StartLocalSound( cgs.media.hitSoundLowArmor, CHAN_LOCAL_SOUND );
-		} else {
-			trap->S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-		}
-#endif
+			 if ( armor > 50 )				trap->S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
+		else if ( armor || health > 100 )	trap->S_StartLocalSound( cgs.media.hitSoundLowArmor, CHAN_LOCAL_SOUND );
+		else								trap->S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 		cg.crosshair.damageTime = cg.time;
-	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
-		trap->S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
 	}
+	else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] )
+		trap->S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
 
 	// health changes of more than -1 should make pain sounds
 	if ( ps->stats[STAT_HEALTH] < ops->stats[STAT_HEALTH] - 1 ) {
-		if ( ps->stats[STAT_HEALTH] > 0 ) {
+		if ( ps->stats[STAT_HEALTH] > 0 )
 			CG_PainEvent( &cg.predictedPlayerEntity, ps->stats[STAT_HEALTH] );
-		}
 	}
 
 
@@ -335,43 +326,31 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		//Com_Printf("capture\n");
 	}
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
-#ifdef QTZRELIC
-		sfx = cgs.media.impressiveSound;
-#else
 		if (ps->persistant[PERS_IMPRESSIVE_COUNT] == 1) {
 			sfx = cgs.media.firstImpressiveSound;
 		} else {
 			sfx = cgs.media.impressiveSound;
 		}
-#endif // QTZRELIC
 		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
 		reward = qtrue;
 		//Com_Printf("impressive\n");
 	}
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
-#ifdef QTZRELIC
-		sfx = cgs.media.excellentSound;
-#else
 		if (ps->persistant[PERS_EXCELLENT_COUNT] == 1) {
 			sfx = cgs.media.firstExcellentSound;
 		} else {
 			sfx = cgs.media.excellentSound;
 		}
-#endif // QTZRELIC
 		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
 		reward = qtrue;
 		//Com_Printf("excellent\n");
 	}
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
-#ifdef QTZRELIC
-		sfx = cgs.media.humiliationSound;
-#else
 		if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] == 1) {
 			sfx = cgs.media.firstHumiliationSound;
 		} else {
 			sfx = cgs.media.humiliationSound;
 		}
-#endif // QTZRELIC
 		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
 		reward = qtrue;
 		//Com_Printf("guantlet frag\n");

@@ -2542,7 +2542,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	{
 		Com_Printf("OpenAL capture support disabled by user ('+set s_alCapture 1' to enable)\n");
 	}
-#if USE_MUMBLE
+#ifdef USE_MUMBLE
 	else if (cl_useMumble->integer)
 	{
 		Com_Printf("OpenAL capture support disabled for Mumble support\n");

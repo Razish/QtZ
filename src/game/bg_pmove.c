@@ -258,7 +258,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 	if ( !max )
 		return 0;
 
-	total = sqrtf( cmd->forwardmove*cmd->forwardmove + cmd->rightmove*cmd->rightmove + cmd->upmove*cmd->upmove );
+	total = sqrtf( (float)(cmd->forwardmove*cmd->forwardmove + cmd->rightmove*cmd->rightmove + cmd->upmove*cmd->upmove) );
 	scale = pm_speed.value * (float)max / ( 127.0f * total );
 
 	return scale;

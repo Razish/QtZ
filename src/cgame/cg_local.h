@@ -1295,7 +1295,7 @@ void CG_DrawInformation( void );
 //
 // cg_scoreboard.c
 //
-qboolean CG_DrawOldScoreboard( void );
+qboolean CG_DrawScoreboard( void );
 void CG_DrawOldTourneyScoreboard( void );
 
 //

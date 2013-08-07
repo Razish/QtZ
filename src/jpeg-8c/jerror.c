@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #ifdef USE_WINDOWS_MESSAGEBOX
+#define VC_EXTRALEAN
 #include <windows.h>
 #endif
 

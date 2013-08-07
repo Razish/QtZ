@@ -120,7 +120,7 @@ static void *S_CodecGetSound(const char *filename, snd_info_t *info)
 S_CodecInit
 =================
 */
-void S_CodecInit()
+void S_CodecInit( void )
 {
 	codecs = NULL;
 
@@ -137,7 +137,7 @@ void S_CodecInit()
 S_CodecShutdown
 =================
 */
-void S_CodecShutdown()
+void S_CodecShutdown( void )
 {
 	codecs = NULL;
 }

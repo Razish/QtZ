@@ -72,7 +72,6 @@ static const char *ShaderSource( const char *path )
 static void CreateFramebuffers( void )
 {
 	float	w = (float)glConfig.vidWidth, h = (float)glConfig.vidHeight;
-	float	ratio = h/w;
 	float	size = LUMINANCE_FBO_SIZE;
 	int i;
 	int steps = Q_clampi( 1, r_postprocess_bloomSteps->integer, NUM_BLOOM_DOWNSCALE_FBOS );
@@ -403,7 +402,6 @@ void RB_PostProcess( void )
 	if ( r_postprocess_hdr->integer )
 	{
 		int size = tr.framebuffers.luminance[0]->colorTextures[0]->width;
-		float imageKey = 1.0f;
 		qglPushAttrib( GL_VIEWPORT_BIT|GL_SCISSOR_BIT );
 		ResizeTarget( size, size );
 

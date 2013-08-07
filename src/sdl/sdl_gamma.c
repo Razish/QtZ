@@ -50,6 +50,7 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 #ifdef _WIN32
+#define VC_EXTRALEAN
 #include <windows.h>
 
 	// Win2K and newer put this odd restriction on gamma ramps...

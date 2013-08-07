@@ -431,23 +431,23 @@ int COM_Compress( char *data_p ) {
 
 				// copy quoted strings unmolested
 				if (c == '"') {
-					*out++ = c;
+					*out++ = (char)c;
 					in++;
 					while (1) {
 						c = *in;
 						if (c && c != '"') {
-							*out++ = c;
+							*out++ = (char)c;
 							in++;
 						} else {
 							break;
 						}
 					}
 					if (c == '"') {
-						*out++ = c;
+						*out++ = (char)c;
 						in++;
 					}
 				} else {
-					*out = c;
+					*out = (char)c;
 					out++;
 					in++;
 				}
@@ -543,7 +543,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 				com_lines++;
 			if (len < MAX_TOKEN_CHARS - 1)
 			{
-				com_token[len] = c;
+				com_token[len] = (char)c;
 				len++;
 			}
 		}
@@ -554,7 +554,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	{
 		if (len < MAX_TOKEN_CHARS - 1)
 		{
-			com_token[len] = c;
+			com_token[len] = (char)c;
 			len++;
 		}
 		data++;
@@ -817,7 +817,7 @@ int Com_HexStrToInt( const char *str ) {
 
 			n *= 16;
 
-			digit = tolower( str[ i ] );
+			digit = (char)tolower( str[ i ] );
 
 			if( digit >= '0' && digit <= '9' )
 				digit -= '0';
@@ -1011,7 +1011,7 @@ char *Q_strlwr( char *s1 ) {
 
     s = s1;
 	while ( *s ) {
-		*s = tolower(*s);
+		*s = (char)tolower(*s);
 		s++;
 	}
     return s1;
@@ -1022,7 +1022,7 @@ char *Q_strupr( char *s1 ) {
 
     s = s1;
 	while ( *s ) {
-		*s = toupper(*s);
+		*s = (char)toupper(*s);
 		s++;
 	}
     return s1;

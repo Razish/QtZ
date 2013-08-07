@@ -337,7 +337,7 @@ static long FS_HashFileName( const char *fname, int hashSize ) {
 	hash = 0;
 	i = 0;
 	while (fname[i] != '\0') {
-		letter = tolower(fname[i]);
+		letter = (char)tolower(fname[i]);
 		if (letter =='.') break;				// don't include extension
 		if (letter =='\\') letter = '/';		// damn path names
 		if (letter == PATH_SEP) letter = '/';		// damn path names

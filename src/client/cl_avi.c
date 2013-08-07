@@ -129,7 +129,7 @@ WRITE_1BYTES
 */
 static QINLINE void WRITE_1BYTES( int x )
 {
-  buffer[ bufIndex ] = x;
+  buffer[ bufIndex ] = (byte)x;
   bufIndex += 1;
 }
 

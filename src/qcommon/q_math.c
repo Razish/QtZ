@@ -137,7 +137,7 @@ signed char ClampChar( int i ) {
 	if ( i > 127 ) {
 		return 127;
 	}
-	return i;
+	return (char)i;
 }
 
 signed short ClampShort( int i ) {
@@ -147,7 +147,7 @@ signed short ClampShort( int i ) {
 	if ( i > 0x7fff ) {
 		return 0x7fff;
 	}
-	return i;
+	return (short)i;
 }
 
 // this isn't a real cheap function to call!
@@ -597,7 +597,7 @@ void SetPlaneSignbits (cplane_t *out) {
 			bits |= 1<<j;
 		}
 	}
-	out->signbits = bits;
+	out->signbits = (byte)bits;
 }
 
 
