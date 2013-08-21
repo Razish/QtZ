@@ -548,8 +548,8 @@ void Con_DrawNotify (void)
 			if ( ( text[x] & 0xff ) == ' ' ) {
 				continue;
 			}
-			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
-				currentColor = (text[x]>>8)&Q_COLORBITS;
+			if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
+				currentColor = (text[x]>>8)&Q_COLOR_BITS;
 				re->SetColor( &g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( cl_conXOffset->integer + (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
@@ -675,8 +675,8 @@ void Con_DrawSolidConsole( float frac ) {
 				continue;
 			}
 
-			if ( ( (text[x]>>8)&Q_COLORBITS ) != currentColor ) {
-				currentColor = (text[x]>>8)&Q_COLORBITS;
+			if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
+				currentColor = (text[x]>>8)&Q_COLOR_BITS;
 				re->SetColor( &g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( (int)con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff );

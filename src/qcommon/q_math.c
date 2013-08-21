@@ -27,32 +27,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 vector3	vec3_origin = {0,0,0};
 vector3	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
+/*
+ 1	black
+ 2	grey
+ 3	white
+ 4	red
+ 5	orange
+ 6	yellow
+ 7	lime
+ 8	green
+ 9	aqua
+10	cyan
+11	light blue
+12	blue
+13	violet
+14	purple
+15	pink
+*/
 
-vector4 colorBlack		= { 0.0f,	0.0f,	0.0f,	1.0f };
-vector4 colorRed		= { 1.0f,	0.0f,	0.0f,	1.0f };
-vector4 colorGreen		= { 0.0f,	1.0f,	0.0f,	1.0f };
-vector4 colorBlue		= { 0.0f,	0.0f,	1.0f,	1.0f };
-vector4 colorYellow		= { 1.0f,	1.0f,	0.0f,	1.0f };
-vector4 colorMagenta	= { 1.0f,	0.0f,	1.0f,	1.0f };
-vector4 colorCyan		= { 0.0f,	1.0f,	1.0f,	1.0f };
-vector4 colorWhite		= { 1.0f,	1.0f,	1.0f,	1.0f };
-vector4 colorGrey		= { 0.5f,	0.5f,	0.5f,	1.0f };
-vector4 colorOrange		= { 1.0f,	0.5f,	0.0f,	1.0f };
-vector4 colorLtGrey		= { 0.75f,	0.75f,	0.75f,	1.0f };
-vector4 colorMdGrey		= { 0.5f,	0.5f,	0.5f,	1.0f };
-vector4 colorDkGrey		= { 0.25f,	0.25f,	0.25f,	1.0f };
-
-vector4 g_color_table[10] = {
-	{ 0.0f,		0.0f,	0.0f,	1.0f }, // black
-	{ 1.0f,		0.0f,	0.0f,	1.0f }, // red
-	{ 0.0f,		1.0f,	0.0f,	1.0f }, // green
-	{ 1.0f,		0.75f,	0.125f,	1.0f }, // yellow
-	{ 0.333f,	0.5f,	1.0f,	1.0f }, // blue
-	{ 0.0f,		1.0f,	1.0f,	1.0f }, // cyan
-	{ 1.0f,		0.0f,	1.0f,	1.0f }, // magenta
-	{ 1.0f,		1.0f,	1.0f,	1.0f }, // white
-	{ 0.5f,		0.5f,	0.5f,	1.0f }, // grey
-	{ 1.0f,		0.5f,	0.0f,	1.0f }, // orange
+vector4 g_color_table[Q_COLOR_BITS] = {
+	{ 0.0f, 0.0f, 0.0f, 1.0f }, // black
+	{ 0.5f, 0.5f, 0.5f, 1.0f }, // grey
+	{ 1.0f, 1.0f, 1.0f, 1.0f }, // white
+	{ 1.0f, 0.0f, 0.0f, 1.0f }, // red
+	{ 1.0f, 0.5f, 0.0f, 1.0f }, // orange
+	{ 1.0f, 1.0f, 0.0f, 1.0f }, // yellow
+	{ 0.5f, 1.0f, 0.0f, 1.0f }, // lime
+	{ 0.0f, 1.0f, 0.0f, 1.0f }, // green
+	{ 0.0f, 1.0f, 0.5f, 1.0f }, // aqua
+	{ 0.0f, 1.0f, 1.0f, 1.0f }, // cyan
+	{ 0.0f, 0.5f, 1.0f, 1.0f }, // light blue
+	{ 0.0f, 0.0f, 1.0f, 1.0f }, // blue
+	{ 0.5f, 0.0f, 1.0f, 1.0f }, // violet
+	{ 1.0f, 0.0f, 1.0f, 1.0f }, // purple
+	{ 1.0f, 0.0f, 0.5f, 1.0f }, // pink
 };
 
 

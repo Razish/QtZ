@@ -1179,7 +1179,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		}
 		else
 			Com_sprintf( name, sizeof( name ), EC_GLOBAL"[%s%c%c"EC_GLOBAL"]"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-		color = COLOR_MAGENTA;
+		color = COLOR_PINK;
 		break;
 	}
 

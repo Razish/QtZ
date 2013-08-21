@@ -286,7 +286,11 @@ void Text_Paint(float x, float y, float scale, vector4 *color, const char *text,
 				s += 2;
 				continue;
 			} else {
+				vector4 colorBlack;
 				float yadj = useScale * glyph->top;
+
+				VectorCopy4( &g_color_table[ColorIndex(COLOR_BLACK)], &colorBlack );
+
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack.a = newColor.a;
@@ -358,7 +362,11 @@ void Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const c
 			} else {
 				yadj = useScale * glyph->top;
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
+					vector4 colorBlack;
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+
+					VectorCopy4( &g_color_table[ColorIndex(COLOR_BLACK)], &colorBlack );
+
 					colorBlack.a = newColor.a;
 					trap->R_SetColor( &colorBlack );
 					Text_PaintChar(x + ofs, y - yadj + ofs, 
@@ -4804,10 +4812,10 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 
 	leftWidth = (SCREEN_WIDTH/2.0f);
 
-	UI_SetColor(&colorWhite);
-	Text_PaintCenter(centerPoint, yStart + 112, scale, &colorWhite, dlText, 0);
-	Text_PaintCenter(centerPoint, yStart + 192, scale, &colorWhite, etaText, 0);
-	Text_PaintCenter(centerPoint, yStart + 248, scale, &colorWhite, xferText, 0);
+	UI_SetColor(&g_color_table[ColorIndex(COLOR_WHITE)]);
+	Text_PaintCenter(centerPoint, yStart + 112, scale, &g_color_table[ColorIndex(COLOR_WHITE)], dlText, 0);
+	Text_PaintCenter(centerPoint, yStart + 192, scale, &g_color_table[ColorIndex(COLOR_WHITE)], etaText, 0);
+	Text_PaintCenter(centerPoint, yStart + 248, scale, &g_color_table[ColorIndex(COLOR_WHITE)], xferText, 0);
 
 	if (downloadSize > 0) {
 		s = va( "%s (%d%%)", downloadName,
@@ -4816,14 +4824,14 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 		s = downloadName;
 	}
 
-	Text_PaintCenter(centerPoint, yStart+136, scale, &colorWhite, s, 0);
+	Text_PaintCenter(centerPoint, yStart+136, scale, &g_color_table[ColorIndex(COLOR_WHITE)], s, 0);
 
 	UI_ReadableSize( dlSizeBuf,		sizeof dlSizeBuf,		downloadCount );
 	UI_ReadableSize( totalSizeBuf,	sizeof totalSizeBuf,	downloadSize );
 
 	if (downloadCount < 4096 || !downloadTime) {
-		Text_PaintCenter(leftWidth, yStart+216, scale, &colorWhite, "estimating", 0);
-		Text_PaintCenter(leftWidth, yStart+160, scale, &colorWhite, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
+		Text_PaintCenter(leftWidth, yStart+216, scale, &g_color_table[ColorIndex(COLOR_WHITE)], "estimating", 0);
+		Text_PaintCenter(leftWidth, yStart+160, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
 	} else {
 		if ((uiInfo.uiDC.realTime - downloadTime) / 1000) {
 			xferRate = downloadCount / ((uiInfo.uiDC.realTime - downloadTime) / 1000);
@@ -4840,19 +4848,19 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 			UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf, 
 				(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
-			Text_PaintCenter(leftWidth, yStart+216, scale, &colorWhite, dlTimeBuf, 0);
-			Text_PaintCenter(leftWidth, yStart+160, scale, &colorWhite, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
+			Text_PaintCenter(leftWidth, yStart+216, scale, &g_color_table[ColorIndex(COLOR_WHITE)], dlTimeBuf, 0);
+			Text_PaintCenter(leftWidth, yStart+160, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
 		} else {
-			Text_PaintCenter(leftWidth, yStart+216, scale, &colorWhite, "estimating", 0);
+			Text_PaintCenter(leftWidth, yStart+216, scale, &g_color_table[ColorIndex(COLOR_WHITE)], "estimating", 0);
 			if (downloadSize) {
-				Text_PaintCenter(leftWidth, yStart+160, scale, &colorWhite, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
+				Text_PaintCenter(leftWidth, yStart+160, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
 			} else {
-				Text_PaintCenter(leftWidth, yStart+160, scale, &colorWhite, va("(%s copied)", dlSizeBuf), 0);
+				Text_PaintCenter(leftWidth, yStart+160, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va("(%s copied)", dlSizeBuf), 0);
 			}
 		}
 
 		if (xferRate) {
-			Text_PaintCenter(leftWidth, yStart+272, scale, &colorWhite, va("%s/Sec", xferRateBuf), 0);
+			Text_PaintCenter(leftWidth, yStart+272, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va("%s/Sec", xferRateBuf), 0);
 		}
 	}
 }
@@ -4892,21 +4900,21 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 	info[0] = '\0';
 	if( trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) ) ) {
-		Text_PaintCenter(centerPoint, yStart, scale, &colorWhite, va( "Loading %s", Info_ValueForKey( info, "mapname" )), 0);
+		Text_PaintCenter(centerPoint, yStart, scale, &g_color_table[ColorIndex(COLOR_WHITE)], va( "Loading %s", Info_ValueForKey( info, "mapname" )), 0);
 	}
 
 	if (!Q_stricmp(cstate.servername,"localhost")) {
-		Text_PaintCenter(centerPoint, yStart + 48, scale, &colorWhite, "Starting up...", ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Text_PaintCenter(centerPoint, yStart + 48, scale, &g_color_table[ColorIndex(COLOR_WHITE)], "Starting up...", ITEM_TEXTSTYLE_SHADOWEDMORE);
 	} else {
 		strcpy(text, va("Connecting to %s", cstate.servername));
-		Text_PaintCenter(centerPoint, yStart + 48, scale, &colorWhite,text , ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Text_PaintCenter(centerPoint, yStart + 48, scale, &g_color_table[ColorIndex(COLOR_WHITE)],text , ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
 	// display global MOTD at bottom
-	Text_PaintCenter(centerPoint, 600, scale, &colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
+	Text_PaintCenter(centerPoint, 600, scale, &g_color_table[ColorIndex(COLOR_WHITE)], Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, &colorWhite, cstate.messageString, 0);
+		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, &g_color_table[ColorIndex(COLOR_WHITE)], cstate.messageString, 0);
 	}
 
 	if ( lastConnState > cstate.connState ) {
@@ -4942,7 +4950,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 
 	if (Q_stricmp(cstate.servername,"localhost")) {
-		Text_PaintCenter(centerPoint, yStart + 80, scale, &colorWhite, s, 0);
+		Text_PaintCenter(centerPoint, yStart + 80, scale, &g_color_table[ColorIndex(COLOR_WHITE)], s, 0);
 	}
 
 	// password required / connection rejected information goes here

@@ -1458,17 +1458,17 @@ static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_
 	secs = msec/1000;
 	mins = secs/60;
 
-	timeColour = &colorWhite;
+	timeColour = &g_color_table[ColorIndex(COLOR_WHITE)];
 	if ( cgs.timelimit ) {
 		// final minute
 		if ( secs >= limitSec-60 )
-			timeColour = &colorRed;
+			timeColour = &g_color_table[ColorIndex(COLOR_RED)];
 		// last quarter
 		else if ( secs >= limitSec-(limitSec/4) )
-			timeColour = &colorOrange;
+			timeColour = &g_color_table[ColorIndex(COLOR_ORANGE)];
 		// half way
 		else if ( secs >= limitSec/2 )
-			timeColour = &colorYellow;
+			timeColour = &g_color_table[ColorIndex(COLOR_YELLOW)];
 	}
 
 	if ( cgs.timelimit && cg_drawTimer.integer == 2 )
@@ -1918,21 +1918,21 @@ void CG_DrawObituary( void )
 		float totalWidth = attackerWidth + iconWidth + victimWidth;
 		float startX = x - totalWidth/2.0f;
 
-		trap->R_Font_DrawString( startX, y, attackerName, colorWhite, fontHandle, -1, fontScale );												startX += attackerWidth;
+		trap->R_Font_DrawString( startX, y, attackerName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );												startX += attackerWidth;
 		CG_DrawPic( startX, y-(iconSize/2.0f)+lineHeight/2.0f, iconSize, iconSize, cg_weapons[ weaponFromMOD[MOD_QUANTIZER] ].weaponIcon );		startX += iconWidth;
-		trap->R_Font_DrawString( startX, y, targetName, colorWhite, fontHandle, -1, fontScale );													startX += victimWidth;
+		trap->R_Font_DrawString( startX, y, targetName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );													startX += victimWidth;
 		startX = x - totalWidth/2.0f;
 		y += lineHeight;
 
-		trap->R_Font_DrawString( startX, y, attackerName, colorWhite, fontHandle, -1, fontScale );												startX += attackerWidth;
+		trap->R_Font_DrawString( startX, y, attackerName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );												startX += attackerWidth;
 		CG_DrawPic( startX, y-(iconSize/2.0f)+lineHeight/2.0f, iconSize, iconSize, cg_weapons[ weaponFromMOD[MOD_MORTAR] ].weaponIcon );		startX += iconWidth;
-		trap->R_Font_DrawString( startX, y, targetName, colorWhite, fontHandle, -1, fontScale );													startX += victimWidth;
+		trap->R_Font_DrawString( startX, y, targetName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );													startX += victimWidth;
 		startX = x - totalWidth/2.0f;
 		y += lineHeight;
 
-		trap->R_Font_DrawString( startX, y, attackerName, colorWhite, fontHandle, -1, fontScale );												startX += attackerWidth;
+		trap->R_Font_DrawString( startX, y, attackerName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );												startX += attackerWidth;
 		CG_DrawPic( startX, y-(iconSize/2.0f)+lineHeight/2.0f, iconSize, iconSize, cg_weapons[ weaponFromMOD[MOD_DIVERGENCE] ].weaponIcon );	startX += iconWidth;
-		trap->R_Font_DrawString( startX, y, targetName, colorWhite, fontHandle, -1, fontScale );													startX += victimWidth;
+		trap->R_Font_DrawString( startX, y, targetName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );													startX += victimWidth;
 		startX = x - totalWidth/2.0f;
 		y += lineHeight;
 	}
@@ -1955,9 +1955,9 @@ void CG_DrawObituary( void )
 				float victimWidth = trap->R_Font_StrLenPixels( obituary->targetName, fontHandle, fontScale );
 				float totalWidth = attackerWidth + iconWidth + victimWidth;
 				float startX = x - totalWidth/2.0f;
-				trap->R_Font_DrawString( startX, y, obituary->attackerName, colorWhite, fontHandle, -1, fontScale );						startX += attackerWidth;
+				trap->R_Font_DrawString( startX, y, obituary->attackerName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );						startX += attackerWidth;
 				CG_DrawPic( startX, y-(iconSize/2.0f)+lineHeight/2.0f, iconSize, iconSize, cg_weapons[ weaponFromMOD[obituary->mod] ].weaponIcon );		startX += iconWidth;
-				trap->R_Font_DrawString( startX, y, obituary->targetName, colorWhite, fontHandle, -1, fontScale );						startX += victimWidth;
+				trap->R_Font_DrawString( startX, y, obituary->targetName, g_color_table[ColorIndex(COLOR_WHITE)], fontHandle, -1, fontScale );						startX += victimWidth;
 				y += lineHeight;
 			}
 		}

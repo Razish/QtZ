@@ -375,48 +375,45 @@ extern vector3 bytedirs[NUMVERTEXNORMALS];
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
 
-extern vector4 colorBlack;
-extern vector4 colorRed;
-extern vector4 colorGreen;
-extern vector4 colorBlue;
-extern vector4 colorYellow;
-extern vector4 colorMagenta;
-extern vector4 colorCyan;
-extern vector4 colorWhite;
-extern vector4 colorGrey;
-extern vector4 colorOrange;
-extern vector4 colorLtGrey;
-extern vector4 colorMdGrey;
-extern vector4 colorDkGrey;
-
 #define Q_COLOR_ESCAPE	'^'
-#define Q_COLORBITS 0x7F
+#define Q_COLOR_BITS 0xF
 #define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
 
+int ColorIndex( char c );
+
 #define COLOR_BLACK		'0'
-#define COLOR_RED		'1'
-#define COLOR_GREEN		'2'
-#define COLOR_YELLOW	'3'
-#define COLOR_BLUE		'4'
-#define COLOR_CYAN		'5'
-#define COLOR_MAGENTA	'6'
-#define COLOR_WHITE		'7'
-#define COLOR_GREY		'8'
-#define COLOR_ORANGE	'9'
-#define ColorIndex(c)	(((c) - '0') & Q_COLORBITS)
+#define COLOR_GREY		'1'
+#define COLOR_WHITE		'2'
+#define COLOR_RED		'3'
+#define COLOR_ORANGE	'4'
+#define COLOR_YELLOW	'5'
+#define COLOR_LIME		'6'
+#define COLOR_GREEN		'7'
+#define COLOR_AQUA		'8'
+#define COLOR_CYAN		'9'
+#define COLOR_LIGHTBLUE	'a'
+#define COLOR_BLUE		'b'
+#define COLOR_VIOLET	'c'
+#define COLOR_PURPLE	'd'
+#define COLOR_PINK		'e'
 
 #define S_COLOR_BLACK		"^0"
-#define S_COLOR_RED			"^1"
-#define S_COLOR_GREEN		"^2"
-#define S_COLOR_YELLOW		"^3"
-#define S_COLOR_BLUE		"^4"
-#define S_COLOR_CYAN		"^5"
-#define S_COLOR_MAGENTA		"^6"
-#define S_COLOR_WHITE		"^7"
-#define S_COLOR_GREY		"^8"
-#define S_COLOR_ORANGE		"^9"
+#define S_COLOR_GREY		"^1"
+#define S_COLOR_WHITE		"^2"
+#define S_COLOR_RED			"^3"
+#define S_COLOR_ORANGE		"^4"
+#define S_COLOR_YELLOW		"^5"
+#define S_COLOR_LIME		"^6"
+#define S_COLOR_GREEN		"^7"
+#define S_COLOR_AQUA		"^8"
+#define S_COLOR_CYAN		"^9"
+#define S_COLOR_LIGHTBLUE	"^a"
+#define S_COLOR_BLUE		"^b"
+#define S_COLOR_VIOLET		"^c"
+#define S_COLOR_PURPLE		"^d"
+#define S_COLOR_PINK		"^e"
 
-extern vector4	g_color_table[10];
+extern vector4 g_color_table[Q_COLOR_BITS];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a

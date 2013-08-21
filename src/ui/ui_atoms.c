@@ -247,8 +247,8 @@ void UI_UpdateScreen( void ) {
 
 void UI_DrawTextBox (int x, int y, int width, int lines)
 {
-	UI_FillRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &colorBlack );
-	UI_DrawRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &colorWhite );
+	UI_FillRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &g_color_table[ColorIndex(COLOR_BLACK)]);
+	UI_DrawRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &g_color_table[ColorIndex(COLOR_WHITE)] );
 }
 
 qboolean UI_CursorInRect (int x, int y, int width, int height)

@@ -293,7 +293,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	Cvar_Set( "com_errorMessage", com_errorMessage );
 
 	if ( code == ERR_SERVERDISCONNECT ) {
-		sve.Shutdown( "Server disconnected" );
+		if ( sve.Shutdown )
+			sve.Shutdown( "Server disconnected" );
 		CL_Disconnect( qtrue, NULL );
 		CL_FlushMemory( );
 
@@ -303,7 +304,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		longjmp (abortframe, -1);
 	} else if (code == ERR_DROP) {
 		Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
-		sve.Shutdown (va("Server crashed: %s",  com_errorMessage));
+		if ( sve.Shutdown )
+			sve.Shutdown (va("Server crashed: %s",  com_errorMessage));
 		CL_Disconnect( qtrue, "Server crashed" );
 		CL_FlushMemory( );
 

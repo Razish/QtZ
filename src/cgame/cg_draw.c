@@ -162,7 +162,11 @@ void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *te
 			} else {
 				float yadj = useScale * glyph->top;
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
+					vector4 colorBlack;
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+
+					VectorCopy4( &g_color_table[ColorIndex(COLOR_BLACK)], &colorBlack );
+
 					colorBlack.a = newColor.a;
 					trap->R_SetColor( &colorBlack );
 					CG_Text_PaintChar(x + ofs, y - yadj + ofs, 
@@ -1533,12 +1537,12 @@ static void CG_DrawWarmup( void ) {
 		if ( ci1 && ci2 ) {
 			s = va( "%s vs %s", ci1->name, ci2->name );
 			w = CG_Text_Width(s, 0.6f, 0);
-			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, &g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		}
 	} else {
 		s = BG_GetGametypeString( cgs.gametype );
 		w = CG_Text_Width(s, 0.6f, 0);
-		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, &g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
 	sec = ( sec - cg.time ) / 1000;
@@ -1580,7 +1584,7 @@ static void CG_DrawWarmup( void ) {
 	}
 
 	w = CG_Text_Width(s, scale, 0);
-	CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 125, scale, &colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 125, scale, &g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
 //==================================================================================
@@ -1601,7 +1605,7 @@ void CG_DrawTimedMenus( void ) {
 }
 
 void CG_DrawDebugInfo( void ) {
-	CG_Text_Paint( 32.0f, 128.0f, 0.25f, &colorWhite, va( "movement dir: %d", cg.predictedPlayerState.movementDir ), 0.0f, -1, 0 );
+	CG_Text_Paint( 32.0f, 128.0f, 0.25f, &g_color_table[ColorIndex(COLOR_WHITE)], va( "movement dir: %d", cg.predictedPlayerState.movementDir ), 0.0f, -1, 0 );
 }
 
 /*
