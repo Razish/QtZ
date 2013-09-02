@@ -621,16 +621,16 @@ of OpenGL
 */
 void GLimp_Init( void )
 {
-	r_allowSoftwareGL	= ri->Cvar_Get( "r_allowSoftwareGL",		"0",	CVAR_LATCH,		NULL );
-	r_sdlDriver			= ri->Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL );
-	vid_centerWindow	= ri->Cvar_Get( "vid_centerWindow",		"1",	CVAR_ARCHIVE,	NULL );
+	r_allowSoftwareGL	= ri->Cvar_Get( "r_allowSoftwareGL",	"0",	CVAR_LATCH,		NULL, NULL );
+	r_sdlDriver			= ri->Cvar_Get( "r_sdlDriver",			"",		CVAR_ROM,		NULL, NULL );
+	vid_centerWindow	= ri->Cvar_Get( "vid_centerWindow",		"1",	CVAR_ARCHIVE,	NULL, NULL );
 
 	//QtZ: in_disableLockKeys, vid_xpos, vid_ypos from iodfe
-	vid_width			= ri->Cvar_Get( "vid_width",				"0",	CVAR_ARCHIVE,	NULL );
-	vid_height			= ri->Cvar_Get( "vid_height",			"0",	CVAR_ARCHIVE,	NULL );
-	vid_xpos			= ri->Cvar_Get( "vid_xpos",				"100",	CVAR_ARCHIVE,	NULL );
-	vid_ypos			= ri->Cvar_Get( "vid_ypos",				"100",	CVAR_ARCHIVE,	NULL );
-	in_disableLockKeys	= ri->Cvar_Get( "in_disableLockKeys",	"0",	CVAR_ARCHIVE,	NULL );
+	vid_width			= ri->Cvar_Get( "vid_width",			"0",	CVAR_ARCHIVE,	NULL, NULL );
+	vid_height			= ri->Cvar_Get( "vid_height",			"0",	CVAR_ARCHIVE,	NULL, NULL );
+	vid_xpos			= ri->Cvar_Get( "vid_xpos",				"100",	CVAR_ARCHIVE,	NULL, NULL );
+	vid_ypos			= ri->Cvar_Get( "vid_ypos",				"100",	CVAR_ARCHIVE,	NULL, NULL );
+	in_disableLockKeys	= ri->Cvar_Get( "in_disableLockKeys",	"0",	CVAR_ARCHIVE,	NULL, NULL );
 	//~QtZ
 
 	if ( ri->Cvar_VariableIntegerValue( "com_abnormalExit" ) )
@@ -695,7 +695,7 @@ success:
 	// initialize extensions
 	GLimp_InitExtensions( );
 
-	ri->Cvar_Get( "r_availableModes", "", CVAR_ROM, NULL );
+	ri->Cvar_Get( "r_availableModes", "", CVAR_ROM, NULL, NULL );
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
 	ri->IN_Init( );

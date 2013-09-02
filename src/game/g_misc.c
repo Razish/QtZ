@@ -118,7 +118,7 @@ void TeleportPlayer( gentity_t *player, vector3 *origin, vector3 *angles ) {
 	}
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float.boolean );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float->boolean );
 
 	// use the precise origin for linking
 	VectorCopy( &player->client->ps.origin, &player->r.currentOrigin );
@@ -154,7 +154,7 @@ void TeleportPlayerSeamless( gentity_t *player, vector3 *origin, vector3 *angles
 	}
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float.boolean );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->s, !pm_float->boolean );
 
 	// use the precise origin for linking
 	VectorCopy( &player->client->ps.origin, &player->r.currentOrigin );

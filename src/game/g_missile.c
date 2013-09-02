@@ -32,10 +32,10 @@ float RandFloat(float min, float max) {
 	int randActual = rand();
 	float randMax = 32768.0f;
 #ifdef _WIN32
-	if ( g_randFix.integer == 2 )
+	if ( g_randFix->integer == 2 )
 		randActual = (randActual<<16)|randActual;
 #elif defined(__GCC__)
-	if ( g_randFix.integer == 1 )
+	if ( g_randFix->integer == 1 )
 		randMax = RAND_MAX;
 #endif
 	return ((randActual * (max - min)) / randMax) + min;
@@ -169,7 +169,7 @@ void G_BounceMissile_JA( gentity_t *ent, trace_t *trace ) {
 		ent->bounceCount--;
 }
 void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
-	if ( g_bounceMissileStyle.integer == 0 )
+	if ( g_bounceMissileStyle->integer == 0 )
 		G_BounceMissile_Q3( ent, trace );
 	else
 		G_BounceMissile_JA( ent, trace );

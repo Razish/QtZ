@@ -708,11 +708,10 @@ void CL_InitUI( void ) {
 	uiTrap.Error						= Com_Error;
 	uiTrap.Milliseconds					= Sys_Milliseconds;
 	uiTrap.Cvar_InfoStringBuffer		= Cvar_InfoStringBuffer;
-	uiTrap.Cvar_Register				= Cvar_Register;
+	uiTrap.Cvar_Get						= Cvar_Get;
 	uiTrap.Cvar_Reset					= Cvar_Reset;
 	uiTrap.Cvar_Set						= Cvar_SetSafe;
 	uiTrap.Cvar_SetValue				= Cvar_SetValueSafe;
-	uiTrap.Cvar_Update					= Cvar_Update;
 	uiTrap.Cvar_VariableStringBuffer	= Cvar_VariableStringBuffer;
 	uiTrap.Cvar_VariableValue			= Cvar_VariableValue;
 	uiTrap.Cmd_Argc						= Cmd_Argc;

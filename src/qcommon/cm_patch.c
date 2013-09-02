@@ -1283,7 +1283,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 			// we hit this facet
 #ifndef BSPC
 			if (!cv) {
-				cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0, NULL );
+				cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0, NULL, NULL );
 			}
 			if (cv->integer) {
 				debugPatchCollide = pc;
@@ -1469,7 +1469,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				}
 #ifndef BSPC
 				if (!cv) {
-					cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0, NULL );
+					cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0, NULL, NULL );
 				}
 				if (cv && cv->integer) {
 					debugPatchCollide = pc;
@@ -1616,7 +1616,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 #ifndef BSPC
 	if ( !cv2 )
 	{
-		cv2 = Cvar_Get( "r_debugSurface", "0", 0, NULL );
+		cv2 = Cvar_Get( "r_debugSurface", "0", 0, NULL, NULL );
 	}
 
 	if (cv2->integer != 1)
@@ -1632,7 +1632,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 
 #ifndef BSPC
 	if ( !cv ) {
-		cv = Cvar_Get( "cm_debugSize", "2", 0, NULL );
+		cv = Cvar_Get( "cm_debugSize", "2", 0, NULL, NULL );
 	}
 #endif
 	pc = debugPatchCollide;

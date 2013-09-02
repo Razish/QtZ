@@ -198,9 +198,9 @@ qboolean G_FilterPacket (char *from)
 
 	for (i=0 ; i<numIPFilters ; i++)
 		if ( (in & ipFilters[i].mask) == ipFilters[i].compare)
-			return g_filterBan.integer != 0;
+			return g_filterBan->integer != 0;
 
-	return g_filterBan.integer == 0;
+	return g_filterBan->integer == 0;
 }
 
 /*
@@ -236,22 +236,24 @@ static void AddIP( char *str )
 G_ProcessIPBans
 =================
 */
-void G_ProcessIPBans(void) 
-{
-	char *s, *t;
-	char		str[MAX_CVAR_VALUE_STRING];
+void G_ProcessIPBans( void ) {
+	char *s = NULL, *t = NULL, str[MAX_CVAR_VALUE_STRING] = {0};
 
-	Q_strncpyz( str, g_banIPs.string, sizeof(str) );
+	Q_strncpyz( str, g_banIPs->string, sizeof( str ) );
 
-	for (t = s = g_banIPs.string; *t; /* */ ) {
-		s = strchr(s, ' ');
-		if (!s)
+	for ( t = s = g_banIPs->string;
+		*t;
+		t = s )
+	{
+		s = strchr( s, ' ' );
+		if ( !s )
 			break;
-		while (*s == ' ')
+
+		while ( *s == ' ' )
 			*s++ = 0;
-		if (*t)
+
+		if ( *t )
 			AddIP( t );
-		t = s;
 	}
 }
 
@@ -494,16 +496,16 @@ qboolean	ConsoleCommand( void ) {
 	if ( !Q_stricmp( cmd, "pause" ) ) {
 		if ( level.pause.state == PAUSE_NONE ) {
 			level.pause.state = PAUSE_PAUSED;
-			level.pause.time = level.time + g_pauseTime.integer*1000;
+			level.pause.time = level.time + g_pauseTime->integer*1000;
 		}
 		else if ( level.pause.state == PAUSE_PAUSED ) {
 			level.pause.state = PAUSE_UNPAUSING;
-			level.pause.time = level.time + g_unpauseTime.integer*1000;
+			level.pause.time = level.time + g_unpauseTime->integer*1000;
 		}
 		return qtrue;
 	}
 
-	if ( dedicated.boolean ) {
+	if ( dedicated->boolean ) {
 		if ( !Q_stricmp( cmd, "say" ) ) {
 			trap->SV_GameSendServerCommand( -1, va( "print \"server: %s\n\"", ConcatArgs( 1 ) ) );
 			return qtrue;

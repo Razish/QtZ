@@ -849,8 +849,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( !isBot && (strcmp(value, "localhost") != 0)) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
-		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
-			strcmp( g_password.string, value) != 0) {
+		if ( g_password->string[0] && Q_stricmp( g_password->string, "none" ) &&
+			strcmp( g_password->string, value) != 0) {
 			return "Invalid password";
 		}
 	}
@@ -1112,7 +1112,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.pm_time = 100;
 
 	client->respawnTime = level.time;
-	client->inactivityTime = level.time + g_inactivity.integer * 1000;
+	client->inactivityTime = level.time + g_inactivity->integer * 1000;
 	client->latched_buttons = 0;
 
 	// set default animations
@@ -1160,7 +1160,7 @@ void ClientSpawn(gentity_t *ent) {
 		ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, !pm_float.boolean );
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, !pm_float->boolean );
 }
 
 void G_ClearVote( gentity_t *ent ) {

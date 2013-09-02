@@ -238,9 +238,9 @@ int Export_BotLibShutdown(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarSet(char *var_name, char *value)
+int Export_BotLibVarSet(char *name, char *value)
 {
-	LibVarSet(var_name, value);
+	LibVarSet(name, value);
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarSet
 //===========================================================================
@@ -249,11 +249,11 @@ int Export_BotLibVarSet(char *var_name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarGet(char *var_name, char *value, int size)
+int Export_BotLibVarGet(char *name, char *value, int size)
 {
 	char *varvalue;
 
-	varvalue = LibVarGetString(var_name);
+	varvalue = LibVarGetString(name);
 	strncpy(value, varvalue, size-1);
 	value[size-1] = '\0';
 	return BLERR_NOERROR;

@@ -76,10 +76,9 @@ typedef struct cgameImport_s {
 	int				(*Milliseconds)					( void );
 
 	// cvar
-	void			(*Cvar_Register)				( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags, const char *description );
-	void			(*Cvar_Update)					( vmCvar_t *vmCvar );
-	void			(*Cvar_Set)						( const char *var_name, const char *value );
-	void			(*Cvar_VariableStringBuffer)	( const char *var_name, char *buffer, int bufsize );
+	cvar_t *		(*Cvar_Get)						( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
+	void			(*Cvar_Set)						( const char *name, const char *value );
+	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, int bufsize );
 
 	// command
 	int				(*Cmd_Argc)						( void );

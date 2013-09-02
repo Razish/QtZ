@@ -940,8 +940,8 @@ void CL_InitInput( void ) {
 	AddButton( "button13",	IN_ButtonDown13, IN_ButtonUp13 );
 	AddButton( "button14",	IN_ButtonDown14, IN_ButtonUp14 );
 
-	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0, "Use delta encoding (recommended)" );
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0, "Show graph for mouse movement" );
+	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0, "Disable delta encoding of network packets", NULL );
+	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0, "Show graph for mouse movement", NULL );
 }
 
 /*

@@ -441,8 +441,7 @@ void CL_InitCGame( void ) {
 	cgameTrap.Print							= Com_Printf;
 	cgameTrap.Error							= Com_Error;
 	cgameTrap.Milliseconds					= Sys_Milliseconds;
-	cgameTrap.Cvar_Register					= Cvar_Register;
-	cgameTrap.Cvar_Update					= Cvar_Update;
+	cgameTrap.Cvar_Get						= Cvar_Get;
 	cgameTrap.Cvar_Set						= Cvar_SetSafe;
 	cgameTrap.Cvar_VariableStringBuffer		= Cvar_VariableStringBuffer;
 	cgameTrap.Cmd_Argc						= Cmd_Argc;

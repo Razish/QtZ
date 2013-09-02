@@ -703,10 +703,10 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel.string, "none" ) )
-		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel.string, sizeof( newInfo.modelName ) );
-	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel.string, "none" ) )
-		Q_strncpyz( newInfo.modelName, cg_forceAllyModel.string, sizeof( newInfo.modelName ) );
+	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel->string, "none" ) )
+		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel->string, sizeof( newInfo.modelName ) );
+	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel->string, "none" ) )
+		Q_strncpyz( newInfo.modelName, cg_forceAllyModel->string, sizeof( newInfo.modelName ) );
 	else
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
 
@@ -717,7 +717,7 @@ void CG_NewClientInfo( int clientNum ) {
 		qboolean forceDefer = (qboolean)!!(trap->MemoryRemaining() < 4000000);
 
 		// if we are defering loads, just have it pick the first valid
-		if ( forceDefer || (cg_deferPlayers.integer && !cg.loading ) )
+		if ( forceDefer || (cg_deferPlayers->integer && !cg.loading ) )
 		{// keep whatever they had if it won't violate team skins
 			CG_SetDeferredClientInfo( clientNum, &newInfo );
 			
@@ -1073,8 +1073,8 @@ static void CG_PlayerAngles( centity_t *cent, vector3 legs[3], vector3 torso[3],
 	torsoAngles.yaw = headAngles.yaw + 0.25f * movementOffsets[ dir ];
 
 	// torso
-	CG_SwingAngles( torsoAngles.yaw, 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
-	CG_SwingAngles( legsAngles.yaw, 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+	CG_SwingAngles( torsoAngles.yaw, 25, 90, cg_swingSpeed->value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+	CG_SwingAngles( legsAngles.yaw, 40, 90, cg_swingSpeed->value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
 
 	torsoAngles.yaw = cent->pe.torso.yawAngle;
 	legsAngles.yaw = cent->pe.legs.yawAngle;
@@ -1261,7 +1261,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	vector3		angles, dir;
 	int			legsAnim, flagAnim, updateangles;
 	float		angle, d;
-	float		flagScale = cg_flagScale.value;
+	float		flagScale = cg_flagScale->value;
 
 	// show the flag pole model
 	memset( &pole, 0, sizeof(pole) );
@@ -1546,7 +1546,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 
 	*shadowPlane = 0;
 
-	if ( cg_shadows.integer == 0 ) {
+	if ( cg_shadows->integer == 0 ) {
 		return qfalse;
 	}
 
@@ -1563,7 +1563,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 
 	*shadowPlane = trace.endpos.z + 1;
 
-	if ( cg_shadows.integer != 1 ) {	// no mark for stencil or projection shadows
+	if ( cg_shadows->integer != 1 ) {	// no mark for stencil or projection shadows
 		return qtrue;
 	}
 
@@ -1595,7 +1595,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	int			contents;
 	polyVert_t	verts[4];
 
-	if ( !cg_shadows.integer ) {
+	if ( !cg_shadows->integer ) {
 		return;
 	}
 
@@ -1688,7 +1688,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 	else
 		color = &cg.forceModel.allyColor;
 
-	if ( cg_brightModels.boolean ) {
+	if ( cg_brightModels->boolean ) {
 		MAKERGB( ent->shaderRGBA, color->r, color->g, color->b );
 	}
 
@@ -1816,7 +1816,7 @@ void CG_Player( centity_t *cent ) {
 	// add a water splash if partially in and out of water
 	CG_PlayerSplash( cent );
 
-	if ( cg_shadows.integer == 3 && shadow ) {
+	if ( cg_shadows->integer == 3 && shadow ) {
 		renderfx |= RF_SHADOW_PLANE;
 	}
 

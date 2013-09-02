@@ -175,36 +175,36 @@ CL_BotInitCvars
 */
 void CL_BotInitCvars(void) {
 
-	Cvar_Get("bot_enable",				"1",	CVAR_NONE,	NULL );						//enable the bot
-	Cvar_Get("bot_developer",			"0",	CVAR_CHEAT,	NULL );			//bot developer mode
-	Cvar_Get("bot_debug",				"0",	CVAR_CHEAT,	NULL );				//enable bot debugging
-	Cvar_Get("bot_maxdebugpolys",		"2",	CVAR_NONE,	NULL );				//maximum number of debug polys
-	Cvar_Get("bot_groundonly",			"1",	CVAR_NONE,	NULL );					//only show ground faces of areas
-	Cvar_Get("bot_reachability",		"0",	CVAR_NONE,	NULL );				//show all reachabilities to other areas
-	Cvar_Get("bot_visualizejumppads",	"0",	CVAR_CHEAT,	NULL );	//show jumppads
-	Cvar_Get("bot_forceclustering",		"0",	CVAR_NONE,	NULL );			//force cluster calculations
-	Cvar_Get("bot_forcereachability",	"0",	CVAR_NONE,	NULL );			//force reachability calculations
-	Cvar_Get("bot_forcewrite",			"0",	CVAR_NONE,	NULL );					//force writing aas file
-	Cvar_Get("bot_aasoptimize",			"0",	CVAR_NONE,	NULL );				//no aas file optimisation
-	Cvar_Get("bot_saveroutingcache",	"0",	CVAR_NONE,	NULL );			//save routing cache
-	Cvar_Get("bot_thinktime",			"100",	CVAR_CHEAT,	NULL );		//msec the bots thinks
-	Cvar_Get("bot_reloadcharacters",	"0",	CVAR_NONE,	NULL );			//reload the bot characters each time
-	Cvar_Get("bot_testichat",			"0",	CVAR_NONE,	NULL );					//test ichats
-	Cvar_Get("bot_testrchat",			"0",	CVAR_NONE,	NULL );					//test rchats
-	Cvar_Get("bot_testsolid",			"0",	CVAR_CHEAT,	NULL );			//test for solid areas
-	Cvar_Get("bot_testclusters",		"0",	CVAR_CHEAT,	NULL );		//test the AAS clusters
-	Cvar_Get("bot_fastchat",			"0",	CVAR_NONE,	NULL );					//fast chatting bots
-	Cvar_Get("bot_nochat",				"0",	CVAR_NONE,	NULL );						//disable chats
-	Cvar_Get("bot_pause",				"0",	CVAR_CHEAT,	NULL );				//pause the bots thinking
-	Cvar_Get("bot_report",				"0",	CVAR_CHEAT,	NULL );			//get a full report in ctf
-	Cvar_Get("bot_grapple",				"0",	CVAR_NONE,	NULL );					//enable grapple
-	Cvar_Get("bot_rocketjump",			"1",	CVAR_NONE,	NULL );					//enable rocket jumping
-	Cvar_Get("bot_challenge",			"0",	CVAR_NONE,	NULL );					//challenging bot
-	Cvar_Get("bot_minplayers",			"0",	CVAR_NONE,	NULL );					//minimum players in a team or the game
-	Cvar_Get("bot_interbreedchar",		"",		CVAR_CHEAT,	NULL );		//bot character used for interbreeding
-	Cvar_Get("bot_interbreedbots",		"10",	CVAR_CHEAT,	NULL );	//number of bots used for interbreeding
-	Cvar_Get("bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL );	//bot interbreeding cycle
-	Cvar_Get("bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL );	//write interbreeded bots to this file
+	Cvar_Get( "bot_enable",					"1",	CVAR_NONE,	NULL, NULL );	// enable the bot
+	Cvar_Get( "bot_developer",				"0",	CVAR_CHEAT,	NULL, NULL );	// bot developer mode
+	Cvar_Get( "bot_debug",					"0",	CVAR_CHEAT,	NULL, NULL );	// enable bot debugging
+	Cvar_Get( "bot_maxdebugpolys",			"2",	CVAR_NONE,	NULL, NULL );	// maximum number of debug polys
+	Cvar_Get( "bot_groundonly",				"1",	CVAR_NONE,	NULL, NULL );	// only show ground faces of areas
+	Cvar_Get( "bot_reachability",			"0",	CVAR_NONE,	NULL, NULL );	// show all reachabilities to other areas
+	Cvar_Get( "bot_visualizejumppads",		"0",	CVAR_CHEAT,	NULL, NULL );	// show jumppads
+	Cvar_Get( "bot_forceclustering",		"0",	CVAR_NONE,	NULL, NULL );	// force cluster calculations
+	Cvar_Get( "bot_forcereachability",		"0",	CVAR_NONE,	NULL, NULL );	// force reachability calculations
+	Cvar_Get( "bot_forcewrite",				"0",	CVAR_NONE,	NULL, NULL );	// force writing aas file
+	Cvar_Get( "bot_aasoptimize",			"0",	CVAR_NONE,	NULL, NULL );	// no aas file optimisation
+	Cvar_Get( "bot_saveroutingcache",		"0",	CVAR_NONE,	NULL, NULL );	// save routing cache
+	Cvar_Get( "bot_thinktime",				"100",	CVAR_CHEAT,	NULL, NULL );	// msec the bots thinks
+	Cvar_Get( "bot_reloadcharacters",		"0",	CVAR_NONE,	NULL, NULL );	// reload the bot characters each time
+	Cvar_Get( "bot_testichat",				"0",	CVAR_NONE,	NULL, NULL );	// test ichats
+	Cvar_Get( "bot_testrchat",				"0",	CVAR_NONE,	NULL, NULL );	// test rchats
+	Cvar_Get( "bot_testsolid",				"0",	CVAR_CHEAT,	NULL, NULL );	// test for solid areas
+	Cvar_Get( "bot_testclusters",			"0",	CVAR_CHEAT,	NULL, NULL );	// test the AAS clusters
+	Cvar_Get( "bot_fastchat",				"0",	CVAR_NONE,	NULL, NULL );	// fast chatting bots
+	Cvar_Get( "bot_nochat",					"0",	CVAR_NONE,	NULL, NULL );	// disable chats
+	Cvar_Get( "bot_pause",					"0",	CVAR_CHEAT,	NULL, NULL );	// pause the bots thinking
+	Cvar_Get( "bot_report",					"0",	CVAR_CHEAT,	NULL, NULL );	// get a full report in ctf
+	Cvar_Get( "bot_grapple",				"0",	CVAR_NONE,	NULL, NULL );	// enable grapple
+	Cvar_Get( "bot_rocketjump",				"1",	CVAR_NONE,	NULL, NULL );	// enable rocket jumping
+	Cvar_Get( "bot_challenge",				"0",	CVAR_NONE,	NULL, NULL );	// challenging bot
+	Cvar_Get( "bot_minplayers",				"0",	CVAR_NONE,	NULL, NULL );	// minimum players in a team or the game
+	Cvar_Get( "bot_interbreedchar",			"",		CVAR_CHEAT,	NULL, NULL );	// bot character used for interbreeding
+	Cvar_Get( "bot_interbreedbots",			"10",	CVAR_CHEAT,	NULL, NULL );	// number of bots used for interbreeding
+	Cvar_Get( "bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL, NULL );	// bot interbreeding cycle
+	Cvar_Get( "bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL, NULL );	// write interbreeded bots to this file
 }
 
 /*

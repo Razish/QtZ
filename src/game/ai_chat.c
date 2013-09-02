@@ -372,14 +372,14 @@ int BotChat_EnterGame(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
@@ -405,14 +405,14 @@ int BotChat_ExitGame(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
@@ -438,7 +438,7 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
@@ -449,7 +449,7 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
@@ -470,7 +470,7 @@ int BotChat_EndLevel(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	// teamplay
@@ -484,7 +484,7 @@ int BotChat_EndLevel(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
@@ -530,13 +530,13 @@ int BotChat_Death(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_DEATH, 0, 1);
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chatting is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
@@ -632,13 +632,13 @@ int BotChat_Kill(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_KILL, 0, 1);
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (bs->lastkilledplayer == bs->client) return qfalse;
@@ -697,7 +697,7 @@ int BotChat_EnemySuicide(bot_state_t *bs) {
 	char name[32];
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	if (BotNumActivePlayers() <= 1) return qfalse;
 	//
@@ -707,7 +707,7 @@ int BotChat_EnemySuicide(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
@@ -732,7 +732,7 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	int lasthurt_client;
 	float rnd;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	if (BotNumActivePlayers() <= 1) return qfalse;
 	lasthurt_client = g_entities[bs->client].client->lasthurt_client;
@@ -747,7 +747,7 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd * 0.5) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
@@ -778,7 +778,7 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	//
 	if (lasthurt_client < 0 || lasthurt_client >= MAX_CLIENTS) return qfalse;
 	//
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	if (BotNumActivePlayers() <= 1) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_HITNODEATH, 0, 1);
@@ -787,7 +787,7 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd * 0.5) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
@@ -816,7 +816,7 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	float rnd;
 	aas_entityinfo_t entinfo;
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	if (BotNumActivePlayers() <= 1) return qfalse;
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_HITNOKILL, 0, 1);
@@ -825,7 +825,7 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	// don't chat in tournament mode
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd * 0.5) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
@@ -853,7 +853,7 @@ int BotChat_Random(bot_state_t *bs) {
 	float rnd;
 	char name[32];
 
-	if (bot_nochat.integer) return qfalse;
+	if (bot_nochat->integer) return qfalse;
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	// don't chat in tournament mode
@@ -865,7 +865,7 @@ int BotChat_Random(bot_state_t *bs) {
 	//
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_RANDOM, 0, 1);
 	if (random() > bs->thinktime * 0.1) return qfalse;
-	if (!bot_fastchat.integer) {
+	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
 		if (random() > 0.25) return qfalse;
 	}

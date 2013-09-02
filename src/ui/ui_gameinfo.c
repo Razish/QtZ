@@ -129,7 +129,7 @@ UI_LoadArenas
 */
 void UI_LoadArenas( void ) {
 	int			numdirs;
-	vmCvar_t	arenasFile;
+	cvar_t	*arenasFile;
 	char		filename[128];
 	char		dirlist[1024];
 	char*		dirptr;
@@ -140,9 +140,9 @@ void UI_LoadArenas( void ) {
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
 
-	trap->Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM, NULL );
-	if( *arenasFile.string ) {
-		UI_LoadArenasFromFile(arenasFile.string);
+	arenasFile = trap->Cvar_Get( "g_arenasFile", "", CVAR_INIT|CVAR_ROM, NULL, NULL );
+	if( arenasFile->string[0] ) {
+		UI_LoadArenasFromFile(arenasFile->string);
 	}
 	else {
 		UI_LoadArenasFromFile("scripts/arenas.txt");
@@ -235,7 +235,7 @@ UI_LoadBots
 ===============
 */
 void UI_LoadBots( void ) {
-	vmCvar_t	botsFile;
+	cvar_t	*botsFile;
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[1024];
@@ -245,9 +245,9 @@ void UI_LoadBots( void ) {
 
 	ui_numBots = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL );
-	if( *botsFile.string ) {
-		UI_LoadBotsFromFile(botsFile.string);
+	botsFile = trap->Cvar_Get( "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL, NULL );
+	if( *botsFile->string ) {
+		UI_LoadBotsFromFile(botsFile->string);
 	}
 	else {
 		UI_LoadBotsFromFile("scripts/bots.txt");

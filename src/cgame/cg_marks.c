@@ -137,7 +137,7 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 	vector3			markPoints[MAX_MARK_POINTS] = {0};
 	vector3			projection;
 
-	if ( !cg_marks.boolean ) {
+	if ( !cg_marks->boolean ) {
 		return;
 	}
 
@@ -233,7 +233,7 @@ void CG_AddMarks( void ) {
 	int			t;
 	int			fade;
 
-	if ( !cg_marks.boolean ) {
+	if ( !cg_marks->boolean ) {
 		return;
 	}
 

@@ -68,7 +68,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
 		ent->touch = 0;
-		ent->nextthink = level.time + sv_frametime.integer;
+		ent->nextthink = level.time + sv_frametime->integer;
 		ent->think = G_FreeEntity;
 	}
 }
@@ -96,7 +96,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( ent->random >= ent->wait && ent->wait >= 0 ) {
-		ent->random = ent->wait - sv_frametime.integer;
+		ent->random = ent->wait - sv_frametime->integer;
 		trap->Print( "trigger_multiple has random >= wait\n" );
 	}
 
@@ -173,7 +173,7 @@ void AimAtTarget( gentity_t *self ) {
 	}
 
 	height = ent->s.origin.z - origin.z;
-	gravity = pm_gravity.value;
+	gravity = pm_gravity->value;
 	time = sqrtf( height / ( .5 * gravity ) );
 	if ( !time ) {
 		G_FreeEntity( self );
@@ -208,7 +208,7 @@ void SP_trigger_push( gentity_t *self ) {
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
-	self->nextthink = level.time + sv_frametime.integer;
+	self->nextthink = level.time + sv_frametime->integer;
 	trap->SV_LinkEntity ((sharedEntity_t *)self);
 }
 
@@ -252,7 +252,7 @@ void SP_target_push( gentity_t *self ) {
 		VectorCopy( &self->s.origin, &self->r.absmin );
 		VectorCopy( &self->s.origin, &self->r.absmax );
 		self->think = AimAtTarget;
-		self->nextthink = level.time + sv_frametime.integer;
+		self->nextthink = level.time + sv_frametime->integer;
 	}
 	self->use = Use_target_push;
 }
@@ -369,7 +369,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( self->spawnflags & 16 ) {
 		self->timestamp = level.time + 1000;
 	} else {
-		self->timestamp = level.time + sv_frametime.integer;
+		self->timestamp = level.time + sv_frametime->integer;
 	}
 
 	// play sound
@@ -453,12 +453,12 @@ void SP_func_timer( gentity_t *self ) {
 	self->think = func_timer_think;
 
 	if ( self->random >= self->wait ) {
-		self->random = self->wait - sv_frametime.integer;
+		self->random = self->wait - sv_frametime->integer;
 		trap->Print( "func_timer at %s has random >= wait\n", vtos( &self->s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {
-		self->nextthink = level.time + sv_frametime.integer;
+		self->nextthink = level.time + sv_frametime->integer;
 		self->activator = self;
 	}
 

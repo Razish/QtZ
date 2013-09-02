@@ -402,7 +402,7 @@ void CL_SystemInfoChanged( void ) {
 		}
 
 		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)
-			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM, NULL );
+			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM, NULL, NULL );
 		else
 		{
 			// If this cvar may not be modified by a server discard the value.

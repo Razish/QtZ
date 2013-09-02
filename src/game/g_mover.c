@@ -890,7 +890,7 @@ void SP_func_door (gentity_t *ent) {
 
 	InitMover( ent );
 
-	ent->nextthink = level.time + sv_frametime.integer;
+	ent->nextthink = level.time + sv_frametime->integer;
 
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
 		int health;
@@ -1347,7 +1347,7 @@ void SP_func_train (gentity_t *self) {
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
-	self->nextthink = level.time + sv_frametime.integer;
+	self->nextthink = level.time + sv_frametime->integer;
 	self->think = Think_SetupTrainTargets;
 }
 
@@ -1501,7 +1501,7 @@ void SP_func_pendulum(gentity_t *ent) {
 		length = 8;
 	}
 
-	freq = 1 / ( M_PI * 2 ) * sqrtf( pm_gravity.value / ( 3 * length ) );
+	freq = 1 / ( M_PI * 2 ) * sqrtf( pm_gravity->value / ( 3 * length ) );
 
 	ent->s.pos.trDuration = (int)( 1000 / freq );
 

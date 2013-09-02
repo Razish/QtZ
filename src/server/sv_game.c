@@ -403,7 +403,7 @@ void SV_InitGameProgs( void ) {
 	GetGameAPI_t		GetModuleAPI;
 	char				dllName[MAX_OSPATH] = "game"ARCH_STRING DLL_EXT;
 
-	var = svi.Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL );
+	var = svi.Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL, NULL );
 	if ( var )	bot_enable = var->integer;
 	else		bot_enable = 0;
 
@@ -426,8 +426,7 @@ void SV_InitGameProgs( void ) {
 	gameTrap.Print						= svi.Print;
 	gameTrap.Error						= svi.Error;
 	gameTrap.Milliseconds				= svi.Sys_Milliseconds;
-	gameTrap.Cvar_Register				= svi.Cvar_Register;
-	gameTrap.Cvar_Update				= svi.Cvar_Update;
+	gameTrap.Cvar_Get					= svi.Cvar_Get;
 	gameTrap.Cvar_Set					= svi.Cvar_SetSafe;
 	gameTrap.Cvar_VariableIntegerValue	= svi.Cvar_VariableIntegerValue;
 	gameTrap.Cvar_VariableStringBuffer	= svi.Cvar_VariableStringBuffer;

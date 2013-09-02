@@ -70,7 +70,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 	if ( gravity ) {
 		VectorCopy( &pm->ps->velocity, &endVelocity );
-		endVelocity.z -= pm_gravity.value * pml.frametime;
+		endVelocity.z -= pm_gravity->value * pml.frametime;
 		pm->ps->velocity.z = ( pm->ps->velocity.z + endVelocity.z ) * 0.5f;
 		primal_velocity.z = endVelocity.z;
 		if ( pml.groundPlane ) {

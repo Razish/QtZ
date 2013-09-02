@@ -103,7 +103,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		// anti-reward
 		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
 	}
-	return g_powerupRespawnTime.integer;
+	return g_powerupRespawnTime->integer;
 }
 
 //======================================================================
@@ -130,7 +130,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
-	return g_holdableRespawnTime.integer;
+	return g_holdableRespawnTime->integer;
 }
 
 
@@ -148,7 +148,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 {
 	Add_Ammo( other, ent->item->giTag, ent->count ? ent->count : ent->item->quantity );
 
-	return g_ammoRespawnTime.integer;
+	return g_ammoRespawnTime->integer;
 }
 
 //======================================================================
@@ -181,7 +181,7 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 
 	Add_Ammo( other, ent->item->giTag, quantity );
 
-	return g_weaponRespawnTime.integer;
+	return g_weaponRespawnTime->integer;
 }
 
 
@@ -679,7 +679,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
-	ent->nextthink = level.time + sv_frametime.integer * 2;
+	ent->nextthink = level.time + sv_frametime->integer * 2;
 	ent->think = FinishSpawningItem;
 
 	ent->physicsBounce = 0.50;		// items are bouncy

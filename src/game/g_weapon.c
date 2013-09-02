@@ -177,7 +177,7 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 	int			range = weaponData[WP_SPLICER].range;
 
 	// time to compensate for lag
-	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
 
 	//Start at eye position
@@ -190,7 +190,7 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 
 	if ( trace.entityNum == ENTITYNUM_NONE )
 	{
-		if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+		if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 			G_UnTimeShiftAllClients( ent );
 		return;
 	}
@@ -217,7 +217,7 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 		tent->s.eventParm = DirToByte( &trace.plane.normal );
 	}
 
-	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_UnTimeShiftAllClients( ent );
 }
 
@@ -294,7 +294,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	int hits = 0;
 
 	// time to compensate for lag
-	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_TimeShiftAllClients( ent->client->pers.cmd.serverTime, ent );
 
 	//Start at eye position
@@ -330,7 +330,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 			if ( LogAccuracyHit( traceEnt, ent ) )
 				ent->client->accuracy_hits++;
 
-			if ( !OnSameTeam( ent, traceEnt ) && g_enableHeadshots.integer && G_GetHitLocation( traceEnt, &tr.endpos ) == HL_HEAD )
+			if ( !OnSameTeam( ent, traceEnt ) && g_enableHeadshots->integer && G_GetHitLocation( traceEnt, &tr.endpos ) == HL_HEAD )
 			{
 				headshot = qtrue;
 				ent->client->tracking.headshotCount++;
@@ -403,7 +403,7 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	if ( amazing )
 		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AMAZING;
 
-	if ( g_delagHitscan.integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
+	if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_UnTimeShiftAllClients( ent );
 }
 
@@ -414,7 +414,7 @@ FireWeapon
 */
 void FireWeapon( gentity_t *ent, int special )
 {
-	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadFactor.value : 1.0f;
+	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadFactor->value : 1.0f;
 
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	ent->client->accuracy_shots++;

@@ -257,7 +257,7 @@ CG_TouchItem
 static void CG_TouchItem( centity_t *cent ) {
 	gitem_t		*item;
 
-	if ( !cg_predictItems.integer ) {
+	if ( !cg_predictItems->integer ) {
 		return;
 	}
 	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time ) ) {
@@ -429,7 +429,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// non-predicting local movement will grab the latest angles
-	if ( bg_synchronousClients.integer ) {
+	if ( bg_synchronousClients->integer ) {
 		CG_InterpolatePlayerState( qtrue );
 		return;
 	}
@@ -533,12 +533,12 @@ void CG_PredictPlayerState( void ) {
 					#ifdef DEBUG_PREDICTION
 					//	trap->Print("Prediction miss: %f\n", len);
 					#endif
-					if ( cg_errorDecay.integer ) {
+					if ( cg_errorDecay->integer ) {
 						int		t;
 						float	f;
 
 						t = cg.time - cg.predictedErrorTime;
-						f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
+						f = ( cg_errorDecay->value - t ) / cg_errorDecay->value;
 						if ( f < 0 ) {
 							f = 0;
 						}

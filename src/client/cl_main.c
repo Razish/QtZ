@@ -2959,6 +2959,9 @@ int CL_ScaledMilliseconds(void) {
 CL_InitRef
 ============
 */
+#define DEFAULT_RENDERER "rd-rust"
+#define FALLBACK_RENDERER "rd-vanilla"
+
 void CL_InitRef( void ) {
 	static refimport_t rdImport;
 	GetRefAPI_t		GetRefAPI;
@@ -2968,7 +2971,7 @@ void CL_InitRef( void ) {
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
-	cl_renderer = Cvar_Get( "cl_renderer", "rd-rust", CVAR_ARCHIVE|CVAR_LATCH, "Controls which renderer to use" );
+	cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDERER, CVAR_ARCHIVE|CVAR_LATCH, "Controls which renderer to use", NULL );
 
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
@@ -2977,7 +2980,7 @@ void CL_InitRef( void ) {
 		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
 		Cvar_ForceReset( "cl_renderer" );
 
-		Com_sprintf( dllName, sizeof( dllName ), "rd-vanilla_" ARCH_STRING DLL_EXT );
+		Com_sprintf( dllName, sizeof( dllName ), FALLBACK_RENDERER"_" ARCH_STRING DLL_EXT );
 		rendererLib = Sys_LoadDll( dllName, qfalse );
 	}
 
@@ -3289,103 +3292,99 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint					= Cvar_Get( "cl_noprint",					"0",				CVAR_NONE,					"Enable or disable printing to the console" );
-	cl_conXOffset				= Cvar_Get( "cl_conXOffset",				"0",				CVAR_NONE,					"Horizontal offset for console text" );
+	cl_noprint					= Cvar_Get( "cl_noprint",					"0",				CVAR_NONE,					"Enable or disable printing to the console", NULL );
+	cl_conXOffset				= Cvar_Get( "cl_conXOffset",				"0",				CVAR_NONE,					"Horizontal offset for console text", NULL );
 #ifdef UPDATE_SERVER_NAME
-	cl_motd						= Cvar_Get( "cl_motd",						"1",				CVAR_NONE,					"Show a \"Message of the Day\" from the update server" );
+	cl_motd						= Cvar_Get( "cl_motd",						"1",				CVAR_NONE,					"Show a \"Message of the Day\" from the update server", NULL );
 #endif
-	cl_motdString				= Cvar_Get( "cl_motdString",				"",					CVAR_ROM,					"Last received MotD" );
-	cl_timeout					= Cvar_Get( "cl_timeout",					"200",				CVAR_NONE,					"Disconnect from a server if you haven't received an update in the specified time (in seconds)" );
-	cl_maxPing					= Cvar_Get( "cl_maxPing",					"800",				CVAR_ARCHIVE,				"Ignore servers with a higher ping than this" );
-	cl_timeNudge				= Cvar_Get( "cl_timeNudge",					"0",				CVAR_NONE,					"Offset the interpolation of entities between snapshots (use negative values)" );
-	cl_shownet					= Cvar_Get( "cl_shownet",					"0",				CVAR_NONE,					"Show incoming network traffic" );
-	cl_showSend					= Cvar_Get( "cl_showSend",					"0",				CVAR_NONE,					"Show outgoing network traffic" );
-	cl_showTimeDelta			= Cvar_Get( "cl_showTimeDelta",				"0",				CVAR_NONE,					"Show delta information between snapshots" );
-	cl_freezeDemo				= Cvar_Get( "cl_freezeDemo",				"0",				CVAR_NONE,					"Lock a demo in place for single frame advances" );
-	cl_activeAction				= Cvar_Get( "activeAction",					"",					CVAR_NONE,					"Inserted in the command buffer in the first frame of gameplay (for scripting timedemos)" );
+	cl_motdString				= Cvar_Get( "cl_motdString",				"",					CVAR_ROM,					"Last received MotD", NULL );
+	cl_timeout					= Cvar_Get( "cl_timeout",					"200",				CVAR_NONE,					"Disconnect from a server if you haven't received an update in the specified time (in seconds)", NULL );
+	cl_maxPing					= Cvar_Get( "cl_maxPing",					"800",				CVAR_ARCHIVE,				"Ignore servers with a higher ping than this", NULL );
+	cl_timeNudge				= Cvar_Get( "cl_timeNudge",					"0",				CVAR_NONE,					"Offset the interpolation of entities between snapshots (use negative values)", NULL );
+	cl_shownet					= Cvar_Get( "cl_shownet",					"0",				CVAR_NONE,					"Show incoming network traffic", NULL );
+	cl_showSend					= Cvar_Get( "cl_showSend",					"0",				CVAR_NONE,					"Show outgoing network traffic", NULL );
+	cl_showTimeDelta			= Cvar_Get( "cl_showTimeDelta",				"0",				CVAR_NONE,					"Show delta information between snapshots", NULL );
+	cl_freezeDemo				= Cvar_Get( "cl_freezeDemo",				"0",				CVAR_NONE,					"Lock a demo in place for single frame advances", NULL );
+	cl_activeAction				= Cvar_Get( "activeAction",					"",					CVAR_NONE,					"Inserted in the command buffer in the first frame of gameplay (for scripting timedemos)", NULL );
 
-	cl_timedemo					= Cvar_Get( "timedemo",						"0",				CVAR_NONE,					"Use deterministic time samples when playing back a demo (for benchmarking)" );
-	cl_timedemoLog				= Cvar_Get( "cl_timedemoLog",				"",					CVAR_ARCHIVE,				"Write results of a timedemo to this file" );
-	cl_autoRecordDemo			= Cvar_Get( "cl_autoRecordDemo",			"0",				CVAR_ARCHIVE,				"Automatically record a demo of each game" );
-	cl_aviFrameRate				= Cvar_Get( "cl_aviFrameRate",				"25",				CVAR_ARCHIVE,				"Frame rate for recording AVI videos" );
-	cl_aviMotionJpeg			= Cvar_Get( "cl_aviMotionJpeg",				"1",				CVAR_ARCHIVE,				"Use MJPG encoding for AVI videos" );
-	cl_forceavidemo				= Cvar_Get( "cl_forceavidemo",				"0",				CVAR_NONE,					"Record demo to AVI video" );
+	cl_timedemo					= Cvar_Get( "timedemo",						"0",				CVAR_NONE,					"Use deterministic time samples when playing back a demo (for benchmarking)", NULL );
+	cl_timedemoLog				= Cvar_Get( "cl_timedemoLog",				"",					CVAR_ARCHIVE,				"Write results of a timedemo to this file", NULL );
+	cl_autoRecordDemo			= Cvar_Get( "cl_autoRecordDemo",			"0",				CVAR_ARCHIVE,				"Automatically record a demo of each game", NULL );
+	cl_aviFrameRate				= Cvar_Get( "cl_aviFrameRate",				"25",				CVAR_ARCHIVE,				"Frame rate for recording AVI videos", NULL );
+	cl_aviMotionJpeg			= Cvar_Get( "cl_aviMotionJpeg",				"1",				CVAR_ARCHIVE,				"Use MJPG encoding for AVI videos", NULL );
+	cl_forceavidemo				= Cvar_Get( "cl_forceavidemo",				"0",				CVAR_NONE,					"Record demo to AVI video", NULL );
 
-	rconAddress					= Cvar_Get( "rconAddress",					"",					CVAR_NONE,					"Use this address when sending RCON commands" );
-	rcon_client_password		= Cvar_Get( "rconPassword",					"",					CVAR_NONE,					"Use this password when sending RCON commands" );
+	rconAddress					= Cvar_Get( "rconAddress",					"",					CVAR_NONE,					"Use this address when sending RCON commands", NULL );
+	rcon_client_password		= Cvar_Get( "rconPassword",					"",					CVAR_NONE,					"Use this password when sending RCON commands", NULL );
 
-	cl_yawspeed					= Cvar_Get( "cl_yawspeed",					"140",				CVAR_ARCHIVE,				"Turning speed for +left/+right" );
-	cl_pitchspeed				= Cvar_Get( "cl_pitchspeed",				"140",				CVAR_ARCHIVE,				"Turning speed for +lookup/+lookdown" );
-	cl_anglespeedkey			= Cvar_Get( "cl_anglespeedkey",				"1.5",				CVAR_NONE,					"Turning speed when holding the +speed key" );
+	cl_yawspeed					= Cvar_Get( "cl_yawspeed",					"140",				CVAR_ARCHIVE,				"Turning speed for +left/+right", NULL );
+	cl_pitchspeed				= Cvar_Get( "cl_pitchspeed",				"140",				CVAR_ARCHIVE,				"Turning speed for +lookup/+lookdown", NULL );
+	cl_anglespeedkey			= Cvar_Get( "cl_anglespeedkey",				"1.5",				CVAR_NONE,					"Turning speed when holding the +speed key", NULL );
 
-	cl_maxpackets				= Cvar_Get( "cl_maxpackets",				"63",				CVAR_ARCHIVE,				"How many usercmd packets to send per second" );
-	cl_packetdup				= Cvar_Get( "cl_packetdup",					"1",				CVAR_ARCHIVE,				"Duplicate outgoing packets to compensate for packetloss" );
+	cl_maxpackets				= Cvar_Get( "cl_maxpackets",				"63",				CVAR_ARCHIVE,				"How many usercmd packets to send per second", NULL );
+	cl_packetdup				= Cvar_Get( "cl_packetdup",					"1",				CVAR_ARCHIVE,				"Duplicate outgoing packets to compensate for packetloss", NULL );
 
-	cl_run						= Cvar_Get( "cl_run",						"1",				CVAR_ARCHIVE,				"Invert behaviour of walking key" );
-	cl_freelook					= Cvar_Get( "cl_freelook",					"1",				CVAR_ARCHIVE,				"Allow changing of view angles" );
-	m_sensitivity				= Cvar_Get( "m_sensitivity",				"0.11",				CVAR_ARCHIVE,				"Mouse sensitivity" );
-#ifdef MACOS_X
-	m_filter					= Cvar_Get( "m_filter",						"1",				CVAR_ARCHIVE,				"Smooth mouse movements across frames" );
-#else
-	m_filter					= Cvar_Get( "m_filter",						"0",				CVAR_ARCHIVE,				"Smooth mouse movements across frames" );
-#endif
-	m_accel						= Cvar_Get( "m_accel",						"0",				CVAR_ARCHIVE,				"Mouse acceleration" );
-	m_accelStyle				= Cvar_Get( "m_accelStyle",					"0",				CVAR_ARCHIVE,				"Acceleration style to use (0 = legacy, 1 = QL)" );
-	m_accelOffset				= Cvar_Get( "m_accelOffset",				"5",				CVAR_ARCHIVE,				"Offset for mouse acceleration power function" ); 	// offset for the power function (for style 1, ignored otherwise) this should be set to the max rate value
+	cl_run						= Cvar_Get( "cl_run",						"1",				CVAR_ARCHIVE,				"Invert behaviour of walking key", NULL );
+	cl_freelook					= Cvar_Get( "cl_freelook",					"1",				CVAR_ARCHIVE,				"Allow changing of view angles", NULL );
+	m_sensitivity				= Cvar_Get( "m_sensitivity",				"0.11",				CVAR_ARCHIVE,				"Mouse sensitivity", NULL );
+	m_filter					= Cvar_Get( "m_filter",						"0",				CVAR_ARCHIVE,				"Smooth mouse movements across frames", NULL );
+	m_accel						= Cvar_Get( "m_accel",						"0",				CVAR_ARCHIVE,				"Mouse acceleration", NULL );
+	m_accelStyle				= Cvar_Get( "m_accelStyle",					"0",				CVAR_ARCHIVE,				"Acceleration style to use (0 = legacy, 1 = QL)", NULL );
+	m_accelOffset				= Cvar_Get( "m_accelOffset",				"5",				CVAR_ARCHIVE,				"Offset for mouse acceleration power function", NULL ); 	// offset for the power function (for style 1, ignored otherwise) this should be set to the max rate value
 	Cvar_CheckRange( m_accelOffset, 0.001f, 50000.0f, qfalse );
-	m_forward					= Cvar_Get( "m_forward",					"0.25",				CVAR_ARCHIVE,				NULL );
-	m_side						= Cvar_Get( "m_side",						"0.25",				CVAR_ARCHIVE,				NULL );
-	cl_showMouseRate			= Cvar_Get( "cl_showmouserate",				"0",				CVAR_NONE,					"Show mouse input data" );
+	m_forward					= Cvar_Get( "m_forward",					"0.25",				CVAR_ARCHIVE,				NULL, NULL );
+	m_side						= Cvar_Get( "m_side",						"0.25",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_showMouseRate			= Cvar_Get( "cl_showmouserate",				"0",				CVAR_NONE,					"Show mouse input data", NULL );
 
 	// joystick cvars
-	j_pitch						= Cvar_Get( "j_pitch",						"0.022",			CVAR_ARCHIVE,				NULL );
-	j_yaw						= Cvar_Get( "j_yaw",						"-0.022",			CVAR_ARCHIVE,				NULL );
-	j_forward					= Cvar_Get( "j_forward",					"-0.25",			CVAR_ARCHIVE,				NULL );
-	j_side						= Cvar_Get( "j_side",						"0.25",				CVAR_ARCHIVE,				NULL );
-	j_up						= Cvar_Get( "j_up",							"1",				CVAR_ARCHIVE,				NULL );
-	j_pitch_axis				= Cvar_Get( "j_pitch_axis",					"3",				CVAR_ARCHIVE,				NULL );
+	j_pitch						= Cvar_Get( "j_pitch",						"0.022",			CVAR_ARCHIVE,				NULL, NULL );
+	j_yaw						= Cvar_Get( "j_yaw",						"-0.022",			CVAR_ARCHIVE,				NULL, NULL );
+	j_forward					= Cvar_Get( "j_forward",					"-0.25",			CVAR_ARCHIVE,				NULL, NULL );
+	j_side						= Cvar_Get( "j_side",						"0.25",				CVAR_ARCHIVE,				NULL, NULL );
+	j_up						= Cvar_Get( "j_up",							"1",				CVAR_ARCHIVE,				NULL, NULL );
+	j_pitch_axis				= Cvar_Get( "j_pitch_axis",					"3",				CVAR_ARCHIVE,				NULL, NULL );
 	Cvar_CheckRange( j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
-	j_yaw_axis					= Cvar_Get( "j_yaw_axis",					"4",				CVAR_ARCHIVE,				NULL );
+	j_yaw_axis					= Cvar_Get( "j_yaw_axis",					"4",				CVAR_ARCHIVE,				NULL, NULL );
 	Cvar_CheckRange( j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
-	j_forward_axis				= Cvar_Get( "j_forward_axis",				"1",				CVAR_ARCHIVE,				NULL );
+	j_forward_axis				= Cvar_Get( "j_forward_axis",				"1",				CVAR_ARCHIVE,				NULL, NULL );
 	Cvar_CheckRange( j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
-	j_side_axis					= Cvar_Get( "j_side_axis",					"0",				CVAR_ARCHIVE,				NULL );
+	j_side_axis					= Cvar_Get( "j_side_axis",					"0",				CVAR_ARCHIVE,				NULL, NULL );
 	Cvar_CheckRange( j_side_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
-	j_up_axis					= Cvar_Get( "j_up_axis",					"2",				CVAR_ARCHIVE,				NULL );
+	j_up_axis					= Cvar_Get( "j_up_axis",					"2",				CVAR_ARCHIVE,				NULL, NULL );
 	Cvar_CheckRange( j_up_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue );
 
-	cl_allowDownload			= Cvar_Get( "cl_allowDownload",				"0",				CVAR_ARCHIVE,				"Allow downloading missing files from server" );
+	cl_allowDownload			= Cvar_Get( "cl_allowDownload",				"0",				CVAR_ARCHIVE,				"Allow downloading missing files from server", NULL );
 #ifdef USE_CURL_DLOPEN
-	cl_cURLLib					= Cvar_Get( "cl_cURLLib",					DEFAULT_CURL_LIB,	CVAR_ARCHIVE,				NULL );
+	cl_cURLLib					= Cvar_Get( "cl_cURLLib",					DEFAULT_CURL_LIB,	CVAR_ARCHIVE,				NULL, NULL );
 #endif
 
 #ifdef MACOS_X	
-	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"0",				CVAR_ARCHIVE,				NULL ); // In game video is REALLY slow in Mac OS X right now due to driver slowness
+	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"0",				CVAR_ARCHIVE,				NULL, NULL ); // In game video is REALLY slow in Mac OS X right now due to driver slowness
 #else
-	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"1",				CVAR_ARCHIVE,				NULL );
+	cl_inGameVideo				= Cvar_Get( "r_inGameVideo",				"1",				CVAR_ARCHIVE,				NULL, NULL );
 #endif
 
-	cl_serverStatusResendTime	= Cvar_Get( "cl_serverStatusResendTime",	"750",				CVAR_NONE,					NULL );
-	cl_lanForcePackets			= Cvar_Get( "cl_lanForcePackets",			"1",				CVAR_ARCHIVE,				NULL );
-	cl_guidServerUniq			= Cvar_Get( "cl_guidServerUniq",			"1",				CVAR_ARCHIVE,				"Generate a unique cl_guid for each server" );
-	cl_consoleKeys				= Cvar_Get( "cl_consoleKeys",				"~ ` 0x7e 0x60",	CVAR_ARCHIVE,				"Valid keys for opening the console" );
+	cl_serverStatusResendTime	= Cvar_Get( "cl_serverStatusResendTime",	"750",				CVAR_NONE,					NULL, NULL );
+	cl_lanForcePackets			= Cvar_Get( "cl_lanForcePackets",			"1",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_guidServerUniq			= Cvar_Get( "cl_guidServerUniq",			"1",				CVAR_ARCHIVE,				"Generate a unique cl_guid for each server", NULL );
+	cl_consoleKeys				= Cvar_Get( "cl_consoleKeys",				"~ ` 0x7e 0x60",	CVAR_ARCHIVE,				"Valid keys for opening the console", NULL );
 #ifdef USE_MUMBLE
-	cl_useMumble				= Cvar_Get( "cl_useMumble",					"0",				CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	cl_mumbleScale				= Cvar_Get( "cl_mumbleScale",				"0.0254",			CVAR_ARCHIVE,				NULL );
+	cl_useMumble				= Cvar_Get( "cl_useMumble",					"0",				CVAR_ARCHIVE|CVAR_LATCH,	NULL, NULL );
+	cl_mumbleScale				= Cvar_Get( "cl_mumbleScale",				"0.0254",			CVAR_ARCHIVE,				NULL, NULL );
 #endif
 
 #ifdef USE_VOIP
-	cl_voipSend					= Cvar_Get( "cl_voipSend",					"0",				CVAR_NONE,					NULL );
-	cl_voipSendTarget			= Cvar_Get( "cl_voipSendTarget",			"spatial",			CVAR_NONE,					NULL );
-	cl_voipGainDuringCapture	= Cvar_Get( "cl_voipGainDuringCapture",		"0.2",				CVAR_ARCHIVE,				NULL );
-	cl_voipCaptureMult			= Cvar_Get( "cl_voipCaptureMult",			"2.0",				CVAR_ARCHIVE,				NULL );
-	cl_voipUseVAD				= Cvar_Get( "cl_voipUseVAD",				"0",				CVAR_ARCHIVE,				NULL );
-	cl_voipVADThreshold			= Cvar_Get( "cl_voipVADThreshold",			"0.25",				CVAR_ARCHIVE,				NULL );
-	cl_voipShowMeter			= Cvar_Get( "cl_voipShowMeter",				"1",				CVAR_ARCHIVE,				NULL );
-	cl_voipIgnoreSelf			= Cvar_Get( "cl_voipIgnoreSelf",			"1",				CVAR_ARCHIVE,				NULL );
+	cl_voipSend					= Cvar_Get( "cl_voipSend",					"0",				CVAR_NONE,					NULL, NULL );
+	cl_voipSendTarget			= Cvar_Get( "cl_voipSendTarget",			"spatial",			CVAR_NONE,					NULL, NULL );
+	cl_voipGainDuringCapture	= Cvar_Get( "cl_voipGainDuringCapture",		"0.2",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_voipCaptureMult			= Cvar_Get( "cl_voipCaptureMult",			"2.0",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_voipUseVAD				= Cvar_Get( "cl_voipUseVAD",				"0",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_voipVADThreshold			= Cvar_Get( "cl_voipVADThreshold",			"0.25",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_voipShowMeter			= Cvar_Get( "cl_voipShowMeter",				"1",				CVAR_ARCHIVE,				NULL, NULL );
+	cl_voipIgnoreSelf			= Cvar_Get( "cl_voipIgnoreSelf",			"1",				CVAR_ARCHIVE,				NULL, NULL );
 
 	// This is a protocol version number.
-	cl_voip						= Cvar_Get( "cl_voip",						"1",				CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
+	cl_voip						= Cvar_Get( "cl_voip",						"1",				CVAR_USERINFO|CVAR_ARCHIVE,	NULL, NULL );
 	Cvar_CheckRange( cl_voip, 0, 1, qtrue );
 #endif
 
@@ -3393,22 +3392,22 @@ void CL_Init( void ) {
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
-	Cvar_Get( "cg_autoswitch",				"1",		CVAR_ARCHIVE, "Automatically switch to picked up weapons" );
+	Cvar_Get( "cg_autoswitch",				"1",		CVAR_ARCHIVE, "Automatically switch to picked up weapons", NULL );
 
 	// userinfo
-				Cvar_Get( "name",				DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-	cl_rate =	Cvar_Get( "rate",				"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "model",				DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "g_redTeam",			"Stroggs",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL );
-				Cvar_Get( "g_blueTeam",			"Pagans",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL );
-				Cvar_Get( "color1",				"4",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "color2",				"5",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "handicap",			"100",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "teamtask",			"0",				CVAR_USERINFO,					NULL );
-				Cvar_Get( "sex",				"male",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
-				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL );
-				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL );
+				Cvar_Get( "name",				DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+	cl_rate =	Cvar_Get( "rate",				"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "model",				DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "g_redTeam",			"Stroggs",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
+				Cvar_Get( "g_blueTeam",			"Pagans",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
+				Cvar_Get( "color1",				"4",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "color2",				"5",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "handicap",			"100",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "teamtask",			"0",				CVAR_USERINFO,					NULL, NULL );
+				Cvar_Get( "sex",				"male",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL, NULL );
+				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 
 	//
 	// register our commands
@@ -3449,7 +3448,7 @@ void CL_Init( void ) {
 	Cvar_Set( "cl_running", "1" );
 
 	CL_GenerateQKey();
-	Cvar_Get( "cl_guid", "", CVAR_USERINFO|CVAR_ROM, "Unique ID" );
+	Cvar_Get( "cl_guid", "", CVAR_USERINFO|CVAR_ROM, "Unique ID", NULL );
 	CL_UpdateGUID( NULL, 0 );
 
 	Com_Printf( "----- Client Initialization Complete -----\n" );

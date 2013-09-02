@@ -227,7 +227,7 @@ static void CG_ItemPickup( int itemNum )
 	// see if it should be the grabbed weapon
 	if ( bg_itemlist[itemNum].giType == IT_WEAPON ) {
 		// select it immediately
-		if ( cg_autoswitch.boolean && bg_itemlist[itemNum].giTag > cg.predictedPlayerState.weapon ) {
+		if ( cg_autoswitch->boolean && bg_itemlist[itemNum].giTag > cg.predictedPlayerState.weapon ) {
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = bg_itemlist[itemNum].giTag;
 		}
@@ -329,7 +329,13 @@ An entity has an event value
 also called by CG_CheckPlayerstateEvents
 ==============
 */
-#define	DEBUGNAME(x) if(cg_debugEvents.boolean){trap->Print(x"\n");}
+
+static void CG_FootstepEvent( int entnum, sfxHandle_t sfx ) {
+	if ( cg_footsteps->boolean )
+		trap->S_StartSound( NULL, entnum, CHAN_BODY, sfx );
+}
+
+#define	DEBUGNAME(x) if(cg_debugEvents->boolean){trap->Print(x"\n");}
 void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	entityState_t	*es;
 	int				event;
@@ -341,7 +347,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	es = &cent->currentState;
 	event = es->event & ~EV_EVENT_BITS;
 
-	if ( cg_debugEvents.boolean ) {
+	if ( cg_debugEvents->boolean ) {
 		trap->Print( "ent:%3i  event:%3i ", es->number, event );
 	}
 
@@ -362,38 +368,23 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	//
 	case EV_FOOTSTEP:
 		DEBUGNAME("EV_FOOTSTEP");
-		if (cg_footsteps.boolean) {
-			trap->S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ ci->footsteps ][rand()&3] );
-		}
+		CG_FootstepEvent( es->number, cgs.media.footsteps[ ci->footsteps ][rand()&3] );
 		break;
 	case EV_FOOTSTEP_METAL:
 		DEBUGNAME("EV_FOOTSTEP_METAL");
-		if (cg_footsteps.boolean) {
-			trap->S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ FOOTSTEP_METAL ][rand()&3] );
-		}
+		CG_FootstepEvent( es->number, cgs.media.footsteps[ FOOTSTEP_METAL ][rand()&3] );
 		break;
 	case EV_FOOTSPLASH:
 		DEBUGNAME("EV_FOOTSPLASH");
-		if (cg_footsteps.boolean) {
-			trap->S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
-		}
+		CG_FootstepEvent( es->number, cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		break;
 	case EV_FOOTWADE:
 		DEBUGNAME("EV_FOOTWADE");
-		if (cg_footsteps.boolean) {
-			trap->S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
-		}
+		CG_FootstepEvent( es->number, cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		break;
 	case EV_SWIM:
 		DEBUGNAME("EV_SWIM");
-		if (cg_footsteps.boolean) {
-			trap->S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
-		}
+		CG_FootstepEvent( es->number, cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		break;
 
 
@@ -441,7 +432,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 			break;
 		}
 		// if we are interpolating, we don't need to smooth steps
-		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || bg_synchronousClients.boolean )
+		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || bg_synchronousClients->boolean )
 			break;
 
 		// check for stepping up before a previous step is completed

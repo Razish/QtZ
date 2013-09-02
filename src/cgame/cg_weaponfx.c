@@ -66,13 +66,13 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 
 	memset( &beam, 0, sizeof( beam ) );
 
-	if ( cent->currentState.number == cg.predictedPlayerState.clientNum && cg_delagHitscan.integer )
+	if ( cent->currentState.number == cg.predictedPlayerState.clientNum && cg_delagHitscan->integer )
 	{// unlagged
 		// always shoot straight forward from our current position
 		AngleVectors( &cg.predictedPlayerState.viewangles, &forward, NULL, NULL );
 		VectorCopy( &cg.predictedPlayerState.origin, &muzzlePoint );
 	}
-	else if ((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
+	else if ((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning->value != 0))
 	{// CPMA  "true" lightning
 		vector3 angle;
 		int i;
@@ -90,7 +90,7 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 				a += 360;
 			}
 
-			angle.data[i] = viewangles.data[i] + a * (1.0f - cg_trueLightning.value);
+			angle.data[i] = viewangles.data[i] + a * (1.0f - cg_trueLightning->value);
 			if (angle.data[i] < 0) {
 				angle.data[i] += 360;
 			}

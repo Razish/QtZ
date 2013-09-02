@@ -62,10 +62,10 @@ char *UI_Argv( int arg ) {
 }
 
 
-char *UI_Cvar_VariableString( const char *var_name ) {
-	static char	buffer[MAX_STRING_CHARS];
+char *UI_Cvar_VariableString( const char *name ) {
+	static char	buffer[MAX_CVAR_VALUE_STRING];
 
-	trap->Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+	trap->Cvar_VariableStringBuffer( name, buffer, sizeof( buffer ) );
 
 	return buffer;
 }

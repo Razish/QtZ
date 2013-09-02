@@ -63,13 +63,12 @@ typedef struct uiImport_s {
 
 	// cvar
 	void			(*Cvar_InfoStringBuffer)		( int bit, char *buff, int buffsize );
-	void			(*Cvar_Register)				( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags, const char *description );
-	void			(*Cvar_Reset)					( const char *var_name );
-	void			(*Cvar_Set)						( const char *var_name, const char *value );
-	void			(*Cvar_SetValue)				( const char *var_name, float value );
-	void			(*Cvar_Update)					( vmCvar_t *vmCvar );
-	void			(*Cvar_VariableStringBuffer)	( const char *var_name, char *buffer, int bufsize );
-	float			(*Cvar_VariableValue)			( const char *var_name );
+	cvar_t *		(*Cvar_Get)						( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
+	void			(*Cvar_Reset)					( const char *name );
+	void			(*Cvar_Set)						( const char *name, const char *value );
+	void			(*Cvar_SetValue)				( const char *name, float value );
+	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, int bufsize );
+	float			(*Cvar_VariableValue)			( const char *name );
 
 	// cmd
 	int				(*Cmd_Argc)						( void );

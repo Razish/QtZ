@@ -1,10 +1,10 @@
 
 #ifdef XCVAR_PROTO
-	#define XCVAR_DEF( name, defVal, update, flags, desc ) extern vmCvar_t name;
+	#define XCVAR_DEF( name, defVal, update, flags, desc ) extern cvar_t *name;
 #endif
 
 #ifdef XCVAR_DECL
-	#define XCVAR_DEF( name, defVal, update, flags, desc ) vmCvar_t name;
+	#define XCVAR_DEF( name, defVal, update, flags, desc ) cvar_t *name = NULL;
 #endif
 
 #ifdef XCVAR_LIST
@@ -72,6 +72,7 @@ XCVAR_DEF( cg_instantDuck,					"1",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_lagometer,					"1",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_lagometerPos,					"592 432",				NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_marks,						"1",					NULL,					CVAR_ARCHIVE,				NULL )
+XCVAR_DEF( cg_model,						DEFAULT_MODEL,			NULL,					CVAR_USERINFO|CVAR_ARCHIVE,	NULL )
 XCVAR_DEF( cg_noTaunt,						"0",					NULL,					CVAR_ARCHIVE,				NULL )
 //XCVAR_DEF( cg_obituary,					"1",					NULL,					CVAR_ARCHIVE,				NULL )
 //XCVAR_DEF( cg_obituaryTime,				"5000",					NULL,					CVAR_ARCHIVE,				NULL )

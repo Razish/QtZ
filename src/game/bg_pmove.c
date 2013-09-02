@@ -191,7 +191,7 @@ static void PM_Friction( void ) {
 	{// if getting knocked back, no friction
 		if ( !(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 			control = speed < pm_stopspeed ? pm_stopspeed : speed;
-			drop += control * pm_friction.value * pml.frametime;
+			drop += control * pm_friction->value * pml.frametime;
 		}
 	}
 
@@ -259,7 +259,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 		return 0;
 
 	total = sqrtf( (float)(cmd->forwardmove*cmd->forwardmove + cmd->rightmove*cmd->rightmove + cmd->upmove*cmd->upmove) );
-	scale = pm_speed.value * (float)max / ( 127.0f * total );
+	scale = pm_speed->value * (float)max / ( 127.0f * total );
 
 	return scale;
 }
@@ -300,7 +300,7 @@ static qboolean PM_CheckJump( void ) {
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 	{//Jump off walls if we're in the air and it's been 1.25 seconds since we did it last.
-		if ( pm_wallJumpEnable.boolean
+		if ( pm_wallJumpEnable->boolean
 			&& !(pm->ps->pm_flags & PMF_JUMP_HELD)
 			&& pm->cmd.forwardmove > 0
 			&& pm->ps->velocity.z > -256
@@ -323,8 +323,8 @@ static qboolean PM_CheckJump( void ) {
 				angs.pitch = -17.0f; //aim up a bit
 				AngleVectors( &angs, &forward, NULL, NULL );
 				//push up to ~360 ups, based on how close we are to the wall
-				VectorMA( &pm->ps->velocity, (pm_jumpVelocity.value/2.0f) + ( (pm_jumpVelocity.value/2.0f) * ( 1.0f-trace.fraction) ), &forward, &pm->ps->velocity );
-				pm->ps->wallJumpTime = pm_wallJumpDebounce.integer;
+				VectorMA( &pm->ps->velocity, (pm_jumpVelocity->value/2.0f) + ( (pm_jumpVelocity->value/2.0f) * ( 1.0f-trace.fraction) ), &forward, &pm->ps->velocity );
+				pm->ps->wallJumpTime = pm_wallJumpDebounce->integer;
 
 				goto dojump;
 			}
@@ -334,12 +334,12 @@ static qboolean PM_CheckJump( void ) {
 	}
 
 dojump:
-	if ( pm_bunnyHopEnable.boolean && !pm->ps->bunnyHopTime )
+	if ( pm_bunnyHopEnable->boolean && !pm->ps->bunnyHopTime )
 	{//debouncer finished (so we can't gain ludicrous speed on ramps)
 	//	vector3 angs;
 	//	AngleVectors( pm->ps->viewangles, angs, NULL, NULL );
 	//	VectorMA( pm->ps->velocity, 26.0f, angs, pm->ps->velocity );
-		pm->ps->bunnyHopTime = pm_bunnyHopDebounce.integer;
+		pm->ps->bunnyHopTime = pm_bunnyHopDebounce->integer;
 	}
 	else if ( pm->ps->pm_flags & PMF_JUMP_HELD )
 	{// must wait for jump to be released. clear upmove so cmdscale doesn't lower running speed
@@ -347,9 +347,9 @@ dojump:
 		return qfalse;
 	}
 
-	pm->ps->velocity.z = pm_jumpVelocity.value;
+	pm->ps->velocity.z = pm_jumpVelocity->value;
 
-	if ( pm_rampJumpEnable.boolean ) {
+	if ( pm_rampJumpEnable->boolean ) {
 		vector3 velNorm;
 		float speed = VectorNormalize2( &pm->ps->velocity, &velNorm );
 		velNorm.z = 0.0f;
@@ -360,11 +360,11 @@ dojump:
 			pm->ps->velocity.z += dot*speed;
 	}
 
-	if ( pm_doubleJumpEnable.boolean ) {
+	if ( pm_doubleJumpEnable->boolean ) {
 		if ( pm->ps->doubleJumpTime > 0 && pml.groundPlane )//!pm->ps->qtz.wallJumpTime )
-			pm->ps->velocity.z += pm_doubleJumpPush.value;
+			pm->ps->velocity.z += pm_doubleJumpPush->value;
 
-		pm->ps->doubleJumpTime = pm_doubleJumpDebounce.integer;
+		pm->ps->doubleJumpTime = pm_doubleJumpDebounce->integer;
 	}
 
 	PM_AddEvent( EV_JUMP );
@@ -446,7 +446,7 @@ static void PM_WaterJumpMove( void ) {
 
 	PM_StepSlideMove( qtrue );
 
-	pm->ps->velocity.z -= pm_gravity.value * pml.frametime;
+	pm->ps->velocity.z -= pm_gravity->value * pml.frametime;
 	if (pm->ps->velocity.z < 0) {
 		// cancel as soon as we are falling down again
 		pm->ps->pm_flags &= ~PMF_ALL_TIMES;
@@ -506,8 +506,8 @@ static void PM_WaterMove( void ) {
 	VectorCopy (&wishvel, &wishdir);
 	wishspeed = VectorNormalize(&wishdir);
 
-	if (wishspeed > pm_speed.value * pm_swimScale )
-		wishspeed = pm_speed.value * pm_swimScale;
+	if (wishspeed > pm_speed->value * pm_swimScale )
+		wishspeed = pm_speed->value * pm_swimScale;
 
 	PM_Accelerate (&wishdir, wishspeed, pm_wateraccelerate);
 
@@ -616,7 +616,7 @@ static void PM_AirMove( void ) {
 	float		fmove, smove, wishspeed, scale;
 	usercmd_t	cmd;
 
-	if ( pm->ps->pm_type != PM_SPECTATOR && pm_wallJumpEnable.boolean )
+	if ( pm->ps->pm_type != PM_SPECTATOR && pm_wallJumpEnable->boolean )
 		PM_CheckJump();
 
 	PM_Friction();
@@ -644,7 +644,7 @@ static void PM_AirMove( void ) {
 	wishspeed = VectorNormalize( &wishdir );
 	wishspeed *= scale;
 
-	PM_Accelerate( &wishdir, wishspeed, pm_acceleration.value );
+	PM_Accelerate( &wishdir, wishspeed, pm_acceleration->value );
 	if ( pml.groundPlane )
 		PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
 	else
@@ -714,8 +714,8 @@ static void PM_WalkMove( void ) {
 
 	// clamp the speed lower if ducking
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		if (wishspeed > pm_speed.value * pm_duckScale)
-			wishspeed = pm_speed.value * pm_duckScale;
+		if (wishspeed > pm_speed->value * pm_duckScale)
+			wishspeed = pm_speed->value * pm_duckScale;
 	}
 
 	// clamp the speed lower if wading or walking on the bottom
@@ -724,21 +724,21 @@ static void PM_WalkMove( void ) {
 
 		waterScale = pm->waterlevel / 3.0f;
 		waterScale = 1.0f - ( 1.0f - pm_swimScale ) * waterScale;
-		if (wishspeed > pm_speed.value * waterScale)
-			wishspeed = pm_speed.value * waterScale;
+		if (wishspeed > pm_speed->value * waterScale)
+			wishspeed = pm_speed->value * waterScale;
 	}
 
-	PM_Accelerate (&wishdir, wishspeed, pm_acceleration.value);
+	PM_Accelerate (&wishdir, wishspeed, pm_acceleration->value);
 
 	if ( (pml.groundTrace.surfaceFlags & SURF_SLICK) || (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) )
-		pm->ps->velocity.z -= pm_gravity.value * pml.frametime;
+		pm->ps->velocity.z -= pm_gravity->value * pml.frametime;
 
 	vel = VectorLength( &pm->ps->velocity );
 
 	// slide along the ground plane
 	PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
 
-	if ( pm_overbounce.boolean ) {
+	if ( pm_overbounce->boolean ) {
 		// don't decrease velocity when going up or down a slope
 		VectorNormalize( &pm->ps->velocity );
 		VectorScale( &pm->ps->velocity, vel, &pm->ps->velocity );
@@ -801,7 +801,7 @@ static void PM_NoclipMove( void ) {
 	{
 		drop = 0;
 
-		friction = pm_friction.value * 1.5f;	// extra friction
+		friction = pm_friction->value * 1.5f;	// extra friction
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
 		drop += control*friction*pml.frametime;
 
@@ -828,7 +828,7 @@ static void PM_NoclipMove( void ) {
 	wishspeed = VectorNormalize(&wishdir);
 	wishspeed *= scale;
 
-	PM_Accelerate( &wishdir, wishspeed, pm_acceleration.value );
+	PM_Accelerate( &wishdir, wishspeed, pm_acceleration->value );
 
 	// move
 	VectorMA (&pm->ps->origin, pml.frametime, &pm->ps->velocity, &pm->ps->origin);
@@ -879,7 +879,7 @@ static void PM_CrashLand( void ) {
 	// calculate the exact velocity on landing
 	dist = pm->ps->origin.z - pml.previous_origin.z;
 	vel = pml.previous_velocity.z;
-	acc = -pm_gravity.value;
+	acc = -pm_gravity->value;
 
 	a = acc / 2;
 	b = vel;
@@ -1810,7 +1810,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
-	if ( !pm_float.boolean )
+	if ( !pm_float->boolean )
 		VectorSnap( &pm->ps->velocity );
 }
 
@@ -1836,7 +1836,7 @@ void Pmove (pmove_t *pmove) {
 	// chop the move up if it is too long, to prevent framerate
 	// dependent behavior
 	while ( pmove->ps->commandTime != finalTime ) {
-		int msec = Q_clampi( 1, finalTime-pmove->ps->commandTime, pm_frametime.integer );
+		int msec = Q_clampi( 1, finalTime-pmove->ps->commandTime, pm_frametime->integer );
 		pmove->cmd.serverTime = pmove->ps->commandTime + msec;
 		PmoveSingle( pmove );
 

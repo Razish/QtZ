@@ -74,16 +74,16 @@ bot_waypoint_t *botai_freewaypoints;
 int gametype;		//game type
 int maxclients;		//maximum number of clients
 
-vmCvar_t bot_grapple;
-vmCvar_t bot_rocketjump;
-vmCvar_t bot_fastchat;
-vmCvar_t bot_nochat;
-vmCvar_t bot_testrchat;
-vmCvar_t bot_challenge;
-vmCvar_t bot_predictobstacles;
-vmCvar_t g_difficulty;
+cvar_t *bot_grapple;
+cvar_t *bot_rocketjump;
+cvar_t *bot_fastchat;
+cvar_t *bot_nochat;
+cvar_t *bot_testrchat;
+cvar_t *bot_challenge;
+cvar_t *bot_predictobstacles;
+cvar_t *g_difficulty;
 
-extern vmCvar_t bot_developer;
+extern cvar_t *bot_developer;
 
 vector3 lastteleport_origin;		//last teleport event origin
 float lastteleport_time;		//last teleport event time
@@ -1276,7 +1276,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 					//BotAI_BotInitialChat(bs, "wantoffence", NULL);
 					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 				}
-				else if (g_difficulty.integer <= 3) {
+				else if (g_difficulty->integer <= 3) {
 					if ( bs->ltgtype != LTG_GETFLAG &&
 						bs->ltgtype != LTG_ATTACKENEMYBASE ) {
 							//
@@ -1302,7 +1302,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 					//BotAI_BotInitialChat(bs, "wantdefence", NULL);
 					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
 				}
-				else if (g_difficulty.integer <= 3) {
+				else if (g_difficulty->integer <= 3) {
 					if ( bs->ltgtype != LTG_DEFENDKEYAREA ) {
 						//
 						if ((gametype != GT_CTF || (bs->redflagstatus == 0 && bs->blueflagstatus == 0)) &&
@@ -1664,7 +1664,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 	//RAZMARK: Adding new weapons (rocket jumping)
 
 	//if rocket jumping is disabled
-	if (!bot_rocketjump.integer) return qfalse;
+	if (!bot_rocketjump->integer) return qfalse;
 	//if no rocket launcher
 	if (bs->inventory[INVENTORY_QUANTIZER] <= 0) return qfalse;
 	//never rocket jump with the Quad
@@ -2670,7 +2670,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	bs->ideal_viewangles.yaw += 6 * wi.hspread * crandom() * (1 - aim_accuracy);
 	bs->ideal_viewangles.yaw = AngleMod(bs->ideal_viewangles.yaw);
 	//if the bots should be really challenging
-	if (bot_challenge.integer) {
+	if (bot_challenge->integer) {
 		//if the bot is really accurate and has the enemy in view for some time
 		if (aim_accuracy > 0.9f && bs->enemysight_time < FloatTime() - 1) {
 			//set the view angles directly
@@ -3370,7 +3370,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 	}
 	// get the targetname so we can find an entity with a matching target
 	if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0]))) {
-		if (bot_developer.integer) {
+		if (bot_developer->integer) {
 			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
 		}
 		return 0;
@@ -3386,14 +3386,14 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			}
 		}
 		if (!ent) {
-			if (bot_developer.integer) {
+			if (bot_developer->integer) {
 				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", targetname[i]);
 			}
 			i--;
 			continue;
 		}
 		if (!trap->aas->AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname))) {
-			if (bot_developer.integer) {
+			if (bot_developer->integer) {
 				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
 			}
 			continue;
@@ -3668,7 +3668,7 @@ int BotAIPredictObstacles(bot_state_t *bs, bot_goal_t *goal) {
 	bot_activategoal_t activategoal;
 	aas_predictroute_t route;
 
-	if (!bot_predictobstacles.integer)
+	if (!bot_predictobstacles->integer)
 		return qfalse;
 
 	// always predict when the goal change or at regular intervals
@@ -3764,7 +3764,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 		//if there's no match
 		if (!BotMatchMessage(bs, m.message)) {
 			//if it is a chat message
-			if (m.type == CMS_CHAT && !bot_nochat.integer) {
+			if (m.type == CMS_CHAT && !bot_nochat->integer) {
 				//
 				if (!trap->ai->BotFindMatch(m.message, &match, MTCONTEXT_REPLYCHAT)) {
 					trap->ai->BotRemoveConsoleMessage(bs->cs, handle);
@@ -3786,8 +3786,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 				//unify the message
 				trap->ai->UnifyWhiteSpaces(message);
 				//
-				trap->Cvar_Update(&bot_testrchat);
-				if (bot_testrchat.integer) {
+				if (bot_testrchat->integer) {
 					//
 					trap->BotLibVarSet("bot_testrchat", "1");
 					//if bot replies with a chat message
@@ -4381,13 +4380,13 @@ void BotSetupDeathmatchAI(void) {
 	gametype = level.gametype;
 	maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 
-	trap->Cvar_Register( &bot_rocketjump, "bot_rocketjump", "1", 0, NULL);
-	trap->Cvar_Register( &bot_grapple, "bot_grapple", "0", 0, NULL);
-	trap->Cvar_Register( &bot_fastchat, "bot_fastchat", "0", 0, NULL);
-	trap->Cvar_Register( &bot_nochat, "bot_nochat", "0", 0, NULL);
-	trap->Cvar_Register( &bot_testrchat, "bot_testrchat", "0", 0, NULL);
-	trap->Cvar_Register( &bot_challenge, "bot_challenge", "0", 0, NULL);
-	trap->Cvar_Register( &bot_predictobstacles, "bot_predictobstacles", "1", 0, NULL);
+	bot_rocketjump			= trap->Cvar_Get( "bot_rocketjump", "1", 0, NULL, NULL );
+	bot_grapple				= trap->Cvar_Get( "bot_grapple", "0", 0, NULL, NULL );
+	bot_fastchat			= trap->Cvar_Get( "bot_fastchat", "0", 0, NULL, NULL );
+	bot_nochat				= trap->Cvar_Get( "bot_nochat", "0", 0, NULL, NULL );
+	bot_testrchat			= trap->Cvar_Get( "bot_testrchat", "0", 0, NULL, NULL );
+	bot_challenge			= trap->Cvar_Get( "bot_challenge", "0", 0, NULL, NULL );
+	bot_predictobstacles	= trap->Cvar_Get( "bot_predictobstacles", "1", 0, NULL, NULL );
 	//
 	if (gametype == GT_CTF) {
 		if (trap->ai->BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)

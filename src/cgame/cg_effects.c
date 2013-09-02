@@ -134,7 +134,7 @@ void CG_ScorePlum( int client, vector3 *org, int score ) {
 	static vector3 lastPos;
 
 	// only visualize for the client that scored
-	if (client != cg.predictedPlayerState.clientNum || cg_scorePlums.integer == 0) {
+	if (client != cg.predictedPlayerState.clientNum || cg_scorePlums->integer == 0) {
 		return;
 	}
 
@@ -313,7 +313,7 @@ void CG_GibPlayer( vector3 *playerOrigin ) {
 		CG_LaunchGib( &origin, &velocity, cgs.media.gibBrain );
 
 	// allow gibs to be turned off for speed
-	if ( !cg_gibs.boolean )
+	if ( !cg_gibs->boolean )
 		return;
 
 	VectorCopy( playerOrigin, &origin );

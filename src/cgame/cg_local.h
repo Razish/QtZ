@@ -1073,11 +1073,9 @@ extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 //
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
-const char *CG_Cvar_VariableString( const char *var_name );
+const char *CG_Cvar_VariableString( const char *name );
 
 void CG_StartMusic( void );
-
-void CG_UpdateCvars( void );
 
 int CG_CrosshairPlayer( void );
 int CG_LastAttacker( void );

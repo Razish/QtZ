@@ -107,15 +107,15 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, vector3 *po
 	if (!debugpolygons)
 		return;
 	//bot debugging
-	if (!bot_debug) bot_debug = svi.Cvar_Get("bot_debug", "0", 0, NULL);
+	if (!bot_debug) bot_debug = svi.Cvar_Get("bot_debug", "0", 0, NULL, NULL );
 	//
 	if (bot_enable && bot_debug->integer) {
 		//show reachabilities
-		if (!bot_reachability) bot_reachability = svi.Cvar_Get("bot_reachability", "0", 0, NULL);
+		if (!bot_reachability) bot_reachability = svi.Cvar_Get("bot_reachability", "0", 0, NULL, NULL);
 		//show ground faces only
-		if (!bot_groundonly) bot_groundonly = svi.Cvar_Get("bot_groundonly", "1", 0, NULL);
+		if (!bot_groundonly) bot_groundonly = svi.Cvar_Get("bot_groundonly", "1", 0, NULL, NULL);
 		//get the hightlight area
-		if (!bot_highlightarea) bot_highlightarea = svi.Cvar_Get("bot_highlightarea", "0", 0, NULL);
+		if (!bot_highlightarea) bot_highlightarea = svi.Cvar_Get("bot_highlightarea", "0", 0, NULL, NULL);
 		//
 		parm0 = 0;
 		if (svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK) parm0 |= 1;
@@ -457,7 +457,7 @@ int SV_BotLibSetup( void ) {
 		return -1;
 	}
 
-	botlib_export->BotLibVarSet( "basegame", svi.Cvar_Get( "com_basegame", BASEGAME, 0, NULL )->string );
+	botlib_export->BotLibVarSet( "basegame", svi.Cvar_Get( "com_basegame", BASEGAME, 0, NULL, NULL )->string );
 
 	return botlib_export->BotLibSetup();
 }
@@ -486,36 +486,36 @@ SV_BotInitCvars
 */
 void SV_BotInitCvars(void) {
 
-	svi.Cvar_Get("bot_enable",				"1",	CVAR_NONE,	NULL );						//enable the bot
-	svi.Cvar_Get("bot_developer",			"0",	CVAR_CHEAT,	NULL );			//bot developer mode
-	svi.Cvar_Get("bot_debug",				"0",	CVAR_CHEAT,	NULL );				//enable bot debugging
-	svi.Cvar_Get("bot_maxdebugpolys",		"2",	CVAR_NONE,	NULL );				//maximum number of debug polys
-	svi.Cvar_Get("bot_groundonly",			"1",	CVAR_NONE,	NULL );					//only show ground faces of areas
-	svi.Cvar_Get("bot_reachability",		"0",	CVAR_NONE,	NULL );				//show all reachabilities to other areas
-	svi.Cvar_Get("bot_visualizejumppads",	"0",	CVAR_CHEAT,	NULL );	//show jumppads
-	svi.Cvar_Get("bot_forceclustering",		"0",	CVAR_NONE,	NULL );			//force cluster calculations
-	svi.Cvar_Get("bot_forcereachability",	"0",	CVAR_NONE,	NULL );			//force reachability calculations
-	svi.Cvar_Get("bot_forcewrite",			"0",	CVAR_NONE,	NULL );					//force writing aas file
-	svi.Cvar_Get("bot_aasoptimize",			"0",	CVAR_NONE,	NULL );				//no aas file optimisation
-	svi.Cvar_Get("bot_saveroutingcache",	"0",	CVAR_NONE,	NULL );			//save routing cache
-	svi.Cvar_Get("bot_thinktime",			"100",	CVAR_CHEAT,	NULL );		//msec the bots thinks
-	svi.Cvar_Get("bot_reloadcharacters",	"0",	CVAR_NONE,	NULL );			//reload the bot characters each time
-	svi.Cvar_Get("bot_testichat",			"0",	CVAR_NONE,	NULL );					//test ichats
-	svi.Cvar_Get("bot_testrchat",			"0",	CVAR_NONE,	NULL );					//test rchats
-	svi.Cvar_Get("bot_testsolid",			"0",	CVAR_CHEAT,	NULL );			//test for solid areas
-	svi.Cvar_Get("bot_testclusters",		"0",	CVAR_CHEAT,	NULL );		//test the AAS clusters
-	svi.Cvar_Get("bot_fastchat",			"0",	CVAR_NONE,	NULL );					//fast chatting bots
-	svi.Cvar_Get("bot_nochat",				"0",	CVAR_NONE,	NULL );						//disable chats
-	svi.Cvar_Get("bot_pause",				"0",	CVAR_CHEAT,	NULL );				//pause the bots thinking
-	svi.Cvar_Get("bot_report",				"0",	CVAR_CHEAT,	NULL );			//get a full report in ctf
-	svi.Cvar_Get("bot_grapple",				"0",	CVAR_NONE,	NULL );					//enable grapple
-	svi.Cvar_Get("bot_rocketjump",			"1",	CVAR_NONE,	NULL );					//enable rocket jumping
-	svi.Cvar_Get("bot_challenge",			"0",	CVAR_NONE,	NULL );					//challenging bot
-	svi.Cvar_Get("bot_minplayers",			"0",	CVAR_NONE,	NULL );					//minimum players in a team or the game
-	svi.Cvar_Get("bot_interbreedchar",		"",		CVAR_CHEAT,	NULL );		//bot character used for interbreeding
-	svi.Cvar_Get("bot_interbreedbots",		"10",	CVAR_CHEAT,	NULL );	//number of bots used for interbreeding
-	svi.Cvar_Get("bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL );	//bot interbreeding cycle
-	svi.Cvar_Get("bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL );	//write interbreeded bots to this file
+	svi.Cvar_Get("bot_enable",				"1",	CVAR_NONE,	NULL, NULL );	// enable the bot
+	svi.Cvar_Get("bot_developer",			"0",	CVAR_CHEAT,	NULL, NULL );	// bot developer mode
+	svi.Cvar_Get("bot_debug",				"0",	CVAR_CHEAT,	NULL, NULL );	// enable bot debugging
+	svi.Cvar_Get("bot_maxdebugpolys",		"2",	CVAR_NONE,	NULL, NULL );	// maximum number of debug polys
+	svi.Cvar_Get("bot_groundonly",			"1",	CVAR_NONE,	NULL, NULL );	// only show ground faces of areas
+	svi.Cvar_Get("bot_reachability",		"0",	CVAR_NONE,	NULL, NULL );	// show all reachabilities to other areas
+	svi.Cvar_Get("bot_visualizejumppads",	"0",	CVAR_CHEAT,	NULL, NULL );	// show jumppads
+	svi.Cvar_Get("bot_forceclustering",		"0",	CVAR_NONE,	NULL, NULL );	// force cluster calculations
+	svi.Cvar_Get("bot_forcereachability",	"0",	CVAR_NONE,	NULL, NULL );	// force reachability calculations
+	svi.Cvar_Get("bot_forcewrite",			"0",	CVAR_NONE,	NULL, NULL );	// force writing aas file
+	svi.Cvar_Get("bot_aasoptimize",			"0",	CVAR_NONE,	NULL, NULL );	// no aas file optimisation
+	svi.Cvar_Get("bot_saveroutingcache",	"0",	CVAR_NONE,	NULL, NULL );	// save routing cache
+	svi.Cvar_Get("bot_thinktime",			"100",	CVAR_CHEAT,	NULL, NULL );	// msec the bots thinks
+	svi.Cvar_Get("bot_reloadcharacters",	"0",	CVAR_NONE,	NULL, NULL );	// reload the bot characters each time
+	svi.Cvar_Get("bot_testichat",			"0",	CVAR_NONE,	NULL, NULL );	// test ichats
+	svi.Cvar_Get("bot_testrchat",			"0",	CVAR_NONE,	NULL, NULL );	// test rchats
+	svi.Cvar_Get("bot_testsolid",			"0",	CVAR_CHEAT,	NULL, NULL );	// test for solid areas
+	svi.Cvar_Get("bot_testclusters",		"0",	CVAR_CHEAT,	NULL, NULL );	// test the AAS clusters
+	svi.Cvar_Get("bot_fastchat",			"0",	CVAR_NONE,	NULL, NULL );	// fast chatting bots
+	svi.Cvar_Get("bot_nochat",				"0",	CVAR_NONE,	NULL, NULL );	// disable chats
+	svi.Cvar_Get("bot_pause",				"0",	CVAR_CHEAT,	NULL, NULL );	// pause the bots thinking
+	svi.Cvar_Get("bot_report",				"0",	CVAR_CHEAT,	NULL, NULL );	// get a full report in ctf
+	svi.Cvar_Get("bot_grapple",				"0",	CVAR_NONE,	NULL, NULL );	// enable grapple
+	svi.Cvar_Get("bot_rocketjump",			"1",	CVAR_NONE,	NULL, NULL );	// enable rocket jumping
+	svi.Cvar_Get("bot_challenge",			"0",	CVAR_NONE,	NULL, NULL );	// challenging bot
+	svi.Cvar_Get("bot_minplayers",			"0",	CVAR_NONE,	NULL, NULL );	// minimum players in a team or the game
+	svi.Cvar_Get("bot_interbreedchar",		"",		CVAR_CHEAT,	NULL, NULL );	// bot character used for interbreeding
+	svi.Cvar_Get("bot_interbreedbots",		"10",	CVAR_CHEAT,	NULL, NULL );	// number of bots used for interbreeding
+	svi.Cvar_Get("bot_interbreedcycle",		"20",	CVAR_CHEAT,	NULL, NULL );	// bot interbreeding cycle
+	svi.Cvar_Get("bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL, NULL );	// write interbreeded bots to this file
 }
 
 /*

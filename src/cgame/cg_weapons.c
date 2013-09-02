@@ -254,7 +254,7 @@ static void CG_CalculateWeaponPosition( vector3 *origin, vector3 *angles ) {
 	if ( cg.bobcycle & 1 )	scale = -cg.xyspeed;
 	else					scale =  cg.xyspeed;
 
-	if ( cg_gunBobEnable.integer )
+	if ( cg_gunBobEnable->integer )
 	{// gun angles from bobbing
 		angles->pitch	+= scale * cg.bobfracsin * cg.gunBob.pitch;
 		angles->yaw		+= scale * cg.bobfracsin * cg.gunBob.yaw;
@@ -271,7 +271,7 @@ static void CG_CalculateWeaponPosition( vector3 *origin, vector3 *angles ) {
 		else if ( delta < STEP_TIME )		origin->z -= cg.stepChange*0.25f * (STEP_TIME - delta) / (STEP_TIME/2);
 	}
 
-	if ( cg_gunIdleDriftEnable.integer )
+	if ( cg_gunIdleDriftEnable->integer )
 	{// idle drift
 		scale = cg.xyspeed + 40;
 		fracsin = sinf( cg.time * cg.gunIdleDrift.speed );
@@ -395,9 +395,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	VectorMA(&gun.origin, lerped.origin.x, &parent->axis[0], &gun.origin);
 
 	// Make weapon appear left-handed for 2 and centered for 3
-	if(ps && cg_drawGun.integer == 2)
+	if(ps && cg_drawGun->integer == 2)
 		VectorMA(&gun.origin, -lerped.origin.y, &parent->axis[1], &gun.origin);
-	else if(!ps || cg_drawGun.integer != 3)
+	else if(!ps || cg_drawGun->integer != 3)
 		VectorMA(&gun.origin, lerped.origin.y, &parent->axis[1], &gun.origin);
 
 	VectorMA(&gun.origin, lerped.origin.z, &parent->axis[2], &gun.origin);
@@ -456,7 +456,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	clientInfo_t	*ci;
 	vector3			angles;
 	weaponInfo_t	*weapon;
-	float cgFov = cg_fovViewmodel.integer ? cg_fovViewmodel.value : cg_fov.value;
+	float cgFov = cg_fovViewmodel->integer ? cg_fovViewmodel->value : cg_fov->value;
 
 	if (cgFov < 1)
 		cgFov = 1;
@@ -472,7 +472,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	}
 
 	// allow the gun to be completely removed
-	if ( !cg_drawGun.integer ) {
+	if ( !cg_drawGun->integer ) {
 	//	vector3		origin;
 
 		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
@@ -501,7 +501,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	{
 		vector3 gunLerp = { 0.0f };
-		float point = 1.0f + (zoomFov-cg_zoomFov.value)/(cg_fov.value-cg_zoomFov.value) * -1.0f;
+		float point = 1.0f + (zoomFov-cg_zoomFov->value)/(cg_fov->value-cg_zoomFov->value) * -1.0f;
 
 		//lerp from base position to zoom position by how far we've zoomed
 		VectorLerp( &cg.gunAlign.basePos, point, &cg.gunAlign.zoomPos, &gunLerp );
@@ -514,7 +514,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	AnglesToAxis( &angles, hand.axis );
 
-	if ( cg_fovViewmodel.integer ) {
+	if ( cg_fovViewmodel->integer ) {
 		float fracDistFOV = tanf( cg.refdef.fov_x * ( M_PI/180 ) * 0.5f );
 		float fracWeapFOV = ( 1.0f / fracDistFOV ) * tanf( cgFov * ( M_PI/180 ) * 0.5f );
 		VectorScale( &hand.axis[0], fracWeapFOV, &hand.axis[0] );

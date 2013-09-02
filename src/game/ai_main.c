@@ -72,18 +72,18 @@ float regularupdate_time;
 int bot_interbreed;
 int bot_interbreedmatchcount;
 //
-vmCvar_t bot_thinktime;
-vmCvar_t bot_memorydump;
-vmCvar_t bot_saveroutingcache;
-vmCvar_t bot_pause;
-vmCvar_t bot_report;
-vmCvar_t bot_testsolid;
-vmCvar_t bot_testclusters;
-vmCvar_t bot_developer;
-vmCvar_t bot_interbreedchar;
-vmCvar_t bot_interbreedbots;
-vmCvar_t bot_interbreedcycle;
-vmCvar_t bot_interbreedwrite;
+cvar_t *bot_thinktime;
+cvar_t *bot_memorydump;
+cvar_t *bot_saveroutingcache;
+cvar_t *bot_pause;
+cvar_t *bot_report;
+cvar_t *bot_testsolid;
+cvar_t *bot_testclusters;
+cvar_t *bot_developer;
+cvar_t *bot_interbreedchar;
+cvar_t *bot_interbreedbots;
+cvar_t *bot_interbreedcycle;
+cvar_t *bot_interbreedwrite;
 
 
 void ExitLevel( void );
@@ -250,15 +250,13 @@ void BotTestAAS(vector3 *origin) {
 	int areanum;
 	aas_areainfo_t info;
 
-	trap->Cvar_Update(&bot_testsolid);
-	trap->Cvar_Update(&bot_testclusters);
-	if (bot_testsolid.integer) {
+	if (bot_testsolid->integer) {
 		if (!trap->aas->AAS_Initialized()) return;
 		areanum = BotPointAreaNum(origin);
 		if (areanum) BotAI_Print(PRT_MESSAGE, "\remtpy area");
 		else BotAI_Print(PRT_MESSAGE, "\r^1SOLID area");
 	}
-	else if (bot_testclusters.integer) {
+	else if (bot_testclusters->integer) {
 		if (!trap->aas->AAS_Initialized()) return;
 		areanum = BotPointAreaNum(origin);
 		if (!areanum)
@@ -606,12 +604,11 @@ void BotInterbreedEndMatch(void) {
 
 	if (!bot_interbreed) return;
 	bot_interbreedmatchcount++;
-	if (bot_interbreedmatchcount >= bot_interbreedcycle.integer) {
+	if (bot_interbreedmatchcount >= bot_interbreedcycle->integer) {
 		bot_interbreedmatchcount = 0;
 		//
-		trap->Cvar_Update(&bot_interbreedwrite);
-		if (strlen(bot_interbreedwrite.string)) {
-			BotWriteInterbreeded(bot_interbreedwrite.string);
+		if (strlen(bot_interbreedwrite->string)) {
+			BotWriteInterbreeded(bot_interbreedwrite->string);
 			trap->Cvar_Set("bot_interbreedwrite", "");
 		}
 		BotInterbreedBots();
@@ -626,8 +623,7 @@ BotInterbreeding
 void BotInterbreeding(void) {
 	int i;
 
-	trap->Cvar_Update(&bot_interbreedchar);
-	if (!strlen(bot_interbreedchar.string)) return;
+	if (!strlen(bot_interbreedchar->string)) return;
 	//make sure we are in tournament mode
 	if (gametype != GT_DUEL) {
 		trap->Cvar_Set("sv_gametype", va("%d", GT_DUEL));
@@ -643,9 +639,9 @@ void BotInterbreeding(void) {
 	//make sure all item weight configs are reloaded and Not shared
 	trap->BotLibVarSet("bot_reloadcharacters", "1");
 	//add a number of bots using the desired bot character
-	for (i = 0; i < bot_interbreedbots.integer; i++) {
+	for (i = 0; i < bot_interbreedbots->integer; i++) {
 		trap->Cbuf_ExecuteText( EXEC_INSERT, va("addbot %s 4 free %i %s%d\n",
-						bot_interbreedchar.string, i * 50, bot_interbreedchar.string, i) );
+						bot_interbreedchar->string, i * 50, bot_interbreedchar->string, i) );
 	}
 	//
 	trap->Cvar_Set("bot_interbreedchar", "");
@@ -753,7 +749,7 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	maxchange *= thinktime;
 	for (i = 0; i < 2; i++) {
 		//
-		if (bot_challenge.integer) {
+		if (bot_challenge->integer) {
 			//smooth slowdown view model
 			diff = fabsf(AngleDifference(bs->viewangles.data[i], bs->ideal_viewangles.data[i]));
 			anglespeed = diff * factor;
@@ -1053,7 +1049,7 @@ void BotScheduleBotThink(void) {
 			continue;
 		}
 		//initialize the bot think residual time
-		botstates[i]->botthink_residual = bot_thinktime.integer * botnum / numbots;
+		botstates[i]->botthink_residual = bot_thinktime->integer * botnum / numbots;
 		botnum++;
 	}
 }
@@ -1335,11 +1331,11 @@ BotAILoadMap
 */
 int BotAILoadMap( int restart ) {
 	int			i;
-	vmCvar_t	mapname;
+	cvar_t *mapname;
 
 	if (!restart) {
-		trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM, NULL );
-		trap->BotLibLoadMap( mapname.string );
+		mapname = trap->Cvar_Get( "mapname", "", CVAR_SERVERINFO|CVAR_ROM, NULL, NULL );
+		trap->BotLibLoadMap( mapname->string );
 	}
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1370,24 +1366,13 @@ int BotAIStartFrame(int time) {
 
 	G_CheckBotSpawn();
 
-	trap->Cvar_Update(&bot_rocketjump);
-	trap->Cvar_Update(&bot_grapple);
-	trap->Cvar_Update(&bot_fastchat);
-	trap->Cvar_Update(&bot_nochat);
-	trap->Cvar_Update(&bot_testrchat);
-	trap->Cvar_Update(&bot_thinktime);
-	trap->Cvar_Update(&bot_memorydump);
-	trap->Cvar_Update(&bot_saveroutingcache);
-	trap->Cvar_Update(&bot_pause);
-	trap->Cvar_Update(&bot_report);
-
-	if (bot_report.integer) {
+	if (bot_report->integer) {
 //		BotTeamplayReport();
 //		trap->Cvar_Set("bot_report", "0");
 		BotUpdateInfoConfigStrings();
 	}
 
-	if (bot_pause.integer) {
+	if (bot_pause->integer) {
 		// execute bot user commands every frame
 		for( i = 0; i < MAX_CLIENTS; i++ ) {
 			if( !botstates[i] || !botstates[i]->inuse ) {
@@ -1406,23 +1391,23 @@ int BotAIStartFrame(int time) {
 		return qtrue;
 	}
 
-	if (bot_memorydump.integer) {
+	if (bot_memorydump->integer) {
 		trap->BotLibVarSet("memorydump", "1");
 		trap->Cvar_Set("bot_memorydump", "0");
 	}
-	if (bot_saveroutingcache.integer) {
+	if (bot_saveroutingcache->integer) {
 		trap->BotLibVarSet("saveroutingcache", "1");
 		trap->Cvar_Set("bot_saveroutingcache", "0");
 	}
 	//check if bot interbreeding is activated
 	BotInterbreeding();
 	//cap the bot think time
-	if (bot_thinktime.integer > 200) {
+	if (bot_thinktime->integer > 200) {
 		trap->Cvar_Set("bot_thinktime", "200");
 	}
 	//if the bot think time changed we should reschedule the bots
-	if (bot_thinktime.integer != lastbotthink_time) {
-		lastbotthink_time = bot_thinktime.integer;
+	if (bot_thinktime->integer != lastbotthink_time) {
+		lastbotthink_time = bot_thinktime->integer;
 		BotScheduleBotThink();
 	}
 
@@ -1431,8 +1416,8 @@ int BotAIStartFrame(int time) {
 
 	botlib_residual += elapsed_time;
 
-	if (elapsed_time > bot_thinktime.integer) thinktime = elapsed_time;
-	else thinktime = bot_thinktime.integer;
+	if (elapsed_time > bot_thinktime->integer) thinktime = elapsed_time;
+	else thinktime = bot_thinktime->integer;
 
 	// update the bot library
 	if ( botlib_residual >= thinktime ) {
@@ -1566,7 +1551,7 @@ int BotInitLibrary(void) {
 	if (!strlen(buf)) strcpy(buf, "0");
 	trap->BotLibVarSet("sv_gametype", buf);
 	//bot developer mode and log file
-	trap->BotLibVarSet("bot_developer", bot_developer.string);
+	trap->BotLibVarSet("bot_developer", bot_developer->string);
 	trap->Cvar_VariableStringBuffer("logfile", buf, sizeof(buf));
 	trap->BotLibVarSet("log", buf);
 	//no chatting
@@ -1618,18 +1603,18 @@ BotAISetup
 int BotAISetup( int restart ) {
 	int			errnum;
 
-	trap->Cvar_Register( &bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_memorydump, "bot_memorydump", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_saveroutingcache, "bot_saveroutingcache", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_pause, "bot_pause", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_report, "bot_report", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_testsolid, "bot_testsolid", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_testclusters, "bot_testclusters", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_developer, "bot_developer", "0", CVAR_CHEAT, NULL);
-	trap->Cvar_Register( &bot_interbreedchar, "bot_interbreedchar", "", 0, NULL);
-	trap->Cvar_Register( &bot_interbreedbots, "bot_interbreedbots", "10", 0, NULL);
-	trap->Cvar_Register( &bot_interbreedcycle, "bot_interbreedcycle", "20", 0, NULL);
-	trap->Cvar_Register( &bot_interbreedwrite, "bot_interbreedwrite", "", 0, NULL);
+	bot_thinktime			= trap->Cvar_Get( "bot_thinktime", "100", CVAR_CHEAT, NULL, NULL );
+	bot_memorydump			= trap->Cvar_Get( "bot_memorydump", "0", CVAR_CHEAT, NULL, NULL );
+	bot_saveroutingcache	= trap->Cvar_Get( "bot_saveroutingcache", "0", CVAR_CHEAT, NULL, NULL );
+	bot_pause				= trap->Cvar_Get( "bot_pause", "0", CVAR_CHEAT, NULL, NULL );
+	bot_report				= trap->Cvar_Get( "bot_report", "0", CVAR_CHEAT, NULL, NULL );
+	bot_testsolid			= trap->Cvar_Get( "bot_testsolid", "0", CVAR_CHEAT, NULL, NULL );
+	bot_testclusters		= trap->Cvar_Get( "bot_testclusters", "0", CVAR_CHEAT, NULL, NULL );
+	bot_developer			= trap->Cvar_Get( "bot_developer", "0", CVAR_CHEAT, NULL, NULL );
+	bot_interbreedchar		= trap->Cvar_Get( "bot_interbreedchar", "", 0, NULL, NULL );
+	bot_interbreedbots		= trap->Cvar_Get( "bot_interbreedbots", "10", 0, NULL, NULL );
+	bot_interbreedcycle		= trap->Cvar_Get( "bot_interbreedcycle", "20", 0, NULL, NULL );
+	bot_interbreedwrite		= trap->Cvar_Get( "bot_interbreedwrite", "", 0, NULL, NULL );
 
 	//if the game is restarted for a tournament
 	if (restart) {

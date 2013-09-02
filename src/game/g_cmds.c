@@ -196,7 +196,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 		else
 			team = PickTeam( clientNum ); // pick the team with the least number of players
 
-		if ( g_teamForceBalance.integer  ) {
+		if ( g_teamForceBalance->integer  ) {
 			int		counts[TEAM_NUM_TEAMS];
 
 			counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE );
@@ -224,7 +224,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	// override decision if limiting the players
 	if ( (level.gametype == GT_DUEL) && level.numNonSpectatorClients >= 2 )
 		team = TEAM_SPECTATOR;
-	else if ( g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer )
+	else if ( g_maxGameClients->integer > 0 && level.numNonSpectatorClients >= g_maxGameClients->integer )
 		team = TEAM_SPECTATOR;
 
 	// decide if we will allow the change
@@ -551,7 +551,7 @@ static void Cmd_CallVote_f( gentity_t *ent ) {
 	char		arg1[MAX_CVAR_VALUE_STRING] = {0}, arg2[MAX_CVAR_VALUE_STRING] = {0};
 	voteString_t *vote = NULL;
 
-	if ( !g_allowVote.integer )
+	if ( !g_allowVote->integer )
 	{// not allowed to vote at all
 		trap->SV_GameSendServerCommand( ent-g_entities, "print \"Not allowed to vote\n\"" );
 		return;
@@ -584,7 +584,7 @@ static void Cmd_CallVote_f( gentity_t *ent ) {
 
 	for ( i=0; i<validVoteStringsSize; i++ )
 	{// check for invalid votes
-		if ( (g_voteDisable.integer & (1<<i)) )
+		if ( (g_voteDisable->integer & (1<<i)) )
 			continue;
 
 		if ( !Q_stricmp( arg1, validVoteStrings[i].string ) )
@@ -614,7 +614,7 @@ static void Cmd_CallVote_f( gentity_t *ent ) {
 		trap->SV_GameSendServerCommand( ent-g_entities, "print \"Allowed vote strings are: \"" );
 		for ( i=0; i<validVoteStringsSize; i++ )
 		{
-			if ( (g_voteDisable.integer & (1<<i)) )
+			if ( (g_voteDisable->integer & (1<<i)) )
 				continue;
 
 			toggle = !toggle;
@@ -650,7 +650,7 @@ validVote:
 
 	level.votingGametype = qfalse;
 
-	level.voteExecuteDelay = vote->voteDelay ? g_voteDelay.integer : 0;
+	level.voteExecuteDelay = vote->voteDelay ? g_voteDelay->integer : 0;
 
 	if ( level.voteExecuteTime )
 	{// there is still a vote to be executed, execute it and store the new vote
@@ -703,7 +703,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 	{
 		powerup_t powerup = (ent->client->ps.persistant[PERS_TEAM]==TEAM_RED) ? PW_BLUEFLAG : PW_REDFLAG;
 
-		if ( !g_allowFlagDrop.integer ) {
+		if ( !g_allowFlagDrop->integer ) {
 			trap->SV_GameSendServerCommand( ent-g_entities, "print \"^3Not allowed to drop the flag\n\"" );
 			return;
 		}
@@ -739,7 +739,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 		vector3 angs = { 0.0f, 0.0f, 0.0f };
 		int ammo, i=0;
 
-		if ( !g_allowWeaponDrop.integer ) {
+		if ( !g_allowWeaponDrop->integer ) {
 			trap->SV_GameSendServerCommand( ent-g_entities, "print \"^3Not allowed to drop weapons\n\"" );
 			return;
 		}
@@ -1192,7 +1192,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	// echo the text to the console
-	if ( dedicated.integer )
+	if ( dedicated->integer )
 		trap->Print( "%s%s\n", name, text);
 
 	// send it to all the apropriate clients
@@ -1430,7 +1430,7 @@ unsigned int G_CmdValid( const gentity_t *ent, const command_t *cmd )
 		return CMDFAIL_NOINTERMISSION;
 
 	if ( (cmd->flags & CMDFLAG_CHEAT)
-		&& !sv_cheats.integer )
+		&& !sv_cheats->integer )
 		return CMDFAIL_CHEAT;
 
 	if ( (cmd->flags & CMDFLAG_ALIVE)

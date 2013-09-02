@@ -144,12 +144,12 @@ typedef struct {
 	void	*(*Malloc)( int bytes );
 	void	(*Free)( void *buf );
 
-	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags, const char *description );
+	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
 	void	(*Cvar_Set)( const char *name, const char *value );
 	void	(*Cvar_SetValue) (const char *name, float value);
 	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
-	int		(*Cvar_VariableIntegerValue) (const char *var_name);
+	int		(*Cvar_VariableIntegerValue) (const char *name);
 
 	void	(*Cmd_AddCommand)( const char *name, void(*cmd)(void) );
 	void	(*Cmd_RemoveCommand)( const char *name );

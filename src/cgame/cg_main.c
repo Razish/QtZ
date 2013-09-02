@@ -38,7 +38,7 @@ itemInfo_t			cg_items[MAX_ITEMS];
 
 
 // ********************************
-// VMCVAR callback functions
+// cvar callback functions
 
 static void CG_ForceModelUpdate( void ) {
 	int i=0;
@@ -58,7 +58,7 @@ static void CG_ForceColorUpdate( void ) {
 	
 	// enemy color
 	v = &cg.forceModel.enemyColor;
-	if ( sscanf( cg_forceEnemyModelColor.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+	if ( sscanf( cg_forceEnemyModelColor->string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
 		v->r = 0;
 		v->g = 255;
 		v->b = 0;
@@ -68,7 +68,7 @@ static void CG_ForceColorUpdate( void ) {
 
 	// ally color
 	v = &cg.forceModel.allyColor;
-	if ( sscanf( cg_forceAllyModelColor.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+	if ( sscanf( cg_forceAllyModelColor->string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
 		v->r = 127;
 		v->g = 127;
 		v->b = 127;
@@ -83,7 +83,7 @@ static void CG_XHairColorUpdate( void ) {
 	
 	// base color
 	v = &cg.crosshair.baseColor;
-	if ( sscanf( cg_crosshairColour.string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
+	if ( sscanf( cg_crosshairColour->string, "%i %i %i", &v->r, &v->g, &v->b ) != 3 ) {
 		v->r = 0;
 		v->g = 255;
 		v->b = 0;
@@ -93,7 +93,7 @@ static void CG_XHairColorUpdate( void ) {
 
 	// feedback color
 	v = &cg.crosshair.feedbackColor;
-	if ( sscanf( cg_crosshairFeedbackColour.string, "%i %i %i", &v->r, &v->g, &v->b) != 3 ) {
+	if ( sscanf( cg_crosshairFeedbackColour->string, "%i %i %i", &v->r, &v->g, &v->b) != 3 ) {
 		v->r = 127;
 		v->g = 127;
 		v->b = 127;
@@ -107,13 +107,13 @@ static void CG_GunAlignUpdate( void ) {
 
 	// base position (x, y, z)
 	v = &cg.gunAlign.basePos;
-	if ( sscanf( cg_gunAlign.string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
+	if ( sscanf( cg_gunAlign->string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
 		v->x = v->y = v->z = 0.0f;
 	}
 
 	// zoom position (x, y, z)
 	v = &cg.gunAlign.zoomPos;
-	if ( sscanf( cg_gunZoomAlign.string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
+	if ( sscanf( cg_gunZoomAlign->string, "%f %f %f", &v->x, &v->y, &v->z ) != 3 ) {
 		v->x = -2.0f;
 		v->y = 4.0f;
 		v->z = 2.35f;
@@ -126,7 +126,7 @@ static void CG_ViewVarsUpdate( void ) {
 
 	// viewmodel bobbing (pitch, yaw, roll)
 	a = &cg.gunBob;
-	if ( sscanf( cg_gunBob.string, "%f %f %f", &a->pitch, &a->yaw, &a->roll ) != 3 ) {
+	if ( sscanf( cg_gunBob->string, "%f %f %f", &a->pitch, &a->yaw, &a->roll ) != 3 ) {
 		a->pitch = 0.005f;
 		a->yaw = 0.01f;
 		a->roll = 0.005f;
@@ -135,7 +135,7 @@ static void CG_ViewVarsUpdate( void ) {
 	// viewmodel drifting (pitch, yaw, roll, speed)
 	a = &cg.gunIdleDrift.amount;
 	n = &cg.gunIdleDrift.speed;
-	if ( sscanf( cg_gunIdleDrift.string, "%f %f %f %f", &a->pitch, &a->yaw, &a->roll, n ) != 4 ) {
+	if ( sscanf( cg_gunIdleDrift->string, "%f %f %f %f", &a->pitch, &a->yaw, &a->roll, n ) != 4 ) {
 		a->pitch = 0.01f;
 		a->yaw = 0.01f;
 		a->roll = 0.01f;
@@ -143,7 +143,7 @@ static void CG_ViewVarsUpdate( void ) {
 	}
 
 	// view bobbing (pitch, roll, up, fall)
-	if ( sscanf( cg_viewBob.string, "%f %f %f %i", &cg.viewBob.pitch, &cg.viewBob.roll, &cg.viewBob.up, &cg.viewBob.fall ) != 4 ) {
+	if ( sscanf( cg_viewBob->string, "%f %f %f %i", &cg.viewBob.pitch, &cg.viewBob.roll, &cg.viewBob.up, &cg.viewBob.fall ) != 4 ) {
 		cg.viewBob.pitch	= 0.002f;
 		cg.viewBob.roll		= 0.002f;
 		cg.viewBob.up		= 0.005f;
@@ -154,7 +154,7 @@ static void CG_ViewVarsUpdate( void ) {
 // If team overlay is on, ask for updates from the server.
 // If it's off, let the server know so we don't receive it
 static void CG_TeamOverlayUpdate( void ) {
-	if ( cg_drawTeamOverlay.boolean )
+	if ( cg_drawTeamOverlay->boolean )
 		trap->Cvar_Set( "teamoverlay", "1" );
 	else
 		trap->Cvar_Set( "teamoverlay", "0" );
@@ -165,19 +165,19 @@ static void CG_TeamOverlayUpdate( void ) {
 	#include "cg_xcvar.h"
 #undef XCVAR_DECL
 
-typedef struct {
-	vmCvar_t	*vmCvar;
-	char		*cvarName;
-	char		*defaultString;
-	void		(*update)( void );
-	int			cvarFlags;
-	char		*description;
+typedef struct cvarTable_s {
+	cvar_t			**cvar;
+	const char		*name;
+	const char		*defaultString;
+	void			(*update)( void );
+	const int		flags;
+	const char		*description;
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
-#define XCVAR_LIST
-	#include "cg_xcvar.h"
-#undef XCVAR_LIST
+	#define XCVAR_LIST
+		#include "cg_xcvar.h"
+	#undef XCVAR_LIST
 };
 
 static const int cvarTableSize = ARRAY_LEN( cvarTable );
@@ -188,53 +188,35 @@ CG_RegisterCvars
 =================
 */
 void CG_RegisterCvars( void ) {
-	int			i;
-	cvarTable_t	*cv;
-	char		var[MAX_TOKEN_CHARS];
+	int i = 0;
+	cvarTable_t *cv = NULL;
+	char var[MAX_CVAR_VALUE_STRING] = {0};
 
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ )
+		*cv->cvar = trap->Cvar_Get( cv->name, cv->defaultString, cv->flags, cv->description, cv->update );
+
+	// now update them
 	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
-		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags, cv->description );
-		if ( cv->update )
-			cv->update();
+		if ( (*cv->cvar)->update )
+			(*cv->cvar)->update();
 	}
 
 	// see if we are also running the server on this machine
 	trap->Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
 	cgs.localServer = atoi( var );
-
-	trap->Cvar_Register( NULL, "model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,	NULL );
-}
-
-/*
-=================
-CG_UpdateCvars
-=================
-*/
-void CG_UpdateCvars( void ) {
-	int			i;
-	cvarTable_t	*cv;
-
-	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
-		int modCount = cv->vmCvar->modificationCount;
-		trap->Cvar_Update( cv->vmCvar );
-		if ( cv->vmCvar->modificationCount > modCount ) {
-			if ( cv->update )
-				cv->update();
-		}
-	}
 }
 
 int CG_CrosshairPlayer( void ) {
-	if ( cg.time > ( cg.crosshairClientTime + 1000 ) ) {
+	if ( cg.time > (cg.crosshairClientTime + 1000) )
 		return -1;
-	}
+
 	return cg.crosshairClientNum;
 }
 
 int CG_LastAttacker( void ) {
-	if ( !cg.attackerTime ) {
+	if ( !cg.attackerTime )
 		return -1;
-	}
+
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
@@ -251,10 +233,10 @@ const char *CG_Argv( int arg ) {
 	return buffer;
 }
 
-const char *CG_Cvar_VariableString( const char *var_name ) {
+const char *CG_Cvar_VariableString( const char *name ) {
 	static char	buffer[MAX_STRING_CHARS];
 
-	trap->Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+	trap->Cvar_VariableStringBuffer( name, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -455,7 +437,7 @@ static void CG_RegisterSounds( void ) {
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
-//		if ( items[ i ] == '1' || cg_buildScript.integer ) {
+//		if ( items[ i ] == '1' || cg_buildScript->integer ) {
 			CG_RegisterItemSounds( i );
 //		}
 	}
@@ -1327,11 +1309,12 @@ static void CG_FeederSelection(float feederID, int index) {
 	}
 }
 
-static float CG_Cvar_Get(const char *cvar) {
-	char buff[128];
-	memset(buff, 0, sizeof(buff));
-	trap->Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
-	return (float)atof(buff);
+static float CG_Cvar_Get( const char *cvar ) {
+	char buff[MAX_CVAR_VALUE_STRING] = {0};
+
+	trap->Cvar_VariableStringBuffer( cvar, buff, sizeof( buff ) );
+
+	return (float)atof( buff );
 }
 
 void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const char *text, int cursorPos, char cursor, int limit, int style) {

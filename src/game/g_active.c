@@ -361,7 +361,7 @@ Returns qfalse if the client is dropped
 =================
 */
 qboolean ClientInactivityTimer( gclient_t *client ) {
-	if ( ! g_inactivity.integer ) {
+	if ( ! g_inactivity->integer ) {
 		// give everyone some time, so if the operator sets g_inactivity during
 		// gameplay, everyone isn't kicked
 		client->inactivityTime = level.time + 60 * 1000;
@@ -370,7 +370,7 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->pers.cmd.rightmove || 
 		client->pers.cmd.upmove ||
 		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
-		client->inactivityTime = level.time + g_inactivity.integer * 1000;
+		client->inactivityTime = level.time + g_inactivity->integer * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient ) {
 		if ( level.time > client->inactivityTime ) {
@@ -463,7 +463,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 		case EV_FALL_FAR:
 			if ( ent->s.eType != ET_PLAYER )
 				break;		// not in the player model
-			if ( dmflags.integer & DF_NO_FALLING )
+			if ( dmflags->integer & DF_NO_FALLING )
 				break;
 			if ( ev == EV_FALL_FAR )	damage = 10;
 			else						damage = 5;
@@ -679,7 +679,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	pm.trace = trap->SV_Trace;
 	pm.pointcontents = trap->SV_PointContents;
-	pm.noFootsteps = !!(dmflags.integer & DF_NO_FOOTSTEPS);
+	pm.noFootsteps = !!(dmflags->integer & DF_NO_FOOTSTEPS);
 
 	VectorCopy( &client->ps.origin, &client->oldOrigin );
 
@@ -689,11 +689,11 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( ent->client->ps.eventSequence != oldEventSequence ) {
 		ent->eventTime = level.time;
 	}
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float.boolean );
+	if (g_smoothClients->integer) {
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float->boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float.boolean );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float->boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -745,8 +745,8 @@ void ClientThink_real( gentity_t *ent ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
-			if ( g_forceRespawn.integer > 0 && 
-				( level.time - client->respawnTime ) > g_forceRespawn.integer * 1000 ) {
+			if ( g_forceRespawn->integer > 0 && 
+				( level.time - client->respawnTime ) > g_forceRespawn->integer * 1000 ) {
 				ClientRespawn( ent );
 				return;
 			}
@@ -782,14 +782,14 @@ void ClientThink( int clientNum ) {
 	// phone jack if they don't get any for a while
 	ent->client->lastCmdTime = level.time;
 
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients->integer ) {
 		ClientThink_real( ent );
 	}
 }
 
 
 void G_RunClient( gentity_t *ent ) {
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients->integer ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
@@ -932,11 +932,11 @@ void ClientEndFrame( gentity_t *ent ) {
 	G_SetClientSound (ent);
 
 	// set the latest infor
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float.boolean );
+	if (g_smoothClients->integer) {
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, !pm_float->boolean );
 	}
 	else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float.boolean );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, !pm_float->boolean );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 

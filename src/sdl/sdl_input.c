@@ -728,7 +728,7 @@ static void IN_InitJoystick( void )
 		Q_strcat(buf, sizeof(buf), "\n");
 	}
 
-	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM, NULL );
+	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM, NULL, NULL );
 
 	if( !in_joystick->integer ) {
 		Com_DPrintf( "Joystick is not active.\n" );
@@ -736,11 +736,11 @@ static void IN_InitJoystick( void )
 		return;
 	}
 
-	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE, NULL );
+	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE, NULL, NULL );
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
 		Cvar_Set( "in_joystickNo", "0" );
 
-	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, NULL );
+	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, NULL, NULL );
 
 	stick = SDL_JoystickOpen( in_joystickNo->integer );
 
@@ -1162,18 +1162,18 @@ void IN_Init( void )
 
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
-	in_keyboardDebug			= Cvar_Get( "in_keyboardDebug",				"0",	CVAR_ARCHIVE,				NULL );
-	in_mouseDebug				= Cvar_Get( "in_mouseDebug",				"0",	CVAR_ARCHIVE,				NULL );
+	in_keyboardDebug			= Cvar_Get( "in_keyboardDebug",				"0",	CVAR_ARCHIVE,				NULL, NULL );
+	in_mouseDebug				= Cvar_Get( "in_mouseDebug",				"0",	CVAR_ARCHIVE,				NULL, NULL );
 
 	// mouse variables
-	in_nograb					= Cvar_Get( "in_nograb",					"0",	CVAR_ARCHIVE,				NULL );
+	in_nograb					= Cvar_Get( "in_nograb",					"0",	CVAR_ARCHIVE,				NULL, NULL );
 
-	in_joystick					= Cvar_Get( "in_joystick",					"0",	CVAR_ARCHIVE|CVAR_LATCH,	NULL );
-	in_joystickDebug			= Cvar_Get( "in_joystickDebug",				"0",	CVAR_TEMP,					NULL );
-	in_joystickThreshold		= Cvar_Get( "joy_threshold",				"0.15",	CVAR_ARCHIVE,				NULL );
+	in_joystick					= Cvar_Get( "in_joystick",					"0",	CVAR_ARCHIVE|CVAR_LATCH,	NULL, NULL );
+	in_joystickDebug			= Cvar_Get( "in_joystickDebug",				"0",	CVAR_TEMP,					NULL, NULL );
+	in_joystickThreshold		= Cvar_Get( "joy_threshold",				"0.15",	CVAR_ARCHIVE,				NULL, NULL );
 
 #ifdef MACOS_X_ACCELERATION_HACK
-	in_disablemacosxmouseaccel	= Cvar_Get( "in_disablemacosxmouseaccel",	"1",	CVAR_ARCHIVE,				NULL );
+	in_disablemacosxmouseaccel	= Cvar_Get( "in_disablemacosxmouseaccel",	"1",	CVAR_ARCHIVE,				NULL, NULL );
 #endif
 
 	SDL_EnableUNICODE( 1 );

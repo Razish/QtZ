@@ -262,18 +262,17 @@ static void CG_OffsetFirstPersonView( void ) {
 	VectorCopy( &cg.predictedPlayerState.velocity, &predictedVelocity );
 
 	delta = DotProduct ( &predictedVelocity, &cg.refdef.viewaxis[0]);
-	angles->pitch += delta * cg_runpitch.value;
+	angles->pitch += delta * cg_runpitch->value;
 	
 	delta = DotProduct ( &predictedVelocity, &cg.refdef.viewaxis[1]);
-	angles->roll -= delta * cg_runroll.value;
+	angles->roll -= delta * cg_runroll->value;
 
 	// add angles based on bob
 
 	// make sure the bob is visible even at low speeds
 	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
-	if ( cg_viewBobEnable.boolean )
-	{
+	if ( cg_viewBobEnable->boolean ) {
 		delta = cg.bobfracsin * cg.viewBob.pitch * speed;
 		if ( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
 			delta *= 3;		// crouching
@@ -372,65 +371,60 @@ static int CG_CalcFov( void ) {
 	float	x;
 	float	phase;
 	float	v;
-	float	fov_x = cg_fov.value, fov_y;
+	float	fov_x = cg_fov->value, fov_y;
 	int		inwater;
 	int		contents;
 
-	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
-		// if in intermission, use a fixed value
-		fov_x = 90;
-	} else {
-		if (cg.zoomed)
-		{
-			if (zoomFov > fov_x)
-				zoomFov = fov_x;
-			zoomFov -= cg.frametime * cg_zoomTime.value;//0.075f;
+	if (cg.zoomed)
+	{
+		if (zoomFov > fov_x)
+			zoomFov = fov_x;
+		zoomFov -= cg.frametime * cg_zoomTime->value;//0.075f;
 
-			if (zoomFov < cg_zoomFov.value)
-				zoomFov = cg_zoomFov.value;
-			else if (zoomFov > fov_x)
-				zoomFov = fov_x;
-			else
-			{// Still zooming
-				static int zoomSoundTime = 0;
-				if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
-				{
-					trap->S_StartSound(&cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
-					zoomSoundTime = cg.time + 300;
-				}
-			}
-
-			if (zoomFov < 5.0f)
-				zoomFov = 5.0f;		// hack to fix zoom during vid restart
-			fov_x = zoomFov;
-		}
-		else 
-		{
-			if (zoomFov > fov_x)
-				zoomFov = fov_x;
-			zoomFov += cg.frametime * cg_zoomTime.value;//0.075f;
-
-			if (zoomFov > fov_x)
-				zoomFov = fov_x;
-			else if (zoomFov < cg_zoomFov.value)
-				zoomFov = cg_zoomFov.value;
-			else
+		if (zoomFov < cg_zoomFov->value)
+			zoomFov = cg_zoomFov->value;
+		else if (zoomFov > fov_x)
+			zoomFov = fov_x;
+		else
+		{// Still zooming
+			static int zoomSoundTime = 0;
+			if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 			{
-				static int zoomSoundTime = 0;
-				if ( zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 )
-				{
-					trap->S_StartSound( &cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
-					zoomSoundTime = cg.time + 300;
-				}
+				trap->S_StartSound(&cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound);
+				zoomSoundTime = cg.time + 300;
 			}
-
-			if (zoomFov > fov_x)
-				zoomFov = fov_x;
-			fov_x = zoomFov;
 		}
+
+		if (zoomFov < 5.0f)
+			zoomFov = 5.0f;		// hack to fix zoom during vid restart
+		fov_x = zoomFov;
+	}
+	else 
+	{
+		if (zoomFov > fov_x)
+			zoomFov = fov_x;
+		zoomFov += cg.frametime * cg_zoomTime->value;//0.075f;
+
+		if (zoomFov > fov_x)
+			zoomFov = fov_x;
+		else if (zoomFov < cg_zoomFov->value)
+			zoomFov = cg_zoomFov->value;
+		else
+		{
+			static int zoomSoundTime = 0;
+			if ( zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 )
+			{
+				trap->S_StartSound( &cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.flightSound );
+				zoomSoundTime = cg.time + 300;
+			}
+		}
+
+		if (zoomFov > fov_x)
+			zoomFov = fov_x;
+		fov_x = zoomFov;
 	}
 
-	if ( cg_fovAspectAdjust.integer ) {
+	if ( cg_fovAspectAdjust->integer ) {
 		// Based on LordHavoc's code for Darkplaces
 		// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
 		const float baseAspect = 0.75f; // 3/4
@@ -463,7 +457,7 @@ static int CG_CalcFov( void ) {
 
 	if (cg.zoomed)
 	{
-		cg.zoomSensitivity = zoomFov/cg_fov.value;
+		cg.zoomSensitivity = zoomFov/cg_fov->value;
 	}
 	else if ( !cg.zoomed ) {
 		cg.zoomSensitivity = 1;
@@ -569,12 +563,12 @@ static int CG_CalcViewValues( void ) {
 	VectorCopy( &ps->viewangles, &cg.refdefViewAngles );
 
 	// add error decay
-	if ( cg_errorDecay.value > 0 ) {
+	if ( cg_errorDecay->value > 0 ) {
 		int		t;
 		float	f;
 
 		t = cg.time - cg.predictedErrorTime;
-		f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
+		f = ( cg_errorDecay->value - t ) / cg_errorDecay->value;
 		if ( f > 0 && f < 1 ) {
 			VectorMA( &cg.refdef.vieworg, f, &cg.predictedError, &cg.refdef.vieworg );
 		} else {
@@ -671,9 +665,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
-	// update cvars
-	CG_UpdateCvars();
-
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
@@ -750,19 +741,19 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		cg.oldTime = cg.time;
 		CG_AddLagometerFrameInfo();
 	}
-	if (timescale.value != cg_timescaleFadeEnd.value) {
-		if (timescale.value < cg_timescaleFadeEnd.value) {
-			timescale.value += cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (timescale.value > cg_timescaleFadeEnd.value)
-				timescale.value = cg_timescaleFadeEnd.value;
+	if (timescale->value != cg_timescaleFadeEnd->value) {
+		if (timescale->value < cg_timescaleFadeEnd->value) {
+			timescale->value += cg_timescaleFadeSpeed->value * ((float)cg.frametime) / 1000;
+			if (timescale->value > cg_timescaleFadeEnd->value)
+				timescale->value = cg_timescaleFadeEnd->value;
 		}
 		else {
-			timescale.value -= cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (timescale.value < cg_timescaleFadeEnd.value)
-				timescale.value = cg_timescaleFadeEnd.value;
+			timescale->value -= cg_timescaleFadeSpeed->value * ((float)cg.frametime) / 1000;
+			if (timescale->value < cg_timescaleFadeEnd->value)
+				timescale->value = cg_timescaleFadeEnd->value;
 		}
-		if (cg_timescaleFadeSpeed.value) {
-			trap->Cvar_Set("timescale", va("%f", timescale.value));
+		if (cg_timescaleFadeSpeed->value) {
+			trap->Cvar_Set("timescale", va("%f", timescale->value));
 		}
 	}
 

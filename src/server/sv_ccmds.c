@@ -173,7 +173,7 @@ static void SV_Map_f( void ) {
 	}
 
 	// force latched values to get set
-	svi.Cvar_Get ("sv_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL );
+	svi.Cvar_Get ("sv_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL, NULL );
 
 	cmd = svi.Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) ) {

@@ -235,7 +235,7 @@ void G_UnTimeShiftAllClients( gentity_t *skip ) {
 }
 
 void G_UpdateTrailData( void ) {
-	frametime = sv_frametime.integer;
-	historytime = g_delagHistory.integer;
+	frametime = sv_frametime->integer;
+	historytime = g_delagHistory->integer;
 	numTrails = MIN( historytime/frametime, NUM_CLIENT_TRAILS );
 }

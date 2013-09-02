@@ -115,7 +115,7 @@ static void CG_DrawClientScore( int y, score_t *score, vector4 *color, float fad
 	}
 	else {
 		if ( ci->botSkill > 0 && ci->botSkill <= 5 ) {
-			if ( cg_drawIcons.integer ) {
+			if ( cg_drawIcons->integer ) {
 				if ( largeFormat )
 					CG_DrawPic( (float)iconx, (float)(y - ( 32 - BIGCHAR_HEIGHT ) / 2), 32.0f, 32.0f, cgs.media.botSkillShaders[ ci->botSkill - 1 ] );
 				else

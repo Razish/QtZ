@@ -364,7 +364,7 @@ static void CG_AddToTeamChat( const char *str ) {
 	int lastcolor;
 	int chatHeight = TEAMCHAT_HEIGHT;
 
-	if (chatHeight <= 0 || cg_teamChatTime.integer <= 0) {
+	if (chatHeight <= 0 || cg_teamChatTime->integer <= 0) {
 		// team chat disabled, dump into normal chat
 		cgs.teamChatPos = cgs.teamLastChatPos = 0;
 		return;
@@ -858,7 +858,7 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 
 	if ( CG_GetVoiceChat( voiceChatList, cmd, &snd, &chat ) ) {
 		//
-		if ( mode == SAY_TEAM || !cg_teamChatsOnly.integer ) {
+		if ( mode == SAY_TEAM || !cg_teamChatsOnly->integer ) {
 			vchat.clientNum = clientNum;
 			vchat.snd = snd;
 			vchat.voiceOnly = voiceOnly;
@@ -892,7 +892,7 @@ void CG_VoiceChat( int mode ) {
 	color = atoi(CG_Argv(3));
 	cmd = CG_Argv(4);
 
-	if (cg_noTaunt.integer != 0) {
+	if (cg_noTaunt->integer != 0) {
 		if (!strcmp(cmd, VOICECHAT_KILLINSULT)  || !strcmp(cmd, VOICECHAT_TAUNT) || \
 			!strcmp(cmd, VOICECHAT_DEATHINSULT) || !strcmp(cmd, VOICECHAT_KILLGAUNTLET) || \
 			!strcmp(cmd, VOICECHAT_PRAISE)) {
@@ -963,7 +963,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "chat" ) ) {
-		if ( !cg_teamChatsOnly.integer ) {
+		if ( !cg_teamChatsOnly->integer ) {
 			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );

@@ -807,12 +807,12 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 
 		mass = 200;
 
-		if ( g_debugDamage.integer )
+		if ( g_debugDamage->integer )
 			Com_Printf( " \nDirectional knockback: %.2f, %.2f, %.2f\n", dir.x, dir.y, dir.z );
 
-		VectorScale (&dir, g_knockback.value * (float)knockback / mass, &kvel);
+		VectorScale (&dir, g_knockback->value * (float)knockback / mass, &kvel);
 
-		if ( g_debugDamage.integer )
+		if ( g_debugDamage->integer )
 			Com_Printf( "Scaled knockback: %.2f, %.2f, %.2f\n", kvel.x, kvel.y, kvel.z );
 
 		if ( affector
@@ -824,7 +824,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			kvel.y *= affector->knockbackDampVert;
 		}
 
-		if ( g_debugDamage.integer )
+		if ( g_debugDamage->integer )
 			Com_Printf( "Final knockback: %.2f, %.2f, %.2f\n \n", kvel.x, kvel.y, kvel.z );
 
 		VectorAdd (&targ->client->ps.velocity, &kvel, &targ->client->ps.velocity);
@@ -862,13 +862,13 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 		// if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
 		// if the attacker was on the same team
 		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
-			if ( !g_friendlyFire.integer )
+			if ( !g_friendlyFire->integer )
 				return;
-			else if ( g_friendlyFire.integer == 2 )
-				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale.value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
-			else if ( g_friendlyFire.integer == 3 )
+			else if ( g_friendlyFire->integer == 2 )
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale->value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
+			else if ( g_friendlyFire->integer == 3 )
 			{
-				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale.value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
+				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale->value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
 				return;
 			}
 		}
@@ -893,7 +893,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	asave = CheckArmor (targ, take, dflags);
 	take -= asave;
 
-	if ( g_debugDamage.integer ) {
+	if ( g_debugDamage->integer ) {
 		char *tmp = va( "^3G_Damage(): ^7Hit ^5%2i ^7(^1%3i^7/^2%3i^7) for %3i (^1%3i^7/^2%3i^7)",
 			targ->s.number,
 			targ->health,

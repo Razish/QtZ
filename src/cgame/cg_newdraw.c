@@ -55,7 +55,7 @@ void CG_CheckOrderPending(void) {
 		return;
 	}
 	if (cgs.orderPending) {
-		//clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer.integer];
+		//clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer->integer];
 		const char *p1, *p2, *b;
 		p1 = p2 = b = NULL;
 		switch (cgs.currentOrder) {
@@ -93,18 +93,18 @@ void CG_CheckOrderPending(void) {
 			break;
 		}
 
-		if (cg_currentSelectedPlayer.integer == numSortedTeamPlayers) {
+		if (cg_currentSelectedPlayer->integer == numSortedTeamPlayers) {
 			// to everyone
 			trap->SendConsoleCommand(va("cmd vsay_team %s\n", p2));
 		} else {
 			// for the player self
-			if (sortedTeamPlayers[cg_currentSelectedPlayer.integer] == cg.snap->ps.clientNum && p1) {
+			if (sortedTeamPlayers[cg_currentSelectedPlayer->integer] == cg.snap->ps.clientNum && p1) {
 				trap->SendConsoleCommand(va("teamtask %i\n", cgs.currentOrder));
 				//trap->SendConsoleCommand(va("cmd say_team %s\n", p2));
 				trap->SendConsoleCommand(va("cmd vsay_team %s\n", p1));
 			} else if (p2) {
 				//trap->SendConsoleCommand(va("cmd say_team %s, %s\n", ci->name,p));
-				trap->SendConsoleCommand(va("cmd vtell %d %s\n", sortedTeamPlayers[cg_currentSelectedPlayer.integer], p2));
+				trap->SendConsoleCommand(va("cmd vtell %d %s\n", sortedTeamPlayers[cg_currentSelectedPlayer->integer], p2));
 			}
 		}
 		if (b) {
@@ -115,11 +115,11 @@ void CG_CheckOrderPending(void) {
 }
 
 static void CG_SetSelectedPlayerName( void ) {
-	if (cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
-		clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer.integer];
+	if (cg_currentSelectedPlayer->integer >= 0 && cg_currentSelectedPlayer->integer < numSortedTeamPlayers) {
+		clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer->integer];
 		if (ci) {
 			trap->Cvar_Set("cg_selectedPlayerName", ci->name);
-			trap->Cvar_Set("cg_selectedPlayer", va("%d", sortedTeamPlayers[cg_currentSelectedPlayer.integer]));
+			trap->Cvar_Set("cg_selectedPlayer", va("%d", sortedTeamPlayers[cg_currentSelectedPlayer->integer]));
 			cgs.currentOrder = ci->teamTask;
 		}
 	} else {
@@ -127,28 +127,28 @@ static void CG_SetSelectedPlayerName( void ) {
 	}
 }
 int CG_GetSelectedPlayer( void ) {
-	if (cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers) {
-		cg_currentSelectedPlayer.integer = 0;
+	if (cg_currentSelectedPlayer->integer < 0 || cg_currentSelectedPlayer->integer >= numSortedTeamPlayers) {
+		cg_currentSelectedPlayer->integer = 0;
 	}
-	return cg_currentSelectedPlayer.integer;
+	return cg_currentSelectedPlayer->integer;
 }
 
 void CG_SelectNextPlayer( void ) {
 	CG_CheckOrderPending();
-	if (cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
-		cg_currentSelectedPlayer.integer++;
+	if (cg_currentSelectedPlayer->integer >= 0 && cg_currentSelectedPlayer->integer < numSortedTeamPlayers) {
+		cg_currentSelectedPlayer->integer++;
 	} else {
-		cg_currentSelectedPlayer.integer = 0;
+		cg_currentSelectedPlayer->integer = 0;
 	}
 	CG_SetSelectedPlayerName();
 }
 
 void CG_SelectPrevPlayer( void ) {
 	CG_CheckOrderPending();
-	if (cg_currentSelectedPlayer.integer > 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
-		cg_currentSelectedPlayer.integer--;
+	if (cg_currentSelectedPlayer->integer > 0 && cg_currentSelectedPlayer->integer < numSortedTeamPlayers) {
+		cg_currentSelectedPlayer->integer--;
 	} else {
-		cg_currentSelectedPlayer.integer = numSortedTeamPlayers;
+		cg_currentSelectedPlayer->integer = numSortedTeamPlayers;
 	}
 	CG_SetSelectedPlayerName();
 }
@@ -158,13 +158,13 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 	vector3		angles;
 	vector3		origin;
 
-	if ( cg_drawStatus.integer == 0 ) {
+	if ( cg_drawStatus->integer == 0 ) {
 		return;
 	}
 
-	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
+	if ( draw2D || ( !cg_draw3dIcons->integer && cg_drawIcons->integer) ) {
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
-	} else if (cg_draw3dIcons.integer) {
+	} else if (cg_draw3dIcons->integer) {
 		VectorClear( &angles );
 		origin.x = 90;
 		origin.y = 0;
@@ -201,13 +201,13 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
-	if ( draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
+	if ( draw2D || (!cg_draw3dIcons->integer && cg_drawIcons->integer) ) {
 		qhandle_t	icon;
 		icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
 		if ( icon ) {
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, icon );
 		}
-	} else if (cg_draw3dIcons.integer) {
+	} else if (cg_draw3dIcons->integer) {
 		if ( cent->currentState.weapon && cg_weapons[ cent->currentState.weapon ].ammoModel ) {
 			VectorClear( &angles );
 			origin.x = 70;
@@ -518,7 +518,7 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 	ci = cgs.clientinfo + ((voice) ? cgs.currentVoiceClient : sortedTeamPlayers[CG_GetSelectedPlayer()]);
 
 	if (ci) {
-		if ( cg_draw3dIcons.integer ) {
+		if ( cg_draw3dIcons->integer ) {
 			cm = ci->headModel;
 			if ( !cm ) {
 				return;
@@ -543,7 +543,7 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 			angles.roll = 0;
 
 			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, ci->headModel, ci->headSkin, &origin, &angles );
-		} else if ( cg_drawIcons.integer ) {
+		} else if ( cg_drawIcons->integer ) {
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, ci->modelIcon );
 		}
 
@@ -921,11 +921,11 @@ qboolean CG_YourTeamHasFlag(void) {
 qboolean CG_OwnerDrawVisible(int flags) {
 
 	if (flags & CG_SHOW_TEAMINFO) {
-		return (cg_currentSelectedPlayer.integer == numSortedTeamPlayers);
+		return (cg_currentSelectedPlayer->integer == numSortedTeamPlayers);
 	}
 
 	if (flags & CG_SHOW_NOTEAMINFO) {
-		return !(cg_currentSelectedPlayer.integer == numSortedTeamPlayers);
+		return !(cg_currentSelectedPlayer->integer == numSortedTeamPlayers);
 	}
 
 	if (flags & CG_SHOW_OTHERTEAMHASFLAG) {
@@ -1096,9 +1096,9 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vect
 		float max = *maxX;
 		float useScale;
 		fontInfo_t *font = &cgDC.Assets.textFont;
-		if (scale <= ui_smallFont.value) {
+		if (scale <= ui_smallFont->value) {
 			font = &cgDC.Assets.smallFont;
-		} else if (scale > ui_bigFont.value) {
+		} else if (scale > ui_bigFont->value) {
 			font = &cgDC.Assets.bigFont;
 		}
 		useScale = scale * font->glyphScale;
@@ -1403,7 +1403,7 @@ static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vector4 *color, qhandl
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
 	float fps, maxFPS = 1000.0f/(float)atof( CG_Cvar_VariableString( "com_frametime" ) );
 
-	if ( !cg_drawFPS.boolean && !cg_debugHUD.boolean )
+	if ( !cg_drawFPS->boolean && !cg_debugHUD->boolean )
 		return;
 
 	// don't use serverTime, because that will be drifting to
@@ -1437,7 +1437,7 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vector4 *color, qhand
 	vector4 pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = MIN( cg.snap->ping / BAD_PING, 1.0f );
 
-	if ( !cg_drawPing.boolean && !cg_debugHUD.boolean )
+	if ( !cg_drawPing->boolean && !cg_debugHUD->boolean )
 		return;
 
 	VectorLerp4( &pingGood, point, &pingBad, &pingColour );
@@ -1451,7 +1451,7 @@ static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_
 	vector4 *timeColour = NULL;
 	int msec=0, secs=0, mins=0, limitSec=cgs.timelimit*60;
 
-	if ( !cg_drawTimer.boolean && !cg_debugHUD.boolean && !cg.intermissionStarted )
+	if ( !cg_drawTimer->boolean && !cg_debugHUD->boolean && !cg.intermissionStarted )
 		return;
 
 	msec = cg.time-cgs.levelStartTime;
@@ -1471,7 +1471,7 @@ static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_
 			timeColour = &g_color_table[ColorIndex(COLOR_YELLOW)];
 	}
 
-	if ( cgs.timelimit && cg_drawTimer.integer == 2 )
+	if ( cgs.timelimit && cg_drawTimer->integer == 2 )
 	{// count down
 		msec = limitSec*1000 - (msec);
 		secs = msec/1000;
@@ -1490,7 +1490,7 @@ static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vector4 *color, qhandle_t shader, int textStyle) {
 	rectDef_t rect;
 
-	if ( cg_drawStatus.integer == 0 ) {
+	if ( cg_drawStatus->integer == 0 ) {
 		return;
 	}
 
@@ -1650,7 +1650,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 		CG_DrawTeamSpectators(&rect, scale, color, shader);
 		break;
 	case CG_TEAMINFO:
-		if (cg_currentSelectedPlayer.integer == numSortedTeamPlayers) {
+		if (cg_currentSelectedPlayer->integer == numSortedTeamPlayers) {
 			CG_DrawNewTeamInfo(&rect, text_x, text_y, scale, color, shader);
 		}
 		break;
@@ -1870,7 +1870,7 @@ void CG_DrawPickupItem( void )
 		for ( node=cg.q3p.itemPickupRoot; node; node=LinkedList_Traverse( node ) )
 		{
 			itemPickup_t *item = (itemPickup_t*)node->data;
-			if ( item->pickupTime < cg.time - cg_itemPickupTime.integer )
+			if ( item->pickupTime < cg.time - cg_itemPickupTime->integer )
 			{//Free this object
 				free( item );
 				LinkedList_RemoveObject( &cg.q3p.itemPickupRoot, node );
@@ -1903,7 +1903,7 @@ void CG_DrawObituary( void )
 	int fontHandle = MenuFontToHandle( FONT_Q3PSMALL );
 	float fontScale = 0.8f;//0.2175f;
 
-	if ( !cg_newObituary.integer )
+	if ( !cg_newObituary->integer )
 		return;
 
 	trap->R_SetColor( NULL );
@@ -1941,7 +1941,7 @@ void CG_DrawObituary( void )
 		for ( node=cg.q3p.obituaryRoot; node; node=LinkedList_Traverse( node ) )
 		{
 			obituary_t *obituary = (obituary_t*)node->data;
-			if ( obituary->deathTime < cg.time - cg_obituaryTime.integer )
+			if ( obituary->deathTime < cg.time - cg_obituaryTime->integer )
 			{//Free this object
 				free( obituary );
 				LinkedList_RemoveObject( &cg.q3p.obituaryRoot, node );
@@ -1976,7 +1976,7 @@ void CG_DrawFlagCarrierName( void )
 	vector2 screenPos = { 0.0f, 0.0f };
 	char text[] = "FLAG CARRIER";
 
-	if ( (cgs.gametype < GT_CTF || !cg_drawFlagCarrier.boolean || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD.integer )
+	if ( (cgs.gametype < GT_CTF || !cg_drawFlagCarrier.boolean || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD->integer )
 		return;
 
 	VectorCopy( cg_entities[cg.q3p.flagCarrierEntityNum].lerpOrigin, worldPos );

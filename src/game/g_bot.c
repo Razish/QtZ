@@ -45,17 +45,16 @@ typedef struct {
 
 static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
-vmCvar_t bot_minplayers;
+cvar_t *bot_minplayers;
 
 extern gentity_t	*podium1;
 extern gentity_t	*podium2;
 extern gentity_t	*podium3;
 
-float G_Cvar_VariableValue( const char *var_name ) {
-	char buf[128];
-
-	trap->Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
-	return (float)atof(buf);
+float G_Cvar_VariableValue( const char *name ) {
+	char buf[MAX_CVAR_VALUE_STRING];
+	trap->Cvar_VariableStringBuffer( name, buf, sizeof( buf ) );
+	return (float)atof( buf );
 }
 
 
@@ -341,7 +340,7 @@ void G_AddRandomBot( int team ) {
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "name" );
 		//
-		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
+		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
@@ -356,7 +355,7 @@ void G_AddRandomBot( int team ) {
 				break;
 			}
 		}
-		if (i >= sv_maxclients.integer) {
+		if (i >= sv_maxclients->integer) {
 			num++;
 		}
 	}
@@ -364,7 +363,7 @@ void G_AddRandomBot( int team ) {
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "name" );
 		//
-		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
+		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
@@ -379,7 +378,7 @@ void G_AddRandomBot( int team ) {
 				break;
 			}
 		}
-		if (i >= sv_maxclients.integer) {
+		if (i >= sv_maxclients->integer) {
 			num--;
 			if (num <= 0) {
 				if (team == TEAM_RED) teamstr = "red";
@@ -388,7 +387,7 @@ void G_AddRandomBot( int team ) {
 				strncpy(netname, value, sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
 				Q_CleanStr(netname);
-				trap->Cbuf_ExecuteText( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, g_difficulty.value, teamstr, 0) );
+				trap->Cbuf_ExecuteText( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, g_difficulty->value, teamstr, 0) );
 				return;
 			}
 		}
@@ -404,7 +403,7 @@ int G_RemoveRandomBot( int team ) {
 	int i;
 	gclient_t	*cl;
 
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -431,7 +430,7 @@ int G_CountHumanPlayers( int team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -457,7 +456,7 @@ int G_CountBotPlayers( int team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -498,13 +497,12 @@ void G_CheckMinimumPlayers( void ) {
 		return;
 	}
 	checkminimumplayers_time = level.time;
-	trap->Cvar_Update(&bot_minplayers);
-	minplayers = bot_minplayers.integer;
+	minplayers = bot_minplayers->integer;
 	if (minplayers <= 0) return;
 
 	if (level.gametype >= GT_TEAM) {
-		if (minplayers >= sv_maxclients.integer / 2) {
-			minplayers = (sv_maxclients.integer / 2) -1;
+		if (minplayers >= sv_maxclients->integer / 2) {
+			minplayers = (sv_maxclients->integer / 2) -1;
 		}
 
 		humanplayers = G_CountHumanPlayers( TEAM_RED );
@@ -526,8 +524,8 @@ void G_CheckMinimumPlayers( void ) {
 		}
 	}
 	else if (level.gametype == GT_DUEL ) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
+		if (minplayers >= sv_maxclients->integer) {
+			minplayers = sv_maxclients->integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( -1 );
 		botplayers = G_CountBotPlayers( -1 );
@@ -543,8 +541,8 @@ void G_CheckMinimumPlayers( void ) {
 		}
 	}
 	else if (level.gametype == GT_DEATHMATCH) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
+		if (minplayers >= sv_maxclients->integer) {
+			minplayers = sv_maxclients->integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( TEAM_FREE );
 		botplayers = G_CountBotPlayers( TEAM_FREE );
@@ -954,7 +952,7 @@ G_LoadBots
 ===============
 */
 static void G_LoadBots( void ) {
-	vmCvar_t	botsFile;
+	cvar_t	*botsFile;
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[1024];
@@ -968,9 +966,9 @@ static void G_LoadBots( void ) {
 
 	g_numBots = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL );
-	if( *botsFile.string ) {
-		G_LoadBotsFromFile(botsFile.string);
+	botsFile = trap->Cvar_Get( "g_botsFile", "", CVAR_INIT|CVAR_ROM, NULL, NULL );
+	if( botsFile->string[0] ) {
+		G_LoadBotsFromFile(botsFile->string);
 	}
 	else {
 		G_LoadBotsFromFile("scripts/bots.txt");
@@ -1032,5 +1030,5 @@ void G_InitBots( void ) {
 	G_LoadBots();
 	G_LoadArenas();
 
-	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO, NULL );
+	bot_minplayers = trap->Cvar_Get( "bot_minplayers", "0", CVAR_SERVERINFO, NULL, NULL );
 }

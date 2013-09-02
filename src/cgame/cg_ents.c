@@ -236,7 +236,7 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	item = &bg_itemlist[ es->modelindex ];
-	if ( cg_simpleItems.boolean && item->giType != IT_TEAM ) {
+	if ( cg_simpleItems->boolean && item->giType != IT_TEAM ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
 		VectorCopy( &cent->lerpOrigin, &ent.origin );
@@ -345,7 +345,7 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	// accompanying rings / spheres for powerups
-	if ( !cg_simpleItems.boolean ) 
+	if ( !cg_simpleItems->boolean ) 
 	{
 		vector3 spinAngles;
 
@@ -641,7 +641,7 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions( centity_t *cent )
 {
-	if ( !cg_smoothClients.boolean )
+	if ( !cg_smoothClients->boolean )
 	{// if this player does not want to see extrapolated players, make sure the clients use TR_INTERPOLATE
 		if ( cent->currentState.number < MAX_CLIENTS ) {
 			cent->currentState.pos.trType = TR_INTERPOLATE;

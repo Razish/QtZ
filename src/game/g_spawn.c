@@ -420,7 +420,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 #if 0
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
 		if( level.gametype >= 0 && level.gametype < GT_MAX_GAME_TYPE ) {
-			gametypeName = gametypeNames[sv_gametype.integer];
+			gametypeName = gametypeNames[sv_gametype->integer];
 
 			s = strstr( value, gametypeName );
 			if( !s ) {
@@ -550,7 +550,7 @@ void SP_worldspawn( void ) {
 	G_SpawnString( "message", "", &s );
 	trap->SV_SetConfigstring( CS_MESSAGE, s );				// map specific message
 
-	trap->SV_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
+	trap->SV_SetConfigstring( CS_MOTD, g_motd->string );		// message of the day
 
 	G_SpawnString( "gravity", "1100", &s );
 	trap->Cvar_Set( "pm_gravity", s );
@@ -571,10 +571,10 @@ void SP_worldspawn( void ) {
 
 	// see if we want a warmup time
 	trap->SV_SetConfigstring( CS_WARMUP, "" );
-	if ( g_restarted.integer ) {
+	if ( g_restarted->integer ) {
 		trap->Cvar_Set( "g_restarted", "0" );
 		level.warmupTime = 0;
-	} else if ( g_doWarmup.integer ) { // Turn it on
+	} else if ( g_doWarmup->integer ) { // Turn it on
 		level.warmupTime = -1;
 		trap->SV_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
