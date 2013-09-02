@@ -776,11 +776,6 @@ void	Cmd_ExecuteString( const char *text ) {
 		return;
 	}
 
-	// check client game commands
-	if ( com_cl_running && com_cl_running->integer && CL_GameCommand() ) {
-		return;
-	}
-
 	// check server game commands
 	if ( com_sv_running && com_sv_running->integer && sve.GameCommand() ) {
 		return;

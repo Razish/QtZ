@@ -1619,7 +1619,6 @@ Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *impor
 
 	cge.Init			= CG_Init;
 	cge.Shutdown		= CG_Shutdown;
-	cge.ConsoleCommand	= CG_ConsoleCommand;
 	cge.DrawActiveFrame	= CG_DrawActiveFrame;
 	cge.CrosshairPlayer	= CG_CrosshairPlayer;
 	cge.LastAttacker	= CG_LastAttacker;

@@ -542,23 +542,6 @@ void CL_InitCGame( void ) {
 	Con_ClearNotify();
 }
 
-
-/*
-====================
-CL_GameCommand
-
-See if the current console command is claimed by the cgame
-====================
-*/
-qboolean CL_GameCommand( void ) {
-	if ( !cls.cgameStarted )
-		return qfalse;
-
-	return cgame->ConsoleCommand();
-}
-
-
-
 /*
 =====================
 CL_CGameRendering

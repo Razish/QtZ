@@ -364,32 +364,6 @@ static consoleCommand_t	commands[] = {
 	{ "loaddeferred", CG_LoadDeferredPlayers }	
 };
 
-
-/*
-=================
-CG_ConsoleCommand
-
-A console command has been issued locally that is not recognized by the main game system.
-Use Cmd_Argc() / Cmd_Argv() to read the command, return qfalse if the command is not known to the game
-=================
-*/
-qboolean CG_ConsoleCommand( void ) {
-	const char	*cmd;
-	int		i;
-
-	cmd = CG_Argv(0);
-
-	for ( i = 0 ; i < ARRAY_LEN( commands ) ; i++ ) {
-		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
-			commands[i].function();
-			return qtrue;
-		}
-	}
-
-	return qfalse;
-}
-
-
 /*
 =================
 CG_InitConsoleCommands
@@ -399,10 +373,10 @@ so it can perform tab completion
 =================
 */
 void CG_InitConsoleCommands( void ) {
-	int		i;
+	int i;
 
 	for ( i=0; i<ARRAY_LEN( commands ); i++ )
-		trap->AddCommand( commands[i].cmd, NULL, NULL );
+		trap->AddCommand( commands[i].cmd, commands[i].function, NULL );
 
 	//
 	// the game server will interpret these commands, which will be automatically

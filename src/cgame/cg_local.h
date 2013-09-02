@@ -1299,7 +1299,6 @@ void CG_DrawOldTourneyScoreboard( void );
 //
 // cg_consolecmds.c
 //
-qboolean CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 
 //

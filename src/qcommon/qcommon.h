@@ -869,7 +869,6 @@ void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu, const char *reason );
 void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
-qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
 
 void CL_CharEvent( int key );
