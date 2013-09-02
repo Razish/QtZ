@@ -52,7 +52,7 @@ typedef struct serverImport_s {
 	void			(*CM_TransformedBoxTrace)			( trace_t *results, const vector3 *start, const vector3 *end, vector3 *mins, vector3 *maxs, clipHandle_t model, int brushmask, const vector3 *origin, const vector3 *angles, int capsule );
 	int				(*CM_TransformedPointContents)		( const vector3 *p, clipHandle_t model, const vector3 *origin, const vector3 *angles );
 	int				(*CM_WriteAreaBits)					( byte *buffer, int area );
-	void			(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function );
+	void			(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function, completionFunc_t complete );
 	int				(*Cmd_Argc)							( void );
 	char *			(*Cmd_Args)							( void );
 	char *			(*Cmd_ArgsFrom)						( int arg );
@@ -61,7 +61,6 @@ typedef struct serverImport_s {
 	void			(*Cmd_ArgvBuffer)					( int arg, char *buffer, int bufferLength );
 	char *			(*Cmd_Cmd)							( void );
 	void			(*Cmd_ExecuteString)				( const char *text );
-	void			(*Cmd_SetCommandCompletionFunc)		( const char *command, completionFunc_t complete );
 	void			(*Cmd_TokenizeString)				( const char *text );
 	void			(*Cmd_TokenizeStringIgnoreQuotes)	( const char *text_in );
 	void			(*Com_BeginRedirect)				( char *buffer, int buffersize, void (*flush)(char *) );

@@ -635,40 +635,24 @@ cmd_function_t *Cmd_FindCommand( const char *cmd_name )
 Cmd_AddCommand
 ============
 */
-void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
+void Cmd_AddCommand( const char *cmd_name, xcommand_t function, completionFunc_t complete ) {
 	cmd_function_t	*cmd;
 	
 	// fail if the command already exists
-	if( Cmd_FindCommand( cmd_name ) )
-	{
+	if ( Cmd_FindCommand( cmd_name ) ) {
 		// allow completion-only commands to be silently doubled
-		if( function != NULL )
+		if ( function != NULL )
 			Com_Printf( "Cmd_AddCommand: %s already defined\n", cmd_name );
 		return;
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = S_Malloc (sizeof(cmd_function_t));
+	cmd = (cmd_function_t *)S_Malloc( sizeof( *cmd ) );
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
-	cmd->complete = NULL;
+	cmd->complete = complete;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
-}
-
-/*
-============
-Cmd_SetCommandCompletionFunc
-============
-*/
-void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete ) {
-	cmd_function_t	*cmd;
-
-	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
-		if( !Q_stricmp( command, cmd->name ) ) {
-			cmd->complete = complete;
-		}
-	}
 }
 
 /*
@@ -854,15 +838,12 @@ void Cmd_CompleteCfgName( char *args, int argNum ) {
 Cmd_Init
 ============
 */
-void Cmd_Init (void) {
-	Cmd_AddCommand ("cmdlist",Cmd_List_f);
-	Cmd_AddCommand ("exec",Cmd_Exec_f);
-	Cmd_AddCommand ("execq",Cmd_Exec_f);
-	Cmd_SetCommandCompletionFunc( "exec", Cmd_CompleteCfgName );
-	Cmd_SetCommandCompletionFunc( "execq", Cmd_CompleteCfgName );
-	Cmd_AddCommand ("vstr",Cmd_Vstr_f);
-	Cmd_SetCommandCompletionFunc( "vstr", Cvar_CompleteCvarName );
-	Cmd_AddCommand ("echo",Cmd_Echo_f);
-	Cmd_AddCommand ("wait", Cmd_Wait_f);
+void Cmd_Init( void ) {
+	Cmd_AddCommand( "cmdlist", Cmd_List_f, NULL );
+	Cmd_AddCommand( "exec", Cmd_Exec_f, Cmd_CompleteCfgName );
+	Cmd_AddCommand( "execq", Cmd_Exec_f, Cmd_CompleteCfgName );
+	Cmd_AddCommand( "vstr", Cmd_Vstr_f, Cvar_CompleteCvarName );
+	Cmd_AddCommand( "echo", Cmd_Echo_f, NULL );
+	Cmd_AddCommand( "wait", Cmd_Wait_f, NULL );
 }
 

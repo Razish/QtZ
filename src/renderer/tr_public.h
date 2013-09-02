@@ -151,7 +151,7 @@ typedef struct {
 
 	int		(*Cvar_VariableIntegerValue) (const char *name);
 
-	void	(*Cmd_AddCommand)( const char *name, void(*cmd)(void) );
+	void	(*Cmd_AddCommand)( const char *name, xcommand_t cmd, completionFunc_t complete );
 	void	(*Cmd_RemoveCommand)( const char *name );
 
 	int		(*Cmd_Argc) (void);

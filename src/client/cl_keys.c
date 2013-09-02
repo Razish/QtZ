@@ -1175,12 +1175,10 @@ CL_InitKeyCommands
 */
 void CL_InitKeyCommands( void ) {
 	// register our functions
-	Cmd_AddCommand ("bind",Key_Bind_f);
-	Cmd_SetCommandCompletionFunc( "bind", Key_CompleteBind );
-	Cmd_AddCommand ("unbind",Key_Unbind_f);
-	Cmd_SetCommandCompletionFunc( "unbind", Key_CompleteUnbind );
-	Cmd_AddCommand ("unbindall",Key_Unbindall_f);
-	Cmd_AddCommand ("bindlist",Key_Bindlist_f);
+	Cmd_AddCommand( "bind", Key_Bind_f, Key_CompleteBind );
+	Cmd_AddCommand( "unbind", Key_Unbind_f, Key_CompleteUnbind );
+	Cmd_AddCommand( "unbindall", Key_Unbindall_f, NULL );
+	Cmd_AddCommand( "bindlist", Key_Bindlist_f, NULL );
 }
 
 /*

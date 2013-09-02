@@ -873,16 +873,16 @@ void IN_VoipRecordUp( void )	{ IN_KeyUp( &in_voiprecord ); Cvar_Set( "cl_voipSen
 	static QINLINE void IN_ButtonDown##x ( void ) { IN_KeyDown( &in_buttons[x] ); } \
 	static QINLINE void IN_ButtonUp##x ( void ) { IN_KeyUp( &in_buttons[x] ); }
 
-INBUTTON_LIST( 0 )
-INBUTTON_LIST( 1 )
-INBUTTON_LIST( 2 )
-INBUTTON_LIST( 3 )
-INBUTTON_LIST( 4 )
-INBUTTON_LIST( 5 )
-INBUTTON_LIST( 6 )
-INBUTTON_LIST( 7 )
-INBUTTON_LIST( 8 )
-INBUTTON_LIST( 9 )
+INBUTTON_LIST(  0 )
+INBUTTON_LIST(  1 )
+INBUTTON_LIST(  2 )
+INBUTTON_LIST(  3 )
+INBUTTON_LIST(  4 )
+INBUTTON_LIST(  5 )
+INBUTTON_LIST(  6 )
+INBUTTON_LIST(  7 )
+INBUTTON_LIST(  8 )
+INBUTTON_LIST(  9 )
 INBUTTON_LIST( 10 )
 INBUTTON_LIST( 11 )
 INBUTTON_LIST( 12 )
@@ -890,10 +890,11 @@ INBUTTON_LIST( 13 )
 INBUTTON_LIST( 14 )
 INBUTTON_LIST( 15 )
 
-#define AddButton( name, down, up ) { Cmd_AddCommand( "+"name, down ); Cmd_AddCommand( "-"name, up ); }
+#define AddButton( name, down, up ) { Cmd_AddCommand( "+"name, down, NULL ); Cmd_AddCommand( "-"name, up, NULL ); }
+#define RemoveButton( name ) { Cmd_RemoveCommand( "+"name ); Cmd_RemoveCommand( "-"name ); }
 
 void CL_InitInput( void ) {
-	Cmd_AddCommand( "centerview",	IN_CenterView );
+	Cmd_AddCommand( "centerview", IN_CenterView, NULL );
 
 	// vertical movement
 	AddButton( "moveup",	IN_UpDown, IN_UpUp );
@@ -941,7 +942,7 @@ void CL_InitInput( void ) {
 	AddButton( "button14",	IN_ButtonDown14, IN_ButtonUp14 );
 
 	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0, "Disable delta encoding of network packets", NULL );
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0, "Show graph for mouse movement", NULL );
+	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0, "Show graph for mouse movement", NULL );
 }
 
 /*
@@ -951,69 +952,39 @@ CL_ShutdownInput
 */
 void CL_ShutdownInput(void)
 {
-	Cmd_RemoveCommand("centerview");
+	Cmd_RemoveCommand( "centerview" );
 
-	Cmd_RemoveCommand("+moveup");
-	Cmd_RemoveCommand("-moveup");
-	Cmd_RemoveCommand("+movedown");
-	Cmd_RemoveCommand("-movedown");
-	Cmd_RemoveCommand("+left");
-	Cmd_RemoveCommand("-left");
-	Cmd_RemoveCommand("+right");
-	Cmd_RemoveCommand("-right");
-	Cmd_RemoveCommand("+forward");
-	Cmd_RemoveCommand("-forward");
-	Cmd_RemoveCommand("+back");
-	Cmd_RemoveCommand("-back");
-	Cmd_RemoveCommand("+lookup");
-	Cmd_RemoveCommand("-lookup");
-	Cmd_RemoveCommand("+lookdown");
-	Cmd_RemoveCommand("-lookdown");
-	Cmd_RemoveCommand("+strafe");
-	Cmd_RemoveCommand("-strafe");
-	Cmd_RemoveCommand("+moveleft");
-	Cmd_RemoveCommand("-moveleft");
-	Cmd_RemoveCommand("+moveright");
-	Cmd_RemoveCommand("-moveright");
-	Cmd_RemoveCommand("+speed");
-	Cmd_RemoveCommand("-speed");
-	Cmd_RemoveCommand("+attack");
-	Cmd_RemoveCommand("-attack");
-	Cmd_RemoveCommand("+button0");
-	Cmd_RemoveCommand("-button0");
-	Cmd_RemoveCommand("+button1");
-	Cmd_RemoveCommand("-button1");
-	Cmd_RemoveCommand("+button2");
-	Cmd_RemoveCommand("-button2");
-	Cmd_RemoveCommand("+button3");
-	Cmd_RemoveCommand("-button3");
-	Cmd_RemoveCommand("+button4");
-	Cmd_RemoveCommand("-button4");
-	Cmd_RemoveCommand("+button5");
-	Cmd_RemoveCommand("-button5");
-	Cmd_RemoveCommand("+button6");
-	Cmd_RemoveCommand("-button6");
-	Cmd_RemoveCommand("+button7");
-	Cmd_RemoveCommand("-button7");
-	Cmd_RemoveCommand("+button8");
-	Cmd_RemoveCommand("-button8");
-	Cmd_RemoveCommand("+button9");
-	Cmd_RemoveCommand("-button9");
-	Cmd_RemoveCommand("+button10");
-	Cmd_RemoveCommand("-button10");
-	Cmd_RemoveCommand("+button11");
-	Cmd_RemoveCommand("-button11");
-	Cmd_RemoveCommand("+button12");
-	Cmd_RemoveCommand("-button12");
-	Cmd_RemoveCommand("+button13");
-	Cmd_RemoveCommand("-button13");
-	Cmd_RemoveCommand("+button14");
-	Cmd_RemoveCommand("-button14");
-	Cmd_RemoveCommand("+mlook");
-	Cmd_RemoveCommand("-mlook");
+	RemoveButton( "+moveup" );
+	RemoveButton( "+movedown" );
+	RemoveButton( "+left" );
+	RemoveButton( "+right" );
+	RemoveButton( "+forward" );
+	RemoveButton( "+back" );
+	RemoveButton( "+lookup" );
+	RemoveButton( "+lookdown" );
+	RemoveButton( "+strafe" );
+	RemoveButton( "+lookleft" );
+	RemoveButton( "+lookright" );
+	RemoveButton( "+speed" );
+	RemoveButton( "+attack" );
+	RemoveButton( "+button0" );
+	RemoveButton( "+button1" );
+	RemoveButton( "+button2" );
+	RemoveButton( "+button3" );
+	RemoveButton( "+button4" );
+	RemoveButton( "+button5" );
+	RemoveButton( "+button6" );
+	RemoveButton( "+button7" );
+	RemoveButton( "+button8" );
+	RemoveButton( "+button9" );
+	RemoveButton( "+button10" );
+	RemoveButton( "+button11" );
+	RemoveButton( "+button12" );
+	RemoveButton( "+button13" );
+	RemoveButton( "+button14" );
+	RemoveButton( "+mlook" );
 
 #ifdef USE_VOIP
-	Cmd_RemoveCommand("+voiprecord");
-	Cmd_RemoveCommand("-voiprecord");
+	RemoveButton( "voiprecord" );
 #endif
 }

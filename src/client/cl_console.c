@@ -328,14 +328,13 @@ void Con_Init (void) {
 	}
 	CL_LoadConsoleHistory( );
 
-	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
-	Cmd_AddCommand ("messagemode", Con_MessageMode_f);
-	Cmd_AddCommand ("messagemode2", Con_MessageMode2_f);
-	Cmd_AddCommand ("messagemode3", Con_MessageMode3_f);
-	Cmd_AddCommand ("messagemode4", Con_MessageMode4_f);
-	Cmd_AddCommand ("clear", Con_Clear_f);
-	Cmd_AddCommand ("condump", Con_Dump_f);
-	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
+	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f, NULL );
+	Cmd_AddCommand( "messagemode", Con_MessageMode_f, NULL );
+	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f, NULL );
+	Cmd_AddCommand( "messagemode3", Con_MessageMode3_f, NULL );
+	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f, NULL );
+	Cmd_AddCommand( "clear", Con_Clear_f, NULL );
+	Cmd_AddCommand( "condump", Con_Dump_f, Cmd_CompleteTxtName );
 }
 
 /*
@@ -345,13 +344,13 @@ Con_Shutdown
 */
 void Con_Shutdown(void)
 {
-	Cmd_RemoveCommand("toggleconsole");
-	Cmd_RemoveCommand("messagemode");
-	Cmd_RemoveCommand("messagemode2");
-	Cmd_RemoveCommand("messagemode3");
-	Cmd_RemoveCommand("messagemode4");
-	Cmd_RemoveCommand("clear");
-	Cmd_RemoveCommand("condump");
+	Cmd_RemoveCommand( "toggleconsole" );
+	Cmd_RemoveCommand( "messagemode" );
+	Cmd_RemoveCommand( "messagemode2" );
+	Cmd_RemoveCommand( "messagemode3" );
+	Cmd_RemoveCommand( "messagemode4" );
+	Cmd_RemoveCommand( "clear" );
+	Cmd_RemoveCommand( "condump" );
 }
 
 /*

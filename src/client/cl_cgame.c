@@ -185,25 +185,6 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 
 /*
 =====================
-CL_AddCgameCommand
-=====================
-*/
-void CL_AddCgameCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
-}
-
-/*
-=====================
-CL_CgameError
-=====================
-*/
-void CL_CgameError( const char *string ) {
-	Com_Error( ERR_DROP, "%s", string );
-}
-
-
-/*
-=====================
 CL_ConfigstringModified
 =====================
 */
@@ -732,7 +713,7 @@ void CL_FirstSnapshot( void ) {
 		}
 		clc.speexInitialized = qtrue;
 		clc.voipMuteAll = qfalse;
-		Cmd_AddCommand ("voip", CL_Voip_f);
+		Cmd_AddCommand ("voip", CL_Voip_f, NULL);
 		Cvar_Set("cl_voipSendTarget", "spatial");
 		memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
 	}

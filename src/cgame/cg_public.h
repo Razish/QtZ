@@ -85,7 +85,7 @@ typedef struct cgameImport_s {
 	void			(*Cmd_Argv)						( int arg, char *buffer, int bufferLength );
 	void			(*Cmd_Args)						( char *buffer, int bufferLength );
 	void			(*SendConsoleCommand)			( const char *text );
-	void			(*AddCommand)					( const char *cmd_name, void (*function)(void) );
+	void			(*AddCommand)					( const char *cmd_name, void (*cmd)( void ), void (*complete)( char *args, int argNum ) );
 	void			(*RemoveCommand)				( const char *cmd_name );
 	void			(*SendClientCommand)			( const char *cmd );
 

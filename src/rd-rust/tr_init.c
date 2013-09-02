@@ -894,16 +894,16 @@ void R_Register( void )
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
-	ri->Cmd_AddCommand( "imagelist", R_ImageList_f );
-	ri->Cmd_AddCommand( "shaderlist", R_ShaderList_f );
-	ri->Cmd_AddCommand( "skinlist", R_SkinList_f );
-	ri->Cmd_AddCommand( "modellist", R_Modellist_f );
-	ri->Cmd_AddCommand( "screenshot", R_ScreenShotJPEG_f );
-	ri->Cmd_AddCommand( "screenshot_png", R_ScreenShotPNG_f );
-	ri->Cmd_AddCommand( "screenshot_tga", R_ScreenShotTGA_f );
-	ri->Cmd_AddCommand( "gfxinfo", GfxInfo_f );
-	ri->Cmd_AddCommand( "minimize", GLimp_Minimize );
-	ri->Cmd_AddCommand( "postprocess_reload", R_PostProcessReload_f );
+	ri->Cmd_AddCommand( "imagelist", R_ImageList_f, NULL );
+	ri->Cmd_AddCommand( "shaderlist", R_ShaderList_f, NULL );
+	ri->Cmd_AddCommand( "skinlist", R_SkinList_f, NULL );
+	ri->Cmd_AddCommand( "modellist", R_Modellist_f, NULL );
+	ri->Cmd_AddCommand( "screenshot", R_ScreenShotJPEG_f, NULL );
+	ri->Cmd_AddCommand( "screenshot_png", R_ScreenShotPNG_f, NULL );
+	ri->Cmd_AddCommand( "screenshot_tga", R_ScreenShotTGA_f, NULL );
+	ri->Cmd_AddCommand( "gfxinfo", GfxInfo_f, NULL );
+	ri->Cmd_AddCommand( "minimize", GLimp_Minimize, NULL );
+	ri->Cmd_AddCommand( "postprocess_reload", R_PostProcessReload_f, NULL );
 }
 
 /*

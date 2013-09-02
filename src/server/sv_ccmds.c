@@ -1281,40 +1281,36 @@ void SV_AddOperatorCommands( void ) {
 	}
 	initialized = qtrue;
 
-	svi.Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
-	svi.Cmd_AddCommand ("kick", SV_Kick_f);
-	svi.Cmd_AddCommand ("kickbots", SV_KickBots_f);
-	svi.Cmd_AddCommand ("kickall", SV_KickAll_f);
-	svi.Cmd_AddCommand ("kicknum", SV_KickNum_f);
-	svi.Cmd_AddCommand ("clientkick", SV_KickNum_f); // Legacy command
-	svi.Cmd_AddCommand ("status", SV_Status_f);
-	svi.Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
-	svi.Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
-	svi.Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
-	svi.Cmd_AddCommand ("map_restart", SV_MapRestart_f);
-	svi.Cmd_AddCommand ("sectorlist", SV_SectorList_f);
-	svi.Cmd_AddCommand ("map", SV_Map_f);
-	svi.Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
-	svi.Cmd_AddCommand ("devmap", SV_Map_f);
-	svi.Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
-	svi.Cmd_AddCommand ("spmap", SV_Map_f);
-	svi.Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
-	svi.Cmd_AddCommand ("spdevmap", SV_Map_f);
-	svi.Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
+	svi.Cmd_AddCommand( "heartbeat", SV_Heartbeat_f, NULL );
+	svi.Cmd_AddCommand( "kick", SV_Kick_f, NULL );
+	svi.Cmd_AddCommand( "kickbots", SV_KickBots_f, NULL );
+	svi.Cmd_AddCommand( "kickall", SV_KickAll_f, NULL );
+	svi.Cmd_AddCommand( "kicknum", SV_KickNum_f, NULL );
+	svi.Cmd_AddCommand( "clientkick", SV_KickNum_f, NULL ); // Legacy command
+	svi.Cmd_AddCommand( "status", SV_Status_f, NULL );
+	svi.Cmd_AddCommand( "serverinfo", SV_Serverinfo_f, NULL );
+	svi.Cmd_AddCommand( "systeminfo", SV_Systeminfo_f, NULL );
+	svi.Cmd_AddCommand( "dumpuser", SV_DumpUser_f, NULL );
+	svi.Cmd_AddCommand( "map_restart", SV_MapRestart_f, NULL );
+	svi.Cmd_AddCommand( "sectorlist", SV_SectorList_f, NULL );
+	svi.Cmd_AddCommand( "map", SV_Map_f, SV_CompleteMapName );
+	svi.Cmd_AddCommand( "devmap", SV_Map_f, SV_CompleteMapName );
+	svi.Cmd_AddCommand( "spmap", SV_Map_f, SV_CompleteMapName );
+	svi.Cmd_AddCommand( "spdevmap", SV_Map_f, SV_CompleteMapName );
 
-	svi.Cmd_AddCommand ("killserver", SV_KillServer_f);
-	if( com_dedicated->integer ) {
-		svi.Cmd_AddCommand ("say", SV_ConSay_f);
-		svi.Cmd_AddCommand ("tell", SV_ConTell_f);
+	svi.Cmd_AddCommand( "killserver", SV_KillServer_f, NULL );
+	if ( com_dedicated->integer ) {
+		svi.Cmd_AddCommand( "say", SV_ConSay_f, NULL );
+		svi.Cmd_AddCommand( "tell", SV_ConTell_f, NULL );
 	}
 	
-	svi.Cmd_AddCommand("rehashbans", SV_RehashBans_f);
-	svi.Cmd_AddCommand("listbans", SV_ListBans_f);
-	svi.Cmd_AddCommand("banaddr", SV_BanAddr_f);
-	svi.Cmd_AddCommand("exceptaddr", SV_ExceptAddr_f);
-	svi.Cmd_AddCommand("bandel", SV_BanDel_f);
-	svi.Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
-	svi.Cmd_AddCommand("flushbans", SV_FlushBans_f);
+	svi.Cmd_AddCommand( "rehashbans", SV_RehashBans_f, NULL );
+	svi.Cmd_AddCommand( "listbans", SV_ListBans_f, NULL );
+	svi.Cmd_AddCommand( "banaddr", SV_BanAddr_f, NULL );
+	svi.Cmd_AddCommand( "exceptaddr", SV_ExceptAddr_f, NULL );
+	svi.Cmd_AddCommand( "bandel", SV_BanDel_f, NULL );
+	svi.Cmd_AddCommand( "exceptdel", SV_ExceptDel_f, NULL );
+	svi.Cmd_AddCommand( "flushbans", SV_FlushBans_f, NULL );
 }
 
 /*
@@ -1325,21 +1321,21 @@ SV_RemoveOperatorCommands
 void SV_RemoveOperatorCommands( void ) {
 #if 0
 	// removing these won't let the server start again
-	svi.Cmd_RemoveCommand ("heartbeat");
-	svi.Cmd_RemoveCommand ("kick");
-	svi.Cmd_RemoveCommand ("kicknum");
-	svi.Cmd_RemoveCommand ("clientkick");
-	svi.Cmd_RemoveCommand ("kickall");
-	svi.Cmd_RemoveCommand ("kickbots");
-	svi.Cmd_RemoveCommand ("banUser");
-	svi.Cmd_RemoveCommand ("banClient");
-	svi.Cmd_RemoveCommand ("status");
-	svi.Cmd_RemoveCommand ("serverinfo");
-	svi.Cmd_RemoveCommand ("systeminfo");
-	svi.Cmd_RemoveCommand ("dumpuser");
-	svi.Cmd_RemoveCommand ("map_restart");
-	svi.Cmd_RemoveCommand ("sectorlist");
-	svi.Cmd_RemoveCommand ("say");
+	svi.Cmd_RemoveCommand( "heartbeat" );
+	svi.Cmd_RemoveCommand( "kick" );
+	svi.Cmd_RemoveCommand( "kicknum" );
+	svi.Cmd_RemoveCommand( "clientkick" );
+	svi.Cmd_RemoveCommand( "kickall" );
+	svi.Cmd_RemoveCommand( "kickbots" );
+	svi.Cmd_RemoveCommand( "banUser" );
+	svi.Cmd_RemoveCommand( "banClient" );
+	svi.Cmd_RemoveCommand( "status" );
+	svi.Cmd_RemoveCommand( "serverinfo" );
+	svi.Cmd_RemoveCommand( "systeminfo" );
+	svi.Cmd_RemoveCommand( "dumpuser" );
+	svi.Cmd_RemoveCommand( "map_restart" );
+	svi.Cmd_RemoveCommand( "sectorlist" );
+	svi.Cmd_RemoveCommand( "say" );
 #endif
 }
 

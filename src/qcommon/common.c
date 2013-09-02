@@ -1544,13 +1544,13 @@ void Com_InitHunkMemory( void ) {
 	s_hunkData = (byte *) ( ( (intptr_t)s_hunkData + 31 ) & ~31 );
 	Hunk_Clear();
 
-	Cmd_AddCommand( "meminfo", Com_Meminfo_f );
+	Cmd_AddCommand( "meminfo", Com_Meminfo_f, NULL );
 #ifdef ZONE_DEBUG
-	Cmd_AddCommand( "zonelog", Z_LogHeap );
+	Cmd_AddCommand( "zonelog", Z_LogHeap, NULL );
 #endif
 #ifdef HUNK_DEBUG
-	Cmd_AddCommand( "hunklog", Hunk_Log );
-	Cmd_AddCommand( "hunksmalllog", Hunk_SmallLog );
+	Cmd_AddCommand( "hunklog", Hunk_Log, NULL );
+	Cmd_AddCommand( "hunksmalllog", Hunk_SmallLog, NULL );
 #endif
 }
 
@@ -2533,7 +2533,6 @@ static void SV_Init( void ) {
 	svi.Cmd_ArgvBuffer					= Cmd_ArgvBuffer;
 	svi.Cmd_Cmd							= Cmd_Cmd;
 	svi.Cmd_ExecuteString				= Cmd_ExecuteString;
-	svi.Cmd_SetCommandCompletionFunc	= Cmd_SetCommandCompletionFunc;
 	svi.Cmd_TokenizeString				= Cmd_TokenizeString;
 	svi.Cmd_TokenizeStringIgnoreQuotes	= Cmd_TokenizeStringIgnoreQuotes;
 	svi.Com_BeginRedirect				= Com_BeginRedirect;
@@ -2717,18 +2716,17 @@ void Com_Init( char *commandLine ) {
 	Com_InitJournaling();
 
 	// Add some commands here already so users can use them from config files
-	Cmd_AddCommand ("setenv", Com_Setenv_f);
+	Cmd_AddCommand( "setenv", Com_Setenv_f, NULL );
 	if (com_developer && com_developer->integer)
 	{
-		Cmd_AddCommand ("error", Com_Error_f);
-		Cmd_AddCommand ("crash", Com_Crash_f);
-		Cmd_AddCommand ("freeze", Com_Freeze_f);
+		Cmd_AddCommand( "error", Com_Error_f, NULL );
+		Cmd_AddCommand( "crash", Com_Crash_f, NULL );
+		Cmd_AddCommand( "freeze", Com_Freeze_f, NULL );
 	}
-	Cmd_AddCommand ("quit", Com_Quit_f);
-	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
-	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
-	Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
-	Cmd_AddCommand("game_restart", Com_GameRestart_f);
+	Cmd_AddCommand( "quit", Com_Quit_f, NULL );
+	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f, NULL );
+	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f, Cmd_CompleteCfgName );
+	Cmd_AddCommand( "game_restart", Com_GameRestart_f, NULL );
 
 	Com_ExecuteCfg();
 

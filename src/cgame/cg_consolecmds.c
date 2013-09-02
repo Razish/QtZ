@@ -402,39 +402,39 @@ void CG_InitConsoleCommands( void ) {
 	int		i;
 
 	for ( i=0; i<ARRAY_LEN( commands ); i++ )
-		trap->AddCommand( commands[i].cmd, NULL );
+		trap->AddCommand( commands[i].cmd, NULL, NULL );
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	trap->AddCommand( "kill", NULL );
-	trap->AddCommand( "say", NULL );
-	trap->AddCommand( "say_team", NULL );
-	trap->AddCommand( "tell", NULL );
-	trap->AddCommand( "vsay", NULL );
-	trap->AddCommand( "vsay_team", NULL );
-	trap->AddCommand( "vtell", NULL );
-	trap->AddCommand( "vtaunt", NULL );
-	trap->AddCommand( "vosay", NULL );
-	trap->AddCommand( "vosay_team", NULL );
-	trap->AddCommand( "votell", NULL );
-	trap->AddCommand( "give", NULL );
-	trap->AddCommand( "god", NULL );
-	trap->AddCommand( "notarget", NULL );
-	trap->AddCommand( "noclip", NULL );
-	trap->AddCommand( "where", NULL );
-	trap->AddCommand( "team", NULL );
-	trap->AddCommand( "follow", NULL );
-	trap->AddCommand( "follownext", NULL );
-	trap->AddCommand( "followprev", NULL );
-	trap->AddCommand( "addbot", NULL );
-	trap->AddCommand( "setviewpos", NULL );
-	trap->AddCommand( "callvote", NULL );
-	trap->AddCommand( "vote", NULL );
-	trap->AddCommand( "callteamvote", NULL );
-	trap->AddCommand( "teamvote", NULL );
-	trap->AddCommand( "stats", NULL );
-	trap->AddCommand( "teamtask", NULL );
-	trap->AddCommand( "loaddefered", NULL );	// spelled wrong, but not changing for demo
+	trap->AddCommand( "kill", NULL, NULL );
+	trap->AddCommand( "say", NULL, NULL );
+	trap->AddCommand( "say_team", NULL, NULL );
+	trap->AddCommand( "tell", NULL, NULL );
+	trap->AddCommand( "vsay", NULL, NULL );
+	trap->AddCommand( "vsay_team", NULL, NULL );
+	trap->AddCommand( "vtell", NULL, NULL );
+	trap->AddCommand( "vtaunt", NULL, NULL );
+	trap->AddCommand( "vosay", NULL, NULL );
+	trap->AddCommand( "vosay_team", NULL, NULL );
+	trap->AddCommand( "votell", NULL, NULL );
+	trap->AddCommand( "give", NULL, NULL );
+	trap->AddCommand( "god", NULL, NULL );
+	trap->AddCommand( "notarget", NULL, NULL );
+	trap->AddCommand( "noclip", NULL, NULL );
+	trap->AddCommand( "where", NULL, NULL );
+	trap->AddCommand( "team", NULL, NULL );
+	trap->AddCommand( "follow", NULL, NULL );
+	trap->AddCommand( "follownext", NULL, NULL );
+	trap->AddCommand( "followprev", NULL, NULL );
+	trap->AddCommand( "addbot", NULL, NULL );
+	trap->AddCommand( "setviewpos", NULL, NULL );
+	trap->AddCommand( "callvote", NULL, NULL );
+	trap->AddCommand( "vote", NULL, NULL );
+	trap->AddCommand( "callteamvote", NULL, NULL );
+	trap->AddCommand( "teamvote", NULL, NULL );
+	trap->AddCommand( "stats", NULL, NULL );
+	trap->AddCommand( "teamtask", NULL, NULL );
+	trap->AddCommand( "loaddefered", NULL, NULL );	// spelled wrong, but not changing for demo
 }
