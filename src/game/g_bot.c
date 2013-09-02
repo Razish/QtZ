@@ -127,12 +127,12 @@ static void G_LoadArenasFromFile( char *filename ) {
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap->Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
 		trap->FS_Close( f );
-		trap->Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT ) );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT );
 		return;
 	}
 
@@ -855,7 +855,7 @@ void Svcmd_BotList_f( void ) {
 		if (!*aifile ) {
 			strcpy(aifile, "bots/default_c.c");
 		}
-		trap->Print(va("%-16s %-16s %-20s %-20s\n", name, model, aifile, funname));
+		trap->Print( "%-16s %-16s %-20s %-20s\n", name, model, aifile, funname );
 	}
 }
 
@@ -930,11 +930,11 @@ static void G_LoadBotsFromFile( char *filename ) {
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap->Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
-		trap->Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT ) );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT );
 		trap->FS_Close( f );
 		return;
 	}
@@ -983,7 +983,7 @@ static void G_LoadBots( void ) {
 		strcat(filename, dirptr);
 		G_LoadBotsFromFile(filename);
 	}
-	trap->Print( va( "%i bots parsed\n", g_numBots ) );
+	trap->Print( "%i bots parsed\n", g_numBots );
 }
 
 
@@ -995,7 +995,7 @@ G_GetBotInfoByNumber
 */
 char *G_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= g_numBots ) {
-		trap->Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
 	}
 	return g_botInfos[num];

@@ -508,11 +508,11 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap->Print( va( S_COLOR_RED "voice chat file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "voice chat file not found: %s\n", filename );
 		return qfalse;
 	}
 	if ( len >= MAX_VOICEFILESIZE ) {
-		trap->Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
+		trap->Print( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE );
 		trap->FS_Close( f );
 		return qfalse;
 	}
@@ -543,7 +543,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 		voiceChatList->gender = GENDER_NEUTER;
 	}
 	else {
-		trap->Print( va( S_COLOR_RED "expected gender not found in voice chat file: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "expected gender not found in voice chat file: %s\n", filename );
 		return qfalse;
 	}
 
@@ -556,7 +556,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 		Com_sprintf(voiceChats[voiceChatList->numVoiceChats].id, sizeof( voiceChats[voiceChatList->numVoiceChats].id ), "%s", token);
 		token = COM_ParseExt(p, qtrue);
 		if (Q_stricmp(token, "{")) {
-			trap->Print( va( S_COLOR_RED "expected { found %s in voice chat file: %s\n", token, filename ) );
+			trap->Print( S_COLOR_RED "expected { found %s in voice chat file: %s\n", token, filename );
 			return qfalse;
 		}
 		voiceChats[voiceChatList->numVoiceChats].numSounds = 0;
@@ -621,11 +621,11 @@ int CG_HeadModelVoiceChats( char *filename ) {
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		//trap->Print( va( "voice chat file not found: %s\n", filename ) );
+		//trap->Print( "voice chat file not found: %s\n", filename );
 		return -1;
 	}
 	if ( len >= MAX_VOICEFILESIZE ) {
-		trap->Print( va( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE ) );
+		trap->Print( S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i\n", filename, len, MAX_VOICEFILESIZE );
 		trap->FS_Close( f );
 		return -1;
 	}

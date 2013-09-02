@@ -106,11 +106,11 @@ static void UI_LoadArenasFromFile( char *filename ) {
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap->Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
-		trap->Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT ) );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT );
 		trap->FS_Close( f );
 		return;
 	}
@@ -157,7 +157,7 @@ void UI_LoadArenas( void ) {
 		strcat(filename, dirptr);
 		UI_LoadArenasFromFile(filename);
 	}
-	trap->Print( va( "%i arenas parsed\n", ui_numArenas ) );
+	trap->Print( "%i arenas parsed\n", ui_numArenas );
 	if (UI_OutOfMemory()) {
 		trap->Print(S_COLOR_YELLOW"WARNING: not enough memory in pool to load all arenas\n");
 	}
@@ -211,11 +211,11 @@ static void UI_LoadBotsFromFile( char *filename ) {
 
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap->Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
-		trap->Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT ) );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT );
 		trap->FS_Close( f );
 		return;
 	}
@@ -262,7 +262,7 @@ void UI_LoadBots( void ) {
 		strcat(filename, dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
-	trap->Print( va( "%i bots parsed\n", ui_numBots ) );
+	trap->Print( "%i bots parsed\n", ui_numBots );
 }
 
 
@@ -273,7 +273,7 @@ UI_GetBotInfoByNumber
 */
 char *UI_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= ui_numBots ) {
-		trap->Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
 	}
 	return ui_botInfos[num];
