@@ -702,7 +702,7 @@ void CG_NewClientInfo( int clientNum ) {
 	Q_strncpyz(newInfo.blueTeam, v, MAX_TEAMNAME);
 
 	// model
-	v = Info_ValueForKey( configstring, "model" );
+	v = Info_ValueForKey( configstring, "cg_model" );
 	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel->string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel->string, sizeof( newInfo.modelName ) );
 	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel->string, "none" ) )

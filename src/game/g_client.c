@@ -737,7 +737,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// set model
-	Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
+	Q_strncpyz( model, Info_ValueForKey (userinfo, "cg_model"), sizeof( model ) );
 
 	// bots set their team a few frames later
 	if (level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {

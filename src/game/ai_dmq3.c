@@ -1056,7 +1056,7 @@ char *ClientSkin(int client, char *skin, int size) {
 		return "[client out of range]";
 	}
 	trap->SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
-	strncpy(skin, Info_ValueForKey(buf, "model"), size-1);
+	strncpy(skin, Info_ValueForKey(buf, "cg_model"), size-1);
 	skin[size-1] = '\0';
 	return skin;
 }

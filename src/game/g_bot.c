@@ -685,12 +685,12 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		Info_SetValueForKey( userinfo, "handicap", "90" );
 	}
 
-	key = "model";
+	key = "cg_model";
 	model = Info_ValueForKey( botinfo, key );
 	if ( !*model )
 		model = DEFAULT_MODEL;
 
-	Info_SetValueForKey( userinfo, key, model );
+	Info_SetValueForKey( userinfo, "model", model );
 
 	key = "gender";
 	s = Info_ValueForKey( botinfo, key );
@@ -841,15 +841,15 @@ void Svcmd_BotList_f( void ) {
 	for (i = 0; i < g_numBots; i++) {
 		strcpy(name, Info_ValueForKey( g_botInfos[i], "name" ));
 		if ( !*name ) {
-			strcpy(name, "UnnamedPlayer");
+			strcpy(name, DEFAULT_NAME);
 		}
 		strcpy(funname, Info_ValueForKey( g_botInfos[i], "funname" ));
 		if ( !*funname ) {
 			strcpy(funname, "");
 		}
-		strcpy(model, Info_ValueForKey( g_botInfos[i], "model" ));
+		strcpy(model, Info_ValueForKey( g_botInfos[i], "cg_model" ));
 		if ( !*model ) {
-			strcpy(model, "visor/default");
+			strcpy(model, DEFAULT_MODEL);
 		}
 		strcpy(aifile, Info_ValueForKey( g_botInfos[i], "aifile"));
 		if (!*aifile ) {

@@ -1798,7 +1798,7 @@ qboolean Script_SetFocus(itemDef_t *item, char **args)
 qboolean Script_SetPlayerModel(itemDef_t *item, char **args) {
 	const char *name;
 	if (String_Parse(args, &name)) {
-		DC->setCVar("model", name);
+		DC->setCVar("cg_model", name);
 	}
 	return qtrue;
 }

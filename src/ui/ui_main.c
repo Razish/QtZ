@@ -1154,7 +1154,6 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vector4 *color, qb
 
 
 static qboolean updateModel = qtrue;
-static qboolean q3Model = qfalse;
 
 static void UI_DrawPlayerModel(rectDef_t *rect) {
 	static playerInfo_t info;
@@ -1164,24 +1163,9 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 	vector3	viewangles;
 	vector3	moveangles;
 
-	if (trap->Cvar_VariableValue("ui_Q3Model")) {
-		strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("model"));
-		if (!q3Model) {
-			q3Model = qtrue;
-			updateModel = qtrue;
-		}
-		team[0] = '\0';
-	} else {
-
-		strcpy(team, UI_Cvar_VariableString("ui_teamName"));
-		strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("model"));
-		if (q3Model) {
-			q3Model = qfalse;
-			updateModel = qtrue;
-		}
-	}
+	strcpy(team, UI_Cvar_VariableString("ui_teamName"));
+	strcpy(model, UI_Cvar_VariableString("model"));
+	strcpy(head, UI_Cvar_VariableString("model"));
 	if (updateModel) {
 		memset( &info, 0, sizeof(playerInfo_t) );
 		viewangles.yaw   = 180 - 10;
@@ -1190,7 +1174,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 		VectorClear( &moveangles );
 		UI_PlayerInfo_SetModel( &info, model, head, team);
 		UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, &viewangles, &vec3_origin, WP_QUANTIZER, qfalse );
-		//		UI_RegisterClientModelname( &info, model, head, team);
+	//	UI_RegisterClientModelname( &info, model, head, team);
 		updateModel = qfalse;
 	}
 
@@ -2074,12 +2058,6 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
 		} else {
 			ui_gametype->integer++;
 			ui_gametype->integer %= GT_NUM_GAMETYPES;
-		}
-
-		if (ui_gametype->integer == GT_DUEL) {
-			trap->Cvar_Set("ui_Q3Model", "1");
-		} else {
-			trap->Cvar_Set("ui_Q3Model", "0");
 		}
 
 		trap->Cvar_Set("ui_gameType", va("%d", ui_gametype->integer));
@@ -4028,7 +4006,7 @@ static void UI_FeederSelection(float feederID, int index) {
 		}
 	} else if (feederID == FEEDER_Q3HEADS) {
 		if (index >= 0 && index < uiInfo.q3HeadCount) {
-			trap->Cvar_Set( "model", uiInfo.q3HeadNames[index]);
+			trap->Cvar_Set( "cg_model", uiInfo.q3HeadNames[index]);
 			updateModel = qtrue;
 		}
 	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
