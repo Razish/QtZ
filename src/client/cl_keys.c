@@ -1036,13 +1036,11 @@ void Key_Unbindall_f (void)
 Key_Bind_f
 ===================
 */
-void Key_Bind_f (void)
-{
+void Key_Bind_f( void ) {
 	int i, c, b;
-	char cmd[1024] = {0};
+	char cmd[MAX_STRING_CHARS] = {0};
 	
 	c = Cmd_Argc();
-
 	if ( c < 2 ) {
 		Com_Printf( "bind <key> [command] : attach a command to a key\n" );
 		return;
@@ -1055,10 +1053,10 @@ void Key_Bind_f (void)
 	}
 
 	if ( c == 2 ) {
-		if ( keys[b].binding )
-			Com_Printf( "  \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE"\n", Key_KeynumToString( b ), keys[b].binding );
+		if ( keys[b].binding && keys[b].binding[0] )
+			Com_Printf( S_COLOR_GREY"Bind "S_COLOR_WHITE"%s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE"\n", Key_KeynumToString( b ), keys[b].binding );
 		else
-			Com_Printf( "  \"%s\" is not bound\n", Key_KeynumToString( b ) );
+			Com_Printf( "\"%s\" is not bound\n", Key_KeynumToString( b ) );
 		return;
 	}
 	
@@ -1107,7 +1105,7 @@ void Key_Bindlist_f( void ) {
 
 	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
 		if ( keys[i].binding && keys[i].binding[0] ) {
-			Com_Printf( "%s \"%s\"\n", Key_KeynumToString(i), keys[i].binding );
+			Com_Printf( S_COLOR_GREY"Key "S_COLOR_WHITE"%s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE"\n", Key_KeynumToString( i ), keys[i].binding );
 		}
 	}
 }

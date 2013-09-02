@@ -413,7 +413,7 @@ int ColorIndex( char c );
 #define S_COLOR_PURPLE		"^d"
 #define S_COLOR_PINK		"^e"
 
-extern vector4 g_color_table[Q_COLOR_BITS];
+extern const vector4 g_color_table[Q_COLOR_BITS];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a

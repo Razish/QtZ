@@ -455,20 +455,20 @@ Prints the value, default, latched string and description of the given variable
 ============
 */
 void Cvar_Print( cvar_t *v ) {
-	Com_Printf(" \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE, v->name, v->string );
+	Com_Printf( S_COLOR_GREY"Cvar "S_COLOR_WHITE"%s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE, v->name, v->string );
 
 	if ( !(v->flags & CVAR_ROM) ) {
 		if ( Q_stricmp( v->string, v->resetString ) )
-			Com_Printf(" "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]"S_COLOR_WHITE, v->resetString );
+			Com_Printf( ", "S_COLOR_WHITE"default = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE, v->resetString );
 	}
 
 	Com_Printf( "\n" );
 
 	if ( v->latchedString )
-		Com_Printf( " latched: \"%s\"\n", v->latchedString );
+		Com_Printf( "     latched = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\"\n", v->latchedString );
 
 	if ( v->description )
-		Com_Printf( " "S_COLOR_GREY"%s\n", v->description );
+		Com_Printf( "     "S_COLOR_GREY"%s\n", v->description );
 }
 
 /*
@@ -913,9 +913,6 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	char buffer[MAX_STRING_CHARS] = {0};
 	int i=0, writeCount=0, totalCount=0, size=0;
 	cvarSerialise_t *list = NULL, *listPtr = NULL;
-#ifdef DEBUG_CVAR_SORT
-	cvarSerialise_t *testList = NULL, *testListPtr = NULL;
-#endif
 
 	for ( var=cvar_vars; var; var=var->next ) {
 		char *value = var->latchedString ? var->latchedString : var->string;
@@ -931,10 +928,6 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	size = sizeof( cvarSerialise_t ) * writeCount;
 	list = (cvarSerialise_t *)Z_Malloc( size );
 	memset( list, 0, size );
-#ifdef DEBUG_CVAR_SORT
-	testList = (cvarSerialise_t *)Z_Malloc( size );
-	memset( testList, 0, size );
-#endif
 
 	for ( var=cvar_vars, listPtr=list; var; var=var->next ) {
 		char *value = var->latchedString ? var->latchedString : var->string;
@@ -949,15 +942,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 		}
 	}
 
-#ifdef DEBUG_CVAR_SORT
-	memcpy( testList, list, size );
-#endif
 	qsort( list, writeCount, sizeof( cvarSerialise_t ), cvarSort );
-#ifdef DEBUG_CVAR_SORT
-	for ( i=0, listPtr = list, testListPtr=testList; i<writeCount; i++, listPtr++, testListPtr++ ) {
-		Com_Printf( "%s = %s\n", listPtr->name, testListPtr->name );
-	}
-#endif
 
 	for ( i=0, listPtr=list; i<writeCount; i++, listPtr++ ) {
 		Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", listPtr->name, listPtr->value );
@@ -968,10 +953,6 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 
 	Z_Free( list );
 	list = listPtr = NULL;
-#ifdef DEBUG_CVAR_SORT
-	Z_Free( testList );
-	testList = testListPtr = NULL;
-#endif
 }
 
 /*
@@ -987,7 +968,10 @@ void Cvar_List_f( void ) {
 	if ( Cmd_Argc() > 1 )
 		match = Cmd_Argv( 1 );
 
-	for ( var=cvar_vars, i=0; var; var=var->next, i++ ) {
+	for ( var=cvar_vars, i=0; var;
+		var=var->next,
+		i++ )
+	{
 		if ( !var->name || (match && !Com_Filter( match, var->name, qfalse )) )
 			continue;
 
@@ -1001,7 +985,10 @@ void Cvar_List_f( void ) {
 		if (var->flags & CVAR_CHEAT)		Com_Printf( "C" );	else Com_Printf( " " );
 		if (var->flags & CVAR_USER_CREATED)	Com_Printf( "?" );	else Com_Printf( " " );
 
-		Com_Printf( " %s \"%s\"\n", var->name, var->string );
+		Com_Printf( S_COLOR_WHITE" %s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE, var->name, var->string );
+		if ( var->latchedString )
+			Com_Printf( ", latched = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE, var->latchedString );
+		Com_Printf( "\n" );
 	}
 
 	Com_Printf( "\n%i total cvars\n", i );
@@ -1018,7 +1005,10 @@ void Cvar_ListChanged_f( void ) {
 		if ( !var->name || !var->modificationCount || !strcmp( value, var->resetString ) )
 			continue;
 
-		Com_Printf( " \"%s\" = "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"] "S_COLOR_RED"was "S_COLOR_GREY"["S_COLOR_YELLOW"%s"S_COLOR_GREY"]\n", var->name, value, var->resetString );
+		Com_Printf( S_COLOR_GREY"Cvar "
+			S_COLOR_WHITE"%s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE", "
+			S_COLOR_WHITE"default = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE"\n",
+			var->name, value, var->resetString );
 	}
 }
 

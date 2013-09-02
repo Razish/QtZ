@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 
 
-int g_console_field_width = 78;
+#define	DEFAULT_CONSOLE_WIDTH (128)
+int g_console_field_width = DEFAULT_CONSOLE_WIDTH;
 
 
 #define	NUM_CON_TIMES 4
@@ -59,9 +60,6 @@ console_t	con;
 
 cvar_t		*con_conspeed;
 cvar_t		*con_notifytime;
-
-#define	DEFAULT_CONSOLE_WIDTH	78
-
 
 /*
 ================
@@ -247,21 +245,19 @@ void Con_CheckResize (void)
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	short	tbuf[CON_TEXTSIZE];
 
-	width = ((int)SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
+	width = ((int)cls.glconfig.vidWidth / SMALLCHAR_WIDTH) - 2;
 
 	if (width == con.linewidth)
 		return;
 
-	if (width < 1)			// video hasn't been initialized yet
-	{
+	if ( width < 1 && !cls.glconfig.vidWidth ) {// video hasn't been initialized yet
 		width = DEFAULT_CONSOLE_WIDTH;
 		con.linewidth = width;
 		con.totallines = CON_TEXTSIZE / con.linewidth;
 		for(i=0; i<CON_TEXTSIZE; i++)
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 	}
-	else
-	{
+	else {
 		oldwidth = con.linewidth;
 		con.linewidth = width;
 		oldtotallines = con.totallines;
@@ -597,7 +593,7 @@ void Con_DrawSolidConsole( float frac ) {
 	int				lines;
 //	qhandle_t		conShader;
 	int				currentColor;
-	vector4			color = { 1.0f, 0.788f, 0.054f, 0.8f }, shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
+	const vector4	*color = &g_color_table[ColorIndex(COLOR_ORANGE)], shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 	char			version[] = CLIENT_WINDOW_TITLE;
 
 	lines = (int)(cls.glconfig.vidHeight * frac);
@@ -619,7 +615,7 @@ void Con_DrawSolidConsole( float frac ) {
 		SCR_DrawPic( 0.0f, 0.0f, SCREEN_WIDTH, (float)y, cls.consoleShader );
 
 	SCR_FillRect( 0.0f, (float)y, SCREEN_WIDTH, 3.0f, &shadowColour );
-	SCR_FillRect( 0.0f, (float)y+1, SCREEN_WIDTH, 1.0f, &color );
+	SCR_FillRect( 0.0f, (float)y+1, SCREEN_WIDTH, 1.0f, color );
 
 
 	// draw the version number
@@ -628,7 +624,7 @@ void Con_DrawSolidConsole( float frac ) {
 	re->SetColor( &shadowColour );
 	for ( x=0; x<i; x++ )
 		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, version[x], 1.0f );
-	re->SetColor( &color );
+	re->SetColor( color );
 	for ( x=0; x<i; x++ )
 		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH), (int)(lines - SMALLCHAR_HEIGHT*1.3f), version[x], 1.0f );
 
@@ -642,7 +638,7 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw from the bottom up
 	if (con.display != con.current)
 	{// draw arrows to show the buffer is backscrolled
-		re->SetColor( &g_color_table[ColorIndex(COLOR_GREEN)] );
+		re->SetColor( color );
 		for (x=0 ; x<con.linewidth ; x+=4)
 			SCR_DrawSmallChar( (int)(con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, '^' );
 		y -= SMALLCHAR_HEIGHT;
