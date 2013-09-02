@@ -510,7 +510,7 @@ static float CG_DrawFPS( float y ) {
 	vector4 fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
 	char *tmp = NULL;
-	float fps, maxFPS = 1000.0f/(float)atof( CG_Cvar_VariableString( "com_frametime" ) );
+	float fps, maxFPS = 1000.0f/com_frametime->value;
 
 	if ( !cg_drawFPS->boolean && !cg_debugHUD->boolean )
 		return y;
@@ -1257,7 +1257,7 @@ static void CG_DrawCrosshair3D(void)
 	trace_t trace;
 	vector3 endpos;
 	float stereoSep, zProj, maxdist, xmax;
-	char rendererinfos[128];
+	char rendererinfos[MAX_CVAR_VALUE_STRING];
 	refEntity_t ent;
 
 	if ( !cg_drawCrosshair->integer ) {

@@ -234,7 +234,7 @@ const char *CG_Argv( int arg ) {
 }
 
 const char *CG_Cvar_VariableString( const char *name ) {
-	static char	buffer[MAX_STRING_CHARS];
+	static char	buffer[MAX_CVAR_VALUE_STRING];
 
 	trap->Cvar_VariableStringBuffer( name, buffer, sizeof( buffer ) );
 
@@ -1370,7 +1370,7 @@ CG_LoadHudMenu();
 =================
 */
 void CG_LoadHudMenu( void ) {
-	char buff[1024];
+	char buff[MAX_CVAR_VALUE_STRING];
 	const char *hudSet;
 
 	cgDC.registerShaderNoMip = trap->R_RegisterShaderNoMip;

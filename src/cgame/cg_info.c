@@ -142,7 +142,7 @@ void CG_DrawInformation( void ) {
 	int			value;
 	qhandle_t	levelshot;
 	qhandle_t	detail;
-	char		buf[1024];
+	char		buf[MAX_CVAR_VALUE_STRING];
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
@@ -176,10 +176,11 @@ void CG_DrawInformation( void ) {
 	// don't print server lines if playing a local game
 	trap->Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
 	if ( !atoi( buf ) ) {
+		char hostname[MAX_CVAR_VALUE_STRING] = {0};
 		// server hostname
-		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
-		Q_CleanStr(buf);
-		UI_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, buf, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+		Q_strncpyz(hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof( hostname ));
+		Q_CleanStr(hostname);
+		UI_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, hostname, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
 		y += PROP_HEIGHT;
 
 		// pure server

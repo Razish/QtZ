@@ -1098,7 +1098,7 @@ BotReadSessionData
 ==============
 */
 void BotReadSessionData(bot_state_t *bs) {
-	char	s[MAX_STRING_CHARS];
+	char	s[MAX_CVAR_VALUE_STRING];
 	const char	*var;
 
 	var = va( "botsession%i", bs->client );
@@ -1529,7 +1529,7 @@ BotInitLibrary
 ==============
 */
 int BotInitLibrary(void) {
-	char buf[144];
+	char buf[MAX_CVAR_VALUE_STRING];
 
 	//set the maxclients and maxentities library variables before calling BotSetupLibrary
 	trap->Cvar_VariableStringBuffer("sv_maxclients", buf, sizeof(buf));

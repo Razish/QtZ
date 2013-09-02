@@ -67,7 +67,7 @@ Called on a reconnect
 ================
 */
 void G_ReadSessionData( gclient_t *client ) {
-	char	s[MAX_STRING_CHARS];
+	char	s[MAX_CVAR_VALUE_STRING];
 	const char	*var;
 	int teamLeader;
 	int spectatorState;
@@ -153,7 +153,7 @@ G_InitWorldSession
 ==================
 */
 void G_InitWorldSession( void ) {
-	char	s[MAX_STRING_CHARS];
+	char	s[MAX_CVAR_VALUE_STRING];
 	int			gt;
 
 	trap->Cvar_VariableStringBuffer( "session", s, sizeof(s) );

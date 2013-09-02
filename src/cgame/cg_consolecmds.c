@@ -87,21 +87,17 @@ extern menuDef_t *menuScoreboard;
 void Menu_Reset( void );			// FIXME: add to right include file
 
 static void CG_LoadHud_f( void) {
-  char buff[1024];
 	const char *hudSet;
-  memset(buff, 0, sizeof(buff));
 
 	String_Init();
 	Menu_Reset();
 	
-	trap->Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
-	hudSet = buff;
-	if (hudSet[0] == '\0') {
+	hudSet = cg_hudFiles->string;
+	if ( hudSet[0] == '\0' )
 		hudSet = "ui/hud.txt";
-	}
 
-	CG_LoadMenus(hudSet);
-  menuScoreboard = NULL;
+	CG_LoadMenus( hudSet );
+	menuScoreboard = NULL;
 }
 
 

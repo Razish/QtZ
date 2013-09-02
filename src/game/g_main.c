@@ -737,8 +737,8 @@ or moved to a new level based on the "nextmap" cvar
 void ExitLevel (void) {
 	int		i;
 	gclient_t *cl;
-	char nextmap[MAX_STRING_CHARS];
-	char d1[MAX_STRING_CHARS];
+	char nextmap[MAX_CVAR_VALUE_STRING];
+	char d1[MAX_CVAR_VALUE_STRING];
 
 	//bot interbreeding
 	BotInterbreedEndMatch();

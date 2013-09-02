@@ -431,7 +431,7 @@ static void Cmd_MapList_f( gentity_t *ent ) {
 }
 
 static qboolean G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	char s[MAX_STRING_CHARS] = {0}, *mapName = NULL, *mapName2 = NULL;
+	char s[MAX_CVAR_VALUE_STRING] = {0}, *mapName = NULL, *mapName2 = NULL;
 	const char *arenaInfo;
 
 	if ( numArgs < 3 )
@@ -471,7 +471,7 @@ static qboolean G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const 
 }
 
 static qboolean G_VoteNextmap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	char	s[MAX_STRING_CHARS];
+	char	s[MAX_CVAR_VALUE_STRING];
 
 	trap->Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 	if ( !*s ) {

@@ -531,8 +531,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 
 	FS_ConditionalRestart(clc.checksumFeed, qfalse);
 
-	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
-	// cgame
+	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the cgame
 	CL_InitDownloads();
 
 	// make sure the game starts

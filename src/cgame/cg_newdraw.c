@@ -1401,7 +1401,7 @@ static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vector4 *color, qhandl
 	unsigned short frameTime;
 	vector4 fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
-	float fps, maxFPS = 1000.0f/(float)atof( CG_Cvar_VariableString( "com_frametime" ) );
+	float fps, maxFPS = 1000.0f/com_frametime->value;
 
 	if ( !cg_drawFPS->boolean && !cg_debugHUD->boolean )
 		return;
