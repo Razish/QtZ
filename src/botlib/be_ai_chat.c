@@ -64,9 +64,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RCKFL_STRING				8		//key is a string
 #define RCKFL_VARIABLES				16		//key is a match template
 #define RCKFL_BOTNAMES				32		//key is a series of botnames
-#define RCKFL_GENDERFEMALE			64		//bot must be female
-#define RCKFL_GENDERMALE			128		//bot must be male
-#define RCKFL_GENDERLESS			256		//bot must be genderless
 //time to ignore a chat message after using it
 #define CHATMESSAGE_RECENTTIME	20
 
@@ -175,7 +172,6 @@ typedef struct bot_stringlist_s
 //chat state of a bot
 typedef struct bot_chatstate_s
 {
-	int gender;											//0=it, 1=female, 2=male
 	int client;											//client number
 	char name[32];										//name of the bot
 	char chatmessage[MAX_MESSAGE_SIZE];
@@ -1674,9 +1670,6 @@ void BotDumpReplyChat(bot_replychat_t *replychat)
 			else if (key->flags & RCKFL_NOT) fprintf(fp, "!");
 			//
 			if (key->flags & RCKFL_NAME) fprintf(fp, "name");
-			else if (key->flags & RCKFL_GENDERFEMALE) fprintf(fp, "female");
-			else if (key->flags & RCKFL_GENDERMALE) fprintf(fp, "male");
-			else if (key->flags & RCKFL_GENDERLESS) fprintf(fp, "it");
 			else if (key->flags & RCKFL_VARIABLES)
 			{
 				fprintf(fp, "(");
@@ -1895,9 +1888,6 @@ bot_replychat_t *BotLoadReplyChat(char *filename)
 			else if (PC_CheckTokenString(source, "!")) key->flags |= RCKFL_NOT;
 			//special keys
 			if (PC_CheckTokenString(source, "name")) key->flags |= RCKFL_NAME;
-			else if (PC_CheckTokenString(source, "female")) key->flags |= RCKFL_GENDERFEMALE;
-			else if (PC_CheckTokenString(source, "male")) key->flags |= RCKFL_GENDERMALE;
-			else if (PC_CheckTokenString(source, "it")) key->flags |= RCKFL_GENDERLESS;
 			else if (PC_CheckTokenString(source, "(")) //match key
 			{
 				key->flags |= RCKFL_VARIABLES;
@@ -2606,9 +2596,6 @@ void BotPrintReplyChatKeys(bot_replychat_t *replychat)
 		else if (key->flags & RCKFL_NOT) botimport.Print(PRT_MESSAGE, "!");
 		//
 		if (key->flags & RCKFL_NAME) botimport.Print(PRT_MESSAGE, "name");
-		else if (key->flags & RCKFL_GENDERFEMALE) botimport.Print(PRT_MESSAGE, "female");
-		else if (key->flags & RCKFL_GENDERMALE) botimport.Print(PRT_MESSAGE, "male");
-		else if (key->flags & RCKFL_GENDERLESS) botimport.Print(PRT_MESSAGE, "it");
 		else if (key->flags & RCKFL_VARIABLES)
 		{
 			botimport.Print(PRT_MESSAGE, "(");
@@ -2661,9 +2648,6 @@ int BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char 
 			//get the match result
 			if (key->flags & RCKFL_NAME) res = (StringContains(message, cs->name, qfalse) != -1);
 			else if (key->flags & RCKFL_BOTNAMES) res = (StringContains(key->string, cs->name, qfalse) != -1);
-			else if (key->flags & RCKFL_GENDERFEMALE) res = (cs->gender == CHAT_GENDERFEMALE);
-			else if (key->flags & RCKFL_GENDERMALE) res = (cs->gender == CHAT_GENDERMALE);
-			else if (key->flags & RCKFL_GENDERLESS) res = (cs->gender == CHAT_GENDERLESS);
 			else if (key->flags & RCKFL_VARIABLES) res = StringsMatch(key->match, &match);
 			else if (key->flags & RCKFL_STRING) res = (StringContainsWord(message, key->string, qfalse) != NULL);
 			//if the key must be present
@@ -2855,25 +2839,6 @@ void BotGetChatMessage(int chatstate, char *buf, int size)
 	//clear the chat message from the state
 	strcpy(cs->chatmessage, "");
 } //end of the function BotGetChatMessage
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-void BotSetChatGender(int chatstate, int gender)
-{
-	bot_chatstate_t *cs;
-
-	cs = BotChatStateFromHandle(chatstate);
-	if (!cs) return;
-	switch(gender)
-	{
-		case CHAT_GENDERFEMALE: cs->gender = CHAT_GENDERFEMALE; break;
-		case CHAT_GENDERMALE: cs->gender = CHAT_GENDERMALE; break;
-		default: cs->gender = CHAT_GENDERLESS; break;
-	} //end switch
-} //end of the function BotSetChatGender
 //===========================================================================
 //
 // Parameter:				-

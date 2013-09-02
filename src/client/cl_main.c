@@ -3377,8 +3377,8 @@ void CL_Init( void ) {
 	Cvar_Get( "cg_autoswitch",				"1",		CVAR_ARCHIVE, "Automatically switch to picked up weapons", NULL );
 
 	// userinfo
-				Cvar_Get( "name",				DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
-	cl_rate =	Cvar_Get( "rate",				"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "cl_name",			DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+	cl_rate =	Cvar_Get( "cl_rate",			"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "cg_model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "g_redTeam",			"Stroggs",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
 				Cvar_Get( "g_blueTeam",			"Pagans",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
@@ -3386,7 +3386,6 @@ void CL_Init( void ) {
 				Cvar_Get( "color2",				"5",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "handicap",			"100",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "teamtask",			"0",				CVAR_USERINFO,					NULL, NULL );
-				Cvar_Get( "sex",				"male",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL, NULL );
 				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );

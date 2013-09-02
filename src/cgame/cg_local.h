@@ -427,7 +427,6 @@ typedef struct {
 
 	vector3			headOffset;		// move head in icon views
 	footstep_t		footsteps;
-	gender_t		gender;			// from model
 
 	qhandle_t		legsModel, torsoModel, headModel;
 	qhandle_t		legsSkin, torsoSkin, headSkin;

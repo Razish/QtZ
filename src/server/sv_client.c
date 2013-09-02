@@ -1217,7 +1217,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	int i, len;
 
 	// name for C code
-	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
+	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "cl_name"), sizeof(cl->name) );
 
 	// rate command
 
@@ -1226,7 +1226,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	if ( svi.Sys_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
 		cl->rate = 99999;	// lans should not rate limit
 	} else {
-		val = Info_ValueForKey (cl->userinfo, "rate");
+		val = Info_ValueForKey (cl->userinfo, "cl_rate");
 		if (strlen(val)) {
 			i = atoi(val);
 			cl->rate = i;

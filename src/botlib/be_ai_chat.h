@@ -33,10 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_CHATTYPE_NAME		32
 #define MAX_MATCHVARIABLES		8
 
-#define CHAT_GENDERLESS			0
-#define CHAT_GENDERFEMALE		1
-#define CHAT_GENDERMALE			2
-
 #define CHAT_ALL					0
 #define CHAT_TEAM					1
 #define CHAT_TELL					2
@@ -106,8 +102,6 @@ void UnifyWhiteSpaces(char *string);
 void BotReplaceSynonyms(char *string, unsigned long int context);
 //loads a chat file for the chat state
 int BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
-//store the gender of the bot in the chat state
-void BotSetChatGender(int chatstate, int gender);
 //store the bot name in the chat state
 void BotSetChatName(int chatstate, char *name, int client);
 

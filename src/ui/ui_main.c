@@ -1599,7 +1599,7 @@ static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vector4 *color, 
 		uiInfo.playerRefresh = uiInfo.uiDC.realTime + 3000;
 		UI_BuildPlayerList();
 	}
-	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name") , 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("cl_name") , 0, 0, textStyle);
 }
 
 static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
@@ -2679,9 +2679,9 @@ static void UI_Update(const char *name) {
 	int	val = (int)trap->Cvar_VariableValue(name);
 
 	if (Q_stricmp(name, "ui_SetName") == 0) {
-		trap->Cvar_Set( "name", UI_Cvar_VariableString("ui_Name"));
+		trap->Cvar_Set( "cl_name", UI_Cvar_VariableString("ui_Name"));
 	} else if (Q_stricmp(name, "ui_setRate") == 0) {
-		float rate = trap->Cvar_VariableValue("rate");
+		float rate = trap->Cvar_VariableValue("cl_rate");
 		if (rate >= 5000) {
 			trap->Cvar_Set("cl_maxpackets", "30");
 			trap->Cvar_Set("cl_packetdup", "1");
@@ -2693,7 +2693,7 @@ static void UI_Update(const char *name) {
 			trap->Cvar_Set("cl_packetdup", "1");		// favor lower bandwidth
 		}
 	} else if (Q_stricmp(name, "ui_GetName") == 0) {
-		trap->Cvar_Set( "ui_Name", UI_Cvar_VariableString("name"));
+		trap->Cvar_Set( "ui_Name", UI_Cvar_VariableString("cl_name"));
 	} else if (Q_stricmp(name, "r_colorbits") == 0) {
 		switch (val) {
 		case 0:
@@ -3058,7 +3058,7 @@ static void UI_RunMenuScript(char **args) {
 				} else {
 					int i;
 					for (i = 0; i < uiInfo.myTeamCount; i++) {
-						if (Q_stricmp(UI_Cvar_VariableString("name"), uiInfo.teamNames[i]) == 0) {
+						if (Q_stricmp(UI_Cvar_VariableString("cl_name"), uiInfo.teamNames[i]) == 0) {
 							continue;
 						}
 						strcpy(buff, orders);

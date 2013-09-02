@@ -334,7 +334,6 @@ typedef struct ai_export_s
 	void	(*UnifyWhiteSpaces)(char *string);
 	void	(*BotReplaceSynonyms)(char *string, unsigned long int context);
 	int		(*BotLoadChatFile)(int chatstate, char *chatfile, char *chatname);
-	void	(*BotSetChatGender)(int chatstate, int gender);
 	void	(*BotSetChatName)(int chatstate, char *name, int client);
 	//-----------------------------------
 	// be_ai_goal.h

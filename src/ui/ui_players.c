@@ -989,12 +989,6 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 				}
 			}
 			continue;
-		} else if ( !Q_stricmp( token, "sex" ) ) {
-			token = COM_Parse( &text_p );
-			if ( !token ) {
-				break;
-			}
-			continue;
 		}
 
 		// if it is a number, start parsing animations

@@ -127,8 +127,6 @@ extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
 const char *BG_GetGametypeString( int gametype );
 int BG_GetGametypeForString( const char *gametype );
 
-typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
-
 /*
 ===================================================================================
 

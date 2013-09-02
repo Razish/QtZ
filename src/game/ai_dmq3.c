@@ -4193,7 +4193,7 @@ BotDeathmatchAI
 ==================
 */
 void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
-	char gender[144], name[144], buf[144];
+	char name[144], buf[144];
 	char userinfo[MAX_INFO_STRING];
 	int i;
 
@@ -4201,21 +4201,11 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	if (bs->setupcount > 0) {
 		bs->setupcount--;
 		if (bs->setupcount > 0) return;
-		//get the gender characteristic
-		trap->ai->Characteristic_String(bs->character, CHARACTERISTIC_GENDER, gender, sizeof(gender));
-		//set the bot gender
-		trap->SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
-		Info_SetValueForKey(userinfo, "sex", gender);
-		trap->SV_SetUserinfo(bs->client, userinfo);
 		//set the team
 		if ( !bs->map_restart && level.gametype != GT_DUEL ) {
 			Com_sprintf(buf, sizeof(buf), "team %s", bs->settings.team);
 			trap->ea->EA_Command(bs->client, buf);
 		}
-		//set the chat gender
-		if (gender[0] == 'm') trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERMALE);
-		else if (gender[0] == 'f')  trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERFEMALE);
-		else  trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERLESS);
 		//set the chat name
 		ClientName(bs->client, name, sizeof(name));
 		trap->ai->BotSetChatName(bs->cs, name, bs->client);

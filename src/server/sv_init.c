@@ -186,7 +186,7 @@ void SV_SetUserinfo( int index, const char *val ) {
 	}
 
 	Q_strncpyz( svs.clients[index].userinfo, val, sizeof( svs.clients[ index ].userinfo ) );
-	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "name" ), sizeof(svs.clients[index].name) );
+	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "cl_name" ), sizeof(svs.clients[index].name) );
 }
 
 

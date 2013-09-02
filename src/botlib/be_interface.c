@@ -798,7 +798,6 @@ static void Init_AI_Export( ai_export_t *ai ) {
 	ai->UnifyWhiteSpaces = UnifyWhiteSpaces;
 	ai->BotReplaceSynonyms = BotReplaceSynonyms;
 	ai->BotLoadChatFile = BotLoadChatFile;
-	ai->BotSetChatGender = BotSetChatGender;
 	ai->BotSetChatName = BotSetChatName;
 	//-----------------------------------
 	// be_ai_goal.h

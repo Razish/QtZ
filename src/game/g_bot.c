@@ -338,7 +338,7 @@ void G_AddRandomBot( int team ) {
 
 	num = 0;
 	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+		value = Info_ValueForKey( g_botInfos[n], "cl_name" );
 		//
 		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 			cl = level.clients + i;
@@ -361,7 +361,7 @@ void G_AddRandomBot( int team ) {
 	}
 	num = (int)(random() * num);
 	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+		value = Info_ValueForKey( g_botInfos[n], "cl_name" );
 		//
 		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
 			cl = level.clients + i;
@@ -665,14 +665,14 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	botname = Info_ValueForKey( botinfo, "funname" );
 	if( !botname[0] ) {
-		botname = Info_ValueForKey( botinfo, "name" );
+		botname = Info_ValueForKey( botinfo, "cl_name" );
 	}
 	// check for an alternative name
 	if (altname && altname[0]) {
 		botname = altname;
 	}
-	Info_SetValueForKey( userinfo, "name", botname );
-	Info_SetValueForKey( userinfo, "rate", "25000" );
+	Info_SetValueForKey( userinfo, "cl_name", botname );
+	Info_SetValueForKey( userinfo, "cl_rate", "25000" );
 	Info_SetValueForKey( userinfo, "skill", va("%1.2f", skill) );
 
 	if ( skill >= 1 && skill < 2 ) {
@@ -691,13 +691,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		model = DEFAULT_MODEL;
 
 	Info_SetValueForKey( userinfo, "model", model );
-
-	key = "gender";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "male";
-	}
-	Info_SetValueForKey( userinfo, "sex", s );
 
 	key = "color1";
 	s = Info_ValueForKey( botinfo, key );
@@ -839,7 +832,7 @@ void Svcmd_BotList_f( void ) {
 
 	trap->Print("^1name             model            aifile              funname\n");
 	for (i = 0; i < g_numBots; i++) {
-		strcpy(name, Info_ValueForKey( g_botInfos[i], "name" ));
+		strcpy(name, Info_ValueForKey( g_botInfos[i], "cl_name" ));
 		if ( !*name ) {
 			strcpy(name, DEFAULT_NAME);
 		}
@@ -1012,7 +1005,7 @@ char *G_GetBotInfoByName( const char *name ) {
 	char	*value;
 
 	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+		value = Info_ValueForKey( g_botInfos[n], "cl_name" );
 		if ( !Q_stricmp( value, name ) ) {
 			return g_botInfos[n];
 		}

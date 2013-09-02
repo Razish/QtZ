@@ -290,7 +290,7 @@ char *UI_GetBotInfoByName( const char *name ) {
 	char	*value;
 
 	for ( n = 0; n < ui_numBots ; n++ ) {
-		value = Info_ValueForKey( ui_botInfos[n], "name" );
+		value = Info_ValueForKey( ui_botInfos[n], "cl_name" );
 		if ( !Q_stricmp( value, name ) ) {
 			return ui_botInfos[n];
 		}
@@ -307,7 +307,7 @@ int UI_GetNumBots( void ) {
 char *UI_GetBotNameByNumber( int num ) {
 	char *info = UI_GetBotInfoByNumber(num);
 	if (info) {
-		return Info_ValueForKey( info, "name" );
+		return Info_ValueForKey( info, "cl_name" );
 	}
 	return DEFAULT_MODEL;
 }

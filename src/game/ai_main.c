@@ -1135,7 +1135,7 @@ BotAISetupClient
 ==============
 */
 int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart) {
-	char filename[MAX_PATH], name[MAX_PATH], gender[MAX_PATH];
+	char filename[MAX_PATH], name[MAX_PATH];
 	bot_state_t *bs;
 	int errnum;
 
@@ -1191,12 +1191,6 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 		trap->ai->BotFreeWeaponState(bs->ws);
 		return qfalse;
 	}
-	//get the gender characteristic
-	trap->ai->Characteristic_String(bs->character, CHARACTERISTIC_GENDER, gender, MAX_PATH);
-	//set the chat gender
-	if (*gender == 'f' || *gender == 'F') trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERFEMALE);
-	else if (*gender == 'm' || *gender == 'M') trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERMALE);
-	else trap->ai->BotSetChatGender(bs->cs, CHAT_GENDERLESS);
 
 	bs->inuse = qtrue;
 	bs->client = client;
