@@ -1766,7 +1766,6 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		UI_DrawPreviewCinematic(&rect, scale, color);
 		break;
 	case UI_GAMETYPE:
-	case UI_NETGAMETYPE: //RAZTODO: Remove these
 	case UI_JOINGAMETYPE:
 		UI_DrawGameType(&rect, scale, color, textStyle);
 		break;
@@ -1933,18 +1932,17 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 			}
 			flags &= ~UI_SHOW_NOTFAVORITESERVERS;
 		} 
-		//RAZTODO: Remove UI net gametypes
-		if (flags & (UI_SHOW_ANYTEAMGAME|UI_SHOW_NETANYTEAMGAME)) {
+		if (flags & (UI_SHOW_ANYTEAMGAME)) {
 			if (ui_gametype->integer < GT_TEAM ) {
 				vis = qfalse;
 			}
-			flags &= ~(UI_SHOW_ANYTEAMGAME|UI_SHOW_NETANYTEAMGAME);
+			flags &= ~(UI_SHOW_ANYTEAMGAME);
 		} 
-		if (flags & (UI_SHOW_ANYNONTEAMGAME|UI_SHOW_NETANYNONTEAMGAME)) {
+		if (flags & (UI_SHOW_ANYNONTEAMGAME)) {
 			if (ui_gametype->integer >= GT_TEAM ) {
 				vis = qfalse;
 			}
-			flags &= ~(UI_SHOW_ANYNONTEAMGAME|UI_SHOW_NETANYNONTEAMGAME);
+			flags &= ~(UI_SHOW_ANYNONTEAMGAME);
 		} 
 		if (flags & UI_SHOW_NEWHIGHSCORE) {
 			if (uiInfo.newHighScoreTime < uiInfo.uiDC.realTime) {
@@ -2348,8 +2346,6 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 		return UI_ClanName_HandleKey(flags, special, key);
 		break;
 	case UI_GAMETYPE:
-		//RAZTODO: Remove UI net gametype
-	case UI_NETGAMETYPE:
 	case UI_JOINGAMETYPE:
 		return UI_GameType_HandleKey(flags, special, key, qtrue);
 		break;
