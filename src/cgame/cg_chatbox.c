@@ -1,5 +1,6 @@
 
 #include "cg_local.h"
+#include "../../build/qtz/ui/menudef.h"
 #include "../client/keycodes.h"
 
 #define MAX_CHATBOX_ENTRIES (512)
@@ -7,7 +8,8 @@
 
 #define CHATBOX_POS_X (0)
 #define CHATBOX_POS_Y (SCREEN_HEIGHT*0.66666f)
-#define CHATBOX_LINE_HEIGHT (BIGCHAR_HEIGHT)
+#define CHATBOX_LINE_HEIGHT (14)
+#define CHATBOX_FONT_SCALE (0.33333f)
 
 #define CHAT_MESSAGE_LENGTH MAX_SAY_TEXT
 
@@ -95,8 +97,9 @@ void CG_ChatboxAdd( const char *message, qboolean multiLine ) {
 		 i++ )
 	{
 		char *p = (char*)&message[i];
+		char buf[1] = { *p };
 		if ( !Q_IsColorString( p ) && (i > 0 && !Q_IsColorString( p-1 )) )
-			accumLength += BIGCHAR_WIDTH;
+			accumLength += CG_Text_Width( buf, CHATBOX_FONT_SCALE, -1 );
 
 		if ( accumLength > SCREEN_WIDTH && (i>0 && !Q_IsColorString( p-1 )) ) {
 			char lastColor = '2';
@@ -153,23 +156,24 @@ void CG_DrawChatbox( void ) {
 	int done = 0;
 	chatEntry_t *last = NULL;
 
+	if ( CG_ChatboxActive() ) {
+		char *pre = "Say: ";
+		if ( chat_team )
+			pre = "Team: ";
+		CG_Text_Paint( CHATBOX_POS_X, CHATBOX_POS_Y + (CHATBOX_LINE_HEIGHT*cg_chatboxLineCount->integer), CHATBOX_FONT_SCALE, (vector4 *)&g_color_table[ColorIndex(COLOR_WHITE)], va( chat_team ? "Team: %s" : "Say: %s", chatField.buffer ), 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+	}
+
 	if ( cg.scoreBoardShowing && !(cg.snap && cg.snap->ps.pm_type == PM_INTERMISSION) )
 		return;
 
 	//i is the ideal index. Now offset for scrolling
 	i += chatbox.scrollAmount;
 
-	if ( chatbox.numActiveLines == 0 )
+	if ( chatbox.numActiveLines == 0  )
 		return;
 
-	if ( CG_ChatboxActive() ) {
-		char *pre = "Say: ";
-		if ( chat_team )
-			pre = "Team: ";
-		CG_DrawBigString( CHATBOX_POS_X, CHATBOX_POS_Y + (CHATBOX_LINE_HEIGHT*cg_chatboxLineCount->integer), va( chat_team ? "Team: %s" : "Say: %s", chatField.buffer ), 1.0f );
-	}
-	if ( chatbox.scrollAmount < 0 )
-		CG_DrawBigString( CHATBOX_POS_X, CHATBOX_POS_Y - (CHATBOX_LINE_HEIGHT), va( "^3Scrolled lines: ^5%i\n", chatbox.scrollAmount*-1 ), 1.0f );
+	if ( chatbox.scrollAmount < 0 && CG_ChatboxActive() )
+		CG_Text_Paint( CHATBOX_POS_X, CHATBOX_POS_Y - (CHATBOX_LINE_HEIGHT), CHATBOX_FONT_SCALE, (vector4 *)&g_color_table[ColorIndex(COLOR_WHITE)], va( "^3Scrolled lines: ^5%i\n", chatbox.scrollAmount*-1 ), 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
 	for ( done = 0; done<cg_chatboxLineCount->integer && i<MAX_CHATBOX_ENTRIES; i++, done++ )
 	{
@@ -178,7 +182,7 @@ void CG_DrawChatbox( void ) {
 		{
 			last = chat;
 			if ( chat->time >= cg.time-cg_chatboxMsgTime->integer || (chatbox.scrollAmount && CG_ChatboxActive()) || CG_ChatboxActive() ) {
-				CG_DrawBigString( CHATBOX_POS_X, CHATBOX_POS_Y + (CHATBOX_LINE_HEIGHT * numLines), chat->message, 1.0f );
+				CG_Text_Paint( CHATBOX_POS_X, CHATBOX_POS_Y + (CHATBOX_LINE_HEIGHT * numLines), CHATBOX_FONT_SCALE, (vector4 *)&g_color_table[ColorIndex(COLOR_WHITE)], chat->message, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 				numLines++;
 			}
 		}
