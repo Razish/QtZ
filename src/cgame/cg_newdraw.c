@@ -1448,7 +1448,7 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vector4 *color, qhand
 
 static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle )
 {
-	vector4 *timeColour = NULL;
+	const vector4 *timeColour = NULL;
 	int msec=0, secs=0, mins=0, limitSec=cgs.timelimit*60;
 
 	if ( !cg_drawTimer->boolean && !cg_debugHUD->boolean && !cg.intermissionStarted )
@@ -1482,7 +1482,7 @@ static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_
 	msec %= 1000;
 
 	//QTZTODO: Masked timer?
-	CG_Text_Paint( rect->x, rect->y, scale, timeColour, va( "%i:%02i", mins, secs ), 0, 0, textStyle );
+	CG_Text_Paint( rect->x, rect->y, scale, (vector4*)timeColour, va( "%i:%02i", mins, secs ), 0, 0, textStyle );
 }
 //~QtZ
 
@@ -1762,7 +1762,7 @@ type 0 - no event handling
 
 */
 void CG_EventHandling(int type) {
-	cgs.eventHandling = type;
+//	cgs.eventHandling = type;
 	if (type == CGAME_EVENT_NONE) {
 		CG_HideTeamMenu();
 	} else if (type == CGAME_EVENT_TEAMMENU) {
@@ -1777,6 +1777,20 @@ void CG_EventHandling(int type) {
 void CG_KeyEvent(int key, qboolean down) {
 
 	if (!down) {
+		return;
+	}
+
+	if ( CG_ChatboxActive() ) {
+			 if ( key == K_ENTER ||
+				 key == K_KP_ENTER )	CG_ChatboxOutgoing();
+		else if ( key == K_TAB )		CG_ChatboxTabComplete();
+		else if ( key == K_PGDN )		CG_ChatboxScroll( 0 );
+		else if ( key == K_PGUP )		CG_ChatboxScroll( 1 );
+		else if ( key == K_UPARROW )	CG_ChatboxHistoryUp();
+		else if ( key == K_DOWNARROW )	CG_ChatboxHistoryDn();
+		else if ( key == K_BACKSPACE )	CG_ChatboxClear();
+		else if ( key == K_ESCAPE )		CG_ChatboxEscape();
+		else if ( key & K_CHAR_FLAG )	CG_ChatboxChar( key & ~K_CHAR_FLAG );
 		return;
 	}
 

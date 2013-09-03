@@ -654,15 +654,6 @@ Edit fields and command line history/completion
 //QtZ: Centralized this, could opt for a cvar later
 #define CONSOLE_PROMPT_CHAR '>'
 
-#define	MAX_EDIT_LINE	256
-typedef struct {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
-} field_t;
-
-void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
 void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );

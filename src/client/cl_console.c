@@ -81,67 +81,6 @@ void Con_ToggleConsole_f (void) {
 
 /*
 ================
-Con_MessageMode_f
-================
-*/
-void Con_MessageMode_f (void) {
-	chat_playerNum = -1;
-	chat_team = qfalse;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
-
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
-}
-
-/*
-================
-Con_MessageMode2_f
-================
-*/
-void Con_MessageMode2_f (void) {
-	chat_playerNum = -1;
-	chat_team = qtrue;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 25;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
-}
-
-/*
-================
-Con_MessageMode3_f
-================
-*/
-void Con_MessageMode3_f (void) {
-	chat_playerNum = cgame->CrosshairPlayer();
-	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
-		chat_playerNum = -1;
-		return;
-	}
-	chat_team = qfalse;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
-}
-
-/*
-================
-Con_MessageMode4_f
-================
-*/
-void Con_MessageMode4_f (void) {
-	chat_playerNum = cgame->LastAttacker();
-	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
-		chat_playerNum = -1;
-		return;
-	}
-	chat_team = qfalse;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
-}
-
-/*
-================
 Con_Clear_f
 ================
 */
@@ -325,10 +264,6 @@ void Con_Init (void) {
 	CL_LoadConsoleHistory( );
 
 	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f, NULL );
-	Cmd_AddCommand( "messagemode", Con_MessageMode_f, NULL );
-	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f, NULL );
-	Cmd_AddCommand( "messagemode3", Con_MessageMode3_f, NULL );
-	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f, NULL );
 	Cmd_AddCommand( "clear", Con_Clear_f, NULL );
 	Cmd_AddCommand( "condump", Con_Dump_f, Cmd_CompleteTxtName );
 }
@@ -338,13 +273,8 @@ void Con_Init (void) {
 Con_Shutdown
 ================
 */
-void Con_Shutdown(void)
-{
+void Con_Shutdown( void ) {
 	Cmd_RemoveCommand( "toggleconsole" );
-	Cmd_RemoveCommand( "messagemode" );
-	Cmd_RemoveCommand( "messagemode2" );
-	Cmd_RemoveCommand( "messagemode3" );
-	Cmd_RemoveCommand( "messagemode4" );
 	Cmd_RemoveCommand( "clear" );
 	Cmd_RemoveCommand( "condump" );
 }
@@ -557,25 +487,6 @@ void Con_DrawNotify (void)
 
 	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) )
 		return;
-
-	// draw the chat line
-	//QTZTODO: Redo the chatbox and such
-	if ( Key_GetCatcher() & KEYCATCH_MESSAGE )
-	{
-		if ( chat_team ) {
-			SCR_DrawBigString( 8, v, "say_team:", 1.0f, qfalse );
-			skip = 10;
-		}
-		else {
-			SCR_DrawBigString( 8, v, "say:", 1.0f, qfalse );
-			skip = 5;
-		}
-
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, (int)SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue, NULL );
-
-		v += BIGCHAR_HEIGHT;
-	}
-
 }
 
 /*

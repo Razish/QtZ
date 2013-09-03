@@ -1671,6 +1671,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 	CG_DrawVote();
 	CG_DrawLagometer();
+	CG_DrawChatbox();
 
 	y = SCREEN_HEIGHT-SMALLCHAR_HEIGHT;
 
@@ -1714,8 +1715,5 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	trap->R_RenderScene( &cg.refdef );
 
 	// draw status bar and other floating elements
- 	CG_Draw2D(stereoView);
+ 	CG_Draw2D( stereoView );
 }
-
-
-

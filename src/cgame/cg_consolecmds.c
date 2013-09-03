@@ -312,8 +312,8 @@ static void CG_TaskSuicide_f (void ) {
 }
 
 typedef struct consoleCommand_s {
-	char	*cmd;
-	void	(*function)(void);
+	const char *name;
+	void (*function)(void);
 } consoleCommand_t;
 
 static consoleCommand_t	commands[] = {
@@ -359,9 +359,41 @@ static consoleCommand_t	commands[] = {
 	{ "tauntGauntlet", CG_TauntGauntlet_f },
 	{ "scoresDown", CG_scrollScoresDown_f },
 	{ "scoresUp", CG_scrollScoresUp_f },
+	{ "loaddeferred", CG_LoadDeferredPlayers },
+	{ "messageModeAll", CG_MessageModeAll },
+	{ "messageModeTeam", CG_MessageModeTeam },
 
-	//{ "camera", CG_Camera_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers }	
+	// the game server will interpret these commands, which will be automatically
+	// forwarded to the server after they are not recognized locally
+	{ "kill", NULL },
+	{ "say", NULL },
+	{ "say_team", NULL },
+	{ "tell", NULL },
+	{ "vsay", NULL },
+	{ "vsay_team", NULL },
+	{ "vtell", NULL },
+	{ "vtaunt", NULL },
+	{ "vosay", NULL },
+	{ "vosay_team", NULL },
+	{ "votell", NULL },
+	{ "give", NULL },
+	{ "god", NULL },
+	{ "notarget", NULL },
+	{ "noclip", NULL },
+	{ "where", NULL },
+	{ "team", NULL },
+	{ "follow", NULL },
+	{ "follownext", NULL },
+	{ "followprev", NULL },
+	{ "addbot", NULL },
+	{ "setviewpos", NULL },
+	{ "callvote", NULL },
+	{ "vote", NULL },
+	{ "callteamvote", NULL },
+	{ "teamvote", NULL },
+	{ "stats", NULL },
+	{ "teamtask", NULL },
+	{ "loaddefered", NULL }, // spelled wrong, but not changing for demo
 };
 
 /*
@@ -376,39 +408,12 @@ void CG_InitConsoleCommands( void ) {
 	int i;
 
 	for ( i=0; i<ARRAY_LEN( commands ); i++ )
-		trap->AddCommand( commands[i].cmd, commands[i].function, NULL );
+		trap->AddCommand( commands[i].name, commands[i].function, NULL );
+}
 
-	//
-	// the game server will interpret these commands, which will be automatically
-	// forwarded to the server after they are not recognized locally
-	//
-	trap->AddCommand( "kill", NULL, NULL );
-	trap->AddCommand( "say", NULL, NULL );
-	trap->AddCommand( "say_team", NULL, NULL );
-	trap->AddCommand( "tell", NULL, NULL );
-	trap->AddCommand( "vsay", NULL, NULL );
-	trap->AddCommand( "vsay_team", NULL, NULL );
-	trap->AddCommand( "vtell", NULL, NULL );
-	trap->AddCommand( "vtaunt", NULL, NULL );
-	trap->AddCommand( "vosay", NULL, NULL );
-	trap->AddCommand( "vosay_team", NULL, NULL );
-	trap->AddCommand( "votell", NULL, NULL );
-	trap->AddCommand( "give", NULL, NULL );
-	trap->AddCommand( "god", NULL, NULL );
-	trap->AddCommand( "notarget", NULL, NULL );
-	trap->AddCommand( "noclip", NULL, NULL );
-	trap->AddCommand( "where", NULL, NULL );
-	trap->AddCommand( "team", NULL, NULL );
-	trap->AddCommand( "follow", NULL, NULL );
-	trap->AddCommand( "follownext", NULL, NULL );
-	trap->AddCommand( "followprev", NULL, NULL );
-	trap->AddCommand( "addbot", NULL, NULL );
-	trap->AddCommand( "setviewpos", NULL, NULL );
-	trap->AddCommand( "callvote", NULL, NULL );
-	trap->AddCommand( "vote", NULL, NULL );
-	trap->AddCommand( "callteamvote", NULL, NULL );
-	trap->AddCommand( "teamvote", NULL, NULL );
-	trap->AddCommand( "stats", NULL, NULL );
-	trap->AddCommand( "teamtask", NULL, NULL );
-	trap->AddCommand( "loaddefered", NULL, NULL );	// spelled wrong, but not changing for demo
+void CG_ShutdownConsoleCommands( void ) {
+	int i;
+
+	for ( i=0; i<ARRAY_LEN( commands ); i++ )
+		trap->RemoveCommand( commands[i].name );
 }

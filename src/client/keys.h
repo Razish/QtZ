@@ -36,14 +36,11 @@ void Field_CharEvent( field_t *edit, int ch );
 void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color );
 void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color );
 
-#define		COMMAND_HISTORY		64
-extern	field_t	historyEditLines[COMMAND_HISTORY];
+#define COMMAND_HISTORY (64)
+extern field_t historyEditLines[COMMAND_HISTORY];
 
-extern	field_t	g_consoleField;
-extern	field_t	chatField;
-extern	int				anykeydown;
-extern	qboolean	chat_team;
-extern	int			chat_playerNum;
+extern field_t g_consoleField;
+extern int anykeydown;
 
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );

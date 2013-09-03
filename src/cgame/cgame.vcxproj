@@ -279,6 +279,7 @@
     <ClCompile Include="..\qcommon\q_math.c" />
     <ClCompile Include="..\qcommon\q_shared.c" />
     <ClCompile Include="..\ui\ui_shared.c" />
+    <ClCompile Include="cg_chatbox.c" />
     <ClCompile Include="cg_consolecmds.c" />
     <ClCompile Include="cg_draw.c" />
     <ClCompile Include="cg_drawtools.c" />
@@ -297,6 +298,7 @@
     <ClCompile Include="cg_scoreboard.c" />
     <ClCompile Include="cg_servercmds.c" />
     <ClCompile Include="cg_snapshot.c" />
+    <ClCompile Include="cg_teambinds.c" />
     <ClCompile Include="cg_view.c" />
     <ClCompile Include="cg_weapons.c" />
     <ClCompile Include="cg_weaponfx.c" />

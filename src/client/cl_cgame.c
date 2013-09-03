@@ -493,6 +493,7 @@ void CL_InitCGame( void ) {
 	cgameTrap.Key_GetCatcher				= Key_GetCatcher;
 	cgameTrap.Key_SetCatcher				= Key_SetCatcher;
 	cgameTrap.Key_GetKey					= Key_GetKey;
+	cgameTrap.Field_CharEvent				= Field_CharEvent;
 	cgameTrap.PC_AddGlobalDefine			= botlib_export->PC_AddGlobalDefine;
 	cgameTrap.PC_LoadSourceHandle			= botlib_export->PC_LoadSourceHandle;
 	cgameTrap.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;

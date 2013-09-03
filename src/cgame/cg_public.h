@@ -164,6 +164,8 @@ typedef struct cgameImport_s {
 	void			(*Key_SetCatcher)				( int catcher );
 	int				(*Key_GetKey)					( const char *binding );
 
+	void			(*Field_CharEvent)				( field_t *edit, int ch );
+
 	// preprocessor, imported from botlib
 	int				(*PC_AddGlobalDefine)			( char *string );
 	int				(*PC_LoadSourceHandle)			( const char *filename );

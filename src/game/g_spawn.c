@@ -87,9 +87,9 @@ typedef struct
 	char	*name;
 	size_t	ofs;
 	fieldtype_t	type;
-} field_t;
+} spawnField_t;
 
-field_t fields[] = {
+spawnField_t fields[] = {
 	// sorted alphabetically, not case sensitive
 	{ "angle",					FOFS( s.angles ),				F_ANGLEHACK },
 	{ "angles",					FOFS( s.angles ),				F_VECTOR },
@@ -317,16 +317,16 @@ in a gentity
 ===============
 */
 static int fieldcmp( const void *a, const void *b ) {
-	return Q_stricmp( (const char *)a, ((field_t*)b)->name );
+	return Q_stricmp( (const char *)a, ((spawnField_t*)b)->name );
 }
 
 void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
-	field_t	*f;
+	spawnField_t	*f;
 	byte	*b;
 	float	v;
 	vector3	vec;
 
-	f = (field_t *)bsearch( key, fields, ARRAY_LEN( fields ), sizeof( field_t ), fieldcmp );
+	f = (spawnField_t *)bsearch( key, fields, ARRAY_LEN( fields ), sizeof( spawnField_t ), fieldcmp );
 	if ( f ) {
 		b = (byte *)ent;
 

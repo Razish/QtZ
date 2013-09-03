@@ -1130,9 +1130,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 }
 
-#define EC_GLOBAL	"\x19"
-#define EC_PRIVATE	"\x12"
-
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j, color;
 	gentity_t	*other;

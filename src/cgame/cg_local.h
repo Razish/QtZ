@@ -1299,6 +1299,7 @@ void CG_DrawOldTourneyScoreboard( void );
 // cg_consolecmds.c
 //
 void CG_InitConsoleCommands( void );
+void CG_ShutdownConsoleCommands( void );
 
 //
 // cg_servercmds.c
@@ -1318,6 +1319,27 @@ void CG_Respawn( void );
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 void CG_CheckChangedPredictableEvents( playerState_t *ps );
 
+//
+// cg_teambinds.c
+//
+void CG_HandleTeamBinds( char *buf, int bufsize );
+
+//
+// cg_chatbox.c
+//
+void CG_ChatboxHistoryUp( void );
+void CG_ChatboxHistoryDn( void );
+void CG_ChatboxTabComplete( void );
+void CG_ChatboxScroll( int direction );
+void CG_DrawChatbox( void );
+void CG_ChatboxAdd( const char *message, qboolean multiLine );
+void CG_ChatboxOutgoing( void );
+void CG_ChatboxClear( void );
+void CG_ChatboxEscape( void );
+void CG_MessageModeAll( void );
+void CG_MessageModeTeam( void );
+void CG_ChatboxChar( int key );
+qboolean CG_ChatboxActive( void );
 
 //===============================================
 

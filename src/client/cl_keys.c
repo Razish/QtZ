@@ -34,11 +34,6 @@ int			historyLine;	// the line being displayed from history buffer
 							// will be <= nextHistoryLine
 
 field_t		g_consoleField;
-field_t		chatField;
-qboolean	chat_team;
-
-int			chat_playerNum;
-
 
 qboolean	key_overstrikeMode;
 
@@ -776,52 +771,6 @@ void Console_Key (int key) {
 //============================================================================
 
 
-/*
-================
-Message_Key
-
-In game talk message
-================
-*/
-void Message_Key( int key ) {
-
-	char	buffer[MAX_STRING_CHARS];
-
-
-	if (key == K_ESCAPE) {
-		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
-		Field_Clear( &chatField );
-		return;
-	}
-
-	if ( key == K_ENTER || key == K_KP_ENTER )
-	{
-		if ( chatField.buffer[0] && clc.state == CA_ACTIVE ) {
-			if (chat_playerNum != -1 )
-
-				Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
-
-			else if (chat_team)
-
-				Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
-			else
-				Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
-
-
-
-			CL_AddReliableCommand(buffer, qfalse);
-		}
-		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
-		Field_Clear( &chatField );
-		return;
-	}
-
-	Field_KeyDownEvent( &chatField, key );
-}
-
-//============================================================================
-
-
 qboolean Key_GetOverstrikeMode( void ) {
 	return key_overstrikeMode;
 }
@@ -1264,12 +1213,6 @@ void CL_KeyDownEvent( int key, unsigned time )
 
 	// escape is always handled special
 	if ( key == K_ESCAPE ) {
-		if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
-			// clear message mode
-			Message_Key( key );
-			return;
-		}
-
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
@@ -1302,9 +1245,6 @@ void CL_KeyDownEvent( int key, unsigned time )
 	}
 	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
 		if ( cls.cgameStarted ) cgame->KeyEvent( key, qtrue );
-	}
-	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
-		Message_Key( key );
 	}
 	else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
@@ -1382,22 +1322,10 @@ void CL_CharEvent( int key ) {
 	}
 
 	// distribute the key down event to the apropriate handler
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-	{
-		Field_CharEvent( &g_consoleField, key );
-	}
-	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
-	{
-		ui->KeyEvent( key|K_CHAR_FLAG, qtrue );
-	}
-	else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) 
-	{
-		Field_CharEvent( &chatField, key );
-	}
-	else if ( clc.state == CA_DISCONNECTED )
-	{
-		Field_CharEvent( &g_consoleField, key );
-	}
+		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )	Field_CharEvent( &g_consoleField, key );
+	else if ( Key_GetCatcher() & KEYCATCH_UI )		ui->KeyEvent( key|K_CHAR_FLAG, qtrue );
+	else if ( Key_GetCatcher() & KEYCATCH_CGAME )	cgame->KeyEvent( key|K_CHAR_FLAG, qtrue );
+	else if ( clc.state == CA_DISCONNECTED )		Field_CharEvent( &g_consoleField, key );
 }
 
 
@@ -1420,7 +1348,7 @@ void Key_ClearStates (void)
 			CL_KeyEvent( i, qfalse, 0 );
 
 		}
-		keys[i].down = 0;
+		keys[i].down = qfalse;
 		keys[i].repeats = 0;
 	}
 }
