@@ -132,156 +132,122 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_SHOW_UNUSED02				0x40000000
 #define CG_SHOW_UNUSED01				0x80000000
 
-#define UI_SHOW_LEADER				0x00000001
-#define UI_SHOW_NOTLEADER			0x00000002
-#define UI_SHOW_FAVORITESERVERS		0x00000004
-#define UI_SHOW_ANYNONTEAMGAME		0x00000008
-#define UI_SHOW_ANYTEAMGAME			0x00000010
-#define UI_SHOW_NEWHIGHSCORE		0x00000020
-#define UI_SHOW_DEMOAVAILABLE		0x00000040
-#define UI_SHOW_NEWBESTTIME			0x00000080
-#define UI_SHOW_FFA					0x00000100
-#define UI_SHOW_NOTFFA				0x00000200
-#define UI_SHOW_NOTFAVORITESERVERS	0x00000400
+#define UI_SHOW_FAVORITESERVERS		0x00000001
+#define UI_SHOW_ANYNONTEAMGAME		0x00000002
+#define UI_SHOW_ANYTEAMGAME			0x00000004
+#define UI_SHOW_NEWHIGHSCORE		0x00000008
+#define UI_SHOW_DEMOAVAILABLE		0x00000010
+#define UI_SHOW_NEWBESTTIME			0x00000020
+#define UI_SHOW_FFA					0x00000040
+#define UI_SHOW_NOTFFA				0x00000080
+#define UI_SHOW_NOTFAVORITESERVERS	0x00000100
 
 
 // owner draw types
 // ideally these should be done outside of this file but
 // this makes it much easier for the macro expansion to 
 // convert them for the designers ( from the .menu files )
-#define CG_OWNERDRAW_BASE				1
-#define CG_PLAYER_ARMOR_ICON			1
-#define CG_PLAYER_ARMOR_VALUE			2
-#define CG_PLAYER_HEAD					3
-#define CG_PLAYER_HEALTH				4
-#define CG_PLAYER_AMMO_ICON				5
-#define CG_PLAYER_AMMO_VALUE			6
-#define CG_SELECTEDPLAYER_HEAD			7
-#define CG_SELECTEDPLAYER_NAME			8
-#define CG_SELECTEDPLAYER_LOCATION		9
-#define CG_SELECTEDPLAYER_STATUS		10
-#define CG_SELECTEDPLAYER_WEAPON		11
-#define CG_SELECTEDPLAYER_POWERUP		12
-
-#define CG_FLAGCARRIER_HEAD				13
-#define CG_FLAGCARRIER_NAME				14
-#define CG_FLAGCARRIER_LOCATION			15
-#define CG_FLAGCARRIER_STATUS			16
-#define CG_FLAGCARRIER_WEAPON			17
-#define CG_FLAGCARRIER_POWERUP			18
-
-#define CG_PLAYER_ITEM					19
-#define CG_PLAYER_SCORE					20
-
-#define CG_BLUE_FLAGHEAD				21
-#define CG_BLUE_FLAGSTATUS				22
-#define CG_BLUE_FLAGNAME				23
-#define CG_RED_FLAGHEAD					24
-#define CG_RED_FLAGSTATUS				25
-#define CG_RED_FLAGNAME					26
-
-#define CG_BLUE_SCORE					27
-#define CG_RED_SCORE					28
-#define CG_RED_NAME						29
-#define CG_BLUE_NAME					30
-#define CG_ONEFLAG_STATUS				31
-#define CG_PLAYER_LOCATION				32
-#define CG_TEAM_COLOR					33
-#define CG_CTF_POWERUP					34
-
-#define CG_AREA_POWERUP					35
-#define CG_AREA_LAGOMETER				36	// painted with old system
-#define CG_PLAYER_HASFLAG				37
-#define CG_GAME_TYPE					38	// not done
-
-#define CG_SELECTEDPLAYER_ARMOR			39
-#define CG_SELECTEDPLAYER_HEALTH		40
-#define CG_PLAYER_STATUS				41
-#define CG_FRAGGED_MSG					42	// painted with old system
-#define CG_AREA_FPSINFO					43	// painted with old system
-#define CG_AREA_SYSTEMCHAT				44	// painted with old system
-#define CG_AREA_TEAMCHAT				45	// painted with old system
-#define CG_AREA_CHAT					46	// painted with old system
-#define CG_GAME_STATUS					47
-#define CG_KILLER						48
-#define CG_PLAYER_ARMOR_ICON2D			49
-#define CG_PLAYER_AMMO_ICON2D			51
-#define CG_ACCURACY						52
-#define CG_ASSISTS						53
-#define CG_DEFEND						54
-#define CG_EXCELLENT					55
-#define CG_IMPRESSIVE					56
-#define CG_PERFECT						57
-#define CG_GAUNTLET						58
-#define CG_SPECTATORS					59
-#define CG_TEAMINFO						60
-#define CG_VOICE_HEAD					61
-#define CG_VOICE_NAME					62
-#define CG_PLAYER_HASFLAG2D				63
-#define CG_CAPFRAGLIMIT					64
-#define CG_1STPLACE						65
-#define CG_2NDPLACE						66
-#define CG_CAPTURES						67
-//QtZ: Added
-#define CG_FPS_INFO						68
-#define CG_PING_INFO					69
-#define CG_OBITUARY						70
-#define CG_ITEMPICKUP					71
-#define CG_TIMER						72
-//~QtZ
-
-
+#define CG_OWNERDRAW_BASE				 1
+#define CG_PLAYER_ARMOR_ICON			 2
+#define CG_PLAYER_ARMOR_VALUE			 3
+#define CG_PLAYER_HEAD					 4
+#define CG_PLAYER_HEALTH				 5
+#define CG_PLAYER_AMMO_ICON				 6
+#define CG_PLAYER_AMMO_VALUE			 7
+#define CG_FLAGCARRIER_HEAD				 8
+#define CG_FLAGCARRIER_NAME				 9
+#define CG_FLAGCARRIER_LOCATION			10
+#define CG_FLAGCARRIER_STATUS			11
+#define CG_FLAGCARRIER_WEAPON			12
+#define CG_FLAGCARRIER_POWERUP			13
+#define CG_PLAYER_ITEM					14
+#define CG_PLAYER_SCORE					15
+#define CG_BLUE_FLAGHEAD				16
+#define CG_BLUE_FLAGSTATUS				17
+#define CG_BLUE_FLAGNAME				18
+#define CG_RED_FLAGHEAD					19
+#define CG_RED_FLAGSTATUS				20
+#define CG_RED_FLAGNAME					21
+#define CG_BLUE_SCORE					22
+#define CG_RED_SCORE					23
+#define CG_RED_NAME						24
+#define CG_BLUE_NAME					25
+#define CG_ONEFLAG_STATUS				26
+#define CG_PLAYER_LOCATION				27
+#define CG_TEAM_COLOR					28
+#define CG_CTF_POWERUP					29
+#define CG_AREA_POWERUP					30
+#define CG_AREA_LAGOMETER				31	// painted with old system
+#define CG_PLAYER_HASFLAG				32
+#define CG_GAME_TYPE					33	// not done
+#define CG_FRAGGED_MSG					34	// painted with old system
+#define CG_AREA_FPSINFO					35	// painted with old system
+#define CG_AREA_SYSTEMCHAT				36	// painted with old system
+#define CG_AREA_TEAMCHAT				37	// painted with old system
+#define CG_AREA_CHAT					38	// painted with old system
+#define CG_GAME_STATUS					39
+#define CG_KILLER						40
+#define CG_PLAYER_ARMOR_ICON2D			41
+#define CG_PLAYER_AMMO_ICON2D			42
+#define CG_ACCURACY						43
+#define CG_ASSISTS						44
+#define CG_DEFEND						45
+#define CG_EXCELLENT					46
+#define CG_IMPRESSIVE					47
+#define CG_PERFECT						48
+#define CG_GAUNTLET						49
+#define CG_SPECTATORS					50
+#define CG_TEAMINFO						51
+#define CG_PLAYER_HASFLAG2D				52
+#define CG_CAPFRAGLIMIT					53
+#define CG_1STPLACE						54
+#define CG_2NDPLACE						55
+#define CG_CAPTURES						56
+#define CG_FPS_INFO						57
+#define CG_PING_INFO					58
+#define CG_OBITUARY						59
+#define CG_ITEMPICKUP					60
+#define CG_TIMER						61
 
 #define UI_OWNERDRAW_BASE		200
-#define UI_HANDICAP				200
-#define UI_EFFECTS				201
-#define UI_PLAYERMODEL			202
-#define UI_CLANNAME				203
-#define UI_CLANLOGO				204
-#define UI_GAMETYPE				205
-#define UI_MAPPREVIEW			206
-#define UI_SKILL				207
-#define UI_BLUETEAMNAME			208
-#define UI_REDTEAMNAME			209
-#define UI_BLUETEAM1			210
-#define UI_BLUETEAM2			211
-#define UI_BLUETEAM3			212
-#define UI_BLUETEAM4			213
-#define UI_BLUETEAM5			214
-#define UI_REDTEAM1				215
-#define UI_REDTEAM2				216
-#define UI_REDTEAM3				217
-#define UI_REDTEAM4				218
-#define UI_REDTEAM5				219
-#define UI_NETSOURCE			220
-#define UI_NETMAPPREVIEW		221
-#define UI_NETFILTER			222
-#define UI_PLAYERLOGO			223
-#define UI_OPPONENTLOGO			224
-#define UI_PLAYERLOGO_METAL		225
-#define UI_OPPONENTLOGO_METAL	226
-#define UI_PLAYERLOGO_NAME		227
-#define UI_OPPONENTLOGO_NAME	228
-#define UI_ALLMAPS_SELECTION	229
-#define UI_OPPONENT_NAME		230
-#define UI_VOTE_KICK			231
-#define UI_BOTNAME				232
-#define UI_BOTSKILL				233
-#define UI_REDBLUE				234
-#define UI_CROSSHAIR			235
-#define UI_SELECTEDPLAYER		236
-#define UI_MAPCINEMATIC			237
-#define UI_NETMAPCINEMATIC		238
-#define UI_SERVERREFRESHDATE	239
-#define UI_SERVERMOTD			240
-#define UI_GLINFO				241
-#define UI_KEYBINDSTATUS		242
-#define UI_CLANCINEMATIC		243
-#define UI_MAP_TIMETOBEAT		244
-#define UI_JOINGAMETYPE			245
-#define UI_PREVIEWCINEMATIC		246
-#define UI_STARTMAPCINEMATIC	247
-#define UI_MAPS_SELECTION		248
+#define UI_PLAYERMODEL			201
+#define UI_GAMETYPE				202
+#define UI_MAPPREVIEW			203
+#define UI_SKILL				204
+#define UI_BLUETEAMNAME			205
+#define UI_REDTEAMNAME			206
+#define UI_BLUETEAM1			207
+#define UI_BLUETEAM2			208
+#define UI_BLUETEAM3			209
+#define UI_BLUETEAM4			210
+#define UI_BLUETEAM5			211
+#define UI_REDTEAM1				212
+#define UI_REDTEAM2				213
+#define UI_REDTEAM3				214
+#define UI_REDTEAM4				215
+#define UI_REDTEAM5				216
+#define UI_NETSOURCE			217
+#define UI_NETMAPPREVIEW		218
+#define UI_NETFILTER			219
+#define UI_PLAYERLOGO_NAME		220
+#define UI_ALLMAPS_SELECTION	221
+#define UI_VOTE_KICK			222
+#define UI_BOTNAME				223
+#define UI_BOTSKILL				224
+#define UI_REDBLUE				225
+#define UI_CROSSHAIR			226
+#define UI_SELECTEDPLAYER		227
+#define UI_MAPCINEMATIC			228
+#define UI_NETMAPCINEMATIC		239
+#define UI_SERVERREFRESHDATE	230
+#define UI_SERVERMOTD			231
+#define UI_GLINFO				232
+#define UI_KEYBINDSTATUS		233
+#define UI_MAP_TIMETOBEAT		234
+#define UI_JOINGAMETYPE			235
+#define UI_PREVIEWCINEMATIC		236
+#define UI_STARTMAPCINEMATIC	237
+#define UI_MAPS_SELECTION		238
 
 #define VOICECHAT_GETFLAG			"getflag"				// command someone to get the flag
 #define VOICECHAT_OFFENSE			"offense"				// command someone to go on offense
@@ -306,10 +272,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define VOICECHAT_IHAVEFLAG			"ihaveflag"				// I have the flag
 #define VOICECHAT_BASEATTACK		"baseattack"			// the base is under attack
 #define VOICECHAT_ENEMYHASFLAG		"enemyhasflag"			// the enemy has our flag (CTF)
-#define VOICECHAT_STARTLEADER		"startleader"			// I'm the leader
-#define VOICECHAT_STOPLEADER		"stopleader"			// I resign leadership
 #define VOICECHAT_TRASH				"trash"					// lots of trash talk
-#define VOICECHAT_WHOISLEADER		"whoisleader"			// who is the team leader
 #define VOICECHAT_WANTONDEFENSE		"wantondefense"			// I want to be on defense
 #define VOICECHAT_WANTONOFFENSE		"wantonoffense"			// I want to be on offense
 #define VOICECHAT_KILLINSULT		"kill_insult"			// I just killed you

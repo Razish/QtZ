@@ -412,28 +412,6 @@ void RemoveTournamentWinner( void ) {
 }
 
 /*
-=======================
-AdjustTournamentScores
-=======================
-*/
-void AdjustTournamentScores( void ) {
-	int			clientNum;
-
-	clientNum = level.sortedClients[0];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
-		level.clients[ clientNum ].sess.wins++;
-		ClientUserinfoChanged( clientNum );
-	}
-
-	clientNum = level.sortedClients[1];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
-		level.clients[ clientNum ].sess.losses++;
-		ClientUserinfoChanged( clientNum );
-	}
-
-}
-
-/*
 =============
 SortRanks
 
@@ -699,11 +677,6 @@ void BeginIntermission( void ) {
 
 	if ( level.intermissiontime ) {
 		return;		// already active
-	}
-
-	// if in tournement mode, change the wins / losses
-	if ( level.gametype == GT_DUEL ) {
-		AdjustTournamentScores();
 	}
 
 	level.intermissiontime = level.time;
@@ -1302,70 +1275,6 @@ void PrintTeam(int team, char *message) {
 		if (level.clients[i].sess.sessionTeam != team)
 			continue;
 		trap->SV_GameSendServerCommand( i, message );
-	}
-}
-
-/*
-==================
-SetLeader
-==================
-*/
-void SetLeader(int team, int client) {
-	int i;
-
-	if ( level.clients[client].pers.connected == CON_DISCONNECTED ) {
-		PrintTeam(team, va("print \"%s is not connected\n\"", level.clients[client].pers.netname) );
-		return;
-	}
-	if (level.clients[client].sess.sessionTeam != team) {
-		PrintTeam(team, va("print \"%s is not on the team anymore\n\"", level.clients[client].pers.netname) );
-		return;
-	}
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if (level.clients[i].sess.sessionTeam != team)
-			continue;
-		if (level.clients[i].sess.teamLeader) {
-			level.clients[i].sess.teamLeader = qfalse;
-			ClientUserinfoChanged(i);
-		}
-	}
-	level.clients[client].sess.teamLeader = qtrue;
-	ClientUserinfoChanged( client );
-	PrintTeam(team, va("print \"%s is the new team leader\n\"", level.clients[client].pers.netname) );
-}
-
-/*
-==================
-CheckTeamLeader
-==================
-*/
-void CheckTeamLeader( int team ) {
-	int i;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if (level.clients[i].sess.sessionTeam != team)
-			continue;
-		if (level.clients[i].sess.teamLeader)
-			break;
-	}
-	if (i >= level.maxclients) {
-		for ( i = 0 ; i < level.maxclients ; i++ ) {
-			if (level.clients[i].sess.sessionTeam != team)
-				continue;
-			if (!(g_entities[i].r.svFlags & SVF_BOT)) {
-				level.clients[i].sess.teamLeader = qtrue;
-				break;
-			}
-		}
-
-		if (i >= level.maxclients) {
-			for ( i = 0 ; i < level.maxclients ; i++ ) {
-				if (level.clients[i].sess.sessionTeam != team)
-					continue;
-				level.clients[i].sess.teamLeader = qtrue;
-				break;
-			}
-		}
 	}
 }
 

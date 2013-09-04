@@ -58,7 +58,7 @@ typedef struct dlight_s {
 
 // a trRefEntity_t has all the information passed in by
 // the client game, as well as some locally derived info
-typedef struct {
+typedef struct trRefEntity_s {
 	refEntity_t	e;
 
 	float		axisLength;		// compensate for non-normalized axis
@@ -72,7 +72,7 @@ typedef struct {
 } trRefEntity_t;
 
 
-typedef struct {
+typedef struct orientationr_s {
 	vector3		origin;			// in world coordinates
 	vector3		axis[3];		// orientation in world
 	vector3		viewOrigin;		// viewParms->or.origin in local coordinates
@@ -207,7 +207,7 @@ typedef enum {
 	ACFF_MODULATE_ALPHA
 } acff_t;
 
-typedef struct {
+typedef struct waveForm_s {
 	genFunc_t	func;
 
 	float base;
@@ -230,7 +230,7 @@ typedef enum {
 } texMod_t;
 
 #define	MAX_SHADER_DEFORMS	3
-typedef struct {
+typedef struct deformStage_s {
 	deform_t	deformation;			// vertex coordinate modification type
 
 	vector3		moveVector;
@@ -243,7 +243,7 @@ typedef struct {
 } deformStage_t;
 
 
-typedef struct {
+typedef struct texModInfo_s {
 	texMod_t		type;
 
 	// used for TMOD_TURBULENT and TMOD_STRETCH
@@ -270,7 +270,7 @@ typedef struct {
 
 #define	MAX_IMAGE_ANIMATIONS	8
 
-typedef struct {
+typedef struct textureBundle_s {
 	image_t			*image[MAX_IMAGE_ANIMATIONS];
 	int				numImageAnimations;
 	float			imageAnimationSpeed;
@@ -289,7 +289,7 @@ typedef struct {
 
 #define NUM_TEXTURE_BUNDLES 2
 
-typedef struct {
+typedef struct shaderStage_s {
 	qboolean		active;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
@@ -330,146 +330,141 @@ typedef enum {
 	FP_LE			// surface is trnaslucent, but still needs a fog pass (fog surface)
 } fogPass_t;
 
-typedef struct {
+typedef struct skyParms_s {
 	float		cloudHeight;
 	image_t		*outerbox[6], *innerbox[6];
 } skyParms_t;
 
-typedef struct {
+typedef struct fogParms_s {
 	vector3	color;
 	float	depthForOpaque;
 } fogParms_t;
 
 
 typedef struct shader_s {
-	char		name[MAX_QPATH];		// game path, including extension
-	int			lightmapIndex;			// for a shader to match, both name and lightmapIndex must match
+	char			name[MAX_QPATH];		// game path, including extension
+	int				lightmapIndex;			// for a shader to match, both name and lightmapIndex must match
 
-	int			index;					// this shader == tr.shaders[index]
-	int			sortedIndex;			// this shader == tr.sortedShaders[sortedIndex]
+	int				index;					// this shader == tr.shaders[index]
+	int				sortedIndex;			// this shader == tr.sortedShaders[sortedIndex]
 
-	float		sort;					// lower numbered shaders draw before higher numbered
+	float			sort;					// lower numbered shaders draw before higher numbered
 
-	qboolean	defaultShader;			// we want to return index 0 if the shader failed to
-										// load for some reason, but R_FindShader should
-										// still keep a name allocated for it, so if
-										// something calls RE_RegisterShader again with
-										// the same name, we don't try looking for it again
+	qboolean		defaultShader;			// we want to return index 0 if the shader failed to load for some reason, but R_FindShader should still keep a name
+											//	allocated for it, so if something calls RE_RegisterShader again with the same name, we don't try looking for it again
 
-	qboolean	explicitlyDefined;		// found in a .shader file
+	qboolean		explicitlyDefined;		// found in a .shader file
 
-	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
-	int			contentFlags;
+	int				surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
+	int				contentFlags;
 
-	qboolean	entityMergable;			// merge across entites optimizable (smoke, blood)
+	qboolean		entityMergable;			// merge across entites optimizable (smoke, blood)
 
-	qboolean	isSky;
-	skyParms_t	sky;
-	fogParms_t	fogParms;
+	qboolean		isSky;
+	skyParms_t		sky;
+	fogParms_t		fogParms;
 
-	float		portalRange;			// distance to fog out at
+	float			portalRange;			// distance to fog out at
 
-	int			multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
+	int				multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
-	cullType_t	cullType;				// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
-	qboolean	polygonOffset;			// set for decals and other items that must be offset 
-	qboolean	noMipMaps;				// for console fonts, 2D elements, etc.
-	qboolean	noPicMip;				// for images that must always be full resolution
+	cullType_t		cullType;				// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
+	qboolean		polygonOffset;			// set for decals and other items that must be offset 
+	qboolean		noMipMaps;				// for console fonts, 2D elements, etc.
+	qboolean		noPicMip;				// for images that must always be full resolution
 
-	fogPass_t	fogPass;				// draw a blended pass, possibly with depth test equals
+	fogPass_t		fogPass;				// draw a blended pass, possibly with depth test equals
 
-	qboolean	needsNormal;			// not all shaders will need all data to be gathered
-	qboolean	needsST1;
-	qboolean	needsST2;
-	qboolean	needsColor;
+	qboolean		needsNormal;			// not all shaders will need all data to be gathered
+	qboolean		needsST1;
+	qboolean		needsST2;
+	qboolean		needsColor;
 
-	int			numDeforms;
+	int				numDeforms;
 	deformStage_t	deforms[MAX_SHADER_DEFORMS];
 
-	int			numUnfoggedPasses;
+	int				numUnfoggedPasses;
 	shaderStage_t	*stages[MAX_SHADER_STAGES];		
 
-	void		(*optimalStageIteratorFunc)( void );
+	void			(*optimalStageIteratorFunc)( void );
 
-  float clampTime;                                  // time this shader is clamped to
-  float timeOffset;                                 // current time offset for this shader
+	float			clampTime;			// time this shader is clamped to
+	float			timeOffset;			// current time offset for this shader
 
-  int numStates;                                    // if non-zero this is a state shader
-  struct shader_s *currentShader;                   // current state if this is a state shader
-  struct shader_s *parentShader;                    // current state if this is a state shader
-  int currentState;                                 // current state index for cycle purposes
-  long expireTime;                                  // time in milliseconds this expires
+	int				numStates;			// if non-zero this is a state shader
+	struct shader_s	*currentShader;		// current state if this is a state shader
+	struct shader_s	*parentShader;		// current state if this is a state shader
+	int				currentState;		// current state index for cycle purposes
+	long			expireTime;			// time in milliseconds this expires
 
-  struct shader_s *remappedShader;                  // current shader this one is remapped too
+	struct shader_s	*remappedShader;	// current shader this one is remapped too
 
-  int shaderStates[MAX_STATES_PER_SHADER];          // index to valid shader states
+	int				shaderStates[MAX_STATES_PER_SHADER];	// index to valid shader states
 
-	struct	shader_s	*next;
+	struct shader_s	*next;
 } shader_t;
 
 typedef struct shaderState_s {
-  char shaderName[MAX_QPATH];     // name of shader this state belongs to
-  char name[MAX_STATE_NAME];      // name of this state
-  char stateShader[MAX_QPATH];    // shader this name invokes
-  int cycleTime;                  // time this cycle lasts, <= 0 is forever
-  shader_t *shader;
+	char		shaderName[MAX_QPATH];     // name of shader this state belongs to
+	char		name[MAX_STATE_NAME];      // name of this state
+	char		stateShader[MAX_QPATH];    // shader this name invokes
+	int			cycleTime;                  // time this cycle lasts, <= 0 is forever
+	shader_t	*shader;
 } shaderState_t;
 
 
 // trRefdef_t holds everything that comes in refdef_t,
 // as well as the locally generated scene information
-typedef struct {
-	int			x, y, width, height;
-	float		fov_x, fov_y;
-	vector3		vieworg;
-	vector3		viewaxis[3];		// transformation matrix
+typedef struct trRefdef_s {
+	int					x, y, width, height;
+	float				fov_x, fov_y;
+	vector3				vieworg;
+	vector3				viewaxis[3];		// transformation matrix
 
-	stereoFrame_t	stereoFrame;
+	stereoFrame_t		stereoFrame;
 
-	int			time;				// time in milliseconds for shader effects and other time dependent rendering issues
-	int			rdflags;			// RDF_NOWORLDMODEL, etc
+	int					time;				// time in milliseconds for shader effects and other time dependent rendering issues
+	int					rdflags;			// RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
-	byte		areamask[MAX_MAP_AREA_BYTES];
-	qboolean	areamaskModified;	// qtrue if areamask changed since last scene
+	byte				areamask[MAX_MAP_AREA_BYTES];
+	qboolean			areamaskModified;	// qtrue if areamask changed since last scene
 
-	float		floatTime;			// tr.refdef.time / 1000.0
+	float				floatTime;			// tr.refdef.time / 1000.0
 
 	// text messages for deform text shaders
-	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+	char				text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 
-	int			num_entities;
-	trRefEntity_t	*entities;
+	int					num_entities;
+	trRefEntity_t		*entities;
 
-	int			num_dlights;
-	struct dlight_s	*dlights;
+	int					num_dlights;
+	struct dlight_s		*dlights;
 
-	int			numPolys;
+	int					numPolys;
 	struct srfPoly_s	*polys;
 
-	int			numDrawSurfs;
+	int					numDrawSurfs;
 	struct drawSurf_s	*drawSurfs;
-
-
 } trRefdef_t;
 
 
 //=================================================================================
 
 // skins allow models to be retextured without modifying the model file
-typedef struct {
+typedef struct skinSurface_s {
 	char		name[MAX_QPATH];
 	shader_t	*shader;
 } skinSurface_t;
 
 typedef struct skin_s {
-	char		name[MAX_QPATH];		// game path, including extension
-	int			numSurfaces;
+	char			name[MAX_QPATH];		// game path, including extension
+	int				numSurfaces;
 	skinSurface_t	*surfaces[MD3_MAX_SURFACES];
 } skin_t;
 
 
-typedef struct {
+typedef struct fog_s {
 	int			originalBrushNumber;
 	vector3		bounds[2];
 
@@ -482,21 +477,21 @@ typedef struct {
 	vector4		surface;
 } fog_t;
 
-typedef struct {
+typedef struct viewParms_s {
 	orientationr_t	or;
 	orientationr_t	world;
-	vector3		pvsOrigin;			// may be different than or.origin for portals
-	qboolean	isPortal;			// true if this view is through a portal
-	qboolean	isMirror;			// the portal is a mirror, invert the face culling
-	int			frameSceneNum;		// copied from tr.frameSceneNum
-	int			frameCount;			// copied from tr.frameCount
-	cplane_t	portalPlane;		// clip anything behind this if mirroring
-	int			viewportX, viewportY, viewportWidth, viewportHeight;
-	float		fovX, fovY;
-	float		projectionMatrix[16];
-	cplane_t	frustum[4];
-	vector3		visBounds[2];
-	float		zFar;
+	vector3			pvsOrigin;			// may be different than or.origin for portals
+	qboolean		isPortal;			// true if this view is through a portal
+	qboolean		isMirror;			// the portal is a mirror, invert the face culling
+	int				frameSceneNum;		// copied from tr.frameSceneNum
+	int				frameCount;			// copied from tr.frameCount
+	cplane_t		portalPlane;		// clip anything behind this if mirroring
+	int				viewportX, viewportY, viewportWidth, viewportHeight;
+	float			fovX, fovY;
+	float			projectionMatrix[16];
+	cplane_t		frustum[4];
+	vector3			visBounds[2];
+	float			zFar;
 	stereoFrame_t	stereoFrame;
 } viewParms_t;
 
@@ -593,7 +588,7 @@ typedef struct srfGridMesh_s {
 
 
 #define	VERTEXSIZE	8
-typedef struct {
+typedef struct srfSurfaceFace_s {
 	surfaceType_t	surfaceType;
 	cplane_t	plane;
 
@@ -610,7 +605,7 @@ typedef struct {
 
 
 // misc_models in maps are turned into direct geometry by q3map
-typedef struct {
+typedef struct srfTriangles_s {
 	surfaceType_t	surfaceType;
 
 	// dynamic lighting information
@@ -630,42 +625,42 @@ typedef struct {
 } srfTriangles_t;
 
 // inter-quake-model
-typedef struct {
-	int		num_vertexes;
-	int		num_triangles;
-	int		num_frames;
-	int		num_surfaces;
-	int		num_joints;
+typedef struct iqmData_s {
+	int					num_vertexes;
+	int					num_triangles;
+	int					num_frames;
+	int					num_surfaces;
+	int					num_joints;
 	struct srfIQModel_s	*surfaces;
 
-	float		*positions;
-	float		*texcoords;
-	float		*normals;
-	float		*tangents;
-	byte		*blendIndexes;
-	byte		*blendWeights;
-	byte		*colors;
-	int		*triangles;
+	float				*positions;
+	float				*texcoords;
+	float				*normals;
+	float				*tangents;
+	byte				*blendIndexes;
+	byte				*blendWeights;
+	byte				*colors;
+	int					*triangles;
 
-	int		*jointParents;
-	float	*jointMats;
-	float		*poseMats;
-	float		*bounds;
-	char		*names;
+	int					*jointParents;
+	float				*jointMats;
+	float				*poseMats;
+	float				*bounds;
+	char				*names;
 } iqmData_t;
 
 // inter-quake-model surface
 typedef struct srfIQModel_s {
 	surfaceType_t	surfaceType;
-	char		name[MAX_QPATH];
-	shader_t	*shader;
-	iqmData_t	*data;
-	int		first_vertex, num_vertexes;
-	int		first_triangle, num_triangles;
+	char			name[MAX_QPATH];
+	shader_t		*shader;
+	iqmData_t		*data;
+	int				first_vertex, num_vertexes;
+	int				first_triangle, num_triangles;
 } srfIQModel_t;
 
 
-extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
+extern void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
 /*
 ==============================================================================
@@ -714,13 +709,13 @@ typedef struct mnode_s {
 	int			nummarksurfaces;
 } mnode_t;
 
-typedef struct {
+typedef struct bmodel_s {
 	vector3		bounds[2];		// for culling
 	msurface_t	*firstSurface;
 	int			numSurfaces;
 } bmodel_t;
 
-typedef struct {
+typedef struct world_s {
 	char		name[MAX_QPATH];		// ie: maps/tim_dm2.bsp
 	char		baseName[MAX_QPATH];	// ie: tim_dm2
 
@@ -841,7 +836,7 @@ extern	int			gl_filter_min, gl_filter_max;
 /*
 ** performanceCounters_t
 */
-typedef struct {
+typedef struct frontEndCounters_s {
 	int		c_sphere_cull_patch_in, c_sphere_cull_patch_clip, c_sphere_cull_patch_out;
 	int		c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
 	int		c_sphere_cull_md3_in, c_sphere_cull_md3_clip, c_sphere_cull_md3_out;
@@ -859,7 +854,7 @@ typedef struct {
 
 
 // the renderer front end should never modify glstate_t
-typedef struct {
+typedef struct glstate_s {
 	int			currenttextures[2];
 	int			currenttmu;
 	qboolean	finishCalled;
@@ -869,7 +864,7 @@ typedef struct {
 } glstate_t;
 
 
-typedef struct {
+typedef struct backEndCounters_s {
 	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
 	float	c_overDraw;
 	
@@ -885,7 +880,7 @@ typedef struct {
 
 // all state modified by the back end is seperated
 // from the front end state
-typedef struct {
+typedef struct backEndState_s {
 	trRefdef_t	refdef;
 	viewParms_t	viewParms;
 	orientationr_t	or;
@@ -908,7 +903,7 @@ typedef struct {
 ** but may read fields that aren't dynamically modified
 ** by the frontend.
 */
-typedef struct {
+typedef struct trGlobals_s {
 	qboolean				registered;		// cleared at shutdown, set at beginRegistration
 
 	int						visCount;		// incremented every time a new vis cluster is entered
@@ -999,9 +994,9 @@ typedef struct {
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
-extern trGlobals_t	tr;
-extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
-extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
+extern trGlobals_t		tr;
+extern glconfig_t		glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+extern glstate_t		glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
 // These two variables should live inside glConfig but can't because of compatibility issues to the original ID vms.
 // If you release a stand-alone game and your mod uses tr_types.h from this build you can safely move them to
@@ -1031,14 +1026,10 @@ extern cvar_t	*r_zproj;				// z distance of projection plane
 extern cvar_t	*r_stereoSeparation;			// separation of cameras for stereo rendering
 
 extern cvar_t	*r_stencilbits;			// number of desired stencil bits
-extern cvar_t	*r_depthbits;			// number of desired depth bits
+extern cvar_t	*r_depthbits;			// number of desired depth bits. 0 = use framebuffer depth, 16 = use 16-bit textures, 32 = use 32-bit textures, all else = error
 extern cvar_t	*r_colorbits;			// number of desired color bits, only relevant for fullscreen
 extern cvar_t	*r_texturebits;			// number of desired texture bits
 extern cvar_t	*r_ext_multisample;
-										// 0 = use framebuffer depth
-										// 16 = use 16-bit textures
-										// 32 = use 32-bit textures
-										// all else = error
 
 extern cvar_t	*r_measureOverdraw;		// enables stencil buffer overdraw measurement
 
@@ -1589,22 +1580,22 @@ RENDERER BACK END COMMAND QUEUE
 
 //QTZTODO: Union for RC_ commands instead of 9001 structs?
 
-typedef struct {
+typedef struct renderCommandList_s {
 	byte	cmds[MAX_RENDER_COMMANDS];
 	int		used;
 } renderCommandList_t;
 
-typedef struct {
+typedef struct setColorCommand_s {
 	int		commandId;
 	vector4	color;
 } setColorCommand_t;
 
-typedef struct {
+typedef struct drawBufferCommand_s {
 	int		commandId;
 	int		buffer;
 } drawBufferCommand_t;
 
-typedef struct {
+typedef struct subImageCommand_s {
 	int		commandId;
 	image_t	*image;
 	int		width;
@@ -1612,29 +1603,29 @@ typedef struct {
 	void	*data;
 } subImageCommand_t;
 
-typedef struct {
+typedef struct swapBuffersCommand_s {
 	int		commandId;
 } swapBuffersCommand_t;
 
-typedef struct {
+typedef struct endFrameCommand_s {
 	int		commandId;
 	int		buffer;
 } endFrameCommand_t;
 
-typedef struct {
-	int		commandId;
+typedef struct stretchPicCommand_s {
+	int			commandId;
 	shader_t	*shader;
-	float	x, y;
-	float	w, h;
-	float	s1, t1;
-	float	s2, t2;
+	float		x, y;
+	float		w, h;
+	float		s1, t1;
+	float		s2, t2;
 	//QtZ: From JA/EF
-	float	angle;
-	qboolean centered; //only for RotatePic2, else will be rotated around the top-right point :S
+	float		angle;
+	qboolean	centered; //only for RotatePic2, else will be rotated around the top-right point :S
 	//~QtZ
 } stretchPicCommand_t;
 
-typedef struct {
+typedef struct drawSurfsCommand_s {
 	int		commandId;
 	trRefdef_t	refdef;
 	viewParms_t	viewParms;
@@ -1642,20 +1633,19 @@ typedef struct {
 	int		numDrawSurfs;
 } drawSurfsCommand_t;
 
-typedef struct {
+typedef struct videoFrameCommand_s {
 	int			commandId;
 	int			width, height;
 	byte		*captureBuffer, *encodeBuffer;
 	qboolean	motionJpeg;
 } videoFrameCommand_t;
 
-typedef struct {
-	int commandId;
-
-	GLboolean rgba[4];
+typedef struct colorMaskCommand_s {
+	int			commandId;
+	GLboolean	rgba[4];
 } colorMaskCommand_t;
 
-typedef struct {
+typedef struct clearDepthCommand_s {
 	int commandId;
 } clearDepthCommand_t;
 
@@ -1685,43 +1675,40 @@ typedef enum {
 
 // all of the information needed by the back end must be contained in a backEndData_t.
 // This entire structure is duplicated so the front and back end can run in parallel on an SMP machine
-typedef struct {
-	drawSurf_t	drawSurfs[MAX_DRAWSURFS];
-	dlight_t	dlights[MAX_DLIGHTS];
-	trRefEntity_t	entities[MAX_REFENTITIES];
-	srfPoly_t	*polys;//[MAX_POLYS];
-	polyVert_t	*polyVerts;//[MAX_POLYVERTS];
+typedef struct backEndData_s {
+	drawSurf_t			drawSurfs[MAX_DRAWSURFS];
+	dlight_t			dlights[MAX_DLIGHTS];
+	trRefEntity_t		entities[MAX_REFENTITIES];
+	srfPoly_t			*polys;//[MAX_POLYS];
+	polyVert_t			*polyVerts;//[MAX_POLYVERTS];
 	renderCommandList_t	commands;
 } backEndData_t;
 
-extern	int		max_polys;
-extern	int		max_polyverts;
+extern int max_polys;
+extern int max_polyverts;
 
-extern	backEndData_t	*backEndData; // the second one may not be allocated
+extern backEndData_t *backEndData; // the second one may not be allocated
 
 void *R_GetCommandBuffer( int bytes );
 void RB_ExecuteRenderCommands( const void *data );
-
 void R_SyncRenderThread( void );
-
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
 
-void RE_SetColor( const vector4 *rgba );
-void RE_StretchPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
+void	RE_SetColor			( const vector4 *rgba );
+void	RE_StretchPic		( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 //QtZ: Added from JA/EF
-void RE_RotatedPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float angle, qboolean centered, qhandle_t hShader );
+void	RE_RotatedPic		( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float angle, qboolean centered, qhandle_t hShader );
 //~QtZ
-void RE_BeginFrame( stereoFrame_t stereoFrame );
-void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
-void RE_SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer, int padding);
-size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality, int image_width, int image_height, byte *image_buffer, int padding);
-int RE_SavePNG( char *filename, byte *buf, size_t width, size_t height, int byteDepth );
-void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+void	RE_BeginFrame		( stereoFrame_t stereoFrame );
+void	RE_EndFrame			( int *frontEndMsec, int *backEndMsec );
+void	RE_SaveJPG			( char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer, int padding );
+size_t	RE_SaveJPGToBuffer	( byte *buffer, size_t bufSize, int quality, int image_width, int image_height, byte *image_buffer, int padding );
+int		RE_SavePNG			( char *filename, byte *buf, size_t width, size_t height, int byteDepth );
+void	RE_TakeVideoFrame	( int width, int height, byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
 // font stuff
 void R_InitFreeType( void );
 void R_DoneFreeType( void );
-void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
-
+void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
 
 #endif //TR_LOCAL_H

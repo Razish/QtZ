@@ -42,8 +42,8 @@ memory management
 ===============================================================================
 */
 
-static	sndBuffer	*buffer = NULL;
-static	sndBuffer	*freelist = NULL;
+static	sndBuffer_t	*buffer = NULL;
+static	sndBuffer_t	*freelist = NULL;
 static	int inUse = 0;
 static	int totalInUse = 0;
 
@@ -51,31 +51,31 @@ short *sfxScratchBuffer = NULL;
 sfx_t *sfxScratchPointer = NULL;
 int	   sfxScratchIndex = 0;
 
-void	SND_free(sndBuffer *v) {
-	*(sndBuffer **)v = freelist;
-	freelist = (sndBuffer*)v;
-	inUse += sizeof(sndBuffer);
+void	SND_free(sndBuffer_t *v) {
+	*(sndBuffer_t **)v = freelist;
+	freelist = (sndBuffer_t*)v;
+	inUse += sizeof(sndBuffer_t);
 }
 
-sndBuffer*	SND_malloc(void) {
-	sndBuffer *v;
+sndBuffer_t *SND_malloc(void) {
+	sndBuffer_t *v;
 redo:
 	if (freelist == NULL) {
 		S_FreeOldestSound();
 		goto redo;
 	}
 
-	inUse -= sizeof(sndBuffer);
-	totalInUse += sizeof(sndBuffer);
+	inUse -= sizeof(sndBuffer_t);
+	totalInUse += sizeof(sndBuffer_t);
 
 	v = freelist;
-	freelist = *(sndBuffer **)freelist;
+	freelist = *(sndBuffer_t **)freelist;
 	v->next = NULL;
 	return v;
 }
 
 void SND_setup(void) {
-	sndBuffer *p, *q;
+	sndBuffer_t *p, *q;
 	cvar_t	*cv;
 	int scs;
 
@@ -83,18 +83,18 @@ void SND_setup(void) {
 
 	scs = (cv->integer*1536);
 
-	buffer = malloc(scs*sizeof(sndBuffer) );
+	buffer = malloc(scs*sizeof(sndBuffer_t) );
 	// allocate the stack based hunk allocator
 	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * sizeof(short) * 4);	//Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
 	sfxScratchPointer = NULL;
 
-	inUse = scs*sizeof(sndBuffer);
+	inUse = scs*sizeof(sndBuffer_t);
 	p = buffer;;
 	q = p + scs;
 	while (--q > p)
-		*(sndBuffer **)q = q-1;
+		*(sndBuffer_t **)q = q-1;
 	
-	*(sndBuffer **)q = NULL;
+	*(sndBuffer_t **)q = NULL;
 	freelist = p + scs - 1;
 
 	Com_Printf("Sound memory manager started\n");
@@ -120,7 +120,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 	int		i;
 	int		sample, samplefrac, fracstep;
 	int			part;
-	sndBuffer	*chunk;
+	sndBuffer_t	*chunk;
 	
 	stepscale = (float)inrate / dma.speed;	// this is usually 0.5, 1, or 2
 
@@ -142,7 +142,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 		}
 		part  = (i&(SND_CHUNK_SIZE-1));
 		if (part == 0) {
-			sndBuffer	*newchunk;
+			sndBuffer_t	*newchunk;
 			newchunk = SND_malloc();
 			if (chunk == NULL) {
 				sfx->soundData = newchunk;

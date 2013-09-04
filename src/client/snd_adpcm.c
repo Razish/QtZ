@@ -53,7 +53,7 @@ static int stepsizeTable[89] = {
 };
 
    
-void S_AdpcmEncode( short indata[], char outdata[], int len, struct adpcm_state *state ) {
+void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *state ) {
     short *inp;			/* Input buffer pointer */
     signed char *outp;		/* output buffer pointer */
     int val;			/* Current input sample value */
@@ -152,7 +152,7 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, struct adpcm_state 
 }
 
 
-/* static */ void S_AdpcmDecode( const char indata[], short *outdata, int len, struct adpcm_state *state ) {
+/* static */ void S_AdpcmDecode( const char indata[], short *outdata, int len, adpcm_state_t *state ) {
     signed char *inp;		/* Input buffer pointer */
     int outp;			/* output buffer pointer */
     int sign;			/* Current adpcm sign bit */
@@ -268,7 +268,7 @@ int S_AdpcmMemoryNeeded( const wavinfo_t *info ) {
 S_AdpcmGetSamples
 ====================
 */
-void S_AdpcmGetSamples(sndBuffer *chunk, short *to) {
+void S_AdpcmGetSamples(sndBuffer_t *chunk, short *to) {
 	adpcm_state_t	state;
 	byte			*out;
 
@@ -292,7 +292,7 @@ void S_AdpcmEncodeSound( sfx_t *sfx, short *samples ) {
 	int				inOffset;
 	int				count;
 	int				n;
-	sndBuffer		*newchunk, *chunk;
+	sndBuffer_t		*newchunk, *chunk;
 	byte			*out;
 
 	inOffset = 0;

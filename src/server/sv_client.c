@@ -1239,13 +1239,6 @@ void SV_UserinfoChanged( client_t *cl ) {
 			cl->rate = 3000;
 		}
 	}
-	val = Info_ValueForKey (cl->userinfo, "handicap");
-	if (strlen(val)) {
-		i = atoi(val);
-		if (i<=0 || i>100 || strlen(val) > 4) {
-			Info_SetValueForKey( cl->userinfo, "handicap", "100" );
-		}
-	}
 
 #ifdef USE_VOIP
 	val = Info_ValueForKey(cl->userinfo, "cl_voip");
@@ -1320,7 +1313,7 @@ static void SV_Voip_f( client_t *cl ) {
 #endif
 
 
-typedef struct {
+typedef struct ucmd_s {
 	char	*name;
 	void	(*func)( client_t *cl );
 } ucmd_t;

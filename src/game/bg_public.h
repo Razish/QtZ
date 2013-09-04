@@ -119,9 +119,9 @@ typedef enum gametype_e {
 #define GTB_DUEL			0x02 // duel
 #define GTB_NOTTEAM			0x03 // **SPECIAL: All of the above gametypes, i.e. not team-based
 #define GTB_TEAM			0x04 // team deathmatch
-#define GTB_CTF				0x10 // capture the flag
-#define GTB_1FCTF			0x20 // capture the ysalimiri
-#define GTB_ALL				0x37 // **SPECIAL: All
+#define GTB_CTF				0x08 // capture the flag
+#define GTB_1FCTF			0x10 // 1-flag ctf
+#define GTB_ALL				0x1F // **SPECIAL: All
 
 extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
 const char *BG_GetGametypeString( int gametype );
@@ -175,7 +175,7 @@ typedef enum {
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
 #define	MAXTOUCH	32
-typedef struct {
+typedef struct pmove_s {
 	// state (in / out)
 	playerState_t	*ps;
 
@@ -518,13 +518,13 @@ typedef enum {
 } team_t;
 
 // Time between location updates
-#define TEAM_LOCATION_UPDATE_TIME		1000
+#define TEAM_LOCATION_UPDATE_TIME (1000)
 
 // How many players on the overlay
-#define TEAM_MAXOVERLAY		32
+#define TEAM_MAXOVERLAY (MAX_CLIENTS)
 
 //team task
-typedef enum {
+typedef enum teamtask_e {
 	TEAMTASK_NONE,
 	TEAMTASK_OFFENSE, 
 	TEAMTASK_DEFENSE,

@@ -31,7 +31,7 @@ PCX files are used for 8 bit images
 ========================================================================
 */
 
-typedef struct {
+typedef struct pcx_s {
 	char	manufacturer;
 	char	version;
 	char	encoding;

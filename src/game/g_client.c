@@ -539,30 +539,6 @@ int TeamCount( int ignoreClientNum, team_t team ) {
 
 /*
 ================
-TeamLeader
-
-Returns the client number of the team leader
-================
-*/
-int TeamLeader( int team ) {
-	int		i;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
-			continue;
-		}
-		if ( level.clients[i].sess.sessionTeam == team ) {
-			if ( level.clients[i].sess.teamLeader )
-				return i;
-		}
-	}
-
-	return -1;
-}
-
-
-/*
-================
 PickTeam
 
 ================
@@ -679,17 +655,11 @@ if desired.
 ============
 */
 void ClientUserinfoChanged( int clientNum ) {
-	gentity_t *ent;
-	int		teamTask, teamLeader, team;
-	char	*s;
-	char	model[MAX_QPATH];
-	char	oldname[MAX_STRING_CHARS];
+	gentity_t	*ent;
 	gclient_t	*client;
-	char	c1[MAX_INFO_STRING];
-	char	c2[MAX_INFO_STRING];
-	char	redTeam[MAX_INFO_STRING];
-	char	blueTeam[MAX_INFO_STRING];
-	char	userinfo[MAX_INFO_STRING];
+	int			team;
+	char		model[MAX_QPATH]={0}, oldname[MAX_NETNAME]={0}, color[2]={0};
+	char		*s, userinfo[MAX_INFO_STRING]={0}, buf[MAX_INFO_STRING]={0};
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -698,107 +668,70 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	//QTZTODO: Userinfo validation ala JA++
 	// check for malformed or illegal info strings
-	if ( !Info_Validate(userinfo) ) {
-		strcpy (userinfo, "\\name\\badinfo");
+	if ( !Info_Validate( userinfo ) ) {
+		strcpy( userinfo, "\\name\\badinfo" );
 		// don't keep those clients and userinfo
-		trap->SV_GameDropClient(clientNum, "Invalid userinfo");
+		trap->SV_GameDropClient( clientNum, "Invalid userinfo" );
 	}
 
 	// check for local client
 	s = Info_ValueForKey( userinfo, "ip" );
-	if ( !strcmp( s, "localhost" ) ) {
+	if ( !strcmp( s, "localhost" ) )
 		client->pers.localClient = qtrue;
-	}
 
 	// check the item prediction
-	s = Info_ValueForKey( userinfo, "cg_predictItems" );
-	if ( !atoi( s ) ) {
-		client->pers.predictItemPickup = qfalse;
-	} else {
+	client->pers.predictItemPickup = qfalse;
+	if ( atoi( Info_ValueForKey( userinfo, "cg_predictItems" ) ) )
 		client->pers.predictItemPickup = qtrue;
-	}
 
 	// set name
 	Q_strncpyz ( oldname, client->pers.netname, sizeof( oldname ) );
-	s = Info_ValueForKey (userinfo, "cl_name");
-	ClientCleanName( s, client->pers.netname, sizeof(client->pers.netname) );
+	s = Info_ValueForKey( userinfo, "cl_name" );
+	ClientCleanName( s, client->pers.netname, sizeof( client->pers.netname ) );
 
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
-			Q_strncpyz( client->pers.netname, "scoreboard", sizeof(client->pers.netname) );
-		}
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD )
+			Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
 	}
 
 	if ( client->pers.connected == CON_CONNECTED ) {
-		if ( strcmp( oldname, client->pers.netname ) ) {
-			trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
-				client->pers.netname) );
-		}
+		if ( strcmp( oldname, client->pers.netname ) )
+			trap->SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, client->pers.netname ) );
 	}
-
-	// set model
-	Q_strncpyz( model, Info_ValueForKey (userinfo, "cg_model"), sizeof( model ) );
 
 	// bots set their team a few frames later
-	if (level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
+	if ( level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT ) {
 		s = Info_ValueForKey( userinfo, "team" );
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
+		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) )
 			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
+		else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) )
 			team = TEAM_BLUE;
-		} else {
-			// pick the team with the least number of players
+		else // pick the team with the least number of players
 			team = PickTeam( clientNum );
-		}
 	}
-	else {
-		team = client->sess.sessionTeam;
-	}
-
-	if ( level.gametype >= GT_TEAM )
-		client->pers.teamInfo = qtrue;
 	else
-	{
-		s = Info_ValueForKey( userinfo, "teamoverlay" );
-		if ( ! *s || atoi( s ) != 0 )
-			client->pers.teamInfo = qtrue;
-		else
-			client->pers.teamInfo = qfalse;
-	}
+		team = client->sess.sessionTeam;
 
-	// team task (0 = none, 1 = offence, 2 = defence)
-	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
-	// team Leader (1 = leader, 0 is normal player)
-	teamLeader = client->sess.teamLeader;
+	// set model
+	Q_strncpyz( model, Info_ValueForKey( userinfo, "cg_model" ), sizeof( model ) );
 
 	// colors
-	strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
-	strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
-
-	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
-	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
+	Q_strncpyz( color, Info_ValueForKey( userinfo, "cg_color" ), sizeof( color ) );
 	
-	//QTZTODO: Build a string ala JA++
-	// send over a subset of the userinfo keys so other clients can
-	// print scoreboards, display models, and play custom sounds
-	if (ent->r.svFlags & SVF_BOT)
-	{
-		s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, model, c1, c2, 
-			client->sess.wins, client->sess.losses,
-			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
-	}
-	else
-	{
-		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam, c1, c2, 
-			client->sess.wins, client->sess.losses, teamTask, teamLeader);
-	}
+	// send over a subset of the userinfo keys so other clients can print scoreboards, display models, and play custom sounds
+	buf[0] = '\0';
+	Q_strcat( buf, sizeof( buf ), va( "n\\%s\\", client->pers.netname ) );
+	Q_strcat( buf, sizeof( buf ), va( "t\\%i\\", team ) );
+	Q_strcat( buf, sizeof( buf ), va( "m\\%s\\", model ) );
+	Q_strcat( buf, sizeof( buf ), va( "c\\%s\\", color ) );
 
-	trap->SV_SetConfigstring( CS_PLAYERS+clientNum, s );
+	if ( ent->r.svFlags & SVF_BOT )
+		Q_strcat( buf, sizeof( buf ), va( "s\\%s\\", Info_ValueForKey( userinfo, "skill" ) ) );
+
+	trap->SV_SetConfigstring( CS_PLAYERS+clientNum, buf );
 
 	// this is not the userinfo, more like the configstring actually
-	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
+	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, buf );
 }
 
 
@@ -1256,14 +1189,6 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
-
-	// if we are playing in tourney mode and losing, give a win to the other player
-	if ( (level.gametype == GT_DUEL )
-		&& !level.intermissiontime
-		&& !level.warmupTime && level.sortedClients[1] == clientNum ) {
-		level.clients[ level.sortedClients[0] ].sess.wins++;
-		ClientUserinfoChanged( level.sortedClients[0] );
-	}
 
 	if( level.gametype == GT_DUEL && ent->client->sess.sessionTeam == TEAM_FREE &&
 		level.intermissiontime ) {

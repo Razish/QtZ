@@ -66,8 +66,6 @@ qboolean EntityIsShooting(aas_entityinfo_t *entinfo);
 qboolean EntityHasKamikaze(aas_entityinfo_t *entinfo);
 // set a user info key/value pair
 void BotSetUserInfo(bot_state_t *bs, char *key, char *value);
-// set the team status (offense, defense etc.)
-void BotSetTeamStatus(bot_state_t *bs);
 //returns the name of the client
 char *ClientName(int client, char *name, int size);
 //returns a simplified client name

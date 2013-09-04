@@ -741,7 +741,7 @@ typedef struct memblock_s {
 #endif
 } memblock_t;
 
-typedef struct {
+typedef struct memzone_s {
 	int		size;			// total bytes malloced, including header
 	int		used;			// total bytes used
 	memblock_t	blocklist;	// start / end cap for linked list
@@ -1204,12 +1204,12 @@ Goals:
 #define	HUNK_MAGIC	0x89537892
 #define	HUNK_FREE_MAGIC	0x89537893
 
-typedef struct {
+typedef struct hunkHeader_s {
 	int		magic;
 	int		size;
 } hunkHeader_t;
 
-typedef struct {
+typedef struct hunkUsed_s {
 	int		mark;
 	int		permanent;
 	int		temp;

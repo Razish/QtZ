@@ -245,10 +245,6 @@ typedef struct bot_state_s
 	float leadmessage_time;							//last time a messaged was sent to the team mate
 	float leadbackup_time;							//time backing up towards team mate
 	//
-	char teamleader[32];							//netname of the team leader
-	float askteamleader_time;						//time asked for team leader
-	float becometeamleader_time;					//time the bot will become the team leader
-	float teamgiveorders_time;						//time to give team orders
 	float lastflagcapture_time;						//last time a flag was captured
 	int numteammates;								//number of team mates
 	int redflagstatus;								//0 = at base, 1 = not at base
@@ -287,4 +283,3 @@ void	BotAI_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *
 int		BotAI_GetClientState( int clientNum, playerState_t *state );
 int		BotAI_GetEntityState( int entityNum, entityState_t *state );
 int		BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state );
-int		BotTeamLeader(bot_state_t *bs);

@@ -41,7 +41,7 @@ int				anykeydown;
 qkey_t		keys[MAX_KEYS];
 
 
-typedef struct {
+typedef struct keyname_s {
 	char	*name;
 	int		keynum;
 } keyname_t;
@@ -633,10 +633,6 @@ void Console_Key (int key) {
 
 	// enter finishes the line
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
-
-		//QtZ: Added
-		Field_AutoComplete(&g_consoleField);
-
 		// if not in the game explicitly prepend a slash if needed
 		if ( clc.state != CA_ACTIVE &&
 				g_consoleField.buffer[0] &&

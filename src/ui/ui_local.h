@@ -118,7 +118,7 @@ typedef struct
 	void (*ownerdraw)( void *self );
 } menucommon_s;
 
-typedef struct {
+typedef struct mfield_s {
 	int		cursor;
 	int		scroll;
 	int		widthInChars;
@@ -389,7 +389,7 @@ extern void DriverInfo_Cache( void );
 //
 
 //FIXME ripped from cg_local.h
-typedef struct {
+typedef struct lerpFrame_s {
 	int			oldFrame;
 	int			oldFrameTime;		// time when ->oldFrame was exactly on
 
@@ -408,7 +408,7 @@ typedef struct {
 	int			animationTime;		// time when the first frame of the animation will be exact
 } lerpFrame_t;
 
-typedef struct {
+typedef struct playerInfo_s {
 	// model info
 	qhandle_t		legsModel, torsoModel, headModel;
 	qhandle_t		legsSkin, torsoSkin, headSkin;
@@ -458,7 +458,7 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 // ui_atoms.c
 //
 // this is only used in the old ui, the new ui has its own version
-typedef struct {
+typedef struct uiStatic_s {
 	int					frametime;
 	int					realtime;
 	int					cursorx;
@@ -485,9 +485,7 @@ typedef struct {
 // new ui stuff
 #define UI_NUMFX 7
 #define MAX_HEADS 256
-#define MAX_ALIASES 64
 #define MAX_HEADNAME  32
-#define MAX_TEAMS 64
 #define MAX_MAPS 512
 #define MAX_SPMAPS 16
 #define PLAYERS_PER_TEAM 5
@@ -502,7 +500,6 @@ typedef struct {
 #define MAX_SERVERSTATUS_LINES	128
 #define MAX_SERVERSTATUS_TEXT	2048 //1024
 #define MAX_FOUNDPLAYER_SERVERS	16
-#define TEAM_MEMBERS 5
 #define GAMES_ALL			0
 #define GAMES_FFA			1
 #define GAMES_TEAMPLAY		2
@@ -514,55 +511,45 @@ typedef struct {
 #define MAX_PLAYERMODELS 1024 //256
 
 
-typedef struct {
-  const char *name;
-	const char *imageName;
-  qhandle_t headImage;
-	const char *base;
-	qboolean active;
-	int reference;
-} characterInfo;
+typedef struct characterInfo_s {
+	const char	*name;
+	const char	*imageName;
+	qhandle_t	headImage;
+	const char	*base;
+	qboolean	active;
+	int			reference;
+} characterInfo_t;
 
-typedef struct {
-	const char *name;
-	const char *ai;
-	const char *action;
-} aliasInfo;
+typedef struct aliasInfo_s {
+	const char	*name;
+	const char	*ai;
+	const char	*action;
+} aliasInfo_t;
 
-typedef struct {
-  const char *teamName;
-	const char *imageName;
-	const char *teamMembers[TEAM_MEMBERS];
-  qhandle_t teamIcon;
-  qhandle_t teamIcon_Metal;
-  qhandle_t teamIcon_Name;
-	int cinematic;
-} teamInfo;
+typedef struct gameTypeInfo_s {
+	const char	*gameType;
+	int			gtEnum;
+} gameTypeInfo_t;
 
-typedef struct {
-  const char *gameType;
-  int gtEnum;
-} gameTypeInfo;
-
-typedef struct {
-  const char *mapName;
-  const char *mapLoadName;
-	const char *imageName;
-	const char *opponentName;
-	int teamMembers;
-  int typeBits;
-	int cinematic;
-	int timeToBeat[GT_NUM_GAMETYPES];
-	qhandle_t levelShot;
-	qboolean active;
-} mapInfo;
+typedef struct mapInfo_s {
+	const char	*mapName;
+	const char	*mapLoadName;
+	const char	*imageName;
+	const char	*opponentName;
+	int			teamMembers;
+	int			typeBits;
+	int			cinematic;
+	int			timeToBeat[GT_NUM_GAMETYPES];
+	qhandle_t	levelShot;
+	qboolean	active;
+} mapInfo_t;
 
 typedef struct serverFilter_s {
 	const char *description;
 	const char *basedir;
 } serverFilter_t;
 
-typedef struct {
+typedef struct pinglist_s {
 	char	adrstr[MAX_ADDRESSLENGTH];
 	int		start;
 } pinglist_t;
@@ -598,7 +585,7 @@ typedef struct serverStatus_s {
 } serverStatus_t;
 
 
-typedef struct {
+typedef struct pendingServer_s {
 	char		adrstr[MAX_ADDRESSLENGTH];
 	char		name[MAX_ADDRESSLENGTH];
 	int			startTime;
@@ -606,12 +593,12 @@ typedef struct {
 	qboolean	valid;
 } pendingServer_t;
 
-typedef struct {
+typedef struct pendingServerStatus_s {
 	int num;
 	pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
 } pendingServerStatus_t;
 
-typedef struct {
+typedef struct serverStatusInfo_s {
 	char address[MAX_ADDRESSLENGTH];
 	char *lines[MAX_SERVERSTATUS_LINES][4];
 	char text[MAX_SERVERSTATUS_TEXT];
@@ -619,91 +606,81 @@ typedef struct {
 	int numLines;
 } serverStatusInfo_t;
 
-typedef struct {
+typedef struct modInfo_s {
 	const char *modName;
 	const char *modDescr;
 } modInfo_t;
 
 
-typedef struct {
-	displayContextDef_t uiDC;
-	int newHighScoreTime;
-	int newBestTime;
-	int showPostGameTime;
-	qboolean newHighScore;
-	qboolean demoAvailable;
-	qboolean soundHighScore;
+typedef struct uiInfo_s {
+	displayContextDef_t		uiDC;
+	int						newHighScoreTime;
+	int						newBestTime;
+	int						showPostGameTime;
+	qboolean				newHighScore;
+	qboolean				demoAvailable;
+	qboolean				soundHighScore;
 	
-	int characterCount;
-	int botIndex;
-	characterInfo characterList[MAX_HEADS];
+	int						characterCount;
+	int						botIndex;
+	characterInfo_t			characterList[MAX_HEADS];
 
-	int aliasCount;
-	aliasInfo aliasList[MAX_ALIASES];
+	int						redBlue;
+	int						playerCount;
+	int						myTeamCount;
+	int						teamIndex;
+	int						playerRefresh;
+	int						playerIndex;
+	int						playerNumber; 
+	char					playerNames[MAX_CLIENTS][MAX_NETNAME];
+	char					teamNames[MAX_CLIENTS][MAX_NETNAME];
+	int						teamClientNums[MAX_CLIENTS];
 
-	int teamCount;
-	teamInfo teamList[MAX_TEAMS];
+	int						mapCount;
+	mapInfo_t				mapList[MAX_MAPS];
 
-	int redBlue;
-	int playerCount;
-	int myTeamCount;
-	int teamIndex;
-	int playerRefresh;
-	int playerIndex;
-	int playerNumber; 
-	qboolean teamLeader;
-	char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-	char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-	int teamClientNums[MAX_CLIENTS];
+	int						skillIndex;
 
-	int mapCount;
-	mapInfo mapList[MAX_MAPS];
+	modInfo_t				modList[MAX_MODS];
+	int						modCount;
+	int						modIndex;
 
-	int skillIndex;
+	char					demoList[MAX_DEMOS][MAX_QPATH];
+	int						demoCount;
+	int						demoIndex;
+	int						loadedDemos;
 
-	modInfo_t modList[MAX_MODS];
-	int modCount;
-	int modIndex;
+	const char				*movieList[MAX_MOVIES];
+	int						movieCount;
+	int						movieIndex;
+	int						previewMovie;
 
-	char demoList[MAX_DEMOS][MAX_QPATH];
-	int demoCount;
-	int demoIndex;
-	int loadedDemos;
-
-	const char *movieList[MAX_MOVIES];
-	int movieCount;
-	int movieIndex;
-	int previewMovie;
-
-	serverStatus_t serverStatus;
+	serverStatus_t			serverStatus;
 
 	// for the showing the status of a server
-	char serverStatusAddress[MAX_ADDRESSLENGTH];
-	serverStatusInfo_t serverStatusInfo;
-	int nextServerStatusRefresh;
+	char					serverStatusAddress[MAX_ADDRESSLENGTH];
+	serverStatusInfo_t		serverStatusInfo;
+	int						nextServerStatusRefresh;
 
 	// to retrieve the status of server to find a player
-	pendingServerStatus_t pendingServerStatus;
-	char findPlayerName[MAX_STRING_CHARS];
-	char foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	char foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	int currentFoundPlayerServer;
-	int numFoundPlayerServers;
-	int nextFindPlayerRefresh;
+	pendingServerStatus_t	pendingServerStatus;
+	char					findPlayerName[MAX_STRING_CHARS];
+	char					foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+	char					foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+	int						currentFoundPlayerServer;
+	int						numFoundPlayerServers;
+	int						nextFindPlayerRefresh;
 
-	int currentCrosshair;
-	int startPostGameTime;
-	sfxHandle_t newHighScoreSound;
+	int						currentCrosshair;
+	int						startPostGameTime;
+	sfxHandle_t				newHighScoreSound;
 
-	int				q3HeadCount;
-	char			q3HeadNames[MAX_PLAYERMODELS][64];
-	qhandle_t	q3HeadIcons[MAX_PLAYERMODELS];
-	int				q3SelectedHead;
+	int						q3HeadCount;
+	char					q3HeadNames[MAX_PLAYERMODELS][64];
+	qhandle_t				q3HeadIcons[MAX_PLAYERMODELS];
+	int						q3SelectedHead;
 
-	int effectsColor;
-
-	qboolean inGameLoad;
-
+	qboolean				inGameLoad;
 } uiInfo_t;
 
 extern uiInfo_t uiInfo;

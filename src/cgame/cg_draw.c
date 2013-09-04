@@ -428,7 +428,7 @@ static float CG_DrawAttacker( float y ) {
 	CG_DrawHead( SCREEN_WIDTH - size, y, size, size, clientNum, &angles );
 
 	info = CG_ConfigString( CS_PLAYERS + clientNum );
-	name = Info_ValueForKey(  info, "n" );
+	name = Info_ValueForKey( info, "n" );
 	y += size;
 	CG_DrawBigString( (int)SCREEN_WIDTH - ( Q_PrintStrlen( name ) * BIGCHAR_WIDTH), (int)y, name, 0.5f );
 
@@ -841,15 +841,13 @@ LAGOMETER
 #define	LAG_SAMPLES		128
 
 
-typedef struct {
+struct lagometer_s {
 	float	frameSamples[LAG_SAMPLES];
 	int		frameCount;
 	int		snapshotFlags[LAG_SAMPLES];
 	float	snapshotSamples[LAG_SAMPLES];
 	int		snapshotCount;
-} lagometer_t;
-
-lagometer_t		lagometer;
+} lagometer;
 
 /*
 ==============
@@ -1616,9 +1614,6 @@ CG_Draw2D
 static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 	float y = 0.0f;
-	if (cgs.orderPending && cg.time > cgs.orderTime) {
-		CG_CheckOrderPending();
-	}
 
 	if ( !cg_draw2D->boolean ) {
 		return;

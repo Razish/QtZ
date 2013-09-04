@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
 
 // snapshots are a view of the server at a given time
-typedef struct {
+typedef struct clSnapshot_s {
 	qboolean		valid;			// cleared if delta parsing was invalid
 	int				snapFlags;		// rate delayed and dropped commands
 
@@ -78,7 +78,7 @@ new gamestate_t, potentially several times during an established connection
 =============================================================================
 */
 
-typedef struct {
+typedef struct outPacket_s {
 	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
 	int		p_serverTime;		// usercmd->serverTime when packet was sent
 	int		p_realtime;			// cls.realtime when packet was sent
@@ -91,7 +91,7 @@ typedef struct {
 
 extern int g_console_field_width;
 
-typedef struct {
+typedef struct clientActive_s {
 	int			timeoutcount;		// it requres several frames in a timeout condition
 									// to disconnect, preventing debugging breaks from
 									// causing immediate disconnects on continue
@@ -160,7 +160,7 @@ demo through a file.
 
 #define MAX_TIMEDEMO_DURATIONS	4096
 
-typedef struct {
+typedef struct clientConnection_s {
 
 	connstate_t	state;				// connection status
 
@@ -281,18 +281,18 @@ no client connection is active at all
 ==================================================================
 */
 
-typedef struct {
+typedef struct ping_s {
 	netadr_t	adr;
 	int			start;
 	int			time;
 	char		info[MAX_INFO_STRING];
 } ping_t;
 
-typedef struct {
+typedef struct serverInfo_s {
 	netadr_t	adr;
-	char	  	hostName[MAX_NAME_LENGTH];
-	char	  	mapName[MAX_NAME_LENGTH];
-	char	  	game[MAX_NAME_LENGTH];
+	char	  	hostName[MAX_CVAR_VALUE_STRING];
+	char	  	mapName[MAX_QPATH];
+	char	  	game[MAX_QPATH];
 	int			netType;
 	int			gameType;
 	int		  	clients;
@@ -306,7 +306,7 @@ typedef struct {
 	int			g_needpass;
 } serverInfo_t;
 
-typedef struct {
+typedef struct clientStatic_s {
 	// when the server clears the hunk, all of these must be restarted
 	qboolean	rendererStarted;
 	qboolean	soundStarted;
@@ -485,7 +485,7 @@ qboolean CL_CheckPaused(void);
 //
 // cl_input
 //
-typedef struct {
+typedef struct kbutton_s {
 	int			down[2];		// key nums holding it down
 	unsigned	downtime;		// msec timestamp
 	unsigned	msec;			// msec down this frame if both a down and up happened

@@ -978,8 +978,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	int			clients[TEAM_MAXOVERLAY];
 	int			team;
 
-	if ( ! ent->client->pers.teamInfo )
-		return;
+	//QTZTODO: delta teamoverlay updates
 
 	// send team info to spectator for team of followed client
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {

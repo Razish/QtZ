@@ -98,7 +98,6 @@ void BotVoiceChat_GetFlag(bot_state_t *bs, int client, int mode) {
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 	}
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -128,7 +127,6 @@ void BotVoiceChat_Offense(bot_state_t *bs, int client, int mode) {
 	bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
 	bs->attackaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 
@@ -170,7 +168,6 @@ void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
 	//away from defending
 	bs->defendaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -204,7 +201,6 @@ void BotVoiceChat_Patrol(bot_state_t *bs, int client, int mode) {
 	trap->ai->BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, -1, VOICECHAT_ONPATROL);
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -258,7 +254,6 @@ void BotVoiceChat_Camp(bot_state_t *bs, int client, int mode) {
 	//not arrived yet
 	bs->arrive_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -312,7 +307,6 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode) {
 	bs->formation_dist = 3.5 * 32;		//3.5 meter
 	bs->arrive_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -360,52 +354,9 @@ void BotVoiceChat_ReturnFlag(bot_state_t *bs, int client, int mode) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
-}
-
-/*
-==================
-BotVoiceChat_StartLeader
-==================
-*/
-void BotVoiceChat_StartLeader(bot_state_t *bs, int client, int mode) {
-	ClientName(client, bs->teamleader, sizeof(bs->teamleader));
-}
-
-/*
-==================
-BotVoiceChat_StopLeader
-==================
-*/
-void BotVoiceChat_StopLeader(bot_state_t *bs, int client, int mode) {
-	char netname[MAX_MESSAGE_SIZE];
-
-	if (!Q_stricmp(bs->teamleader, ClientName(client, netname, sizeof(netname)))) {
-		bs->teamleader[0] = '\0';
-		notleader[client] = qtrue;
-	}
-}
-
-/*
-==================
-BotVoiceChat_WhoIsLeader
-==================
-*/
-void BotVoiceChat_WhoIsLeader(bot_state_t *bs, int client, int mode) {
-	char netname[MAX_MESSAGE_SIZE];
-
-	if (!TeamPlayIsOn()) return;
-
-	ClientName(bs->client, netname, sizeof(netname));
-	//if this bot IS the team leader
-	if (!Q_stricmp(netname, bs->teamleader)) {
-		BotAI_BotInitialChat(bs, "iamteamleader", NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_TEAM);
-		BotVoiceChatOnly(bs, -1, VOICECHAT_STARTLEADER);
-	}
 }
 
 /*
@@ -463,9 +414,6 @@ voiceCommand_t voiceCommands[] = {
 	{VOICECHAT_FOLLOWME, BotVoiceChat_FollowMe },
 	{VOICECHAT_FOLLOWFLAGCARRIER, BotVoiceChat_FollowFlagCarrier },
 	{VOICECHAT_RETURNFLAG, BotVoiceChat_ReturnFlag },
-	{VOICECHAT_STARTLEADER, BotVoiceChat_StartLeader },
-	{VOICECHAT_STOPLEADER, BotVoiceChat_StopLeader },
-	{VOICECHAT_WHOISLEADER, BotVoiceChat_WhoIsLeader },
 	{VOICECHAT_WANTONDEFENSE, BotVoiceChat_WantOnDefense },
 	{VOICECHAT_WANTONOFFENSE, BotVoiceChat_WantOnOffense },
 	{NULL, BotVoiceChat_Dummy}

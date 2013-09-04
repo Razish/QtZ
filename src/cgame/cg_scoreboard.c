@@ -94,7 +94,6 @@ static void CG_DrawClientScore( int y, score_t *score, vector4 *color, float fad
 	iconx = SB_BOTICON_X + (SB_RATING_WIDTH / 2);
 	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2);
 
-	// draw the handicap or bot skill marker (unless player has flag)
 	if ( ci->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
 		if ( largeFormat )
 			CG_DrawFlagModel( (float)iconx, (float)(y - ( 32 - BIGCHAR_HEIGHT ) / 2), 32.0f, 32.0f, TEAM_FREE, qfalse );
@@ -122,22 +121,6 @@ static void CG_DrawClientScore( int y, score_t *score, vector4 *color, float fad
 					CG_DrawPic( (float)iconx, (float)y, 16.0f, 16.0f, cgs.media.botSkillShaders[ ci->botSkill - 1 ] );
 			}
 		}
-		else if ( ci->handicap < 100 ) {
-			Com_sprintf( string, sizeof( string ), "%i", ci->handicap );
-			if ( cgs.gametype == GT_DUEL )
-				CG_DrawSmallStringColor( iconx, y - SMALLCHAR_HEIGHT/2, string, color );
-			else
-				CG_DrawSmallStringColor( iconx, y, string, color );
-		}
-
-		// draw the wins / losses
-		if ( cgs.gametype == GT_DUEL ) {
-			Com_sprintf( string, sizeof( string ), "%i/%i", ci->wins, ci->losses );
-			if ( ci->handicap < 100 && !ci->botSkill )
-				CG_DrawSmallStringColor( iconx, y + SMALLCHAR_HEIGHT/2, string, color );
-			else
-				CG_DrawSmallStringColor( iconx, y, string, color );
-		}
 	}
 
 	// draw the face
@@ -148,16 +131,6 @@ static void CG_DrawClientScore( int y, score_t *score, vector4 *color, float fad
 	}
 	else {
 		CG_DrawHead( (float)headx, (float)y, 16, 16, score->client, &headAngles );
-	}
-
-	// draw the team task
-	if ( ci->teamTask != TEAMTASK_NONE ) {
-		if ( ci->teamTask == TEAMTASK_OFFENSE ) {
-			CG_DrawPic( (float)(headx + 48), (float)y, 16, 16, cgs.media.assaultShader );
-		}
-		else if ( ci->teamTask == TEAMTASK_DEFENSE ) {
-			CG_DrawPic( (float)(headx + 48), (float)y, 16, 16, cgs.media.defendShader );
-		}
 	}
 
 	// draw the score line

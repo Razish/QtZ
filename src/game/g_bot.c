@@ -38,12 +38,10 @@ static char		*g_arenaInfos[MAX_ARENAS];
 
 #define BOT_SPAWN_QUEUE_DEPTH	16
 
-typedef struct {
+static struct botSpawnQueue_s {
 	int		clientNum;
 	int		spawnTime;
-} botSpawnQueue_t;
-
-static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
+} botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 cvar_t *bot_minplayers;
 
@@ -675,16 +673,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, "cl_rate", "25000" );
 	Info_SetValueForKey( userinfo, "skill", va("%1.2f", skill) );
 
-	if ( skill >= 1 && skill < 2 ) {
-		Info_SetValueForKey( userinfo, "handicap", "50" );
-	}
-	else if ( skill >= 2 && skill < 3 ) {
-		Info_SetValueForKey( userinfo, "handicap", "70" );
-	}
-	else if ( skill >= 3 && skill < 4 ) {
-		Info_SetValueForKey( userinfo, "handicap", "90" );
-	}
-
 	key = "cg_model";
 	model = Info_ValueForKey( botinfo, key );
 	if ( !*model )
@@ -692,18 +680,10 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	Info_SetValueForKey( userinfo, "model", model );
 
-	key = "color1";
+	key = "cg_color";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "4";
-	}
-	Info_SetValueForKey( userinfo, key, s );
-
-	key = "color2";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "5";
-	}
+	if ( !*s )
+		s = "45";
 	Info_SetValueForKey( userinfo, key, s );
 
 	s = Info_ValueForKey(botinfo, "aifile");

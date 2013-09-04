@@ -63,7 +63,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RDF_HYPERSPACE		0x0004		// teleportation effect
 #define RDF_POSTPROCESS		0x0008		// post processing
 
-typedef struct {
+typedef struct polyVert_s {
 	vector3		xyz;
 	vector2		st;
 	byte		modulate[4];
@@ -90,7 +90,7 @@ typedef enum {
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
-typedef struct {
+typedef struct refEntity_s {
 	refEntityType_t	reType;
 	int			renderfx;
 
@@ -128,7 +128,7 @@ typedef struct {
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
 
-typedef struct {
+typedef struct refdef_s {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
 	vector3		vieworg;
@@ -166,7 +166,7 @@ typedef enum {
 	TC_S3TC_ARB  // this is for the GL_EXT_texture_compression_s3tc extension.
 } textureCompression_t;
 
-typedef struct {
+typedef struct glconfig_s {
 	char					renderer_string[MAX_STRING_CHARS];
 	char					vendor_string[MAX_STRING_CHARS];
 	char					version_string[MAX_STRING_CHARS];

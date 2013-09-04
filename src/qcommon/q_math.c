@@ -43,9 +43,10 @@ vector3	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 13	violet
 14	purple
 15	pink
+16	*white, to be changed
 */
 
-const vector4 g_color_table[Q_COLOR_BITS] = {
+const vector4 g_color_table[Q_COLOR_BITS+1] = {
 	{ 0.0f, 0.0f, 0.0f, 1.0f }, // black
 	{ 0.5f, 0.5f, 0.5f, 1.0f }, // grey
 	{ 1.0f, 1.0f, 1.0f, 1.0f }, // white
@@ -61,6 +62,7 @@ const vector4 g_color_table[Q_COLOR_BITS] = {
 	{ 0.5f, 0.0f, 1.0f, 1.0f }, // violet
 	{ 1.0f, 0.0f, 1.0f, 1.0f }, // purple
 	{ 1.0f, 0.0f, 0.5f, 1.0f }, // pink
+	{ 1.0f, 1.0f, 1.0f, 1.0f }, // *white
 };
 
 

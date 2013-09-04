@@ -102,7 +102,7 @@ void CG_LoadingClient( int clientNum ) {
 	info = CG_ConfigString( CS_PLAYERS + clientNum );
 
 	if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
-		Q_strncpyz( model, Info_ValueForKey( info, "cg_model" ), sizeof( model ) );
+		Q_strncpyz( model, Info_ValueForKey( info, "m" ), sizeof( model ) );
 
 		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon.tga", model );
 		

@@ -1291,7 +1291,7 @@ void ParseSort( char **text ) {
 
 // this table is also present in q3map
 
-typedef struct {
+typedef struct infoParm_s {
 	char	*name;
 	int		clearSolid, surfaceFlags, contents;
 } infoParm_t;
@@ -1690,7 +1690,7 @@ done:
 	return;
 }
 
-typedef struct {
+typedef struct collapse_s {
 	int		blendA;
 	int		blendB;
 

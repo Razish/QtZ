@@ -47,7 +47,7 @@ typedef enum {
 	SS_GAME				// actively running
 } serverState_t;
 
-typedef struct {
+typedef struct server_s {
 	serverState_t	state;
 	qboolean		restarting;			// if true, send configstring changes during SS_LOADING
 	int				serverId;			// changes each server start
@@ -76,11 +76,7 @@ typedef struct {
 	int				time;
 } server_t;
 
-
-
-
-
-typedef struct {
+typedef struct clientSnapshot_s {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
@@ -126,7 +122,7 @@ typedef struct client_s {
 	int				lastClientCommand;	// reliable client message sequence
 	char			lastClientCommandString[MAX_STRING_CHARS];
 	sharedEntity_t	*gentity;			// SV_GentityNum(clientnum)
-	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
+	char			name[MAX_NETNAME];			// extracted from userinfo, high bits masked
 
 	// downloading
 	char			downloadName[MAX_QPATH]; // if not empty string, we are downloading
@@ -189,7 +185,7 @@ typedef struct client_s {
 
 #define	AUTHORIZE_TIMEOUT	5000
 
-typedef struct {
+typedef struct challenge_s {
 	netadr_t	adr;
 	int			challenge;
 	int			clientChallenge;		// challenge number coming from the client
@@ -201,7 +197,7 @@ typedef struct {
 } challenge_t;
 
 // this structure will be cleared only when the game dll changes
-typedef struct {
+typedef struct serverStatic_s {
 	qboolean	initialized;				// sv_init has completed
 
 	int			time;						// will be strictly increasing across level changes
@@ -223,8 +219,7 @@ typedef struct {
 
 #define SERVER_MAXBANS	1024
 // Structure for managing bans
-typedef struct
-{
+typedef struct serverBan_t {
 	netadr_t ip;
 	// For a CIDR-Notation type suffix
 	int subnet;

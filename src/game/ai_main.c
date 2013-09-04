@@ -276,11 +276,9 @@ BotReportStatus
 void BotReportStatus(bot_state_t *bs) {
 	char goalname[MAX_MESSAGE_SIZE];
 	char netname[MAX_MESSAGE_SIZE];
-	char *leader, flagstatus[32];
+	char flagstatus[32];
 	//
 	ClientName(bs->client, netname, sizeof(netname));
-	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
-	else leader = " ";
 
 	strcpy(flagstatus, "  ");
 	if (gametype == GT_CTF) {
@@ -300,67 +298,67 @@ void BotReportStatus(bot_state_t *bs) {
 		case LTG_TEAMHELP:
 		{
 			EasyClientName(bs->teammate, goalname, sizeof(goalname));
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: helping %s\n", netname, leader, flagstatus, goalname);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: helping %s\n", netname, flagstatus, goalname);
 			break;
 		}
 		case LTG_TEAMACCOMPANY:
 		{
 			EasyClientName(bs->teammate, goalname, sizeof(goalname));
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: accompanying %s\n", netname, leader, flagstatus, goalname);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: accompanying %s\n", netname, flagstatus, goalname);
 			break;
 		}
 		case LTG_DEFENDKEYAREA:
 		{
 			trap->ai->BotGoalName(bs->teamgoal.number, goalname, sizeof(goalname));
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: defending %s\n", netname, leader, flagstatus, goalname);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: defending %s\n", netname, flagstatus, goalname);
 			break;
 		}
 		case LTG_GETITEM:
 		{
 			trap->ai->BotGoalName(bs->teamgoal.number, goalname, sizeof(goalname));
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: getting item %s\n", netname, leader, flagstatus, goalname);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: getting item %s\n", netname, flagstatus, goalname);
 			break;
 		}
 		case LTG_KILL:
 		{
 			ClientName(bs->teamgoal.entitynum, goalname, sizeof(goalname));
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: killing %s\n", netname, leader, flagstatus, goalname);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: killing %s\n", netname, flagstatus, goalname);
 			break;
 		}
 		case LTG_CAMP:
 		case LTG_CAMPORDER:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: camping\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: camping\n", netname, flagstatus);
 			break;
 		}
 		case LTG_PATROL:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: patrolling\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: patrolling\n", netname, flagstatus);
 			break;
 		}
 		case LTG_GETFLAG:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: capturing flag\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: capturing flag\n", netname, flagstatus);
 			break;
 		}
 		case LTG_RUSHBASE:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: rushing base\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: rushing base\n", netname, flagstatus);
 			break;
 		}
 		case LTG_RETURNFLAG:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: returning flag\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: returning flag\n", netname, flagstatus);
 			break;
 		}
 		case LTG_ATTACKENEMYBASE:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: attacking the enemy base\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: attacking the enemy base\n", netname, flagstatus);
 			break;
 		}
 		default:
 		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: roaming\n", netname, leader, flagstatus);
+			BotAI_Print(PRT_MESSAGE, "%-20s %s: roaming\n", netname, flagstatus);
 			break;
 		}
 	}
@@ -412,12 +410,10 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 	char goalname[MAX_MESSAGE_SIZE];
 	char netname[MAX_MESSAGE_SIZE];
 	char action[MAX_MESSAGE_SIZE];
-	char *leader, carrying[32], *cs;
+	char carrying[32], *cs;
 	bot_goal_t goal;
 	//
 	ClientName(bs->client, netname, sizeof(netname));
-	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
-	else leader = " ";
 
 	strcpy(carrying, "  ");
 	if (gametype == GT_CTF) {
@@ -501,10 +497,7 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 			break;
 		}
 	}
-  	cs = va("l\\%s\\c\\%s\\a\\%s",
-				leader,
-				carrying,
-				action);
+  	cs = va( "\\c\\%s\\a\\%s", carrying, action );
   	trap->SV_SetConfigstring (CS_BOTINFO + bs->client, cs);
 }
 
@@ -664,20 +657,6 @@ NumBots
 */
 int NumBots(void) {
 	return numbots;
-}
-
-/*
-==============
-BotTeamLeader
-==============
-*/
-int BotTeamLeader(bot_state_t *bs) {
-	int leader;
-
-	leader = ClientFromName(bs->teamleader);
-	if (leader < 0) return qfalse;
-	if (!botstates[leader] || !botstates[leader]->inuse) return qfalse;
-	return qtrue;
 }
 
 /*

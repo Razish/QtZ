@@ -36,16 +36,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //message types
 typedef enum botMsgType_e {
 	MSG_NONE = 0,
-	MSG_NEWLEADER,				//new leader
 	MSG_ENTERGAME,				//enter game message
 	MSG_HELP,					//help someone
 	MSG_ACCOMPANY,				//accompany someone
 	MSG_DEFENDKEYAREA,			//defend a key area
 	MSG_RUSHBASE,				//everyone rush to base
 	MSG_GETFLAG,				//get the enemy flag
-	MSG_STARTTEAMLEADERSHIP,	//someone wants to become the team leader
-	MSG_STOPTEAMLEADERSHIP,		//someone wants to stop being the team leader
-	MSG_WHOISTEAMLEADER,		//who is the team leader
 	MSG_WAIT,					//wait for someone
 	MSG_WHATAREYOUDOING,		//what are you doing?
 	MSG_JOINSUBTEAM,			//join a sub-team

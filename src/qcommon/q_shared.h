@@ -200,7 +200,7 @@ typedef int		clipHandle_t;
 #define	MAX_OSPATH			256		// max length of a filesystem pathname
 #endif
 
-#define	MAX_NAME_LENGTH		32		// max length of a client name
+#define	MAX_NETNAME			36		// max length of a client name
 
 #define	MAX_SAY_TEXT		150
 #define EC_GLOBAL			"\x19"
@@ -415,7 +415,7 @@ int ColorIndex( char c );
 #define S_COLOR_PURPLE		"^d"
 #define S_COLOR_PINK		"^e"
 
-extern const vector4 g_color_table[Q_COLOR_BITS];
+extern const vector4 g_color_table[Q_COLOR_BITS+1];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
@@ -898,7 +898,7 @@ typedef struct cplane_s {
 
 
 // a trace is returned when a box is swept through the world
-typedef struct {
+typedef struct trace_s {
 	qboolean	allsolid;	// if true, plane is not valid
 	qboolean	startsolid;	// if true, the initial point was in a solid area
 	float		fraction;	// time completed, 1.0 = didn't hit anything
@@ -914,14 +914,14 @@ typedef struct {
 
 
 // markfragments are returned by R_MarkFragments()
-typedef struct {
+typedef struct markFragment_s {
 	int		firstPoint;
 	int		numPoints;
 } markFragment_t;
 
 
 
-typedef struct {
+typedef struct orientation_s {
 	vector3		origin;
 	vector3		axis[3];
 } orientation_t;
@@ -997,7 +997,7 @@ typedef enum {
 #define	RESERVED_CONFIGSTRINGS	2	// game can't modify below this, only the system can
 
 #define	MAX_GAMESTATE_CHARS	16000
-typedef struct {
+typedef struct gameState_s {
 	int			stringOffsets[MAX_CONFIGSTRINGS];
 	char		stringData[MAX_GAMESTATE_CHARS];
 	int			dataCount;
@@ -1134,7 +1134,7 @@ typedef enum {
 	TR_GRAVITY
 } trType_t;
 
-typedef struct {
+typedef struct trajectory_s {
 	trType_t	trType;
 	int		trTime;
 	int		trDuration;			// if non 0, trTime + trDuration = stop time
@@ -1213,7 +1213,7 @@ typedef enum {
 #define GLYPH_CHARSTART 32
 #define GLYPH_CHAREND 127
 #define GLYPHS_PER_FONT GLYPH_END - GLYPH_START + 1
-typedef struct {
+typedef struct glyphInfo_s {
   int height;       // number of scan lines
   int top;          // top of glyph in buffer
   int bottom;       // bottom of glyph in buffer
@@ -1229,7 +1229,7 @@ typedef struct {
   char shaderName[32];
 } glyphInfo_t;
 
-typedef struct {
+typedef struct fontInfo_s {
   glyphInfo_t glyphs [GLYPHS_PER_FONT];
   float glyphScale;
   char name[MAX_QPATH];
@@ -1299,7 +1299,7 @@ typedef struct stringToEnum_s {
 } stringToEnum_t;
 
 #define	MAX_EDIT_LINE	256
-typedef struct {
+typedef struct field_s {
 	int		cursor;
 	int		scroll;
 	int		widthInChars;

@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // msg.c
 //
-typedef struct {
+typedef struct msg_s {
 	qboolean	allowoverflow;	// if false, do a Com_Error
 	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
 	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
@@ -157,7 +157,7 @@ typedef enum {
 } netsrc_t;
 
 #define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
-typedef struct {
+typedef struct netadr_s {
 	netadrtype_t	type;
 
 	byte	ip[4];
@@ -202,7 +202,7 @@ void		NET_Sleep(int msec);
 Netchan handles packet fragmentation and out of order / duplicate suppression
 */
 
-typedef struct {
+typedef struct netchan_s {
 	netsrc_t	sock;
 
 	int			dropped;			// between last packet and previous
@@ -227,8 +227,8 @@ typedef struct {
 	byte		unsentBuffer[MAX_MSGLEN];
 
 	int			challenge;
-	int		lastSentTime;
-	int		lastSentSize;
+	int			lastSentTime;
+	int			lastSentSize;
 } netchan_t;
 
 void Netchan_Init( int qport );
@@ -694,7 +694,7 @@ typedef enum {
 	SE_CONSOLE		// evPtr is a char*
 } sysEventType_t;
 
-typedef struct {
+typedef struct sysEvent_s {
 	int				evTime;
 	sysEventType_t	evType;
 	int				evValue, evValue2;
@@ -1032,7 +1032,7 @@ typedef struct nodetype {
 
 #define HMAX 256 /* Maximum symbol */
 
-typedef struct {
+typedef struct huff_s {
 	int			blocNode;
 	int			blocPtrs;
 
@@ -1046,7 +1046,7 @@ typedef struct {
 	node_t*		nodePtrs[768];
 } huff_t;
 
-typedef struct {
+typedef struct huffman_s {
 	huff_t		compressor;
 	huff_t		decompressor;
 } huffman_t;

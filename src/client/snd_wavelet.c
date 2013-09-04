@@ -121,7 +121,7 @@ void NXPutc(NXStream *stream, char out) {
 void encodeWavelet( sfx_t *sfx, short *packets) {
 	float	wksp[4097], temp;
 	int		i, samples, size;
-	sndBuffer		*newchunk, *chunk;
+	sndBuffer_t		*newchunk, *chunk;
 	byte			*out;
 
 	if (!madeTable) {
@@ -168,7 +168,7 @@ void encodeWavelet( sfx_t *sfx, short *packets) {
 	}
 }
 
-void decodeWavelet(sndBuffer *chunk, short *to) {
+void decodeWavelet(sndBuffer_t *chunk, short *to) {
 	float			wksp[4097];
 	int				i;
 	byte			*out;
@@ -192,7 +192,7 @@ void decodeWavelet(sndBuffer *chunk, short *to) {
 
 void encodeMuLaw( sfx_t *sfx, short *packets) {
 	int		i, samples, size, grade, poop;
-	sndBuffer		*newchunk, *chunk;
+	sndBuffer_t		*newchunk, *chunk;
 	byte			*out;
 
 	if (!madeTable) {
@@ -236,7 +236,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets) {
 	}
 }
 
-void decodeMuLaw(sndBuffer *chunk, short *to) {
+void decodeMuLaw(sndBuffer_t *chunk, short *to) {
 	int				i;
 	byte			*out;
 

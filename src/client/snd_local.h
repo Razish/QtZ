@@ -32,12 +32,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SND_CHUNK_SIZE_FLOAT	(SND_CHUNK_SIZE/2)		// floats
 #define SND_CHUNK_SIZE_BYTE		(SND_CHUNK_SIZE*2)		// floats
 
-typedef struct {
+typedef struct portable_samplepair_s {
 	int			left;	// the final values will be clamped to +/- 0x00ffff00 and shifted down
 	int			right;
 } portable_samplepair_t;
 
-typedef struct adpcm_state {
+typedef struct adpcm_state_s {
     short	sample;		/* Previous output value */
     char	index;		/* Index into stepsize table */
 } adpcm_state_t;
@@ -47,10 +47,10 @@ typedef	struct sndBuffer_s {
 	struct sndBuffer_s		*next;
     int						size;
 	adpcm_state_t			adpcm;
-} sndBuffer;
+} sndBuffer_t;
 
 typedef struct sfx_s {
-	sndBuffer		*soundData;
+	sndBuffer_t		*soundData;
 	qboolean		defaultSound;			// couldn't be loaded, so use buzz
 	qboolean		inMemory;				// not in Memory
 	qboolean		soundCompressed;		// not in Memory
@@ -61,7 +61,7 @@ typedef struct sfx_s {
 	struct sfx_s	*next;
 } sfx_t;
 
-typedef struct {
+typedef struct dma_s {
 	int			channels;
 	int			samples;				// mono samples in buffer
 	int			submission_chunk;		// don't mix less than this #
@@ -89,8 +89,7 @@ typedef struct loopSound_s {
 	int			framenum;
 } loopSound_t;
 
-typedef struct
-{
+typedef struct channel_s {
 	int			allocTime;
 	int			startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
 	int			entnum;			// to allow overriding a specific sound
@@ -111,18 +110,17 @@ typedef struct
 #define	WAV_FORMAT_PCM		1
 
 
-typedef struct {
-	int			format;
-	int			rate;
-	int			width;
-	int			channels;
-	int			samples;
-	int			dataofs;		// chunk starts this many bytes from file start
+typedef struct wavinfo_s {
+	int		format;
+	int		rate;
+	int		width;
+	int		channels;
+	int		samples;
+	int		dataofs;		// chunk starts this many bytes from file start
 } wavinfo_t;
 
 // Interface between Q3 sound "api" and the sound backend
-typedef struct
-{
+typedef struct soundInterface_s {
 	void (*Shutdown)(void);
 	void (*StartSound)( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx );
 	void (*StartLocalSound)( sfxHandle_t sfx, int channelNum );
@@ -202,8 +200,8 @@ extern cvar_t *s_testsound;
 
 qboolean S_LoadSound( sfx_t *sfx );
 
-void		SND_free(sndBuffer *v);
-sndBuffer*	SND_malloc( void );
+void		SND_free(sndBuffer_t *v);
+sndBuffer_t	*SND_malloc( void );
 void		SND_setup( void );
 void		SND_shutdown(void);
 
@@ -217,7 +215,7 @@ void S_Spatialize(channel_t *ch);
 // adpcm functions
 int  S_AdpcmMemoryNeeded( const wavinfo_t *info );
 void S_AdpcmEncodeSound( sfx_t *sfx, short *samples );
-void S_AdpcmGetSamples(sndBuffer *chunk, short *to);
+void S_AdpcmGetSamples(sndBuffer_t *chunk, short *to);
 
 // wavelet function
 
@@ -229,7 +227,7 @@ void S_FreeOldestSound( void );
 #define	NXStream byte
 
 void encodeWavelet(sfx_t *sfx, short *packets);
-void decodeWavelet( sndBuffer *stream, short *packets);
+void decodeWavelet( sndBuffer_t *stream, short *packets);
 
 void encodeMuLaw( sfx_t *sfx, short *packets);
 extern short mulawToShort[256];

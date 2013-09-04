@@ -829,7 +829,7 @@ void MSG_ReportChangeVectors_f( void ) {
 	}
 }
 
-typedef struct {
+typedef struct netField_s {
 	char	*name;
 	int		offset;
 	int		bits;		// 0 = float

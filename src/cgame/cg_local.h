@@ -119,7 +119,7 @@ typedef enum {
 
 // when changing animation, set animationTime to frameTime + lerping time
 // The current lerp will finish out, then it will lerp to the new animation
-typedef struct {
+typedef struct lerpFrame_s {
 	int			oldFrame;
 	int			oldFrameTime;		// time when ->oldFrame was exactly on
 
@@ -139,7 +139,7 @@ typedef struct {
 } lerpFrame_t;
 
 
-typedef struct {
+typedef struct playerEntity_s {
 	lerpFrame_t		legs, torso, flag;
 	int				painTime;
 	int				painDirection;	// flip from 0 to 1
@@ -356,22 +356,22 @@ typedef struct localEntity_s {
 //======================================================================
 
 
-typedef struct {
-	int				client;
-	int				score;
-	int				ping;
-	int				time;
-	int				scoreFlags;
-	int				powerUps;
-	int				accuracy;
-	int				impressiveCount;
-	int				excellentCount;
-	int				guantletCount;
-	int				defendCount;
-	int				assistCount;
-	int				captures;
+typedef struct score_s {
+	int			client;
+	int			score;
+	int			ping;
+	int			time;
+	int			scoreFlags;
+	int			powerUps;
+	int			accuracy;
+	int			impressiveCount;
+	int			excellentCount;
+	int			guantletCount;
+	int			defendCount;
+	int			assistCount;
+	int			captures;
 	qboolean	perfect;
-	int				team;
+	int			team;
 } score_t;
 
 // each client has an associated clientInfo_t
@@ -381,10 +381,10 @@ typedef struct {
 // usually as a result of a userinfo (name, model, etc) change
 #define	MAX_CUSTOM_SOUNDS	32
 
-typedef struct {
+typedef struct clientInfo_s {
 	qboolean		infoValid;
 
-	char			name[MAX_QPATH];
+	char			name[MAX_NETNAME];
 	team_t			team;
 
 	int				botSkill;		// 0 = not bot, 1-5 = bot
@@ -401,12 +401,6 @@ typedef struct {
 	int				armor;
 	int				curWeapon;
 
-	int				handicap;
-	int				wins, losses;	// in tourney mode
-
-	int				teamTask;		// task in teamplay (offence/defence)
-	qboolean		teamLeader;		// true when this is a team leader
-
 	int				powerups;		// so can display quad/flag status
 
 	int				medkitUsageTime;
@@ -417,8 +411,6 @@ typedef struct {
 	// can be deferred until you are dead, to prevent hitches in
 	// gameplay
 	char			modelName[MAX_QPATH];
-	char			redTeam[MAX_TEAMNAME];
-	char			blueTeam[MAX_TEAMNAME];
 	qboolean		deferred;
 
 	qboolean		newAnims;		// true if using the new mission pack animations
@@ -482,14 +474,14 @@ typedef struct weaponInfo_s {
 // each IT_* item has an associated itemInfo_t
 // that constains media references necessary to present the
 // item and its effects
-typedef struct {
-	qboolean		registered;
-	qhandle_t		models[MAX_ITEM_MODELS];
-	qhandle_t		icon;
+typedef struct itemInfo_s {
+	qboolean	registered;
+	qhandle_t	models[MAX_ITEM_MODELS];
+	qhandle_t	icon;
 } itemInfo_t;
 
 
-typedef struct {
+typedef struct powerupInfo_s {
 	int				itemNum;
 } powerupInfo_t;
 
@@ -503,7 +495,7 @@ typedef struct {
 
 #define MAX_PREDICTED_EVENTS	16
  
-typedef struct {
+typedef struct cg_s {
 	int			clientFrame;		// incremented each frame
 
 	int			clientNum;
@@ -589,7 +581,7 @@ typedef struct {
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
-	char		killerName[MAX_NAME_LENGTH];
+	char		killerName[MAX_NETNAME];
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
 	int				spectatorLen;												// length of list
 	float			spectatorWidth;											// width in device units
@@ -722,7 +714,7 @@ typedef struct {
 // loaded at gamestate time are stored in cgMedia_t
 // Other media that can be tied to clients, weapons, or items are
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
-typedef struct {
+typedef struct cgMedia_s {
 	qhandle_t	charsetShader;
 	qhandle_t	charsetProp;
 	qhandle_t	charsetPropGlow;
@@ -926,7 +918,6 @@ typedef struct {
 	qhandle_t campShader;
 	qhandle_t followShader;
 	qhandle_t defendShader;
-	qhandle_t teamLeaderShader;
 	qhandle_t retrieveShader;
 	qhandle_t escortShader;
 	qhandle_t flagShaders[3];
@@ -970,7 +961,7 @@ typedef struct {
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
 // all clients to begin playing instantly
-typedef struct {
+typedef struct cgs_s {
 	gameState_t		gameState;			// gamestate from server
 	glconfig_t		glconfig;			// rendering configuration
 	float			screenXScale;		// derived from glconfig
@@ -990,8 +981,8 @@ typedef struct {
 	int				timelimit;
 	int				maxclients;
 	char			mapname[MAX_QPATH];
-	char			redTeam[MAX_QPATH];
-	char			blueTeam[MAX_QPATH];
+	char			redTeam[MAX_TEAMNAME];
+	char			blueTeam[MAX_TEAMNAME];
 
 	int				voteTime;
 	int				voteYes;
@@ -1005,7 +996,7 @@ typedef struct {
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
-	qboolean  newHud;
+	qboolean		newHud;
 
 	//
 	// locally derived information from gamestate
@@ -1025,23 +1016,13 @@ typedef struct {
 	int				teamChatPos;
 	int				teamLastChatPos;
 
-	float cursorX;
-	float cursorY;
-	qboolean eventHandling;
-	qboolean mouseCaptured;
-	qboolean sizingHud;
-	void *capturedItem;
-	qhandle_t activeCursor;
-
-	// orders
-	int currentOrder;
-	qboolean orderPending;
-	int orderTime;
-	int currentVoiceClient;
-	int acceptOrderTime;
-	int acceptTask;
-	int acceptLeader;
-	char acceptVoice[MAX_NAME_LENGTH];
+	float			cursorX;
+	float			cursorY;
+	qboolean		eventHandling;
+	qboolean		mouseCaptured;
+	qboolean		sizingHud;
+	void			*capturedItem;
+	qhandle_t		activeCursor;
 
 	// media
 	cgMedia_t		media;
@@ -1143,7 +1124,6 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size);
 //
 extern	int sortedTeamPlayers[TEAM_MAXOVERLAY];
 extern	int	numSortedTeamPlayers;
-extern	int drawTeamOverlayModificationCount;
 extern  char systemChat[256];
 extern  char teamChat1[256];
 extern  char teamChat2[256];

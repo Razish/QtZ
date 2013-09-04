@@ -29,12 +29,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CAPSULE_MODEL_HANDLE	254
 
 
-typedef struct {
+typedef struct cNode_s {
 	cplane_t	*plane;
 	int			children[2];		// negative numbers are leafs
 } cNode_t;
 
-typedef struct {
+typedef struct cLeaf_s {
 	int			cluster;
 	int			area;
 
@@ -50,14 +50,14 @@ typedef struct cmodel_s {
 	cLeaf_t		leaf;			// submodels don't reference the main tree
 } cmodel_t;
 
-typedef struct {
+typedef struct cbrushside_s {
 	cplane_t	*plane;
 	int			surfaceFlags;
 	int			shaderNum;
 //	int			drawSurfNum;	//QtZ: Future RBSP support?
 } cbrushside_t;
 
-typedef struct {
+typedef struct cbrush_s {
 	int			shaderNum;		// the shader that determined the contents
 	int			contents;
 	vector3		bounds[2];
@@ -67,7 +67,7 @@ typedef struct {
 } cbrush_t;
 
 
-typedef struct {
+typedef struct cPatch_s {
 	int			checkcount;				// to avoid repeated testings
 	int			surfaceFlags;
 	int			contents;
@@ -75,12 +75,12 @@ typedef struct {
 } cPatch_t;
 
 
-typedef struct {
+typedef struct cArea_s {
 	int			floodnum;
 	int			floodvalid;
 } cArea_t;
 
-typedef struct {
+typedef struct clipMap_s {
 	char		name[MAX_QPATH];
 
 	int			numShaders;
@@ -144,15 +144,14 @@ extern	cvar_t		*cm_playerCurveClip;
 // cm_test.c
 
 // Used for oriented capsule collision detection
-typedef struct
-{
+typedef struct sphere_s {
 	qboolean	use;
 	float		radius;
 	float		halfheight;
 	vector3		offset;
 } sphere_t;
 
-typedef struct {
+typedef struct traceWork_s {
 	vector3		start;
 	vector3		end;
 	vector3		size[2];	// size of the box being swept through the model

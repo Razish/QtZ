@@ -1493,7 +1493,7 @@ S_FreeOldestSound
 void S_FreeOldestSound( void ) {
 	int	i, oldest, used;
 	sfx_t	*sfx;
-	sndBuffer	*buffer, *nbuffer;
+	sndBuffer_t	*buffer, *nbuffer;
 
 	oldest = Com_Milliseconds();
 	used = 0;

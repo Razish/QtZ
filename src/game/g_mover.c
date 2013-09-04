@@ -33,7 +33,7 @@ PUSHMOVE
 ===============================================================================
 */
 
-typedef struct {
+typedef struct pushed_s {
 	gentity_t	*ent;
 	vector3	origin;
 	vector3	angles;

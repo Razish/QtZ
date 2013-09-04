@@ -212,7 +212,7 @@ void CG_ChatboxTabComplete( void ) {
 		int match = -1;
 		char currWord[MAX_INFO_STRING] = { 0 };
 		char *p = &chatField.buffer[0];//[chatField->cursor];
-		char matches[MAX_CLIENTS][MAX_QPATH/*MAX_NETNAME*/] = { {0} }; // because cgs.clientinfo[i].name uses MAX_QPATH...wtf...
+		char matches[MAX_CLIENTS][MAX_NETNAME] = { {0} }; // because cgs.clientinfo[i].name uses MAX_QPATH...wtf...
 		int numMatches = 0;
 
 		p = &chatField.buffer[chatField.cursor];
@@ -227,10 +227,8 @@ void CG_ChatboxTabComplete( void ) {
 		Q_CleanColorStr( currWord );
 		Q_strlwr( currWord );
 
-		for ( i=0; i<cgs.maxclients; i++ )
-		{
-			if ( cgs.clientinfo[i].infoValid )
-			{
+		for ( i=0; i<cgs.maxclients; i++ ) {
+			if ( cgs.clientinfo[i].infoValid ) {
 				char name[MAX_QPATH/*MAX_NETNAME*/] = { 0 }; // because cgs.clientinfo[i].name uses MAX_QPATH...wtf...
 
 				Q_strncpyz( name, cgs.clientinfo[i].name, sizeof( name ) );
@@ -244,8 +242,7 @@ void CG_ChatboxTabComplete( void ) {
 			}
 		}
 
-		if ( numMatches == 1 )
-		{
+		if ( numMatches == 1 ) {
 			int oldCursor = chatField.cursor;
 			int delta = &chatField.buffer[oldCursor] - p;
 			char *str = va( "%s ^2", cgs.clientinfo[match].name );

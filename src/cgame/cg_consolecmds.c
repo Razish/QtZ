@@ -178,106 +178,6 @@ static void CG_VoiceTellAttacker_f( void ) {
 	trap->SendClientCommand( command );
 }
 
-static void CG_NextTeamMember_f( void ) {
-  CG_SelectNextPlayer();
-}
-
-static void CG_PrevTeamMember_f( void ) {
-  CG_SelectPrevPlayer();
-}
-
-// ASS U ME's enumeration order as far as task specific orders, OFFENSE is zero, CAMP is last
-//
-static void CG_NextOrder_f( void ) {
-	clientInfo_t *ci = cgs.clientinfo + cg.snap->ps.clientNum;
-	if (ci) {
-		if (!ci->teamLeader && sortedTeamPlayers[cg_currentSelectedPlayer->integer] != cg.snap->ps.clientNum) {
-			return;
-		}
-	}
-	if (cgs.currentOrder < TEAMTASK_CAMP) {
-		cgs.currentOrder++;
-
-		if (cgs.currentOrder == TEAMTASK_RETRIEVE) {
-			if (!CG_OtherTeamHasFlag()) {
-				cgs.currentOrder++;
-			}
-		}
-
-		if (cgs.currentOrder == TEAMTASK_ESCORT) {
-			if (!CG_YourTeamHasFlag()) {
-				cgs.currentOrder++;
-			}
-		}
-
-	} else {
-		cgs.currentOrder = TEAMTASK_OFFENSE;
-	}
-	cgs.orderPending = qtrue;
-	cgs.orderTime = cg.time + 3000;
-}
-
-
-static void CG_ConfirmOrder_f (void ) {
-	trap->SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_YES));
-	trap->SendConsoleCommand("+button5; wait; -button5");
-	if (cg.time < cgs.acceptOrderTime) {
-		trap->SendClientCommand(va("teamtask %d\n", cgs.acceptTask));
-		cgs.acceptOrderTime = 0;
-	}
-}
-
-static void CG_DenyOrder_f (void ) {
-	trap->SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_NO));
-	trap->SendConsoleCommand("+button6; wait; -button6");
-	if (cg.time < cgs.acceptOrderTime) {
-		cgs.acceptOrderTime = 0;
-	}
-}
-
-static void CG_TaskOffense_f (void ) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
-		trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONGETFLAG));
-	} else {
-		trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONOFFENSE));
-	}
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_OFFENSE));
-}
-
-static void CG_TaskDefense_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONDEFENSE));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_DEFENSE));
-}
-
-static void CG_TaskPatrol_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONPATROL));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_PATROL));
-}
-
-static void CG_TaskCamp_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONCAMPING));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_CAMP));
-}
-
-static void CG_TaskFollow_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOW));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_FOLLOW));
-}
-
-static void CG_TaskRetrieve_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONRETURNFLAG));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_RETRIEVE));
-}
-
-static void CG_TaskEscort_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONFOLLOWCARRIER));
-	trap->SendClientCommand(va("teamtask %d\n", TEAMTASK_ESCORT));
-}
-
-static void CG_TaskOwnFlag_f (void ) {
-	trap->SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_IHAVEFLAG));
-}
-
 static void CG_TauntKillInsult_f (void ) {
 	trap->SendConsoleCommand("cmd vsay kill_insult\n");
 }
@@ -338,20 +238,6 @@ static consoleCommand_t	commands[] = {
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "loadhud", CG_LoadHud_f },
-	{ "nextTeamMember", CG_NextTeamMember_f },
-	{ "prevTeamMember", CG_PrevTeamMember_f },
-	{ "nextOrder", CG_NextOrder_f },
-	{ "confirmOrder", CG_ConfirmOrder_f },
-	{ "denyOrder", CG_DenyOrder_f },
-	{ "taskOffense", CG_TaskOffense_f },
-	{ "taskDefense", CG_TaskDefense_f },
-	{ "taskPatrol", CG_TaskPatrol_f },
-	{ "taskCamp", CG_TaskCamp_f },
-	{ "taskFollow", CG_TaskFollow_f },
-	{ "taskRetrieve", CG_TaskRetrieve_f },
-	{ "taskEscort", CG_TaskEscort_f },
-	{ "taskSuicide", CG_TaskSuicide_f },
-	{ "taskOwnFlag", CG_TaskOwnFlag_f },
 	{ "tauntKillInsult", CG_TauntKillInsult_f },
 	{ "tauntPraise", CG_TauntPraise_f },
 	{ "tauntTaunt", CG_TauntTaunt_f },
@@ -392,7 +278,6 @@ static consoleCommand_t	commands[] = {
 	{ "callteamvote", NULL },
 	{ "teamvote", NULL },
 	{ "stats", NULL },
-	{ "teamtask", NULL },
 	{ "loaddefered", NULL }, // spelled wrong, but not changing for demo
 };
 

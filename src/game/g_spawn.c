@@ -113,7 +113,7 @@ spawnField_t fields[] = {
 };
 
 
-typedef struct {
+typedef struct spawn_s {
 	char	*name;
 	void	(*spawn)(gentity_t *ent);
 } spawn_t;

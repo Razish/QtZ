@@ -171,7 +171,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 			text_p = prev;	// unget the token
 			break;
 		}
-		Com_Printf( "unknown token '%s' is %s\n", token, filename );
+		Com_Printf( "unknown token '%s' in %s\n", token, filename );
 	}
 
 	// read information for each frame
@@ -404,24 +404,8 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 CG_ColorFromString
 ====================
 */
-static void CG_ColorFromString( const char *v, vector3 *color ) {
-	int val;
-
-	VectorClear( color );
-
-	val = atoi( v );
-
-	if ( val < 1 || val > 7 ) {
-		VectorSet( color, 1, 1, 1 );
-		return;
-	}
-
-	VectorCopy( (vector3*)&g_color_table[val], color );
-	/*
-	if ( val & 1 )	color->b = 1.0f;
-	if ( val & 2 )	color->g = 1.0f;
-	if ( val & 4 )	color->r = 1.0f;
-	*/
+static void CG_ColorFromString( int c, vector3 *color ) {
+	VectorCopy( (vector3*)&g_color_table[Q_clampi( 0, c, Q_COLOR_BITS )], color );
 }
 
 /*
@@ -525,9 +509,6 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 			continue;
 		}
 		if ( !Q_stricmp( ci->modelName, match->modelName ) &&
-//			 !Q_stricmp( ci->headModelName, match->headModelName ) &&
-			 !Q_stricmp( ci->blueTeam, match->blueTeam ) &&
-			 !Q_stricmp( ci->redTeam, match->redTeam ) &&
 			 (cgs.gametype < GT_TEAM || ci->team == match->team) )
 		{// this clientinfo is identical, so use its handles
 			ci->deferred = qfalse;
@@ -635,65 +616,37 @@ void CG_NewClientInfo( int clientNum ) {
 	v = Info_ValueForKey(configstring, "n");
 	Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
 
-	// colors
-	v = Info_ValueForKey( configstring, "c1" );
-	CG_ColorFromString( v, &newInfo.color1 );
-
-	newInfo.c1RGBA[0] = (byte)(255 * newInfo.color1.r);
-	newInfo.c1RGBA[1] = (byte)(255 * newInfo.color1.g);
-	newInfo.c1RGBA[2] = (byte)(255 * newInfo.color1.b);
-	newInfo.c1RGBA[3] = 255;
-
-	v = Info_ValueForKey( configstring, "c2" );
-	CG_ColorFromString( v, &newInfo.color2 );
-
-	newInfo.c2RGBA[0] = (byte)(255 * newInfo.color2.r);
-	newInfo.c2RGBA[1] = (byte)(255 * newInfo.color2.g);
-	newInfo.c2RGBA[2] = (byte)(255 * newInfo.color2.b);
-	newInfo.c2RGBA[3] = 255;
-
-	// bot skill
-	v = Info_ValueForKey( configstring, "skill" );
-	newInfo.botSkill = atoi( v );
-
-	// handicap
-	v = Info_ValueForKey( configstring, "hc" );
-	newInfo.handicap = atoi( v );
-
-	// wins
-	v = Info_ValueForKey( configstring, "w" );
-	newInfo.wins = atoi( v );
-
-	// losses
-	v = Info_ValueForKey( configstring, "l" );
-	newInfo.losses = atoi( v );
-
 	// team
 	v = Info_ValueForKey( configstring, "t" );
 	newInfo.team = atoi( v );
 
-	// team task
-	v = Info_ValueForKey( configstring, "tt" );
-	newInfo.teamTask = atoi(v);
-
-	// team leader
-	v = Info_ValueForKey( configstring, "tl" );
-	newInfo.teamLeader = atoi(v);
-
-	v = Info_ValueForKey( configstring, "g_redteam" );
-	Q_strncpyz(newInfo.redTeam, v, MAX_TEAMNAME);
-
-	v = Info_ValueForKey( configstring, "g_blueteam" );
-	Q_strncpyz(newInfo.blueTeam, v, MAX_TEAMNAME);
-
 	// model
-	v = Info_ValueForKey( configstring, "cg_model" );
+	v = Info_ValueForKey( configstring, "m" );
 	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel->string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel->string, sizeof( newInfo.modelName ) );
 	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel->string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceAllyModel->string, sizeof( newInfo.modelName ) );
 	else
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
+
+	// colors
+	v = Info_ValueForKey( configstring, "c" );
+	CG_ColorFromString( v[0], &newInfo.color1 );
+
+	newInfo.c1RGBA[0] = (byte)(255 * newInfo.color1.r);
+	newInfo.c1RGBA[1] = (byte)(255 * newInfo.color1.g);
+	newInfo.c1RGBA[2] = (byte)(255 * newInfo.color1.b);
+	newInfo.c1RGBA[3] = 255;
+
+	CG_ColorFromString( v[1], &newInfo.color2 );
+	newInfo.c2RGBA[0] = (byte)(255 * newInfo.color2.r);
+	newInfo.c2RGBA[1] = (byte)(255 * newInfo.color2.g);
+	newInfo.c2RGBA[2] = (byte)(255 * newInfo.color2.b);
+	newInfo.c2RGBA[3] = 255;
+
+	// bot skill
+	v = Info_ValueForKey( configstring, "s" );
+	newInfo.botSkill = atoi( v );
 
 	// scan for an existing clientinfo that matches this modelname
 	// so we can avoid loading checks if possible

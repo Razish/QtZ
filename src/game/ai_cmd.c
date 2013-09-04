@@ -56,8 +56,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for the voice chats
 #include "../../build/qtz/ui/menudef.h"
 
-int notleader[MAX_CLIENTS];
-
 #ifdef DEBUG
 /*
 ==================
@@ -588,7 +586,6 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match) {
 		bs->formation_dist = 3.5 * 32;		//3.5 meter
 		bs->arrive_time = 0;
 		//
-		BotSetTeamStatus(bs);
 		// remember last ordered task
 		BotRememberLastOrderedTask(bs);
 	}
@@ -637,7 +634,6 @@ void BotMatch_DefendKeyArea(bot_state_t *bs, bot_match_t *match) {
 	//away from defending
 	bs->defendaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -679,7 +675,6 @@ void BotMatch_GetItem(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + TEAM_GETITEM_TIME;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -769,7 +764,6 @@ void BotMatch_Camp(bot_state_t *bs, bot_match_t *match) {
 	//not arrived yet
 	bs->arrive_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -808,7 +802,6 @@ void BotMatch_Patrol(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time if not set already
 	if (!bs->teamgoal_time) bs->teamgoal_time = FloatTime() + TEAM_PATROL_TIME;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -858,7 +851,6 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 	}
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -900,7 +892,6 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
 	bs->attackaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -943,7 +934,6 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + CTF_RUSHBASE_TIME;
 	bs->rushbaseaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -955,12 +945,9 @@ BotMatch_TaskPreference
 ==================
 */
 void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
-	char netname[MAX_NETNAME];
 	char teammatename[MAX_MESSAGE_SIZE];
 	int teammate, preference;
 
-	ClientName(bs->client, netname, sizeof(netname));
-	if (Q_stricmp(netname, bs->teamleader) != 0) return;
 
 	trap->ai->BotMatchVariable(match, NETNAME, teammatename, sizeof(teammatename));
 	teammate = ClientFromName(teammatename);
@@ -1030,7 +1017,6 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -1232,79 +1218,6 @@ void BotMatch_Suicide(bot_state_t *bs, bot_match_t *match) {
 
 /*
 ==================
-BotMatch_StartTeamLeaderShip
-==================
-*/
-void BotMatch_StartTeamLeaderShip(bot_state_t *bs, bot_match_t *match) {
-	int client;
-	char teammate[MAX_MESSAGE_SIZE];
-
-	if (!TeamPlayIsOn()) return;
-	//if chats for him or herself
-	if (match->subtype & ST_I) {
-		//get the team mate that will be the team leader
-		trap->ai->BotMatchVariable(match, NETNAME, teammate, sizeof(teammate));
-		strncpy(bs->teamleader, teammate, sizeof(bs->teamleader));
-		bs->teamleader[sizeof(bs->teamleader)-1] = '\0';
-	}
-	//chats for someone else
-	else {
-		//get the team mate that will be the team leader
-		trap->ai->BotMatchVariable(match, TEAMMATE, teammate, sizeof(teammate));
-		client = FindClientByName(teammate);
-		if (client >= 0) ClientName(client, bs->teamleader, sizeof(bs->teamleader));
-	}
-}
-
-/*
-==================
-BotMatch_StopTeamLeaderShip
-==================
-*/
-void BotMatch_StopTeamLeaderShip(bot_state_t *bs, bot_match_t *match) {
-	int client;
-	char teammate[MAX_MESSAGE_SIZE];
-	char netname[MAX_MESSAGE_SIZE];
-
-	if (!TeamPlayIsOn()) return;
-	//get the team mate that stops being the team leader
-	trap->ai->BotMatchVariable(match, TEAMMATE, teammate, sizeof(teammate));
-	//if chats for him or herself
-	if (match->subtype & ST_I) {
-		trap->ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
-		client = FindClientByName(netname);
-	}
-	//chats for someone else
-	else {
-		client = FindClientByName(teammate);
-	} //end else
-	if (client >= 0) {
-		if (!Q_stricmp(bs->teamleader, ClientName(client, netname, sizeof(netname)))) {
-			bs->teamleader[0] = '\0';
-			notleader[client] = qtrue;
-		}
-	}
-}
-
-/*
-==================
-BotMatch_WhoIsTeamLeader
-==================
-*/
-void BotMatch_WhoIsTeamLeader(bot_state_t *bs, bot_match_t *match) {
-	char netname[MAX_MESSAGE_SIZE];
-
-	if (!TeamPlayIsOn()) return;
-
-	ClientName(bs->client, netname, sizeof(netname));
-	//if this bot IS the team leader
-	if (!Q_stricmp(netname, bs->teamleader)) {
-		trap->ea->EA_SayTeam(bs->client, "I'm the team leader\n");
-	}
-}
-
-/*
-==================
 BotMatch_WhatAreYouDoing
 ==================
 */
@@ -1396,10 +1309,6 @@ BotMatch_WhatIsMyCommand
 ==================
 */
 void BotMatch_WhatIsMyCommand(bot_state_t *bs, bot_match_t *match) {
-	char netname[MAX_NETNAME];
-
-	ClientName(bs->client, netname, sizeof(netname));
-	if (Q_stricmp(netname, bs->teamleader) != 0) return;
 	bs->forceorders = qtrue;
 }
 
@@ -1620,7 +1529,6 @@ void BotMatch_Kill(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + TEAM_KILL_SOMEONE;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -1676,30 +1584,13 @@ void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 }
 
 void BotMatch_EnterGame(bot_state_t *bs, bot_match_t *match) {
-	int client;
 	char netname[MAX_NETNAME];
 
 	trap->ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
-	client = FindClientByName(netname);
-	if (client >= 0) {
-		notleader[client] = qfalse;
-	}
 	//NOTE: eliza chats will catch this
 	//Com_sprintf(buf, sizeof(buf), "heya %s", netname);
 	//EA_Say(bs->client, buf);
 }
-
-void BotMatch_NewLeader(bot_state_t *bs, bot_match_t *match) {
-	int client;
-	char netname[MAX_NETNAME];
-
-	trap->ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
-	client = FindClientByName(netname);
-	if (!BotSameTeam(bs, client))
-		return;
-	Q_strncpyz(bs->teamleader, netname, sizeof(bs->teamleader));
-}
-
 /*
 ==================
 BotMatchMessage
@@ -1824,21 +1715,6 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_Dismiss(bs, &match);
 			break;
 		}
-		case MSG_STARTTEAMLEADERSHIP:	//someone will become the team leader
-		{
-			BotMatch_StartTeamLeaderShip(bs, &match);
-			break;
-		}
-		case MSG_STOPTEAMLEADERSHIP:	//someone will stop being the team leader
-		{
-			BotMatch_StopTeamLeaderShip(bs, &match);
-			break;
-		}
-		case MSG_WHOISTEAMLEADER:
-		{
-			BotMatch_WhoIsTeamLeader(bs, &match);
-			break;
-		}
 		case MSG_WHATAREYOUDOING:		//ask a bot what he/she is doing
 		{
 			BotMatch_WhatAreYouDoing(bs, &match);
@@ -1867,11 +1743,6 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 		case MSG_ENTERGAME:				//someone entered the game
 		{
 			BotMatch_EnterGame(bs, &match);
-			break;
-		}
-		case MSG_NEWLEADER:
-		{
-			BotMatch_NewLeader(bs, &match);
 			break;
 		}
 		case MSG_WAIT:

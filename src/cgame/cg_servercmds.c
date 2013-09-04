@@ -28,35 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../../build/qtz/ui/menudef.h"
 
-typedef struct {
-	const char *order;
-	int taskNum;
-} orderTask_t;
-
-static const orderTask_t validOrders[] = {
-	{ VOICECHAT_GETFLAG,						TEAMTASK_OFFENSE },
-	{ VOICECHAT_OFFENSE,						TEAMTASK_OFFENSE },
-	{ VOICECHAT_DEFEND,							TEAMTASK_DEFENSE },
-	{ VOICECHAT_DEFENDFLAG,					TEAMTASK_DEFENSE },
-	{ VOICECHAT_PATROL,							TEAMTASK_PATROL },
-	{ VOICECHAT_CAMP,								TEAMTASK_CAMP },
-	{ VOICECHAT_FOLLOWME,						TEAMTASK_FOLLOW },
-	{ VOICECHAT_RETURNFLAG,					TEAMTASK_RETRIEVE },
-	{ VOICECHAT_FOLLOWFLAGCARRIER,	TEAMTASK_ESCORT }
-};
-
-static const int numValidOrders = ARRAY_LEN(validOrders);
-
-static int CG_ValidOrder(const char *p) {
-	int i;
-	for (i = 0; i < numValidOrders; i++) {
-		if (Q_stricmp(p, validOrders[i].order) == 0) {
-			return validOrders[i].taskNum;
-		}
-	}
-	return -1;
-}
-
 /*
 =================
 CG_ParseScores
@@ -738,13 +709,6 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 
 	trap->S_StartLocalSound( vchat->snd, CHAN_VOICE);
 	if (vchat->clientNum != cg.snap->ps.clientNum) {
-		int orderTask = CG_ValidOrder(vchat->cmd);
-		if (orderTask > 0) {
-			cgs.acceptOrderTime = cg.time + 5000;
-			Q_strncpyz(cgs.acceptVoice, vchat->cmd, sizeof(cgs.acceptVoice));
-			cgs.acceptTask = orderTask;
-			cgs.acceptLeader = vchat->clientNum;
-		}
 		// see if this was an order
 		CG_ShowResponseHead();
 	}
@@ -813,8 +777,6 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 		clientNum = 0;
 	}
 	ci = &cgs.clientinfo[ clientNum ];
-
-	cgs.currentVoiceClient = clientNum;
 
 	voiceChatList = CG_VoiceChatListForClient( clientNum );
 

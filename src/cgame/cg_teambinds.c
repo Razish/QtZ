@@ -52,12 +52,9 @@ static char *TB_LastPickup( void ) {
 		return "";
 }
 
-#if 0 //QTZTODO: map locations
-extern const char *CG_GetLocationString( const char *loc );
 static char *TB_Location( void ) {
-	return (char *)CG_GetLocationString( CG_ConfigString( CS_LOCATIONS + cgs.clientinfo[cg.clientNum].location ) );
+	return (char *)CG_ConfigString( CS_LOCATIONS + cgs.clientinfo[cg.clientNum].location );
 }
-#endif
 
 static char *TB_Health( void ) {
 	return va( "%i", cg.snap->ps.stats[STAT_HEALTH] );
@@ -93,9 +90,7 @@ teamBind_t teamBinds[] = {
 	{ "#p",	TB_NearestPickup }, // Nearest pickup
 	{ "#n",	TB_NearestAlly },	// Nearest ally
 	{ "#r",	TB_LastPickup },	// Recent/last pickup
-#if 0 //QTZTODO: map locations
 	{ "#l",	TB_Location },		// Location
-#endif
 	{ "#h",	TB_Health },		// Health
 	{ "#a",	TB_Armor },			// Armor
 	{ "#w",	TB_Weapon },		// Weapon

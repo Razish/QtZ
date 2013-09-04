@@ -55,7 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===============================================================
 
 
-typedef struct {
+typedef struct entityShared_s {
 	entityState_t	unused;			// apparently this field was put here accidentally
 									//  (and is kept only for compatibility, as a struct pad)
 
@@ -94,7 +94,7 @@ typedef struct {
 
 
 // the server looks at a sharedEntity, which is the start of the game's gentity_t structure
-typedef struct {
+typedef struct sharedEntity_s {
 	entityState_t	s;				// communicated by server to clients
 	entityShared_t	r;				// shared by both the server system and game
 } sharedEntity_t;

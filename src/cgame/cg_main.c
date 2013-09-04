@@ -151,15 +151,6 @@ static void CG_ViewVarsUpdate( void ) {
 	}
 }
 
-// If team overlay is on, ask for updates from the server.
-// If it's off, let the server know so we don't receive it
-static void CG_TeamOverlayUpdate( void ) {
-	if ( cg_drawTeamOverlay->boolean )
-		trap->Cvar_Set( "teamoverlay", "1" );
-	else
-		trap->Cvar_Set( "teamoverlay", "0" );
-}
-
 
 #define XCVAR_DECL
 	#include "cg_xcvar.h"
@@ -683,7 +674,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.campShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/camp.tga");
 	cgs.media.followShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/follow.tga");
 	cgs.media.defendShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/defend.tga");
-	cgs.media.teamLeaderShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/team_leader.tga");
 	cgs.media.retrieveShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga");
 	cgs.media.escortShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga");
 	cgs.media.cursor = trap->R_RegisterShaderNoMip( "menu/art/3_cursor2" );
@@ -762,7 +752,7 @@ static void CG_RegisterClients( void ) {
 		}
 
 		clientInfo = CG_ConfigString( CS_PLAYERS+i );
-		if ( !clientInfo[0]) {
+		if ( !clientInfo[0] ) {
 			continue;
 		}
 		CG_LoadingClient( i );
@@ -1236,46 +1226,28 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 			} else {
 				if ( info->botSkill > 0 && info->botSkill <= 5 ) {
 					*handle = cgs.media.botSkillShaders[ info->botSkill - 1 ];
-				} else if ( info->handicap < 100 ) {
-					return va("%i", info->handicap );
 				}
 			}
 			break;
+
 		case 1:
-			if (team == -1) {
-				return "";
-			} else {
-				*handle = CG_StatusHandle(info->teamTask);
-			}
-			break;
-		case 2:
 			if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
 				return "Ready";
 			}
 			if (team == -1) {
-				if (cgs.gametype == GT_DUEL) {
-					return va("%i/%i", info->wins, info->losses);
-				} else if (info->infoValid && info->team == TEAM_SPECTATOR ) {
-					return "Spectator";
-				} else {
-					return "";
-				}
-			} else {
-				if (info->teamLeader) {
-					return "Leader";
-				}
+				return "";
 			}
 			break;
-		case 3:
+		case 2:
 			return info->name;
 			break;
-		case 4:
+		case 3:
 			return va("%i", info->score);
 			break;
-		case 5:
+		case 4:
 			return va("%4i", sp->time);
 			break;
-		case 6:
+		case 5:
 			if ( sp->ping == -1 ) {
 				return "connecting";
 			} 
@@ -1332,16 +1304,12 @@ static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 		return CG_Text_Width(CG_GetKillerText(), scale, 0);
 		break;
 	//QTZTODO: Team names
-		/*
 	case CG_RED_NAME:
-		return CG_Text_Width(cg_redTeamName.string, scale, 0);
+		return CG_Text_Width(cgs.redTeam, scale, 0);
 		break;
 	case CG_BLUE_NAME:
-		return CG_Text_Width(cg_blueTeamName.string, scale, 0);
+		return CG_Text_Width(cgs.blueTeam, scale, 0);
 		break;
-		*/
-
-
 	}
 	return 0;
 }

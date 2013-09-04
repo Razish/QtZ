@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define UI_API_VERSION	1
 
-typedef struct {
+typedef struct uiClientState_s {
 	connstate_t		connState;
 	int				connectPacketCount;
 	int				clientNum;

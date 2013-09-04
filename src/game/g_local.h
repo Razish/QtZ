@@ -251,16 +251,11 @@ typedef struct playerTeamState_s {
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct clientSession_s {
-	team_t		sessionTeam;
-	int			spectatorNum;		// for determining next-in-line to play
+	team_t				sessionTeam;
+	int					spectatorNum;		// for determining next-in-line to play
 	spectatorState_t	spectatorState;
-	int			spectatorClient;	// for chasecam and follow mode
-	int			wins, losses;		// tournament stats
-	qboolean	teamLeader;			// true when this client is a team leader
+	int					spectatorClient;	// for chasecam and follow mode
 } clientSession_t;
-
-//
-#define MAX_NETNAME			36
 
 #define GF_VOTED	0x0001
 
@@ -268,7 +263,7 @@ typedef struct clientSession_s {
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
-typedef struct {
+typedef struct clientPersistant_s {
 	clientConnected_t	connected;	
 	usercmd_t			cmd;					// we would lose angles if not persistant
 	qboolean			localClient;			// true if "ip" info key is "localhost"
@@ -277,10 +272,8 @@ typedef struct {
 	char				netname[MAX_NETNAME];
 	int					enterTime;				// level.time the client entered the game
 	playerTeamState_t	teamState;				// status in teamplay games
-	qboolean			teamInfo;				// send team overlay updates?
-
-	qboolean ready;
-	int vote;									// 0 = none, 1 = yes, 2 = no
+	qboolean			ready;
+	int					vote;					// 0 = none, 1 = yes, 2 = no
 } clientPersistant_t;
 
 
@@ -371,100 +364,100 @@ struct gclient_s {
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
-typedef struct {
+typedef struct level_locals_s {
 	struct gclient_s	*clients;		// [maxclients]
 
 	struct gentity_s	*gentities;
-	int			gentitySize;
-	int			num_entities;		// MAX_CLIENTS <= num_entities <= ENTITYNUM_MAX_NORMAL
+	int					gentitySize;
+	int					num_entities;		// MAX_CLIENTS <= num_entities <= ENTITYNUM_MAX_NORMAL
 
-	int			warmupTime;			// restart match at this time
+	int					warmupTime;			// restart match at this time
 
-	fileHandle_t	logFile;
+	fileHandle_t		logFile;
 
 	// store latched cvars here that we want to get at often
-	int			maxclients;
+	int					maxclients;
 
-	int			framenum;
-	int			time;					// in msec
-	int			previousTime;			// so movers can back up when blocked
+	int					framenum;
+	int					time;					// in msec
+	int					previousTime;			// so movers can back up when blocked
 
-	int			startTime;				// level.time the map was started
+	int					startTime;				// level.time the map was started
 
-	int			teamScores[TEAM_NUM_TEAMS];
-	int			lastTeamLocationTime;		// last time of client team location update
+	int					teamScores[TEAM_NUM_TEAMS];
+	int					lastTeamLocationTime;		// last time of client team location update
 
-	qboolean	newSession;				// don't use any old session data, because
+	qboolean			newSession;				// don't use any old session data, because
 										// we changed gametype
 
-	qboolean	restarted;				// waiting for a map_restart to fire
+	qboolean			restarted;				// waiting for a map_restart to fire
 
-	int			numConnectedClients;
-	int			numNonSpectatorClients;	// includes connecting clients
-	int			numPlayingClients;		// connected, non-spectators
-	int			sortedClients[MAX_CLIENTS];		// sorted by score
-	int			follow1, follow2;		// clientNums for auto-follow spectators
+	int					numConnectedClients;
+	int					numNonSpectatorClients;	// includes connecting clients
+	int					numPlayingClients;		// connected, non-spectators
+	int					sortedClients[MAX_CLIENTS];		// sorted by score
+	int					follow1, follow2;		// clientNums for auto-follow spectators
 
-	int			snd_fry;				// sound index for standing in lava
+	int					snd_fry;				// sound index for standing in lava
 
-	int			warmupModificationCount;	// for detecting if g_warmup is changed
+	int					warmupModificationCount;	// for detecting if g_warmup is changed
 
 	// voting state
-	char		voteString[MAX_STRING_CHARS];
-	char		voteStringClean[MAX_STRING_CHARS];
-	char		voteDisplayString[MAX_STRING_CHARS];
-	int			voteTime;				// level.time vote was called
-	int			voteExecuteTime;		// time the vote is executed
-	int			voteExecuteDelay;		// set per-vote
-	int			voteYes;
-	int			voteNo;
-	qboolean	votePoll;
-	int			numVotingClients;		// set by CalculateRanks
+	char				voteString[MAX_STRING_CHARS];
+	char				voteStringClean[MAX_STRING_CHARS];
+	char				voteDisplayString[MAX_STRING_CHARS];
+	int					voteTime;				// level.time vote was called
+	int					voteExecuteTime;		// time the vote is executed
+	int					voteExecuteDelay;		// set per-vote
+	int					voteYes;
+	int					voteNo;
+	qboolean			votePoll;
+	int					numVotingClients;		// set by CalculateRanks
 
-	qboolean	votingGametype;
-	int			votingGametypeTo;
+	qboolean			votingGametype;
+	int					votingGametypeTo;
 
 	// spawn variables
-	qboolean	spawning;				// the G_Spawn*() functions are valid
-	int			numSpawnVars;
-	char		*spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
-	int			numSpawnVarChars;
-	char		spawnVarChars[MAX_SPAWN_VARS_CHARS];
+	qboolean			spawning;				// the G_Spawn*() functions are valid
+	int					numSpawnVars;
+	char				*spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
+	int					numSpawnVarChars;
+	char				spawnVarChars[MAX_SPAWN_VARS_CHARS];
 
 	// intermission state
-	int			intermissionQueued;		// intermission was qualified, but
+	int					intermissionQueued;		// intermission was qualified, but
 										// wait INTERMISSION_DELAY_TIME before
 										// actually going there so the last
 										// frag can be watched.  Disable future
 										// kills during this delay
-	int			intermissiontime;		// time the intermission was started
-	char		*changemap;
-	qboolean	readyToExit;			// at least one client wants to exit
-	int			exitTime;
-	vector3		intermission_origin;	// also used for spectator spawns
-	vector3		intermission_angle;
+	int					intermissiontime;		// time the intermission was started
+	char				*changemap;
+	qboolean			readyToExit;			// at least one client wants to exit
+	int					exitTime;
+	vector3				intermission_origin;	// also used for spectator spawns
+	vector3				intermission_angle;
 
-	qboolean	locationLinked;			// target_locations get linked
-	gentity_t	*locationHead;			// head of the location list
-	int			bodyQueIndex;			// dead bodies
-	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
-	int			portalSequence;
+	qboolean			locationLinked;			// target_locations get linked
+	gentity_t			*locationHead;			// head of the location list
+	int					bodyQueIndex;			// dead bodies
+	gentity_t			*bodyQue[BODY_QUEUE_SIZE];
+	int					portalSequence;
 
 	//QtZ: Added
-	int         frameStartTime;         //NT - actual time frame started
+	int					frameStartTime;         //NT - actual time frame started
 
-	gametype_t	gametype;
-	qboolean	allReady;
-	char		rawmapname[MAX_QPATH];
+	gametype_t			gametype;
+	qboolean			allReady;
+	char				rawmapname[MAX_QPATH];
 
 	struct {
-		int			state;		//OSP: paused state of the match
-		int			time;
+		int					state;		//OSP: paused state of the match
+		int					time;
 	} pause;
 
 	struct {
-		int			num;
-		char		*infos[MAX_ARENAS];
+		int					num;
+		char				*infos[MAX_ARENAS];
 	} arenas;
 } level_locals_t;
 
@@ -603,7 +596,6 @@ void CalcMuzzlePoint ( gentity_t *ent, vector3 *forward, vector3 *right, vector3
 // g_client.c
 //
 int TeamCount( int ignoreClientNum, team_t team );
-int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vector3 *angle );
 gentity_t *SelectSpawnPoint (vector3 *avoidPoint, vector3 *origin, vector3 *angles, qboolean isbot);
@@ -644,8 +636,6 @@ void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 void MoveClientToIntermission( gentity_t *ent );
 void FindIntermissionPoint( void );
-void SetLeader(int team, int client);
-void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
 void AddTournamentQueue(gclient_t *client);
 void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));

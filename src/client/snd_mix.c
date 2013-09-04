@@ -237,7 +237,7 @@ static void S_PaintChannelFrom16_altivec( channel_t *ch, const sfx_t *sc, int co
 	int						leftvol, rightvol;
 	int						i, j;
 	portable_samplepair_t	*samp;
-	sndBuffer				*chunk;
+	sndBuffer_t				*chunk;
 	short					*samples;
 	float					ooff, fdata, fdiv, fleftvol, frightvol;
 
@@ -405,7 +405,7 @@ static void S_PaintChannelFrom16_scalar( channel_t *ch, const sfx_t *sc, int cou
 	int						leftvol, rightvol;
 	int						i, j;
 	portable_samplepair_t	*samp;
-	sndBuffer				*chunk;
+	sndBuffer_t				*chunk;
 	short					*samples;
 	float					ooff, fdata, fdiv, fleftvol, frightvol;
 
@@ -489,7 +489,7 @@ void S_PaintChannelFromWavelet( channel_t *ch, sfx_t *sc, int count, int sampleO
 	int						leftvol, rightvol;
 	int						i;
 	portable_samplepair_t	*samp;
-	sndBuffer				*chunk;
+	sndBuffer_t				*chunk;
 	short					*samples;
 
 	leftvol = ch->leftvol*snd_vol;
@@ -531,7 +531,7 @@ void S_PaintChannelFromADPCM( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	int						leftvol, rightvol;
 	int						i;
 	portable_samplepair_t	*samp;
-	sndBuffer				*chunk;
+	sndBuffer_t				*chunk;
 	short					*samples;
 
 	leftvol = ch->leftvol*snd_vol;
@@ -578,7 +578,7 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	int						leftvol, rightvol;
 	int						i;
 	portable_samplepair_t	*samp;
-	sndBuffer				*chunk;
+	sndBuffer_t				*chunk;
 	byte					*samples;
 	float					ooff;
 

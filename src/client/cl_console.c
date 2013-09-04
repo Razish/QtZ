@@ -31,7 +31,7 @@ int g_console_field_width = DEFAULT_CONSOLE_WIDTH;
 #define	NUM_CON_TIMES 4
 
 #define		CON_TEXTSIZE	32768
-typedef struct {
+static struct console_s {
 	qboolean	initialized;
 
 	short	text[CON_TEXTSIZE];
@@ -52,11 +52,7 @@ typedef struct {
 	int		times[NUM_CON_TIMES];	// cls.realtime time the line was generated
 								// for transparent notify lines
 	vector4	color;
-} console_t;
-
-extern	console_t	con;
-
-console_t	con;
+} con;
 
 cvar_t		*con_conspeed;
 cvar_t		*con_notifytime;

@@ -304,62 +304,6 @@ void BotRememberLastOrderedTask(bot_state_t *bs) {
 
 /*
 ==================
-BotSetTeamStatus
-==================
-*/
-void BotSetTeamStatus(bot_state_t *bs) {
-	int teamtask;
-	aas_entityinfo_t entinfo;
-
-	teamtask = TEAMTASK_PATROL;
-
-	switch(bs->ltgtype) {
-		case LTG_TEAMHELP:
-			break;
-		case LTG_TEAMACCOMPANY:
-			BotEntityInfo(bs->teammate, &entinfo);
-			if ( (gametype == GT_CTF || gametype == GT_1FCTF) && EntityCarriesFlag( &entinfo ) )
-				teamtask = TEAMTASK_ESCORT;
-			else
-				teamtask = TEAMTASK_FOLLOW;
-			break;
-		case LTG_DEFENDKEYAREA:
-			teamtask = TEAMTASK_DEFENSE;
-			break;
-		case LTG_GETFLAG:
-			teamtask = TEAMTASK_OFFENSE;
-			break;
-		case LTG_RUSHBASE:
-			teamtask = TEAMTASK_DEFENSE;
-			break;
-		case LTG_RETURNFLAG:
-			teamtask = TEAMTASK_RETRIEVE;
-			break;
-		case LTG_CAMP:
-		case LTG_CAMPORDER:
-			teamtask = TEAMTASK_CAMP;
-			break;
-		case LTG_PATROL:
-			teamtask = TEAMTASK_PATROL;
-			break;
-		case LTG_GETITEM:
-			teamtask = TEAMTASK_PATROL;
-			break;
-		case LTG_KILL:
-			teamtask = TEAMTASK_PATROL;
-			break;
-		case LTG_ATTACKENEMYBASE:
-			teamtask = TEAMTASK_OFFENSE;
-			break;
-		default:
-			teamtask = TEAMTASK_PATROL;
-			break;
-	}
-	BotSetUserInfo(bs, "teamtask", va("%d", teamtask));
-}
-
-/*
-==================
 BotSetLastOrderedTask
 ==================
 */
@@ -388,7 +332,6 @@ int BotSetLastOrderedTask(bot_state_t *bs) {
 		memcpy(&bs->teamgoal, &bs->lastgoal_teamgoal, sizeof(bot_goal_t));
 		bs->teammate = bs->lastgoal_teammate;
 		bs->teamgoal_time = FloatTime() + 300;
-		BotSetTeamStatus(bs);
 		//
 		if ( gametype == GT_CTF ) {
 			if ( bs->ltgtype == LTG_GETFLAG ) {
@@ -518,7 +461,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
 					bs->formation_dist = 3.5f * 32;		//3.5 meter
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = (int)(FloatTime() + 5);
 				}
 			}
@@ -561,7 +503,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 				//get an alternative route goal towards the enemy base
 				BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 				//
-				BotSetTeamStatus(bs);
 				bs->owndecision_time = (int)(FloatTime() + 5);
 			}
 		}
@@ -596,7 +537,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					bs->ltgtype = LTG_TEAMACCOMPANY;
 					bs->formation_dist = 3.5 * 32;		//3.5 meter
 					//
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = (int)(FloatTime() + 5);
 				}
 				else {
@@ -612,15 +552,10 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					//get an alternative route goal towards the enemy base
 					BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 					//
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = (int)(FloatTime() + 5);
 				}
 			}
 		}
-		return;
-	}
-	// don't just do something wait for the bot team leader to give orders
-	if (BotTeamLeader(bs)) {
 		return;
 	}
 	// if the bot is ordered to do something
@@ -683,7 +618,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 		bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
 		//get an alternative route goal towards the enemy base
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
-		BotSetTeamStatus(bs);
 	}
 	else if (rnd < l2 && ctf_redflag.areanum && ctf_blueflag.areanum) {
 		bs->decisionmaker = bs->client;
@@ -696,13 +630,11 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 		//set the time the bot stops defending the base
 		bs->teamgoal_time = FloatTime() + TEAM_DEFENDKEYAREA_TIME;
 		bs->defendaway_time = 0;
-		BotSetTeamStatus(bs);
 	}
 	else {
 		bs->ltgtype = 0;
 		//set the time the bot will stop roaming
 		bs->ctfroam_time = FloatTime() + CTF_ROAM_TIME;
-		BotSetTeamStatus(bs);
 	}
 	bs->owndecision_time = (int)(FloatTime() + 5);
 #ifdef DEBUG
@@ -726,7 +658,6 @@ void BotCTFRetreatGoals(bot_state_t *bs) {
 			bs->rushbaseaway_time = 0;
 			bs->decisionmaker = bs->client;
 			bs->ordered = qfalse;
-			BotSetTeamStatus(bs);
 		}
 	}
 }
@@ -754,7 +685,6 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 			//get an alternative route goal towards the enemy base
 			BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 			//
-			BotSetTeamStatus(bs);
 			BotVoiceChat(bs, -1, VOICECHAT_IHAVEFLAG);
 		}
 		return;
@@ -793,7 +723,6 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
 					bs->formation_dist = 3.5f * 32;		//3.5 meter
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = (int)(FloatTime() + 5);
 					return;
 				}
@@ -824,7 +753,6 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 				bs->ltgtype = LTG_ATTACKENEMYBASE;
 				//set the time the bot will stop getting the flag
 				bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
-				BotSetTeamStatus(bs);
 				bs->owndecision_time = (int)(FloatTime() + 5);
 			}
 		}
@@ -858,14 +786,9 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 				//set the time the bot stops defending the base
 				bs->teamgoal_time = FloatTime() + TEAM_DEFENDKEYAREA_TIME;
 				bs->defendaway_time = 0;
-				BotSetTeamStatus(bs);
 				bs->owndecision_time = (int)(FloatTime() + 5);
 			}
 		}
-		return;
-	}
-	// don't just do something wait for the bot team leader to give orders
-	if (BotTeamLeader(bs)) {
 		return;
 	}
 	// if the bot is ordered to do something
@@ -927,7 +850,6 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 		bs->ltgtype = LTG_GETFLAG;
 		//set the time the bot will stop getting the flag
 		bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
-		BotSetTeamStatus(bs);
 	}
 	else if (rnd < l2 && ctf_redflag.areanum && ctf_blueflag.areanum) {
 		bs->decisionmaker = bs->client;
@@ -940,13 +862,11 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 		//set the time the bot stops defending the base
 		bs->teamgoal_time = FloatTime() + TEAM_DEFENDKEYAREA_TIME;
 		bs->defendaway_time = 0;
-		BotSetTeamStatus(bs);
 	}
 	else {
 		bs->ltgtype = 0;
 		//set the time the bot will stop roaming
 		bs->ctfroam_time = FloatTime() + CTF_ROAM_TIME;
-		BotSetTeamStatus(bs);
 	}
 	bs->owndecision_time = (int)(FloatTime() + 5);
 #ifdef DEBUG
@@ -972,7 +892,6 @@ void Bot1FCTFRetreatGoals(bot_state_t *bs) {
 			bs->ordered = qfalse;
 			//get an alternative route goal towards the enemy base
 			BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
-			BotSetTeamStatus(bs);
 		}
 	}
 }
@@ -1056,7 +975,7 @@ char *ClientSkin(int client, char *skin, int size) {
 		return "[client out of range]";
 	}
 	trap->SV_GetConfigstring(CS_PLAYERS+client, buf, sizeof(buf));
-	strncpy(skin, Info_ValueForKey(buf, "cg_model"), size-1);
+	strncpy(skin, Info_ValueForKey(buf, "m"), size-1);
 	skin[size-1] = '\0';
 	return skin;
 }
@@ -1254,70 +1173,34 @@ BotCheckItemPickup
 ==================
 */
 void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
-	int offence, leader;
+	qboolean offence = qfalse;
 
 	if (gametype <= GT_TEAM)
 		return;
 
-	offence = -1;
 	// go into offence if picked up the kamikaze or invulnerability
 	// if not already wearing the kamikaze or invulnerability
 	if (!oldinventory[INVENTORY_GUARD] && bs->inventory[INVENTORY_GUARD] >= 1)
 		offence = qtrue;
 
-	if (offence >= 0) {
-		leader = ClientFromName(bs->teamleader);
-		if (offence) {
-			if (!(bs->teamtaskpreference & TEAMTP_ATTACKER)) {
-				// if we have a bot team leader
-				if (BotTeamLeader(bs)) {
-					// tell the leader we want to be on offence
-					BotVoiceChat(bs, leader, VOICECHAT_WANTONOFFENSE);
-					//BotAI_BotInitialChat(bs, "wantoffence", NULL);
-					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
-				}
-				else if (g_difficulty->integer <= 3) {
-					if ( bs->ltgtype != LTG_GETFLAG &&
-						bs->ltgtype != LTG_ATTACKENEMYBASE ) {
-							//
-							if ((gametype != GT_CTF || (bs->redflagstatus == 0 && bs->blueflagstatus == 0)) &&
-								(gametype != GT_1FCTF || bs->neutralflagstatus == 0) ) {
-									// tell the leader we want to be on offence
-									BotVoiceChat(bs, leader, VOICECHAT_WANTONOFFENSE);
-									//BotAI_BotInitialChat(bs, "wantoffence", NULL);
-									//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
-							}
+	if ( offence ) {
+		if ( !(bs->teamtaskpreference & TEAMTP_ATTACKER) )
+			bs->teamtaskpreference |= TEAMTP_ATTACKER;
+		bs->teamtaskpreference &= ~TEAMTP_DEFENDER;
+	}
+	else {
+		if ( !(bs->teamtaskpreference & TEAMTP_DEFENDER) ) {
+			if ( g_difficulty->integer <= 3 ) {
+				if ( bs->ltgtype != LTG_DEFENDKEYAREA ) {
+					if ( (gametype != GT_CTF || (bs->redflagstatus == 0 && bs->blueflagstatus == 0)) && (gametype != GT_1FCTF || bs->neutralflagstatus == 0) ) {
+						// tell the leader we want to be on defense
+						BotVoiceChat(bs, -1, VOICECHAT_WANTONDEFENSE);
 					}
 				}
-				bs->teamtaskpreference |= TEAMTP_ATTACKER;
 			}
-			bs->teamtaskpreference &= ~TEAMTP_DEFENDER;
+			bs->teamtaskpreference |= TEAMTP_DEFENDER;
 		}
-		else {
-			if (!(bs->teamtaskpreference & TEAMTP_DEFENDER)) {
-				// if we have a bot team leader
-				if (BotTeamLeader(bs)) {
-					// tell the leader we want to be on defense
-					BotVoiceChat(bs, -1, VOICECHAT_WANTONDEFENSE);
-					//BotAI_BotInitialChat(bs, "wantdefence", NULL);
-					//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
-				}
-				else if (g_difficulty->integer <= 3) {
-					if ( bs->ltgtype != LTG_DEFENDKEYAREA ) {
-						//
-						if ((gametype != GT_CTF || (bs->redflagstatus == 0 && bs->blueflagstatus == 0)) &&
-							(gametype != GT_1FCTF || bs->neutralflagstatus == 0) ) {
-								// tell the leader we want to be on defense
-								BotVoiceChat(bs, -1, VOICECHAT_WANTONDEFENSE);
-								//BotAI_BotInitialChat(bs, "wantdefence", NULL);
-								//trap->ai->BotEnterChat(bs->cs, leader, CHAT_TELL);
-						}
-					}
-				}
-				bs->teamtaskpreference |= TEAMTP_DEFENDER;
-			}
-			bs->teamtaskpreference &= ~TEAMTP_ATTACKER;
-		}
+		bs->teamtaskpreference &= ~TEAMTP_ATTACKER;
 	}
 }
 
@@ -4232,11 +4115,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	}
 	//check the console messages
 	BotCheckConsoleMessages(bs);
-	//if not in the intermission and not in observer mode
-	if (!BotIntermission(bs) && !BotIsObserver(bs)) {
-		//do team AI
-		BotTeamAI(bs);
-	}
+
 	//if the bot has no ai node
 	if (!bs->ainode) {
 		AIEnter_Seek_LTG(bs, "BotDeathmatchAI: no ai node");

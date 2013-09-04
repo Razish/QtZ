@@ -1900,7 +1900,7 @@ void CL_Clientinfo_f( void ) {
 	Com_Printf( "--------- Client Information ---------\n" );
 	Com_Printf( "state: %i\n", clc.state );
 	Com_Printf( "Server: %s\n", clc.servername );
-	Com_Printf ("User info settings:\n");
+	Com_Printf( "User info settings:\n" );
 	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
 }
@@ -3380,12 +3380,7 @@ void CL_Init( void ) {
 				Cvar_Get( "cl_name",			DEFAULT_NAME,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 	cl_rate =	Cvar_Get( "cl_rate",			"25000",			CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "cg_model",			DEFAULT_MODEL,		CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
-				Cvar_Get( "g_redTeam",			"Stroggs",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
-				Cvar_Get( "g_blueTeam",			"Pagans",			CVAR_SERVERINFO|CVAR_ARCHIVE,	NULL, NULL );
-				Cvar_Get( "color1",				"4",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
-				Cvar_Get( "color2",				"5",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
-				Cvar_Get( "handicap",			"100",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
-				Cvar_Get( "teamtask",			"0",				CVAR_USERINFO,					NULL, NULL );
+				Cvar_Get( "cg_color",			"54",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL, NULL );
 				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
@@ -3500,21 +3495,21 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 
 }
 
-static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
-	if (server) {
-		if (info) {
-			server->clients = atoi(Info_ValueForKey(info, "clients"));
-			Q_strncpyz(server->hostName,Info_ValueForKey(info, "hostname"), MAX_NAME_LENGTH);
-			Q_strncpyz(server->mapName, Info_ValueForKey(info, "mapname"), MAX_NAME_LENGTH);
-			server->maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
-			Q_strncpyz(server->game,Info_ValueForKey(info, "game"), MAX_NAME_LENGTH);
-			server->gameType = atoi(Info_ValueForKey(info, "gametype"));
-			server->netType = atoi(Info_ValueForKey(info, "nettype"));
-			server->minPing = atoi(Info_ValueForKey(info, "minping"));
-			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
-			server->punkbuster = atoi(Info_ValueForKey(info, "punkbuster"));
-			server->g_humanplayers = atoi(Info_ValueForKey(info, "g_humanplayers"));
-			server->g_needpass = atoi(Info_ValueForKey(info, "g_needpass"));
+static void CL_SetServerInfo( serverInfo_t *server, const char *info, int ping ) {
+	if ( server ) {
+		if ( info ) {
+			server->clients = atoi( Info_ValueForKey( info, "clients" ) );
+			Q_strncpyz( server->hostName, Info_ValueForKey( info, "hostname" ), sizeof( server->hostName ) );
+			Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), sizeof( server->mapName ) );
+			server->maxClients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+			Q_strncpyz( server->game, Info_ValueForKey( info, "game" ), sizeof( server->game ) );
+			server->gameType = atoi( Info_ValueForKey( info, "gametype") );
+			server->netType = atoi( Info_ValueForKey( info, "nettype" ) );
+			server->minPing = atoi( Info_ValueForKey( info, "minping" ) );
+			server->maxPing = atoi( Info_ValueForKey( info, "maxping" ) );
+			server->punkbuster = atoi( Info_ValueForKey( info, "punkbuster" ) );
+			server->g_humanplayers = atoi( Info_ValueForKey( info, "g_humanplayers" ) );
+			server->g_needpass = atoi( Info_ValueForKey( info, "g_needpass" ) );
 		}
 		server->ping = ping;
 	}

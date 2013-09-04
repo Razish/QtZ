@@ -156,7 +156,7 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 }
 
 void SetTeam( gentity_t *ent, char *s ) {
-	int					clientNum, specClient=0, teamLeader;
+	int					clientNum, specClient=0;
 	team_t				team, oldTeam;
 	gclient_t			*client = ent->client;
 	spectatorState_t	specState = SPECTATOR_NOT;
@@ -257,17 +257,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
-
-	client->sess.teamLeader = qfalse;
-	if ( team == TEAM_RED || team == TEAM_BLUE ) {
-		teamLeader = TeamLeader( team );
-		// if there is no team leader or the team leader is a bot and this client is not a bot
-		if ( teamLeader == -1 || ( !(g_entities[clientNum].r.svFlags & SVF_BOT) && (g_entities[teamLeader].r.svFlags & SVF_BOT) ) )
-			SetLeader( team, clientNum );
-	}
-	// make sure there is a team leader on the team the player came from
-	if ( oldTeam == TEAM_RED || oldTeam == TEAM_BLUE )
-		CheckTeamLeader( oldTeam );
 
 	BroadcastTeamChange( client, oldTeam );
 	ClientUserinfoChanged( clientNum );
@@ -843,12 +832,6 @@ static void Cmd_Follow_f( gentity_t *ent ) {
 		return;
 	}
 
-	// if they are playing a tournement game, count as a loss
-	if ( (level.gametype == GT_DUEL )
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
-	}
-
 	// first set them to spectator
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		SetTeam( ent, "spectator" );
@@ -859,14 +842,8 @@ static void Cmd_Follow_f( gentity_t *ent ) {
 }
 
 static void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
-	int		clientnum;
-	int		original;
+	int clientnum, original;
 
-	// if they are playing a tournement game, count as a loss
-	if ( (level.gametype == GT_DUEL )
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
-	}
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
 		SetTeam( ent, "spectator" );
@@ -1261,12 +1238,6 @@ static void Cmd_Team_f( gentity_t *ent ) {
 	if ( ent->client->switchTeamTime > level.time ) {
 		trap->SV_GameSendServerCommand( ent-g_entities, "print \"May not switch teams more than once per 5 seconds.\n\"" );
 		return;
-	}
-
-	// if they are playing a tournement game, count as a loss
-	if ( (level.gametype == GT_DUEL )
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
 	}
 
 	trap->Cmd_Argv( 1, s, sizeof( s ) );
