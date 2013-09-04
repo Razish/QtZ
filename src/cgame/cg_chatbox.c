@@ -169,7 +169,7 @@ void CG_DrawChatbox( void ) {
 	//i is the ideal index. Now offset for scrolling
 	i += chatbox.scrollAmount;
 
-	if ( chatbox.numActiveLines == 0  )
+	if ( chatbox.numActiveLines == 0 )
 		return;
 
 	if ( chatbox.scrollAmount < 0 && CG_ChatboxActive() )

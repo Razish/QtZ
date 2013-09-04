@@ -1164,8 +1164,8 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 	vector3	moveangles;
 
 	strcpy(team, UI_Cvar_VariableString("ui_teamName"));
-	strcpy(model, UI_Cvar_VariableString("model"));
-	strcpy(head, UI_Cvar_VariableString("model"));
+	strcpy(model, UI_Cvar_VariableString("cg_model"));
+	strcpy(head, UI_Cvar_VariableString("cg_model"));
 	if (updateModel) {
 		memset( &info, 0, sizeof(playerInfo_t) );
 		viewangles.yaw   = 180 - 10;
@@ -3997,7 +3997,7 @@ static void UI_FeederSelection(float feederID, int index) {
 		UI_SelectedHead(index, &actual);
 		index = actual;
 		if (index >= 0 && index < uiInfo.characterCount) {
-			trap->Cvar_Set( "model", uiInfo.characterList[index].base);
+			trap->Cvar_Set( "cg_model", uiInfo.characterList[index].base);
 			updateModel = qtrue;
 		}
 	} else if (feederID == FEEDER_Q3HEADS) {
