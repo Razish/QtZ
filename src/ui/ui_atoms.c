@@ -27,52 +27,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **********************************************************************/
 #include "ui_local.h"
 
-qboolean m_entersound;		// after a frame, so caching won't disrupt the sound
-qboolean newUI = qfalse;
 
+#define NUM_UI_ARGSTRS (4)
+#define UI_ARGSTR_MASK (NUM_UI_ARGSTRS-1)
+static char tempArgStrs[NUM_UI_ARGSTRS][MAX_STRING_CHARS];
 
-/*
-=================
-UI_ClampCvar
-=================
-*/
-float UI_ClampCvar( float min, float max, float value )
-{
-	if ( value < min ) return min;
-	if ( value > max ) return max;
-	return value;
-}
-
-/*
-=================
-UI_StartDemoLoop
-=================
-*/
-void UI_StartDemoLoop( void ) {
-	trap->Cbuf_ExecuteText( EXEC_APPEND, "d1\n" );
+static char *UI_Argv( int arg ) {
+	static int index=0;
+	char *s = tempArgStrs[index++ & UI_ARGSTR_MASK];
+	trap->Cmd_Argv( arg, s, MAX_STRING_CHARS );
+	return s;
 }
 
 
-char *UI_Argv( int arg ) {
-	static char	buffer[MAX_STRING_CHARS];
-
-	trap->Cmd_Argv( arg, buffer, sizeof( buffer ) );
-
-	return buffer;
-}
-
+#define NUM_UI_CVARSTRS (4)
+#define UI_CVARSTR_MASK (NUM_UI_CVARSTRS-1)
+static char tempCvarStrs[NUM_UI_CVARSTRS][MAX_CVAR_VALUE_STRING];
 
 char *UI_Cvar_VariableString( const char *name ) {
-	static char	buffer[MAX_CVAR_VALUE_STRING];
-
-	trap->Cvar_VariableStringBuffer( name, buffer, sizeof( buffer ) );
-
-	return buffer;
+	static int index=0;
+	char *s = tempCvarStrs[index++ & UI_ARGSTR_MASK];
+	trap->Cvar_VariableStringBuffer( name, s, MAX_CVAR_VALUE_STRING );
+	return s;
 }
 
 static void	UI_Cache_f( void ) {
 	Display_CacheAll();
 }
+
 
 /*
 =================
@@ -87,12 +69,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	cmd = UI_Argv( 0 );
 
-	// ensure minimum menu data is available
-	//Menu_Cache();
-
-	if ( Q_stricmp (cmd, "ui_test") == 0 ) {
-		UI_ShowPostGame(qtrue);
-	}
+	//QTZTODO: clean up UI command handler
 
 	if ( Q_stricmp (cmd, "ui_report") == 0 ) {
 		UI_Report();
@@ -155,14 +132,6 @@ void UI_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 
 }
 
-void UI_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
-	qhandle_t	hShader;
-
-	hShader = trap->R_RegisterShader( picname );
-	UI_AdjustFrom640( &x, &y, &width, &height );
-	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
-}
-
 void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
 	float	s0;
 	float	s1;
@@ -209,13 +178,13 @@ void UI_FillRect( float x, float y, float width, float height, const vector4 *co
 	trap->R_SetColor( NULL );
 }
 
-void UI_DrawSides(float x, float y, float w, float h) {
+static void UI_DrawSides(float x, float y, float w, float h) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	trap->R_DrawStretchPic( x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap->R_DrawStretchPic( x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
-void UI_DrawTopBottom(float x, float y, float w, float h) {
+static void UI_DrawTopBottom(float x, float y, float w, float h) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	trap->R_DrawStretchPic( x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap->R_DrawStretchPic( x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
@@ -227,7 +196,7 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_DrawRect( float x, float y, float width, float height, const vector4 *color ) {
+static void UI_DrawRect( float x, float y, float width, float height, const vector4 *color ) {
 	trap->R_SetColor( color );
 
   UI_DrawTopBottom(x, y, width, height);
@@ -238,26 +207,4 @@ void UI_DrawRect( float x, float y, float width, float height, const vector4 *co
 
 void UI_SetColor( const vector4 *rgba ) {
 	trap->R_SetColor( rgba );
-}
-
-void UI_UpdateScreen( void ) {
-	trap->UpdateScreen();
-}
-
-
-void UI_DrawTextBox (int x, int y, int width, int lines)
-{
-	UI_FillRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &g_color_table[ColorIndex(COLOR_BLACK)]);
-	UI_DrawRect( (float)(x + BIGCHAR_WIDTH/2), (float)(y + BIGCHAR_HEIGHT/2), (float)(( width + 1 ) * BIGCHAR_WIDTH), (float)(( lines + 1 ) * BIGCHAR_HEIGHT), &g_color_table[ColorIndex(COLOR_WHITE)] );
-}
-
-qboolean UI_CursorInRect (int x, int y, int width, int height)
-{
-	if (uiInfo.uiDC.cursorx < x ||
-		uiInfo.uiDC.cursory < y ||
-		uiInfo.uiDC.cursorx > x+width ||
-		uiInfo.uiDC.cursory > y+height)
-		return qfalse;
-
-	return qtrue;
 }

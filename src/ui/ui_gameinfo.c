@@ -271,7 +271,7 @@ void UI_LoadBots( void ) {
 UI_GetBotInfoByNumber
 ===============
 */
-char *UI_GetBotInfoByNumber( int num ) {
+static char *UI_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= ui_numBots ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
@@ -285,7 +285,7 @@ char *UI_GetBotInfoByNumber( int num ) {
 UI_GetBotInfoByName
 ===============
 */
-char *UI_GetBotInfoByName( const char *name ) {
+static char *UI_GetBotInfoByName( const char *name ) {
 	int		n;
 	char	*value;
 

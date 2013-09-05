@@ -1110,7 +1110,7 @@ void CG_TileClear( void );
 void CG_ColorForHealth( vector4 *hcolor );
 void CG_GetColorForHealth( int health, int armor, vector4 *hcolor );
 
-void UI_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color );
+void CG_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color );
 void CG_DrawRect( float x, float y, float width, float height, float size, const vector4 *color );
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);

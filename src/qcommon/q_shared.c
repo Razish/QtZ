@@ -1745,7 +1745,7 @@ This is just a convenience function for printing vectors
 static char tempStrs[NUM_TEMPVECS][32];
 
 char *vtos( const vector3 *v ) {
-	static int index;
+	static int index=0;
 	char *s = tempStrs[index++ & TEMPVEC_MASK];
 
 	Com_sprintf( s, 32, "(%i %i %i)", (int)v->x, (int)v->y, (int)v->z );

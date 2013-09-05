@@ -112,7 +112,6 @@ void AssetCache( void ) {
 //	int n;
 	//if (Assets.textFont == NULL) {
 	//}
-	//Assets.background = trap->R_RegisterShader( ASSET_BACKGROUND );
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	uiInfo.uiDC.Assets.gradientBar			= trap->R_RegisterShader( ASSET_GRADIENTBAR );
 	uiInfo.uiDC.Assets.fxBasePic			= trap->R_RegisterShader( ART_FX_BASE );
@@ -248,7 +247,7 @@ void Text_PaintChar(float x, float y, float width, float height, float scale, fl
 	trap->R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
 }
 
-void Text_Paint(float x, float y, float scale, vector4 *color, const char *text, float adjust, int limit, int style) {
+void Text_Paint(float x, float y, float scale, const vector4 *color, const char *text, float adjust, int limit, int style) {
 	int len, count;
 	vector4 newColor;
 	glyphInfo_t *glyph;
@@ -478,15 +477,9 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4
 
 }
 
-
-void UI_ShowPostGame(qboolean newHigh) {
-	trap->Cvar_Set ("cg_cameraOrbit", "0");
-	uiInfo.soundHighScore = newHigh;
-	UI_SetActiveMenu(UIMENU_POSTGAME);
-}
 /*
 =================
-_UI_Refresh
+UI_Refresh
 =================
 */
 
@@ -544,21 +537,11 @@ void UI_Refresh( int realtime )
 	if (Menu_Count() > 0 && (trap->Key_GetCatcher() & KEYCATCH_UI)) {
 		UI_DrawHandlePic( (float)(uiInfo.uiDC.cursorx-16), (float)(uiInfo.uiDC.cursory-16), 32.0f, 32.0f, uiInfo.uiDC.Assets.cursor);
 	}
-
-#ifndef NDEBUG
-	if (uiInfo.uiDC.debug)
-	{
-		// cursor coordinates
-		//FIXME
-		//UI_DrawString( 0, 0, va("(%d,%d)",uis.cursorx,uis.cursory), UI_LEFT|UI_SMALLFONT, colorRed );
-	}
-#endif
-
 }
 
 /*
 =================
-_UI_Shutdown
+UI_Shutdown
 =================
 */
 void UI_Shutdown( void ) {
@@ -3680,6 +3663,53 @@ static void UI_BuildQ3Model_List( void )
 static float UI_GetValue( int ownerdraw ) {}
 
 /*
+================
+cvars
+================
+*/
+
+#define XCVAR_DECL
+	#include "ui_xcvar.h"
+#undef XCVAR_DECL
+
+typedef struct cvarTable_s {
+	cvar_t			**cvar;
+	const char		*name;
+	const char		*defaultString;
+	void			(*update)( void );
+	const int		flags;
+	const char		*description;
+} cvarTable_t;
+
+static cvarTable_t cvarTable[] = {
+	#define XCVAR_LIST
+		#include "ui_xcvar.h"
+	#undef XCVAR_LIST
+};
+
+static const int cvarTableSize = ARRAY_LEN( cvarTable );
+
+
+/*
+=================
+UI_RegisterCvars
+=================
+*/
+static void UI_RegisterCvars( void ) {
+	int i = 0;
+	cvarTable_t *cv = NULL;
+
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ )
+		*cv->cvar = trap->Cvar_Get( cv->name, cv->defaultString, cv->flags, cv->description, cv->update );
+
+	// now update them
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
+		if ( (*cv->cvar)->update )
+			(*cv->cvar)->update();
+	}
+}
+
+/*
 =================
 UI_Init
 =================
@@ -3687,7 +3717,7 @@ UI_Init
 void UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 
-	//uiInfo.inGameLoad = inGameLoad;
+	uiInfo.inGameLoad = inGameLoad;
 
 	UI_RegisterCvars();
 	UI_InitMemory();
@@ -3874,7 +3904,7 @@ void UI_LoadNonIngame( void ) {
 	uiInfo.inGameLoad = qfalse;
 }
 
-void UI_SetActiveMenu( uiMenuCommand_t menu ) {
+static void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	char buf[256];
 
 	// this should be the ONLY way the menu system is brought up
@@ -3929,12 +3959,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	}
 }
 
-qboolean UI_IsFullscreen( void ) {
-	return Menus_AnyFullScreenVisible();
-}
-
-
-
 static connState_t	lastConnState;
 static char			lastLoadingText[MAX_INFO_VALUE];
 
@@ -3968,12 +3992,12 @@ static void UI_PrintTime ( char *buf, int bufsize, int time ) {
 	}
 }
 
-void Text_PaintCenter(float x, float y, float scale, vector4 *color, const char *text, float adjust) {
+void Text_PaintCenter(float x, float y, float scale, const vector4 *color, const char *text, float adjust) {
 	int len = Text_Width(text, scale, 0);
 	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
-void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vector4 *color, const char *str, float adjust) {
+void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, const vector4 *color, const char *str, float adjust) {
 	int width;
 	char *s1,*s2,*s3;
 	char c_bcp;
@@ -4046,7 +4070,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 
 	leftWidth = (SCREEN_WIDTH/2.0f);
 
-	UI_SetColor(&g_color_table[ColorIndex(COLOR_WHITE)]);
+	UI_SetColor( &g_color_table[ColorIndex(COLOR_WHITE)] );
 	Text_PaintCenter(centerPoint, yStart + 112, scale, &g_color_table[ColorIndex(COLOR_WHITE)], dlText, 0);
 	Text_PaintCenter(centerPoint, yStart + 192, scale, &g_color_table[ColorIndex(COLOR_WHITE)], etaText, 0);
 	Text_PaintCenter(centerPoint, yStart + 248, scale, &g_color_table[ColorIndex(COLOR_WHITE)], xferText, 0);
@@ -4107,14 +4131,14 @@ This will also be overlaid on the cgame info screen during loading
 to prevent it from blinking away too rapidly on local or lan games.
 ========================
 */
-void UI_DrawConnectScreen( qboolean overlay ) {
+static void UI_DrawConnectScreen( qboolean overlay ) {
 	char			*s;
 	uiClientState_t	cstate;
 	char			info[MAX_INFO_VALUE];
 	char text[256];
 	float centerPoint, yStart, scale;
 
-	menuDef_t *menu = Menus_FindByName("Connect");
+	menuDef_t *menu = Menus_FindByName("connect");
 
 
 	if ( !overlay && menu ) {
@@ -4188,54 +4212,6 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	}
 
 	// password required / connection rejected information goes here
-}
-
-
-/*
-================
-cvars
-================
-*/
-
-#define XCVAR_DECL
-	#include "ui_xcvar.h"
-#undef XCVAR_DECL
-
-typedef struct cvarTable_s {
-	cvar_t			**cvar;
-	const char		*name;
-	const char		*defaultString;
-	void			(*update)( void );
-	const int		flags;
-	const char		*description;
-} cvarTable_t;
-
-static cvarTable_t cvarTable[] = {
-	#define XCVAR_LIST
-		#include "ui_xcvar.h"
-	#undef XCVAR_LIST
-};
-
-static const int cvarTableSize = ARRAY_LEN( cvarTable );
-
-
-/*
-=================
-UI_RegisterCvars
-=================
-*/
-void UI_RegisterCvars( void ) {
-	int i = 0;
-	cvarTable_t *cv = NULL;
-
-	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ )
-		*cv->cvar = trap->Cvar_Get( cv->name, cv->defaultString, cv->flags, cv->description, cv->update );
-
-	// now update them
-	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
-		if ( (*cv->cvar)->update )
-			(*cv->cvar)->update();
-	}
 }
 
 /*
@@ -4386,7 +4362,7 @@ Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
 	uie.KeyEvent			= UI_KeyEvent;
 	uie.MouseEvent			= UI_MouseEvent;
 	uie.Refresh				= UI_Refresh;
-	uie.IsFullscreen		= UI_IsFullscreen;
+	uie.IsFullscreen		= Menus_AnyFullScreenVisible;
 	uie.SetActiveMenu		= UI_SetActiveMenu;
 	uie.ConsoleCommand		= UI_ConsoleCommand;
 	uie.DrawConnectScreen	= UI_DrawConnectScreen;

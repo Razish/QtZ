@@ -82,7 +82,7 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 }
 /*
 ================
-UI_DrawRect
+CG_DrawRect
 
 Coordinates are 640*480 virtual values
 =================
@@ -460,7 +460,7 @@ void CG_ColorForHealth( vector4 *hcolor ) {
 
 /*
 =================
-UI_DrawProportionalString2
+CG_DrawProportionalString2
 =================
 */
 static int	propMap[128][3] = {
@@ -611,10 +611,10 @@ static int propMapB[26][3] = {
 
 /*
 =================
-UI_DrawBannerString
+CG_DrawBannerString
 =================
 */
-static void UI_DrawBannerString2( int x, int y, const char* str, vector4 *color )
+static void CG_DrawBannerString2( int x, int y, const char* str, vector4 *color )
 {
 	const char* s;
 	unsigned char	ch;
@@ -657,7 +657,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vector4 *color 
 	trap->R_SetColor( NULL );
 }
 
-void UI_DrawBannerString( int x, int y, const char* str, int style, vector4 *color ) {
+void CG_DrawBannerString( int x, int y, const char* str, int style, vector4 *color ) {
 	const char *	s;
 	int				ch;
 	int				width;
@@ -695,14 +695,14 @@ void UI_DrawBannerString( int x, int y, const char* str, int style, vector4 *col
 	if ( style & UI_DROPSHADOW ) {
 		drawcolor.r = drawcolor.g = drawcolor.b = 0;
 		drawcolor.a = color->a;
-		UI_DrawBannerString2( x+2, y+2, str, &drawcolor );
+		CG_DrawBannerString2( x+2, y+2, str, &drawcolor );
 	}
 
-	UI_DrawBannerString2( x, y, str, color );
+	CG_DrawBannerString2( x, y, str, color );
 }
 
 
-int UI_ProportionalStringWidth( const char* str ) {
+int CG_ProportionalStringWidth( const char* str ) {
 	const char *	s;
 	int				ch;
 	int				charWidth;
@@ -724,7 +724,7 @@ int UI_ProportionalStringWidth( const char* str ) {
 	return width;
 }
 
-static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *color, float sizeScale, qhandle_t charset )
+static void CG_DrawProportionalString2( int x, int y, const char* str, vector4 *color, float sizeScale, qhandle_t charset )
 {
 	const char* s;
 	unsigned char	ch;
@@ -770,38 +770,37 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vector4 *
 
 /*
 =================
-UI_ProportionalSizeScale
+CG_ProportionalSizeScale
 =================
 */
-float UI_ProportionalSizeScale( int style ) {
-	if(  style & UI_SMALLFONT ) {
-		return 0.75;
-	}
+float CG_ProportionalSizeScale( int style ) {
+	if ( style & UI_SMALLFONT )
+		return 0.75f;
 
-	return 1.00;
+	return 1.0f;
 }
 
 
 /*
 =================
-UI_DrawProportionalString
+CG_DrawProportionalString
 =================
 */
-void UI_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color ) {
+void CG_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color ) {
 	vector4	drawcolor;
 	int		width;
 	float	sizeScale;
 
-	sizeScale = UI_ProportionalSizeScale( style );
+	sizeScale = CG_ProportionalSizeScale( style );
 
 	switch( style & UI_FORMATMASK ) {
 		case UI_CENTER:
-			width = (int)(UI_ProportionalStringWidth( str ) * sizeScale);
+			width = (int)(CG_ProportionalStringWidth( str ) * sizeScale);
 			x -= width / 2;
 			break;
 
 		case UI_RIGHT:
-			width = (int)(UI_ProportionalStringWidth( str ) * sizeScale);
+			width = (int)(CG_ProportionalStringWidth( str ) * sizeScale);
 			x -= width;
 			break;
 
@@ -813,7 +812,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vector
 	if ( style & UI_DROPSHADOW ) {
 		drawcolor.r = drawcolor.g = drawcolor.b = 0;
 		drawcolor.a = color->a;
-		UI_DrawProportionalString2( x+2, y+2, str, &drawcolor, sizeScale, cgs.media.charsetProp );
+		CG_DrawProportionalString2( x+2, y+2, str, &drawcolor, sizeScale, cgs.media.charsetProp );
 	}
 
 	if ( style & UI_INVERSE ) {
@@ -821,7 +820,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vector
 		drawcolor.g = color->g * 0.8f;
 		drawcolor.b = color->b * 0.8f;
 		drawcolor.a = color->a;
-		UI_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetProp );
+		CG_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetProp );
 		return;
 	}
 
@@ -830,15 +829,15 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vector
 		drawcolor.g = color->g * 0.8f;
 		drawcolor.b = color->b * 0.8f;
 		drawcolor.a = color->a;
-		UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
+		CG_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
 
 		drawcolor.r = color->r;
 		drawcolor.g = color->g;
 		drawcolor.b = color->b;
 		drawcolor.a = 0.5f + 0.5f * sinf( cg.time / PULSE_DIVISOR );
-		UI_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetPropGlow );
+		CG_DrawProportionalString2( x, y, str, &drawcolor, sizeScale, cgs.media.charsetPropGlow );
 		return;
 	}
 
-	UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
+	CG_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
 }
