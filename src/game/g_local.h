@@ -57,8 +57,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	FL_BOUNCE_SHRAPNEL		0x0400	// special shrapnel flag
 
 // movers are things like doors, plats, buttons, etc
-typedef enum {
-	MOVER_POS1,
+typedef enum moverState_e {
+	MOVER_POS1=0,
 	MOVER_POS2,
 	MOVER_1TO2,
 	MOVER_2TO1

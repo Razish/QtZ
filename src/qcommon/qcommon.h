@@ -140,8 +140,8 @@ NET
 
 #define	MAX_RELIABLE_COMMANDS	64			// max string commands buffered for restransmit
 
-typedef enum {
-	NA_BAD = 0,					// an address lookup failed
+typedef enum netadrtype_e {
+	NA_BAD=0,		// an address lookup failed
 	NA_BOT,
 	NA_LOOPBACK,
 	NA_BROADCAST,
@@ -151,7 +151,7 @@ typedef enum {
 	NA_UNSPEC
 } netadrtype_t;
 
-typedef enum {
+typedef enum netsrc_e {
 	NS_CLIENT,
 	NS_SERVER
 } netsrc_t;
@@ -668,8 +668,7 @@ MISC
 */
 
 // returned by Sys_GetProcessorFeatures
-typedef enum
-{
+typedef enum cpuFeatures_e {
   CF_RDTSC      = 1 << 0,
   CF_MMX        = 1 << 1,
   CF_MMX_EXT    = 1 << 2,
@@ -684,7 +683,7 @@ typedef enum
 #define	MAXPRINTMSG	4096
 
 
-typedef enum {
+typedef enum sysEventType_e {
 	// SE_NONE must be zero
 	SE_NONE = 0,		// evTime is still valid
 	SE_KEY,			// evValue is a key code, evValue2 is the down flag
@@ -774,8 +773,8 @@ extern	qboolean	com_fullyInitialized;
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
 
-typedef enum {
-	TAG_FREE,
+typedef enum memtag_e {
+	TAG_FREE=0,
 	TAG_GENERAL,
 	TAG_BOTLIB,
 	TAG_RENDERER,
@@ -994,16 +993,14 @@ qboolean Sys_LowPhysicalMemory( void );
 
 void Sys_SetEnv(const char *name, const char *value);
 
-typedef enum
-{
+typedef enum dialogResult_e {
 	DR_YES = 0,
 	DR_NO = 1,
 	DR_OK = 0,
 	DR_CANCEL = 1
 } dialogResult_t;
 
-typedef enum
-{
+typedef enum dialogType_e {
 	DT_INFO,
 	DT_WARNING,
 	DT_ERROR,

@@ -93,7 +93,7 @@ typedef struct cin_cache_s {
 	int					xpos, ypos, width, height;
 	qboolean			looping, holdAtEnd, dirty, alterGameState, silent, shader;
 	fileHandle_t		iFile;
-	e_status			status;
+	cinState_t			status;
 	unsigned int		startTime;
 	unsigned int		lastTime;
 	long				tfps;
@@ -1283,7 +1283,7 @@ static void RoQShutdown( void ) {
 CIN_StopCinematic
 ==================
 */
-e_status CIN_StopCinematic(int handle) {
+cinState_t CIN_StopCinematic(int handle) {
 
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
 	currentHandle = handle;
@@ -1314,7 +1314,7 @@ Fetch and decompress the pending frame
 */
 
 
-e_status CIN_RunCinematic (int handle)
+cinState_t CIN_RunCinematic (int handle)
 {
 	unsigned int	start = 0;
 	int     thisTime = 0;

@@ -166,8 +166,8 @@ static short	(*_BigShort) (short l);
 static short	(*_LittleShort) (short l);
 static int		(*_BigLong) (int l);
 static int		(*_LittleLong) (int l);
-static qint64	(*_BigLong64) (qint64 l);
-static qint64	(*_LittleLong64) (qint64 l);
+static qint64_t	(*_BigLong64) (qint64_t l);
+static qint64_t	(*_LittleLong64) (qint64_t l);
 static float	(*_BigFloat) (const float *l);
 static float	(*_LittleFloat) (const float *l);
 
@@ -175,8 +175,8 @@ short	BigShort(short l){return _BigShort(l);}
 short	LittleShort(short l) {return _LittleShort(l);}
 int		BigLong (int l) {return _BigLong(l);}
 int		LittleLong (int l) {return _LittleLong(l);}
-qint64 	BigLong64 (qint64 l) {return _BigLong64(l);}
-qint64 	LittleLong64 (qint64 l) {return _LittleLong64(l);}
+qint64_t 	BigLong64 (qint64_t l) {return _BigLong64(l);}
+qint64_t 	LittleLong64 (qint64_t l) {return _LittleLong64(l);}
 float	BigFloat (const float *l) {return _BigFloat(l);}
 float	LittleFloat (const float *l) {return _LittleFloat(l);}
 */
@@ -231,9 +231,9 @@ int	LongNoSwap (int l)
 	return l;
 }
 
-qint64 Long64Swap (qint64 ll)
+qint64_t Long64Swap (qint64_t ll)
 {
-	qint64	result;
+	qint64_t	result;
 
 	result.b0 = ll.b7;
 	result.b1 = ll.b6;
@@ -247,7 +247,7 @@ qint64 Long64Swap (qint64 ll)
 	return result;
 }
 
-qint64 Long64NoSwap (qint64 ll)
+qint64_t Long64NoSwap (qint64_t ll)
 {
 	return ll;
 }

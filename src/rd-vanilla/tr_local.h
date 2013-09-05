@@ -99,7 +99,7 @@ typedef struct image_s {
 
 //===============================================================================
 
-typedef enum {
+typedef enum shaderSort_e {
 	SS_BAD,
 	SS_PORTAL,			// mirrors, portals, viewscreens
 	SS_ENVIRONMENT,		// sky box
@@ -129,7 +129,7 @@ typedef enum {
 
 #define MAX_SHADER_STAGES 8
 
-typedef enum {
+typedef enum genFunc_e {
 	GF_NONE,
 
 	GF_SIN,
@@ -143,7 +143,7 @@ typedef enum {
 } genFunc_t;
 
 
-typedef enum {
+typedef enum deform_e {
 	DEFORM_NONE,
 	DEFORM_WAVE,
 	DEFORM_NORMALS,
@@ -162,7 +162,7 @@ typedef enum {
 	DEFORM_TEXT7
 } deform_t;
 
-typedef enum {
+typedef enum alphaGen_e {
 	AGEN_IDENTITY,
 	AGEN_SKIP,
 	AGEN_ENTITY,
@@ -175,7 +175,7 @@ typedef enum {
 	AGEN_CONST
 } alphaGen_t;
 
-typedef enum {
+typedef enum colorGen_e {
 	CGEN_BAD,
 	CGEN_IDENTITY_LIGHTING,	// tr.identityLight
 	CGEN_IDENTITY,			// always (1,1,1,1)
@@ -190,7 +190,7 @@ typedef enum {
 	CGEN_CONST				// fixed color
 } colorGen_t;
 
-typedef enum {
+typedef enum texCoordGen_e {
 	TCGEN_BAD,
 	TCGEN_IDENTITY,			// clear to 0,0
 	TCGEN_LIGHTMAP,
@@ -200,7 +200,7 @@ typedef enum {
 	TCGEN_VECTOR			// S and T from world coordinates
 } texCoordGen_t;
 
-typedef enum {
+typedef enum acff_e {
 	ACFF_NONE,
 	ACFF_MODULATE_RGB,
 	ACFF_MODULATE_RGBA,
@@ -218,7 +218,7 @@ typedef struct waveForm_s {
 
 #define TR_MAX_TEXMODS 4
 
-typedef enum {
+typedef enum texMod_e {
 	TMOD_NONE,
 	TMOD_TRANSFORM,
 	TMOD_TURBULENT,
@@ -318,13 +318,13 @@ struct shaderCommands_s;
 #define LIGHTMAP_WHITEIMAGE -2
 #define LIGHTMAP_NONE       -1
 
-typedef enum {
+typedef enum cullType_e {
 	CT_FRONT_SIDED,
 	CT_BACK_SIDED,
 	CT_TWO_SIDED
 } cullType_t;
 
-typedef enum {
+typedef enum fogPass_e {
 	FP_NONE,		// surface is translucent and will just be adjusted properly
 	FP_EQUAL,		// surface is opaque but possibly alpha tested
 	FP_LE			// surface is trnaslucent, but still needs a fog pass (fog surface)
@@ -505,7 +505,7 @@ SURFACES
 */
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
-typedef enum {
+typedef enum surfaceType_e {
 	SF_BAD,
 	SF_SKIP,				// ignore
 	SF_FACE,
@@ -761,7 +761,7 @@ typedef struct world_s {
 
 //======================================================================
 
-typedef enum {
+typedef enum modtype_e {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
@@ -1649,7 +1649,7 @@ typedef struct clearDepthCommand_s {
 	int commandId;
 } clearDepthCommand_t;
 
-typedef enum {
+typedef enum renderCommand_e {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,

@@ -132,8 +132,7 @@ static struct sockaddr_in6 boundto;
 
 #define	MAX_IPS		32
 
-typedef struct
-{
+typedef struct nip_localaddr_s {
 	char ifname[IF_NAMESIZE];
 	
 	netadrtype_t type;

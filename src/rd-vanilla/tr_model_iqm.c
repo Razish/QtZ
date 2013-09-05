@@ -433,7 +433,7 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 	size += joint_names;					// joint names
 
 	mod->type = MOD_IQM;
-	iqmData = (iqmData_t *)ri->Hunk_Alloc( size, h_low );
+	iqmData = (iqmData_t *)ri->Hunk_Alloc( size, PREF_LOW );
 	mod->modelData = iqmData;
 
 	// fill header

@@ -2845,12 +2845,9 @@ static void UI_BuildServerDisplayList(qboolean force) {
 	}
 }
 
-typedef struct
-{
+struct serverStatusCvar_s {
 	char *name, *altName;
-} serverStatusCvar_t;
-
-serverStatusCvar_t serverStatusCvars[] = {
+} serverStatusCvars[] = {
 	{ "sv_hostname", "Name" },
 	{ "Address", "" },
 	{ "gamename", "Game name" },
@@ -3938,7 +3935,7 @@ qboolean UI_IsFullscreen( void ) {
 
 
 
-static connstate_t	lastConnState;
+static connState_t	lastConnState;
 static char			lastLoadingText[MAX_INFO_VALUE];
 
 static void UI_ReadableSize ( char *buf, int bufsize, int value )

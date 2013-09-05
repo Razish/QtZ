@@ -87,10 +87,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEAM_OVERLAY_MAXNAME_WIDTH	36
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	64
 
-#define DEFAULT_REDTEAM_NAME		"Stroggs"
-#define DEFAULT_BLUETEAM_NAME		"Pagans"
-
-typedef enum {
+typedef enum footstep_e {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
 	FOOTSTEP_FLESH,
@@ -102,7 +99,7 @@ typedef enum {
 	FOOTSTEP_TOTAL
 } footstep_t;
 
-typedef enum {
+typedef enum impactSound_e {
 	IMPACTSOUND_DEFAULT,
 	IMPACTSOUND_METAL,
 	IMPACTSOUND_FLESH
@@ -209,7 +206,7 @@ typedef struct markPoly_s {
 } markPoly_t;
 
 
-typedef enum {
+typedef enum leType_e {
 	LE_MARK,
 	LE_EXPLOSION,
 	LE_SPRITE_EXPLOSION,
@@ -226,20 +223,20 @@ typedef enum {
 	LE_LINE
 } leType_t;
 
-typedef enum {
+typedef enum leFlag_e {
 	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
 	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
 	LEF_FADE_RGB		= 0x0004,			// explicitly fade
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
 } leFlag_t;
 
-typedef enum {
+typedef enum leMarkType_e {
 	LEMT_NONE,
 	LEMT_BURN,
 	LEMT_BLOOD
 } leMarkType_t;			// fragment local entities can leave marks on walls
 
-typedef enum {
+typedef enum leBounceSoundType_e {
 	LEBS_NONE,
 	LEBS_BLOOD,
 	LEBS_BRASS

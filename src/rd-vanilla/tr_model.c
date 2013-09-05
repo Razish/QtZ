@@ -192,8 +192,7 @@ qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 }
 
 
-typedef struct
-{
+typedef struct modelExtToLoaderMap_s {
 	char *ext;
 	qhandle_t (*ModelLoader)( const char *, model_t * );
 } modelExtToLoaderMap_t;
@@ -242,7 +241,7 @@ model_t *R_AllocModel( void ) {
 		return NULL;
 	}
 
-	mod = ri->Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = ri->Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), PREF_LOW );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -408,7 +407,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 	mod->type = MOD_MESH;
 	size = LittleLong(pinmodel->ofsEnd);
 	mod->dataSize += size;
-	mod->md3[lod] = ri->Hunk_Alloc( size, h_low );
+	mod->md3[lod] = ri->Hunk_Alloc( size, PREF_LOW );
 
 	memcpy (mod->md3[lod], buffer, LittleLong(pinmodel->ofsEnd) );
 
@@ -600,7 +599,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	}
 
 	mod->dataSize += size;
-	mod->modelData = mdr = ri->Hunk_Alloc( size, h_low );
+	mod->modelData = mdr = ri->Hunk_Alloc( size, PREF_LOW );
 
 	// Copy all the values over from the file and fix endian issues in the process, if necessary.
 	
@@ -909,7 +908,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	mod->type = MOD_MD4;
 	size = LittleLong(pinmodel->ofsEnd);
 	mod->dataSize += size;
-	mod->modelData = md4 = ri->Hunk_Alloc( size, h_low );
+	mod->modelData = md4 = ri->Hunk_Alloc( size, PREF_LOW );
 
 	memcpy(md4, buffer, size);
 

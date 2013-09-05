@@ -974,7 +974,7 @@ void R_Init( void ) {
 	if (max_polyverts < MAX_POLYVERTS)
 		max_polyverts = MAX_POLYVERTS;
 
-	ptr = (byte *)ri->Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
+	ptr = (byte *)ri->Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, PREF_LOW);
 	backEndData = (backEndData_t *) ptr;
 	backEndData->polys = (srfPoly_t *) ((char *) ptr + sizeof( *backEndData ));
 	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys);

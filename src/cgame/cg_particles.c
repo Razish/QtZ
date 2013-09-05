@@ -70,8 +70,7 @@ typedef struct particle_s
 
 } cparticle_t;
 
-typedef enum
-{
+typedef enum particle_type_e {
 	P_NONE,
 	P_WEATHER,
 	P_FLAT,

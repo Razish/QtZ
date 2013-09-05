@@ -106,7 +106,7 @@ static void *BotImport_HunkAlloc( int size ) {
 	if( Hunk_CheckMark() ) {
 		Com_Error( ERR_DROP, "CL_Bot_HunkAlloc: Alloc with marks already set" );
 	}
-	return Hunk_Alloc( size, h_high );
+	return Hunk_Alloc( size, PREF_HIGH );
 }
 
 int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points) {

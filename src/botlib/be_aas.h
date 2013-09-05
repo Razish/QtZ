@@ -72,8 +72,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	TFL_TELEPORT|TFL_ELEVATOR|\
 	TFL_AIR|TFL_WATER|TFL_JUMPPAD|TFL_FUNCBOB
 
-typedef enum
-{
+typedef enum solid_e {
 	SOLID_NOT,			// no interaction with other objects
 	SOLID_TRIGGER,		// only touch when inside, after moving
 	SOLID_BBOX,			// touch on edge

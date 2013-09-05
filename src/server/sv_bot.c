@@ -311,7 +311,7 @@ static void *BotImport_HunkAlloc( int size ) {
 	if( svi.Hunk_CheckMark() ) {
 		svi.Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set" );
 	}
-	return svi.Hunk_Alloc( size, h_high );
+	return svi.Hunk_Alloc( size, PREF_HIGH );
 }
 
 /*

@@ -138,7 +138,7 @@ movement on the server game.
 ===================================================================================
 */
 
-typedef enum {
+typedef enum pmtype_e {
 	PM_NORMAL,		// can accelerate and turn
 	PM_NOCLIP,		// noclip movement
 	PM_SPECTATOR,	// still run into walls
@@ -147,7 +147,7 @@ typedef enum {
 	PM_INTERMISSION,	// no movement or status bar
 } pmtype_t;
 
-typedef enum {
+typedef enum weaponstate_e {
 	WEAPON_READY, 
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
@@ -214,7 +214,7 @@ void Pmove (pmove_t *pmove);
 
 // player_state->stats[] indexes
 // NOTE: may not have more than 16
-typedef enum {
+typedef enum statIndex_e {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
 	STAT_PERSISTANT_POWERUP,
@@ -229,7 +229,7 @@ typedef enum {
 // these fields are the only part of player_state that isn't
 // cleared on respawn
 // NOTE: may not have more than 16
-typedef enum {
+typedef enum persEnum_e {
 	PERS_SCORE,						// !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 	PERS_HITS,						// total points damage inflicted so damage beeps can sound on change
 	PERS_RANK,						// player rank or team rank
@@ -272,7 +272,7 @@ typedef enum {
 #define EF_NOT_USED_01		0x80000		// 
 
 // NOTE: may not have more than 16
-typedef enum {
+typedef enum powerup_e {
 	PW_NONE=0,
 
 	// regular
@@ -291,7 +291,7 @@ typedef enum {
 
 } powerup_t;
 
-typedef enum {
+typedef enum holdable_e {
 	HI_NONE,
 	HI_TELEPORTER,
 	HI_MEDKIT,
@@ -331,7 +331,7 @@ typedef enum {
 
 #define	EVENT_VALID_MSEC	300
 
-typedef enum {
+typedef enum entity_event_e {
 	EV_NONE,
 
 	EV_FOOTSTEP,
@@ -422,7 +422,7 @@ typedef enum {
 } entity_event_t;
 
 
-typedef enum {
+typedef enum global_team_sound_e {
 	GTS_RED_CAPTURE,
 	GTS_BLUE_CAPTURE,
 	GTS_RED_RETURN,
@@ -437,7 +437,7 @@ typedef enum {
 } global_team_sound_t;
 
 // animations
-typedef enum {
+typedef enum animNumber_e {
 	BOTH_DEATH1,
 	BOTH_DEAD1,
 	BOTH_DEATH2,
@@ -508,7 +508,7 @@ typedef struct animation_s {
 #define	ANIM_TOGGLEBIT		128
 
 
-typedef enum {
+typedef enum team_e {
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
@@ -536,7 +536,7 @@ typedef enum teamtask_e {
 } teamtask_t;
 
 // means of death
-typedef enum {
+typedef enum meansOfDeath_e {
 	//RAZMARK: ADDING NEW WEAPONS
 	MOD_UNKNOWN,
 	MOD_QUANTIZER,
@@ -561,7 +561,7 @@ typedef enum {
 //---------------------------------------------------------
 
 // gitem_t->type
-typedef enum {
+typedef enum itemType_e {
 	IT_BAD,
 	IT_WEAPON,				// EFX: rotate + upscale + minlight
 	IT_AMMO,				// EFX: rotate
@@ -626,7 +626,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 //
 // entityState_t->eType
 //
-typedef enum {
+typedef enum entityType_e {
 	ET_GENERAL,
 	ET_PLAYER,
 	ET_ITEM,

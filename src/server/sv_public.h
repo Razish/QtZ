@@ -103,9 +103,9 @@ typedef struct serverImport_s {
 	void			(*Huff_Decompress)					( msg_t *buf, int offset );
 	void *			(*Hunk_AllocateTempMemory)			( int size );
 #ifdef HUNK_DEBUG
-	void *			(*Hunk_AllocDebug)					( int size, ha_pref pref, char *label, char *file, int line );
+	void *			(*Hunk_AllocDebug)					( int size, hunkallocPref_t pref, char *label, char *file, int line );
 #else
-	void *			(*Hunk_Alloc)						( int size, ha_pref preference );
+	void *			(*Hunk_Alloc)						( int size, hunkallocPref_t preference );
 #endif
 	qboolean		(*Hunk_CheckMark)					( void );
 	void			(*Hunk_Clear)						( void );

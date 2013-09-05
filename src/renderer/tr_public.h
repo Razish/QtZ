@@ -133,9 +133,9 @@ typedef struct refimport_s {
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
-	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, char *label, char *file, int line );
+	void	*(*Hunk_AllocDebug)( int size, hunkallocPref_t pref, char *label, char *file, int line );
 #else
-	void	*(*Hunk_Alloc)( int size, ha_pref pref );
+	void	*(*Hunk_Alloc)( int size, hunkallocPref_t pref );
 #endif
 	void	*(*Hunk_AllocateTempMemory)( int size );
 	void	(*Hunk_FreeTempMemory)( void *block );
@@ -180,7 +180,7 @@ typedef struct refimport_s {
 	// cinematic stuff
 	void	(*CIN_UploadCinematic)(int handle);
 	int		(*CIN_PlayCinematic)( const char *arg0, int xpos, int ypos, int width, int height, int bits);
-	e_status (*CIN_RunCinematic) (int handle);
+	cinState_t (*CIN_RunCinematic) (int handle);
 
 	void	(*CL_WriteAVIVideoFrame)( const byte *buffer, int size );
 

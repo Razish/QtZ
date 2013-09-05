@@ -175,8 +175,8 @@ typedef struct cgameImport_s {
 
 	// cinematic
 	int				(*CIN_PlayCinematic)			( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	e_status		(*CIN_StopCinematic)			( int handle );
-	e_status		(*CIN_RunCinematic)				( int handle );
+	cinState_t		(*CIN_StopCinematic)			( int handle );
+	cinState_t		(*CIN_RunCinematic)				( int handle );
 	void			(*CIN_DrawCinematic)			( int handle );
 	void			(*CIN_SetExtents)				( int handle, int x, int y, int w, int h );
 } cgameImport_t;

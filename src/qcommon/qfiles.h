@@ -518,7 +518,7 @@ typedef struct drawVert_s {
 
 #define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
 
-typedef enum {
+typedef enum mapSurfaceType_e {
 	MST_BAD,
 	MST_PLANAR,
 	MST_PATCH,

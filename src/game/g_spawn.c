@@ -74,16 +74,15 @@ qboolean	G_SpawnVector( const char *key, const char *defaultString, vector3 *out
 //
 // fields are needed for spawning from the entity string
 //
-typedef enum {
-	F_INT,
+typedef enum fieldtype_e {
+	F_INT=0,
 	F_FLOAT,
 	F_STRING,
 	F_VECTOR,
 	F_ANGLEHACK
 } fieldtype_t;
 
-typedef struct
-{
+typedef struct spawnField_s {
 	char	*name;
 	size_t	ofs;
 	fieldtype_t	type;

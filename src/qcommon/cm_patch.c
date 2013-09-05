@@ -909,8 +909,8 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 }
 
-typedef enum {
-	EN_TOP,
+typedef enum edgeName_e {
+	EN_TOP=0,
 	EN_RIGHT,
 	EN_BOTTOM,
 	EN_LEFT
@@ -1072,9 +1072,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	// copy the results out
 	pf->numPlanes = numPlanes;
 	pf->numFacets = numFacets;
-	pf->facets = (facet_t *)Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
+	pf->facets = (facet_t *)Hunk_Alloc( numFacets * sizeof( *pf->facets ), PREF_HIGH );
 	memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-	pf->planes = (patchPlane_t *)Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
+	pf->planes = (patchPlane_t *)Hunk_Alloc( numPlanes * sizeof( *pf->planes ), PREF_HIGH );
 	memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
 }
 
@@ -1132,7 +1132,7 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vector3 *
 	// we now have a grid of points exactly on the curve
 	// the aproximate surface defined by these points will be
 	// collided against
-	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), h_high );
+	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), PREF_HIGH );
 	ClearBounds( &pf->bounds[0], &pf->bounds[1] );
 	for ( i = 0 ; i < grid.width ; i++ ) {
 		for ( j = 0 ; j < grid.height ; j++ ) {

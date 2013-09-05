@@ -75,7 +75,7 @@ typedef struct poly_s {
 	polyVert_t			*verts;
 } poly_t;
 
-typedef enum {
+typedef enum refEntityType_e {
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -147,7 +147,7 @@ typedef struct refdef_s {
 } refdef_t;
 
 
-typedef enum {
+typedef enum stereoFrame_e {
 	STEREO_CENTER,
 	STEREO_LEFT,
 	STEREO_RIGHT
@@ -160,7 +160,7 @@ typedef enum {
 ** being run right now.  These are constant once the OpenGL
 ** subsystem is initialized.
 */
-typedef enum {
+typedef enum textureCompression_e {
 	TC_NONE,
 	TC_S3TC,  // this is for the GL_S3_s3tc extension.
 	TC_S3TC_ARB  // this is for the GL_EXT_texture_compression_s3tc extension.

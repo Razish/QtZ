@@ -242,7 +242,7 @@ void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *heigh
 
 /* Expanded data destination object for stdio output */
 
-typedef struct {
+typedef struct my_destination_mgr_s {
   struct jpeg_destination_mgr pub; /* public fields */
 
   byte* outfile;		/* target stream */

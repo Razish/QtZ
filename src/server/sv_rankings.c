@@ -29,8 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "..\rankings\1.0\gr\grapi.h"
 #include "..\rankings\1.0\gr\grlog.h"
 
-typedef struct
-{
+typedef struct ranked_player_s {
 	GR_CONTEXT		context;
 	uint64_t        game_id;
 	uint64_t		match;
@@ -1439,9 +1438,9 @@ static void SV_RankEncodeGameID( uint64_t game_id, char* result,
 	}
 	else
 	{
-		qint64 gameid = LittleLong64(*(qint64*)&game_id);
+		qint64_t gameid = LittleLong64(*(qint64*)&game_id);
 		SV_RankAsciiEncode( result, (unsigned char*)&gameid, 
-			sizeof(qint64) );
+			sizeof(qint64_t) );
 	}
 }
 
@@ -1454,15 +1453,15 @@ static uint64_t SV_RankDecodePlayerID( const char* string )
 {
 	unsigned char	buffer[9];
 	int len;
-	qint64	player_id;
+	qint64_t	player_id;
 
 	assert( string != NULL );
 	
 	len = strlen (string) ;
 	Com_DPrintf( "SV_RankDecodePlayerID: string length %d\n",len );
 	SV_RankAsciiDecode( buffer, string, len );
-	player_id = LittleLong64(*(qint64*)buffer);
-	return *(uint64_t*)&player_id;
+	player_id = LittleLong64(*(qint64_t*)buffer);
+	return *(qint64_t*)&player_id;
 }
 
 /*

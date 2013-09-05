@@ -1670,9 +1670,9 @@ Allocate permanent (until the hunk is cleared) memory
 =================
 */
 #ifdef HUNK_DEBUG
-void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, int line ) {
+void *Hunk_AllocDebug( int size, hunkallocPref_t preference, char *label, char *file, int line ) {
 #else
-void *Hunk_Alloc( int size, ha_pref preference ) {
+void *Hunk_Alloc( int size, hunkallocPref_t preference ) {
 #endif
 	void	*buf;
 
@@ -1682,12 +1682,12 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 	}
 
 	// can't do preference if there is any temp allocated
-	if (preference == h_dontcare || hunk_temp->temp != hunk_temp->permanent) {
+	if (preference == PREF_DONTCARE || hunk_temp->temp != hunk_temp->permanent) {
 		Hunk_SwapBanks();
 	} else {
-		if (preference == h_low && hunk_permanent != &hunk_low) {
+		if (preference == PREF_LOW && hunk_permanent != &hunk_low) {
 			Hunk_SwapBanks();
-		} else if (preference == h_high && hunk_permanent != &hunk_high) {
+		} else if (preference == PREF_HIGH && hunk_permanent != &hunk_high) {
 			Hunk_SwapBanks();
 		}
 	}

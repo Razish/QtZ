@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-typedef struct
-{
+typedef struct BMPHeader_s {
 	char id[2];
 	unsigned fileSize;
 	unsigned reserved0;

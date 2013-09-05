@@ -162,7 +162,7 @@ demo through a file.
 
 typedef struct clientConnection_s {
 
-	connstate_t	state;				// connection status
+	connState_t	state;				// connection status
 
 	int			clientNum;
 	int			lastPacketSentTime;			// for retransmits during connection
@@ -585,8 +585,8 @@ void SCR_DrawCinematic (void);
 void SCR_RunCinematic (void);
 void SCR_StopCinematic (void);
 int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
-e_status CIN_StopCinematic(int handle);
-e_status CIN_RunCinematic (int handle);
+cinState_t CIN_StopCinematic(int handle);
+cinState_t CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);
 void CIN_SetExtents (int handle, int x, int y, int w, int h);
 void CIN_SetLooping (int handle, qboolean loop);

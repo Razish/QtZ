@@ -130,7 +130,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef unsigned char byte;
 
-typedef enum { qfalse=0, qtrue } qboolean;
+typedef enum qboolean_e { qfalse=0, qtrue } qboolean;
 
 typedef union floatint_u {
 	float f;
@@ -271,24 +271,24 @@ typedef enum errorParm_e {
 	#define HUNK_DEBUG
 #endif
 
-typedef enum {
-	h_high,
-	h_low,
-	h_dontcare
-} ha_pref;
+typedef enum hunkallocPref_e {
+	PREF_HIGH=0,
+	PREF_LOW,
+	PREF_DONTCARE
+} hunkallocPref_t;
 
 #ifdef HUNK_DEBUG
-#define Hunk_Alloc( size, preference )				Hunk_AllocDebug(size, preference, #size, __FILE__, __LINE__)
-void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, int line );
+#define Hunk_Alloc( size, preference ) Hunk_AllocDebug(size, preference, #size, __FILE__, __LINE__)
+void *Hunk_AllocDebug( int size, hunkallocPref_t preference, char *label, char *file, int line );
 #else
-void *Hunk_Alloc( int size, ha_pref preference );
+void *Hunk_Alloc( int size, hunkallocPref_t preference );
 #endif
 
-#define CIN_system	1
-#define CIN_loop	2
-#define	CIN_hold	4
-#define CIN_silent	8
-#define CIN_shader	16
+#define CIN_system	0x01
+#define CIN_loop	0x02
+#define	CIN_hold	0x04
+#define CIN_silent	0x08
+#define CIN_shader	0x10
 
 /*
 ==============================================================
@@ -349,9 +349,7 @@ typedef union {
 	#pragma warning( pop )
 #endif // _MSC_VER
 
-typedef	int	fixed4_t;
-typedef	int	fixed8_t;
-typedef	int	fixed16_t;
+typedef	int	fixed4_t, fixed8_t, fixed16_t;
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846f	// matches value in gcc v2 math.h
@@ -653,8 +651,7 @@ qboolean COM_ParseVec4( const char **buffer, vector4 *c);
 #define TT_PUNCTUATION				5			// punctuation
 #endif
 
-typedef struct pc_token_s
-{
+typedef struct pc_token_s {
 	int type;
 	int subtype;
 	int intvalue;
@@ -682,14 +679,14 @@ char *Com_SkipCharset( char *s, char *sep );
 void Com_RandomBytes( byte *string, int len );
 
 // mode parm for FS_FOpenFile
-typedef enum {
+typedef enum fsMode_e {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
 	FS_APPEND_SYNC
 } fsMode_t;
 
-typedef enum {
+typedef enum fsOrigin_e {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
@@ -733,8 +730,7 @@ int Q_CountChar(const char *string, char tocount);
 
 // 64-bit integers for global rankings interface
 // implemented as a struct for qvm compatibility
-typedef struct
-{
+typedef struct qint64_s {
 	byte	b0;
 	byte	b1;
 	byte	b2;
@@ -743,7 +739,7 @@ typedef struct
 	byte	b5;
 	byte	b6;
 	byte	b7;
-} qint64;
+} qint64_t;
 
 //=============================================
 /*
@@ -751,8 +747,8 @@ short	BigShort(short l);
 short	LittleShort(short l);
 int		BigLong (int l);
 int		LittleLong (int l);
-qint64  BigLong64 (qint64 l);
-qint64  LittleLong64 (qint64 l);
+qint64_t  BigLong64 (qint64_t l);
+qint64_t  LittleLong64 (qint64_t l);
 float	BigFloat (const float *l);
 float	LittleFloat (const float *l);
 
@@ -939,7 +935,7 @@ typedef struct orientation_s {
 // sound channels
 // channel 0 never willingly overrides
 // other channels will allways override a playing sound on that channel
-typedef enum {
+typedef enum soundChannel_e {
 	CHAN_AUTO,
 	CHAN_LOCAL,		// menu sounds, etc
 	CHAN_WEAPON,
@@ -1040,11 +1036,10 @@ typedef struct playerState_s {
 
 	int			groundEntityNum;// ENTITYNUM_NONE = in air
 
-	int			legsTimer;		// don't change low priority animations until this runs out
-	int			legsAnim;		// mask off ANIM_TOGGLEBIT
-
-	int			torsoTimer;		// don't change low priority animations until this runs out
-	int			torsoAnim;		// mask off ANIM_TOGGLEBIT
+	// don't change low priority animations until this runs out
+	int			legsTimer, torsoTimer;
+	// mask off ANIM_TOGGLEBIT
+	int			legsAnim, torsoAnim;
 
 	int			movementDir, lastMovementDir;	// a number 0 to 7 that represents the relative angle
 								// of movement to the view angle (axial and diagonals)
@@ -1125,8 +1120,8 @@ typedef struct usercmd_s {
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define	SOLID_BMODEL	0xffffff
 
-typedef enum {
-	TR_STATIONARY,
+typedef enum trType_e {
+	TR_STATIONARY=0,
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
 	TR_LINEAR,
 	TR_LINEAR_STOP,
@@ -1136,10 +1131,10 @@ typedef enum {
 
 typedef struct trajectory_s {
 	trType_t	trType;
-	int		trTime;
-	int		trDuration;			// if non 0, trTime + trDuration = stop time
-	vector3	trBase;
-	vector3	trDelta;			// velocity, etc
+	int			trTime;
+	int			trDuration;			// if non 0, trTime + trDuration = stop time
+	vector3		trBase;
+	vector3		trDelta;			// velocity, etc
 } trajectory_t;
 
 // entityState_t is the information conveyed from the server
@@ -1150,51 +1145,43 @@ typedef struct trajectory_s {
 // the structure size is fairly large
 
 typedef struct entityState_s {
-	int		number;			// entity index
-	int		eType;			// entityType_t
-	int		eFlags;
+	int				number;			// entity index
+	int				eType;			// entityType_t
+	int				eFlags;
 
-	trajectory_t	pos;	// for calculating position
-	trajectory_t	apos;	// for calculating angles
+	trajectory_t	pos, apos;		// for calculating angles
 
-	int		time;
-	int		time2;
+	int				time, time2;
 
-	vector3	origin;
-	vector3	origin2;
+	vector3			origin, origin2;
+	vector3			angles, angles2;
 
-	vector3	angles;
-	vector3	angles2;
+	int				otherEntityNum, otherEntityNum2;
 
-	int		otherEntityNum;	// shotgun sources, etc
-	int		otherEntityNum2;
+	int				groundEntityNum;// ENTITYNUM_NONE = in air
 
-	int		groundEntityNum;	// ENTITYNUM_NONE = in air
+	int				constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
+	int				loopSound;		// constantly loop this sound
 
-	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
-	int		loopSound;		// constantly loop this sound
+	int				modelindex, modelindex2;
+	int				clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
+	int				frame;
 
-	int		modelindex;
-	int		modelindex2;
-	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
-	int		frame;
+	int				solid;			// for client side prediction, trap->SV_LinkEntity sets this properly
 
-	int		solid;			// for client side prediction, trap->SV_LinkEntity sets this properly
-
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
+	int				event;			// impulse events -- muzzle flashes, footsteps, etc
+	int				eventParm;
 
 	// for players
-	int		powerups;		// bit flags
-	int		weapon;			// determines weapon and flash model, etc
-	int		legsAnim;		// mask off ANIM_TOGGLEBIT
-	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
+	int				powerups;		// bit flags
+	int				weapon;			// determines weapon and flash model, etc
+	int				legsAnim, torsoAnim; // mask off ANIM_TOGGLEBIT
 
-	int		generic1;
+	int				generic1;
 } entityState_t;
 
-typedef enum {
-	CA_UNINITIALIZED,
+typedef enum connState_e {
+	CA_UNINITIALIZED=0,
 	CA_DISCONNECTED, 	// not talking to a server
 	CA_AUTHORIZING,		// not used any more, was checking cd key 
 	CA_CONNECTING,		// sending request packets to the server
@@ -1204,7 +1191,7 @@ typedef enum {
 	CA_PRIMED,			// got gamestate, waiting for first frame
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
-} connstate_t;
+} connState_t;
 
 // font support 
 
@@ -1214,25 +1201,25 @@ typedef enum {
 #define GLYPH_CHAREND 127
 #define GLYPHS_PER_FONT GLYPH_END - GLYPH_START + 1
 typedef struct glyphInfo_s {
-  int height;       // number of scan lines
-  int top;          // top of glyph in buffer
-  int bottom;       // bottom of glyph in buffer
-  int pitch;        // width for copying
-  int xSkip;        // x adjustment
-  int imageWidth;   // width of actual image
-  int imageHeight;  // height of actual image
-  float s;          // x offset in image where glyph starts
-  float t;          // y offset in image where glyph starts
-  float s2;
-  float t2;
-  qhandle_t glyph;  // handle to the shader with the glyph
-  char shaderName[32];
+	int			height;       // number of scan lines
+	int			top;          // top of glyph in buffer
+	int			bottom;       // bottom of glyph in buffer
+	int			pitch;        // width for copying
+	int			xSkip;        // x adjustment
+	int			imageWidth;   // width of actual image
+	int			imageHeight;  // height of actual image
+	float		s;          // x offset in image where glyph starts
+	float		t;          // y offset in image where glyph starts
+	float		s2;
+	float		t2;
+	qhandle_t	glyph;  // handle to the shader with the glyph
+	char		shaderName[32];
 } glyphInfo_t;
 
 typedef struct fontInfo_s {
-  glyphInfo_t glyphs [GLYPHS_PER_FONT];
-  float glyphScale;
-  char name[MAX_QPATH];
+	glyphInfo_t	glyphs[GLYPHS_PER_FONT];
+	float		glyphScale;
+	char		name[MAX_QPATH];
 } fontInfo_t;
 
 #define Square(x) ((x)*(x))
@@ -1255,13 +1242,15 @@ typedef struct qtime_s {
 
 // server browser sources
 // TTimo: AS_MPLAYER is no longer used
-#define AS_LOCAL			0
-#define AS_MPLAYER		1
-#define AS_GLOBAL			2
-#define AS_FAVORITES	3
+typedef enum serverBrowserSource_e {
+	AS_LOCAL=0,
+	AS_MPLAYER,
+	AS_GLOBAL,
+	AS_FAVORITES
+} serverBrowserSource_t;
 
 // cinematic states
-typedef enum {
+typedef enum cinState_e {
 	FMV_IDLE,
 	FMV_PLAY,		// play
 	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
@@ -1269,7 +1258,7 @@ typedef enum {
 	FMV_ID_IDLE,
 	FMV_LOOPED,
 	FMV_ID_WAIT
-} e_status;
+} cinState_t;
 
 typedef enum _flag_status {
 	FLAG_ATBASE = 0,

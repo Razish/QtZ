@@ -99,8 +99,7 @@ typedef struct _tag_menuframework
 	qboolean	showlogo;
 } menuframework_s;
 
-typedef struct
-{
+typedef struct menucommon_s {
 	int type;
 	const char *name;
 	int	id;
@@ -116,7 +115,7 @@ typedef struct
 	void (*callback)( void *self, int event );
 	void (*statusbar)( void *self );
 	void (*ownerdraw)( void *self );
-} menucommon_s;
+} menucommon_t;
 
 typedef struct mfield_s {
 	int		cursor;
@@ -126,26 +125,23 @@ typedef struct mfield_s {
 	int		maxchars;
 } mfield_t;
 
-typedef struct
-{
-	menucommon_s	generic;
+typedef struct menufield_t {
+	menucommon_t	generic;
 	mfield_t		field;
-} menufield_s;
+} menufield_t;
 
-typedef struct 
-{
-	menucommon_s generic;
+typedef struct menuslider_s {
+	menucommon_t generic;
 
 	float minvalue;
 	float maxvalue;
 	float curvalue;
 
 	float range;
-} menuslider_s;
+} menuslider_t;
 
-typedef struct
-{
-	menucommon_s generic;
+typedef struct menulist_s {
+	menucommon_t generic;
 
 	int	oldvalue;
 	int curvalue;
@@ -158,22 +154,19 @@ typedef struct
 	int height;
 	int	columns;
 	int	seperation;
-} menulist_s;
+} menulist_t;
 
-typedef struct
-{
-	menucommon_s generic;
-} menuaction_s;
+typedef struct menuaction_s {
+	menucommon_t generic;
+} menuaction_t;
 
-typedef struct
-{
-	menucommon_s generic;
+typedef struct menuradiobutton_s {
+	menucommon_t generic;
 	int curvalue;
-} menuradiobutton_s;
+} menuradiobutton_t;
 
-typedef struct
-{
-	menucommon_s	generic;
+typedef struct menubitmap_s {
+	menucommon_t	generic;
 	char*			focuspic;	
 	char*			errorpic;
 	qhandle_t		shader;
@@ -181,30 +174,29 @@ typedef struct
 	int				width;
 	int				height;
 	float*			focuscolor;
-} menubitmap_s;
+} menubitmap_t;
 
-typedef struct
-{
-	menucommon_s	generic;
+typedef struct menutext_s {
+	menucommon_t	generic;
 	char*			string;
 	int				style;
 	float*			color;
-} menutext_s;
+} menutext_t;
 
 extern void			Menu_Cache( void );
-extern void			Menu_Focus( menucommon_s *m );
+extern void			Menu_Focus( menucommon_t *m );
 extern void			Menu_AddItem( menuframework_s *menu, void *item );
 extern void			Menu_AdjustCursor( menuframework_s *menu, int dir );
 extern void			Menu_Draw( menuframework_s *menu );
 extern void			*Menu_ItemAtCursor( menuframework_s *m );
-extern sfxHandle_t	Menu_ActivateItem( menuframework_s *s, menucommon_s* item );
+extern sfxHandle_t	Menu_ActivateItem( menuframework_s *s, menucommon_t *item );
 extern void			Menu_SetCursor( menuframework_s *s, int cursor );
 extern void			Menu_SetCursorToItem( menuframework_s *m, void* ptr );
 extern sfxHandle_t	Menu_DefaultKey( menuframework_s *s, int key );
-extern void			Bitmap_Init( menubitmap_s *b );
-extern void			Bitmap_Draw( menubitmap_s *b );
-extern void			ScrollList_Draw( menulist_s *l );
-extern sfxHandle_t	ScrollList_Key( menulist_s *l, int key );
+extern void			Bitmap_Init( menubitmap_t *b );
+extern void			Bitmap_Draw( menubitmap_t *b );
+extern void			ScrollList_Draw( menulist_t *l );
+extern sfxHandle_t	ScrollList_Key( menulist_t *l, int key );
 extern sfxHandle_t	menu_in_sound;
 extern sfxHandle_t	menu_move_sound;
 extern sfxHandle_t	menu_out_sound;
@@ -243,9 +235,9 @@ extern void			MField_Clear( mfield_t *edit );
 extern void			MField_KeyDownEvent( mfield_t *edit, int key );
 extern void			MField_CharEvent( mfield_t *edit, int ch );
 extern void			MField_Draw( mfield_t *edit, int x, int y, int style, vector4 *color );
-extern void			MenuField_Init( menufield_s* m );
-extern void			MenuField_Draw( menufield_s *f );
-extern sfxHandle_t	MenuField_Key( menufield_s* m, int* key );
+extern void			MenuField_Init( menufield_t *m );
+extern void			MenuField_Draw( menufield_t *f );
+extern sfxHandle_t	MenuField_Key( menufield_t *m, int *key );
 
 //
 // ui_main.c
@@ -725,8 +717,8 @@ extern uiStatic_t	uis;
 //
 // ui_gameinfo.c
 //
-typedef enum {
-	AWARD_ACCURACY,
+typedef enum awardType_e {
+	AWARD_ACCURACY=0,
 	AWARD_IMPRESSIVE,
 	AWARD_EXCELLENT,
 	AWARD_GAUNTLET,

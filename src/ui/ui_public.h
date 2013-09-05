@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define UI_API_VERSION	1
 
 typedef struct uiClientState_s {
-	connstate_t		connState;
+	connState_t		connState;
 	int				connectPacketCount;
 	int				clientNum;
 	char			servername[MAX_STRING_CHARS];
@@ -33,8 +33,8 @@ typedef struct uiClientState_s {
 	char			messageString[MAX_STRING_CHARS];
 } uiClientState_t;
 
-typedef enum {
-	UIMENU_NONE,
+typedef enum uiMenuCommand_e {
+	UIMENU_NONE=0,
 	UIMENU_MAIN,
 	UIMENU_INGAME,
 	UIMENU_TEAM,
@@ -157,9 +157,9 @@ typedef struct uiImport_s {
 	// cinematic
 	void			(*CIN_DrawCinematic)			( int handle );
 	int				(*CIN_PlayCinematic)			( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	e_status		(*CIN_RunCinematic)				( int handle );
+	cinState_t		(*CIN_RunCinematic)				( int handle );
 	void			(*CIN_SetExtents)				( int handle, int x, int y, int w, int h );
-	e_status		(*CIN_StopCinematic)			( int handle );
+	cinState_t		(*CIN_StopCinematic)			( int handle );
 } uiImport_t;
 
 typedef struct uiExport_s {
