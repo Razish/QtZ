@@ -828,10 +828,6 @@ static void CG_DrawLagometer( void ) {
 
 	trap->R_SetColor( NULL );
 
-	if ( bg_synchronousClients->boolean ) {
-		CG_Text_Paint( x, y, 1.0f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], "snc", 0.0f, 0, 0 );
-	}
-
 	CG_DrawDisconnect();
 }
 

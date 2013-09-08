@@ -12,7 +12,6 @@
 #endif
 
 //			name							default value			update callback			flags						description
-XCVAR_DEF( bg_synchronousClients,			"0",					NULL,					CVAR_SYSTEMINFO,			NULL )
 XCVAR_DEF( cg_autoswitch,					"0",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_brightModels,					"1",					NULL,					CVAR_ARCHIVE,				NULL )
 XCVAR_DEF( cg_centertime,					"2",					NULL,					CVAR_ARCHIVE,				NULL )

@@ -428,12 +428,6 @@ void CG_PredictPlayerState( void ) {
 		return;
 	}
 
-	// non-predicting local movement will grab the latest angles
-	if ( bg_synchronousClients->integer ) {
-		CG_InterpolatePlayerState( qtrue );
-		return;
-	}
-
 	// prepare for pmove
 	cg_pmove.ps = &cg.predictedPlayerState;
 	cg_pmove.trace = CG_Trace;
