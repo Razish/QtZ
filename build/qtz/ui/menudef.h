@@ -147,67 +147,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ideally these should be done outside of this file but
 // this makes it much easier for the macro expansion to 
 // convert them for the designers ( from the .menu files )
-#define CG_OWNERDRAW_BASE				 1
-#define CG_PLAYER_ARMOR_ICON			 2
-#define CG_PLAYER_ARMOR_VALUE			 3
-#define CG_PLAYER_HEAD					 4
-#define CG_PLAYER_HEALTH				 5
-#define CG_PLAYER_AMMO_ICON				 6
-#define CG_PLAYER_AMMO_VALUE			 7
-#define CG_FLAGCARRIER_HEAD				 8
-#define CG_FLAGCARRIER_NAME				 9
-#define CG_FLAGCARRIER_LOCATION			10
-#define CG_FLAGCARRIER_STATUS			11
-#define CG_FLAGCARRIER_WEAPON			12
-#define CG_FLAGCARRIER_POWERUP			13
-#define CG_PLAYER_ITEM					14
-#define CG_PLAYER_SCORE					15
-#define CG_BLUE_FLAGHEAD				16
-#define CG_BLUE_FLAGSTATUS				17
-#define CG_BLUE_FLAGNAME				18
-#define CG_RED_FLAGHEAD					19
-#define CG_RED_FLAGSTATUS				20
-#define CG_RED_FLAGNAME					21
-#define CG_BLUE_SCORE					22
-#define CG_RED_SCORE					23
-#define CG_RED_NAME						24
-#define CG_BLUE_NAME					25
-#define CG_ONEFLAG_STATUS				26
-#define CG_PLAYER_LOCATION				27
-#define CG_TEAM_COLOR					28
-#define CG_CTF_POWERUP					29
-#define CG_AREA_POWERUP					30
-#define CG_AREA_LAGOMETER				31	// painted with old system
-#define CG_PLAYER_HASFLAG				32
-#define CG_GAME_TYPE					33	// not done
-#define CG_FRAGGED_MSG					34	// painted with old system
-#define CG_AREA_FPSINFO					35	// painted with old system
-#define CG_AREA_SYSTEMCHAT				36	// painted with old system
-#define CG_AREA_TEAMCHAT				37	// painted with old system
-#define CG_AREA_CHAT					38	// painted with old system
-#define CG_GAME_STATUS					39
-#define CG_KILLER						40
-#define CG_PLAYER_ARMOR_ICON2D			41
-#define CG_PLAYER_AMMO_ICON2D			42
-#define CG_ACCURACY						43
-#define CG_ASSISTS						44
-#define CG_DEFEND						45
-#define CG_EXCELLENT					46
-#define CG_IMPRESSIVE					47
-#define CG_PERFECT						48
-#define CG_GAUNTLET						49
-#define CG_SPECTATORS					50
-#define CG_TEAMINFO						51
-#define CG_PLAYER_HASFLAG2D				52
-#define CG_CAPFRAGLIMIT					53
-#define CG_1STPLACE						54
-#define CG_2NDPLACE						55
-#define CG_CAPTURES						56
-#define CG_FPS_INFO						57
-#define CG_PING_INFO					58
-#define CG_OBITUARY						59
-#define CG_ITEMPICKUP					60
-#define CG_TIMER						61
+#define CG_PLAYER_ARMOR_ICON			 1
+#define CG_PLAYER_ARMOR_VALUE			 2
+#define CG_PLAYER_HEAD					 3
+#define CG_PLAYER_HEALTH				 4
+#define CG_PLAYER_AMMO_ICON				 5
+#define CG_PLAYER_AMMO_VALUE			 6
+#define CG_FLAGCARRIER_HEAD				 7
+#define CG_FLAGCARRIER_NAME				 8
+#define CG_FLAGCARRIER_LOCATION			 9
+#define CG_FLAGCARRIER_STATUS			10
+#define CG_FLAGCARRIER_WEAPON			11
+#define CG_FLAGCARRIER_POWERUP			12
+#define CG_PLAYER_ITEM					13
+#define CG_PLAYER_SCORE					14
+#define CG_BLUE_FLAGHEAD				15
+#define CG_BLUE_FLAGSTATUS				16
+#define CG_BLUE_FLAGNAME				17
+#define CG_RED_FLAGHEAD					18
+#define CG_RED_FLAGSTATUS				19
+#define CG_RED_FLAGNAME					20
+#define CG_BLUE_SCORE					21
+#define CG_RED_SCORE					22
+#define CG_RED_NAME						23
+#define CG_BLUE_NAME					24
+#define CG_ONEFLAG_STATUS				25
+#define CG_PLAYER_LOCATION				26
+#define CG_TEAM_COLOR					27
+#define CG_CTF_POWERUP					28
+#define CG_AREA_POWERUP					29
+#define CG_AREA_LAGOMETER				30	// painted with old system
+#define CG_PLAYER_HASFLAG				31
+#define CG_GAME_TYPE					32	// not done
+#define CG_FRAGGED_MSG					33	// painted with old system
+#define CG_GAME_STATUS					34
+#define CG_KILLER						35
+#define CG_PLAYER_ARMOR_ICON2D			36
+#define CG_PLAYER_AMMO_ICON2D			37
+#define CG_ACCURACY						38
+#define CG_ASSISTS						39
+#define CG_DEFEND						40
+#define CG_EXCELLENT					41
+#define CG_IMPRESSIVE					42
+#define CG_PERFECT						43
+#define CG_GAUNTLET						44
+#define CG_SPECTATORS					45
+#define CG_TEAMINFO						46
+#define CG_PLAYER_HASFLAG2D				47
+#define CG_CAPFRAGLIMIT					48
+#define CG_1STPLACE						49
+#define CG_2NDPLACE						50
+#define CG_CAPTURES						51
+#define CG_FPS_INFO						52
+#define CG_PING_INFO					53
+#define CG_OBITUARY						54
+#define CG_ITEMPICKUP					55
+#define CG_TIMER						56
 
 #define UI_OWNERDRAW_BASE		200
 #define UI_PLAYERMODEL			201

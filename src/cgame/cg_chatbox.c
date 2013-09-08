@@ -97,7 +97,10 @@ void CG_ChatboxAdd( const char *message, qboolean multiLine ) {
 		 i++ )
 	{
 		char *p = (char*)&message[i];
-		char buf[1] = { *p };
+		char buf[1];
+
+		buf[0] = *p;
+
 		if ( !Q_IsColorString( p ) && (i > 0 && !Q_IsColorString( p-1 )) )
 			accumLength += CG_Text_Width( buf, CHATBOX_FONT_SCALE, -1 );
 

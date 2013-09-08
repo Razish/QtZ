@@ -1043,33 +1043,26 @@ void Q_strcat( char *dest, int size, const char *src ) {
 /*
 * Find the first occurrence of find in s.
 */
-const char *Q_stristr( const char *s, const char *find)
-{
-  char c, sc;
-  size_t len;
+const char *Q_stristr( const char *s, const char *find ) {
+	char c, sc;
+	size_t len;
+	
+	if ( (c = *find++) != 0 ) {
+		if (c >= 'a' && c <= 'z')
+			c -= ('a' - 'A');
 
-  if ((c = *find++) != 0)
-  {
-    if (c >= 'a' && c <= 'z')
-    {
-      c -= ('a' - 'A');
-    }
-    len = strlen(find);
-    do
-    {
-      do
-      {
-        if ((sc = *s++) == 0)
-          return NULL;
-        if (sc >= 'a' && sc <= 'z')
-        {
-          sc -= ('a' - 'A');
-        }
-      } while (sc != c);
-    } while (Q_stricmpn(s, find, len) != 0);
-    s--;
-  }
-  return s;
+		len = strlen( find );
+		do {
+			do {
+				if ( !(sc = *s++) )
+					return NULL;
+				if (sc >= 'a' && sc <= 'z')
+					sc -= ('a' - 'A');
+			} while ( sc != c );
+		} while ( Q_stricmpn( s, find, len ) );
+		s--;
+	}
+	return s;
 }
 
 
@@ -1289,20 +1282,20 @@ does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
 ============
 */
-char	* QDECL va( char *format, ... ) {
-	va_list		argptr;
-	static char string[2][32000]; // in case va is called by nested functions
+#define VARARGS_BUFFERS		(4)
+#define VARARGS_MASK		(VARARGS_BUFFERS-1)
+
+char *va( char *format, ... ) {
+	static char buf[VARARGS_BUFFERS][32000]; // in case va is called by nested functions
 	static int	index = 0;
-	char		*buf;
+	va_list		argptr;
+	char		*s = buf[index++ & VARARGS_MASK];
 
-	buf = string[index & 1];
-	index++;
+	va_start( argptr, format );
+	Q_vsnprintf( s, sizeof( *buf ), format, argptr );
+	va_end( argptr );
 
-	va_start (argptr, format);
-	Q_vsnprintf (buf, sizeof(*string), format, argptr);
-	va_end (argptr);
-
-	return buf;
+	return s;
 }
 
 /*

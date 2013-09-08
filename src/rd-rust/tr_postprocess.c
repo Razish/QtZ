@@ -86,9 +86,8 @@ static void CreateFramebuffers( void )
 
 	//dynamic glow
 	tr.framebuffers.glow					= R_EXT_CreateFBO( (int)w, (int)h, IF_RGBA16F, IF_DEPTH24_STENCIL8 );
+	R_EXT_AttachDepthStencilTextureToFramebuffer( tr.framebuffers.glow, tr.framebuffers.scene->depthTexture );
 //	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, TT_POT, tr.framebuffers.scene->depthTexture, 0 );
-//	tr.framebuffers.glow->depthTexture = tr.framebuffers.scene->depthTexture;
-//	tr.framebuffers.glow->stencilTexture = tr.framebuffers.scene->stencilTexture;
 
 	for ( i=0, size=1.0f; i<NUM_GLOW_DOWNSCALE_FBOS; i++, size *= GLOW_DOWNSCALE_RATE )
 		tr.framebuffers.glowDownscale[i]	= R_EXT_CreateFBO( (int)floorf( tr.postprocessing.glowSize/size ), (int)floorf( tr.postprocessing.glowSize/size ), IF_RGBA8, IF_NONE );
@@ -328,7 +327,6 @@ void RB_PostProcess( void )
 	//	Dynamic Glow
 	//================================
 
-#if 0 //Disabling dynamic glow for now, there is a fatal problem with depth testing - glow surfaces are never obstructed by other geometry :/
 	if ( r_postprocess_glow->integer )
 	{
 		framebuffer_t *lastFBO = tr.framebuffers.glow;
@@ -392,8 +390,6 @@ void RB_PostProcess( void )
 		lastFullscreenFBO = tr.framebuffers.glowComposite;
 		GL_SelectTexture( 0 );
 	}
-#endif
-
 
 	//================================
 	//	High Dynamic Range

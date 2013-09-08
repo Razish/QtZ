@@ -138,7 +138,7 @@ typedef struct client_s {
 	int				downloadSendTime;	// time we last got an ack from the client
 
 	int				deltaMessage;		// frame last client usercmd message
-	int				nextReliableTime;	// svs.time when another reliable command will be allowed
+	int				lastReliableTime;	// svs.time when reliable command was last accepted
 	int				lastPacketTime;		// svs.time when packet was last received
 	int				lastConnectTime;	// svs.time when connection started
 	int				lastSnapshotTime;	// svs.time of last sent snapshot
@@ -339,7 +339,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
 void SV_FreeClient(client_t *client);
 void SV_DropClient( client_t *drop, const char *reason );
 
-void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
+void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean flood );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 
 int SV_WriteDownloadToClient(client_t *cl , msg_t *msg);

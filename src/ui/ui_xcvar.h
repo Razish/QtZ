@@ -117,3 +117,5 @@ XCVAR_DEF( ui_team_friendly,		"1",			NULL,					CVAR_ARCHIVE,			NULL )
 XCVAR_DEF( ui_team_timelimit,		"20",			NULL,					CVAR_ARCHIVE,			NULL )
 XCVAR_DEF( ui_tourney_fraglimit,	"0",			NULL,					CVAR_ARCHIVE,			NULL )
 XCVAR_DEF( ui_tourney_timelimit,	"15",			NULL,					CVAR_ARCHIVE,			NULL )
+
+#undef XCVAR_DEF

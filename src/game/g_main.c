@@ -1390,6 +1390,8 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
+	G_UpdateTrailData();
+
 	//
 	// go through all allocated objects
 	//

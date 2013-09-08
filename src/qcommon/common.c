@@ -2653,7 +2653,6 @@ Com_Init
 =================
 */
 void Com_Init( char *commandLine ) {
-	char	*s;
 	int	qport;
 
 	Com_Printf( "%s %s %s\n", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
@@ -2777,10 +2776,9 @@ void Com_Init( char *commandLine ) {
 							  Cvar_Get( "com_errorMessage",			"",									CVAR_ROM|CVAR_NORESTART,	NULL, NULL );
 	in_numpadbug			= Cvar_Get( "in_numpadbug",				"0",								CVAR_ARCHIVE,				NULL, NULL );
 	com_introPlayed			= Cvar_Get( "com_introplayed",			"0",								CVAR_ARCHIVE,				NULL, NULL );
-	s = va("%s %s %s", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
-	com_version				= Cvar_Get( "version",					s,									CVAR_ROM|CVAR_SERVERINFO,	NULL, NULL );
+	com_version				= Cvar_Get( "com_version",				QTZ_VERSION" "PLATFORM_STRING" "__DATE__,	CVAR_ROM|CVAR_SERVERINFO,	NULL, NULL );
 	com_gamename			= Cvar_Get( "com_gamename",				GAMENAME_FOR_MASTER,				CVAR_SERVERINFO|CVAR_INIT,	NULL, NULL );
-	com_protocol			= Cvar_Get( "com_protocol",				va("%i", PROTOCOL_VERSION),			CVAR_SERVERINFO|CVAR_INIT,	NULL, NULL );
+	com_protocol			= Cvar_Get( "com_protocol",				XSTRING( PROTOCOL_VERSION ),		CVAR_SERVERINFO|CVAR_INIT,	NULL, NULL );
 							  Cvar_Get( "protocol",					com_protocol->string,				CVAR_ROM,					NULL, NULL );
 
 	Sys_Init();

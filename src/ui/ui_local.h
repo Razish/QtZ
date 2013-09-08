@@ -190,7 +190,7 @@ typedef struct serverStatus_s {
 	int			motdPaintX2;
 	int			motdOffset;
 	int			motdTime;
-	char		motd[MAX_STRING_CHARS];
+	char		motd[MAX_CVAR_VALUE_STRING];
 } serverStatus_t;
 
 typedef struct pendingServer_s {

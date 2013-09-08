@@ -1499,7 +1499,7 @@ void CL_RequestMotd( void ) {
 
 	Info_SetValueForKey( info, "challenge", cls.updateChallenge );
 	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
-	Info_SetValueForKey( info, "version", com_version->string );
+	Info_SetValueForKey( info, "com_version", com_version->string );
 	Info_SetValueForKey( info, "protocol", com_protocol->string );
 
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
@@ -3383,7 +3383,7 @@ void CL_Init( void ) {
 				Cvar_Get( "cg_color",			"54",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "cl_anonymous",		"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 				Cvar_Get( "password",			"",					CVAR_USERINFO,					NULL, NULL );
-				Cvar_Get( "cg_predictItems",	"1",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
+				Cvar_Get( "cg_predictItems",	"0",				CVAR_USERINFO|CVAR_ARCHIVE,		NULL, NULL );
 
 	//
 	// register our commands
@@ -3507,7 +3507,6 @@ static void CL_SetServerInfo( serverInfo_t *server, const char *info, int ping )
 			server->netType = atoi( Info_ValueForKey( info, "nettype" ) );
 			server->minPing = atoi( Info_ValueForKey( info, "minping" ) );
 			server->maxPing = atoi( Info_ValueForKey( info, "maxping" ) );
-			server->punkbuster = atoi( Info_ValueForKey( info, "punkbuster" ) );
 			server->g_humanplayers = atoi( Info_ValueForKey( info, "g_humanplayers" ) );
 			server->g_needpass = atoi( Info_ValueForKey( info, "g_needpass" ) );
 		}
@@ -3642,7 +3641,6 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].game[0] = '\0';
 	cls.localServers[i].gameType = 0;
 	cls.localServers[i].netType = from.type;
-	cls.localServers[i].punkbuster = 0;
 	cls.localServers[i].g_humanplayers = 0;
 	cls.localServers[i].g_needpass = 0;
 									 

@@ -223,19 +223,21 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vector3 *wishDir, float wishSpeed, float accel ) {
-	float pushLen, canPush;
-	vector3 wishVelocity, pushDir;
+	float addSpeed, accelSpeed, currentSpeed;
+	int i;
 
-	VectorScale( wishDir, wishSpeed, &wishVelocity );
-	VectorSubtract( &wishVelocity, &pm->ps->velocity, &pushDir );
-	pushLen = VectorNormalize( &pushDir );
+	currentSpeed = DotProduct( &pm->ps->velocity, wishDir );
+	addSpeed = wishSpeed - currentSpeed;
 
-	canPush = accel * wishSpeed * pml.frametime;
-	if ( canPush > pushLen )
-		canPush = pushLen;
+	if ( addSpeed <= 0 )
+		return;
 
-	pm->ps->velocity.x += canPush * pushDir.x;
-	pm->ps->velocity.y += canPush * pushDir.y;
+	accelSpeed = accel*pml.frametime*wishSpeed;
+	if (accelSpeed > addSpeed)
+		accelSpeed = addSpeed;
+
+	for ( i=0; i<3; i++ )
+		pm->ps->velocity.data[i] += accelSpeed * wishDir->data[i];
 }
 
 /*
@@ -377,7 +379,6 @@ dojump:
 		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
 	}
 
-	pm->ps->lastMovementDir = pm->ps->movementDir;
 	pml.groundPlane = qfalse; // jumping away
 	pml.walking = qfalse;
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
@@ -589,7 +590,7 @@ PM_AirMove
 void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 	float zspeed, speed, dot;
 
-	if ( wishspeed <= 0.0f )
+	if ( (pm->ps->movementDir != 2 && pm->ps->movementDir != 6) || wishspeed <= 0.0f )
 		return;
 
 	// save the speed
@@ -599,9 +600,8 @@ void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 
 	dot = DotProduct( &pm->ps->velocity, wishDir );
 	if ( dot > 0.0f ) {
-		VectorLerp( &pm->ps->velocity, dot, wishDir, &pm->ps->velocity );
-		pm->ps->velocity.x = wishDir->x * dot;
-		pm->ps->velocity.y = wishDir->y * dot;
+		pm->ps->velocity.x = pm->ps->velocity.x*speed + wishDir->x*dot*pml.frametime;
+		pm->ps->velocity.y = pm->ps->velocity.y*speed + wishDir->y*dot*pml.frametime;
 		VectorNormalize( &pm->ps->velocity );
 	}
 	
@@ -612,9 +612,8 @@ void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 }
 
 static void PM_AirMove( void ) {
-	vector3		wishvel, wishdir;
-	float		fmove, smove, wishspeed, scale;
-	usercmd_t	cmd;
+	vector3		wishVel, wishDir;
+	float		fmove, smove, wishSpeed, scale;
 
 	if ( pm->ps->pm_type != PM_SPECTATOR && pm_wallJumpEnable->boolean )
 		PM_CheckJump();
@@ -623,9 +622,7 @@ static void PM_AirMove( void ) {
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
-
-	cmd = pm->cmd;
-	scale = PM_CmdScale( &cmd );
+	scale = PM_CmdScale( &pm->cmd );
 
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
@@ -636,21 +633,21 @@ static void PM_AirMove( void ) {
 	VectorNormalize( &pml.forward );
 	VectorNormalize( &pml.right );
 
-	wishvel.x = pml.forward.x*fmove + pml.right.x*smove;
-	wishvel.y = pml.forward.y*fmove + pml.right.y*smove;
-	wishvel.z = 0;
+	wishVel.x = pml.forward.x*fmove + pml.right.x*smove;
+	wishVel.y = pml.forward.y*fmove + pml.right.y*smove;
+	wishVel.z = 0;
 
-	VectorCopy( &wishvel, &wishdir );
-	wishspeed = VectorNormalize( &wishdir );
-	wishspeed *= scale;
+	VectorCopy( &wishVel, &wishDir );
+	wishSpeed = VectorNormalize( &wishDir );
+	wishSpeed *= scale;
 
-	PM_Accelerate( &wishdir, wishspeed, pm_acceleration->value );
+	PM_Accelerate( &wishDir, wishSpeed, pm_acceleration->value );
+	PM_AirControl( &wishDir, wishSpeed );
+
 	if ( pml.groundPlane )
 		PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );
-	else
-		PM_AirControl( &wishdir, wishspeed );
 
-	PM_StepSlideMove( qtrue );
+	PM_StepSlideMove ( qtrue );
 }
 
 /*
@@ -1833,8 +1830,6 @@ void Pmove (pmove_t *pmove) {
 
 	pmove->ps->pmove_framecount = (pmove->ps->pmove_framecount+1) & ((1<<PS_PMOVEFRAMECOUNTBITS)-1);
 
-	// chop the move up if it is too long, to prevent framerate
-	// dependent behavior
 	while ( pmove->ps->commandTime != finalTime ) {
 		int msec = Q_clampi( 1, finalTime-pmove->ps->commandTime, pm_frametime->integer );
 		pmove->cmd.serverTime = pmove->ps->commandTime + msec;

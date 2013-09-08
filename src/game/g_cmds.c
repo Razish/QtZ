@@ -1461,15 +1461,14 @@ void G_PrintCommands( gentity_t *ent )
 
 	Q_strcat( buf, sizeof( buf ), "Regular commands:\n   " );
 
-	for ( command=commands; command && command->name; command++ )
-	{
+	for ( command=commands; command && command->name; command++ ) {
 		char *tmpMsg = NULL;
 
 		// if it's not allowed to be executed at the moment, continue
 		if ( G_CmdValid( ent, command ) )
 			continue;
 
-		tmpMsg = va( " ^%c%s", (++toggle&1?'2':'3'), command->name );
+		tmpMsg = va( " ^%c%s", (++toggle&1?COLOR_GREEN:COLOR_YELLOW), command->name );
 
 		//newline if we reach limit
 		if ( count >= limit ) {

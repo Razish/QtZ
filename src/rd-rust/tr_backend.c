@@ -479,7 +479,7 @@ void RB_BeginDrawingView (void) {
 	//	GL_State( GLS_DEFAULT );
 		
 		qglClearColor( 0, 0, 0, 1 );
-		qglClear( GL_COLOR_BUFFER_BIT );
+		qglClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
 		if ( lastFBO )
 			R_EXT_BindFramebuffer( lastFBO );
 		else

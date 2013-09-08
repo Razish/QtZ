@@ -136,12 +136,10 @@ Draw all the status / pacifier stuff during level loading
 */
 void CG_DrawInformation( void ) {
 	const char	*s;
-	const char	*info;
-	const char	*sysInfo;
-	int			y;
+	const char	*info, *sysInfo;
+	float		w, y;
 	int			value;
-	qhandle_t	levelshot;
-	qhandle_t	detail;
+	qhandle_t	levelshot, detail;
 	char		buf[MAX_CVAR_VALUE_STRING];
 
 	info = CG_ConfigString( CS_SERVERINFO );
@@ -149,25 +147,26 @@ void CG_DrawInformation( void ) {
 
 	s = Info_ValueForKey( info, "mapname" );
 	levelshot = trap->R_RegisterShaderNoMip( va( "gfx/maps/%s.tga", s ) );
-	if ( !levelshot ) {
-		levelshot = trap->R_RegisterShaderNoMip( "menu/art/unknownmap" );
-	}
+	if ( !levelshot )
+		levelshot = trap->R_RegisterShaderNoMip( "gfx/menus/unknownmap" );
+
 	trap->R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
 
 	// blend a detail texture over it
 	detail = trap->R_RegisterShader( "levelShotDetail" );
-	trap->R_DrawStretchPic( 0.0f, 0.0f, (float)cgs.glconfig.vidWidth, (float)cgs.glconfig.vidHeight, 0, 0, 2.5f, 2, detail );
+	if ( detail )
+		trap->R_DrawStretchPic( 0.0f, 0.0f, (float)cgs.glconfig.vidWidth, (float)cgs.glconfig.vidHeight, 0, 0, 2.5f, 2, detail );
 
 	// draw the icons of things as they are loaded
-	CG_DrawLoadingIcons();
+//	CG_DrawLoadingIcons();
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
-	if ( cg.infoScreenText[0] )
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), 128-32, va("Loading... %s", cg.infoScreenText), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
-	else
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), 128-32, "Awaiting snapshot...", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+	if ( cg.infoScreenText[0] )		s = va( "Loading... %s", cg.infoScreenText );
+	else							s = "Awaiting snapshot...";
+	w = CG_Text_Width( s, ui_smallFont->value, 0 );
+	CG_Text_Paint( (SCREEN_WIDTH/2.0f) - (w/2.0f), 128-32, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 
 	// draw info string information
 
@@ -176,24 +175,26 @@ void CG_DrawInformation( void ) {
 	// don't print server lines if playing a local game
 	trap->Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
 	if ( !atoi( buf ) ) {
-		char hostname[MAX_CVAR_VALUE_STRING] = {0};
 		// server hostname
-		Q_strncpyz(hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof( hostname ));
-		Q_CleanStr(hostname);
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, hostname, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+		s = Info_ValueForKey( info, "sv_hostname" );
+		w = CG_Text_Width( s, ui_smallFont->value, 0 );
+		CG_Text_Paint( (SCREEN_WIDTH/2.0f) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 		y += PROP_HEIGHT;
 
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-			CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, "Pure Server", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+			s = "Pure Server";
+			w = CG_Text_Width( s, ui_smallFont->value, 0 );
+			CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 			y += PROP_HEIGHT;
 		}
 
 		// server-specific message of the day
 		s = CG_ConfigString( CS_MOTD );
+		w = CG_Text_Width( s, ui_smallFont->value, 0 );
 		if ( s[0] ) {
-			CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, s, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+			CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 			y += PROP_HEIGHT;
 		}
 
@@ -203,33 +204,41 @@ void CG_DrawInformation( void ) {
 
 	// map-specific message (long map name)
 	s = CG_ConfigString( CS_MESSAGE );
+	w = CG_Text_Width( s, ui_smallFont->value, 0 );
 	if ( s[0] ) {
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, s, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+		CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 		y += PROP_HEIGHT;
 	}
 
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, "CHEATS ARE ENABLED", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+		s = "CHEATS ARE ENABLED";
+		w = CG_Text_Width( s, ui_smallFont->value, 0 );
+		CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 		y += PROP_HEIGHT;
 	}
 
 	// game type
 	s = BG_GetGametypeString( cgs.gametype );
-	CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, s, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+	w = CG_Text_Width( s, ui_smallFont->value, 0 );
+	CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 	y += PROP_HEIGHT;
 		
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-		CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, va( "timelimit %i", value ), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+		s = va( "timelimit %i", value );
+		w = CG_Text_Width( s, ui_smallFont->value, 0 );
+		CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 		y += PROP_HEIGHT;
 	}
 
 	if (cgs.gametype < GT_CTF ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-			CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, va( "fraglimit %i", value ), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+			s = va( "fraglimit %i", value );
+			w = CG_Text_Width( s, ui_smallFont->value, 0 );
+			CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 			y += PROP_HEIGHT;
 		}
 	}
@@ -237,7 +246,9 @@ void CG_DrawInformation( void ) {
 	if (cgs.gametype >= GT_CTF) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
-			CG_DrawProportionalString( ((int)SCREEN_WIDTH/2), y, va( "capturelimit %i", value ), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, &g_color_table[ColorIndex(COLOR_WHITE)] );
+			s = va( "capturelimit %i", value );
+			w = CG_Text_Width( s, ui_smallFont->value, 0 );
+			CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 			y += PROP_HEIGHT;
 		}
 	}

@@ -363,18 +363,6 @@ extern vector3 bytedirs[NUMVERTEXNORMALS];
 #define	SCREEN_WIDTH		(640.0f)
 #define	SCREEN_HEIGHT		(480.0f)
 
-#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
-#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
-
-#define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	16
-
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
-
-#define	GIANTCHAR_WIDTH		32
-#define	GIANTCHAR_HEIGHT	48
-
 #define Q_COLOR_ESCAPE	'^'
 #define Q_COLOR_BITS 0xF
 #define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
@@ -499,38 +487,38 @@ signed short ClampShort( int i );
 int DirToByte( vector3 *dir );
 void ByteToDir( int b, vector3 *dir );
 
-extern QINLINE void			VectorAdd( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
-extern QINLINE void			VectorSubtract( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
-extern QINLINE void			VectorNegate( const vector3 *vecIn, vector3 *vecOut );
-extern QINLINE void			VectorScale( const vector3 *vecIn, number scale, vector3 *vecOut );
-extern QINLINE void			VectorScale4( const vector4 *vecIn, number scale, vector4 *vecOut );
-extern QINLINE void			VectorScaleVector( const vector3 *vecIn, const vector3 *vecScale, vector3 *vecOut );
-extern QINLINE void			VectorMA( const vector3 *vec1, number scale, const vector3 *vec2, vector3 *vecOut );
-extern QINLINE void			VectorLerp( const vector3 *vec1, number frac, const vector3 *vec2, vector3 *vecOut );
-extern QINLINE void			VectorLerp4( const vector4 *vec1, number frac, const vector4 *vec2, vector4 *vecOut );
-extern QINLINE number		VectorLength( const vector3 *vec );
-extern QINLINE number		VectorLengthSquared( const vector3 *vec );
-extern QINLINE number		Distance( const vector3 *p1, const vector3 *p2 );
-extern QINLINE number		DistanceSquared( const vector3 *p1, const vector3 *p2 );
-extern QINLINE void			VectorNormalizeFast( vector3 *vec );
-extern QINLINE number		VectorNormalize( vector3 *vec );
-extern QINLINE number		VectorNormalize2( const vector3 *vec, vector3 *vecOut );
-extern QINLINE void			VectorCopy( const vector3 *vecIn, vector3 *vecOut );
-extern QINLINE void			IVectorCopy( const ivector3 *vecIn, ivector3 *vecOut );
-extern QINLINE void			VectorCopy4( const vector4 *vecIn, vector4 *vecOut );
-extern QINLINE void			VectorSet( vector3 *vec, number x, number y, number z );
-extern QINLINE void			VectorSet4( vector4 *vec, number x, number y, number z, number w );
-extern QINLINE void			VectorClear( vector3 *vec );
-extern QINLINE void			VectorClear4( vector4 *vec );
-extern QINLINE void			VectorInc( vector3 *vec );
-extern QINLINE void			VectorDec( vector3 *vec );
-extern QINLINE void			VectorRotate( vector3 *in, vector3 matrix[3], vector3 *out );
-extern QINLINE void			VectorInverse( vector3 *vec );
-extern QINLINE void			CrossProduct( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
-extern QINLINE number		DotProduct( const vector3 *vec1, const vector3 *vec2 );
-extern QINLINE qboolean		VectorCompare( const vector3 *vec1, const vector3 *vec2 );
-extern QINLINE void			VectorSnap( vector3 *v );
-extern QINLINE void			VectorSnapTowards( vector3 *v, vector3 *to );
+void		VectorAdd( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
+void		VectorSubtract( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
+void		VectorNegate( const vector3 *vecIn, vector3 *vecOut );
+void		VectorScale( const vector3 *vecIn, number scale, vector3 *vecOut );
+void		VectorScale4( const vector4 *vecIn, number scale, vector4 *vecOut );
+void		VectorScaleVector( const vector3 *vecIn, const vector3 *vecScale, vector3 *vecOut );
+void		VectorMA( const vector3 *vec1, number scale, const vector3 *vec2, vector3 *vecOut );
+void		VectorLerp( const vector3 *vec1, number frac, const vector3 *vec2, vector3 *vecOut );
+void		VectorLerp4( const vector4 *vec1, number frac, const vector4 *vec2, vector4 *vecOut );
+number		VectorLength( const vector3 *vec );
+number		VectorLengthSquared( const vector3 *vec );
+number		Distance( const vector3 *p1, const vector3 *p2 );
+number		DistanceSquared( const vector3 *p1, const vector3 *p2 );
+void		VectorNormalizeFast( vector3 *vec );
+number		VectorNormalize( vector3 *vec );
+number		VectorNormalize2( const vector3 *vec, vector3 *vecOut );
+void		VectorCopy( const vector3 *vecIn, vector3 *vecOut );
+void		IVectorCopy( const ivector3 *vecIn, ivector3 *vecOut );
+void		VectorCopy4( const vector4 *vecIn, vector4 *vecOut );
+void		VectorSet( vector3 *vec, number x, number y, number z );
+void		VectorSet4( vector4 *vec, number x, number y, number z, number w );
+void		VectorClear( vector3 *vec );
+void		VectorClear4( vector4 *vec );
+void		VectorInc( vector3 *vec );
+void		VectorDec( vector3 *vec );
+void		VectorRotate( vector3 *in, vector3 matrix[3], vector3 *out );
+void		VectorInverse( vector3 *vec );
+void		CrossProduct( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
+number		DotProduct( const vector3 *vec1, const vector3 *vec2 );
+qboolean	VectorCompare( const vector3 *vec1, const vector3 *vec2 );
+void		VectorSnap( vector3 *v );
+void		VectorSnapTowards( vector3 *v, vector3 *to );
 
 // TODO
 #define VectorInverseScaleVector(a,b,c)	((c)[0]=(a)[0]/(b)[0],(c)[1]=(a)[1]/(b)[1],(c)[2]=(a)[2]/(b)[2])
@@ -538,8 +526,8 @@ extern QINLINE void			VectorSnapTowards( vector3 *v, vector3 *to );
 #define VectorAdvance(a,s,b,c)			(((c)[0]=(a)[0] + s * ((b)[0] - (a)[0])),((c)[1]=(a)[1] + s * ((b)[1] - (a)[1])),((c)[2]=(a)[2] + s * ((b)[2] - (a)[2])))
 #define VectorAverage(a,b,c)			(((c)[0]=((a)[0]+(b)[0])*0.5f),((c)[1]=((a)[1]+(b)[1])*0.5f),((c)[2]=((a)[2]+(b)[2])*0.5f))
 
-extern QINLINE unsigned int ColorBytes3( float r, float g, float b );
-extern QINLINE unsigned int ColorBytes4( float r, float g, float b, float a );
+unsigned int ColorBytes3( float r, float g, float b );
+unsigned int ColorBytes4( float r, float g, float b, float a );
 
 float NormalizeColor( const vector3 *in, vector3 *out );
 
@@ -1041,7 +1029,7 @@ typedef struct playerState_s {
 	// mask off ANIM_TOGGLEBIT
 	int			legsAnim, torsoAnim;
 
-	int			movementDir, lastMovementDir;	// a number 0 to 7 that represents the relative angle
+	int			movementDir;	// a number 0 to 7 that represents the relative angle
 								// of movement to the view angle (axial and diagonals)
 								// when at rest, the value will remain unchanged
 								// used to twist the legs during strafing

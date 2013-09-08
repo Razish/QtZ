@@ -32,11 +32,10 @@ USER INTERFACE MAIN
 
 uiInfo_t uiInfo;
 
-static const char *MonthAbbrev[] = {
-	"Jan","Feb","Mar",
-	"Apr","May","Jun",
-	"Jul","Aug","Sep",
-	"Oct","Nov","Dec"
+static const char *MonthAbbrev[12] = {
+	"Jan", "Feb", "Mar", "Apr",
+	"May", "Jun", "Jul", "Aug",
+	"Sep", "Oct", "Nov", "Dec",
 };
 
 
@@ -45,19 +44,20 @@ static const char *skillLevels[] = {
   "Casual",
   "Hardcore"
 };
-
 static const int numSkillLevels = ARRAY_LEN( skillLevels );
 
+typedef enum netSource_e {
+	UIAS_LOCAL=0,
+	UIAS_GLOBAL1,
+	UIAS_GLOBAL2,
+	UIAS_GLOBAL3,
+	UIAS_GLOBAL4,
+	UIAS_GLOBAL5,
+	UIAS_FAVORITES,
+	UIAS_NUM_SOURCES
+} netSource_t;
 
-#define UIAS_LOCAL				0
-#define UIAS_GLOBAL1			1
-#define UIAS_GLOBAL2			2
-#define UIAS_GLOBAL3			3
-#define UIAS_GLOBAL4			4
-#define UIAS_GLOBAL5			5
-#define UIAS_FAVORITES			6
-
-static const char *netSources[] = {
+static const char *netSources[UIAS_NUM_SOURCES] = {
 	"LAN",
 	"Pub 1",
 	"Pub 2",
@@ -72,7 +72,6 @@ static const serverFilter_t serverFilters[] = {
 	{"All", "" },
 	{"QtZ", "qtz" },
 };
-
 static const int numServerFilters = ARRAY_LEN( serverFilters );
 
 static char *netnames[] = {
@@ -81,47 +80,11 @@ static char *netnames[] = {
 	"UDP6"
 };
 
-static void UI_StartServerRefresh(qboolean full);
-static void UI_StopServerRefresh( void );
-static void UI_DoServerRefresh( void );
-static void UI_FeederSelection(float feederID, int index);
-static void UI_BuildServerDisplayList(qboolean force);
-static void UI_BuildServerStatus(qboolean force);
-static void UI_BuildFindPlayerList(qboolean force);
-static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
-static int UI_MapCountByGameType( void );
-static int UI_HeadCountByTeam( void );
-static const char *UI_SelectedMap(int index, int *actual);
-static const char *UI_SelectedHead(int index, int *actual);
-static int UI_GetIndexFromSelection(int actual);
-
-int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
-
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .qvm file
-================
-*/
 cvar_t *ui_debug;
 cvar_t *ui_initialized;
 
 void AssetCache( void ) {
-//	int n;
-	//if (Assets.textFont == NULL) {
-	//}
-	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	uiInfo.uiDC.Assets.gradientBar			= trap->R_RegisterShader( ASSET_GRADIENTBAR );
-	uiInfo.uiDC.Assets.fxBasePic			= trap->R_RegisterShader( ART_FX_BASE );
-	uiInfo.uiDC.Assets.fxPic[0]				= trap->R_RegisterShader( ART_FX_RED );
-	uiInfo.uiDC.Assets.fxPic[1]				= trap->R_RegisterShader( ART_FX_YELLOW );
-	uiInfo.uiDC.Assets.fxPic[2]				= trap->R_RegisterShader( ART_FX_GREEN );
-	uiInfo.uiDC.Assets.fxPic[3]				= trap->R_RegisterShader( ART_FX_TEAL );
-	uiInfo.uiDC.Assets.fxPic[4]				= trap->R_RegisterShader( ART_FX_BLUE );
-	uiInfo.uiDC.Assets.fxPic[5]				= trap->R_RegisterShader( ART_FX_CYAN );
-	uiInfo.uiDC.Assets.fxPic[6]				= trap->R_RegisterShader( ART_FX_WHITE );
 	uiInfo.uiDC.Assets.scrollBar			= trap->R_RegisterShader( ASSET_SCROLLBAR );
 	uiInfo.uiDC.Assets.scrollBarArrowDown	= trap->R_RegisterShader( ASSET_SCROLLBAR_ARROWDOWN );
 	uiInfo.uiDC.Assets.scrollBarArrowUp		= trap->R_RegisterShader( ASSET_SCROLLBAR_ARROWUP );
@@ -167,7 +130,7 @@ void UI_DrawRect2( float x, float y, float width, float height, float size, cons
 	trap->R_SetColor( NULL );
 }
 
-int Text_Width(const char *text, float scale, int limit) {
+float Text_Width(const char *text, float scale, int limit) {
 	int count,len;
 	float out;
 	glyphInfo_t *glyph;
@@ -199,10 +162,10 @@ int Text_Width(const char *text, float scale, int limit) {
 			}
 		}
 	}
-	return (int)(out * useScale);
+	return (out * useScale);
 }
 
-int Text_Height(const char *text, float scale, int limit) {
+float Text_Height(const char *text, float scale, int limit) {
 	int len, count;
 	float max;
 	glyphInfo_t *glyph;
@@ -236,7 +199,7 @@ int Text_Height(const char *text, float scale, int limit) {
 			}
 		}
 	}
-	return (int)(max * useScale);
+	return (max * useScale);
 }
 
 void Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader) {
@@ -488,6 +451,707 @@ void UI_DrawCenteredPic(qhandle_t image, int w, int h) {
 	x = (SCREEN_WIDTH - w) / 2;
 	y = (SCREEN_HEIGHT - h) / 2;
 	UI_DrawHandlePic(x, y, (float)w, (float)h, image);
+}
+
+static const char *UI_SelectedHead( int index, int *actual ) {
+	int i, c=0;
+	*actual = 0;
+
+	for ( i=0; i<uiInfo.characterCount; i++ ) {
+		if ( uiInfo.characterList[i].active ) {
+			if ( c == index ) {
+				*actual = i;
+				return uiInfo.characterList[i].name;
+			}
+			else
+				c++;
+		}
+	}
+	return "";
+}
+
+static const char *UI_SelectedMap( int index, int *actual ) {
+	int i, c=0;
+	*actual = 0;
+	for ( i=0; i<uiInfo.mapCount; i++ ) {
+		if ( uiInfo.mapList[i].active ) {
+			if ( c == index ) {
+				*actual = i;
+				return uiInfo.mapList[i].mapName;
+			}
+			else
+				c++;
+		}
+	}
+	return "";
+}
+
+struct serverStatusCvar_s {
+	char *name, *altName;
+} serverStatusCvars[] = {
+	{ "sv_hostname", "Name" },
+	{ "Address", "" },
+	{ "gamename", "Game name" },
+	{ "sv_gametype", "Game type" },
+	{ "mapname", "Map" },
+	{ "com_version", "" },
+	{ "protocol", "" },
+	{ "timelimit", "" },
+	{ "fraglimit", "" },
+	{ NULL, NULL }
+};
+
+/*
+==================
+UI_SortServerStatusInfo
+==================
+*/
+static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
+	int i, j, index;
+	char *tmp1, *tmp2;
+
+	// FIXME: if "gamename" == "baseq3" or "missionpack" then
+	// replace the gametype number by FFA, CTF etc.
+	//
+	index = 0;
+	for (i = 0; serverStatusCvars[i].name; i++) {
+		for (j = 0; j < info->numLines; j++) {
+			if ( !info->lines[j][1] || info->lines[j][1][0] ) {
+				continue;
+			}
+			if ( !Q_stricmp(serverStatusCvars[i].name, info->lines[j][0]) ) {
+				// swap lines
+				tmp1 = info->lines[index][0];
+				tmp2 = info->lines[index][3];
+				info->lines[index][0] = info->lines[j][0];
+				info->lines[index][3] = info->lines[j][3];
+				info->lines[j][0] = tmp1;
+				info->lines[j][3] = tmp2;
+				//
+				if ( strlen(serverStatusCvars[i].altName) ) {
+					info->lines[index][0] = serverStatusCvars[i].altName;
+				}
+				index++;
+			}
+		}
+	}
+}
+
+/*
+==================
+UI_GetServerStatusInfo
+==================
+*/
+static int UI_GetServerStatusInfo( char *serverAddress, serverStatusInfo_t *info ) {
+	char *p, *score, *ping, *name;
+	int i, len;
+
+	if (!info) {
+		trap->LAN_GetServerStatus( serverAddress, NULL, 0);
+		return qfalse;
+	}
+	memset(info, 0, sizeof(*info));
+	if ( trap->LAN_GetServerStatus( serverAddress, info->text, sizeof(info->text)) ) {
+		Q_strncpyz(info->address, serverAddress, sizeof(info->address));
+		p = info->text;
+		info->numLines = 0;
+		info->lines[info->numLines][0] = "Address";
+		info->lines[info->numLines][1] = "";
+		info->lines[info->numLines][2] = "";
+		info->lines[info->numLines][3] = info->address;
+		info->numLines++;
+		// get the cvars
+		while (p && *p) {
+			p = strchr(p, '\\');
+			if (!p) break;
+			*p++ = '\0';
+			if (*p == '\\')
+				break;
+			info->lines[info->numLines][0] = p;
+			info->lines[info->numLines][1] = "";
+			info->lines[info->numLines][2] = "";
+			p = strchr(p, '\\');
+			if (!p) break;
+			*p++ = '\0';
+			info->lines[info->numLines][3] = p;
+
+			info->numLines++;
+			if (info->numLines >= MAX_SERVERSTATUS_LINES)
+				break;
+		}
+		// get the player list
+		if (info->numLines < MAX_SERVERSTATUS_LINES-3) {
+			// empty line
+			info->lines[info->numLines][0] = "";
+			info->lines[info->numLines][1] = "";
+			info->lines[info->numLines][2] = "";
+			info->lines[info->numLines][3] = "";
+			info->numLines++;
+			// header
+			info->lines[info->numLines][0] = "num";
+			info->lines[info->numLines][1] = "score";
+			info->lines[info->numLines][2] = "ping";
+			info->lines[info->numLines][3] = "name";
+			info->numLines++;
+			// parse players
+			i = 0;
+			len = 0;
+			while (p && *p) {
+				if (*p == '\\')
+					*p++ = '\0';
+				if (!p)
+					break;
+				score = p;
+				p = strchr(p, ' ');
+				if (!p)
+					break;
+				*p++ = '\0';
+				ping = p;
+				p = strchr(p, ' ');
+				if (!p)
+					break;
+				*p++ = '\0';
+				name = p;
+				Com_sprintf(&info->pings[len], sizeof(info->pings)-len, "%d", i);
+				info->lines[info->numLines][0] = &info->pings[len];
+				len += strlen(&info->pings[len]) + 1;
+				info->lines[info->numLines][1] = score;
+				info->lines[info->numLines][2] = ping;
+				info->lines[info->numLines][3] = name;
+				info->numLines++;
+				if (info->numLines >= MAX_SERVERSTATUS_LINES)
+					break;
+				p = strchr(p, '\\');
+				if (!p)
+					break;
+				*p++ = '\0';
+				//
+				i++;
+			}
+		}
+		UI_SortServerStatusInfo( info );
+		return qtrue;
+	}
+	return qfalse;
+}
+
+/*
+==================
+UI_BuildServerStatus
+==================
+*/
+static void UI_BuildServerStatus( qboolean force ) {
+	if ( uiInfo.nextFindPlayerRefresh )
+		return;
+
+	if ( !force ) {
+		if ( !uiInfo.nextServerStatusRefresh || uiInfo.nextServerStatusRefresh > uiInfo.uiDC.realTime )
+			return;
+	}
+	else {
+		Menu_SetFeederSelection( NULL, FEEDER_SERVERSTATUS, 0, NULL );
+		uiInfo.serverStatusInfo.numLines = 0;
+		// reset all server status requests
+		trap->LAN_GetServerStatus( NULL, NULL, 0 );
+	}
+	if ( uiInfo.serverStatus.currentServer < 0 || uiInfo.serverStatus.currentServer > uiInfo.serverStatus.numDisplayServers || uiInfo.serverStatus.numDisplayServers == 0 )
+		return;
+
+	if ( UI_GetServerStatusInfo( uiInfo.serverStatusAddress, &uiInfo.serverStatusInfo ) ) {
+		uiInfo.nextServerStatusRefresh = 0;
+		UI_GetServerStatusInfo( uiInfo.serverStatusAddress, NULL );
+	}
+	else
+		uiInfo.nextServerStatusRefresh = uiInfo.uiDC.realTime + 500;
+}
+
+// Convert ui's net source to AS_* used by trap calls.
+int UI_SourceForLAN( void ) {
+	switch ( ui_netSource->integer ) {
+	default:
+	case UIAS_LOCAL:
+		return AS_LOCAL;
+	case UIAS_GLOBAL1:
+	case UIAS_GLOBAL2:
+	case UIAS_GLOBAL3:
+	case UIAS_GLOBAL4:
+	case UIAS_GLOBAL5:
+		return AS_GLOBAL;
+	case UIAS_FAVORITES:
+		return AS_FAVORITES;
+	}
+}
+
+static qboolean updateModel = qtrue;
+static qboolean updateOpponentModel = qtrue;
+static void UI_FeederSelection(float feederID, int index) {
+	static char info[MAX_STRING_CHARS];
+	if (feederID == FEEDER_HEADS) {
+		int actual;
+		UI_SelectedHead(index, &actual);
+		index = actual;
+		if (index >= 0 && index < uiInfo.characterCount) {
+			trap->Cvar_Set( "cg_model", uiInfo.characterList[index].base);
+			updateModel = qtrue;
+		}
+	} else if (feederID == FEEDER_Q3HEADS) {
+		if (index >= 0 && index < uiInfo.q3HeadCount) {
+			trap->Cvar_Set( "cg_model", uiInfo.q3HeadNames[index]);
+			updateModel = qtrue;
+		}
+	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
+		int actual, map;
+		map = (feederID == FEEDER_ALLMAPS) ? ui_currentNetMap->integer : ui_currentMap->integer;
+		if (uiInfo.mapList[map].cinematic >= 0) {
+			trap->CIN_StopCinematic(uiInfo.mapList[map].cinematic);
+			uiInfo.mapList[map].cinematic = -1;
+		}
+		UI_SelectedMap(index, &actual);
+		trap->Cvar_Set("ui_mapIndex", va("%d", index));
+		ui_mapIndex->integer = index;
+
+		if (feederID == FEEDER_MAPS) {
+			ui_currentMap->integer = actual;
+			trap->Cvar_Set("ui_currentMap", va("%d", actual));
+			uiInfo.mapList[ui_currentMap->integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentMap->integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+			trap->Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap->integer].opponentName);
+			updateOpponentModel = qtrue;
+		} else {
+			ui_currentNetMap->integer = actual;
+			trap->Cvar_Set("ui_currentNetMap", va("%d", actual));
+			uiInfo.mapList[ui_currentNetMap->integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap->integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+		}
+
+	} else if (feederID == FEEDER_SERVERS) {
+		const char *mapName = NULL;
+		uiInfo.serverStatus.currentServer = index;
+		trap->LAN_GetServerInfo(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
+		uiInfo.serverStatus.currentServerPreview = trap->R_RegisterShader(va("gfx/maps/%s", Info_ValueForKey(info, "mapname")));
+		if (uiInfo.serverStatus.currentServerCinematic >= 0) {
+			trap->CIN_StopCinematic(uiInfo.serverStatus.currentServerCinematic);
+			uiInfo.serverStatus.currentServerCinematic = -1;
+		}
+		mapName = Info_ValueForKey(info, "mapname");
+		if (mapName && *mapName) {
+			uiInfo.serverStatus.currentServerCinematic = trap->CIN_PlayCinematic(va("%s.roq", mapName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+		}
+	} else if (feederID == FEEDER_SERVERSTATUS) {
+		//
+	} else if (feederID == FEEDER_FINDPLAYER) {
+		uiInfo.currentFoundPlayerServer = index;
+		//
+		if ( index < uiInfo.numFoundPlayerServers-1) {
+			// build a new server status for this server
+			Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer], sizeof(uiInfo.serverStatusAddress));
+			Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
+			UI_BuildServerStatus(qtrue);
+		}
+	} else if (feederID == FEEDER_PLAYER_LIST) {
+		uiInfo.playerIndex = index;
+	} else if (feederID == FEEDER_TEAM_LIST) {
+		uiInfo.teamIndex = index;
+	} else if (feederID == FEEDER_MODS) {
+		uiInfo.modIndex = index;
+	} else if (feederID == FEEDER_CINEMATICS) {
+		uiInfo.movieIndex = index;
+		if (uiInfo.previewMovie >= 0) {
+			trap->CIN_StopCinematic(uiInfo.previewMovie);
+		}
+		uiInfo.previewMovie = -1;
+	} else if (feederID == FEEDER_DEMOS) {
+		uiInfo.demoIndex = index;
+	}
+}
+
+/*
+==================
+UI_BuildFindPlayerList
+==================
+*/
+static void UI_BuildFindPlayerList(qboolean force) {
+	static int numFound, numTimeOuts;
+	int i, j, resend;
+	serverStatusInfo_t info;
+	char name[MAX_NETNAME];
+	char infoString[MAX_STRING_CHARS];
+	int  lanSource;
+
+	if (!force) {
+		if (!uiInfo.nextFindPlayerRefresh || uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
+			return;
+		}
+	}
+	else {
+		memset(&uiInfo.pendingServerStatus, 0, sizeof(uiInfo.pendingServerStatus));
+		uiInfo.numFoundPlayerServers = 0;
+		uiInfo.currentFoundPlayerServer = 0;
+		trap->Cvar_VariableStringBuffer( "ui_findPlayer", uiInfo.findPlayerName, sizeof(uiInfo.findPlayerName));
+		Q_CleanStr(uiInfo.findPlayerName);
+		// should have a string of some length
+		if (!strlen(uiInfo.findPlayerName)) {
+			uiInfo.nextFindPlayerRefresh = 0;
+			return;
+		}
+		// set resend time
+		resend = ui_serverStatusTimeOut->integer / 2 - 10;
+		if (resend < 50) {
+			resend = 50;
+		}
+		trap->Cvar_Set("cl_serverStatusResendTime", va("%d", resend));
+		// reset all server status requests
+		trap->LAN_GetServerStatus( NULL, NULL, 0);
+		//
+		uiInfo.numFoundPlayerServers = 1;
+		Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
+			sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
+			"searching %d...", uiInfo.pendingServerStatus.num);
+		numFound = 0;
+		numTimeOuts++;
+	}
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		// if this pending server is valid
+		if (uiInfo.pendingServerStatus.server[i].valid) {
+			// try to get the server status for this server
+			if (UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, &info ) ) {
+				//
+				numFound++;
+				// parse through the server status lines
+				for (j = 0; j < info.numLines; j++) {
+					// should have ping info
+					if ( !info.lines[j][2] || !info.lines[j][2][0] ) {
+						continue;
+					}
+					// clean string first
+					Q_strncpyz(name, info.lines[j][3], sizeof(name));
+					Q_CleanStr(name);
+					// if the player name is a substring
+					if (Q_stristr(name, uiInfo.findPlayerName)) {
+						// add to found server list if we have space (always leave space for a line with the number found)
+						if (uiInfo.numFoundPlayerServers < MAX_FOUNDPLAYER_SERVERS-1) {
+							//
+							Q_strncpyz(uiInfo.foundPlayerServerAddresses[uiInfo.numFoundPlayerServers-1],
+								uiInfo.pendingServerStatus.server[i].adrstr,
+								sizeof(uiInfo.foundPlayerServerAddresses[0]));
+							Q_strncpyz(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
+								uiInfo.pendingServerStatus.server[i].name,
+								sizeof(uiInfo.foundPlayerServerNames[0]));
+							uiInfo.numFoundPlayerServers++;
+						}
+						else {
+							// can't add any more so we're done
+							uiInfo.pendingServerStatus.num = uiInfo.serverStatus.numDisplayServers;
+						}
+					}
+				}
+				Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
+					sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
+					"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+				// retrieved the server status so reuse this spot
+				uiInfo.pendingServerStatus.server[i].valid = qfalse;
+			}
+		}
+		// if empty pending slot or timed out
+		if (!uiInfo.pendingServerStatus.server[i].valid ||
+			uiInfo.pendingServerStatus.server[i].startTime < uiInfo.uiDC.realTime - ui_serverStatusTimeOut->integer) {
+				if (uiInfo.pendingServerStatus.server[i].valid) {
+					numTimeOuts++;
+				}
+				// reset server status request for this address
+				UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, NULL );
+				// reuse pending slot
+				uiInfo.pendingServerStatus.server[i].valid = qfalse;
+				// if we didn't try to get the status of all servers in the main browser yet
+				if (uiInfo.pendingServerStatus.num < uiInfo.serverStatus.numDisplayServers) {
+					uiInfo.pendingServerStatus.server[i].startTime = uiInfo.uiDC.realTime;
+					lanSource = UI_SourceForLAN();
+					trap->LAN_GetServerAddressString(lanSource, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
+						uiInfo.pendingServerStatus.server[i].adrstr, sizeof(uiInfo.pendingServerStatus.server[i].adrstr));
+					trap->LAN_GetServerInfo(lanSource, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num], infoString, sizeof(infoString));
+					Q_strncpyz(uiInfo.pendingServerStatus.server[i].name, Info_ValueForKey(infoString, "hostname"), sizeof(uiInfo.pendingServerStatus.server[0].name));
+					uiInfo.pendingServerStatus.server[i].valid = qtrue;
+					uiInfo.pendingServerStatus.num++;
+					Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
+						sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
+						"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+				}
+		}
+	}
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		if (uiInfo.pendingServerStatus.server[i].valid) {
+			break;
+		}
+	}
+	// if still trying to retrieve server status info
+	if (i < MAX_SERVERSTATUSREQUESTS) {
+		uiInfo.nextFindPlayerRefresh = uiInfo.uiDC.realTime + 25;
+	}
+	else {
+		// add a line that shows the number of servers found
+		if (!uiInfo.numFoundPlayerServers) {
+			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
+		}
+		else {
+			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]),
+				"%d server%s found with player %s", uiInfo.numFoundPlayerServers-1,
+				uiInfo.numFoundPlayerServers == 2 ? "":"s", uiInfo.findPlayerName);
+		}
+		uiInfo.nextFindPlayerRefresh = 0;
+		// show the server status info for the selected server
+		UI_FeederSelection(FEEDER_FINDPLAYER, uiInfo.currentFoundPlayerServer);
+	}
+}
+
+/*
+==================
+UI_RemoveServerFromDisplayList
+==================
+*/
+static void UI_RemoveServerFromDisplayList( int num ) {
+	int i, j;
+
+	for ( i=0; i<uiInfo.serverStatus.numDisplayServers; i++ ) {
+		if ( uiInfo.serverStatus.displayServers[i] == num ) {
+			uiInfo.serverStatus.numDisplayServers--;
+			for ( j=i; j<uiInfo.serverStatus.numDisplayServers; j++ )
+				uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j+1];
+
+			return;
+		}
+	}
+}
+
+/*
+==================
+UI_InsertServerIntoDisplayList
+==================
+*/
+static void UI_InsertServerIntoDisplayList( int num, int position ) {
+	int i;
+
+	if ( position < 0 || position > uiInfo.serverStatus.numDisplayServers )
+		return;
+
+	uiInfo.serverStatus.numDisplayServers++;
+	for ( i=uiInfo.serverStatus.numDisplayServers; i>position; i-- )
+		uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i-1];
+
+	uiInfo.serverStatus.displayServers[position] = num;
+}
+
+/*
+==================
+UI_BinaryServerInsertion
+==================
+*/
+static void UI_BinaryServerInsertion( int num ) {
+	int mid, offset, res, len;
+
+	// use binary search to insert server
+	len = uiInfo.serverStatus.numDisplayServers;
+	mid = len;
+	offset = 0;
+	res = 0;
+	while ( mid > 0 ) {
+		mid = len >> 1;
+		//
+		res = trap->LAN_CompareServers( UI_SourceForLAN(), uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir, num, uiInfo.serverStatus.displayServers[offset+mid] );
+		// if equal
+		if ( res == 0 ) {
+			UI_InsertServerIntoDisplayList( num, offset+mid );
+			return;
+		}
+		// if larger
+		else if ( res == 1 ) {
+			offset += mid;
+			len -= mid;
+		}
+		// if smaller
+		else
+			len -= mid;
+	}
+	if ( res == 1 )
+		offset++;
+
+	UI_InsertServerIntoDisplayList( num, offset );
+}
+
+/*
+==================
+UI_BuildServerDisplayList
+==================
+*/
+static void UI_BuildServerDisplayList( qboolean force ) {
+	int i, count, clients, maxClients, ping, game, len, visible;
+	char info[MAX_STRING_CHARS];
+	static int numinvisible;
+	int	lanSource;
+
+	if ( !(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh) )
+		return;
+
+	// if we shouldn't reset
+	if ( force == 2 )
+		force = 0;
+
+	// do motd updates here too
+	trap->Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof( uiInfo.serverStatus.motd ) );
+	len = strlen( uiInfo.serverStatus.motd );
+	if ( len == 0 ) {
+		strcpy( uiInfo.serverStatus.motd, "Welcome to "QTZ_VERSION );
+		len = strlen( uiInfo.serverStatus.motd );
+	} 
+	if ( len != uiInfo.serverStatus.motdLen ) {
+		uiInfo.serverStatus.motdLen = len;
+		uiInfo.serverStatus.motdWidth = -1;
+	} 
+
+	lanSource = UI_SourceForLAN();
+
+	if ( force ) {
+		numinvisible = 0;
+		// clear number of displayed servers
+		uiInfo.serverStatus.numDisplayServers = 0;
+		uiInfo.serverStatus.numPlayersOnServers = 0;
+		// set list box index to zero
+		Menu_SetFeederSelection( NULL, FEEDER_SERVERS, 0, NULL );
+		// mark all servers as visible so we store ping updates for them
+		trap->LAN_MarkServerVisible( lanSource, -1, qtrue );
+	}
+
+	// get the server count (comes from the master)
+	count = trap->LAN_GetServerCount( lanSource );
+	if ( count == -1 || (ui_netSource->integer == UIAS_LOCAL && count == 0) ) {
+		// still waiting on a response from the master
+		uiInfo.serverStatus.numDisplayServers = 0;
+		uiInfo.serverStatus.numPlayersOnServers = 0;
+		uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
+		return;
+	}
+
+	visible = qfalse;
+	for ( i=0; i<count; i++ ) {
+		// if we already got info for this server
+		if ( !trap->LAN_ServerIsVisible( lanSource, i ) )
+			continue;
+
+		visible = qtrue;
+		// get the ping for this server
+		ping = trap->LAN_GetServerPing( lanSource, i );
+		if ( ping > 0 || ui_netSource->integer == UIAS_FAVORITES ) {
+			trap->LAN_GetServerInfo( lanSource, i, info, sizeof( info ) );
+
+			clients = atoi( Info_ValueForKey( info, "clients" ) );
+			uiInfo.serverStatus.numPlayersOnServers += clients;
+
+			if ( ui_browserShowEmpty->integer == 0 ) {
+				if ( clients == 0 ) {
+					trap->LAN_MarkServerVisible( lanSource, i, qfalse );
+					continue;
+				}
+			}
+
+			if ( ui_browserShowFull->integer == 0 ) {
+				maxClients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+				if ( clients == maxClients ) {
+					trap->LAN_MarkServerVisible( lanSource, i, qfalse );
+					continue;
+				}
+			}
+
+			if ( ui_gametype->integer != -1 ) {
+				game = atoi( Info_ValueForKey( info, "gametype" ) );
+				if ( game != ui_gametype->integer ) {
+					trap->LAN_MarkServerVisible( lanSource, i, qfalse );
+					continue;
+				}
+			}
+
+			if ( ui_serverFilterType->integer > 0 ) {
+				if ( Q_stricmp( Info_ValueForKey( info, "game" ), serverFilters[ui_serverFilterType->integer].basedir ) ) {
+					trap->LAN_MarkServerVisible( lanSource, i, qfalse );
+					continue;
+				}
+			}
+			// make sure we never add a favorite server twice
+			if ( ui_netSource->integer == UIAS_FAVORITES )
+				UI_RemoveServerFromDisplayList( i );
+
+			// insert the server into the list
+			UI_BinaryServerInsertion( i );
+			// done with this server
+			if ( ping > 0 ) {
+				trap->LAN_MarkServerVisible( lanSource, i, qfalse );
+				numinvisible++;
+			}
+		}
+	}
+
+	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime;
+
+	// if there were no servers visible for ping updates
+	if ( !visible ) {
+	//	UI_StopServerRefresh();
+	//	uiInfo.serverStatus.nextDisplayRefresh = 0;
+	}
+}
+
+/*
+=================
+UI_StopServerRefresh
+=================
+*/
+static void UI_StopServerRefresh( void ) {
+	int count;
+
+	// not currently refreshing
+	if ( !uiInfo.serverStatus.refreshActive )
+		return;
+
+	uiInfo.serverStatus.refreshActive = qfalse;
+	Com_Printf( "%d servers listed in browser with %d players.\n", uiInfo.serverStatus.numDisplayServers, uiInfo.serverStatus.numPlayersOnServers );
+	count = trap->LAN_GetServerCount( UI_SourceForLAN() );
+	if ( count - uiInfo.serverStatus.numDisplayServers > 0 )
+		Com_Printf( "%d servers not listed due to packet loss or pings higher than %d\n", count - uiInfo.serverStatus.numDisplayServers, (int)trap->Cvar_VariableValue( "cl_maxPing" ) );
+}
+
+/*
+=================
+UI_DoServerRefresh
+=================
+*/
+static void UI_DoServerRefresh( void ) {
+	qboolean wait = qfalse;
+
+	if ( !uiInfo.serverStatus.refreshActive )
+		return;
+
+	if ( ui_netSource->integer != UIAS_FAVORITES ) {
+		if ( ui_netSource->integer == UIAS_LOCAL ) {
+			if ( !trap->LAN_GetServerCount( AS_LOCAL ) )
+				wait = qtrue;
+		}
+		else {
+			if ( trap->LAN_GetServerCount( AS_GLOBAL ) < 0 )
+				wait = qtrue;
+		}
+	}
+
+	if ( uiInfo.uiDC.realTime < uiInfo.serverStatus.refreshtime ) {
+		if ( wait )
+			return;
+	}
+
+	// if still trying to retrieve pings
+	if ( trap->LAN_UpdateVisiblePings( UI_SourceForLAN() ) )
+		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
+	else if ( !wait ) {
+		// get the last servers in the list
+		UI_BuildServerDisplayList( 2 );
+		// stop the refresh
+		UI_StopServerRefresh();
+	}
+
+	UI_BuildServerDisplayList( qfalse );
 }
 
 int frameCount = 0;
@@ -880,23 +1544,6 @@ void UI_Load(void) {
 
 }
 
-// Convert ui's net source to AS_* used by trap calls.
-int UI_SourceForLAN(void) {
-	switch (ui_netSource->integer) {
-	default:
-	case UIAS_LOCAL:
-		return AS_LOCAL;
-	case UIAS_GLOBAL1:
-	case UIAS_GLOBAL2:
-	case UIAS_GLOBAL3:
-	case UIAS_GLOBAL4:
-	case UIAS_GLOBAL5:
-		return AS_GLOBAL;
-	case UIAS_FAVORITES:
-		return AS_FAVORITES;
-	}
-}
-
 static void UI_SetCapFragLimits(qboolean uiVars) {
 	int cap = 5;
 	int frag = 10;
@@ -1042,10 +1689,6 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vector4 *color, qb
 	}
 }
 
-
-
-static qboolean updateModel = qtrue;
-
 static void UI_DrawPlayerModel(rectDef_t *rect) {
 	static playerInfo_t info;
 	char model[MAX_QPATH];
@@ -1085,7 +1728,7 @@ static void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vector4 *color) {
 	if (uiInfo.serverStatus.currentServerPreview > 0) {
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.serverStatus.currentServerPreview);
 	} else {
-		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap->R_RegisterShader("menu/art/unknownmap"));
+		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap->R_RegisterShader("gfx/menus/unknownmap"));
 	}
 }
 
@@ -1121,7 +1764,6 @@ static const char *UI_EnglishMapName(const char *map) {
 	return "";
 }
 
-static qboolean updateOpponentModel = qtrue;
 static void UI_DrawOpponent(rectDef_t *rect) {
 	static playerInfo_t info2;
 	char model[MAX_QPATH];
@@ -1158,8 +1800,8 @@ static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vector4 *color
 	}
 }
 
-static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
-	int i, h, value;
+static float UI_OwnerDrawWidth(int ownerDraw, float scale) {
+	int i=0, value;
 	const char *text;
 	const char *s = NULL;
 
@@ -1186,11 +1828,12 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 	case UI_BLUETEAM4:
 	case UI_BLUETEAM5:
 		value = (int)trap->Cvar_VariableValue(va("ui_blueteam%i", ownerDraw-UI_BLUETEAM1 + 1));
-		if (value <= 0) {
+		if (value <= 0)
 			text = "Closed";
-		} else if (value == 1) {
+		else if (value == 1)
 			text = "Human";
-		}
+		else
+			text = "<FIXME>";
 		s = va("%i. %s", ownerDraw-UI_BLUETEAM1 + 1, text);
 		break;
 	case UI_REDTEAM1:
@@ -1237,7 +1880,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
   if (s) {
 	  return Text_Width(s, scale, 0);
   }
-  return 0;
+  return 0.0f;
 }
 
 static void UI_DrawBotName(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
@@ -1651,6 +2294,25 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 	return vis;
 }
 
+/*
+==================
+UI_MapCountByGameType
+==================
+*/
+static int UI_MapCountByGameType(void) {
+	int i=0, c=0;
+
+	for ( i=0; i<uiInfo.mapCount; i++ ) {
+		uiInfo.mapList[i].active = qfalse;
+		if ( uiInfo.mapList[i].typeBits & (1 << ui_gametype->integer) ) {
+			c++;
+			uiInfo.mapList[i].active = qtrue;
+		}
+	}
+
+	return c;
+}
+
 static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboolean resetMap) {
 	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 		int oldCount = UI_MapCountByGameType();
@@ -1730,6 +2392,60 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 		return qtrue;
 	}
 	return qfalse;
+}
+
+static void UI_UpdatePendingPings( void ) { 
+	trap->LAN_ResetPings( UI_SourceForLAN() );
+	uiInfo.serverStatus.refreshActive = qtrue;
+	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
+
+}
+
+/*
+=================
+UI_StartServerRefresh
+=================
+*/
+static void UI_StartServerRefresh( qboolean full ) {
+	char	*ptr;
+	int		lanSource;
+
+	qtime_t q;
+	trap->RealTime( &q );
+	trap->Cvar_Set( va( "ui_lastServerRefresh_%i", ui_netSource->integer ), va( "%s-%i, %i at %i:%i", MonthAbbrev[q.tm_mon], q.tm_mday, 1900+q.tm_year, q.tm_hour, q.tm_min ) );
+
+	if ( !full ) {
+		UI_UpdatePendingPings();
+		return;
+	}
+
+	uiInfo.serverStatus.refreshActive = qtrue;
+	uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 1000;
+	// clear number of displayed servers
+	uiInfo.serverStatus.numDisplayServers = 0;
+	uiInfo.serverStatus.numPlayersOnServers = 0;
+
+	lanSource = UI_SourceForLAN();
+	// mark all servers as visible so we store ping updates for them
+	trap->LAN_MarkServerVisible( lanSource, -1, qtrue );
+	// reset all the pings
+	trap->LAN_ResetPings( lanSource );
+	//
+	if( ui_netSource->integer == UIAS_LOCAL ) {
+		trap->Cbuf_ExecuteText( EXEC_NOW, "localservers\n" );
+		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
+		return;
+	}
+
+	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
+	if( ui_netSource->integer >= UIAS_GLOBAL1 && ui_netSource->integer <= UIAS_GLOBAL5 ) {
+
+		ptr = UI_Cvar_VariableString( "debug_protocol" );
+		if ( strlen( ptr ) )
+			trap->Cbuf_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource->integer-1, ptr ) );
+		else
+			trap->Cbuf_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource->integer-1, (int)trap->Cvar_VariableValue( "protocol" ) ) );
+	}
 }
 
 static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
@@ -2112,7 +2828,7 @@ static qboolean UI_SetNextMap(int actual, int index) {
 
 
 static void UI_StartSkirmish(qboolean next) {
-	int i, g, delay, temp;
+	int g, delay, temp;
 	float skill;
 	char buff[MAX_STRING_CHARS];
 
@@ -2156,7 +2872,6 @@ static void UI_StartSkirmish(qboolean next) {
 	temp = (int)trap->Cvar_VariableValue( "sv_pure" );
 	trap->Cvar_Set("ui_pure", va("%i", temp));
 
-	trap->Cvar_Set("cg_cameraOrbit", "0");
 	trap->Cvar_Set("cg_drawTimer", "1");
 	trap->Cvar_Set("g_doWarmup", "1");
 	trap->Cvar_Set("g_warmup", "15");
@@ -2290,6 +3005,20 @@ static qboolean UI_DeferMenuScript ( char **args )
 	return qfalse;
 }
 
+static int UI_GetIndexFromSelection(int actual) {
+	int i=0, c=0;
+
+	for ( i=0; i<uiInfo.mapCount; i++ ) {
+		if ( uiInfo.mapList[i].active ) {
+			if ( i == actual )
+				return c;
+			c++;
+		}
+	}
+
+	return 0;
+}
+
 static void UI_RunMenuScript(char **args) {
 	const char *name, *name2;
 	char buff[MAX_STRING_CHARS];
@@ -2298,7 +3027,6 @@ static void UI_RunMenuScript(char **args) {
 		if (Q_stricmp(name, "StartServer") == 0) {
 			int i, clients, oldclients;
 			float skill;
-			trap->Cvar_Set( "cg_cameraOrbit", "0");
 			trap->Cvar_Set( "dedicated", va( "%d", Q_clampi( 0, ui_dedicated->integer, 2 ) ) );
 			trap->Cvar_Set( "sv_gametype", va( "%d", Q_clampi( 0, ui_gametype->integer, GT_NUM_GAMETYPES-1 ) ) );
 			trap->Cvar_Set( "g_redTeam", UI_Cvar_VariableString( "ui_teamName" ) );
@@ -2433,7 +3161,6 @@ static void UI_RunMenuScript(char **args) {
 			uiInfo.serverStatusInfo.numLines = 0;
 			Menu_SetFeederSelection(NULL, FEEDER_FINDPLAYER, 0, NULL);
 		} else if (Q_stricmp(name, "JoinServer") == 0) {
-			trap->Cvar_Set("cg_cameraOrbit", "0");
 			if (uiInfo.serverStatus.currentServer >= 0 && uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers) {
 				trap->LAN_GetServerAddressString(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, 1024);
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va( "connect %s\n", buff ) );
@@ -2565,29 +3292,6 @@ static void UI_RunMenuScript(char **args) {
 	}
 }
 
-static void UI_GetTeamColor(vector4 *color) {
-}
-
-/*
-==================
-UI_MapCountByGameType
-==================
-*/
-static int UI_MapCountByGameType(void) {
-	int i, c, game;
-	c = 0;
-	game = ui_gametype->integer;
-
-	for (i = 0; i < uiInfo.mapCount; i++) {
-		uiInfo.mapList[i].active = qfalse;
-		if ( uiInfo.mapList[i].typeBits & (1 << game)) {
-			c++;
-			uiInfo.mapList[i].active = qtrue;
-		}
-	}
-	return c;
-}
-
 qboolean UI_hasSkinForBase(const char *base, const char *team) {
 	char	test[MAX_QPATH];
 
@@ -2611,559 +3315,19 @@ UI_MapCountByTeam
 */
 static int UI_HeadCountByTeam(void) {
 	static int init = 0;
-	int i, j, k, c;
+	int i, c=0;
 
-	c = 0;
-	if (!init) {
-		for (i = 0; i < uiInfo.characterCount; i++) {
+	if ( !init ) {
+		for ( i=0; i<uiInfo.characterCount; i++ )
 			uiInfo.characterList[i].reference = 0;
-		}
 		init = 1;
 	}
 
 	// do names
-	for (i = 0; i < uiInfo.characterCount; i++) {
+	for ( i=0; i<uiInfo.characterCount; i++ )
 		uiInfo.characterList[i].active = qfalse;
-	}
+
 	return c;
-}
-
-/*
-==================
-UI_InsertServerIntoDisplayList
-==================
-*/
-static void UI_InsertServerIntoDisplayList(int num, int position) {
-	int i;
-
-	if (position < 0 || position > uiInfo.serverStatus.numDisplayServers ) {
-		return;
-	}
-	//
-	uiInfo.serverStatus.numDisplayServers++;
-	for (i = uiInfo.serverStatus.numDisplayServers; i > position; i--) {
-		uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i-1];
-	}
-	uiInfo.serverStatus.displayServers[position] = num;
-}
-
-/*
-==================
-UI_RemoveServerFromDisplayList
-==================
-*/
-static void UI_RemoveServerFromDisplayList(int num) {
-	int i, j;
-
-	for (i = 0; i < uiInfo.serverStatus.numDisplayServers; i++) {
-		if (uiInfo.serverStatus.displayServers[i] == num) {
-			uiInfo.serverStatus.numDisplayServers--;
-			for (j = i; j < uiInfo.serverStatus.numDisplayServers; j++) {
-				uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j+1];
-			}
-			return;
-		}
-	}
-}
-
-/*
-==================
-UI_BinaryServerInsertion
-==================
-*/
-static void UI_BinaryServerInsertion(int num) {
-	int mid, offset, res, len;
-
-	// use binary search to insert server
-	len = uiInfo.serverStatus.numDisplayServers;
-	mid = len;
-	offset = 0;
-	res = 0;
-	while(mid > 0) {
-		mid = len >> 1;
-		//
-		res = trap->LAN_CompareServers( UI_SourceForLAN(), uiInfo.serverStatus.sortKey,
-			uiInfo.serverStatus.sortDir, num, uiInfo.serverStatus.displayServers[offset+mid]);
-		// if equal
-		if (res == 0) {
-			UI_InsertServerIntoDisplayList(num, offset+mid);
-			return;
-		}
-		// if larger
-		else if (res == 1) {
-			offset += mid;
-			len -= mid;
-		}
-		// if smaller
-		else {
-			len -= mid;
-		}
-	}
-	if (res == 1) {
-		offset++;
-	}
-	UI_InsertServerIntoDisplayList(num, offset);
-}
-
-/*
-==================
-UI_BuildServerDisplayList
-==================
-*/
-static void UI_BuildServerDisplayList(qboolean force) {
-	int i, count, clients, maxClients, ping, game, len, visible;
-	char info[MAX_STRING_CHARS];
-	//	qboolean startRefresh = qtrue; TTimo: unused
-	static int numinvisible;
-	int	lanSource;
-
-	if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
-		return;
-	}
-	// if we shouldn't reset
-	if ( force == 2 ) {
-		force = 0;
-	}
-
-	// do motd updates here too
-	trap->Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof(uiInfo.serverStatus.motd) );
-	len = strlen(uiInfo.serverStatus.motd);
-	if (len == 0) {
-		strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		len = strlen(uiInfo.serverStatus.motd);
-	} 
-	if (len != uiInfo.serverStatus.motdLen) {
-		uiInfo.serverStatus.motdLen = len;
-		uiInfo.serverStatus.motdWidth = -1;
-	} 
-
-	lanSource = UI_SourceForLAN();
-
-	if (force) {
-		numinvisible = 0;
-		// clear number of displayed servers
-		uiInfo.serverStatus.numDisplayServers = 0;
-		uiInfo.serverStatus.numPlayersOnServers = 0;
-		// set list box index to zero
-		Menu_SetFeederSelection(NULL, FEEDER_SERVERS, 0, NULL);
-		// mark all servers as visible so we store ping updates for them
-		trap->LAN_MarkServerVisible(lanSource, -1, qtrue);
-	}
-
-	// get the server count (comes from the master)
-	count = trap->LAN_GetServerCount(lanSource);
-	if (count == -1 || (ui_netSource->integer == UIAS_LOCAL && count == 0) ) {
-		// still waiting on a response from the master
-		uiInfo.serverStatus.numDisplayServers = 0;
-		uiInfo.serverStatus.numPlayersOnServers = 0;
-		uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
-		return;
-	}
-
-	visible = qfalse;
-	for (i = 0; i < count; i++) {
-		// if we already got info for this server
-		if (!trap->LAN_ServerIsVisible(lanSource, i)) {
-			continue;
-		}
-		visible = qtrue;
-		// get the ping for this server
-		ping = trap->LAN_GetServerPing(lanSource, i);
-		if (ping > 0 || ui_netSource->integer == UIAS_FAVORITES) {
-
-			trap->LAN_GetServerInfo(lanSource, i, info, MAX_STRING_CHARS);
-
-			clients = atoi(Info_ValueForKey(info, "clients"));
-			uiInfo.serverStatus.numPlayersOnServers += clients;
-
-			if (ui_browserShowEmpty->integer == 0) {
-				if (clients == 0) {
-					trap->LAN_MarkServerVisible(lanSource, i, qfalse);
-					continue;
-				}
-			}
-
-			if (ui_browserShowFull->integer == 0) {
-				maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
-				if (clients == maxClients) {
-					trap->LAN_MarkServerVisible(lanSource, i, qfalse);
-					continue;
-				}
-			}
-
-			if (ui_gametype->integer != -1) {
-				game = atoi(Info_ValueForKey(info, "gametype"));
-				if (game != ui_gametype->integer) {
-					trap->LAN_MarkServerVisible(lanSource, i, qfalse);
-					continue;
-				}
-			}
-
-			if (ui_serverFilterType->integer > 0) {
-				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType->integer].basedir) != 0) {
-					trap->LAN_MarkServerVisible(lanSource, i, qfalse);
-					continue;
-				}
-			}
-			// make sure we never add a favorite server twice
-			if (ui_netSource->integer == UIAS_FAVORITES) {
-				UI_RemoveServerFromDisplayList(i);
-			}
-			// insert the server into the list
-			UI_BinaryServerInsertion(i);
-			// done with this server
-			if (ping > 0) {
-				trap->LAN_MarkServerVisible(lanSource, i, qfalse);
-				numinvisible++;
-			}
-		}
-	}
-
-	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime;
-
-	// if there were no servers visible for ping updates
-	if (!visible) {
-		//		UI_StopServerRefresh();
-		//		uiInfo.serverStatus.nextDisplayRefresh = 0;
-	}
-}
-
-struct serverStatusCvar_s {
-	char *name, *altName;
-} serverStatusCvars[] = {
-	{ "sv_hostname", "Name" },
-	{ "Address", "" },
-	{ "gamename", "Game name" },
-	{ "sv_gametype", "Game type" },
-	{ "mapname", "Map" },
-	{ "version", "" },
-	{ "protocol", "" },
-	{ "timelimit", "" },
-	{ "fraglimit", "" },
-	{ NULL, NULL }
-};
-
-/*
-==================
-UI_SortServerStatusInfo
-==================
-*/
-static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
-	int i, j, index;
-	char *tmp1, *tmp2;
-
-	// FIXME: if "gamename" == "baseq3" or "missionpack" then
-	// replace the gametype number by FFA, CTF etc.
-	//
-	index = 0;
-	for (i = 0; serverStatusCvars[i].name; i++) {
-		for (j = 0; j < info->numLines; j++) {
-			if ( !info->lines[j][1] || info->lines[j][1][0] ) {
-				continue;
-			}
-			if ( !Q_stricmp(serverStatusCvars[i].name, info->lines[j][0]) ) {
-				// swap lines
-				tmp1 = info->lines[index][0];
-				tmp2 = info->lines[index][3];
-				info->lines[index][0] = info->lines[j][0];
-				info->lines[index][3] = info->lines[j][3];
-				info->lines[j][0] = tmp1;
-				info->lines[j][3] = tmp2;
-				//
-				if ( strlen(serverStatusCvars[i].altName) ) {
-					info->lines[index][0] = serverStatusCvars[i].altName;
-				}
-				index++;
-			}
-		}
-	}
-}
-
-/*
-==================
-UI_GetServerStatusInfo
-==================
-*/
-static int UI_GetServerStatusInfo( char *serverAddress, serverStatusInfo_t *info ) {
-	char *p, *score, *ping, *name;
-	int i, len;
-
-	if (!info) {
-		trap->LAN_GetServerStatus( serverAddress, NULL, 0);
-		return qfalse;
-	}
-	memset(info, 0, sizeof(*info));
-	if ( trap->LAN_GetServerStatus( serverAddress, info->text, sizeof(info->text)) ) {
-		Q_strncpyz(info->address, serverAddress, sizeof(info->address));
-		p = info->text;
-		info->numLines = 0;
-		info->lines[info->numLines][0] = "Address";
-		info->lines[info->numLines][1] = "";
-		info->lines[info->numLines][2] = "";
-		info->lines[info->numLines][3] = info->address;
-		info->numLines++;
-		// get the cvars
-		while (p && *p) {
-			p = strchr(p, '\\');
-			if (!p) break;
-			*p++ = '\0';
-			if (*p == '\\')
-				break;
-			info->lines[info->numLines][0] = p;
-			info->lines[info->numLines][1] = "";
-			info->lines[info->numLines][2] = "";
-			p = strchr(p, '\\');
-			if (!p) break;
-			*p++ = '\0';
-			info->lines[info->numLines][3] = p;
-
-			info->numLines++;
-			if (info->numLines >= MAX_SERVERSTATUS_LINES)
-				break;
-		}
-		// get the player list
-		if (info->numLines < MAX_SERVERSTATUS_LINES-3) {
-			// empty line
-			info->lines[info->numLines][0] = "";
-			info->lines[info->numLines][1] = "";
-			info->lines[info->numLines][2] = "";
-			info->lines[info->numLines][3] = "";
-			info->numLines++;
-			// header
-			info->lines[info->numLines][0] = "num";
-			info->lines[info->numLines][1] = "score";
-			info->lines[info->numLines][2] = "ping";
-			info->lines[info->numLines][3] = "name";
-			info->numLines++;
-			// parse players
-			i = 0;
-			len = 0;
-			while (p && *p) {
-				if (*p == '\\')
-					*p++ = '\0';
-				if (!p)
-					break;
-				score = p;
-				p = strchr(p, ' ');
-				if (!p)
-					break;
-				*p++ = '\0';
-				ping = p;
-				p = strchr(p, ' ');
-				if (!p)
-					break;
-				*p++ = '\0';
-				name = p;
-				Com_sprintf(&info->pings[len], sizeof(info->pings)-len, "%d", i);
-				info->lines[info->numLines][0] = &info->pings[len];
-				len += strlen(&info->pings[len]) + 1;
-				info->lines[info->numLines][1] = score;
-				info->lines[info->numLines][2] = ping;
-				info->lines[info->numLines][3] = name;
-				info->numLines++;
-				if (info->numLines >= MAX_SERVERSTATUS_LINES)
-					break;
-				p = strchr(p, '\\');
-				if (!p)
-					break;
-				*p++ = '\0';
-				//
-				i++;
-			}
-		}
-		UI_SortServerStatusInfo( info );
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-==================
-stristr
-==================
-*/
-static char *stristr(char *str, char *charset) {
-	int i;
-
-	while(*str) {
-		for (i = 0; charset[i] && str[i]; i++) {
-			if (toupper(charset[i]) != toupper(str[i])) break;
-		}
-		if (!charset[i]) return str;
-		str++;
-	}
-	return NULL;
-}
-
-/*
-==================
-UI_BuildFindPlayerList
-==================
-*/
-static void UI_BuildFindPlayerList(qboolean force) {
-	static int numFound, numTimeOuts;
-	int i, j, resend;
-	serverStatusInfo_t info;
-	char name[MAX_NETNAME];
-	char infoString[MAX_STRING_CHARS];
-	int  lanSource;
-
-	if (!force) {
-		if (!uiInfo.nextFindPlayerRefresh || uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
-			return;
-		}
-	}
-	else {
-		memset(&uiInfo.pendingServerStatus, 0, sizeof(uiInfo.pendingServerStatus));
-		uiInfo.numFoundPlayerServers = 0;
-		uiInfo.currentFoundPlayerServer = 0;
-		trap->Cvar_VariableStringBuffer( "ui_findPlayer", uiInfo.findPlayerName, sizeof(uiInfo.findPlayerName));
-		Q_CleanStr(uiInfo.findPlayerName);
-		// should have a string of some length
-		if (!strlen(uiInfo.findPlayerName)) {
-			uiInfo.nextFindPlayerRefresh = 0;
-			return;
-		}
-		// set resend time
-		resend = ui_serverStatusTimeOut->integer / 2 - 10;
-		if (resend < 50) {
-			resend = 50;
-		}
-		trap->Cvar_Set("cl_serverStatusResendTime", va("%d", resend));
-		// reset all server status requests
-		trap->LAN_GetServerStatus( NULL, NULL, 0);
-		//
-		uiInfo.numFoundPlayerServers = 1;
-		Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
-			sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-			"searching %d...", uiInfo.pendingServerStatus.num);
-		numFound = 0;
-		numTimeOuts++;
-	}
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		// if this pending server is valid
-		if (uiInfo.pendingServerStatus.server[i].valid) {
-			// try to get the server status for this server
-			if (UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, &info ) ) {
-				//
-				numFound++;
-				// parse through the server status lines
-				for (j = 0; j < info.numLines; j++) {
-					// should have ping info
-					if ( !info.lines[j][2] || !info.lines[j][2][0] ) {
-						continue;
-					}
-					// clean string first
-					Q_strncpyz(name, info.lines[j][3], sizeof(name));
-					Q_CleanStr(name);
-					// if the player name is a substring
-					if (stristr(name, uiInfo.findPlayerName)) {
-						// add to found server list if we have space (always leave space for a line with the number found)
-						if (uiInfo.numFoundPlayerServers < MAX_FOUNDPLAYER_SERVERS-1) {
-							//
-							Q_strncpyz(uiInfo.foundPlayerServerAddresses[uiInfo.numFoundPlayerServers-1],
-								uiInfo.pendingServerStatus.server[i].adrstr,
-								sizeof(uiInfo.foundPlayerServerAddresses[0]));
-							Q_strncpyz(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
-								uiInfo.pendingServerStatus.server[i].name,
-								sizeof(uiInfo.foundPlayerServerNames[0]));
-							uiInfo.numFoundPlayerServers++;
-						}
-						else {
-							// can't add any more so we're done
-							uiInfo.pendingServerStatus.num = uiInfo.serverStatus.numDisplayServers;
-						}
-					}
-				}
-				Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
-					sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-					"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
-				// retrieved the server status so reuse this spot
-				uiInfo.pendingServerStatus.server[i].valid = qfalse;
-			}
-		}
-		// if empty pending slot or timed out
-		if (!uiInfo.pendingServerStatus.server[i].valid ||
-			uiInfo.pendingServerStatus.server[i].startTime < uiInfo.uiDC.realTime - ui_serverStatusTimeOut->integer) {
-				if (uiInfo.pendingServerStatus.server[i].valid) {
-					numTimeOuts++;
-				}
-				// reset server status request for this address
-				UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, NULL );
-				// reuse pending slot
-				uiInfo.pendingServerStatus.server[i].valid = qfalse;
-				// if we didn't try to get the status of all servers in the main browser yet
-				if (uiInfo.pendingServerStatus.num < uiInfo.serverStatus.numDisplayServers) {
-					uiInfo.pendingServerStatus.server[i].startTime = uiInfo.uiDC.realTime;
-					lanSource = UI_SourceForLAN();
-					trap->LAN_GetServerAddressString(lanSource, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
-						uiInfo.pendingServerStatus.server[i].adrstr, sizeof(uiInfo.pendingServerStatus.server[i].adrstr));
-					trap->LAN_GetServerInfo(lanSource, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num], infoString, sizeof(infoString));
-					Q_strncpyz(uiInfo.pendingServerStatus.server[i].name, Info_ValueForKey(infoString, "hostname"), sizeof(uiInfo.pendingServerStatus.server[0].name));
-					uiInfo.pendingServerStatus.server[i].valid = qtrue;
-					uiInfo.pendingServerStatus.num++;
-					Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
-						sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-						"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
-				}
-		}
-	}
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		if (uiInfo.pendingServerStatus.server[i].valid) {
-			break;
-		}
-	}
-	// if still trying to retrieve server status info
-	if (i < MAX_SERVERSTATUSREQUESTS) {
-		uiInfo.nextFindPlayerRefresh = uiInfo.uiDC.realTime + 25;
-	}
-	else {
-		// add a line that shows the number of servers found
-		if (!uiInfo.numFoundPlayerServers) {
-			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
-		}
-		else {
-			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]),
-				"%d server%s found with player %s", uiInfo.numFoundPlayerServers-1,
-				uiInfo.numFoundPlayerServers == 2 ? "":"s", uiInfo.findPlayerName);
-		}
-		uiInfo.nextFindPlayerRefresh = 0;
-		// show the server status info for the selected server
-		UI_FeederSelection(FEEDER_FINDPLAYER, uiInfo.currentFoundPlayerServer);
-	}
-}
-
-/*
-==================
-UI_BuildServerStatus
-==================
-*/
-static void UI_BuildServerStatus(qboolean force) {
-
-	if (uiInfo.nextFindPlayerRefresh) {
-		return;
-	}
-	if (!force) {
-		if (!uiInfo.nextServerStatusRefresh || uiInfo.nextServerStatusRefresh > uiInfo.uiDC.realTime) {
-			return;
-		}
-	}
-	else {
-		Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
-		uiInfo.serverStatusInfo.numLines = 0;
-		// reset all server status requests
-		trap->LAN_GetServerStatus( NULL, NULL, 0);
-	}
-	if (uiInfo.serverStatus.currentServer < 0 || uiInfo.serverStatus.currentServer > uiInfo.serverStatus.numDisplayServers || uiInfo.serverStatus.numDisplayServers == 0) {
-		return;
-	}
-	if (UI_GetServerStatusInfo( uiInfo.serverStatusAddress, &uiInfo.serverStatusInfo ) ) {
-		uiInfo.nextServerStatusRefresh = 0;
-		UI_GetServerStatusInfo( uiInfo.serverStatusAddress, NULL );
-	}
-	else {
-		uiInfo.nextServerStatusRefresh = uiInfo.uiDC.realTime + 500;
-	}
 }
 
 /*
@@ -3206,61 +3370,6 @@ static int UI_FeederCount(float feederID) {
 	return 0;
 }
 
-static const char *UI_SelectedMap(int index, int *actual) {
-	int i, c;
-	c = 0;
-	*actual = 0;
-	for (i = 0; i < uiInfo.mapCount; i++) {
-		if (uiInfo.mapList[i].active) {
-			if (c == index) {
-				*actual = i;
-				return uiInfo.mapList[i].mapName;
-			} else {
-				c++;
-			}
-		}
-	}
-	return "";
-}
-
-static const char *UI_SelectedHead(int index, int *actual) {
-	int i, c;
-	c = 0;
-	*actual = 0;
-	for (i = 0; i < uiInfo.characterCount; i++) {
-		if (uiInfo.characterList[i].active) {
-			if (c == index) {
-				*actual = i;
-				return uiInfo.characterList[i].name;
-			} else {
-				c++;
-			}
-		}
-	}
-	return "";
-}
-
-static int UI_GetIndexFromSelection(int actual) {
-	int i, c;
-	c = 0;
-	for (i = 0; i < uiInfo.mapCount; i++) {
-		if (uiInfo.mapList[i].active) {
-			if (i == actual) {
-				return c;
-			}
-			c++;
-		}
-	}
-	return 0;
-}
-
-static void UI_UpdatePendingPings( void ) { 
-	trap->LAN_ResetPings(UI_SourceForLAN());
-	uiInfo.serverStatus.refreshActive = qtrue;
-	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
-
-}
-
 static const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *handle) {
 	static char info[MAX_STRING_CHARS];
 	static char hostname[1024];
@@ -3280,7 +3389,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		return UI_SelectedMap(index, &actual);
 	} else if (feederID == FEEDER_SERVERS) {
 		if (index >= 0 && index < uiInfo.serverStatus.numDisplayServers) {
-			int ping, game, punkbuster;
+			int ping, game;
 			if (lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000) {
 				trap->LAN_GetServerInfo(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
 				lastColumn = column;
@@ -3329,13 +3438,6 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 					return "...";
 				} else {
 					return Info_ValueForKey(info, "ping");
-				}
-			case SORT_PUNKBUSTER:
-				punkbuster = atoi(Info_ValueForKey(info, "punkbuster"));
-				if ( punkbuster ) {
-					return "Yes";
-				} else {
-					return "No";
 				}
 			}
 		}
@@ -3406,85 +3508,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		}
 	}
 	return 0;
-}
-
-static void UI_FeederSelection(float feederID, int index) {
-	static char info[MAX_STRING_CHARS];
-	if (feederID == FEEDER_HEADS) {
-		int actual;
-		UI_SelectedHead(index, &actual);
-		index = actual;
-		if (index >= 0 && index < uiInfo.characterCount) {
-			trap->Cvar_Set( "cg_model", uiInfo.characterList[index].base);
-			updateModel = qtrue;
-		}
-	} else if (feederID == FEEDER_Q3HEADS) {
-		if (index >= 0 && index < uiInfo.q3HeadCount) {
-			trap->Cvar_Set( "cg_model", uiInfo.q3HeadNames[index]);
-			updateModel = qtrue;
-		}
-	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
-		int actual, map;
-		map = (feederID == FEEDER_ALLMAPS) ? ui_currentNetMap->integer : ui_currentMap->integer;
-		if (uiInfo.mapList[map].cinematic >= 0) {
-			trap->CIN_StopCinematic(uiInfo.mapList[map].cinematic);
-			uiInfo.mapList[map].cinematic = -1;
-		}
-		UI_SelectedMap(index, &actual);
-		trap->Cvar_Set("ui_mapIndex", va("%d", index));
-		ui_mapIndex->integer = index;
-
-		if (feederID == FEEDER_MAPS) {
-			ui_currentMap->integer = actual;
-			trap->Cvar_Set("ui_currentMap", va("%d", actual));
-			uiInfo.mapList[ui_currentMap->integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentMap->integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
-			trap->Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap->integer].opponentName);
-			updateOpponentModel = qtrue;
-		} else {
-			ui_currentNetMap->integer = actual;
-			trap->Cvar_Set("ui_currentNetMap", va("%d", actual));
-			uiInfo.mapList[ui_currentNetMap->integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap->integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
-		}
-
-	} else if (feederID == FEEDER_SERVERS) {
-		const char *mapName = NULL;
-		uiInfo.serverStatus.currentServer = index;
-		trap->LAN_GetServerInfo(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
-		uiInfo.serverStatus.currentServerPreview = trap->R_RegisterShader(va("gfx/maps/%s", Info_ValueForKey(info, "mapname")));
-		if (uiInfo.serverStatus.currentServerCinematic >= 0) {
-			trap->CIN_StopCinematic(uiInfo.serverStatus.currentServerCinematic);
-			uiInfo.serverStatus.currentServerCinematic = -1;
-		}
-		mapName = Info_ValueForKey(info, "mapname");
-		if (mapName && *mapName) {
-			uiInfo.serverStatus.currentServerCinematic = trap->CIN_PlayCinematic(va("%s.roq", mapName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
-		}
-	} else if (feederID == FEEDER_SERVERSTATUS) {
-		//
-	} else if (feederID == FEEDER_FINDPLAYER) {
-		uiInfo.currentFoundPlayerServer = index;
-		//
-		if ( index < uiInfo.numFoundPlayerServers-1) {
-			// build a new server status for this server
-			Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer], sizeof(uiInfo.serverStatusAddress));
-			Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
-			UI_BuildServerStatus(qtrue);
-		}
-	} else if (feederID == FEEDER_PLAYER_LIST) {
-		uiInfo.playerIndex = index;
-	} else if (feederID == FEEDER_TEAM_LIST) {
-		uiInfo.teamIndex = index;
-	} else if (feederID == FEEDER_MODS) {
-		uiInfo.modIndex = index;
-	} else if (feederID == FEEDER_CINEMATICS) {
-		uiInfo.movieIndex = index;
-		if (uiInfo.previewMovie >= 0) {
-			trap->CIN_StopCinematic(uiInfo.previewMovie);
-		}
-		uiInfo.previewMovie = -1;
-	} else if (feederID == FEEDER_DEMOS) {
-		uiInfo.demoIndex = index;
-	}
 }
 
 static qboolean Character_Parse(char **p) {
@@ -3660,7 +3683,7 @@ static void UI_BuildQ3Model_List( void )
 
 }
 
-static float UI_GetValue( int ownerdraw ) {}
+static float UI_GetValue( int ownerdraw ) { return 0.0f; }
 
 /*
 ================
@@ -3708,6 +3731,8 @@ static void UI_RegisterCvars( void ) {
 			(*cv->cvar)->update();
 	}
 }
+
+static void UI_GetTeamColor( vector4 *color ) {}
 
 /*
 =================
@@ -3993,12 +4018,12 @@ static void UI_PrintTime ( char *buf, int bufsize, int time ) {
 }
 
 void Text_PaintCenter(float x, float y, float scale, const vector4 *color, const char *text, float adjust) {
-	int len = Text_Width(text, scale, 0);
+	float len = Text_Width(text, scale, 0);
 	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
 void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, const vector4 *color, const char *str, float adjust) {
-	int width;
+	float width;
 	char *s1,*s2,*s3;
 	char c_bcp;
 	char buf[1024];
@@ -4212,125 +4237,6 @@ static void UI_DrawConnectScreen( qboolean overlay ) {
 	}
 
 	// password required / connection rejected information goes here
-}
-
-/*
-=================
-ArenaServers_StopRefresh
-=================
-*/
-static void UI_StopServerRefresh( void )
-{
-	int count;
-
-	if (!uiInfo.serverStatus.refreshActive) {
-		// not currently refreshing
-		return;
-	}
-	uiInfo.serverStatus.refreshActive = qfalse;
-	Com_Printf("%d servers listed in browser with %d players.\n",
-		uiInfo.serverStatus.numDisplayServers,
-		uiInfo.serverStatus.numPlayersOnServers);
-	count = trap->LAN_GetServerCount(UI_SourceForLAN());
-	if (count - uiInfo.serverStatus.numDisplayServers > 0) {
-		Com_Printf("%d servers not listed due to packet loss or pings higher than %d\n",
-			count - uiInfo.serverStatus.numDisplayServers,
-			(int) trap->Cvar_VariableValue("cl_maxPing"));
-	}
-
-}
-
-/*
-=================
-UI_DoServerRefresh
-=================
-*/
-static void UI_DoServerRefresh( void )
-{
-	qboolean wait = qfalse;
-
-	if (!uiInfo.serverStatus.refreshActive) {
-		return;
-	}
-	if (ui_netSource->integer != UIAS_FAVORITES) {
-		if (ui_netSource->integer == UIAS_LOCAL) {
-			if (!trap->LAN_GetServerCount(AS_LOCAL)) {
-				wait = qtrue;
-			}
-		} else {
-			if (trap->LAN_GetServerCount(AS_GLOBAL) < 0) {
-				wait = qtrue;
-			}
-		}
-	}
-
-	if (uiInfo.uiDC.realTime < uiInfo.serverStatus.refreshtime) {
-		if (wait) {
-			return;
-		}
-	}
-
-	// if still trying to retrieve pings
-	if (trap->LAN_UpdateVisiblePings(UI_SourceForLAN())) {
-		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
-	} else if (!wait) {
-		// get the last servers in the list
-		UI_BuildServerDisplayList(2);
-		// stop the refresh
-		UI_StopServerRefresh();
-	}
-	//
-	UI_BuildServerDisplayList(qfalse);
-}
-
-/*
-=================
-UI_StartServerRefresh
-=================
-*/
-static void UI_StartServerRefresh(qboolean full)
-{
-	char	*ptr;
-	int		lanSource;
-
-	qtime_t q;
-	trap->RealTime(&q);
-	trap->Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource->integer), va("%s-%i, %i at %i:%i", MonthAbbrev[q.tm_mon],q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
-
-	if (!full) {
-		UI_UpdatePendingPings();
-		return;
-	}
-
-	uiInfo.serverStatus.refreshActive = qtrue;
-	uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 1000;
-	// clear number of displayed servers
-	uiInfo.serverStatus.numDisplayServers = 0;
-	uiInfo.serverStatus.numPlayersOnServers = 0;
-
-	lanSource = UI_SourceForLAN();
-	// mark all servers as visible so we store ping updates for them
-	trap->LAN_MarkServerVisible(lanSource, -1, qtrue);
-	// reset all the pings
-	trap->LAN_ResetPings(lanSource);
-	//
-	if( ui_netSource->integer == UIAS_LOCAL ) {
-		trap->Cbuf_ExecuteText( EXEC_NOW, "localservers\n" );
-		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
-		return;
-	}
-
-	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-	if( ui_netSource->integer >= UIAS_GLOBAL1 && ui_netSource->integer <= UIAS_GLOBAL5 ) {
-
-		ptr = UI_Cvar_VariableString("debug_protocol");
-		if (strlen(ptr)) {
-			trap->Cbuf_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource->integer-1, ptr));
-		}
-		else {
-			trap->Cbuf_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource->integer-1, (int)trap->Cvar_VariableValue( "protocol" ) ) );
-		}
-	}
 }
 
 /*

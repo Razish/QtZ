@@ -83,15 +83,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SCRIPT_ARGS 12
 #define MAX_EDITFIELD 256
 
-#define ART_FX_BASE			"menu/art/fx_base"
-#define ART_FX_BLUE			"menu/art/fx_blue"
-#define ART_FX_CYAN			"menu/art/fx_cyan"
-#define ART_FX_GREEN		"menu/art/fx_grn"
-#define ART_FX_RED			"menu/art/fx_red"
-#define ART_FX_TEAL			"menu/art/fx_teal"
-#define ART_FX_WHITE		"menu/art/fx_white"
-#define ART_FX_YELLOW		"menu/art/fx_yel"
-
 #define ASSET_GRADIENTBAR			"ui/assets/gradientbar2.tga"
 #define ASSET_SCROLLBAR				"ui/assets/scrollbar.tga"
 #define ASSET_SCROLLBAR_ARROWDOWN	"ui/assets/scrollbar_arrow_dwn_a.tga"
@@ -338,8 +329,6 @@ typedef struct cachedAssets_s {
 	qboolean		fontRegistered;
 
 	// player settings
-	qhandle_t		fxBasePic;
-	qhandle_t		fxPic[7];
 	qhandle_t		crosshairShader[NUM_CROSSHAIRS];
 } cachedAssets_t;
 
@@ -353,9 +342,9 @@ typedef struct displayContextDef_s {
 	void			(*setColor)				( const vector4 *v );
 	void			(*drawHandlePic)		( float x, float y, float w, float h, qhandle_t asset );
 	void			(*drawStretchPic)		( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	void			(*drawText)				( float x, float y, float scale, vector4 *color, const char *text, float adjust, int limit, int style );
-	int				(*textWidth)			( const char *text, float scale, int limit );
-	int				(*textHeight)			( const char *text, float scale, int limit );
+	void			(*drawText)				( float x, float y, float scale, const vector4 *color, const char *text, float adjust, int limit, int style );
+	float			(*textWidth)			( const char *text, float scale, int limit );
+	float			(*textHeight)			( const char *text, float scale, int limit );
 	qhandle_t		(*registerModel)		( const char *p );
 	void			(*modelBounds)			( qhandle_t model, vector3 *min, vector3 *max );
 	void			(*fillRect)				( float x, float y, float w, float h, const vector4 *color );
@@ -391,7 +380,7 @@ typedef struct displayContextDef_s {
 	void			(*Error)				( int level, const char *error, ... ) __attribute__( (noreturn, format(printf, 2, 3)) );
 	void			(*Print)				( const char *msg, ... ) __attribute__( (format(printf, 1, 2)) );
 	void			(*Pause)				( qboolean b );
-	int				(*ownerDrawWidth)		( int ownerDraw, float scale );
+	float			(*ownerDrawWidth)		( int ownerDraw, float scale );
 	sfxHandle_t		(*registerSound)		( const char *name, qboolean compressed );
 	void			(*startBackgroundTrack)	( const char *intro, const char *loop );
 	void			(*stopBackgroundTrack)	( void );

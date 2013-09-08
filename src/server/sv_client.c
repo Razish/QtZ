@@ -1342,30 +1342,31 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
-void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
-	ucmd_t	*u;
-	qboolean bProcessed = qfalse;
+void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean flood ) {
+	ucmd_t *u = NULL;
+	const char *arg = NULL;
 	
 	svi.Cmd_TokenizeString( s );
+	arg = svi.Cmd_Argv( 0 );
 
 	// see if it is a server level command
-	for (u=ucmds ; u->name ; u++) {
-		if (!strcmp (svi.Cmd_Argv(0), u->name) ) {
+	for ( u=ucmds; u->name; u++ ) {
+		if ( !strcmp( arg, u->name ) ) {
 			u->func( cl );
-			bProcessed = qtrue;
-			break;
+			return;
 		}
 	}
 
-	if (clientOK) {
-		// pass unknown strings to the game
-		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
-			svi.Cmd_Args_Sanitize();
-			game->ClientCommand( cl - svs.clients );
-		}
+	if ( flood ) {
+		Com_DPrintf( "client text ignored for %s: %s\n", cl->name, arg );
+		return;
 	}
-	else if (!bProcessed)
-		Com_DPrintf( "client text ignored for %s: %s\n", cl->name, svi.Cmd_Argv(0) );
+
+	// pass unknown strings to the game
+	if ( sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED) ) {
+		svi.Cmd_Args_Sanitize();
+		game->ClientCommand( cl-svs.clients );
+	}
 }
 
 /*
@@ -1376,22 +1377,20 @@ SV_ClientCommand
 static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	int		seq;
 	const char	*s;
-	qboolean clientOk = qtrue;
+	qboolean flood = qfalse;
 
 	seq = svi.MSG_ReadLong( msg );
 	s = svi.MSG_ReadString( msg );
 
 	// see if we have already executed it
-	if ( cl->lastClientCommand >= seq ) {
+	if ( cl->lastClientCommand >= seq )
 		return qtrue;
-	}
 
 	Com_DPrintf( "clientCommand: %s : %i : %s\n", cl->name, seq, s );
 
 	// drop the connection if we have somehow lost commands
 	if ( seq > cl->lastClientCommand + 1 ) {
-		Com_Printf( "Client %s lost %i clientCommands\n", cl->name, 
-			seq - cl->lastClientCommand + 1 );
+		Com_Printf( "Client %s lost %i clientCommands\n", cl->name, seq - cl->lastClientCommand + 1 );
 		SV_DropClient( cl, "Lost reliable commands" );
 		return qfalse;
 	}
@@ -1403,24 +1402,24 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// but not other people
 	// We don't do this when the client hasn't been active yet since it's
 	// normal to spam a lot of commands when downloading
-	if ( !com_cl_running->integer && 
+	if ( //!com_cl_running->integer && 
 		cl->state >= CS_ACTIVE &&
 		sv_floodProtect->integer && 
-		svs.time < cl->nextReliableTime ) {
+		cl->lastReliableTime >= svs.time-sv_floodProtect->integer ) {
 		// ignore any other text messages from this client but let them keep playing
 		// TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
-		clientOk = qfalse;
-	} 
+		flood = qtrue;
+	}
 
-	// don't allow another command for one second
-	cl->nextReliableTime = svs.time + 1000;
+	if ( cl->lastReliableTime < svs.time-sv_floodProtect->integer )
+		cl->lastReliableTime = svs.time;
 
-	SV_ExecuteClientCommand( cl, s, clientOk );
+	SV_ExecuteClientCommand( cl, s, flood );
 
 	cl->lastClientCommand = seq;
-	Com_sprintf(cl->lastClientCommandString, sizeof(cl->lastClientCommandString), "%s", s);
+	Com_sprintf( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), "%s", s );
 
-	return qtrue;		// continue procesing
+	return qtrue; // continue procesing
 }
 
 

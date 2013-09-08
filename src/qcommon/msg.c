@@ -1173,7 +1173,6 @@ netField_t	playerStateFields[] =
 { PSF(eventSequence), 16 },
 { PSF(torsoAnim), 8 },
 { PSF(movementDir), 4 },
-{ PSF(lastMovementDir), 4 },
 { PSF(events[0]), 8 },
 { PSF(legsAnim), 8 },
 { PSF(events[1]), 8 },

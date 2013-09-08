@@ -301,7 +301,6 @@ typedef struct serverInfo_s {
 	int			maxPing;
 	int			ping;
 	qboolean	visible;
-	int			punkbuster;
 	int			g_humanplayers;
 	int			g_needpass;
 } serverInfo_t;
@@ -530,6 +529,17 @@ void	CL_FavoriteServers_f( void );
 void	CL_Ping_f( void );
 qboolean CL_UpdateVisiblePings_f( int source );
 
+#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
+#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
+
+#define SMALLCHAR_WIDTH		8
+#define SMALLCHAR_HEIGHT	16
+
+#define BIGCHAR_WIDTH		16
+#define BIGCHAR_HEIGHT		16
+
+#define	GIANTCHAR_WIDTH		32
+#define	GIANTCHAR_HEIGHT	48
 
 //
 // console

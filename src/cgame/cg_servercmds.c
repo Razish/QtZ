@@ -427,7 +427,7 @@ static void CG_MapRestart( void ) {
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_DUEL */) {
 		trap->S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
-		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
+		CG_CenterPrint( "FIGHT!", 120 );
 	}
 }
 
@@ -864,7 +864,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "cp" ) ) {
-		CG_CenterPrint( CG_Argv(1), (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
+		CG_CenterPrint( CG_Argv(1), (int)(SCREEN_HEIGHT * 0.30f) );
 		return;
 	}
 

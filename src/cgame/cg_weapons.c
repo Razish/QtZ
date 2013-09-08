@@ -393,13 +393,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	VectorCopy(&parent->origin, &gun.origin);
 
 	VectorMA(&gun.origin, lerped.origin.x, &parent->axis[0], &gun.origin);
-
-	// Make weapon appear left-handed for 2 and centered for 3
-	if(ps && cg_drawGun->integer == 2)
-		VectorMA(&gun.origin, -lerped.origin.y, &parent->axis[1], &gun.origin);
-	else if(!ps || cg_drawGun->integer != 3)
-		VectorMA(&gun.origin, lerped.origin.y, &parent->axis[1], &gun.origin);
-
+	VectorMA(&gun.origin, lerped.origin.y, &parent->axis[1], &gun.origin);
 	VectorMA(&gun.origin, lerped.origin.z, &parent->axis[2], &gun.origin);
 
 	MatrixMultiply(lerped.axis, ((refEntity_t *)parent)->axis, gun.axis);
@@ -551,7 +545,7 @@ void CG_DrawWeaponSelect( void ) {
 	int		i;
 	int		bits;
 	int		count;
-	int		x, y, w;
+	float	x, y, w;
 	char	*name;
 	vector4	*color;
 
@@ -578,7 +572,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	x = ((int)SCREEN_WIDTH/2) - count * 20;
+	x = (SCREEN_WIDTH/2) - count * 20;
 	y = 380;
 
 	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ ) {
@@ -608,9 +602,9 @@ void CG_DrawWeaponSelect( void ) {
 	if ( cg_weapons[ cg.weaponSelect ].item ) {
 		name = cg_weapons[ cg.weaponSelect ].item->pickup_name;
 		if ( name ) {
-			w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
+			w = CG_Text_Width( name, ui_smallFont->value, 0 );
 			x = ( (int)SCREEN_WIDTH - w ) / 2;
-			CG_DrawBigStringColor(x, y - 22, name, color);
+			CG_Text_Paint( x, y - 22, ui_smallFont->value, color, name, 0.0f, 0, 0 );
 		}
 	}
 

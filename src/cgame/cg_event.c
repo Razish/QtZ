@@ -29,50 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //==========================================================================
 
 /*
-===================
-CG_PlaceString
-
-Also called by scoreboard drawing
-===================
-*/
-const char	*CG_PlaceString( int rank ) {
-	static char	str[64];
-	char	*s, *t;
-
-	if ( rank & RANK_TIED_FLAG ) {
-		rank &= ~RANK_TIED_FLAG;
-		t = "Tied for ";
-	} else {
-		t = "";
-	}
-
-	if ( rank == 1 ) {
-		s = S_COLOR_BLUE "1st" S_COLOR_WHITE;		// draw in blue
-	} else if ( rank == 2 ) {
-		s = S_COLOR_RED "2nd" S_COLOR_WHITE;		// draw in red
-	} else if ( rank == 3 ) {
-		s = S_COLOR_YELLOW "3rd" S_COLOR_WHITE;		// draw in yellow
-	} else if ( rank == 11 ) {
-		s = "11th";
-	} else if ( rank == 12 ) {
-		s = "12th";
-	} else if ( rank == 13 ) {
-		s = "13th";
-	} else if ( rank % 10 == 1 ) {
-		s = va("%ist", rank);
-	} else if ( rank % 10 == 2 ) {
-		s = va("%ind", rank);
-	} else if ( rank % 10 == 3 ) {
-		s = va("%ird", rank);
-	} else {
-		s = va("%ith", rank);
-	}
-
-	Com_sprintf( str, sizeof( str ), "%s%s", t, s );
-	return str;
-}
-
-/*
 =============
 CG_Obituary
 =============
@@ -88,8 +44,7 @@ static void CG_Obituary( entityState_t *ent )
 		trap->Error( ERR_DROP, "CG_Obituary: target out of range" );
 	ci = &cgs.clientinfo[target];
 
-	if ( attacker < 0 || attacker >= MAX_CLIENTS )
-	{
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
 		attacker = ENTITYNUM_WORLD;
 		attackerInfo = NULL;
 	}
@@ -102,12 +57,9 @@ static void CG_Obituary( entityState_t *ent )
 	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2);
 	strcat( targetName, S_COLOR_WHITE );
 
+	// "You fragged" message, not for self
 	if ( attacker == cg.snap->ps.clientNum && attacker != target )
-	{// "You fragged" message, not for self
-		char *str = (cgs.gametype<GT_TEAM) ? va( "You fragged %s\n%s place with %i", targetName, CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] )
-											: va( "You fragged %s", targetName );
-		CG_CenterPrint( str, (int)(SCREEN_HEIGHT * 0.2f), BIGCHAR_WIDTH );
-	}
+		CG_CenterPrint( va( "You fragged %s", targetName ), (int)(SCREEN_HEIGHT * 0.2f) );
 
 	// check for double client messages
 	if ( !attackerInfo )
@@ -174,10 +126,10 @@ static void CG_UseItem( centity_t *cent ) {
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum ) {
 		if ( !itemNum ) {
-			CG_CenterPrint( "No item to use", (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
+			CG_CenterPrint( "No item to use", (int)(SCREEN_HEIGHT * 0.30f) );
 		} else {
 			item = BG_FindItemForHoldable( (holdable_t)itemNum );
-			CG_CenterPrint( va("Use %s", item->pickup_name), (int)(SCREEN_HEIGHT * 0.30f), BIGCHAR_WIDTH );
+			CG_CenterPrint( va("Use %s", item->pickup_name), (int)(SCREEN_HEIGHT * 0.30f) );
 		}
 	}
 

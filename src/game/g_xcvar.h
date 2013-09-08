@@ -12,7 +12,7 @@
 #endif
 
 //			name							default value		announce	update		flags											description
-XCVAR_DEF( gamename,						GAMEVERSION,		qfalse,		NULL,		CVAR_SERVERINFO|CVAR_ROM,						NULL )
+XCVAR_DEF( gamename,						BASEGAME,			qfalse,		NULL,		CVAR_SERVERINFO|CVAR_ROM,						NULL )
 XCVAR_DEF( gamedate,						__DATE__,			qfalse,		NULL,		CVAR_SERVERINFO|CVAR_ROM,						"Build date of QuantiZe" )
 XCVAR_DEF( sv_frametime,					"25",				qtrue,		NULL,		CVAR_NONE,										"Server update rate" )
 XCVAR_DEF( sv_gametype,						"dm",				qfalse,		NULL,		0,												"Gametype" )
@@ -71,16 +71,16 @@ XCVAR_DEF( pm_bunnyHopEnable,				"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEM
 XCVAR_DEF( pm_doubleJumpDebounce,			"300",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_doubleJumpEnable,				"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_doubleJumpPush,				"100",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
+XCVAR_DEF( pm_float,						"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_frametime,					"20",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_friction,						"8.0",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_gravity,						"1100",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_jumpVelocity,					"300.0",			qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_overbounce,					"0",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_rampJumpEnable,				"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
-XCVAR_DEF( pm_float,						"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_speed,						"320",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
-XCVAR_DEF( pm_wallJumpEnable,				"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( pm_wallJumpDebounce,				"900",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
+XCVAR_DEF( pm_wallJumpEnable,				"1",				qtrue,		NULL,		CVAR_ARCHIVE|CVAR_SYSTEMINFO,					NULL )
 XCVAR_DEF( sv_cheats,						"0",				qtrue,		NULL,		0,												NULL )
 XCVAR_DEF( sv_maxclients,					"8",				qfalse,		NULL,		0,												NULL )
 XCVAR_DEF( timelimit,						"10",				qtrue,		NULL,		CVAR_SERVERINFO|CVAR_ARCHIVE|CVAR_NORESTART,	NULL )

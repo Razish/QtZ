@@ -1135,7 +1135,6 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			{
 				oldFBO = (framebuffer_t *)R_EXT_GetCurrentFramebuffer();
 				R_EXT_BindFramebuffer( tr.framebuffers.glow );
-				GL_State( GLS_DEFAULT );
 			}
 			else
 				continue;

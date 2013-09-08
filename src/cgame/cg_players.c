@@ -646,7 +646,10 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// bot skill
 	v = Info_ValueForKey( configstring, "s" );
-	newInfo.botSkill = atoi( v );
+	if ( !v[0] )
+		newInfo.botSkill = -1; // client
+	else
+		newInfo.botSkill = atoi( v );
 
 	// scan for an existing clientinfo that matches this modelname
 	// so we can avoid loading checks if possible

@@ -528,11 +528,6 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.deferShader = trap->R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
 
-	cgs.media.scoreboardName = trap->R_RegisterShaderNoMip( "menu/tab/name.tga" );
-	cgs.media.scoreboardPing = trap->R_RegisterShaderNoMip( "menu/tab/ping.tga" );
-	cgs.media.scoreboardScore = trap->R_RegisterShaderNoMip( "menu/tab/score.tga" );
-	cgs.media.scoreboardTime = trap->R_RegisterShaderNoMip( "menu/tab/time.tga" );
-
 	cgs.media.bloodTrailShader = trap->R_RegisterShader( "bloodTrail" );
 	cgs.media.lagometerShader = trap->R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap->R_RegisterShader( "disconnected" );
@@ -676,7 +671,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.defendShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/defend.tga");
 	cgs.media.retrieveShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga");
 	cgs.media.escortShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga");
-	cgs.media.cursor = trap->R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	cgs.media.cursor = trap->R_RegisterShaderNoMip( "gfx/2d/cursor.tga" );
 	cgs.media.sizeCursor = trap->R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
 	cgs.media.selectCursor = trap->R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
 	cgs.media.flagShaders[0] = trap->R_RegisterShaderNoMip("ui/assets/statusbar/flag_in_base.tga");
@@ -707,6 +702,8 @@ static void CG_RegisterGraphics( void ) {
 	for ( i=0; i<NUM_CROSSHAIRS; i++ )
 		cgs.media.crosshair.images[i] = trap->R_RegisterShaderNoMip( va("gfx/hud/crosshair_bit%i", (1<<i)) );
 	cgs.media.crosshair.cooldownTic		= trap->R_RegisterShader( "cooldownTic" );
+
+	cgs.media.scoreboard.line			= trap->R_RegisterShaderNoMip( "gfx/menus/scoreboard" );
 }
 
 
@@ -1293,7 +1290,7 @@ void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, cons
 	CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
 }
 
-static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
+static float CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	switch (ownerDraw) {
 	case CG_GAME_TYPE:
 		return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, 0);
@@ -1311,7 +1308,7 @@ static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 		return CG_Text_Width(cgs.blueTeam, scale, 0);
 		break;
 	}
-	return 0;
+	return 0.0f;
 }
 
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
@@ -1411,14 +1408,6 @@ void CG_AssetCache( void ) {
 	//}
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = trap->R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-	cgDC.Assets.fxBasePic = trap->R_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = trap->R_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = trap->R_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = trap->R_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = trap->R_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = trap->R_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = trap->R_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = trap->R_RegisterShaderNoMip( ART_FX_WHITE );
 	cgDC.Assets.scrollBar = trap->R_RegisterShaderNoMip( ASSET_SCROLLBAR );
 	cgDC.Assets.scrollBarArrowDown = trap->R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
 	cgDC.Assets.scrollBarArrowUp = trap->R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
@@ -1454,13 +1443,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;
 
-	// load a few needed things before we do any screen updates
-	cgs.media.charsetShader		= trap->R_RegisterShaderNoMip( "gfx/2d/bigchars" );
-	cgs.media.whiteShader		= trap->R_RegisterShader( "white" );
-	cgs.media.charsetProp		= trap->R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-	cgs.media.charsetPropGlow	= trap->R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-	cgs.media.charsetPropB		= trap->R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
-
 	CG_RegisterCvars();
 
 	CG_InitConsoleCommands();
@@ -1490,29 +1472,26 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	CG_ParseServerinfo();
 
+	// load a few needed things before we do any screen updates
+	cgs.media.whiteShader		= trap->R_RegisterShader( "white" );
+	String_Init();
+	CG_AssetCache();
+	CG_LoadHudMenu();
+
 	// load the new map
 	CG_LoadingString( "collision map" );
-
 	trap->CM_LoadMap( cgs.mapname );
-
-	String_Init();
 
 	cg.loading = qtrue;		// force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
-
 	CG_RegisterSounds();
 
 	CG_LoadingString( "graphics" );
-
 	CG_RegisterGraphics();
 
 	CG_LoadingString( "clients" );
-
 	CG_RegisterClients();		// if low on memory, some clients will be deferred
-
-	CG_AssetCache();
-	CG_LoadHudMenu();      // load new hud stuff
 
 	cg.loading = qfalse;	// future players will be deferred
 
@@ -1529,8 +1508,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_StartMusic();
 
 	CG_LoadingString( "" );
-
-	CG_InitTeamChat();
 
 	CG_ShaderStateChanged();
 

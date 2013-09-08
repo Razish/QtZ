@@ -456,7 +456,7 @@ void MakeNormalVectors( const vector3 *forward, vector3 *right, vector3 *up) {
 }
 
 
-QINLINE void VectorRotate( vector3 *in, vector3 matrix[3], vector3 *out ) {
+void VectorRotate( vector3 *in, vector3 matrix[3], vector3 *out ) {
 	out->x = DotProduct( in, &matrix[0] );
 	out->y = DotProduct( in, &matrix[1] );
 	out->z = DotProduct( in, &matrix[2] );
@@ -738,7 +738,7 @@ qboolean BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const v
 	return qtrue;
 }
 
-QINLINE void VectorAdd( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
+void VectorAdd( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
 #ifdef USE_SSE
 	__asm {
 		mov ecx, vec1
@@ -762,7 +762,7 @@ QINLINE void VectorAdd( const vector3 *vec1, const vector3 *vec2, vector3 *vecOu
 #endif
 }
 
-QINLINE void VectorSubtract( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
+void VectorSubtract( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
 #ifdef USE_SSE
 	__asm {
 		mov ecx, vec1
@@ -786,13 +786,13 @@ QINLINE void VectorSubtract( const vector3 *vec1, const vector3 *vec2, vector3 *
 #endif
 }
 
-QINLINE void VectorNegate( const vector3 *vecIn, vector3 *vecOut ) {
+void VectorNegate( const vector3 *vecIn, vector3 *vecOut ) {
 	vecOut->x = -vecIn->x;
 	vecOut->y = -vecIn->y;
 	vecOut->z = -vecIn->z;
 }
 
-QINLINE void VectorScale( const vector3 *vecIn, number scale, vector3 *vecOut ) {
+void VectorScale( const vector3 *vecIn, number scale, vector3 *vecOut ) {
 #ifdef USE_SSE
 	__asm {
 		movss xmm0, scale
@@ -815,39 +815,39 @@ QINLINE void VectorScale( const vector3 *vecIn, number scale, vector3 *vecOut ) 
 #endif
 }
 
-QINLINE void VectorScale4( const vector4 *vecIn, number scale, vector4 *vecOut ) {
+void VectorScale4( const vector4 *vecIn, number scale, vector4 *vecOut ) {
 	vecOut->x = vecIn->x * scale;
 	vecOut->y = vecIn->y * scale;
 	vecOut->z = vecIn->z * scale;
 	vecOut->w = vecIn->w * scale;
 }
 
-QINLINE void VectorScaleVector( const vector3 *vecIn, const vector3 *vecScale, vector3 *vecOut ) {
+void VectorScaleVector( const vector3 *vecIn, const vector3 *vecScale, vector3 *vecOut ) {
 	vecOut->x = vecIn->x * vecScale->x;
 	vecOut->y = vecIn->y * vecScale->y;
 	vecOut->z = vecIn->z * vecScale->z;
 }
 
-QINLINE void VectorMA( const vector3 *vec1, number scale, const vector3 *vec2, vector3 *vecOut ) {
+void VectorMA( const vector3 *vec1, number scale, const vector3 *vec2, vector3 *vecOut ) {
 	vecOut->x = vec1->x + vec2->x*scale;
 	vecOut->y = vec1->y + vec2->y*scale;
 	vecOut->z = vec1->z + vec2->z*scale;
 }
 
-QINLINE void VectorLerp( const vector3 *vec1, number frac, const vector3 *vec2, vector3 *vecOut ) {
+void VectorLerp( const vector3 *vec1, number frac, const vector3 *vec2, vector3 *vecOut ) {
 	vecOut->x = vec1->x + (vec2->x-vec1->x)*frac;
 	vecOut->y = vec1->y + (vec2->y-vec1->y)*frac;
 	vecOut->z = vec1->z + (vec2->z-vec1->z)*frac;
 }
 
-QINLINE void VectorLerp4( const vector4 *vec1, number frac, const vector4 *vec2, vector4 *vecOut ) {
+void VectorLerp4( const vector4 *vec1, number frac, const vector4 *vec2, vector4 *vecOut ) {
 	vecOut->x = vec1->x + (vec2->x-vec1->x)*frac;
 	vecOut->y = vec1->y + (vec2->y-vec1->y)*frac;
 	vecOut->z = vec1->z + (vec2->z-vec1->z)*frac;
 	vecOut->w = vec1->w + (vec2->w-vec1->w)*frac;
 }
 
-QINLINE number VectorLength( const vector3 *vec ) {
+number VectorLength( const vector3 *vec ) {
 #ifdef USE_SSE
 	float res;
 
@@ -878,7 +878,7 @@ QINLINE number VectorLength( const vector3 *vec ) {
 #endif
 }
 
-QINLINE number VectorLengthSquared( const vector3 *vec ) {
+number VectorLengthSquared( const vector3 *vec ) {
 #ifdef USE_SSE
 	float res;
 
@@ -908,14 +908,14 @@ QINLINE number VectorLengthSquared( const vector3 *vec ) {
 #endif
 }
 
-QINLINE number Distance( const vector3 *p1, const vector3 *p2 ) {
+number Distance( const vector3 *p1, const vector3 *p2 ) {
 	vector3	v;
 
 	VectorSubtract( p2, p1, &v );
 	return VectorLength( &v );
 }
 
-QINLINE number DistanceSquared( const vector3 *p1, const vector3 *p2 ) {
+number DistanceSquared( const vector3 *p1, const vector3 *p2 ) {
 	vector3	v;
 
 	VectorSubtract( p2, p1, &v );
@@ -924,7 +924,7 @@ QINLINE number DistanceSquared( const vector3 *p1, const vector3 *p2 ) {
 
 // fast vector normalize routine that does not check to make sure
 // that length != 0, nor does it return length, uses rsqrt approximation
-QINLINE void VectorNormalizeFast( vector3 *vec )
+void VectorNormalizeFast( vector3 *vec )
 {
 	float ilength;
 
@@ -935,7 +935,7 @@ QINLINE void VectorNormalizeFast( vector3 *vec )
 	vec->z *= ilength;
 }
 
-QINLINE number VectorNormalize( vector3 *vec ) {
+number VectorNormalize( vector3 *vec ) {
 	float length, ilength;
 
 	length = vec->x*vec->x + vec->y*vec->y + vec->z*vec->z;
@@ -951,7 +951,7 @@ QINLINE number VectorNormalize( vector3 *vec ) {
 	return length;
 }
 
-QINLINE number VectorNormalize2( const vector3 *vec, vector3 *vecOut ) {
+number VectorNormalize2( const vector3 *vec, vector3 *vecOut ) {
 	float	length, ilength;
 
 	length = vec->x*vec->x + vec->y*vec->y + vec->z*vec->z;
@@ -969,70 +969,70 @@ QINLINE number VectorNormalize2( const vector3 *vec, vector3 *vecOut ) {
 	return length;
 }
 
-QINLINE void VectorCopy( const vector3 *vecIn, vector3 *vecOut ) {
+void VectorCopy( const vector3 *vecIn, vector3 *vecOut ) {
 	vecOut->x = vecIn->x;
 	vecOut->y = vecIn->y;
 	vecOut->z = vecIn->z;
 }
-QINLINE void IVectorCopy( const ivector3 *vecIn, ivector3 *vecOut ) {
+void IVectorCopy( const ivector3 *vecIn, ivector3 *vecOut ) {
 	vecOut->x = vecIn->x;
 	vecOut->y = vecIn->y;
 	vecOut->z = vecIn->z;
 }
 
-QINLINE void VectorCopy4( const vector4 *vecIn, vector4 *vecOut ) {
+void VectorCopy4( const vector4 *vecIn, vector4 *vecOut ) {
 	vecOut->x = vecIn->x;
 	vecOut->y = vecIn->y;
 	vecOut->z = vecIn->z;
 	vecOut->w = vecIn->w;
 }
 
-QINLINE void VectorSet( vector3 *vec, number x, number y, number z ) {
+void VectorSet( vector3 *vec, number x, number y, number z ) {
 	vec->x = x;
 	vec->y = y;
 	vec->z = z;
 }
 
-QINLINE void VectorSet4( vector4 *vec, number x, number y, number z, number w ) {
+void VectorSet4( vector4 *vec, number x, number y, number z, number w ) {
 	vec->x = x;
 	vec->y = y;
 	vec->z = z;
 	vec->w = w;
 }
 
-QINLINE void VectorClear( vector3 *vec ) {
+void VectorClear( vector3 *vec ) {
 	vec->x = vec->y = vec->z = 0.0f;
 }
 
-QINLINE void VectorClear4( vector4 *vec ) {
+void VectorClear4( vector4 *vec ) {
 	vec->x = vec->y = vec->z = vec->w = 0.0f;
 }
 
-QINLINE void VectorInc( vector3 *vec ) {
+void VectorInc( vector3 *vec ) {
 	vec->x += 1.0f;
 	vec->y += 1.0f;
 	vec->z += 1.0f;
 }
 
-QINLINE void VectorDec( vector3 *vec ) {
+void VectorDec( vector3 *vec ) {
 	vec->x -= 1.0f;
 	vec->y -= 1.0f;
 	vec->z -= 1.0f;
 }
 
-QINLINE void VectorInverse( vector3 *vec ) {
+void VectorInverse( vector3 *vec ) {
 	vec->x = -vec->x;
 	vec->y = -vec->y;
 	vec->z = -vec->z;
 }
 
-QINLINE void CrossProduct( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
+void CrossProduct( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut ) {
 	vecOut->x = (vec1->y * vec2->z) - (vec1->z * vec2->y);
 	vecOut->y = (vec1->z * vec2->x) - (vec1->x * vec2->z);
 	vecOut->z = (vec1->x * vec2->y) - (vec1->y * vec2->x);
 }
 
-QINLINE number DotProduct( const vector3 *vec1, const vector3 *vec2 ) {
+number DotProduct( const vector3 *vec1, const vector3 *vec2 ) {
 #ifdef USE_SSE
 	float res;
 
@@ -1064,7 +1064,7 @@ QINLINE number DotProduct( const vector3 *vec1, const vector3 *vec2 ) {
 #endif
 }
 
-QINLINE qboolean VectorCompare( const vector3 *vec1, const vector3 *vec2 ) {
+qboolean VectorCompare( const vector3 *vec1, const vector3 *vec2 ) {
 	if ( vec1->x == vec2->x &&
 		 vec1->y == vec2->y &&
 		 vec1->z == vec2->z )
@@ -1077,7 +1077,7 @@ QINLINE qboolean VectorCompare( const vector3 *vec1, const vector3 *vec2 ) {
 	#include <float.h>
 	#pragma fenv_access( on )
 
-	static QINLINE float roundfloat( float n ) {
+	static float roundfloat( float n ) {
 		return (n < 0.0f) ? ceilf(n + 0.5f) : floorf(n + 0.5f);
 	}
 
@@ -1094,7 +1094,7 @@ VectorSnap
 Round a vector to integers for more efficient network transmission
 ======================
 */
-QINLINE void VectorSnap( vector3 *v ) {
+void VectorSnap( vector3 *v ) {
 #if _MSC_VER
 	unsigned int oldcontrol, newcontrol;
 
@@ -1127,7 +1127,7 @@ but make sure that it rounds towards a given point rather than blindly truncatin
 This prevents it from truncating into a wall.
 ======================
 */
-QINLINE void VectorSnapTowards( vector3 *v, vector3 *to ) {
+void VectorSnapTowards( vector3 *v, vector3 *to ) {
 	int i;
 
 	for ( i=0; i<3; i++ ) {

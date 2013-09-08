@@ -25,31 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern displayContextDef_t cgDC;
 
-
-// set in CG_ParseTeamInfo
-
-//static int sortedTeamPlayers[TEAM_MAXOVERLAY];
-//static int numSortedTeamPlayers;
-
-//static char systemChat[256];
-//static char teamChat1[256];
-//static char teamChat2[256];
-
-void CG_InitTeamChat(void) {
-	memset(teamChat1, 0, sizeof(teamChat1));
-	memset(teamChat2, 0, sizeof(teamChat2));
-	memset(systemChat, 0, sizeof(systemChat));
-}
-
-void CG_SetPrintString(int type, const char *p) {
-	if (type == SYSTEM_PRINT) {
-		strcpy(systemChat, p);
-	} else {
-		strcpy(teamChat2, teamChat1);
-		strcpy(teamChat1, p);
-	}
-}
-
 static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 	vector3		angles;
 	vector3		origin;
@@ -511,7 +486,6 @@ static void CG_DrawAreaPowerUp(rectDef_t *rect, int align, float special, float 
 
 float CG_GetValue(int ownerDraw) {
 	centity_t	*cent;
-	clientInfo_t *ci;
 	playerState_t	*ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -689,18 +663,6 @@ static void CG_DrawPlayerHasFlag(rectDef_t *rect, qboolean force2D) {
 	}
 }
 
-static void CG_DrawAreaSystemChat(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, systemChat, 0, 0, 0);
-}
-
-static void CG_DrawAreaTeamChat(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color,teamChat1, 0, 0, 0);
-}
-
-static void CG_DrawAreaChat(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, teamChat2, 0, 0, 0);
-}
-
 const char *CG_GetKillerText(void) {
 	const char *s = "";
 	if ( cg.killerName[0] ) {
@@ -741,7 +703,8 @@ const char *CG_GetGameStatusText(void) {
 	const char *s = "";
 	if ( cgs.gametype < GT_TEAM) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
-			s = va("%s place with %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),cg.snap->ps.persistant[PERS_SCORE] );
+			//QTZTODO: CG_PlaceString
+		//	s = va("%s place with %i", CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] );
 		}
 	} else {
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
@@ -831,7 +794,6 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	float pwidth, lwidth, maxx, leftOver;
 	clientInfo_t *ci;
 	gitem_t	*item;
-	qhandle_t h;
 
 	// max player name width
 	pwidth = 0;
@@ -1244,15 +1206,6 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 		break;
 	case CG_PLAYER_HASFLAG2D:
 		CG_DrawPlayerHasFlag(&rect, qtrue);
-		break;
-	case CG_AREA_SYSTEMCHAT:
-		CG_DrawAreaSystemChat(&rect, scale, color, shader);
-		break;
-	case CG_AREA_TEAMCHAT:
-		CG_DrawAreaTeamChat(&rect, scale, color, shader);
-		break;
-	case CG_AREA_CHAT:
-		CG_DrawAreaChat(&rect, scale, color, shader);
 		break;
 	case CG_GAME_TYPE:
 		CG_DrawGameType(&rect, scale, color, shader, textStyle);

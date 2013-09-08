@@ -70,17 +70,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define STAT_MINUS			10	// num frame for '-' stats digit
 
-#define	ICON_SIZE			48
-#define	CHAR_WIDTH			32
-#define	CHAR_HEIGHT			48
+#define	ICON_SIZE			(48.0f)
+
 #define	TEXT_ICON_SPACE		4
 
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		8
-
-// very large characters
-#define	GIANT_WIDTH			32
-#define	GIANT_HEIGHT		48
 
 #define	NUM_CROSSHAIRS		16 //QtZ: Also in UI
 
@@ -590,7 +585,6 @@ typedef struct cg_s {
 
 	// centerprinting
 	int			centerPrintTime;
-	int			centerPrintCharWidth;
 	int			centerPrintY;
 	char		centerPrint[1024];
 	int			centerPrintLines;
@@ -676,9 +670,19 @@ typedef struct cg_s {
 
 	vector3			lastFPFlashPoint;
 
+	// HUD stuff
 	linkedList_t	*itemPickupRoot;
 	linkedList_t	*obituaryRoot;
 	int				flagCarrierEntityNum;
+
+	// scoreboard spectator list
+	struct {
+		char	spectatorList[MAX_STRING_CHARS];
+		int		spectatorLen;
+		float	spectatorX;
+		float	spectatorWidth;
+		int		spectatorResetTime;
+	} scoreboard;
 
 	struct {
 		int			damageTime;
@@ -712,10 +716,6 @@ typedef struct cg_s {
 // Other media that can be tied to clients, weapons, or items are
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
 typedef struct cgMedia_s {
-	qhandle_t	charsetShader;
-	qhandle_t	charsetProp;
-	qhandle_t	charsetPropGlow;
-	qhandle_t	charsetPropB;
 	qhandle_t	whiteShader;
 
 	qhandle_t	redFlagModel;
@@ -800,12 +800,6 @@ typedef struct cgMedia_s {
 	qhandle_t	medkitUsageModel;
 	qhandle_t	dustPuffShader;
 	qhandle_t	heartShader;
-
-	// scoreboard headers
-	qhandle_t	scoreboardName;
-	qhandle_t	scoreboardPing;
-	qhandle_t	scoreboardScore;
-	qhandle_t	scoreboardTime;
 
 	// medals shown during gameplay
 	qhandle_t	medalImpressive;
@@ -951,6 +945,9 @@ typedef struct cgMedia_s {
 		qhandle_t	mortarProjectile;
 	} weapons;
 
+	struct {
+		qhandle_t	line;
+	} scoreboard;
 } cgMedia_t;
 
 
@@ -1092,25 +1089,14 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader );
 void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader );
 //~QtZ
-void CG_DrawString( float x, float y, const char *string, 
-				   float charWidth, float charHeight, const float *modulate );
-
-
-void CG_DrawStringExt( int x, int y, const char *string, const vector4 *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
-void CG_DrawBigString( int x, int y, const char *s, float alpha );
-void CG_DrawBigStringColor( int x, int y, const char *s, vector4 *color );
-void CG_DrawSmallString( int x, int y, const char *s, float alpha );
-void CG_DrawSmallStringColor( int x, int y, const char *s, vector4 *color );
-
 int CG_DrawStrlen( const char *str );
-
 vector4 *CG_FadeColor( int startMsec, int totalMsec );
+qboolean CG_FadeColor2( vector4 *color, int startMsec, int totalMsec );
 vector4 *CG_TeamColor( int team );
 void CG_TileClear( void );
 void CG_ColorForHealth( vector4 *hcolor );
 void CG_GetColorForHealth( int health, int armor, vector4 *hcolor );
 
-void CG_DrawProportionalString( int x, int y, const char* str, int style, vector4 *color );
 void CG_DrawRect( float x, float y, float width, float height, float size, const vector4 *color );
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
@@ -1119,23 +1105,20 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size);
 //
 // cg_draw.c, cg_newDraw.c
 //
-extern	int sortedTeamPlayers[TEAM_MAXOVERLAY];
-extern	int	numSortedTeamPlayers;
-extern  char systemChat[256];
-extern  char teamChat1[256];
-extern  char teamChat2[256];
+extern int sortedTeamPlayers[TEAM_MAXOVERLAY];
+extern int numSortedTeamPlayers;
 
 void CG_AddLagometerFrameInfo( void );
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
-void CG_CenterPrint( const char *str, int y, int charWidth );
+void CG_CenterPrint( const char *str, int y );
 void CG_DrawHead( float x, float y, float w, float h, int clientNum, vector3 *headAngles );
 void CG_DrawActive( stereoFrame_t stereoView );
 void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D );
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team );
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vector4 *color, qhandle_t shader, int textStyle);
-void CG_Text_Paint(float x, float y, float scale, vector4 *color, const char *text, float adjust, int limit, int style);
-int CG_Text_Width(const char *text, float scale, int limit);
-int CG_Text_Height(const char *text, float scale, int limit);
+void CG_Text_Paint(float x, float y, float scale, const vector4 *color, const char *text, float adjust, int limit, int style);
+float CG_Text_Width(const char *text, float scale, int limit);
+float CG_Text_Height(const char *text, float scale, int limit);
 void CG_SelectPrevPlayer( void );
 void CG_SelectNextPlayer( void );
 float CG_GetValue(int ownerDraw);
@@ -1143,8 +1126,6 @@ qboolean CG_OwnerDrawVisible(int flags);
 void CG_RunMenuScript(char **args);
 qboolean CG_DeferMenuScript(char **args);
 void CG_ShowResponseHead( void );
-void CG_SetPrintString(int type, const char *p);
-void CG_InitTeamChat( void );
 void CG_GetTeamColor(vector4 *color);
 const char *CG_GetGameStatusText( void );
 const char *CG_GetKillerText( void );
@@ -1180,7 +1161,6 @@ void CG_LoadDeferredPlayers( void );
 // cg_events.c
 //
 void CG_CheckEvents( centity_t *cent );
-const char	*CG_PlaceString( int rank );
 void CG_EntityEvent( centity_t *cent, vector3 *position );
 void CG_PainEvent( centity_t *cent, int health );
 

@@ -678,7 +678,7 @@ Q_EXPORT serverExport_t* QDECL GetServerAPI ( int apiVersion, serverImport_t *im
 	// server vars
 	sv_rconPassword			= svi.Cvar_Get( "rconPassword",					"",					CVAR_TEMP,										"Password for remote console access", NULL );
 	sv_privatePassword		= svi.Cvar_Get( "sv_privatePassword",			"",					CVAR_TEMP,										NULL, NULL );
-	sv_snapshotRate			= svi.Cvar_Get( "sv_snapshotRate",				"40",				CVAR_ARCHIVE,									"How often clients receive snapshots", NULL ); // 1 <=> sv_snapshotRate <=> 1000/sv_frametime->integer
+	sv_snapshotRate			= svi.Cvar_Get( "sv_snapshotRate",				"25",				CVAR_ARCHIVE,									"How often clients receive snapshots", NULL ); // 1 <=> sv_snapshotRate <=> 1000/sv_frametime->integer
 	sv_frametime			= svi.Cvar_Get( "sv_frametime",					"25",				CVAR_ARCHIVE,									"Server update rate", NULL );
 	sv_timeout				= svi.Cvar_Get( "sv_timeout",					"200",				CVAR_TEMP,										NULL, NULL );
 	sv_zombietime			= svi.Cvar_Get( "sv_zombietime",				"2",				CVAR_TEMP,										NULL, NULL );
