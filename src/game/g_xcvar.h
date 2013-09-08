@@ -37,6 +37,7 @@ XCVAR_DEF( g_difficulty,					"3",				qtrue,		NULL,		CVAR_ARCHIVE,									"Diffi
 XCVAR_DEF( g_doWarmup,						"1",				qtrue,		NULL,		CVAR_SERVERINFO|CVAR_ARCHIVE,					NULL )
 XCVAR_DEF( g_enableHeadshots,				"1",				qfalse,		NULL,		CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_filterBan,						"1",				qfalse,		NULL,		CVAR_ARCHIVE,									NULL )
+XCVAR_DEF( g_forceClientUpdateRate,			"250",				qtrue,		NULL,		CVAR_ARCHIVE,									"Force a client update every x milliseconds" )
 XCVAR_DEF( g_forceRespawn,					"20",				qtrue,		NULL,		CVAR_ARCHIVE,									NULL )
 XCVAR_DEF( g_friendlyFire,					"2",				qtrue,		NULL,		CVAR_SYSTEMINFO|CVAR_ARCHIVE,					NULL )
 XCVAR_DEF( g_friendlyFireScale,				"1.0",				qfalse,		NULL,		CVAR_ARCHIVE,									NULL )
