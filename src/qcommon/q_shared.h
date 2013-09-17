@@ -991,26 +991,26 @@ typedef struct gameState_s {
 
 // gametypes
 
-#define DEFAULT_GAMETYPE "dm"
+#define DEFAULT_GAMETYPE "duel"
 
 typedef enum gametype_e {
-	GT_DEATHMATCH=0,
+	GT_BLOODBATH=0,
 	GT_DUEL,
 	// team games
-	GT_TEAM,
-	GT_CTF,
-	GT_1FCTF,
+	GT_TEAMBLOOD,
+	GT_FLAGS,
+	GT_TROJAN,
 	GT_NUM_GAMETYPES
 } gametype_t;
 
 // gametype bits
 #define GTB_NONE			0x00 // invalid
-#define GTB_DM				0x01 // deathmatch
+#define GTB_BLOOD			0x01 // bloodbath
 #define GTB_DUEL			0x02 // duel
 #define GTB_NOTTEAM			0x03 // **SPECIAL: All of the above gametypes, i.e. not team-based
-#define GTB_TEAM			0x04 // team deathmatch
-#define GTB_CTF				0x08 // capture the flag
-#define GTB_1FCTF			0x10 // 1-flag ctf
+#define GTB_TEAMBLOOD		0x04 // team bloodbath
+#define GTB_FLAGS			0x08 // flags
+#define GTB_TROJAN			0x10 // trojan
 #define GTB_ALL				0x1F // **SPECIAL: All
 
 extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
@@ -1280,9 +1280,9 @@ typedef enum cinState_e {
 
 typedef enum _flag_status {
 	FLAG_ATBASE = 0,
-	FLAG_TAKEN,			// CTF
-	FLAG_TAKEN_RED,		// One Flag CTF
-	FLAG_TAKEN_BLUE,	// One Flag CTF
+	FLAG_TAKEN,			// Flags
+	FLAG_TAKEN_RED,		// Trojan
+	FLAG_TAKEN_BLUE,	// Trojan
 	FLAG_DROPPED
 } flagStatus_t;
 

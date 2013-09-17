@@ -233,7 +233,7 @@ void CG_DrawInformation( void ) {
 		y += PROP_HEIGHT;
 	}
 
-	if (cgs.gametype < GT_CTF ) {
+	if (cgs.gametype < GT_FLAGS ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
 			s = va( "fraglimit %i", value );
@@ -243,7 +243,7 @@ void CG_DrawInformation( void ) {
 		}
 	}
 
-	if (cgs.gametype >= GT_CTF) {
+	if (cgs.gametype >= GT_FLAGS) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
 			s = va( "capturelimit %i", value );

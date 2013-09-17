@@ -110,26 +110,7 @@ void SV_RankBegin( char *gamekey )
 */
 
 		// substitute game-specific game key
-		switch( (int)Cvar_VariableValue("sv_gametype") )
-		{
-		case GT_DEATHMATCH:
-			gamekey = "Q3 Free For All";
-			break;
-		case GT_DUEL:
-			gamekey = "Q3 Tournament";
-			break;
-		case GT_TEAM:
-			gamekey = "Q3 Team Deathmatch";
-			break;
-		case GT_CTF:
-			gamekey = "Q3 Capture the Flag";
-			break;
-		case GT_1FCTF:
-			gamekey = "Q3 One Flag CTF";
-			break;
-		default:
-			break;
-		}
+		gamekey = GametypeStringForID( (int)Cvar_VariableValue("sv_gametype") );
 	}
 	s_rankings_game_key = gamekey;
 

@@ -101,7 +101,7 @@ typedef enum botMsgType_e {
 #define ST_CAPTUREDFLAG		0x04000
 #define ST_RETURNEDFLAG		0x08000
 #define ST_TEAM				0x10000
-#define ST_1FCTFGOTFLAG		0x20000
+#define ST_TROJANGOTFLAG	0x20000
 
 //ctf task preferences
 #define ST_DEFENDER			0x0001

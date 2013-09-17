@@ -158,7 +158,7 @@ int G_GetMapTypeBits( char *type ) {
 		return typeBits;
 	}
 
-	return GTB_DM;
+	return GTB_BLOOD;
 }
 
 qboolean G_DoesMapSupportGametype( const char *mapname, int gametype ) {
@@ -492,7 +492,7 @@ void G_CheckMinimumPlayers( void ) {
 	minplayers = bot_minplayers->integer;
 	if (minplayers <= 0) return;
 
-	if (level.gametype >= GT_TEAM) {
+	if (level.gametype >= GT_TEAMBLOOD) {
 		if (minplayers >= sv_maxclients->integer / 2) {
 			minplayers = (sv_maxclients->integer / 2) -1;
 		}
@@ -532,7 +532,7 @@ void G_CheckMinimumPlayers( void ) {
 			}
 		}
 	}
-	else if (level.gametype == GT_DEATHMATCH) {
+	else if (level.gametype == GT_BLOODBATH) {
 		if (minplayers >= sv_maxclients->integer) {
 			minplayers = sv_maxclients->integer-1;
 		}
@@ -696,7 +696,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	// initialize the bot settings
 	if( !team || !*team ) {
-		if( level.gametype >= GT_TEAM ) {
+		if( level.gametype >= GT_TEAMBLOOD ) {
 			if( PickTeam(clientNum) == TEAM_RED) {
 				team = "red";
 			}

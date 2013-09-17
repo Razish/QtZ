@@ -312,7 +312,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.countPrepareSound = trap->S_RegisterSound( "sound/feedback/prepare.wav", qtrue );
 	cgs.media.countPrepareTeamSound = trap->S_RegisterSound( "sound/feedback/prepare_team.wav", qtrue );
 
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 
 		cgs.media.captureAwardSound = trap->S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav", qtrue );
 		cgs.media.redLeadsSound = trap->S_RegisterSound( "sound/feedback/redleads.wav", qtrue );
@@ -332,21 +332,21 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.takenYourTeamSound = trap->S_RegisterSound( "sound/teamplay/flagtaken_yourteam.wav", qtrue );
 		cgs.media.takenOpponentSound = trap->S_RegisterSound( "sound/teamplay/flagtaken_opponent.wav", qtrue );
 
-		if ( cgs.gametype == GT_CTF ) {
+		if ( cgs.gametype == GT_FLAGS ) {
 			cgs.media.redFlagReturnedSound = trap->S_RegisterSound( "sound/teamplay/voc_red_returned.wav", qtrue );
 			cgs.media.blueFlagReturnedSound = trap->S_RegisterSound( "sound/teamplay/voc_blue_returned.wav", qtrue );
 			cgs.media.enemyTookYourFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_enemy_flag.wav", qtrue );
 			cgs.media.yourTeamTookEnemyFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_team_flag.wav", qtrue );
 		}
 
-		if ( cgs.gametype == GT_1FCTF ) {
+		if ( cgs.gametype == GT_TROJAN ) {
 			// FIXME: get a replacement for this sound ?
 			cgs.media.neutralFlagReturnedSound = trap->S_RegisterSound( "sound/teamplay/flagreturn_opponent.wav", qtrue );
 			cgs.media.yourTeamTookTheFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_team_1flag.wav", qtrue );
 			cgs.media.enemyTookTheFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_enemy_1flag.wav", qtrue );
 		}
 
-		if ( cgs.gametype == GT_1FCTF || cgs.gametype == GT_CTF ) {
+		if ( cgs.gametype == GT_TROJAN || cgs.gametype == GT_FLAGS ) {
 			cgs.media.youHaveFlagSound = trap->S_RegisterSound( "sound/teamplay/voc_you_flag.wav", qtrue );
 			cgs.media.holyShitSound = trap->S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
 		}
@@ -542,7 +542,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.quadWeaponShader = trap->R_RegisterShader("powerups/quadWeapon" );
 	cgs.media.regenShader = trap->R_RegisterShader("powerups/regen" );
 
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF ) {
+	if ( cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN ) {
 		cgs.media.redFlagModel = trap->R_RegisterModel( "models/flags/r_flag.md3" );
 		cgs.media.blueFlagModel = trap->R_RegisterModel( "models/flags/b_flag.md3" );
 		cgs.media.redFlagShader[0] = trap->R_RegisterShaderNoMip( "icons/iconf_red1" );
@@ -564,7 +564,7 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.neutralFlagBaseModel = trap->R_RegisterModel( "models/mapobjects/flagbase/ntrl_base.md3" );
 	}
 
-	if ( cgs.gametype == GT_1FCTF ) {
+	if ( cgs.gametype == GT_TROJAN ) {
 		cgs.media.neutralFlagModel = trap->R_RegisterModel( "models/flags/n_flag.md3" );
 		cgs.media.flagShader[0] = trap->R_RegisterShaderNoMip( "icons/iconf_neutral1" );
 		cgs.media.flagShader[1] = trap->R_RegisterShaderNoMip( "icons/iconf_red2" );
@@ -574,7 +574,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.dustPuffShader = trap->R_RegisterShader("hasteSmokePuff" );
 
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		cgs.media.friendShader = trap->R_RegisterShader( "sprites/foe" );
 		cgs.media.redQuadShader = trap->R_RegisterShader("powerups/blueflag" );
 		cgs.media.teamStatusBar = trap->R_RegisterShader( "gfx/2d/colorbar.tga" );
@@ -1156,7 +1156,7 @@ void CG_SetScoreSelection(void *p) {
 		return;
 	}
 
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		int feeder = FEEDER_REDTEAM_LIST;
 		i = red;
 		if (cg.scores[cg.selectedScore].team == TEAM_BLUE) {
@@ -1172,7 +1172,7 @@ void CG_SetScoreSelection(void *p) {
 // FIXME: might need to cache this info
 static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex) {
 	int i, count;
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		count = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			if (cg.scores[i].team == team) {
@@ -1259,7 +1259,7 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 }
 
 static void CG_FeederSelection(float feederID, int index) {
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		int i, count;
 		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
 		count = 0;

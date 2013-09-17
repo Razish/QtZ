@@ -77,7 +77,7 @@ void UpdateTournamentInfo( void ) {
 			accuracy = 0;
 		}
 		won = qfalse;
-		if (level.gametype >= GT_CTF) {
+		if (level.gametype >= GT_FLAGS) {
 			score1 = level.teamScores[TEAM_RED];
 			score2 = level.teamScores[TEAM_BLUE];
 			if (level.clients[playerClientNum].sess.sessionTeam	== TEAM_RED) {

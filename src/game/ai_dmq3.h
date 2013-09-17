@@ -143,9 +143,9 @@ void BotCTFSeekGoals(bot_state_t *bs);
 //set ctf goals (defend base, get enemy flag) during retreat
 void BotCTFRetreatGoals(bot_state_t *bs);
 //
-int Bot1FCTFCarryingFlag(bot_state_t *bs);
-void Bot1FCTFSeekGoals(bot_state_t *bs);
-void Bot1FCTFRetreatGoals(bot_state_t *bs);
+int BotTrojanCarryingFlag(bot_state_t *bs);
+void BotTrojanSeekGoals(bot_state_t *bs);
+void BotTrojanRetreatGoals(bot_state_t *bs);
 //get a random alternate route goal towards the given base
 int BotGetAlternateRouteGoal(bot_state_t *bs, int base);
 //returns either the alternate route goal or the given goal

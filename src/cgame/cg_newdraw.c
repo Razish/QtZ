@@ -283,7 +283,7 @@ static void CG_DrawBlueFlagName(rectDef_t *rect, float scale, vector4 *color, in
 }
 
 static void CG_DrawBlueFlagStatus(rectDef_t *rect, qhandle_t shader) {
-	if (cgs.gametype != GT_CTF && cgs.gametype != GT_1FCTF) {
+	if (cgs.gametype != GT_FLAGS && cgs.gametype != GT_TROJAN) {
 		return;
 	}
 	if (shader) {
@@ -327,7 +327,7 @@ static void CG_DrawRedFlagName(rectDef_t *rect, float scale, vector4 *color, int
 }
 
 static void CG_DrawRedFlagStatus(rectDef_t *rect, qhandle_t shader) {
-	if (cgs.gametype != GT_CTF && cgs.gametype != GT_1FCTF) {
+	if (cgs.gametype != GT_FLAGS && cgs.gametype != GT_TROJAN) {
 		return;
 	}
 	if (shader) {
@@ -361,7 +361,7 @@ static void CG_DrawRedFlagHead(rectDef_t *rect) {
 }
 
 static void CG_OneFlagStatus(rectDef_t *rect) {
-	if (cgs.gametype != GT_1FCTF) {
+	if (cgs.gametype != GT_TROJAN) {
 		return;
 	} else {
 		const gitem_t *item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
@@ -386,10 +386,10 @@ static void CG_OneFlagStatus(rectDef_t *rect) {
 }
 
 
-static void CG_DrawCTFPowerUp(rectDef_t *rect) {
+static void CG_DrawFlagsPowerUp(rectDef_t *rect) {
 	int		value;
 
-	if (cgs.gametype < GT_CTF) {
+	if (cgs.gametype < GT_FLAGS) {
 		return;
 	}
 	value = cg.snap->ps.stats[STAT_PERSISTANT_POWERUP];
@@ -519,9 +519,9 @@ float CG_GetValue(int ownerDraw) {
 }
 
 qboolean CG_OtherTeamHasFlag(void) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
+	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
-		if (cgs.gametype == GT_1FCTF) {
+		if (cgs.gametype == GT_TROJAN) {
 			if (team == TEAM_RED && cgs.flagStatus == FLAG_TAKEN_BLUE) {
 				return qtrue;
 			} else if (team == TEAM_BLUE && cgs.flagStatus == FLAG_TAKEN_RED) {
@@ -543,9 +543,9 @@ qboolean CG_OtherTeamHasFlag(void) {
 }
 
 qboolean CG_YourTeamHasFlag(void) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
+	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
-		if (cgs.gametype == GT_1FCTF) {
+		if (cgs.gametype == GT_TROJAN) {
 			if (team == TEAM_RED && cgs.flagStatus == FLAG_TAKEN_RED) {
 				return qtrue;
 			} else if (team == TEAM_BLUE && cgs.flagStatus == FLAG_TAKEN_BLUE) {
@@ -596,27 +596,27 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & CG_SHOW_ANYTEAMGAME) {
-		if( cgs.gametype >= GT_TEAM) {
+		if( cgs.gametype >= GT_TEAMBLOOD) {
 			return qtrue;
 		}
 	}
 
 	if (flags & CG_SHOW_ANYNONTEAMGAME) {
-		if( cgs.gametype < GT_TEAM) {
+		if( cgs.gametype < GT_TEAMBLOOD) {
 			return qtrue;
 		}
 	}
 
-	if (flags & CG_SHOW_ONEFLAG) {
-		if( cgs.gametype == GT_1FCTF ) {
+	if (flags & CG_SHOW_TROJAN) {
+		if( cgs.gametype == GT_TROJAN ) {
 			return qtrue;
 		} else {
 			return qfalse;
 		}
 	}
 
-	if (flags & CG_SHOW_CTF) {
-		if( cgs.gametype == GT_CTF ) {
+	if (flags & CG_SHOW_FLAGS) {
+		if( cgs.gametype == GT_FLAGS ) {
 			return qtrue;
 		}
 	}
@@ -683,7 +683,7 @@ static void CG_DrawKiller(rectDef_t *rect, float scale, vector4 *color, qhandle_
 
 
 static void CG_DrawCapFragLimit(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle) {
-	int limit = (cgs.gametype >= GT_CTF) ? cgs.capturelimit : cgs.fraglimit;
+	int limit = (cgs.gametype >= GT_FLAGS) ? cgs.capturelimit : cgs.fraglimit;
 	CG_Text_Paint(rect->x, rect->y, scale, color, va("%2i", limit),0, 0, textStyle); 
 }
 
@@ -701,7 +701,7 @@ static void CG_Draw2ndPlace(rectDef_t *rect, float scale, vector4 *color, qhandl
 
 const char *CG_GetGameStatusText(void) {
 	const char *s = "";
-	if ( cgs.gametype < GT_TEAM) {
+	if ( cgs.gametype < GT_TEAMBLOOD) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
 			//QTZTODO: CG_PlaceString
 		//	s = va("%s place with %i", CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] );
@@ -1192,8 +1192,8 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 	case CG_TEAM_COLOR:
 		CG_DrawTeamColor(&rect, color);
 		break;
-	case CG_CTF_POWERUP:
-		CG_DrawCTFPowerUp(&rect);
+	case CG_FLAGS_POWERUP:
+		CG_DrawFlagsPowerUp(&rect);
 		break;
 	case CG_AREA_POWERUP:
 		CG_DrawAreaPowerUp(&rect, align, special, scale, color);
@@ -1437,47 +1437,27 @@ void CG_DrawPickupItem( void )
 
 	trap->R_SetColor( NULL );
 
-	if ( cg_debugHUD.boolean )
+	//First pass to remove expired items
+	for ( node=cg.q3p.itemPickupRoot; node; node=LinkedList_Traverse( node ) )
 	{
-		int itemNum = 0;
-		count = 5;
-		y -= ICON_SIZE*count;
-
-		itemNum = BG_FindItem( "item_shield_sm_instant" )-bg_itemlist;
-		CG_RegisterItemVisuals( itemNum );		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[itemNum].icon );		y += ICON_SIZE;
-		itemNum = BG_FindItem( "item_shield_lrg_instant" )-bg_itemlist;
-		CG_RegisterItemVisuals( itemNum );		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[itemNum].icon );		y += ICON_SIZE;
-		itemNum = BG_FindItem( "item_medpak_instant" )-bg_itemlist;
-		CG_RegisterItemVisuals( itemNum );		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[itemNum].icon );		y += ICON_SIZE;
-		itemNum = BG_FindItem( "team_CTF_redflag" )-bg_itemlist;
-		CG_RegisterItemVisuals( itemNum );		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[itemNum].icon );		y += ICON_SIZE;
-		itemNum = BG_FindItem( "team_CTF_blueflag" )-bg_itemlist;
-		CG_RegisterItemVisuals( itemNum );		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[itemNum].icon );		y += ICON_SIZE;
+		itemPickup_t *item = (itemPickup_t*)node->data;
+		if ( item->pickupTime < cg.time - cg_itemPickupTime->integer )
+		{//Free this object
+			free( item );
+			LinkedList_RemoveObject( &cg.q3p.itemPickupRoot, node );
+			node = cg.q3p.itemPickupRoot;//HACK: Return to start of list
+			continue;
+		}
+		count++;
 	}
-	else
-	{
-		//First pass to remove expired items
-		for ( node=cg.q3p.itemPickupRoot; node; node=LinkedList_Traverse( node ) )
-		{
-			itemPickup_t *item = (itemPickup_t*)node->data;
-			if ( item->pickupTime < cg.time - cg_itemPickupTime->integer )
-			{//Free this object
-				free( item );
-				LinkedList_RemoveObject( &cg.q3p.itemPickupRoot, node );
-				node = cg.q3p.itemPickupRoot;//HACK: Return to start of list
-				continue;
-			}
-			count++;
-		}
 
-		y -= ICON_SIZE*count;
-		for ( node=cg.q3p.itemPickupRoot; node; node=LinkedList_Traverse( node ) )
-		{
-			itemPickup_t *item = (itemPickup_t*)node->data;
-			CG_RegisterItemVisuals( item->itemNum );
-			CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[item->itemNum].icon );
-			y += ICON_SIZE;
-		}
+	y -= ICON_SIZE*count;
+	for ( node=cg.q3p.itemPickupRoot; node; node=LinkedList_Traverse( node ) )
+	{
+		itemPickup_t *item = (itemPickup_t*)node->data;
+		CG_RegisterItemVisuals( item->itemNum );
+		CG_DrawPic( x, y, ICON_SIZE, ICON_SIZE, cg_items[item->itemNum].icon );
+		y += ICON_SIZE;
 	}
 }
 #endif
@@ -1566,7 +1546,7 @@ void CG_DrawFlagCarrierName( void )
 	vector2 screenPos = { 0.0f, 0.0f };
 	char text[] = "FLAG CARRIER";
 
-	if ( (cgs.gametype < GT_CTF || !cg_drawFlagCarrier.boolean || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD->integer )
+	if ( (cgs.gametype < GT_FLAGS || !cg_drawFlagCarrier.boolean || cg.q3p.flagCarrierEntityNum == ENTITYNUM_NONE) && !cg_debugHUD->integer )
 		return;
 
 	VectorCopy( cg_entities[cg.q3p.flagCarrierEntityNum].lerpOrigin, worldPos );

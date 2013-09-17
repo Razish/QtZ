@@ -96,7 +96,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	sess = &client->sess;
 
 	// initial team determination
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		if ( g_teamAutoJoin->integer && !(g_entities[ client - level.clients ].r.svFlags & SVF_BOT) ) {
 			sess->sessionTeam = PickTeam( -1 );
 			BroadcastTeamChange( client, -1 );
@@ -112,7 +112,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 		} else {
 			switch ( level.gametype ) {
 			default:
-			case GT_DEATHMATCH:
+			case GT_BLOODBATH:
 				if ( g_maxGameClients->integer > 0 && level.numNonSpectatorClients >= g_maxGameClients->integer )
 					sess->sessionTeam = TEAM_SPECTATOR;
 				else

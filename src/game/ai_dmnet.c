@@ -195,7 +195,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 	if (BotGoForAir(bs, tfl, ltg, range)) return qtrue;
 	// if the bot is carrying a flag or cubes
 	if (BotCTFCarryingFlag(bs)
-		|| Bot1FCTFCarryingFlag(bs)
+		|| BotTrojanCarryingFlag(bs)
 		) {
 		//if the bot is just a few secs away from the base 
 		if (trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, bs->teamgoal.areanum, TFL_DEFAULT) < 300) {
@@ -747,8 +747,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		memcpy(goal, &bs->curpatrolpoint->goal, sizeof(bot_goal_t));
 		return qtrue;
 	}
-#ifdef CTF
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		//if going for enemy flag
 		if (bs->ltgtype == LTG_GETFLAG) {
 			//check for bot typing status message
@@ -832,8 +831,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			return qtrue;
 		}
 	}
-#endif //CTF
-	else if (gametype == GT_1FCTF) {
+	else if (gametype == GT_TROJAN) {
 		if (bs->ltgtype == LTG_GETFLAG) {
 			//check for bot typing status message
 			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
@@ -861,7 +859,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if not carrying the flag anymore
-			if (!Bot1FCTFCarryingFlag(bs)) {
+			if (!BotTrojanCarryingFlag(bs)) {
 				bs->ltgtype = 0;
 			}
 			//quit rushing after 2 minutes
@@ -1646,15 +1644,13 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		if (bs->ltgtype == LTG_DEFENDKEYAREA) range = 400;
 		else range = 150;
 		//
-#ifdef CTF
-		if (gametype == GT_CTF) {
+		if (gametype == GT_FLAGS) {
 			//if carrying a flag the bot shouldn't be distracted too much
 			if (BotCTFCarryingFlag(bs))
 				range = 50;
 		}
-#endif //CTF
-		else if (gametype == GT_1FCTF) {
-			if (Bot1FCTFCarryingFlag(bs))
+		else if (gametype == GT_TROJAN) {
+			if (BotTrojanCarryingFlag(bs))
 				range = 50;
 		}
 		//
@@ -2160,15 +2156,13 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	if (bs->check_time < FloatTime()) {
 		bs->check_time = FloatTime() + 1;
 		range = 150;
-#ifdef CTF
-		if (gametype == GT_CTF) {
+		if (gametype == GT_FLAGS) {
 			//if carrying a flag the bot shouldn't be distracted too much
 			if (BotCTFCarryingFlag(bs))
 				range = 50;
 		}
-#endif //CTF
-		else if (gametype == GT_1FCTF) {
-			if (Bot1FCTFCarryingFlag(bs))
+		else if (gametype == GT_TROJAN) {
+			if (BotTrojanCarryingFlag(bs))
 				range = 50;
 		}
 		//

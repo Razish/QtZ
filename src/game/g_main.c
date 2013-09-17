@@ -79,15 +79,15 @@ void G_CacheGametype( void ) {
 	if ( sv_gametype->string[0] && isalpha( sv_gametype->string[0] ) ) {
 		int gt = GametypeIDForString( sv_gametype->string );
 		if ( gt == -1 ) {
-			trap->Print( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", sv_gametype->string );
-			level.gametype = GT_DEATHMATCH;
+			trap->Print( "Gametype '%s' unrecognised, defaulting to Duel\n", sv_gametype->string );
+			level.gametype = GT_DUEL;
 		}
 		else
 			level.gametype = (gametype_t)gt;
 	}
 	else if ( sv_gametype->integer < 0 || level.gametype >= GT_NUM_GAMETYPES ) {
-		trap->Print( "sv_gametype %i is out of range, defaulting to 0\n", level.gametype );
-		level.gametype = GT_DEATHMATCH;
+		trap->Print( "sv_gametype %i is out of range, defaulting to %i\n", level.gametype, GT_DUEL );
+		level.gametype = GT_DUEL;
 	}
 	else
 		level.gametype = (gametype_t)atoi( sv_gametype->string );
@@ -233,7 +233,7 @@ void G_InitGame( int levelTime, int randomSeed, qboolean restart ) {
 	G_FindTeams();
 
 	// make sure we have flags for CTF, etc
-	if( level.gametype >= GT_TEAM )
+	if( level.gametype >= GT_TEAMBLOOD )
 		G_CheckTeamItems();
 
 	SaveRegisteredItems();
@@ -520,7 +520,7 @@ void CalculateRanks( void ) {
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
 		for ( i=0; i<level.numConnectedClients; i++ ) {
 			cl = &level.clients[ level.sortedClients[i] ];
@@ -551,7 +551,7 @@ void CalculateRanks( void ) {
 	}
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		trap->SV_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
 		trap->SV_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
 	} else {
@@ -827,7 +827,7 @@ void LogExit( const char *string ) {
 		numSorted = 32;
 	}
 
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		G_LogPrintf( "red:%i  blue:%i\n",
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
 	}
@@ -949,7 +949,7 @@ qboolean ScoreIsTied( void ) {
 		return qfalse;
 	}
 	
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
 
@@ -1000,7 +1000,7 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if ( level.gametype < GT_CTF && fraglimit->integer ) {
+	if ( level.gametype < GT_FLAGS && fraglimit->integer ) {
 		if ( level.teamScores[TEAM_RED] >= fraglimit->integer ) {
 			trap->SV_GameSendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
@@ -1031,7 +1031,7 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if ( level.gametype >= GT_CTF && capturelimit->integer ) {
+	if ( level.gametype >= GT_FLAGS && capturelimit->integer ) {
 
 		if ( level.teamScores[TEAM_RED] >= capturelimit->integer ) {
 			trap->SV_GameSendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
@@ -1126,7 +1126,7 @@ void CheckTournament( void ) {
 		int		counts[TEAM_NUM_TEAMS];
 		qboolean	notEnough = qfalse;
 
-		if ( level.gametype > GT_TEAM ) {
+		if ( level.gametype > GT_TEAMBLOOD ) {
 			counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE );
 			counts[TEAM_RED] = TeamCount( -1, TEAM_RED );
 

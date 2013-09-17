@@ -46,13 +46,13 @@ void Team_InitGame( void ) {
 	memset(&teamgame, 0, sizeof teamgame);
 
 	switch( level.gametype ) {
-	case GT_CTF:
+	case GT_FLAGS:
 		teamgame.redStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_RED, FLAG_ATBASE );
 		 teamgame.blueStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_ATBASE );
 		break;
-	case GT_1FCTF:
+	case GT_TROJAN:
 		teamgame.flagStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_FREE, FLAG_ATBASE );
 		break;
@@ -112,8 +112,8 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 ==============
 AddTeamScore
 
- used for gametype > GT_TEAM
- for gametype GT_TEAM the level.teamScores is updated in AddScore in g_combat.c
+ used for gametype > GT_TEAMBLOOD
+ for gametype GT_TEAMBLOOD the level.teamScores is updated in AddScore in g_combat.c
 ==============
 */
 void AddTeamScore(vector3 *origin, int team, int score) {
@@ -165,7 +165,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return qfalse;
 	}
 
-	if ( level.gametype < GT_TEAM ) {
+	if ( level.gametype < GT_TEAMBLOOD ) {
 		return qfalse;
 	}
 
@@ -209,12 +209,12 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 	if( modified ) {
 		char st[4];
 
-		if( level.gametype == GT_CTF ) {
+		if( level.gametype == GT_FLAGS ) {
 			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
 			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
 			st[2] = 0;
 		}
-		else {		// GT_1FCTF
+		else {		// GT_TROJAN
 			st[0] = oneFlagStatusRemap[teamgame.flagStatus];
 			st[1] = 0;
 		}
@@ -295,7 +295,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		enemy_flag_pw = PW_REDFLAG;
 	}
 
-	if (level.gametype == GT_1FCTF) {
+	if (level.gametype == GT_TROJAN) {
 		enemy_flag_pw = PW_NEUTRALFLAG;
 	} 
 
@@ -361,10 +361,10 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	// find the flag
 	switch (attacker->client->sess.sessionTeam) {
 	case TEAM_RED:
-		c = "team_CTF_redflag";
+		c = "team_redflag";
 		break;
 	case TEAM_BLUE:
-		c = "team_CTF_blueflag";
+		c = "team_blueflag";
 		break;		
 	default:
 		return;
@@ -467,13 +467,13 @@ gentity_t *Team_ResetFlag( int team ) {
 
 	switch (team) {
 	case TEAM_RED:
-		c = "team_CTF_redflag";
+		c = "team_redflag";
 		break;
 	case TEAM_BLUE:
-		c = "team_CTF_blueflag";
+		c = "team_blueflag";
 		break;
 	case TEAM_FREE:
-		c = "team_CTF_neutralflag";
+		c = "team_neutralflag";
 		break;
 	default:
 		return NULL;
@@ -495,11 +495,11 @@ gentity_t *Team_ResetFlag( int team ) {
 }
 
 void Team_ResetFlags( void ) {
-	if( level.gametype == GT_CTF ) {
+	if( level.gametype == GT_FLAGS ) {
 		Team_ResetFlag( TEAM_RED );
 		Team_ResetFlag( TEAM_BLUE );
 	}
-	else if( level.gametype == GT_1FCTF ) {
+	else if( level.gametype == GT_TROJAN ) {
 		Team_ResetFlag( TEAM_FREE );
 	}
 }
@@ -638,7 +638,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	gclient_t	*cl = other->client;
 	int			enemy_flag;
 
-	if( level.gametype == GT_1FCTF ) {
+	if( level.gametype == GT_TROJAN ) {
 		enemy_flag = PW_NEUTRALFLAG;
 	}
 	else {
@@ -665,7 +665,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	// flag, he's just won!
 	if (!cl->ps.powerups[enemy_flag])
 		return 0; // We don't have the flag
-	if( level.gametype == GT_1FCTF ) {
+	if( level.gametype == GT_TROJAN ) {
 		PrintMsg( NULL, "%s" S_COLOR_WHITE " captured the flag!\n", cl->pers.netname );
 	}
 	else {
@@ -742,7 +742,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 	gclient_t *cl = other->client;
 
-	if( level.gametype == GT_1FCTF ) {
+	if( level.gametype == GT_TROJAN ) {
 		PrintMsg (NULL, "%s" S_COLOR_WHITE " got the flag!\n", other->client->pers.netname );
 
 		cl->ps.powerups[PW_NEUTRALFLAG] = INT_MAX; // flags never expire
@@ -778,20 +778,20 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	gclient_t *cl = other->client;
 
 	// figure out what team this flag is
-	if( strcmp(ent->classname, "team_CTF_redflag") == 0 ) {
+	if( strcmp(ent->classname, "team_redflag") == 0 ) {
 		team = TEAM_RED;
 	}
-	else if( strcmp(ent->classname, "team_CTF_blueflag") == 0 ) {
+	else if( strcmp(ent->classname, "team_blueflag") == 0 ) {
 		team = TEAM_BLUE;
 	}
-	else if( strcmp(ent->classname, "team_CTF_neutralflag") == 0  ) {
+	else if( strcmp(ent->classname, "team_neutralflag") == 0  ) {
 		team = TEAM_FREE;
 	}
 	else {
 		PrintMsg ( other, "Don't know what team the flag is on.\n");
 		return 0;
 	}
-	if( level.gametype == GT_1FCTF ) {
+	if( level.gametype == GT_TROJAN ) {
 		if( team == TEAM_FREE ) {
 			return Team_TouchEnemyFlag( ent, other, cl->sess.sessionTeam );
 		}
@@ -800,7 +800,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		}
 		return 0;
 	}
-	// GT_CTF
+	// GT_FLAGS
 	if( team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag( ent, other, team );
 	}
@@ -894,16 +894,16 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 
 	if (teamstate == TEAM_BEGIN) {
 		if (team == TEAM_RED)
-			classname = "team_CTF_redplayer";
+			classname = "team_redplayer";
 		else if (team == TEAM_BLUE)
-			classname = "team_CTF_blueplayer";
+			classname = "team_blueplayer";
 		else
 			return NULL;
 	} else {
 		if (team == TEAM_RED)
-			classname = "team_CTF_redspawn";
+			classname = "team_redspawn";
 		else if (team == TEAM_BLUE)
-			classname = "team_CTF_bluespawn";
+			classname = "team_bluespawn";
 		else
 			return NULL;
 	}
@@ -1078,30 +1078,30 @@ void CheckTeamStatus(void) {
 
 /*-----------------------------------------------------------------*/
 
-/*QUAKED team_CTF_redplayer (1 0 0) (-16 -16 -16) (16 16 32)
+/*QUAKED team_redplayer (1 0 0) (-16 -16 -16) (16 16 32)
 Only in CTF games.  Red players spawn here at game start.
 */
-void SP_team_CTF_redplayer( gentity_t *ent ) {
+void SP_team_redplayer( gentity_t *ent ) {
 }
 
 
-/*QUAKED team_CTF_blueplayer (0 0 1) (-16 -16 -16) (16 16 32)
+/*QUAKED team_blueplayer (0 0 1) (-16 -16 -16) (16 16 32)
 Only in CTF games.  Blue players spawn here at game start.
 */
-void SP_team_CTF_blueplayer( gentity_t *ent ) {
+void SP_team_blueplayer( gentity_t *ent ) {
 }
 
 
-/*QUAKED team_CTF_redspawn (1 0 0) (-16 -16 -24) (16 16 32)
+/*QUAKED team_redspawn (1 0 0) (-16 -16 -24) (16 16 32)
 potential spawning position for red team in CTF games.
 Targets will be fired when someone spawns in on them.
 */
-void SP_team_CTF_redspawn(gentity_t *ent) {
+void SP_team_redspawn(gentity_t *ent) {
 }
 
-/*QUAKED team_CTF_bluespawn (0 0 1) (-16 -16 -24) (16 16 32)
+/*QUAKED team_bluespawn (0 0 1) (-16 -16 -24) (16 16 32)
 potential spawning position for blue team in CTF games.
 Targets will be fired when someone spawns in on them.
 */
-void SP_team_CTF_bluespawn(gentity_t *ent) {
+void SP_team_bluespawn(gentity_t *ent) {
 }

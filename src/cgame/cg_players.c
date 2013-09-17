@@ -509,7 +509,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 			continue;
 		}
 		if ( !Q_stricmp( ci->modelName, match->modelName ) &&
-			 (cgs.gametype < GT_TEAM || ci->team == match->team) )
+			 (cgs.gametype < GT_TEAMBLOOD || ci->team == match->team) )
 		{// this clientinfo is identical, so use its handles
 			ci->deferred = qfalse;
 			CG_CopyClientInfoModel( match, ci );
@@ -543,7 +543,7 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 		}
 		if ( Q_stricmp( ci->modelName, match->modelName ) ||
 //			 Q_stricmp( ci->headModelName, match->headModelName ) ||
-			 (cgs.gametype >= GT_TEAM && ci->team != match->team) ) {
+			 (cgs.gametype >= GT_TEAMBLOOD && ci->team != match->team) ) {
 			continue;
 		}
 		// just load the real info cause it uses the same models and skins
@@ -552,7 +552,7 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 	}
 
 	// if we are in teamplay, only grab a model if the skin is correct
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		for ( i = 0 ; i < cgs.maxclients ; i++ ) {
 			match = &cgs.clientinfo[ i ];
 			if ( !match->infoValid || match->deferred ) {
@@ -1459,7 +1459,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
 	if ( !(cent->currentState.eFlags & EF_DEAD) && 
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
-		cgs.gametype >= GT_TEAM) {
+		cgs.gametype >= GT_TEAMBLOOD) {
 		CG_PlayerFloatSprite( cent, cgs.media.friendShader );
 		return;
 	}
@@ -1619,7 +1619,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
 	ivector3 *color = NULL;
 
-	if ( (cgs.gametype < GT_TEAM && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAM && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
+	if ( (cgs.gametype < GT_TEAMBLOOD && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAMBLOOD && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
 		color = &cg.forceModel.enemyColor;
 	else
 		color = &cg.forceModel.allyColor;

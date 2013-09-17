@@ -212,7 +212,7 @@ void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 	vector4 color = { 1.0f };
 	int				trailTime = 600;
 
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		if ( ci->team == TEAM_RED )
 			VectorSet4( &color, 1.0f, 0.0f, 0.0f, 1.0f );
 		else if ( ci->team == TEAM_BLUE )

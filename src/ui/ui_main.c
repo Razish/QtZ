@@ -1609,7 +1609,7 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vector4 *color, qboo
 	} else {
 		value -= 2;
 
-		if (ui_gametype->integer >= GT_TEAM) {
+		if (ui_gametype->integer >= GT_TEAMBLOOD) {
 			if (value >= uiInfo.characterCount) {
 				value = 0;
 			}
@@ -1894,7 +1894,7 @@ static void UI_DrawBotName(rectDef_t *rect, float scale, vector4 *color, int tex
 	int value = uiInfo.botIndex;
 	int game = (int)trap->Cvar_VariableValue("sv_gametype");
 	const char *text = "";
-	if (game >= GT_TEAM) {
+	if (game >= GT_TEAMBLOOD) {
 		if (value >= uiInfo.characterCount) {
 			value = 0;
 		}
@@ -2230,14 +2230,14 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 	while (flags) {
 
 		if (flags & UI_SHOW_FFA) {
-			if (trap->Cvar_VariableValue("sv_gametype") != GT_DEATHMATCH) {
+			if (trap->Cvar_VariableValue("sv_gametype") != GT_BLOODBATH) {
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_FFA;
 		}
 
 		if (flags & UI_SHOW_NOTFFA) {
-			if (trap->Cvar_VariableValue("sv_gametype") == GT_DEATHMATCH) {
+			if (trap->Cvar_VariableValue("sv_gametype") == GT_BLOODBATH) {
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_NOTFFA;
@@ -2258,13 +2258,13 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 			flags &= ~UI_SHOW_NOTFAVORITESERVERS;
 		} 
 		if (flags & (UI_SHOW_ANYTEAMGAME)) {
-			if (ui_gametype->integer < GT_TEAM ) {
+			if (ui_gametype->integer < GT_TEAMBLOOD ) {
 				vis = qfalse;
 			}
 			flags &= ~(UI_SHOW_ANYTEAMGAME);
 		} 
 		if (flags & (UI_SHOW_ANYNONTEAMGAME)) {
-			if (ui_gametype->integer >= GT_TEAM ) {
+			if (ui_gametype->integer >= GT_TEAMBLOOD ) {
 				vis = qfalse;
 			}
 			flags &= ~(UI_SHOW_ANYNONTEAMGAME);
@@ -2381,7 +2381,7 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 			value++;
 		}
 
-		if (ui_gametype->integer >= GT_TEAM) {
+		if (ui_gametype->integer >= GT_TEAMBLOOD) {
 			if (value >= uiInfo.characterCount + 2) {
 				value = 0;
 			} else if (value < 0) {
@@ -2530,7 +2530,7 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 			value++;
 		}
 
-		if (game >= GT_TEAM) {
+		if (game >= GT_TEAMBLOOD) {
 			if (value >= uiInfo.characterCount + 2) {
 				value = 0;
 			} else if (value < 0) {
@@ -2902,7 +2902,7 @@ static void UI_StartSkirmish(qboolean next) {
 		Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %f "", %i \n", uiInfo.mapList[ui_currentMap->integer].opponentName, skill, delay);
 		trap->Cbuf_ExecuteText( EXEC_APPEND, buff );
 	}
-	if (g >= GT_TEAM ) {
+	if (g >= GT_TEAMBLOOD ) {
 		trap->Cbuf_ExecuteText( EXEC_APPEND, "wait 5; team Red\n" );
 	}
 }
@@ -3070,7 +3070,7 @@ static void UI_RunMenuScript(char **args) {
 			for (i = 0; i < PLAYERS_PER_TEAM; i++) {
 				int bot = (int)trap->Cvar_VariableValue( va( "ui_blueteam%i", i+1) );
 				if (bot > 1) {
-					if (ui_gametype->integer >= GT_TEAM) {
+					if (ui_gametype->integer >= GT_TEAMBLOOD) {
 						Com_sprintf( buff, sizeof( buff ), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue" );
 					} else {
 						Com_sprintf( buff, sizeof( buff ), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill );
@@ -3079,7 +3079,7 @@ static void UI_RunMenuScript(char **args) {
 				}
 				bot = (int)trap->Cvar_VariableValue( va("ui_redteam%i", i+1));
 				if (bot > 1) {
-					if (ui_gametype->integer >= GT_TEAM) {
+					if (ui_gametype->integer >= GT_TEAMBLOOD) {
 						Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
 					} else {
 						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
@@ -3227,7 +3227,7 @@ static void UI_RunMenuScript(char **args) {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
-			if (trap->Cvar_VariableValue("sv_gametype") >= GT_TEAM) {
+			if (trap->Cvar_VariableValue("sv_gametype") >= GT_TEAMBLOOD) {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			} else {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );

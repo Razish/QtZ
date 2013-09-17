@@ -281,14 +281,14 @@ void BotReportStatus(bot_state_t *bs) {
 	ClientName(bs->client, netname, sizeof(netname));
 
 	strcpy(flagstatus, "  ");
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		if (BotCTFCarryingFlag(bs)) {
 			if (BotTeam(bs) == TEAM_RED) strcpy(flagstatus, S_COLOR_RED"F ");
 			else strcpy(flagstatus, S_COLOR_BLUE"F ");
 		}
 	}
-	else if (gametype == GT_1FCTF) {
-		if (Bot1FCTFCarryingFlag(bs)) {
+	else if (gametype == GT_TROJAN) {
+		if (BotTrojanCarryingFlag(bs)) {
 			if (BotTeam(bs) == TEAM_RED) strcpy(flagstatus, S_COLOR_RED"F ");
 			else strcpy(flagstatus, S_COLOR_BLUE"F ");
 		}
@@ -416,13 +416,13 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 	ClientName(bs->client, netname, sizeof(netname));
 
 	strcpy(carrying, "  ");
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		if (BotCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F ");
 		}
 	}
-	else if (gametype == GT_1FCTF) {
-		if (Bot1FCTFCarryingFlag(bs)) {
+	else if (gametype == GT_TROJAN) {
+		if (BotTrojanCarryingFlag(bs)) {
 			strcpy(carrying, "F ");
 		}
 	}

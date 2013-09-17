@@ -747,13 +747,13 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 					}
 					else {
 						if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-							if (cgs.gametype == GT_1FCTF) 
+							if (cgs.gametype == GT_TROJAN) 
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
 						else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-							if (cgs.gametype == GT_1FCTF)
+							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 							else
  							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
@@ -766,13 +766,13 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 					}
 					else {
 						if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-							if (cgs.gametype == GT_1FCTF)
+							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
 						else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-							if (cgs.gametype == GT_1FCTF)
+							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 							else
 							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );

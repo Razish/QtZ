@@ -119,7 +119,7 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 	int traveltimes[MAX_CLIENTS];
 	bot_goal_t *goal = NULL;
 
-	if (gametype == GT_CTF || gametype == GT_1FCTF)
+	if (gametype == GT_FLAGS || gametype == GT_TROJAN)
 	{
 		if (BotTeam(bs) == TEAM_RED)
 			goal = &ctf_redflag;
@@ -823,12 +823,12 @@ void BotCTFOrders(bot_state_t *bs) {
 
 /*
 ==================
-Bot1FCTFOrders_FlagAtCenter
+BotTrojanOrders_FlagAtCenter
 
   X% defend the base, Y% get the flag
 ==================
 */
-void Bot1FCTFOrders_FlagAtCenter(bot_state_t *bs) {
+void BotTrojanOrders_FlagAtCenter(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
 	char name[MAX_NETNAME];
@@ -970,12 +970,12 @@ void Bot1FCTFOrders_FlagAtCenter(bot_state_t *bs) {
 
 /*
 ==================
-Bot1FCTFOrders_TeamHasFlag
+BotTrojanOrders_TeamHasFlag
 
   X% towards neutral flag, Y% go towards enemy base and accompany flag carrier if visible
 ==================
 */
-void Bot1FCTFOrders_TeamHasFlag(bot_state_t *bs) {
+void BotTrojanOrders_TeamHasFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
 	char name[MAX_NETNAME], carriername[MAX_NETNAME];
@@ -1173,12 +1173,12 @@ void Bot1FCTFOrders_TeamHasFlag(bot_state_t *bs) {
 
 /*
 ==================
-Bot1FCTFOrders_EnemyHasFlag
+BotTrojanOrders_EnemyHasFlag
 
   X% defend the base, Y% towards neutral flag
 ==================
 */
-void Bot1FCTFOrders_EnemyHasFlag(bot_state_t *bs) {
+void BotTrojanOrders_EnemyHasFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
 	char name[MAX_NETNAME];
@@ -1320,12 +1320,12 @@ void Bot1FCTFOrders_EnemyHasFlag(bot_state_t *bs) {
 
 /*
 ==================
-Bot1FCTFOrders_EnemyDroppedFlag
+BotTrojanOrders_EnemyDroppedFlag
 
   X% defend the base, Y% get the flag
 ==================
 */
-void Bot1FCTFOrders_EnemyDroppedFlag(bot_state_t *bs) {
+void BotTrojanOrders_EnemyDroppedFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
 	char name[MAX_NETNAME];
@@ -1468,15 +1468,15 @@ void Bot1FCTFOrders_EnemyDroppedFlag(bot_state_t *bs) {
 
 /*
 ==================
-Bot1FCTFOrders
+BotTrojanOrders
 ==================
 */
-void Bot1FCTFOrders(bot_state_t *bs) {
+void BotTrojanOrders(bot_state_t *bs) {
 	switch(bs->neutralflagstatus) {
-		case 0: Bot1FCTFOrders_FlagAtCenter(bs); break;
-		case 1: Bot1FCTFOrders_TeamHasFlag(bs); break;
-		case 2: Bot1FCTFOrders_EnemyHasFlag(bs); break;
-		case 3: Bot1FCTFOrders_EnemyDroppedFlag(bs); break;
+		case 0: BotTrojanOrders_FlagAtCenter(bs); break;
+		case 1: BotTrojanOrders_TeamHasFlag(bs); break;
+		case 2: BotTrojanOrders_EnemyHasFlag(bs); break;
+		case 3: BotTrojanOrders_EnemyDroppedFlag(bs); break;
 	}
 }
 

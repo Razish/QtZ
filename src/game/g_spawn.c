@@ -166,11 +166,11 @@ void SP_shooter_rocket( gentity_t *ent );
 void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
-void SP_team_CTF_redplayer( gentity_t *ent );
-void SP_team_CTF_blueplayer( gentity_t *ent );
+void SP_team_redplayer( gentity_t *ent );
+void SP_team_blueplayer( gentity_t *ent );
 
-void SP_team_CTF_redspawn( gentity_t *ent );
-void SP_team_CTF_bluespawn( gentity_t *ent );
+void SP_team_redspawn( gentity_t *ent );
+void SP_team_bluespawn( gentity_t *ent );
 
 void SP_item_botroam( gentity_t *ent ) { }
 
@@ -214,10 +214,10 @@ spawn_t	spawns[] = {
 	{ "target_score",				SP_target_score },
 	{ "target_speaker",				SP_target_speaker },
 	{ "target_teleporter",			SP_target_teleporter },
-	{ "team_CTF_bluespawn",			SP_team_CTF_bluespawn },
-	{ "team_CTF_blueplayer",		SP_team_CTF_blueplayer },
-	{ "team_CTF_redspawn",			SP_team_CTF_redspawn },
-	{ "team_CTF_redplayer",			SP_team_CTF_redplayer },
+	{ "team_bluespawn",				SP_team_bluespawn },
+	{ "team_blueplayer",			SP_team_blueplayer },
+	{ "team_redspawn",				SP_team_redspawn },
+	{ "team_redplayer",				SP_team_redplayer },
 	{ "trigger_always",				SP_trigger_always },
 	{ "trigger_hurt",				SP_trigger_hurt },
 	{ "trigger_multiple",			SP_trigger_multiple },
@@ -398,7 +398,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 
 	// check for "notteam" flag
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAMBLOOD ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			ADJUST_AREAPORTAL();

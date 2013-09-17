@@ -18,7 +18,7 @@ void DrawServerInformation( float fade ) {
 	y += lineHeight;
 
 	switch ( cgs.gametype ) {
-	case GT_DEATHMATCH:
+	case GT_BLOODBATH:
 	case GT_DUEL:
 		if ( cgs.timelimit && cgs.fraglimit )	tmp = va( "Until "S_COLOR_YELLOW"%i "S_COLOR_WHITE"frags or "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i minutes", cgs.fraglimit, (cg.time-cgs.levelStartTime)/60000, cgs.timelimit );
 		else if ( cgs.timelimit )				tmp = va( "Until "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i "S_COLOR_WHITE"minutes", (cg.time-cgs.levelStartTime)/60000, cgs.timelimit );
@@ -27,8 +27,8 @@ void DrawServerInformation( float fade ) {
 		CG_Text_Paint( SCREEN_WIDTH/2.0f - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y, fontScale, &colour, tmp, 0.0f, 0, 0 );
 		y += lineHeight*2;
 		break;
-	case GT_CTF:
-	case GT_1FCTF:
+	case GT_FLAGS:
+	case GT_TROJAN:
 		if ( cgs.timelimit && cgs.capturelimit )	tmp = va( "Until "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i "S_COLOR_WHITE"captures or "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i minutes", MAX(cgs.scores1, cgs.scores2), cgs.capturelimit, (cg.time-cgs.levelStartTime)/60000, cgs.timelimit );
 		else if ( cgs.timelimit )					tmp = va( "Until "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i "S_COLOR_WHITE"minutes", (cg.time-cgs.levelStartTime)/60000, cgs.timelimit );
 		else if ( cgs.capturelimit )				tmp = va( "Until "S_COLOR_YELLOW"%i"S_COLOR_WHITE"/"S_COLOR_YELLOW"%i "S_COLOR_WHITE"captures", MAX(cgs.scores1, cgs.scores2), cgs.capturelimit );
@@ -36,7 +36,7 @@ void DrawServerInformation( float fade ) {
 		CG_Text_Paint( SCREEN_WIDTH/2.0f - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y, fontScale, &colour, tmp, 0.0f, 0, 0 );
 		y += lineHeight*2;
 		//FALL THROUGH TO GENERIC TEAM GAME INFO!
-	case GT_TEAM:
+	case GT_TEAMBLOOD:
 		if ( cgs.scores1 == cgs.scores2 ) {
 			tmp = S_COLOR_YELLOW"Teams are tied";
 			CG_Text_Paint( SCREEN_WIDTH/2.0f - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y, fontScale, &colour, tmp, 0.0f, 0, 0 );
@@ -158,14 +158,14 @@ void DrawPlayerCount_Team( float fade )
 
 void DrawPlayerCount( float fade ) {
 	switch ( cgs.gametype ) {
-	case GT_DEATHMATCH:
+	case GT_BLOODBATH:
 	case GT_DUEL:
 		DrawPlayerCount_Free( fade );
 		break;
 
-	case GT_TEAM:
-	case GT_CTF:
-	case GT_1FCTF:
+	case GT_TEAMBLOOD:
+	case GT_FLAGS:
+	case GT_TROJAN:
 		DrawPlayerCount_Team( fade );
 		break;
 	}
@@ -483,7 +483,7 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 }
 
 //Return value: number of players on team 'team'
-int ListPlayers_CTF( float fade, float x, float y, float fontScale, float lineHeight, team_t team ) {
+int ListPlayers_Flags( float fade, float x, float y, float fontScale, float lineHeight, team_t team ) {
 	const char *tmp = NULL;
 	vector4	white		= { 1.0f, 1.0f, 1.0f, 1.0f },
 			border		= { 0.6f, 0.6f, 0.6f, 1.0f },
@@ -657,15 +657,14 @@ int ListPlayers_CTF( float fade, float x, float y, float fontScale, float lineHe
 //	will use relevant information based on gametype
 int ListPlayers_Free( float fade, float x, float y, float fontScale, float lineHeight, int startIndex, int playerCount ) {
 	switch ( cgs.gametype ) {
-	case GT_DEATHMATCH:
+	case GT_BLOODBATH:
 		return ListPlayers_FFA( fade, x, y, fontScale, lineHeight, startIndex, playerCount );
 	case GT_DUEL:
 		break;
 
-	case GT_TEAM:
-		break;
-	case GT_CTF:
-	case GT_1FCTF:
+	case GT_TEAMBLOOD:
+	case GT_FLAGS:
+	case GT_TROJAN:
 		trap->Error( ERR_DROP, "Tried to use non-team scoreboard on team gametype" );
 		break;
 	}
@@ -677,17 +676,17 @@ int ListPlayers_Free( float fade, float x, float y, float fontScale, float lineH
 //	will use relevant information based on gametype
 int ListPlayers_Team( float fade, float x, float y, float fontScale, float lineHeight, team_t team ) {
 	switch ( cgs.gametype ) {
-	case GT_DEATHMATCH:
+	case GT_BLOODBATH:
 	case GT_DUEL:
 		trap->Error( ERR_DROP, "Tried to use team scoreboard on non-team gametype" );
 		break;
 
-	case GT_TEAM:
+	case GT_TEAMBLOOD:
 		return ListPlayers_TDM( fade, x, y, fontScale, lineHeight, team );
 		break;
-	case GT_CTF:
-	case GT_1FCTF:
-		return ListPlayers_CTF( fade, x, y, fontScale, lineHeight, team );
+	case GT_FLAGS:
+	case GT_TROJAN:
+		return ListPlayers_Flags( fade, x, y, fontScale, lineHeight, team );
 		break;
 	}
 
@@ -744,14 +743,14 @@ void DrawPlayers_Team( float fade ) {
 //	will call the relevant functions based on gametype
 void DrawPlayers( float fade ) {
 	switch ( cgs.gametype ) {
-	case GT_DEATHMATCH:
+	case GT_BLOODBATH:
 	case GT_DUEL:
 		DrawPlayers_Free( fade );
 		break;
 
-	case GT_TEAM:
-	case GT_CTF:
-	case GT_1FCTF:
+	case GT_TEAMBLOOD:
+	case GT_FLAGS:
+	case GT_TROJAN:
 		DrawPlayers_Team( fade );
 		break;
 	}

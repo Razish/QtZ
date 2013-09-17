@@ -1806,26 +1806,26 @@ void Field_Clear( field_t *edit ) {
 }
 
 const char *gametypeStringShort[GT_NUM_GAMETYPES] = {
-	"DM",
+	"BLOOD",
 	"1v1",
-	"TDM",
-	"CTF",
-	"1FCTF"
+	"TEAMBLOOD",
+	"FLAGS",
+	"TROJAN"
 };
 
 const char *GametypeStringForID( int gametype ) {
 	switch ( gametype ) {
-	case GT_DEATHMATCH:
-		return "Deathmatch";
+	case GT_BLOODBATH:
+		return "Bloodbath";
 	case GT_DUEL:
 		return "Duel";
 
-	case GT_TEAM:
-		return "Team Deathmatch";
-	case GT_CTF:
-		return "Capture The Flag";
-	case GT_1FCTF:
-		return "1-flag CTF";
+	case GT_TEAMBLOOD:
+		return "Team Bloodbath";
+	case GT_FLAGS:
+		return "Flags";
+	case GT_TROJAN:
+		return "Trojan";
 
 	default:
 		return "Unknown Gametype";
@@ -1833,15 +1833,17 @@ const char *GametypeStringForID( int gametype ) {
 }
 
 int GametypeIDForString( const char *gametype ) {
-		 if ( !Q_stricmp( gametype, "ffa" )
+		 if ( !Q_stricmp( gametype, "bloodbath" )
+			||!Q_stricmp( gametype, "ffa" )
 			||!Q_stricmp( gametype, "dm" )
-			||!Q_stricmp( gametype, "deathmatch" ) )	return GT_DEATHMATCH;
+			||!Q_stricmp( gametype, "deathmatch" ) )	return GT_BLOODBATH;
 	else if ( !Q_stricmp( gametype, "duel" )
 			||!Q_stricmp( gametype, "1v1" ) )			return GT_DUEL;
 	else if ( !Q_stricmp( gametype, "tdm" )
 			||!Q_stricmp( gametype, "tffa" )
-			||!Q_stricmp( gametype, "team" ) )			return GT_TEAM;
-	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
-	else if ( !Q_stricmp( gametype, "1fctf" ) )			return GT_1FCTF;
+			||!Q_stricmp( gametype, "team" ) )			return GT_TEAMBLOOD;
+	else if ( !Q_stricmp( gametype, "flags" )
+			||!Q_stricmp( gametype, "ctf" ) )			return GT_FLAGS;
+	else if ( !Q_stricmp( gametype, "trojan" ) )		return GT_TROJAN;
 	else												return -1;
 }

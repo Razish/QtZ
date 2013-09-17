@@ -77,7 +77,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 		// if same team in team game, no sound
 		// cannot use OnSameTeam as it expects to g_entities, not clients
-		if ( level.gametype >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+		if ( level.gametype >= GT_TEAMBLOOD && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
 			continue;
 		}
 
@@ -166,7 +166,7 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 			quantity = ent->item->quantity;
 
 		// dropped items and teamplay weapons always have full ammo
-		if ( !(ent->flags & FL_DROPPED_ITEM) && level.gametype != GT_TEAM ) {
+		if ( !(ent->flags & FL_DROPPED_ITEM) && level.gametype != GT_TEAMBLOOD ) {
 			// respawning rules
 			// drop the quantity if the already have over the minimum
 			if ( other->client->ps.ammo[ent->item->giTag] < quantity )
@@ -425,7 +425,7 @@ gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity )
 	VectorCopy( velocity, &dropped->s.pos.trDelta );
 
 	dropped->flags |= FL_BOUNCE_HALF;
-	if ((level.gametype == GT_CTF || level.gametype == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
+	if ((level.gametype == GT_FLAGS || level.gametype == GT_TROJAN) && item->giType == IT_TEAM) { // Special case for CTF flags
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
@@ -557,34 +557,34 @@ void G_CheckTeamItems( void ) {
 	// Set up team stuff
 	Team_InitGame();
 
-	if( level.gametype == GT_CTF ) {
+	if( level.gametype == GT_FLAGS ) {
 		const gitem_t	*item;
 
 		// check for the two flags
-		item = BG_FindItem( "team_CTF_redflag" );
+		item = BG_FindItem( "team_redflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_redflag in map\n" );
 		}
-		item = BG_FindItem( "team_CTF_blueflag" );
+		item = BG_FindItem( "team_blueflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_blueflag in map\n" );
 		}
 	}
-	if( level.gametype == GT_1FCTF ) {
+	if( level.gametype == GT_TROJAN ) {
 		const gitem_t	*item;
 
 		// check for all three flags
-		item = BG_FindItem( "team_CTF_redflag" );
+		item = BG_FindItem( "team_redflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_redflag in map\n" );
 		}
-		item = BG_FindItem( "team_CTF_blueflag" );
+		item = BG_FindItem( "team_blueflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_blueflag in map\n" );
 		}
-		item = BG_FindItem( "team_CTF_neutralflag" );
+		item = BG_FindItem( "team_neutralflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
-			trap->Print( S_COLOR_YELLOW "WARNING: No team_CTF_neutralflag in map\n" );
+			trap->Print( S_COLOR_YELLOW "WARNING: No team_neutralflag in map\n" );
 		}
 	}
 }

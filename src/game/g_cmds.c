@@ -138,7 +138,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	}
 
 	// if running a team game, assign player to one of the teams
-	else if ( level.gametype >= GT_TEAM ) {
+	else if ( level.gametype >= GT_TEAMBLOOD ) {
 		specState = SPECTATOR_NOT;
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) )
 			team = TEAM_RED;
@@ -289,14 +289,14 @@ static qboolean G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, c
 		gt = GametypeIDForString( arg2 );
 		if ( gt == -1 )
 		{
-			trap->SV_GameSendServerCommand( ent-g_entities, va( "print \"Gametype (%s) unrecognised, defaulting to Deathmatch\n\"", arg2 ) );
-			gt = GT_DEATHMATCH;
+			trap->SV_GameSendServerCommand( ent-g_entities, va( "print \"Gametype (%s) unrecognised, defaulting to Duel\n\"", arg2 ) );
+			gt = GT_DUEL;
 		}
 	}
 	else if ( gt < 0 || gt >= GT_NUM_GAMETYPES )
 	{// numeric but out of range
-		trap->SV_GameSendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to Deathmatch\n\"", gt ) );
-		gt = GT_DEATHMATCH;
+		trap->SV_GameSendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to Duel\n\"", gt ) );
+		gt = GT_DUEL;
 	}
 
 	level.votingGametype = qtrue;
@@ -466,13 +466,13 @@ typedef struct voteString_s {
 static voteString_t validVoteStrings[] = {
 	//	vote string				aliases									# args	valid gametypes				exec delay		short help	long help
 	{	"allready",				"ready",			G_VoteAllready,		2,		GTB_ALL,					qfalse,			NULL,		"" },
-	{	"capturelimit",			"caps",				G_VoteCapturelimit,	3,		GTB_CTF,					qtrue,			"<num>",	"" },
+	{	"capturelimit",			"caps",				G_VoteCapturelimit,	3,		GTB_FLAGS,					qtrue,			"<num>",	"" },
 	{	"clientkick",			NULL,				G_VoteClientkick,	3,		GTB_ALL,					qfalse,			"<num>",	"" },
 	{	"cointoss",				"coinflip",			G_VoteCointoss,		2,		GTB_ALL,					qfalse,			NULL,		"" },
-	{	"fraglimit",			"frags",			G_VoteFraglimit,	3,		GTB_ALL & ~(GTB_CTF),		qtrue,			"<num>",	"" },
+	{	"fraglimit",			"frags",			G_VoteFraglimit,	3,		GTB_ALL & ~(GTB_FLAGS),		qtrue,			"<num>",	"" },
 	{	"sv_gametype",			"gametype gt mode",	G_VoteGametype,		3,		GTB_ALL,					qtrue,			"<name>",	"" },
 	{	"g_shootFromEye",		"shootfromeye",		G_VoteShootFromEye,	2,		GTB_ALL,					qfalse,			"<0-1>",	"" },
-	{	"g_speedCaps",			"speedcaps",		G_VoteSpeedcaps,	3,		GTB_CTF,					qfalse,			"<0-1>",	"" },
+	{	"g_speedCaps",			"speedcaps",		G_VoteSpeedcaps,	3,		GTB_FLAGS,					qfalse,			"<0-1>",	"" },
 	{	"kick",					NULL,				G_VoteKick,			3,		GTB_ALL,					qfalse,			"<name>",	"" },
 	{	"map",					NULL,				G_VoteMap,			2,		GTB_ALL,					qtrue,			"<name>",	"" },
 	{	"map_restart",			"restart",			NULL,				2,		GTB_ALL,					qtrue,			NULL,		"Restarts the current map\nExample: callvote map_restart" },
@@ -646,7 +646,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 			return;
 		}
 
-		if ( level.gametype != GT_CTF || (ent->client->ps.powerups[powerup] <= level.time) ) {
+		if ( level.gametype != GT_FLAGS || (ent->client->ps.powerups[powerup] <= level.time) ) {
 			trap->SV_GameSendServerCommand( ent-g_entities, "print \"^3No flag to drop\n\"" );
 			return;
 		}
@@ -1063,7 +1063,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	char		*locMsg = NULL;
 	qboolean	isMeCmd = qfalse;
 
-	if ( level.gametype < GT_TEAM && mode == SAY_TEAM )
+	if ( level.gametype < GT_TEAMBLOOD && mode == SAY_TEAM )
 		mode = SAY_ALL;
 
 	switch ( mode ) {
@@ -1096,7 +1096,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 
 	case SAY_TELL:
-		if ( target && level.gametype >= GT_TEAM && target->client->sess.sessionTeam == ent->client->sess.sessionTeam && Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
+		if ( target && level.gametype >= GT_TEAMBLOOD && target->client->sess.sessionTeam == ent->client->sess.sessionTeam && Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
 			Com_sprintf( name, sizeof( name ), EC_GLOBAL"[%s%c%c"EC_GLOBAL"]"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 			locMsg = location;
 		}
@@ -1154,7 +1154,7 @@ static void Cmd_SayTeam_f( gentity_t *ent ) {
 		G_LogPrintf( "Cmd_SayTeam_f from %d (%s) has been truncated: %s\n", ent->s.number, ent->client->pers.netname, p );
 	}
 
-	G_Say( ent, NULL, (level.gametype>=GT_TEAM) ? SAY_TEAM : SAY_ALL, p );
+	G_Say( ent, NULL, (level.gametype>=GT_TEAMBLOOD) ? SAY_TEAM : SAY_ALL, p );
 }
 
 static void Cmd_Score_f( gentity_t *ent ) {

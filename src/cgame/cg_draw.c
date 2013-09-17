@@ -1174,7 +1174,7 @@ static void CG_DrawSpectator( void ) {
 	float scale = 0.5f;
 	char *s = "Following";
 
-	if ( cgs.gametype >= GT_TEAM )
+	if ( cgs.gametype >= GT_TEAMBLOOD )
 		s = "press ESC and use the JOIN menu to play";
 
 	CG_Text_Paint( (SCREEN_WIDTH/2) - CG_Text_Width( s, scale, 0 )/2, 440, scale, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );

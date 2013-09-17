@@ -700,7 +700,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// bots set their team a few frames later
-	if ( level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT ) {
+	if ( level.gametype >= GT_TEAMBLOOD && g_entities[clientNum].r.svFlags & SVF_BOT ) {
 		s = Info_ValueForKey( userinfo, "team" );
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) )
 			team = TEAM_RED;
@@ -826,7 +826,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
 	}
 
-	if ( level.gametype >= GT_TEAM &&
+	if ( level.gametype >= GT_TEAMBLOOD &&
 		client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BroadcastTeamChange( client, -1 );
 	}
@@ -932,7 +932,7 @@ void ClientSpawn(gentity_t *ent) {
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		spawnPoint = SelectSpectatorSpawnPoint ( 
 						&spawn_origin, &spawn_angles);
-	} else if (level.gametype >= GT_CTF ) {
+	} else if (level.gametype >= GT_FLAGS ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint ( 
 						client->sess.sessionTeam, 
@@ -1165,11 +1165,11 @@ void ClientDisconnect( int clientNum ) {
 
 		//OSP: New code for tossing flags
 		if ( ent->client->ps.powerups[PW_REDFLAG] ) {
-			item = BG_FindItem( "team_CTF_redflag" );
+			item = BG_FindItem( "team_redflag" );
 			ent->client->ps.powerups[PW_REDFLAG] = 0;
 		}
 		if ( ent->client->ps.powerups[PW_BLUEFLAG] ) {
-			item = BG_FindItem( "team_CTF_blueflag" );
+			item = BG_FindItem( "team_blueflag" );
 			ent->client->ps.powerups[PW_BLUEFLAG] = 0;
 		}
 

@@ -60,9 +60,9 @@ const gitem_t bg_itemlist[] = {
 	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			0,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
 	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			0,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
 	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			0,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
-	{	"team_CTF_blueflag",		NULL,							{ "models/flags/b_flag.md3",			NULL },									"icons/team_blueflag",			"Blue Flag",			0,			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
-	{	"team_CTF_neutralflag",		NULL,							{ "models/flags/n_flag.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
-	{	"team_CTF_redflag",			NULL,							{ "models/flags/r_flag.md3",			NULL },									"icons/team_redflag",			"Red Flag",				0,			0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
+	{	"team_blueflag",			NULL,							{ "models/flags/blue.md3",				NULL },									"icons/team_blueflag",			"Blue Flag",			0,			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
+	{	"team_neutralflag",			NULL,							{ "models/flags/neutral.md3",			NULL },									"icons/team_neutralflag",		"Neutral Flag",			0,			0,			IT_TEAM,				PW_NEUTRALFLAG,			"",			"" },
+	{	"team_redflag",				NULL,							{ "models/flags/red.md3",				NULL },									"icons/team_redflag",			"Red Flag",				0,			0,			IT_TEAM,				PW_REDFLAG,				"",			"" },
 	{	"weapon_divergence",		"sound/weapon_pickup.wav",		{ "models/weapons/divergence/divergence.md3", NULL },							"icons/weapon_divergence",		"Divergence",			10,			0,			IT_WEAPON,				WP_DIVERGENCE,			"",			"" },
 	{	"weapon_mortar",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_mortar",			"Mortar",				15,			0,			IT_WEAPON,				WP_MORTAR,				"",			"" },
 	{	"weapon_quantizer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_quantizer",		"Quantizer",			0,			0,			IT_WEAPON,				WP_QUANTIZER,			"",			"" },
@@ -227,7 +227,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_TEAM: // team items, such as flags
-		if( gametype == GT_1FCTF ) {
+		if( gametype == GT_TROJAN ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG )
 				return qtrue;
@@ -237,7 +237,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				|| (ps->persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_REDFLAG)) )
 				return qtrue;
 		}
-		if( gametype == GT_CTF ) {
+		if( gametype == GT_FLAGS ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base

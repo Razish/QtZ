@@ -218,7 +218,7 @@ void AddScore( gentity_t *ent, vector3 *origin, int score ) {
 	ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	if ( level.gametype == GT_TEAM )
+	if ( level.gametype == GT_TEAMBLOOD )
 		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
 	CalculateRanks();
 }
@@ -254,7 +254,7 @@ void TossClientItems( gentity_t *self ) {
 	}
 
 	// drop all the powerups if not in teamplay
-	if ( level.gametype != GT_TEAM ) {
+	if ( level.gametype != GT_TEAMBLOOD ) {
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[i] > level.time ) {
@@ -385,20 +385,20 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 		self->client->ps.powerups[PW_BLUEFLAG] ||
 		self->client->ps.powerups[PW_NEUTRALFLAG] ) {
 		// get the goal flag this player should have been going for
-		if ( level.gametype == GT_CTF ) {
+		if ( level.gametype == GT_FLAGS ) {
 			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
-				classname = "team_CTF_blueflag";
+				classname = "team_blueflag";
 			}
 			else {
-				classname = "team_CTF_redflag";
+				classname = "team_redflag";
 			}
 		}
 		else {
 			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
-				classname = "team_CTF_redflag";
+				classname = "team_redflag";
 			}
 			else {
-				classname = "team_CTF_blueflag";
+				classname = "team_blueflag";
 			}
 		}
 		ent = NULL;
@@ -911,7 +911,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-	if( level.gametype == GT_CTF) {
+	if( level.gametype == GT_FLAGS) {
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 

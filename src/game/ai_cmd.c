@@ -818,11 +818,11 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-	else if (gametype == GT_1FCTF) {
+	else if (gametype == GT_TROJAN) {
 		if (!ctf_neutralflag.areanum || !ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
@@ -846,7 +846,7 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
 	// get an alternate route in ctf
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		//get an alternative route goal towards the enemy base
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 	}
@@ -867,10 +867,10 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		BotMatch_GetFlag(bs, match);
 	}
-	//RAZTODO: 1FCTF?
+	//RAZTODO: trojan?
 	else {
 		return;
 	}
@@ -908,11 +908,11 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-	//RAZTODO: 1FCTF?
+	//RAZTODO: trojan?
 	else {
 		return;
 	}
@@ -994,8 +994,8 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 
 	//if not in CTF mode
 	if (
-		gametype != GT_CTF
-		&& gametype != GT_1FCTF
+		gametype != GT_FLAGS
+		&& gametype != GT_TROJAN
 		)
 		return;
 	//if not addressed to this bot
@@ -1379,8 +1379,8 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		}
 	}
 	if (bestitem != -1) {
-		if (gametype == GT_CTF
-			|| gametype == GT_1FCTF
+		if (gametype == GT_FLAGS
+			|| gametype == GT_TROJAN
 			) {
 			redtt = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
 			bluett = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
@@ -1518,7 +1518,7 @@ void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 
 	char flag[128], netname[MAX_NETNAME];
 
-	if (gametype == GT_CTF) {
+	if (gametype == GT_FLAGS) {
 		trap->ai->BotMatchVariable(match, FLAG, flag, sizeof(flag));
 		if (match->subtype & ST_GOTFLAG) {
 			if (!Q_stricmp(flag, "red")) {
@@ -1550,8 +1550,8 @@ void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 			bs->flagstatuschanged = 1;
 		}
 	}
-	else if (gametype == GT_1FCTF) {
-		if (match->subtype & ST_1FCTFGOTFLAG) {
+	else if (gametype == GT_TROJAN) {
+		if (match->subtype & ST_TROJANGOTFLAG) {
 			trap->ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 			bs->flagcarrier = ClientFromName(netname);
 		}
@@ -1605,37 +1605,37 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_Patrol(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_GETFLAG:				//ctf get the enemy flag
 		{
 			BotMatch_GetFlag(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_ATTACKENEMYBASE:
 		{
 			BotMatch_AttackEnemyBase(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_RUSHBASE:				//ctf rush to the base
 		{
 			BotMatch_RushBase(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_RETURNFLAG:
 		{
 			BotMatch_ReturnFlag(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_TASKPREFERENCE:
 		{
 			BotMatch_TaskPreference(bs, &match);
 			break;
 		}
-		//CTF & 1FCTF
+		//Flags & trojan
 		case MSG_CTF:
 		{
 			BotMatch_CTF(bs, &match);

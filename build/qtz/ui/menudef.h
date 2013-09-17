@@ -102,8 +102,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG	0x00000001
 #define CG_SHOW_RED_TEAM_HAS_BLUEFLAG	0x00000002
 #define CG_SHOW_ANYTEAMGAME				0x00000004
-#define CG_SHOW_ONEFLAG					0x00000008
-#define CG_SHOW_CTF						0x00000010
+#define CG_SHOW_TROJAN					0x00000008
+#define CG_SHOW_FLAGS					0x00000010
 #define CG_SHOW_HEALTHCRITICAL			0x00000020
 #define CG_SHOW_TOURNAMENT				0x00000040
 #define CG_SHOW_DURINGINCOMINGVOICE		0x00000080
@@ -174,7 +174,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_ONEFLAG_STATUS				25
 #define CG_PLAYER_LOCATION				26
 #define CG_TEAM_COLOR					27
-#define CG_CTF_POWERUP					28
+#define CG_FLAGS_POWERUP				28
 #define CG_AREA_POWERUP					29
 #define CG_AREA_LAGOMETER				30	// painted with old system
 #define CG_PLAYER_HASFLAG				31

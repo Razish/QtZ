@@ -855,7 +855,7 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	for (; li; li = li->next)
 	{
 		//
-		if (sv_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAMBLOOD) {
 			if (li->flags & IFL_NOTTEAM) continue;
 		}
 		else {
@@ -1065,7 +1065,7 @@ void BotUpdateEntityItems(void)
 			//if this level item is already linked
 			if (li->entitynum) continue;
 			//
-			if (sv_gametype >= GT_TEAM) {
+			if (sv_gametype >= GT_TEAMBLOOD) {
 				if (li->flags & IFL_NOTTEAM) continue;
 			}
 			else {
@@ -1293,7 +1293,7 @@ int BotChooseLTGItem(int goalstate, vector3 *origin, int *inventory, int travelf
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (sv_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAMBLOOD) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}
@@ -1459,7 +1459,7 @@ int BotChooseNBGItem(int goalstate, vector3 *origin, int *inventory, int travelf
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (sv_gametype >= GT_TEAM) {
+		if (sv_gametype >= GT_TEAMBLOOD) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}

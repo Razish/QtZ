@@ -175,20 +175,20 @@ void UI_LoadArenas( void ) {
 		type = Info_ValueForKey( ui_arenaInfos[n], "type" );
 		// if no type specified, it will be treated as "ffa"
 		if( *type ) {
-			if( strstr( type, "dm" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DEATHMATCH);
+			if( strstr( type, "blood" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_BLOODBATH);
 			}
 			if( strstr( type, "duel" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DUEL);
 			}
-			if( strstr( type, "ctf" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
+			if( strstr( type, "flags" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FLAGS);
 			}
-			if( strstr( type, "oneflag" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_1FCTF);
+			if( strstr( type, "trojan" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_TROJAN);
 			}
 		} else {
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DEATHMATCH);
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_BLOODBATH);
 		}
 
 		uiInfo.mapCount++;
