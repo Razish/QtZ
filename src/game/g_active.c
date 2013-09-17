@@ -625,7 +625,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// clear the rewards if time
 	if ( level.time > client->rewardTime ) {
-		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 	}
 
 	//OSP: pause
@@ -645,16 +645,6 @@ void ClientThink_real( gentity_t *ent ) {
 	oldEventSequence = client->ps.eventSequence;
 
 	memset (&pm, 0, sizeof(pm));
-
-	// check for the hit-scan gauntlet, don't let the action
-	// go through as an attack unless it actually hits something
-	//RAZFIXME: new weapon cooldown approach :/
-#if 0
-	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
-		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
-		pm.gauntletHit = CheckGauntletAttack( ent );
-	}
-#endif
 
 	if ( ent->flags & FL_FORCE_GESTURE ) {
 		ent->flags &= ~FL_FORCE_GESTURE;
@@ -817,7 +807,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
 
 	//OSP: specs periodically get score updates for useful demo playback info
-	DeathmatchScoreboardMessage( ent );
+	ent->client->scoresWaiting = qtrue;
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -854,6 +844,60 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
 }
 
+static void G_SendScoreboardUpdate( gentity_t *ent ) {
+	char		entry[MAX_STRING_CHARS] = {0}, string[MAX_STRING_CHARS] = {0};
+	int			i, j, stringlength=0, numSorted, scoreFlags=0, accuracy, perfect;
+	gclient_t	*cl = NULL;
+
+	// only send updates every g_scoreUpdateRate msec
+	if ( !ent->client->scoresWaiting || ent->client->lastScoresTime > level.time - g_scoreUpdateRate->integer )
+		return;
+	ent->client->lastScoresTime = level.time;
+	ent->client->scoresWaiting = qfalse;
+
+	// send the latest information on all clients
+	numSorted = level.numConnectedClients;
+	
+	for ( i=0; i<numSorted; i++ ) {
+		int ping;
+
+		cl = &level.clients[level.sortedClients[i]];
+
+		ping		= (cl->pers.connected == CON_CONNECTING) ? -1 : Q_capi( cl->ps.ping, 999 );
+		accuracy	= (cl->accuracy_shots) ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
+		perfect		= (cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0);
+
+		Com_sprintf( entry, sizeof( entry ),
+			" %i %i %i %i %i %i %i %i %i %i %i %i %i",
+			level.sortedClients[i],
+			cl->ps.persistant[PERS_SCORE],
+			ping,
+			cl->pers.enterTime,
+			scoreFlags,
+			g_entities[level.sortedClients[i]].s.powerups,
+			accuracy,
+			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
+			cl->ps.persistant[PERS_EXCELLENT_COUNT],
+			cl->ps.persistant[PERS_DEFEND_COUNT],
+			cl->ps.persistant[PERS_ASSIST_COUNT],
+			perfect,
+			cl->ps.persistant[PERS_CAPTURES] );
+
+		j = strlen( entry );
+		if ( stringlength + j >= sizeof(string))
+			break;
+
+		strcpy( string + stringlength, entry );
+		stringlength += j;
+	}
+
+	trap->SV_GameSendServerCommand( ent-g_entities, va("scores %i %i %i%s",
+													i,
+													level.teamScores[TEAM_RED],
+													level.teamScores[TEAM_BLUE],
+													string ) );
+}
+
 /*
 ==============
 ClientEndFrame
@@ -865,6 +909,9 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 */
 void ClientEndFrame( gentity_t *ent ) {
 	int			i;
+
+	// see if there is a scoreboard message pending
+	G_SendScoreboardUpdate( ent );
 
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		SpectatorClientEndFrame( ent );

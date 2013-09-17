@@ -1,7 +1,5 @@
 #pragma once
 
-#include "sv_public.h"
-
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../game/g_public.h"
@@ -229,7 +227,6 @@ typedef struct serverBan_t {
 
 //=============================================================================
 
-extern	serverImport_t	svi;
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
 extern	gameExport_t	*game;				// game virtual machine
@@ -461,5 +458,5 @@ void		SV_PacketEvent( netadr_t from, msg_t *msg );
 int			SV_FrameMsec( void );
 qboolean	SV_GameCommand( void );
 int			SV_SendQueuedPackets( void );
-void		BotDrawDebugPolygons( void (*drawPoly)(int color, int numPoints, vector3 *points), int value );
+void		SV_BotDrawDebugPolygons( void (*drawPoly)(int color, int numPoints, vector3 *points), int value );
 void		SV_ShutdownGameProgs( void );

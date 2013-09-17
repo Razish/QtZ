@@ -13,7 +13,7 @@ void DrawServerInformation( float fade ) {
 	tmp = va( "%s (%s)", (char *)CG_ConfigString( CS_MESSAGE ), cgs.mapname );
 	CG_Text_Paint( SCREEN_WIDTH/2.0f - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y, fontScale, &colour, tmp, 0.0f, 0, 0 );
 	y += lineHeight;
-	tmp = BG_GetGametypeString( cgs.gametype );
+	tmp = GametypeStringForID( cgs.gametype );
 	CG_Text_Paint( SCREEN_WIDTH/2.0f- CG_Text_Width( tmp, fontScale, 0 )/2.0f, y, fontScale, &colour, tmp, 0.0f, 0, 0 );
 	y += lineHeight;
 
@@ -208,16 +208,16 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 	trap->R_SetColor( NULL );
 
 	tmp = "Name";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Score";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Ping";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Time";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 	y += lineHeight*1.5f;
 
 	savedY = y;
@@ -264,17 +264,17 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 
 			else if ( ci->botSkill != -1 ) {
 				tmp = "BOT";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			else if ( cg.snap->ps.stats[STAT_CLIENTS_READY] & (1<<score->client) ) {
 				tmp = "READY";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			//Name
 			tmp = ci->name;
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			//Score
 			if ( score->ping == -1 )
@@ -284,22 +284,30 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 			else
 				tmp = va( "%02i", score->score );
 
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			if ( score->ping != -1 ) {
+				int msec, secs, mins;
+
 				//Ping
 				if ( ci->botSkill != -1 ) {
 					tmp = "--";
-					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 				}
 				else {
 					tmp = va( "%i", score->ping );
-					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &pingColour, tmp, 0.0f, 0, 0 );
+					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &pingColour, tmp, 0.0f, 0, 0 );
 				}
 
 				//Time
-				tmp = va( "%i", score->time );
-				CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				msec = cg.time - cgs.levelStartTime - score->time;
+				secs = msec/1000;
+				mins = secs/60;
+				secs %= 60;
+				msec %= 1000;
+
+				tmp = va( "%i:%02i", mins, secs );
+				CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			y += lineHeight;
@@ -350,25 +358,25 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 	trap->R_SetColor( NULL );
 
 	tmp = "Name";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Score";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Cap";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Def";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Asst";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Ping";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 	tmp = "Time";
-	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+	CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 	y += lineHeight*1.5f;
 
 	savedY = y;
@@ -415,48 +423,56 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 
 			else if ( ci->botSkill != -1 ) {
 				tmp = "BOT";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			else if ( cg.snap->ps.stats[STAT_CLIENTS_READY] & (1<<score->client) ) {
 				tmp = "READY";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			//Name
 			tmp = ci->name;
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			//Score
 			tmp = va( "%4i", score->score );
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			//Capture
 			tmp = va( "%2i", score->captures );
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			//Defend
 			tmp = va( "%2i", score->defendCount );
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			//Assist
 			tmp = va( "%2i", score->assistCount );
-			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			if ( score->ping != -1 ) {
+				int msec, secs, mins;
+
 				//Ping
 				if ( ci->botSkill != -1 ) {
 					tmp = "--";
-					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 				}
 				else {
 					tmp = va( "%i", score->ping );
-					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &pingColour, tmp, 0.0f, 0, 0 );
+					CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &pingColour, tmp, 0.0f, 0, 0 );
 				}
 
 				//Time
-				tmp = va( "%i", score->time );
-				CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f)-1.0f, fontScale, &white, tmp, 0.0f, 0, 0 );
+				msec = cg.time - cgs.levelStartTime - score->time;
+				secs = msec/1000;
+				mins = secs/60;
+				secs %= 60;
+				msec %= 1000;
+
+				tmp = va( "%i:%02i", mins, secs );
+				CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			y += lineHeight;
@@ -578,12 +594,12 @@ int ListPlayers_CTF( float fade, float x, float y, float fontScale, float lineHe
 
 			else if ( ci->botSkill != -1 ) {
 				tmp = "BOT";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			else if ( cg.snap->ps.stats[STAT_CLIENTS_READY] & (1<<score->client) ) {
 				tmp = "READY";
-				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) - (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
+				CG_Text_Paint( x + 8.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 
 			//Name
@@ -607,6 +623,8 @@ int ListPlayers_CTF( float fade, float x, float y, float fontScale, float lineHe
 			CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 
 			if ( score->ping != -1 ) {
+				int msec, secs, mins;
+
 				//Ping
 				if ( ci->botSkill != -1 ) {
 					tmp = "--";
@@ -618,7 +636,13 @@ int ListPlayers_CTF( float fade, float x, float y, float fontScale, float lineHe
 				}
 
 				//Time
-				tmp = va( "%i", score->time );
+				msec = cg.time - cgs.levelStartTime - score->time;
+				secs = msec/1000;
+				mins = secs/60;
+				secs %= 60;
+				msec %= 1000;
+
+				tmp = va( "%i:%02i", mins, secs );
 				CG_Text_Paint( x + columnOffset[column++] - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + (lineHeight/2.0f) + (CG_Text_Height( tmp, fontScale, 0 )/2.0f), fontScale, &white, tmp, 0.0f, 0, 0 );
 			}
 

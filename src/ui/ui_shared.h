@@ -456,7 +456,7 @@ const char *			String_Alloc				( const char *p );
 void					String_Init					( void );
 void					String_Report				( void );
 
-void *					UI_Alloc					( int size );
+void *					UI_Alloc					( size_t size );
 void					UI_InitMemory				( void );
 qboolean				UI_OutOfMemory				( void );
 

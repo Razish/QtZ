@@ -100,7 +100,7 @@ static LONG WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		if ( mouseRaw )
 		{
 			RAWINPUT ri;
-			int i = sizeof(ri);
+			UINT i = sizeof(ri);
 			
 			GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, &ri, &i, sizeof(RAWINPUTHEADER) );
 			

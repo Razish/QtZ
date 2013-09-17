@@ -809,13 +809,13 @@ temp file loading
 #define Z_TagMalloc(size, tag)			Z_TagMallocDebug(size, tag, #size, __FILE__, __LINE__)
 #define Z_Malloc(size)					Z_MallocDebug(size, #size, __FILE__, __LINE__)
 #define S_Malloc(size)					S_MallocDebug(size, #size, __FILE__, __LINE__)
-void *Z_TagMallocDebug( int size, int tag, char *label, char *file, int line );	// NOT 0 filled memory
-void *Z_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
-void *S_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
+void *Z_TagMallocDebug( size_t size, int tag, char *label, char *file, int line );	// NOT 0 filled memory
+void *Z_MallocDebug( size_t size, char *label, char *file, int line );			// returns 0 filled memory
+void *S_MallocDebug( size_t size, char *label, char *file, int line );			// returns 0 filled memory
 #else
-void *Z_TagMalloc( int size, int tag );	// NOT 0 filled memory
-void *Z_Malloc( int size );			// returns 0 filled memory
-void *S_Malloc( int size );			// NOT 0 filled memory only for small allocations
+void *Z_TagMalloc( size_t size, int tag );	// NOT 0 filled memory
+void *Z_Malloc( size_t size );			// returns 0 filled memory
+void *S_Malloc( size_t size );			// NOT 0 filled memory only for small allocations
 #endif
 void Z_Free( void *ptr );
 void Z_FreeTags( int tag );
@@ -913,11 +913,18 @@ void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 #define AVI_LINE_PADDING 4
 
 //
-// Server interface
+// server interface
 //
 
-#include "../server/sv_public.h"
-
+void		SV_Init( void );
+void		SV_Shutdown( char *finalmsg );
+void		SV_Frame( int msec );
+void		SV_PacketEvent( netadr_t from, msg_t *msg );
+int			SV_FrameMsec( void );
+qboolean	SV_GameCommand( void );
+int			SV_SendQueuedPackets( void );
+void		SV_BotDrawDebugPolygons( void (*drawPoly)(int color, int numPoints, vector3 *points), int value );
+void		SV_ShutdownGameProgs( void );
 
 //
 // UI interface

@@ -103,30 +103,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
-typedef enum gametype_e {
-	GT_DEATHMATCH=0,
-	GT_DUEL,
-	// team games
-	GT_TEAM,
-	GT_CTF,
-	GT_1FCTF,
-	GT_NUM_GAMETYPES
-} gametype_t;
-
-// gametype bits
-#define GTB_NONE			0x00 // invalid
-#define GTB_DM				0x01 // deathmatch
-#define GTB_DUEL			0x02 // duel
-#define GTB_NOTTEAM			0x03 // **SPECIAL: All of the above gametypes, i.e. not team-based
-#define GTB_TEAM			0x04 // team deathmatch
-#define GTB_CTF				0x08 // capture the flag
-#define GTB_1FCTF			0x10 // 1-flag ctf
-#define GTB_ALL				0x1F // **SPECIAL: All
-
-extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
-const char *BG_GetGametypeString( int gametype );
-int BG_GetGametypeForString( const char *gametype );
-
 /*
 ===================================================================================
 
@@ -184,7 +160,6 @@ typedef struct pmove_s {
 	int			tracemask;			// collide against these types of surfaces
 //	int			debugLevel;			// if set, diagnostic output will be printed
 	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
-	qboolean	gauntletHit;		// true if a gauntlet attack would actually hit something
 
 	int			framecount;
 
@@ -240,36 +215,31 @@ typedef enum persEnum_e {
 	PERS_ATTACKEE_ARMOR,			// health/armor of last person we attacked
 	PERS_KILLED,					// count of the number of times you died
 	// player awards tracking
-	PERS_IMPRESSIVE_COUNT,			// two railgun hits in a row
+	PERS_IMPRESSIVE_COUNT,			// 
 	PERS_EXCELLENT_COUNT,			// two successive kills in a short amount of time
 	PERS_DEFEND_COUNT,				// defend awards
 	PERS_ASSIST_COUNT,				// assist awards
-	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
 	PERS_CAPTURES					// captures
 } persEnum_t;
 
 
 // entityState_t->eFlags
-#define	EF_DEAD				0x00001		// don't draw a foe marker over players with EF_DEAD
-#define EF_TICKING			0x00002		// used to make players play the prox mine ticking sound
-#define	EF_TELEPORT_BIT		0x00004		// toggled every time the origin abruptly changes
-#define	EF_AWARD_EXCELLENT	0x00008		// draw an excellent sprite
-#define EF_PLAYER_EVENT		0x00010		// for missiles
-#define	EF_AWARD_GAUNTLET	0x00020		// draw a gauntlet sprite
-#define	EF_NODRAW			0x00040		// may have an event, but no model (unspawned items)
-#define	EF_FIRING			0x00080		// for lightning gun
-#define	EF_MOVER_STOP		0x00100		// will push otherwise
-#define	EF_AWARD_CAP		0x00200		// draw the capture sprite
-#define EF_TALK				0x00400		// draw a talk balloon
-#define	EF_CONNECTION		0x00800		// draw a connection trouble sprite
-#define	EF_AWARD_IMPRESSIVE	0x01000		// draw an impressive sprite
-#define	EF_AWARD_DEFEND		0x02000		// draw a defend sprite
-#define	EF_AWARD_ASSIST		0x04000		// draw a assist sprite
-#define	EF_AWARD_DENIED		0x08000		// denied
-#define	EF_NOT_USED_04		0x10000		// 
-#define EF_NOT_USED_03		0x20000		// 
-#define EF_NOT_USED_02		0x40000		// 
-#define EF_NOT_USED_01		0x80000		// 
+#define	EF_DEAD				0x0001		// don't draw a foe marker over players with EF_DEAD
+#define EF_TICKING			0x0002		// used to make players play the prox mine ticking sound
+#define	EF_TELEPORT_BIT		0x0004		// toggled every time the origin abruptly changes
+#define	EF_AWARD_EXCELLENT	0x0008		// draw an excellent sprite
+#define EF_PLAYER_EVENT		0x0010		// for missiles
+#define	EF_NODRAW			0x0020		// may have an event, but no model (unspawned items)
+#define	EF_FIRING			0x0040		// for lightning gun
+#define	EF_MOVER_STOP		0x0080		// will push otherwise
+#define	EF_AWARD_CAP		0x0100		// draw the capture sprite
+#define	EF_TALK				0x0200		// draw a talk balloon
+#define EF_CONNECTION		0x0400		// draw a connection trouble sprite
+#define	EF_AWARD_IMPRESSIVE	0x0800		// draw an impressive sprite
+#define	EF_AWARD_DEFEND		0x1000		// draw a defend sprite
+#define	EF_AWARD_ASSIST		0x2000		// draw a assist sprite
+#define	EF_AWARD_DENIED		0x4000		// denied
+#define EF_UNUSED_8000		0x8000		// 
 
 // NOTE: may not have more than 16
 typedef enum powerup_e {
@@ -299,32 +269,30 @@ typedef enum holdable_e {
 } holdable_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define	PLAYEREVENT_DENIEDREWARD		0x0001
-#define	PLAYEREVENT_GAUNTLETREWARD		0x0002
-#define PLAYEREVENT_HOLYSHIT			0x0004
-#define PLAYEREVENT_AIRSHOT				0x0008
-#define PLAYEREVENT_AMAZING				0x0010
-#define PLAYEREVENT_HEADSHOT			0x0020
-#define PLAYEREVENT_UNUSED10			0x0040
-#define PLAYEREVENT_UNUSED09			0x0080
-#define PLAYEREVENT_UNUSED08			0x0100
-#define PLAYEREVENT_UNUSED07			0x0200
-#define PLAYEREVENT_UNUSED06			0x0400
-#define PLAYEREVENT_UNUSED05			0x0800
-#define PLAYEREVENT_UNUSED04			0x1000
-#define PLAYEREVENT_UNUSED03			0x2000
-#define PLAYEREVENT_UNUSED02			0x4000
-#define PLAYEREVENT_UNUSED01			0x8000
+#define	PLAYEREVENT_DENIEDREWARD	0x0001
+#define	PLAYEREVENT_HOLYSHIT		0x0002
+#define PLAYEREVENT_AIRSHOT			0x0004
+#define PLAYEREVENT_AMAZING			0x0008
+#define PLAYEREVENT_HEADSHOT		0x0010
+#define PLAYEREVENT_UNUSED_0020		0x0020
+#define PLAYEREVENT_UNUSED_0040		0x0040
+#define PLAYEREVENT_UNUSED_0080		0x0080
+#define PLAYEREVENT_UNUSED_0100		0x0100
+#define PLAYEREVENT_UNUSED_0200		0x0200
+#define PLAYEREVENT_UNUSED_0400		0x0400
+#define PLAYEREVENT_UNUSED_0800		0x0800
+#define PLAYEREVENT_UNUSED_1000		0x1000
+#define PLAYEREVENT_UNUSED_2000		0x2000
+#define PLAYEREVENT_UNUSED_4000		0x4000
+#define PLAYEREVENT_UNUSED_8000		0x8000
 
 // entityState_t->event values
-// entity events are for effects that take place relative
-// to an existing entities origin.  Very network efficient.
+// entity events are for effects that take place relative to an existing entities origin.
+// Very network efficient.
 
-// two bits at the top of the entityState->event field
-// will be incremented with each change in the event so
-// that an identical event started twice in a row can
-// be distinguished.  And off the value with ~EV_EVENT_BITS
-// to retrieve the actual event number
+// two bits at the top of the entityState->event field will be incremented with each change
+// in the event so that an identical event started twice in a row can be distinguished.
+// And off the value with ~EV_EVENT_BITS to retrieve the actual event number
 #define	EV_EVENT_BIT1		0x00000100
 #define	EV_EVENT_BIT2		0x00000200
 #define	EV_EVENT_BITS		(EV_EVENT_BIT1|EV_EVENT_BIT2)
@@ -596,13 +564,13 @@ typedef struct gitem_s {
 } gitem_t;
 
 // included in both the game dll and the client
-extern	gitem_t	bg_itemlist[];
-extern	int		bg_numItems;
+extern const gitem_t bg_itemlist[];
+extern const int bg_numItems;
 
-gitem_t	*BG_FindItem( const char *classname );
-gitem_t	*BG_FindItemForWeapon( weapon_t weapon );
-gitem_t	*BG_FindItemForPowerup( powerup_t pw );
-gitem_t	*BG_FindItemForHoldable( holdable_t pw );
+const gitem_t *BG_FindItem( const char *classname );
+const gitem_t *BG_FindItemForWeapon( weapon_t weapon );
+const gitem_t *BG_FindItemForPowerup( powerup_t pw );
+const gitem_t *BG_FindItemForHoldable( holdable_t pw );
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );

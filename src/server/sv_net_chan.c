@@ -36,7 +36,7 @@ void SV_Netchan_FreeQueue(client_t *client)
 	for(netbuf = client->netchan_start_queue; netbuf; netbuf = next)
 	{
 		next = netbuf->next;
-		svi.Z_Free(netbuf);
+		Z_Free(netbuf);
 	}
 	
 	client->netchan_start_queue = NULL;
@@ -60,7 +60,7 @@ void SV_Netchan_TransmitNextInQueue(client_t *client)
 		SV_Netchan_Encode(client, &netbuf->msg, netbuf->clientCommandString);
 #endif
 
-	svi.Netchan_Transmit(&client->netchan, netbuf->msg.cursize, netbuf->msg.data);
+	Netchan_Transmit(&client->netchan, netbuf->msg.cursize, netbuf->msg.data);
 
 	// pop from queue
 	client->netchan_start_queue = netbuf->next;
@@ -72,7 +72,7 @@ void SV_Netchan_TransmitNextInQueue(client_t *client)
 	else
 		Com_DPrintf("#462 Netchan_TransmitNextFragment: remaining queued message\n");
 
-	svi.Z_Free(netbuf);
+	Z_Free(netbuf);
 }
 
 /*
@@ -88,7 +88,7 @@ int SV_Netchan_TransmitNextFragment(client_t *client)
 {
 	if(client->netchan.unsentFragments)
 	{
-		svi.Netchan_TransmitNextFragment(&client->netchan);
+		Netchan_TransmitNextFragment(&client->netchan);
 		return SV_RateMsec(client);
 	}
 	else if(client->netchan_start_queue)
@@ -114,15 +114,15 @@ then buffer them and make sure they get sent in correct order
 
 void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 {
-	svi.MSG_WriteByte( msg, svc_EOF );
+	MSG_WriteByte( msg, svc_EOF );
 
 	if(client->netchan.unsentFragments || client->netchan_start_queue)
 	{
 		netchan_buffer_t *netbuf;
 		Com_DPrintf("#462 SV_Netchan_Transmit: unsent fragments, stacked\n");
-		netbuf = (netchan_buffer_t *) svi.Z_Malloc(sizeof(netchan_buffer_t));
+		netbuf = (netchan_buffer_t *) Z_Malloc(sizeof(netchan_buffer_t));
 		// store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
-		svi.MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof( netbuf->msgBuffer ), msg);
+		MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof( netbuf->msgBuffer ), msg);
 		netbuf->next = NULL;
 		// insert it in the queue, the message will be encoded and sent later
 		*client->netchan_end_queue = netbuf;
@@ -130,7 +130,7 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 	}
 	else
 	{
-		svi.Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
+		Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
 	}
 }
 
@@ -141,7 +141,7 @@ Netchan_SV_Process
 */
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
 	int ret;
-	ret = svi.Netchan_Process( &client->netchan, msg );
+	ret = Netchan_Process( &client->netchan, msg );
 	if (!ret)
 		return qfalse;
 

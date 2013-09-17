@@ -506,9 +506,9 @@ Adds an event+parm and twiddles the event counter
 ===============
 */
 void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm ) {
-	if ( !ent->client ) {
+	if ( !ent->client )
 		return;
-	}
+
 	BG_AddPredictableEventToPlayerstate( event, eventParm, &ent->client->ps );
 }
 

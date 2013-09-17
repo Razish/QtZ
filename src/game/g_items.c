@@ -401,7 +401,7 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *LaunchItem( gitem_t *item, vector3 *origin, vector3 *velocity ) {
+gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity ) {
 	gentity_t	*dropped;
 	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
 
@@ -448,7 +448,7 @@ Drop_Item
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
+gentity_t *Drop_Item( gentity_t *ent, const gitem_t *item, float angle ) {
 	vector3	velocity;
 	vector3	angles;
 
@@ -558,7 +558,7 @@ void G_CheckTeamItems( void ) {
 	Team_InitGame();
 
 	if( level.gametype == GT_CTF ) {
-		gitem_t	*item;
+		const gitem_t	*item;
 
 		// check for the two flags
 		item = BG_FindItem( "team_CTF_redflag" );
@@ -571,7 +571,7 @@ void G_CheckTeamItems( void ) {
 		}
 	}
 	if( level.gametype == GT_1FCTF ) {
-		gitem_t	*item;
+		const gitem_t	*item;
 
 		// check for all three flags
 		item = BG_FindItem( "team_CTF_redflag" );
@@ -609,7 +609,7 @@ RegisterItem
 The item will be added to the precache list
 ===============
 */
-void RegisterItem( gitem_t *item ) {
+void RegisterItem( const gitem_t *item ) {
 	if ( !item ) {
 		trap->Error( ERR_DROP, "RegisterItem: NULL" );
 	}
@@ -650,7 +650,7 @@ void SaveRegisteredItems( void ) {
 G_ItemDisabled
 ============
 */
-int G_ItemDisabled( gitem_t *item ) {
+int G_ItemDisabled( const gitem_t *item ) {
 
 	char name[128];
 
@@ -668,7 +668,7 @@ Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 ============
 */
-void G_SpawnItem (gentity_t *ent, gitem_t *item) {
+void G_SpawnItem (gentity_t *ent, const gitem_t *item) {
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
 

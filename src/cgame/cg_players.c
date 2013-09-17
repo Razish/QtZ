@@ -631,14 +631,14 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// colors
 	v = Info_ValueForKey( configstring, "c" );
-	CG_ColorFromString( v[0], &newInfo.color1 );
+	CG_ColorFromString( ColorIndex(v[0]), &newInfo.color1 );
 
 	newInfo.c1RGBA[0] = (byte)(255 * newInfo.color1.r);
 	newInfo.c1RGBA[1] = (byte)(255 * newInfo.color1.g);
 	newInfo.c1RGBA[2] = (byte)(255 * newInfo.color1.b);
 	newInfo.c1RGBA[3] = 255;
 
-	CG_ColorFromString( v[1], &newInfo.color2 );
+	CG_ColorFromString( ColorIndex(v[1]), &newInfo.color2 );
 	newInfo.c2RGBA[0] = (byte)(255 * newInfo.color2.r);
 	newInfo.c2RGBA[1] = (byte)(255 * newInfo.color2.g);
 	newInfo.c2RGBA[2] = (byte)(255 * newInfo.color2.b);
@@ -1438,11 +1438,6 @@ static void CG_PlayerSprites( centity_t *cent ) {
 
 	if ( cent->currentState.eFlags & EF_AWARD_EXCELLENT ) {
 		CG_PlayerFloatSprite( cent, cgs.media.medalExcellent );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_GAUNTLET ) {
-		CG_PlayerFloatSprite( cent, cgs.media.medalGauntlet );
 		return;
 	}
 

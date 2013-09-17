@@ -46,7 +46,7 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 */
 
 //RAZMARK: adding new weapons
-gitem_t bg_itemlist[] = {
+const gitem_t bg_itemlist[] = {
 	// sorted alphabetically, case sensitive
 	//	classname					pickup sound					world model																		icon							pickup name				quantity	respawn		giType					giTag					precaches	sounds
 	{	"ammo_all",					"sound/ammo_pickup.wav",		{ "models/items/battery.md3",			NULL },									"icons/ammo_all",				"Ammo All",				50,			0,			IT_AMMO,				-1,						"",			"" },
@@ -70,7 +70,7 @@ gitem_t bg_itemlist[] = {
 	{	"weapon_splicer",			"sound/weapon_pickup.wav",		{ "models/weapons/temp/temp.md3",		NULL },									"icons/weapon_splicer",			"Splicer",				100,		0,			IT_WEAPON,				WP_SPLICER,				"",			"" },
 	{	NULL,						NULL,							{ NULL,									NULL },									NULL,							NULL,					0,			0,			IT_BAD,					0,						"",			"" },
 };
-int bg_numItems = ARRAY_LEN( bg_itemlist );
+const int bg_numItems = ARRAY_LEN( bg_itemlist );
 
 
 /*
@@ -78,8 +78,8 @@ int bg_numItems = ARRAY_LEN( bg_itemlist );
 BG_FindItemForPowerup
 ==============
 */
-gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
-	gitem_t *it = NULL;
+const gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
+	const gitem_t *it = NULL;
 	int i;
 
 	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
@@ -98,8 +98,8 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 BG_FindItemForHoldable
 ==============
 */
-gitem_t	*BG_FindItemForHoldable( holdable_t hi ) {
-	gitem_t *it = NULL;
+const gitem_t *BG_FindItemForHoldable( holdable_t hi ) {
+	const gitem_t *it = NULL;
 	int i;
 
 	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
@@ -119,8 +119,8 @@ BG_FindItemForWeapon
 
 ===============
 */
-gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
-	gitem_t	*it = NULL;
+const gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
+	const gitem_t *it = NULL;
 	int i=0;
 	
 	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
@@ -143,7 +143,7 @@ static int itempickupcmp( const void *a, const void *b ) {
 }
 
 // case sensitive lookup for item classname
-gitem_t	*BG_FindItem( const char *classname ) {
+const gitem_t *BG_FindItem( const char *classname ) {
 	return (gitem_t *)bsearch( classname, bg_itemlist, bg_numItems, sizeof( gitem_t ), itempickupcmp );
 }
 
@@ -186,7 +186,7 @@ This needs to be the same for client side prediction and server use.
 */
 
 qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
-	gitem_t *item = NULL;
+	const gitem_t *item = NULL;
 
 	if ( ent->modelindex < 0 || ent->modelindex >= bg_numItems )
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
@@ -690,46 +690,3 @@ int weaponFromMOD[MOD_MAX] = {
 	WP_NONE,
 	WP_NONE,
 };
-
-const char *gametypeStringShort[GT_NUM_GAMETYPES] = {
-	"DM",
-	"1v1",
-	"TDM",
-	"CTF",
-	"1FCTF"
-};
-
-const char *BG_GetGametypeString( int gametype )
-{
-	switch ( gametype )
-	{
-	case GT_DEATHMATCH:
-		return "Deathmatch";
-	case GT_DUEL:
-		return "Duel";
-
-	case GT_TEAM:
-		return "Team Deathmatch";
-	case GT_CTF:
-		return "Capture The Flag";
-	case GT_1FCTF:
-		return "1-flag CTF";
-
-	default:
-		return "Unknown Gametype";
-	}
-}
-
-int BG_GetGametypeForString( const char *gametype )
-{
-		 if ( !Q_stricmp( gametype, "ffa" )
-			||!Q_stricmp( gametype, "dm" )
-			||!Q_stricmp( gametype, "deathmatch" ) )	return GT_DEATHMATCH;
-	else if ( !Q_stricmp( gametype, "duel" ) )			return GT_DUEL;
-	else if ( !Q_stricmp( gametype, "tdm" )
-			||!Q_stricmp( gametype, "tffa" )
-			||!Q_stricmp( gametype, "team" ) )			return GT_TEAM;
-	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
-	else if ( !Q_stricmp( gametype, "1fctf" ) )			return GT_1FCTF;
-	else												return -1;
-}

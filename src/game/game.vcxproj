@@ -306,6 +306,7 @@
     <ClCompile Include="g_weapon.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\build\qtz\botfiles\chars.h" />
     <ClInclude Include="..\qcommon\q_asm.h" />
     <ClInclude Include="..\qcommon\q_shared.h" />
     <ClInclude Include="..\qcommon\surfaceflags.h" />
@@ -328,7 +329,6 @@
     <ClInclude Include="bg_public.h" />
     <ClInclude Include="bg_weapons.h" />
     <ClInclude Include="botlib.h" />
-    <ClInclude Include="chars.h" />
     <ClInclude Include="g_local.h" />
     <ClInclude Include="g_public.h" />
     <ClInclude Include="g_team.h" />

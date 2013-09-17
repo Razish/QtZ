@@ -1605,12 +1605,12 @@ void CL_Connect_f( void ) {
 
 	if ( com_sv_running->integer && !strcmp( server, "localhost" ) ) {
 		// if running a local server, kill it
-		sve.Shutdown( "Server quit" );
+		SV_Shutdown( "Server quit" );
 	}
 
 	// make sure a local server is killed
 	Cvar_Set( "sv_killserver", "1" );
-	sve.Frame( 0 );
+	SV_Frame( 0 );
 
 	noGameRestart = qtrue;
 	CL_Disconnect( qtrue, "Joining another server" ); //QTZTODO: Server name/address?

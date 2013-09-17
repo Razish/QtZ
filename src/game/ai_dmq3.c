@@ -1583,10 +1583,10 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 	}
 
 	//RAZMARK: Adding new weapons
-	//if the bot can use the railgun
+	//if the bot can use the divergence
 	if (bs->inventory[INVENTORY_DIVERGENCE] > 0 &&
 			bs->inventory[INVENTORY_AMMODIVERGENCE] > 5) return qtrue;
-	//if the bot can use the lightning gun
+	//if the bot can use the splicer
 	if (bs->inventory[INVENTORY_SPLICER] > 0 &&
 			bs->inventory[INVENTORY_AMMOSPLICER] > 50) return qtrue;
 	return qfalse;

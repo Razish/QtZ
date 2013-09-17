@@ -111,10 +111,10 @@ CG_UseItem
 ===============
 */
 static void CG_UseItem( centity_t *cent ) {
-	clientInfo_t *ci;
-	int			itemNum, clientNum;
-	gitem_t		*item;
-	entityState_t *es;
+	clientInfo_t	*ci;
+	int				itemNum, clientNum;
+	const gitem_t	*item;
+	entityState_t	*es;
 
 	es = &cent->currentState;
 	
@@ -478,7 +478,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	case EV_ITEM_PICKUP:
 		DEBUGNAME("EV_ITEM_PICKUP");
 		{
-			gitem_t	*item;
+			const gitem_t *item;
 			int		index;
 
 			index = es->eventParm;		// player predicted
@@ -512,7 +512,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	case EV_GLOBAL_ITEM_PICKUP:
 		DEBUGNAME("EV_GLOBAL_ITEM_PICKUP");
 		{
-			gitem_t	*item;
+			const gitem_t *item;
 			int		index;
 
 			index = es->eventParm;		// player predicted

@@ -190,19 +190,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_EXCELLENT					41
 #define CG_IMPRESSIVE					42
 #define CG_PERFECT						43
-#define CG_GAUNTLET						44
-#define CG_SPECTATORS					45
-#define CG_TEAMINFO						46
-#define CG_PLAYER_HASFLAG2D				47
-#define CG_CAPFRAGLIMIT					48
-#define CG_1STPLACE						49
-#define CG_2NDPLACE						50
-#define CG_CAPTURES						51
-#define CG_FPS_INFO						52
-#define CG_PING_INFO					53
-#define CG_OBITUARY						54
-#define CG_ITEMPICKUP					55
-#define CG_TIMER						56
+#define CG_SPECTATORS					44
+#define CG_TEAMINFO						45
+#define CG_PLAYER_HASFLAG2D				46
+#define CG_CAPFRAGLIMIT					47
+#define CG_1STPLACE						48
+#define CG_2NDPLACE						49
+#define CG_CAPTURES						50
+#define CG_FPS_INFO						51
+#define CG_PING_INFO					52
+#define CG_OBITUARY						53
+#define CG_ITEMPICKUP					54
+#define CG_TIMER						55
 
 #define UI_OWNERDRAW_BASE		200
 #define UI_PLAYERMODEL			201
@@ -273,5 +272,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define VOICECHAT_KILLINSULT		"kill_insult"			// I just killed you
 #define VOICECHAT_TAUNT				"taunt"					// I want to taunt you
 #define VOICECHAT_DEATHINSULT		"death_insult"			// you just killed me
-#define VOICECHAT_KILLGAUNTLET		"kill_gauntlet"			// I just killed you with the gauntlet
 #define VOICECHAT_PRAISE			"praise"				// you did something good

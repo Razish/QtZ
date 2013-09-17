@@ -558,8 +558,6 @@ int BotChat_Death(bot_state_t *bs) {
 			trap->ea->EA_Command(bs->client, "vtaunt");
 			return qtrue;
 		}
-		//RAZTODO: redo bot chat
-#if 0
 		//
 		if (bs->botdeathtype == MOD_WATER)
 			BotAI_BotInitialChat(bs, "death_drown", BotRandomOpponentName(bs), NULL);
@@ -578,32 +576,9 @@ int BotChat_Death(bot_state_t *bs) {
 			BotAI_BotInitialChat(bs, "death_suicide", BotRandomOpponentName(bs), NULL);
 		else if (bs->botdeathtype == MOD_TELEFRAG)
 			BotAI_BotInitialChat(bs, "death_telefrag", name, NULL);
-		else if (bs->botdeathtype == MOD_KAMIKAZE && trap->ai->BotNumInitialChats(bs->cs, "death_kamikaze"))
-			BotAI_BotInitialChat(bs, "death_kamikaze", name, NULL);
 		else {
-			if ((bs->botdeathtype == MOD_GAUNTLET ||
-				bs->botdeathtype == MOD_RAILGUN ||
-				bs->botdeathtype == MOD_BFG ||
-				bs->botdeathtype == MOD_BFG_SPLASH) && random() < 0.5) {
-
-				if (bs->botdeathtype == MOD_GAUNTLET)
-					BotAI_BotInitialChat(bs, "death_gauntlet",
-							name,												// 0
-							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-							NULL);
-				else if (bs->botdeathtype == MOD_RAILGUN)
-					BotAI_BotInitialChat(bs, "death_rail",
-							name,												// 0
-							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-							NULL);
-				else
-					BotAI_BotInitialChat(bs, "death_bfg",
-							name,												// 0
-							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-							NULL);
-			}
 			//choose between insult and praise
-			else if (random() < trap->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
+			if (random() < trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
 				BotAI_BotInitialChat(bs, "death_insult",
 							name,												// 0
 							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
@@ -616,7 +591,6 @@ int BotChat_Death(bot_state_t *bs) {
 							NULL);
 			}
 		}
-#endif
 		bs->chatto = CHAT_ALL;
 	}
 	bs->lastchat_time = FloatTime();
@@ -661,28 +635,17 @@ int BotChat_Kill(bot_state_t *bs) {
 			trap->ea->EA_Command(bs->client, "vtaunt");
 			return qfalse;			// don't wait
 		}
-		//RAZTODO: redo bot chatting
-#if 0
 		//
-		if (bs->enemydeathtype == MOD_GAUNTLET) {
-			BotAI_BotInitialChat(bs, "kill_gauntlet", name, NULL);
-		}
-		else if (bs->enemydeathtype == MOD_RAILGUN) {
-			BotAI_BotInitialChat(bs, "kill_rail", name, NULL);
-		}
-		else if (bs->enemydeathtype == MOD_TELEFRAG) {
+		if (bs->enemydeathtype == MOD_TELEFRAG) {
 			BotAI_BotInitialChat(bs, "kill_telefrag", name, NULL);
 		}
-		else if (bs->botdeathtype == MOD_KAMIKAZE && trap->ai->BotNumInitialChats(bs->cs, "kill_kamikaze"))
-			BotAI_BotInitialChat(bs, "kill_kamikaze", name, NULL);
 		//choose between insult and praise
-		else if (random() < trap->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
+		else if (random() < trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
 			BotAI_BotInitialChat(bs, "kill_insult", name, NULL);
 		}
 		else {
 			BotAI_BotInitialChat(bs, "kill_praise", name, NULL);
 		}
-#endif
 	}
 	bs->lastchat_time = FloatTime();
 	return qtrue;
@@ -917,11 +880,11 @@ BotChatTime
 ==================
 */
 float BotChatTime(bot_state_t *bs) {
-	//int cpm;
+	int cpm;
 
-	//cpm = trap->Characteristic_BInteger(bs->character, CHARACTERISTIC_CHAT_CPM, 1, 4000);
+	cpm = trap->ai->Characteristic_BInteger(bs->character, CHARACTERISTIC_CHAT_CPM, 1, 4000);
 
-	return 2.0;	//(float) trap->ai->BotChatLength(bs->cs) * 30 / cpm;
+	return (float)trap->ai->BotChatLength(bs->cs) * 30 / cpm;
 }
 
 /*
@@ -1041,33 +1004,6 @@ void BotChatTest(bot_state_t *bs) {
 		BotAI_BotInitialChat(bs, "death_telefrag", name, NULL);
 		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
 	}
-	num = trap->ai->BotNumInitialChats(bs->cs, "death_gauntlet");
-	for (i = 0; i < num; i++)
-	{
-		BotAI_BotInitialChat(bs, "death_gauntlet",
-				name,												// 0
-				BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-				NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
-	}
-	num = trap->ai->BotNumInitialChats(bs->cs, "death_rail");
-	for (i = 0; i < num; i++)
-	{
-		BotAI_BotInitialChat(bs, "death_rail",
-				name,												// 0
-				BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-				NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
-	}
-	num = trap->ai->BotNumInitialChats(bs->cs, "death_bfg");
-	for (i = 0; i < num; i++)
-	{
-		BotAI_BotInitialChat(bs, "death_bfg",
-				name,												// 0
-				BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
-				NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
-	}
 	num = trap->ai->BotNumInitialChats(bs->cs, "death_insult");
 	for (i = 0; i < num; i++)
 	{
@@ -1089,19 +1025,6 @@ void BotChatTest(bot_state_t *bs) {
 	//
 	EasyClientName(bs->lastkilledplayer, name, 32);
 	//
-	num = trap->ai->BotNumInitialChats(bs->cs, "kill_gauntlet");
-	for (i = 0; i < num; i++)
-	{
-		//
-		BotAI_BotInitialChat(bs, "kill_gauntlet", name, NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
-	}
-	num = trap->ai->BotNumInitialChats(bs->cs, "kill_rail");
-	for (i = 0; i < num; i++)
-	{
-		BotAI_BotInitialChat(bs, "kill_rail", name, NULL);
-		trap->ai->BotEnterChat(bs->cs, 0, CHAT_ALL);
-	}
 	num = trap->ai->BotNumInitialChats(bs->cs, "kill_telefrag");
 	for (i = 0; i < num; i++)
 	{

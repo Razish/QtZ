@@ -1089,47 +1089,12 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	case RT_BEAM:
 		RB_SurfaceBeam();
 		break;
-	//QtZ: From JA/EF
-#if 0
-	case RT_ORIENTED_QUAD:
-		RB_SurfaceOrientedSprite();
-		break;
-#endif
 	case RT_LINE:
-#if 0
-		RB_SurfaceLine();
-#else
 		RB_SurfaceRailCore();
-#endif
 		break;
-#if 0
-	case RT_ORIENTEDLINE:
-		RB_SurfaceOrientedLine();
-		break;
-#endif
-
-#if 0
-	case RT_LINE2:
-		RB_SurfaceLine2();
-		break;
-	case RT_BEZIER:
-		RB_SurfaceBezier();
-		break;
-#endif
-
-#if 0
-	case RT_CYLINDER:
-		RB_SurfaceCylinder();
-		break;
-#endif
 	case RT_ELECTRICITY:
-#if 0
-		RB_SurfaceElectricity();
-#else
 		RB_SurfaceLightningBolt();
-#endif
 		break;
-	//~QtZ
 	default:
 		RB_SurfaceAxis();
 		break;

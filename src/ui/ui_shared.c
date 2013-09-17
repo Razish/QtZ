@@ -86,8 +86,9 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item );
 #define MEM_POOL_SIZE  1024 * 1024
 #endif
 
-static char		memoryPool[MEM_POOL_SIZE];
-static int		allocPoint, outOfMemory;
+static char memoryPool[MEM_POOL_SIZE];
+static unsigned int allocPoint;
+static qboolean outOfMemory;
 
 
 /*
@@ -95,7 +96,7 @@ static int		allocPoint, outOfMemory;
 UI_Alloc
 ===============
 */				  
-void *UI_Alloc( int size ) {
+void *UI_Alloc( size_t size ) {
 	char	*p; 
 
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
@@ -4344,7 +4345,6 @@ static bind_t g_bindings[] =
 	{ "tauntPraise",		K_F2,			-1, -1, -1 },
 	{ "tauntTaunt",			K_F3,			-1, -1, -1 },
 	{ "tauntDeathInsult",	K_F4,			-1, -1, -1 },
-	{ "tauntGauntlet",		K_F5,			-1, -1, -1 },
 	{ "scoresUp",			K_KP_PGUP,		-1, -1, -1 },
 	{ "scoresDown",			K_KP_PGDN,		-1, -1, -1 },
 	{ "messagemode",		-1,				-1, -1, -1 },

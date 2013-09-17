@@ -521,7 +521,7 @@ void Sys_SigHandler( int signal )
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
 #endif
-		sve.Shutdown(va("Received signal %d", signal) );
+		SV_Shutdown(va("Received signal %d", signal) );
 	}
 
 	if( signal == SIGTERM || signal == SIGINT )

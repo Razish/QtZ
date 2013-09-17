@@ -376,19 +376,6 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) 
 		render_impact = qfalse;
 
-#if 0
-	// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
-	tent = G_TempEntity( tr.endpos, EV_RAILGUN_SHOT );
-	VectorCopy( muzzle, tent->s.origin2 );
-	tent->s.eventParm = ent->s.number;
-
-	if ( render_impact )
-	{// Hmmm, maybe don't make any marks on things that could break
-		tent = G_TempEntity( tr.endpos, EV_RAILGUN_MISS );
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-	}
-#endif
-
 	tent = G_TempEntity( &tr.endpos, EV_HITSCANTRAIL );
 	tent->s.clientNum = ent->s.number;
 	tent->s.eventParm = DirToByte( &tr.plane.normal );

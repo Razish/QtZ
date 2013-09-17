@@ -244,7 +244,7 @@ static int spawncmp( const void *a, const void *b ) {
 
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
-	gitem_t	*item;
+	const gitem_t	*item;
 
 	if ( !ent->classname ) {
 		trap->Print ("G_CallSpawn: NULL classname\n");

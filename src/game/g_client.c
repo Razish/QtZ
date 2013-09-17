@@ -658,7 +658,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			team;
-	char		model[MAX_QPATH]={0}, oldname[MAX_NETNAME]={0}, color[2]={0};
+	char		model[MAX_QPATH]={0}, oldname[MAX_NETNAME]={0}, color[8]={0};
 	char		*s, userinfo[MAX_INFO_STRING]={0}, buf[MAX_INFO_STRING]={0};
 
 	ent = g_entities + clientNum;
@@ -1127,12 +1127,12 @@ server system housekeeping.
 ============
 */
 void ClientDisconnect( int clientNum ) {
-	gentity_t	*ent;
-	gentity_t	*tent;
-	gentity_t   *flag = NULL;
-	gitem_t     *item = NULL;
-	vector3 launchvel;
-	int			i;
+	gentity_t		*ent;
+	gentity_t		*tent;
+	gentity_t		*flag = NULL;
+	const gitem_t	*item = NULL;
+	vector3			launchvel;
+	int				i;
 
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet

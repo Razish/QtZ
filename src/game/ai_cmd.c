@@ -1356,37 +1356,12 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 	int i, bestitem, redtt, bluett, client;
 	bot_goal_t goal;
 	char netname[MAX_MESSAGE_SIZE];
-	char *nearbyitems[] = {//QTZFIXME: lol.
-		"Shotgun",
-		"Grenade Launcher",
-		"Rocket Launcher",
-		"Plasmagun",
-		"Railgun",
-		"Lightning Gun",
-		"BFG10K",
-		"Quad Damage",
-		"Regeneration",
-		"Battle Suit",
-		"Speed",
-		"Invisibility",
-		"Flight",
-		"Armor",
-		"Heavy Armor",
-		"Red Flag",
-		"Blue Flag",
-		"Nailgun",
-		"Prox Launcher",
-		"Chaingun",
-		"Scout",
-		"Guard",
-		"Doubler",
-		"Ammo Regen",
-		"Neutral Flag",
-		"Red Obelisk",
-		"Blue Obelisk",
-		"Neutral Obelisk",
-		NULL
-	};
+	char **nearbyitems = NULL;
+
+	nearbyitems = (char **)malloc( bg_numItems * sizeof(char *) );
+	for ( i=0; i<bg_numItems; i++ )
+		nearbyitems[i] = bg_itemlist[i].pickup_name;
+
 	//
 	if (!TeamPlayIsOn())
 		return;

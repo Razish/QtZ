@@ -28,22 +28,22 @@ vector3	vec3_origin = {0,0,0};
 vector3	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
 /*
- 1	black
- 2	grey
- 3	white
- 4	red
- 5	orange
- 6	yellow
- 7	lime
- 8	green
- 9	aqua
-10	cyan
-11	light blue
-12	blue
-13	violet
-14	purple
-15	pink
-16	*white, to be changed
+ 1	0	black
+ 2	1	grey
+ 3	2	white
+ 4	3	red
+ 5	4	orange
+ 6	5	yellow
+ 7	6	lime
+ 8	7	green
+ 9	8	aqua
+10	9	cyan
+11	a	light blue
+12	b	blue
+13	c	violet
+14	d	purple
+15	e	pink
+16	f	*white, to be changed
 */
 
 const vector4 g_color_table[Q_COLOR_BITS+1] = {

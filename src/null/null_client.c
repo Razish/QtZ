@@ -30,7 +30,7 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 }
 
 void CL_Init( void ) {
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP, NULL );
+	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP, NULL, NULL );
 }
 
 void CL_MouseEvent( int dx, int dy, int time ) {

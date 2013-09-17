@@ -89,7 +89,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 			// delta update from old position
 			// because the force parm is qfalse, this will not result
 			// in any bytes being emited if the entity has not changed at all
-			svi.MSG_WriteDeltaEntity (msg, oldent, newent, qfalse );
+			MSG_WriteDeltaEntity (msg, oldent, newent, qfalse );
 			oldindex++;
 			newindex++;
 			continue;
@@ -97,20 +97,20 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 
 		if ( newnum < oldnum ) {
 			// this is a new entity, send it from the baseline
-			svi.MSG_WriteDeltaEntity (msg, &sv.svEntities[newnum].baseline, newent, qtrue );
+			MSG_WriteDeltaEntity (msg, &sv.svEntities[newnum].baseline, newent, qtrue );
 			newindex++;
 			continue;
 		}
 
 		if ( newnum > oldnum ) {
 			// the old entity isn't present in the new message
-			svi.MSG_WriteDeltaEntity (msg, oldent, NULL, qtrue );
+			MSG_WriteDeltaEntity (msg, oldent, NULL, qtrue );
 			oldindex++;
 			continue;
 		}
 	}
 
-	svi.MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
+	MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
 }
 
 
@@ -153,11 +153,11 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		}
 	}
 
-	svi.MSG_WriteByte (msg, svc_snapshot);
+	MSG_WriteByte (msg, svc_snapshot);
 
 	// NOTE, MRE: now sent at the start of every message from server to client
 	// let the client know which reliable clientCommands we have received
-	//svi.MSG_WriteLong( msg, client->lastClientCommand );
+	//MSG_WriteLong( msg, client->lastClientCommand );
 
 	// send over the current server time so the client can drift
 	// its view of time to try to match
@@ -168,13 +168,13 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		// the client's perspective this time is strictly speaking
 		// incorrect, but since it'll be busy loading a map at
 		// the time it doesn't really matter.
-		svi.MSG_WriteLong (msg, sv.time + client->oldServerTime);
+		MSG_WriteLong (msg, sv.time + client->oldServerTime);
 	} else {
-		svi.MSG_WriteLong (msg, sv.time);
+		MSG_WriteLong (msg, sv.time);
 	}
 
 	// what we are delta'ing from
-	svi.MSG_WriteByte (msg, lastframe);
+	MSG_WriteByte (msg, lastframe);
 
 	snapFlags = svs.snapFlagServerBit;
 	if ( client->rateDelayed ) {
@@ -184,17 +184,17 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		snapFlags |= SNAPFLAG_NOT_ACTIVE;
 	}
 
-	svi.MSG_WriteByte (msg, snapFlags);
+	MSG_WriteByte (msg, snapFlags);
 
 	// send over the areabits
-	svi.MSG_WriteByte (msg, frame->areabytes);
-	svi.MSG_WriteData (msg, frame->areabits, frame->areabytes);
+	MSG_WriteByte (msg, frame->areabytes);
+	MSG_WriteData (msg, frame->areabits, frame->areabytes);
 
 	// delta encode the playerstate
 	if ( oldframe ) {
-		svi.MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
+		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
 	} else {
-		svi.MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
+		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 	}
 
 	// delta encode the entities
@@ -203,7 +203,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	// padding for rate debugging
 	if ( sv_padPackets->integer ) {
 		for ( i = 0 ; i < sv_padPackets->integer ; i++ ) {
-			svi.MSG_WriteByte (msg, svc_nop);
+			MSG_WriteByte (msg, svc_nop);
 		}
 	}
 }
@@ -221,9 +221,9 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 
 	// write any unacknowledged serverCommands
 	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		svi.MSG_WriteByte( msg, svc_serverCommand );
-		svi.MSG_WriteLong( msg, i );
-		svi.MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
+		MSG_WriteByte( msg, svc_serverCommand );
+		MSG_WriteLong( msg, i );
+		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
 	client->reliableSent = client->reliableSequence;
 }
@@ -253,7 +253,7 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	eb = (int *)b;
 
 	if ( *ea == *eb ) {
-		svi.Error( ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
+		Com_Error( ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
 	}
 
 	if ( *ea < *eb ) {
@@ -307,14 +307,14 @@ static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *f
 		return;
 	}
 
-	leafnum = svi.CM_PointLeafnum (origin);
-	clientarea = svi.CM_LeafArea (leafnum);
-	clientcluster = svi.CM_LeafCluster (leafnum);
+	leafnum = CM_PointLeafnum (origin);
+	clientarea = CM_LeafArea (leafnum);
+	clientcluster = CM_LeafCluster (leafnum);
 
 	// calculate the visible areas
-	frame->areabytes = svi.CM_WriteAreaBits( frame->areabits, clientarea );
+	frame->areabytes = CM_WriteAreaBits( frame->areabits, clientarea );
 
-	clientpvs = svi.CM_ClusterPVS (clientcluster);
+	clientpvs = CM_ClusterPVS (clientcluster);
 
 	for ( e = 0 ; e < sv.num_entities ; e++ ) {
 		ent = SV_GentityNum(e);
@@ -349,7 +349,7 @@ static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *f
 		// entities can be flagged to be sent to a given mask of clients
 		if ( ent->r.svFlags & SVF_CLIENTMASK ) {
 			if (frame->ps.clientNum >= 32)
-				svi.Error( ERR_DROP, "SVF_CLIENTMASK: clientNum >= 32" );
+				Com_Error( ERR_DROP, "SVF_CLIENTMASK: clientNum >= 32" );
 			if (~ent->r.singleClient & (1 << frame->ps.clientNum))
 				continue;
 		}
@@ -369,10 +369,10 @@ static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *f
 
 		// ignore if not touching a PV leaf
 		// check area
-		if ( !svi.CM_AreasConnected( clientarea, svEnt->areanum ) ) {
+		if ( !CM_AreasConnected( clientarea, svEnt->areanum ) ) {
 			// doors can legally straddle two areas, so
 			// we may need to check another one
-			if ( !svi.CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
+			if ( !CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
 				continue;		// blocked by a door
 			}
 		}
@@ -477,7 +477,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// be regenerated from the playerstate
 	clientNum = frame->ps.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
-		svi.Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	svEnt = &sv.svEntities[ clientNum ];
 
@@ -514,7 +514,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		svs.nextSnapshotEntities++;
 		// this should never hit, map should always be restarted first in SV_Frame
 		if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) {
-			svi.Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped");
+			Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped");
 		}
 		frame->num_entities++;
 	}
@@ -547,17 +547,17 @@ static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 	        		if (totalbytes > (msg->maxsize - msg->cursize) / 2)
 		        		break;
 
-        			svi.MSG_WriteByte(msg, svc_voip);
-        			svi.MSG_WriteShort(msg, packet->sender);
-	        		svi.MSG_WriteByte(msg, (byte) packet->generation);
-		        	svi.MSG_WriteLong(msg, packet->sequence);
-		        	svi.MSG_WriteByte(msg, packet->frames);
-        			svi.MSG_WriteShort(msg, packet->len);
-        			svi.MSG_WriteBits(msg, packet->flags, VOIP_FLAGCNT);
-	        		svi.MSG_WriteData(msg, packet->data, packet->len);
+        			MSG_WriteByte(msg, svc_voip);
+        			MSG_WriteShort(msg, packet->sender);
+	        		MSG_WriteByte(msg, (byte) packet->generation);
+		        	MSG_WriteLong(msg, packet->sequence);
+		        	MSG_WriteByte(msg, packet->frames);
+        			MSG_WriteShort(msg, packet->len);
+        			MSG_WriteBits(msg, packet->flags, VOIP_FLAGCNT);
+	        		MSG_WriteData(msg, packet->data, packet->len);
                         }
 
-			svi.Z_Free(packet);
+			Z_Free(packet);
 		}
 
 		cl->queuedVoipPackets -= i;
@@ -607,12 +607,12 @@ void SV_SendClientSnapshot( client_t *client ) {
 		return;
 	}
 
-	svi.MSG_Init (&msg, msg_buf, sizeof(msg_buf));
+	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
 	msg.allowoverflow = qtrue;
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
-	svi.MSG_WriteLong( &msg, client->lastClientCommand );
+	MSG_WriteLong( &msg, client->lastClientCommand );
 
 	// (re)send any reliable server commands
 	SV_UpdateServerCommandsToClient( client, &msg );
@@ -628,7 +628,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// check for overflow
 	if ( msg.overflowed ) {
 		Com_Printf ("WARNING: msg overflowed for %s\n", client->name);
-		svi.MSG_Clear (&msg);
+		MSG_Clear (&msg);
 	}
 
 	SV_SendMessageToClient( &msg, client );
@@ -663,7 +663,7 @@ void SV_SendClientMessages(void)
 		}
 
 		if(!(c->netchan.remoteAddress.type == NA_LOOPBACK ||
-		     (sv_lanForceRate->integer && svi.Sys_IsLANAddress(c->netchan.remoteAddress))))
+		     (sv_lanForceRate->integer && Sys_IsLANAddress(c->netchan.remoteAddress))))
 		{
 			//int msec = 1000/Q_clampi( 1, sv_snapshotRate->integer, sv_fps->integer );
 			int msec = Q_bumpi( 1000/Q_bumpi( 1, sv_snapshotRate->integer ), sv_frametime->integer );

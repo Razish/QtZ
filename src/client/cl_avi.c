@@ -72,7 +72,7 @@ static aviFileData_t afd;
 #define MAX_AVI_BUFFER 2048
 
 static byte buffer[ MAX_AVI_BUFFER ];
-static int  bufIndex;
+static unsigned int bufIndex;
 
 /*
 ===============

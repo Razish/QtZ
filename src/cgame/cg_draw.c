@@ -330,7 +330,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 		}
 		CG_Draw3DModel( x, y, w, h, handle, 0, &origin, &angles );
 	} else if ( cg_drawIcons->boolean ) {
-		gitem_t *item;
+		const gitem_t *item;
 
 		if( team == TEAM_RED ) {
 			item = BG_FindItemForPowerup( PW_REDFLAG );
@@ -1312,7 +1312,7 @@ static void CG_DrawWarmup( void ) {
 			CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 60, 0.6f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		}
 	} else {
-		s = BG_GetGametypeString( cgs.gametype );
+		s = GametypeStringForID( cgs.gametype );
 		w = CG_Text_Width(s, 0.6f, 0);
 		CG_Text_Paint((SCREEN_WIDTH/2) - w / 2, 90, 0.6f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}

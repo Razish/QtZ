@@ -186,7 +186,7 @@ typedef struct serverStatus_s {
 	int			currentServerCinematic;
 	int			motdLen;
 	int			motdWidth;
-	int			motdPaintX;
+	float		motdPaintX;
 	int			motdPaintX2;
 	int			motdOffset;
 	int			motdTime;

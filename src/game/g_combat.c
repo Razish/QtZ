@@ -231,13 +231,13 @@ Toss the weapon and powerups for the killed player
 =================
 */
 void TossClientItems( gentity_t *self ) {
-	gitem_t		*item;
+	const gitem_t		*item;
 	int			weapon;
 	float		angle;
 	int			i;
 	gentity_t	*drop;
 
-	// drop the weapon if not a gauntlet or machinegun
+	// drop the weapon
 	weapon = self->s.weapon;
 
 	if ( !(self->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) )
@@ -493,20 +493,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		} else {
 			AddScore( attacker, &self->r.currentOrigin, 1 );
 
-			if( meansOfDeath == MOD_QUANTIZER ) {
-				
-				// play humiliation on player
-				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-
-				// add the sprite over the player's head
-				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
-				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-
-				// also play humiliation on target
-				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
-			}
-
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
 			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
@@ -514,7 +500,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
 
 				// add the sprite over the player's head
-				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
@@ -547,15 +533,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	TossClientItems( self );
 	TossClientPersistantPowerups( self );
 
-	DeathmatchScoreboardMessage( self );		// show scores
+	self->client->scoresWaiting = qtrue;
+
 	// send updated scores to any clients that are following this one,
 	// or they would get stale scoreboards
 	for ( i=0, cl=level.clients; i<level.maxclients; i++, cl++ ) {
 		if ( cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam != TEAM_SPECTATOR )
 			continue;
 
-		if ( cl->sess.spectatorClient == self->s.number )
-			DeathmatchScoreboardMessage( g_entities + i );
+		if ( cl->sess.spectatorClient == self->s.number ) {
+			cl->scoresWaiting = qtrue;
+		}
 	}
 
 	self->takedamage = qtrue;	// can still be gibbed

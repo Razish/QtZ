@@ -131,17 +131,18 @@ void UI_DrawRect2( float x, float y, float width, float height, float size, cons
 }
 
 float Text_Width(const char *text, float scale, int limit) {
-	int count,len;
+	unsigned int count;
+	size_t len;
 	float out;
 	glyphInfo_t *glyph;
 	float useScale;
 	const char *s = text;
-	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-	if (scale <= ui_smallFont->value) {
-		font = &uiInfo.uiDC.Assets.smallFont;
-	} else if (scale >= ui_bigFont->value) {
-		font = &uiInfo.uiDC.Assets.bigFont;
-	}
+	fontInfo_t *font;
+	
+		 if ( scale <= ui_smallFont->value )	font = &uiInfo.uiDC.Assets.smallFont;
+	else if ( scale <= ui_bigFont->value )		font = &uiInfo.uiDC.Assets.textFont;
+	else										font = &uiInfo.uiDC.Assets.bigFont;
+
 	useScale = scale * font->glyphScale;
 	out = 0;
 	if (text) {
@@ -166,17 +167,18 @@ float Text_Width(const char *text, float scale, int limit) {
 }
 
 float Text_Height(const char *text, float scale, int limit) {
-	int len, count;
+	size_t len;
+	unsigned int count;
 	float max;
 	glyphInfo_t *glyph;
 	float useScale;
 	const char *s = text;
-	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-	if (scale <= ui_smallFont->value) {
-		font = &uiInfo.uiDC.Assets.smallFont;
-	} else if (scale >= ui_bigFont->value) {
-		font = &uiInfo.uiDC.Assets.bigFont;
-	}
+	fontInfo_t *font;
+
+		 if ( scale <= ui_smallFont->value )	font = &uiInfo.uiDC.Assets.smallFont;
+	else if ( scale <= ui_bigFont->value )		font = &uiInfo.uiDC.Assets.textFont;
+	else										font = &uiInfo.uiDC.Assets.bigFont;
+
 	useScale = scale * font->glyphScale;
 	max = 0;
 	if (text) {
@@ -211,7 +213,8 @@ void Text_PaintChar(float x, float y, float width, float height, float scale, fl
 }
 
 void Text_Paint(float x, float y, float scale, const vector4 *color, const char *text, float adjust, int limit, int style) {
-	int len, count;
+	size_t len;
+	unsigned int count;
 	vector4 newColor;
 	glyphInfo_t *glyph;
 	float useScale;
@@ -283,7 +286,8 @@ void Text_Paint(float x, float y, float scale, const vector4 *color, const char 
 }
 
 void Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const char *text, int cursorPos, char cursor, int limit, int style) {
-	int len, count;
+	size_t len;
+	unsigned int count;
 	vector4 newColor;
 	glyphInfo_t *glyph, *glyph2;
 	float yadj;
@@ -386,7 +390,8 @@ void Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const c
 
 
 static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4 *color, const char* text, float adjust, int limit) {
-	int len, count;
+	size_t len;
+	unsigned int count;
 	vector4 newColor;
 	glyphInfo_t *glyph;
 	if (text) {
@@ -544,7 +549,8 @@ UI_GetServerStatusInfo
 */
 static int UI_GetServerStatusInfo( char *serverAddress, serverStatusInfo_t *info ) {
 	char *p, *score, *ping, *name;
-	int i, len;
+	int i;
+	size_t len;
 
 	if (!info) {
 		trap->LAN_GetServerStatus( serverAddress, NULL, 0);
@@ -981,10 +987,11 @@ UI_BuildServerDisplayList
 ==================
 */
 static void UI_BuildServerDisplayList( qboolean force ) {
-	int i, count, clients, maxClients, ping, game, len, visible;
+	int i, count, clients, maxClients, ping, game, visible;
 	char info[MAX_STRING_CHARS];
 	static int numinvisible;
 	int	lanSource;
+	size_t len;
 
 	if ( !(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh) )
 		return;
@@ -1557,7 +1564,7 @@ static void UI_SetCapFragLimits(qboolean uiVars) {
 }
 
 static void UI_DrawGameType(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
-	Text_Paint(rect->x, rect->y, scale, color, BG_GetGametypeString( ui_gametype->integer ), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, GametypeStringForID( ui_gametype->integer ), 0, 0, textStyle);
 }
 
 static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vector4 *color) {
@@ -1807,7 +1814,7 @@ static float UI_OwnerDrawWidth(int ownerDraw, float scale) {
 
 	switch (ownerDraw) {
 	case UI_GAMETYPE:
-		s = BG_GetGametypeString( ui_gametype->integer );
+		s = GametypeStringForID( ui_gametype->integer );
 		break;
 	case UI_SKILL:
 		i = (int)trap->Cvar_VariableValue( "g_difficulty" );
@@ -1986,7 +1993,7 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vector4 *colo
 		lowLight.g = 0.8f * color->g; 
 		lowLight.b = 0.8f * color->b; 
 		lowLight.a = 0.8f * color->a; 
-		LerpColor(color,&lowLight,&newColor,0.5f+0.5f*sinf(uiInfo.uiDC.realTime / PULSE_DIVISOR));
+		LerpColor( color, &lowLight, &newColor, 0.5f+0.5f*sinf( uiInfo.uiDC.realTime / PULSE_DIVISOR ) );
 		Text_Paint(rect->x, rect->y, scale, &newColor, va("Getting info for %d servers (ESC to cancel)", trap->LAN_GetServerCount(UI_SourceForLAN())), 0, 0, textStyle);
 	} else {
 		char buff[64];
@@ -2710,7 +2717,7 @@ static void UI_LoadMods( void ) {
 	char	*dirptr;
 	char  *descptr;
 	int		i;
-	int		dirlen;
+	size_t	dirlen;
 
 	uiInfo.modCount = 0;
 	numdirs = trap->FS_GetFileList( "$modlist", "", dirlist, sizeof(dirlist) );
@@ -2737,7 +2744,8 @@ UI_LoadMovies
 static void UI_LoadMovies( void ) {
 	char	movielist[4096];
 	char	*moviename;
-	int		i, len;
+	int		i;
+	size_t	len;
 
 	uiInfo.movieCount = trap->FS_GetFileList( "video", "roq", movielist, 4096 );
 
@@ -2768,11 +2776,13 @@ UI_LoadDemos
 */
 static void UI_LoadDemosInDirectory( const char *directory )
 {
-	char	demolist[MAX_DEMOLIST] = {0}, *demoname = NULL;
-	char	fileList[MAX_DEMOLIST] = {0}, *fileName = NULL;
-	char	demoExt[32] = {0};
-	int		i=0, len=0, numFiles=0;
-	int		protocol = (int)trap->Cvar_VariableValue( "com_protocol" );
+	char			demolist[MAX_DEMOLIST] = {0}, *demoname = NULL;
+	char			fileList[MAX_DEMOLIST] = {0}, *fileName = NULL;
+	char			demoExt[32] = {0};
+	int				i=0;
+	size_t			len=0;
+	unsigned int	numFiles=0;
+	int				protocol = (int)trap->Cvar_VariableValue( "com_protocol" );
 
 	if ( !protocol )
 		protocol = (int)trap->Cvar_VariableValue( "protocol" );
@@ -3429,7 +3439,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 			case SORT_GAME : 
 				game = atoi(Info_ValueForKey(info, "gametype"));
 				if (game >= 0 && game < GT_NUM_GAMETYPES) {
-					return BG_GetGametypeString( game );
+					return GametypeStringForID( game );
 				} else {
 					return "Unknown";
 				}
@@ -3621,18 +3631,13 @@ PlayerModel_BuildList
 */
 static void UI_BuildQ3Model_List( void )
 {
-	int		numdirs;
-	int		numfiles;
-	char	dirlist[2048];
-	char	filelist[2048];
-	char	skinname[MAX_QPATH];
-	char	scratch[256];
-	char*	dirptr;
-	char*	fileptr;
-	int		i;
-	int		j, k, dirty;
-	int		dirlen;
-	int		filelen;
+	unsigned int	numdirs, numfiles;
+	char			dirlist[2048], filelist[2048];
+	char			skinname[MAX_QPATH];
+	char			scratch[256];
+	char			*dirptr, *fileptr;
+	int				i, j, k, dirty;
+	size_t			dirlen, filelen;
 
 	uiInfo.q3HeadCount = 0;
 

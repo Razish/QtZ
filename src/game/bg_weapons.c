@@ -14,7 +14,7 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 	{	250,		30,			1,				120,		120,			0,		qfalse,		{ 0, 0, -6 } },		// WP_REPEATER
 	{	100,		35,			1,				25,			25,				768,	qfalse,		{ 0, 0, 0 } },		// WP_SPLICER
 	{	40,			6,			1,				1000,		1000,			0,		qfalse,		{ 0, 0, -10 } },	// WP_MORTAR
-	{	35,			5,			1,				2500,		4166,			16384,	qtrue,		{ 0, 6, -6 } },		// WP_DIVERGENCE
+	{	35,			5,			1,				2500,		4166,			16384,	qtrue,		{ 0, 4, -10 } },	// WP_DIVERGENCE
 };
 
 weaponName_t weaponNames[WP_NUM_WEAPONS] = {

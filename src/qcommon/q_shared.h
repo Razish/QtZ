@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-#ifndef __Q_SHARED_H
-#define __Q_SHARED_H
+#pragma once
 
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
@@ -65,6 +64,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //	#pragma warning( error: 4255 )		// no function prototype given: converting '()' to '(void)'
 	#pragma warning( error: 4505 ) 		// unreferenced local function has been removed
+	#pragma warning( error: 4013 )		// 'x' undefined; assuming extern returning int
+	#pragma warning( error: 4028 )		// formal parameter n different from declaration
+	#pragma warning( error: 4090 )		// '=' : different 'const' qualifiers
 //	#pragma intrinsic( memset, memcpy )
 #endif
 
@@ -116,7 +118,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   // vsnprintf is ISO/IEC 9899:1999
   // abstracting this to make it portable
-  int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
+  size_t Q_vsnprintf( char *str, size_t size, const char *format, va_list ap );
 #else
   #include <stdint.h>
 
@@ -250,10 +252,10 @@ typedef enum errorParm_e {
 #define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
 #define PROP_HEIGHT				27
-#define PROP_SMALL_SIZE_SCALE	0.75
+#define PROP_SMALL_SIZE_SCALE	0.75f
 
 #define BLINK_DIVISOR			200
-#define PULSE_DIVISOR			75
+#define PULSE_DIVISOR			(75.0f)
 
 #define UI_LEFT			0x00000000	// default
 #define UI_CENTER		0x00000001
@@ -611,15 +613,15 @@ int Q_bumpi( int min, int value );
 
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
-void	COM_StripExtension(const char *in, char *out, int destsize);
+void	COM_StripExtension(const char *in, char *out, size_t destsize);
 qboolean COM_CompareExtension(const char *in, const char *ext);
-void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
+void	COM_DefaultExtension( char *path, size_t maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
 char	*COM_Parse( char **data_p );
 char	*COM_ParseExt( const char **data_p, qboolean allowLineBreaks );
-int		COM_Compress( char *data_p );
+ptrdiff_t COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 qboolean COM_ParseString( const char **data, const char **s );
@@ -659,12 +661,12 @@ void Parse2DMatrix (char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 int Com_HexStrToInt( const char *str );
 
-int QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+size_t QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 char *Com_SkipTokens( char *s, int numTokens, char *sep );
 char *Com_SkipCharset( char *s, char *sep );
 
-void Com_RandomBytes( byte *string, int len );
+void Com_RandomBytes( byte *string, size_t len );
 
 // mode parm for FS_FOpenFile
 typedef enum fsMode_e {
@@ -691,15 +693,15 @@ qboolean Q_isintegral( float f );
 
 // portable case insensitive compare
 int		Q_stricmp (const char *s1, const char *s2);
-int		Q_strncmp (const char *s1, const char *s2, int n);
-int		Q_stricmpn (const char *s1, const char *s2, int n);
+int		Q_strncmp (const char *s1, const char *s2, size_t n);
+int		Q_stricmpn (const char *s1, const char *s2, size_t n);
 char	*Q_strlwr( char *s1 );
 char	*Q_strupr( char *s1 );
 const char	*Q_stristr( const char *s, const char *find);
 
 // buffer size safe library replacements
-void	Q_strncpyz( char *dest, const char *src, int destsize );
-void	Q_strcat( char *dest, int size, const char *src );
+void	Q_strncpyz( char *dest, const char *src, size_t destsize );
+void	Q_strcat( char *dest, size_t size, const char *src );
 
 void Q_strstrip( char *string, const char *strip, const char *repl );
 const char *Q_strchrs( const char *string, const char *search );
@@ -986,6 +988,35 @@ typedef struct gameState_s {
 	char		stringData[MAX_GAMESTATE_CHARS];
 	int			dataCount;
 } gameState_t;
+
+
+// gametypes
+
+#define DEFAULT_GAMETYPE "dm"
+
+typedef enum gametype_e {
+	GT_DEATHMATCH=0,
+	GT_DUEL,
+	// team games
+	GT_TEAM,
+	GT_CTF,
+	GT_1FCTF,
+	GT_NUM_GAMETYPES
+} gametype_t;
+
+// gametype bits
+#define GTB_NONE			0x00 // invalid
+#define GTB_DM				0x01 // deathmatch
+#define GTB_DUEL			0x02 // duel
+#define GTB_NOTTEAM			0x03 // **SPECIAL: All of the above gametypes, i.e. not team-based
+#define GTB_TEAM			0x04 // team deathmatch
+#define GTB_CTF				0x08 // capture the flag
+#define GTB_1FCTF			0x10 // 1-flag ctf
+#define GTB_ALL				0x1F // **SPECIAL: All
+
+extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
+const char *GametypeStringForID( int gametype );
+int GametypeIDForString( const char *gametype );
 
 //=========================================================
 
@@ -1284,5 +1315,3 @@ typedef struct field_s {
 } field_t;
 
 void Field_Clear( field_t *edit );
-
-#endif	// __Q_SHARED_H

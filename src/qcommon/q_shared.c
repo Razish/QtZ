@@ -93,7 +93,7 @@ const char *COM_GetExtension( const char *name )
 COM_StripExtension
 ============
 */
-void COM_StripExtension( const char *in, char *out, int destsize )
+void COM_StripExtension( const char *in, char *out, size_t destsize )
 {
 	const char *dot = strrchr(in, '.'), *slash;
 	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
@@ -111,7 +111,7 @@ string compare the end of the strings and return qtrue if strings match
 */
 qboolean COM_CompareExtension(const char *in, const char *ext)
 {
-	int inlen, extlen;
+	size_t inlen, extlen;
 	
 	inlen = strlen(in);
 	extlen = strlen(ext);
@@ -135,7 +135,7 @@ if path doesn't have an extension, then append
  the specified one (which should include the .)
 ==================
 */
-void COM_DefaultExtension( char *path, int maxSize, const char *extension )
+void COM_DefaultExtension( char *path, size_t maxSize, const char *extension )
 {
 	const char *dot = strrchr(path, '.'), *slash;
 	if (dot && (!(slash = strrchr(path, '/')) || slash < dot))
@@ -388,7 +388,7 @@ const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 	return data;
 }
 
-int COM_Compress( char *data_p ) {
+ptrdiff_t COM_Compress( char *data_p ) {
 	char *in, *out;
 	int c;
 	qboolean newline = qfalse, whitespace = qfalse;
@@ -899,7 +899,7 @@ MinGW comes with its own snprintf() which is not broken.
 =============
 */
 
-int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
+size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	int retval;
 	
@@ -918,7 +918,7 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 		return size;
 	}
 	
-	return retval;
+	return (unsigned)retval;
 }
 #endif
 
@@ -929,7 +929,7 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =============
 */
-void Q_strncpyz( char *dest, const char *src, int destsize ) {
+void Q_strncpyz( char *dest, const char *src, size_t destsize ) {
   if ( !dest ) {
     Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
   }
@@ -944,7 +944,7 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
   dest[destsize-1] = 0;
 }
                  
-int Q_stricmpn (const char *s1, const char *s2, int n) {
+int Q_stricmpn (const char *s1, const char *s2, size_t n) {
 	int		c1, c2;
 
         if ( s1 == NULL ) {
@@ -982,7 +982,7 @@ int Q_stricmpn (const char *s1, const char *s2, int n) {
 	return 0;		// strings are equal
 }
 
-int Q_strncmp (const char *s1, const char *s2, int n) {
+int Q_strncmp (const char *s1, const char *s2, size_t n) {
 	int		c1, c2;
 	
 	do {
@@ -1030,8 +1030,8 @@ char *Q_strupr( char *s1 ) {
 
 
 // never goes past bounds or leaves without a terminating 0
-void Q_strcat( char *dest, int size, const char *src ) {
-	int		l1;
+void Q_strcat( char *dest, size_t size, const char *src ) {
+	size_t l1;
 
 	l1 = strlen( dest );
 	if ( l1 >= size ) {
@@ -1132,11 +1132,11 @@ Q_strstrip
 					Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL );	// "Bob is hairy"
 */
 
-void Q_strstrip( char *string, const char *strip, const char *repl )
-{
+void Q_strstrip( char *string, const char *strip, const char *repl ) {
 	char		*out=string, *p=string, c;
 	const char	*s=strip;
-	int			replaceLen = repl?strlen( repl ):0, offset=0;
+	size_t		replaceLen = repl?strlen( repl ):0;
+	ptrdiff_t	offset=0;
 
 	while ( (c = *p++) != '\0' )
 	{
@@ -1259,9 +1259,9 @@ int Q_CountChar(const char *string, char tocount)
 	return count;
 }
 
-int QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
+size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...)
 {
-	int		len;
+	size_t len;
 	va_list		argptr;
 
 	va_start (argptr,fmt);
@@ -1307,7 +1307,7 @@ Assumes buffer is atleast TRUNCATE_LENGTH big
 */
 void Com_TruncateLongString( char *buffer, const char *s )
 {
-	int length = strlen( s );
+	size_t length = strlen( s );
 
 	if( length <= TRUNCATE_LENGTH )
 		Q_strncpyz( buffer, s, TRUNCATE_LENGTH );
@@ -1755,4 +1755,45 @@ void Field_Clear( field_t *edit ) {
 	memset( edit->buffer, 0, MAX_EDIT_LINE );
 	edit->cursor = 0;
 	edit->scroll = 0;
+}
+
+const char *gametypeStringShort[GT_NUM_GAMETYPES] = {
+	"DM",
+	"1v1",
+	"TDM",
+	"CTF",
+	"1FCTF"
+};
+
+const char *GametypeStringForID( int gametype ) {
+	switch ( gametype ) {
+	case GT_DEATHMATCH:
+		return "Deathmatch";
+	case GT_DUEL:
+		return "Duel";
+
+	case GT_TEAM:
+		return "Team Deathmatch";
+	case GT_CTF:
+		return "Capture The Flag";
+	case GT_1FCTF:
+		return "1-flag CTF";
+
+	default:
+		return "Unknown Gametype";
+	}
+}
+
+int GametypeIDForString( const char *gametype ) {
+		 if ( !Q_stricmp( gametype, "ffa" )
+			||!Q_stricmp( gametype, "dm" )
+			||!Q_stricmp( gametype, "deathmatch" ) )	return GT_DEATHMATCH;
+	else if ( !Q_stricmp( gametype, "duel" )
+			||!Q_stricmp( gametype, "1v1" ) )			return GT_DUEL;
+	else if ( !Q_stricmp( gametype, "tdm" )
+			||!Q_stricmp( gametype, "tffa" )
+			||!Q_stricmp( gametype, "team" ) )			return GT_TEAM;
+	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
+	else if ( !Q_stricmp( gametype, "1fctf" ) )			return GT_1FCTF;
+	else												return -1;
 }

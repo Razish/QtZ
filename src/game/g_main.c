@@ -77,7 +77,7 @@ void G_RegisterCvars( void ) {
 void G_CacheGametype( void ) {
 	// check some things
 	if ( sv_gametype->string[0] && isalpha( sv_gametype->string[0] ) ) {
-		int gt = BG_GetGametypeForString( sv_gametype->string );
+		int gt = GametypeIDForString( sv_gametype->string );
 		if ( gt == -1 ) {
 			trap->Print( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", sv_gametype->string );
 			level.gametype = GT_DEATHMATCH;
@@ -594,12 +594,12 @@ due to enters/exits/forced team changes
 ========================
 */
 void SendScoreboardMessageToAllClients( void ) {
-	int		i;
+	int i = 0;
+	gclient_t *cl = NULL;
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
-			DeathmatchScoreboardMessage( g_entities + i );
-		}
+	for ( i=0, cl=level.clients; i<level.maxclients; i++, cl++ ) {
+		if ( level.clients[i].pers.connected == CON_CONNECTED )
+			cl->scoresWaiting = qtrue;
 	}
 }
 

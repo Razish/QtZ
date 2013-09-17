@@ -588,9 +588,9 @@ PM_AirMove
 */
 
 void PM_AirControl( vector3 *wishDir, float wishspeed ) {
-	float zspeed, speed, dot;
+	float zspeed, speed, dot, k;
 
-	if ( (pm->ps->movementDir != 2 && pm->ps->movementDir != 6) || wishspeed <= 0.0f )
+	if ( wishspeed <= 0.0f )
 		return;
 
 	// save the speed
@@ -599,9 +599,12 @@ void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 	speed = VectorNormalize( &pm->ps->velocity );
 
 	dot = DotProduct( &pm->ps->velocity, wishDir );
+	k = 32;
+	k *= 150 * dot * dot * pml.frametime;
+
 	if ( dot > 0.0f ) {
-		pm->ps->velocity.x = pm->ps->velocity.x*speed + wishDir->x*dot*pml.frametime;
-		pm->ps->velocity.y = pm->ps->velocity.y*speed + wishDir->y*dot*pml.frametime;
+		pm->ps->velocity.x = pm->ps->velocity.x*speed + wishDir->x*k;
+		pm->ps->velocity.y = pm->ps->velocity.y*speed + wishDir->y*k;
 		VectorNormalize( &pm->ps->velocity );
 	}
 	
@@ -612,8 +615,9 @@ void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 }
 
 static void PM_AirMove( void ) {
-	vector3		wishVel, wishDir;
-	float		fmove, smove, wishSpeed, scale;
+	vector3 wishVel, wishDir;
+	float fmove, smove, scale;
+	float wishSpeed, airWishSpeed, accel;
 
 	if ( pm->ps->pm_type != PM_SPECTATOR && pm_wallJumpEnable->boolean )
 		PM_CheckJump();
@@ -641,8 +645,20 @@ static void PM_AirMove( void ) {
 	wishSpeed = VectorNormalize( &wishDir );
 	wishSpeed *= scale;
 
-	PM_Accelerate( &wishDir, wishSpeed, pm_acceleration->value );
-	PM_AirControl( &wishDir, wishSpeed );
+	airWishSpeed = wishSpeed;
+	accel = pm_airAcceleration->value;
+
+	if ( DotProduct( &pm->ps->velocity, &wishDir ) < 0.0f )
+		accel *= 2.5f;
+
+	if ( pm->ps->movementDir == 2 || pm->ps->movementDir == 6 ) {
+		if (wishSpeed > 30.0f)
+			wishSpeed = 30.0f;	
+		accel = 70.0f;
+	}
+
+	PM_Accelerate( &wishDir, wishSpeed, accel );
+	PM_AirControl( &wishDir, airWishSpeed );
 
 	if ( pml.groundPlane )
 		PM_ClipVelocity( &pm->ps->velocity, &pml.groundTrace.plane.normal, &pm->ps->velocity, OVERCLIP );

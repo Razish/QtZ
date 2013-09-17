@@ -553,8 +553,7 @@ int PS_ReadName(script_t *script, token_t *token)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void NumberValue(char *string, int subtype, unsigned long int *intvalue,
-															float *floatvalue)
+void NumberValue(char *string, int subtype, unsigned long int *intvalue, float *floatvalue)
 {
 	unsigned long int dotfound = 0;
 
@@ -782,7 +781,7 @@ int PS_ReadLiteral(script_t *script, token_t *token)
 //============================================================================
 int PS_ReadPunctuation(script_t *script, token_t *token)
 {
-	int len;
+	unsigned int len;
 	char *p;
 	punctuation_t *punc;
 
@@ -1277,7 +1276,7 @@ int NumLinesCrossed(script_t *script)
 //============================================================================
 int ScriptSkipTo(script_t *script, char *value)
 {
-	int len;
+	unsigned int len;
 	char firstchar;
 
 	firstchar = *value;
@@ -1388,7 +1387,7 @@ script_t *LoadScriptFile(const char *filename)
 // Returns:				-
 // Changes Globals:		-
 //============================================================================
-script_t *LoadScriptMemory(char *ptr, int length, char *name)
+script_t *LoadScriptMemory(char *ptr, size_t length, char *name)
 {
 	void *buffer;
 	script_t *script;

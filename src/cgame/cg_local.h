@@ -135,9 +135,6 @@ typedef struct playerEntity_s {
 	lerpFrame_t		legs, torso, flag;
 	int				painTime;
 	int				painDirection;	// flip from 0 to 1
-	int				lightningFiring;
-
-	int				railFireTime;
 
 	// machinegun spinning
 	float			barrelAngle;
@@ -358,7 +355,6 @@ typedef struct score_s {
 	int			accuracy;
 	int			impressiveCount;
 	int			excellentCount;
-	int			guantletCount;
 	int			defendCount;
 	int			assistCount;
 	int			captures;
@@ -427,7 +423,7 @@ typedef struct clientInfo_s {
 // weapon and its effects
 typedef struct weaponInfo_s {
 	qboolean		registered;
-	gitem_t			*item;
+	const gitem_t	*item;
 
 	qhandle_t		handsModel;			// the hands don't actually draw, they just position the weapon
 	qhandle_t		weaponModel;
@@ -804,7 +800,6 @@ typedef struct cgMedia_s {
 	// medals shown during gameplay
 	qhandle_t	medalImpressive;
 	qhandle_t	medalExcellent;
-	qhandle_t	medalGauntlet;
 	qhandle_t	medalDefend;
 	qhandle_t	medalAssist;
 	qhandle_t	medalCapture;
@@ -1298,15 +1293,18 @@ void CG_MessageModeTeam( void );
 void CG_ChatboxChar( int key );
 qboolean CG_ChatboxActive( void );
 
-//===============================================
+//
+// cg_weaponfx.c
+//
+#define SPLICERFX_COREGLOW	(0x0001)
+#define SPLICERFX_FLARE		(0x0002)
 
-typedef enum qprint_e {
-  SYSTEM_PRINT,
-  CHAT_PRINT,
-  TEAMCHAT_PRINT
-} qprint_t;
+#define GORELEVEL_BLOOD		(0x0001)
+#define GORELEVEL_GIBS		(0x0002)
 
-
+//
+// cg_particles.c
+//
 void	CG_ClearParticles (void);
 void	CG_AddParticles (void);
 void	CG_ParticleSnow (qhandle_t pshader, vector3 *origin, vector3 *origin2, int turb, float range, int snum);

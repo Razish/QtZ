@@ -28,13 +28,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../botlib/botlib.h"
 #include "../sys/sys_local.h"
 #include "../sys/sys_loadlib.h"
+#include "server/sv_local.h"
 #include "client.h"
 
 botlib_export_t	*botlib_export;
 void *botlibLib;
-
-void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, vector3 *points), int value) {
-}
 
 static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...)
 {
@@ -109,15 +107,7 @@ static void *BotImport_HunkAlloc( int size ) {
 	return Hunk_Alloc( size, PREF_HIGH );
 }
 
-int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points) {
-	return 0;
-}
-
 static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3 *points) {
-}
-
-void BotImport_DebugPolygonDelete(int id)
-{
 }
 
 static int BotImport_DebugLineCreate(void) {
@@ -132,6 +122,17 @@ static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int 
 }
 
 static void BotClientCommand( int client, char *command ) {
+	const char *arg = NULL;
+	client_t *cl = &svs.clients[client];
+	
+	Cmd_TokenizeString( command );
+	arg = Cmd_Argv( 0 );
+
+	// pass unknown strings to the game
+	if ( sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED) ) {
+		Cmd_Args_Sanitize();
+		game->ClientCommand( client );
+	}
 }
 
 void CL_BotFrame( int time ) {

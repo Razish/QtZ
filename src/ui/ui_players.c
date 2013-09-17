@@ -52,7 +52,7 @@ UI_PlayerInfo_SetWeapon
 ===============
 */
 static void UI_PlayerInfo_SetWeapon( playerInfo_t *pi, weapon_t weaponNum ) {
-	gitem_t *	item;
+	const gitem_t *item;
 	char		path[MAX_QPATH];
 	int i=0;
 
@@ -762,7 +762,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	//
 	// add the spinning barrel
 	//
-	{//if ( pi->realWeapon == WP_MACHINEGUN || pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
+	if ( pi->barrelModel ) {
 		vector3	angles;
 
 		memset( &barrel, 0, sizeof(barrel) );

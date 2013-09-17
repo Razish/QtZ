@@ -255,7 +255,7 @@ CG_TouchItem
 ===================
 */
 static void CG_TouchItem( centity_t *cent ) {
-	gitem_t		*item;
+	const gitem_t		*item;
 
 	if ( !cg_predictItems->integer ) {
 		return;
@@ -549,10 +549,6 @@ void CG_PredictPlayerState( void ) {
 				}
 			}
 		}
-
-		// don't predict gauntlet firing, which is only supposed to happen
-		// when it actually inflicts damage
-		cg_pmove.gauntletHit = qfalse;
 
 		Pmove( &cg_pmove );
 

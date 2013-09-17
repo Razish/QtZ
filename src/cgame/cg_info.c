@@ -77,7 +77,7 @@ CG_LoadingItem
 ===================
 */
 void CG_LoadingItem( int itemNum ) {
-	gitem_t		*item;
+	const gitem_t *item;
 
 	item = &bg_itemlist[itemNum];
 	
@@ -220,7 +220,7 @@ void CG_DrawInformation( void ) {
 	}
 
 	// game type
-	s = BG_GetGametypeString( cgs.gametype );
+	s = GametypeStringForID( cgs.gametype );
 	w = CG_Text_Width( s, ui_smallFont->value, 0 );
 	CG_Text_Paint( (SCREEN_WIDTH/2) - (w/2.0f), y, ui_smallFont->value, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 	y += PROP_HEIGHT;

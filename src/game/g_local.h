@@ -201,7 +201,7 @@ struct gentity_s {
 	float		wait;
 	float		random;
 
-	gitem_t		*item;			// for bonus items
+	const gitem_t *item;			// for bonus items
 
 	//generic values used by various entities for different purposes.
 	int			genericValue1;			// for flags, will contain the time (in accurate ms) it has been held for speed caps
@@ -355,6 +355,8 @@ struct gclient_s {
 	} tracking;
 
 	int			gameFlags; // voted, etc
+	int			lastScoresTime; // level.time the last scoreboard message was went
+	qboolean	scoresWaiting;
 };
 
 
@@ -490,11 +492,11 @@ void G_RunItem( gentity_t *ent );
 void RespawnItem( gentity_t *ent );
 
 void UseHoldableItem( gentity_t *ent );
-void PrecacheItem (gitem_t *it);
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle );
-gentity_t *LaunchItem( gitem_t *item, vector3 *origin, vector3 *velocity );
+void PrecacheItem (const gitem_t *it);
+gentity_t *Drop_Item( gentity_t *ent, const gitem_t *item, float angle );
+gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity );
 void SetRespawn (gentity_t *ent, float delay);
-void G_SpawnItem (gentity_t *ent, gitem_t *item);
+void G_SpawnItem (gentity_t *ent, const gitem_t *item);
 void FinishSpawningItem( gentity_t *ent );
 void Think_Weapon (gentity_t *ent);
 int ArmorIndex (gentity_t *ent);
@@ -502,7 +504,7 @@ void	Add_Ammo (gentity_t *ent, int weapon, int count);
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 
 void ClearRegisteredItems( void );
-void RegisterItem( gitem_t *item );
+void RegisterItem( const gitem_t *item );
 void SaveRegisteredItems( void );
 
 //
@@ -621,11 +623,6 @@ qboolean G_FilterPacket (char *from);
 // g_weapon.c
 //
 void FireWeapon( gentity_t *ent, int special );
-
-//
-// g_cmds.c
-//
-void DeathmatchScoreboardMessage( gentity_t *ent );
 
 //
 // g_main.c

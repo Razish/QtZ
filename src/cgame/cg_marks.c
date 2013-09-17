@@ -179,8 +179,6 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 		polyVert_t	verts[MAX_VERTS_ON_POLY] = {0};
 		markPoly_t	*mark;
 
-		memset( markFragments, 0, sizeof( markFragments ) );
-
 		// we have an upper limit on the complexity of polygons
 		// that we store persistantly
 		if ( mf->numPoints > MAX_VERTS_ON_POLY ) {
@@ -273,7 +271,7 @@ void CG_AddMarks( void ) {
 			fade = 255 * t / MARK_FADE_TIME;
 			if ( mp->alphaFade ) {
 				for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {
-					mp->verts[j].modulate[3] = fade;
+					mp->verts[j].modulate[3] = (byte)fade;
 				}
 			} else {
 				for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {

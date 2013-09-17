@@ -289,7 +289,7 @@ static void CG_DrawBlueFlagStatus(rectDef_t *rect, qhandle_t shader) {
 	if (shader) {
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
 	} else {
-		gitem_t *item = BG_FindItemForPowerup( PW_BLUEFLAG );
+		const gitem_t *item = BG_FindItemForPowerup( PW_BLUEFLAG );
 		if (item) {
 			vector4 color = {0, 0, 1, 1};
 			trap->R_SetColor(&color);
@@ -333,7 +333,7 @@ static void CG_DrawRedFlagStatus(rectDef_t *rect, qhandle_t shader) {
 	if (shader) {
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
 	} else {
-		gitem_t *item = BG_FindItemForPowerup( PW_REDFLAG );
+		const gitem_t *item = BG_FindItemForPowerup( PW_REDFLAG );
 		if (item) {
 			vector4 color = {1, 0, 0, 1};
 			trap->R_SetColor(&color);
@@ -364,7 +364,7 @@ static void CG_OneFlagStatus(rectDef_t *rect) {
 	if (cgs.gametype != GT_1FCTF) {
 		return;
 	} else {
-		gitem_t *item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
+		const gitem_t *item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
 		if (item) {
 			if( cgs.flagStatus >= 0 && cgs.flagStatus <= 4 ) {
 				vector4 color = {1, 1, 1, 1};
@@ -411,7 +411,7 @@ static void CG_DrawAreaPowerUp(rectDef_t *rect, int align, float special, float 
 	int i, j, k, t, active;
 	float f, *inc;
 	playerState_t *ps;
-	gitem_t	*item;
+	const gitem_t	*item;
 	rectDef_t r2;
 
 	r2.x = rect->x;
@@ -723,7 +723,7 @@ static void CG_DrawGameStatus(rectDef_t *rect, float scale, vector4 *color, qhan
 }
 
 static void CG_DrawGameType(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
-	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, BG_GetGametypeString( cgs.gametype ), 0, 0, textStyle);
+	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, GametypeStringForID( cgs.gametype ), 0, 0, textStyle);
 }
 
 static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4 *color, const char* text, float adjust, int limit) {
@@ -793,7 +793,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	vector4		hcolor;
 	float pwidth, lwidth, maxx, leftOver;
 	clientInfo_t *ci;
-	gitem_t	*item;
+	const gitem_t	*item;
 
 	// max player name width
 	pwidth = 0;
@@ -970,9 +970,6 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vector4 *color, q
 		break;
 	case CG_PERFECT:
 		value = (float)score->perfect;
-		break;
-	case CG_GAUNTLET:
-		value = (float)score->guantletCount;
 		break;
 	case CG_CAPTURES:
 		value = (float)score->captures;
@@ -1222,7 +1219,6 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 	case CG_EXCELLENT:
 	case CG_IMPRESSIVE:
 	case CG_PERFECT:
-	case CG_GAUNTLET:
 	case CG_CAPTURES:
 		CG_DrawMedal(ownerDraw, &rect, scale, color, shader);
 		break;

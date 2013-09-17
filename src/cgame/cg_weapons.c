@@ -32,7 +32,7 @@ The server says this item is used on this level
 */
 void CG_RegisterWeapon( int weaponNum ) {
 	weaponInfo_t	*weaponInfo;
-	gitem_t			*item, *ammo;
+	const gitem_t	*item, *ammo;
 	char			path[MAX_QPATH];
 	vector3			mins, maxs;
 	int				i;
@@ -117,9 +117,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 
 	case WP_SPLICER:
-		weaponInfo->fireFunc							= FX_Splicer_Beam;
-		weaponInfo->missileHitPlayerFunc				= FX_Splicer_HitPlayer;
-		weaponInfo->missileHitWallFunc					= FX_Splicer_HitWall;
+		// these are handled manually
+		weaponInfo->fireFunc							= NULL;
+		weaponInfo->missileHitPlayerFunc				= NULL;
+		weaponInfo->missileHitWallFunc					= NULL;
 
 		weaponInfo->flashSound[0]						= trap->S_RegisterSound( "sound/weapons/splicer/fire", qfalse );
 
@@ -163,7 +164,7 @@ The server says this item is used on this level
 */
 void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo_t		*itemInfo;
-	gitem_t			*item;
+	const gitem_t			*item;
 
 	if ( itemNum < 0 || itemNum >= bg_numItems ) {
 		trap->Error( ERR_DROP, "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems-1 );
@@ -359,7 +360,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	gun.shadowPlane = parent->shadowPlane;
 	gun.renderfx = parent->renderfx;
 
-	// set custom shading for railgun refire rate
 	if( weaponNum == WP_DIVERGENCE ) {
 		float cooldown = MIN( (float)cg.predictedPlayerState.weaponCooldown[cg.predictedPlayerState.weapon], (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime );
 		float cdPoint =  cooldown / (float)weaponData[cg.predictedPlayerState.weapon].maxFireTime;
@@ -379,14 +379,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	if ( !ps ) {
 		// add weapon ready sound
-		cent->pe.lightningFiring = qfalse;
-		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
-			// lightning gun and guantlet make a different sound when fire is held down
+		if ( (cent->currentState.eFlags & EF_FIRING) && weapon->firingSound )
 			trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->firingSound );
-			cent->pe.lightningFiring = qtrue;
-		} else if ( weapon->readySound ) {
+		else if ( weapon->readySound )
 			trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, weapon->readySound );
-		}
 	}
 
 	trap->R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame, 1.0f - parent->backlerp, "tag_weapon");
@@ -434,6 +430,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	CG_PositionEntityOnTag( &barrel, &gun, gun.hModel, "tag_flash");
 	//QtZ: Added from JA
 	VectorCopy( &barrel.origin, &cg.lastFPFlashPoint );
+
+	if ( ps || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
+		if ( nonPredictedCent->currentState.weapon == WP_SPLICER && (nonPredictedCent->currentState.eFlags & EF_FIRING) )
+			FX_Splicer_Beam( nonPredictedCent, &barrel.origin, NULL );
+	}
 }
 
 /*
@@ -467,22 +468,20 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	// allow the gun to be completely removed
 	if ( !cg_drawGun->integer ) {
-	//	vector3		origin;
+		vector3 origin;
 
-		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
-			// special hack for lightning gun...
-			//RAZFIXME: Splicer with cg_drawGun 0
-		//	VectorCopy( cg.refdef.vieworg, origin );
-		//	VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
-		//	CG_LightningBolt( &cg_entities[ps->clientNum], origin );
+		if ( cg.predictedPlayerState.weapon == WP_SPLICER && (cg.predictedPlayerState.eFlags & EF_FIRING) ) {
+			VectorCopy( &cg.refdef.vieworg, &origin );
+			VectorMA( &origin, -8.0f, &cg.refdef.viewaxis[2], &origin );
+			FX_Splicer_Beam( &cg_entities[ps->clientNum], &origin, NULL );
 		}
+
 		return;
 	}
 
 	// don't draw if testing a gun model
-	if ( cg.testGun ) {
+	if ( cg.testGun )
 		return;
-	}
 
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	CG_RegisterWeapon( ps->weapon );
@@ -780,7 +779,7 @@ void CalcMuzzlePoint( centity_t *cent, vector3 *forward, vector3 *right, vector3
 		{// Crouching.  Use the add-to-Z method to adjust vertically.
 			VectorMA(muzzlePoint, muzzleOffPoint.x, forward, muzzlePoint);
 			VectorMA(muzzlePoint, muzzleOffPoint.y, right, muzzlePoint);
-			muzzlePoint->z += 36 + muzzleOffPoint.z; // RAZFIXME: crouching?
+			muzzlePoint->z += DEFAULT_VIEWHEIGHT + muzzleOffPoint.z; // RAZFIXME: crouching?
 		}
 	}
 }
@@ -827,8 +826,8 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 		VectorMA( &start, 8192, &fwd, &end );
 		CG_Trace( &tr, &start, &mins, &maxs, &end, ent->number, MASK_SHOT );
 
-		if (ent->number == cg.snap->ps.clientNum && (cg.lastFPFlashPoint.x ||cg.lastFPFlashPoint.y || cg.lastFPFlashPoint.z) )
-			VectorCopy(&cg.lastFPFlashPoint, &muzzle);
+		if (ent->number == cg.snap->ps.clientNum && cg_drawGun->integer && (cg.lastFPFlashPoint.x ||cg.lastFPFlashPoint.y || cg.lastFPFlashPoint.z) )
+			VectorCopy( &cg.lastFPFlashPoint, &muzzle );
 
 		weap->fireFunc( cent, &muzzle, &tr.endpos );
 	}

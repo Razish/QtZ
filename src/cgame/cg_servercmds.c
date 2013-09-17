@@ -34,44 +34,46 @@ CG_ParseScores
 
 =================
 */
+
+#define SCORE_OFFSET (13)
+
 static void CG_ParseScores( void ) {
-	int		i, powerups;
+	int i, powerups;
 
 	cg.numScores = atoi( CG_Argv( 1 ) );
-	if ( cg.numScores > MAX_CLIENTS ) {
+	if ( cg.numScores > MAX_CLIENTS )
 		cg.numScores = MAX_CLIENTS;
-	}
 
 	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
 	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
-	for ( i = 0 ; i < cg.numScores ; i++ ) {
-		//
-		cg.scores[i].client = atoi( CG_Argv( i * 14 + 4 ) );
-		cg.scores[i].score = atoi( CG_Argv( i * 14 + 5 ) );
-		cg.scores[i].ping = atoi( CG_Argv( i * 14 + 6 ) );
-		cg.scores[i].time = atoi( CG_Argv( i * 14 + 7 ) );
-		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 14 + 8 ) );
-		powerups = atoi( CG_Argv( i * 14 + 9 ) );
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
-		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
-		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
-		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
 
-		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
+	for ( i=0; i<cg.numScores; i++ ) {
+		cg.scores[i].client				= atoi( CG_Argv( i*SCORE_OFFSET +  4 ) );
+		cg.scores[i].score				= atoi( CG_Argv( i*SCORE_OFFSET +  5 ) );
+		cg.scores[i].ping				= atoi( CG_Argv( i*SCORE_OFFSET +  6 ) );
+		cg.scores[i].time				= atoi( CG_Argv( i*SCORE_OFFSET +  7 ) );
+		cg.scores[i].scoreFlags			= atoi( CG_Argv( i*SCORE_OFFSET +  8 ) );
+		powerups						= atoi( CG_Argv( i*SCORE_OFFSET +  9 ) );
+		cg.scores[i].accuracy			= atoi( CG_Argv( i*SCORE_OFFSET + 10 ) );
+		cg.scores[i].impressiveCount	= atoi( CG_Argv( i*SCORE_OFFSET + 11 ) );
+		cg.scores[i].excellentCount		= atoi( CG_Argv( i*SCORE_OFFSET + 12 ) );
+		cg.scores[i].defendCount		= atoi( CG_Argv( i*SCORE_OFFSET + 13 ) );
+		cg.scores[i].assistCount		= atoi( CG_Argv( i*SCORE_OFFSET + 14 ) );
+		cg.scores[i].perfect			= atoi( CG_Argv( i*SCORE_OFFSET + 15 ) );
+		cg.scores[i].captures			= atoi( CG_Argv( i*SCORE_OFFSET + 16 ) );
+
+		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS )
 			cg.scores[i].client = 0;
-		}
-		cgs.clientinfo[ cg.scores[i].client ].score = cg.scores[i].score;
-		cgs.clientinfo[ cg.scores[i].client ].powerups = powerups;
+
+		cgs.clientinfo[cg.scores[i].client].score = cg.scores[i].score;
+		cgs.clientinfo[cg.scores[i].client].powerups = powerups;
 
 		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
 	}
-	CG_SetScoreSelection(NULL);
+
+	CG_SetScoreSelection( NULL );
 
 }
 
@@ -817,9 +819,8 @@ void CG_VoiceChat( int mode ) {
 	cmd = CG_Argv(4);
 
 	if (cg_noTaunt->integer != 0) {
-		if (!strcmp(cmd, VOICECHAT_KILLINSULT)  || !strcmp(cmd, VOICECHAT_TAUNT) || \
-			!strcmp(cmd, VOICECHAT_DEATHINSULT) || !strcmp(cmd, VOICECHAT_KILLGAUNTLET) || \
-			!strcmp(cmd, VOICECHAT_PRAISE)) {
+		if (!strcmp(cmd, VOICECHAT_KILLINSULT)  || !strcmp(cmd, VOICECHAT_TAUNT) ||
+			!strcmp(cmd, VOICECHAT_DEATHINSULT) || !strcmp(cmd, VOICECHAT_PRAISE)) {
 			return;
 		}
 	}

@@ -93,7 +93,7 @@ void SV_RankBegin( char *gamekey )
 		s_rankings_active = qfalse;
 		if( sv_rankingsActive->integer == 1 )
 		{
-			svi.Cvar_Set( "sv_rankingsActive", "0" );
+			Cvar_Set( "sv_rankingsActive", "0" );
 		}
 		return;
 	}
@@ -102,15 +102,15 @@ void SV_RankBegin( char *gamekey )
 	if( strcmp(gamekey, GR_GAMEKEY) == 0 )
 	{
 /*
-		if( svi.Cvar_VariableValue("sv_pure") != 1 )
+		if( Cvar_VariableValue("sv_pure") != 1 )
 		{
-			svi.Cvar_Set( "sv_enableRankings", "0" );
+			Cvar_Set( "sv_enableRankings", "0" );
 			return;
 		}
 */
 
 		// substitute game-specific game key
-		switch( (int)svi.Cvar_VariableValue("sv_gametype") )
+		switch( (int)Cvar_VariableValue("sv_gametype") )
 		{
 		case GT_DEATHMATCH:
 			gamekey = "Q3 Free For All";
@@ -145,7 +145,7 @@ void SV_RankBegin( char *gamekey )
 	Com_DPrintf( "SV_RankBegin(); s_server_context=%d\n",init.context );
 
 	// new game
-	if(!strlen(svi.Cvar_VariableString( "sv_leagueName" )))
+	if(!strlen(Cvar_VariableString( "sv_leagueName" )))
 	{
 		status = GRankNewGameAsync
 			( 			
@@ -153,7 +153,7 @@ void SV_RankBegin( char *gamekey )
 				SV_RankNewGameCBF, 
 				NULL, 
 				GR_OPT_LEAGUENAME,
-				(void*)(svi.Cvar_VariableString( "sv_leagueName" )),
+				(void*)(Cvar_VariableString( "sv_leagueName" )),
 				GR_OPT_END 
 			);
 	}
@@ -182,7 +182,7 @@ void SV_RankBegin( char *gamekey )
 	}
 	
 	// allocate rankings info for each player
-	s_ranked_players = svi.Z_Malloc( sv_maxclients->value * 
+	s_ranked_players = Z_Malloc( sv_maxclients->value * 
 		sizeof(ranked_player_t) );
 	memset( (void*)s_ranked_players, 0 ,sv_maxclients->value 
 		* sizeof(ranked_player_t));
@@ -249,7 +249,7 @@ void SV_RankEnd( void )
 	}
 
 	s_rankings_active = qfalse;
-	svi.Cvar_Set( "sv_rankingsActive", "0" );
+	Cvar_Set( "sv_rankingsActive", "0" );
 }
 
 /*
@@ -996,7 +996,7 @@ static void SV_RankNewGameCBF( GR_NEWGAME* gr_newgame, void* cbf_arg )
 
 		// ready to go
 		s_rankings_active = qtrue;
-		svi.Cvar_Set( "sv_rankingsActive", "1" );
+		Cvar_Set( "sv_rankingsActive", "1" );
 
 	}
 	else if( gr_newgame->status == GR_STATUS_BADLEAGUE )
@@ -1292,12 +1292,12 @@ static void SV_RankCloseContext( ranked_player_t* ranked_player )
 		
 		if( s_ranked_players != NULL )
 		{
-			svi.Z_Free( s_ranked_players );
+			Z_Free( s_ranked_players );
 			s_ranked_players = NULL;
 		}
 
 		s_rankings_active = qfalse;
-		svi.Cvar_Set( "sv_rankingsActive", "0" );
+		Cvar_Set( "sv_rankingsActive", "0" );
 	}
 }
 
@@ -1528,7 +1528,7 @@ static void SV_RankError( const char* fmt, ... )
 	Com_DPrintf( "****************************************\n" );
 
 	s_rankings_active = qfalse;
-	svi.Cvar_Set( "sv_rankingsActive", "0" );
+	Cvar_Set( "sv_rankingsActive", "0" );
 	// FIXME - attempt clean shutdown?
 }
 

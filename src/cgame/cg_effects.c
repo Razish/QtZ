@@ -239,6 +239,9 @@ This is the spurt of blood when a character gets hit
 void CG_Bleed( vector3 *origin, int entityNum ) {
 	localEntity_t	*ex;
 
+	if ( !(cg_gore->integer & GORELEVEL_BLOOD) )
+		return;
+
 	ex = CG_AllocLocalEntity();
 	ex->leType = LE_EXPLOSION;
 
@@ -303,6 +306,9 @@ Generated a bunch of gibs launching out from the bodies location
 void CG_GibPlayer( vector3 *playerOrigin ) {
 	vector3	origin, velocity;
 
+	if ( !(cg_gore->integer & GORELEVEL_BLOOD) )
+		return;
+
 	VectorCopy( playerOrigin, &origin );
 	velocity.x = crandom()*GIB_VELOCITY;
 	velocity.y = crandom()*GIB_VELOCITY;
@@ -313,7 +319,7 @@ void CG_GibPlayer( vector3 *playerOrigin ) {
 		CG_LaunchGib( &origin, &velocity, cgs.media.gibBrain );
 
 	// allow gibs to be turned off for speed
-	if ( !cg_gibs->boolean )
+	if ( !(cg_gore->integer & GORELEVEL_GIBS) )
 		return;
 
 	VectorCopy( playerOrigin, &origin );
@@ -413,6 +419,9 @@ Generated a bunch of gibs launching out from the bodies location
 */
 void CG_BigExplode( vector3 *playerOrigin ) {
 	vector3	origin, velocity;
+
+	if ( !(cg_gore->integer & GORELEVEL_BLOOD) )
+		return;
 
 	VectorCopy( playerOrigin, &origin );
 	velocity.x = crandom()*EXP_VELOCITY;

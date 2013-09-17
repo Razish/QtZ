@@ -194,10 +194,6 @@ static void CG_TauntDeathInsult_f (void ) {
 	trap->SendConsoleCommand("cmd vsay death_insult\n");
 }
 
-static void CG_TauntGauntlet_f (void ) {
-	trap->SendConsoleCommand("cmd vsay kill_guantlet\n");
-}
-
 static void CG_TaskSuicide_f (void ) {
 	int		clientNum;
 	char	command[128];
@@ -242,7 +238,6 @@ static consoleCommand_t	commands[] = {
 	{ "tauntPraise", CG_TauntPraise_f },
 	{ "tauntTaunt", CG_TauntTaunt_f },
 	{ "tauntDeathInsult", CG_TauntDeathInsult_f },
-	{ "tauntGauntlet", CG_TauntGauntlet_f },
 	{ "scoresDown", CG_scrollScoresDown_f },
 	{ "scoresUp", CG_scrollScoresUp_f },
 	{ "loaddeferred", CG_LoadDeferredPlayers },

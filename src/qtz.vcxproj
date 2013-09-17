@@ -378,8 +378,18 @@
     <ClCompile Include=".\zlib\inffast.c" />
     <ClCompile Include=".\zlib\inflate.c" />
     <ClCompile Include=".\zlib\inftrees.c" />
-    <ClCompile Include=".\zlib\zutil.c" />
     <ClCompile Include="client\cl_bot.c" />
+    <ClCompile Include="server\sv_bot.c" />
+    <ClCompile Include="server\sv_ccmds.c" />
+    <ClCompile Include="server\sv_client.c" />
+    <ClCompile Include="server\sv_game.c" />
+    <ClCompile Include="server\sv_init.c" />
+    <ClCompile Include="server\sv_main.c" />
+    <ClCompile Include="server\sv_net_chan.c" />
+    <ClCompile Include="server\sv_rankings.c" />
+    <ClCompile Include="server\sv_snapshot.c" />
+    <ClCompile Include="server\sv_world.c" />
+    <ClCompile Include="zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include=".\game\bg_public.h" />
@@ -410,6 +420,8 @@
     <ClInclude Include="qcommon\q_asm.h" />
     <ClInclude Include="renderer\tr_public.h" />
     <ClInclude Include="renderer\tr_types.h" />
+    <ClInclude Include="server\sv_local.h" />
+    <ClInclude Include="server\sv_public.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\sys\win_resource.rc" />

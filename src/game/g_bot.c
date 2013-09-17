@@ -150,7 +150,7 @@ int G_GetMapTypeBits( char *type ) {
 		p = strtok( tmp, delim );
 
 		while ( p != NULL ) {
-			int gt = BG_GetGametypeForString( p );
+			int gt = GametypeIDForString( p );
 			if ( gt != -1 )
 				typeBits |= (1<<gt);
 			p = strtok( NULL, delim );
@@ -338,20 +338,18 @@ void G_AddRandomBot( int team ) {
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "cl_name" );
 		//
-		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
+		for ( i=0, cl=level.clients; i<sv_maxclients->integer; i++, cl++ ) {
+			if ( cl->pers.connected != CON_CONNECTED )
 				continue;
-			}
-			if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+
+			if ( !(g_entities[i].r.svFlags & SVF_BOT) )
 				continue;
-			}
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
+
+			if ( team >= TEAM_FREE && cl->sess.sessionTeam != team )
 				continue;
-			}
-			if ( !Q_stricmp( value, cl->pers.netname ) ) {
+
+			if ( !Q_stricmp( value, cl->pers.netname ) )
 				break;
-			}
 		}
 		if (i >= sv_maxclients->integer) {
 			num++;
@@ -361,20 +359,18 @@ void G_AddRandomBot( int team ) {
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "cl_name" );
 		//
-		for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
+		for ( i=0, cl=level.clients; i<sv_maxclients->integer; i++, cl++ ) {
+			if ( cl->pers.connected != CON_CONNECTED )
 				continue;
-			}
-			if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+
+			if ( !(g_entities[i].r.svFlags & SVF_BOT) )
 				continue;
-			}
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
+
+			if ( team >= TEAM_FREE && cl->sess.sessionTeam != team )
 				continue;
-			}
-			if ( !Q_stricmp( value, cl->pers.netname ) ) {
+
+			if ( !Q_stricmp( value, cl->pers.netname ) )
 				break;
-			}
 		}
 		if (i >= sv_maxclients->integer) {
 			num--;
@@ -451,29 +447,27 @@ G_CountBotPlayers
 */
 int G_CountBotPlayers( int team ) {
 	int i, n, num;
-	gclient_t	*cl;
+	gclient_t *cl;
 
 	num = 0;
-	for ( i=0 ; i< sv_maxclients->integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+	for ( i=0, cl=level.clients; i<sv_maxclients->integer; i++, cl++ ) {
+		if ( cl->pers.connected != CON_CONNECTED )
 			continue;
-		}
-		if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+
+		if ( !(g_entities[i].r.svFlags & SVF_BOT) )
 			continue;
-		}
-		if ( team >= 0 && cl->sess.sessionTeam != team ) {
+
+		if ( team >= TEAM_FREE && cl->sess.sessionTeam != team )
 			continue;
-		}
+
 		num++;
 	}
-	for( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
-		if( !botSpawnQueue[n].spawnTime ) {
+	for ( n=0; n<BOT_SPAWN_QUEUE_DEPTH; n++ ) {
+		if ( !botSpawnQueue[n].spawnTime )
 			continue;
-		}
-		if ( botSpawnQueue[n].spawnTime > level.time ) {
+
+		if ( botSpawnQueue[n].spawnTime > level.time )
 			continue;
-		}
 		num++;
 	}
 	return num;
@@ -678,7 +672,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	if ( !*model )
 		model = DEFAULT_MODEL;
 
-	Info_SetValueForKey( userinfo, "model", model );
+	Info_SetValueForKey( userinfo, key, model );
 
 	key = "cg_color";
 	s = Info_ValueForKey( botinfo, key );
@@ -767,7 +761,7 @@ void Svcmd_AddBot_f( void ) {
 	// skill
 	trap->Cmd_Argv( 2, string, sizeof( string ) );
 	if ( !string[0] ) {
-		skill = 4;
+		skill = g_difficulty->value;
 	}
 	else {
 		skill = (float)atof( string );
@@ -789,13 +783,6 @@ void Svcmd_AddBot_f( void ) {
 	trap->Cmd_Argv( 5, altname, sizeof( altname ) );
 
 	G_AddBot( name, skill, team, delay, altname );
-
-	// if this was issued during gameplay and we are playing locally,
-	// go ahead and load the bot's media immediately
-	if ( level.time - level.startTime > 1000 &&
-		trap->Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap->SV_GameSendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
-	}
 }
 
 /*

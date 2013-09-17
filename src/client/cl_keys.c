@@ -534,10 +534,6 @@ Field_CharEvent
 void Field_CharEvent( field_t *edit, int ch ) {
 	int		len;
 
-	// QtZ: Someone is trying to enter in an alt code
-	if( keys[K_ALT].down && isdigit(ch) )
-		return;
-
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
 		Field_Paste( edit );
 		return;

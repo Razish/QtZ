@@ -730,7 +730,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 		{
 			strcpy(token->string, source->scriptstack->filename);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int)strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;
@@ -745,7 +745,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strcat(token->string, "\"");
 			free(curtime);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int)strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;
@@ -759,7 +759,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strcat(token->string, "\"");
 			free(curtime);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int)strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;

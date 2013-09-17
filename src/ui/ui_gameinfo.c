@@ -134,7 +134,7 @@ void UI_LoadArenas( void ) {
 	char		dirlist[1024];
 	char*		dirptr;
 	int			i, n;
-	int			dirlen;
+	size_t		dirlen;
 	char		*type;
 
 	ui_numArenas = 0;
@@ -241,7 +241,7 @@ void UI_LoadBots( void ) {
 	char		dirlist[1024];
 	char*		dirptr;
 	int			i;
-	int			dirlen;
+	size_t		dirlen;
 
 	ui_numBots = 0;
 

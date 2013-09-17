@@ -1580,7 +1580,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 
 	if (cv2->integer != 1)
 	{
-		sve.BotDrawDebugPolygons(drawPoly, cv2->integer);
+		SV_BotDrawDebugPolygons(drawPoly, cv2->integer);
 		return;
 	}
 #endif

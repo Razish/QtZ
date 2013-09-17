@@ -22,55 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
-void DeathmatchScoreboardMessage( gentity_t *ent ) {
-	char		entry[MAX_STRING_CHARS] = {0}, string[MAX_STRING_CHARS] = {0};
-	int			i, j, stringlength=0, numSorted, scoreFlags=0, accuracy, perfect;
-	gclient_t	*cl = NULL;
-
-	// send the latest information on all clients
-	numSorted = level.numConnectedClients;
-	
-	for ( i=0; i<numSorted; i++ ) {
-		int ping;
-
-		cl = &level.clients[level.sortedClients[i]];
-
-		ping		= (cl->pers.connected == CON_CONNECTING) ? -1 : Q_capi( cl->ps.ping, 999 );
-		accuracy	= (cl->accuracy_shots) ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
-		perfect		= (cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0);
-
-		Com_sprintf( entry, sizeof( entry ),
-			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
-			level.sortedClients[i],
-			cl->ps.persistant[PERS_SCORE],
-			ping,
-			(level.time - cl->pers.enterTime),
-			scoreFlags,
-			g_entities[level.sortedClients[i]].s.powerups,
-			accuracy,
-			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-			cl->ps.persistant[PERS_DEFEND_COUNT],
-			cl->ps.persistant[PERS_ASSIST_COUNT],
-			perfect,
-			cl->ps.persistant[PERS_CAPTURES] );
-
-		j = strlen( entry );
-		if ( stringlength + j >= sizeof(string))
-			break;
-
-		strcpy( string + stringlength, entry );
-		stringlength += j;
-	}
-
-	trap->SV_GameSendServerCommand( ent-g_entities, va("scores %i %i %i%s",
-													i,
-													level.teamScores[TEAM_RED],
-													level.teamScores[TEAM_BLUE],
-													string ) );
-}
-
 char *ConcatArgs( int start ) {
 	int i, c, tlen, len=0;
 	char arg[MAX_STRING_CHARS];
@@ -204,13 +155,11 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 			// We allow a spread of two
 			if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
-				trap->SV_GameSendServerCommand( clientNum, 
-					"cp \"Red team has too many players.\n\"" );
+				trap->SV_GameSendServerCommand( clientNum, "cp \"Red team has too many players.\n\"" );
 				return; // ignore the request
 			}
 			if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
-				trap->SV_GameSendServerCommand( clientNum, 
-					"cp \"Blue team has too many players.\n\"" );
+				trap->SV_GameSendServerCommand( clientNum, "cp \"Blue team has too many players.\n\"" );
 				return; // ignore the request
 			}
 
@@ -337,7 +286,7 @@ static qboolean G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, c
 
 	if ( arg2[0] && isalpha( arg2[0] ) )
 	{// ffa, ctf, tdm, etc
-		gt = BG_GetGametypeForString( arg2 );
+		gt = GametypeIDForString( arg2 );
 		if ( gt == -1 )
 		{
 			trap->SV_GameSendServerCommand( ent-g_entities, va( "print \"Gametype (%s) unrecognised, defaulting to Deathmatch\n\"", arg2 ) );
@@ -704,7 +653,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 
 		if ( ent->client->ps.powerups[ powerup ] > level.time )
 		{
-			gitem_t *item = BG_FindItemForPowerup( powerup );
+			const gitem_t *item = BG_FindItemForPowerup( powerup );
 			gentity_t *drop = NULL;
 			vector3 angs = { 0.0f, 0.0f, 0.0f };
 
@@ -723,7 +672,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 	else if ( !Q_stricmp( arg, "weapon" ) )
 	{
 		weapon_t wp = (weapon_t)ent->client->ps.weapon, newWeap = -1;
-		gitem_t *item = NULL;
+		const gitem_t *item = NULL;
 		gentity_t *drop = NULL;
 		vector3 angs = { 0.0f, 0.0f, 0.0f };
 		int ammo, i=0;
@@ -902,7 +851,7 @@ void Cmd_FollowPrev_f( gentity_t *ent ) {
 }
 
 static void G_Give( gentity_t *ent, const char *name, const char *args, int argc ) {
-	gitem_t		*it;
+	const gitem_t *it;
 	int			i;
 	qboolean	give_all = qfalse;
 	gentity_t	*it_ent;
@@ -1209,7 +1158,7 @@ static void Cmd_SayTeam_f( gentity_t *ent ) {
 }
 
 static void Cmd_Score_f( gentity_t *ent ) {
-	DeathmatchScoreboardMessage( ent );
+	ent->client->scoresWaiting = qtrue;
 }
 
 static void Cmd_Team_f( gentity_t *ent ) {

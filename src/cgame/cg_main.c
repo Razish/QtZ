@@ -242,7 +242,7 @@ The server says this item is used on this level
 =================
 */
 static void CG_RegisterItemSounds( int itemNum ) {
-	gitem_t			*item;
+	const gitem_t	*item;
 	char			data[MAX_QPATH];
 	char			*s, *start;
 	int				len;
@@ -385,8 +385,7 @@ static void CG_RegisterSounds( void ) {
 
 	cgs.media.firstImpressiveSound = trap->S_RegisterSound( "sound/feedback/first_impressive.wav", qtrue );
 	cgs.media.firstExcellentSound = trap->S_RegisterSound( "sound/feedback/first_excellent.wav", qtrue );
-	cgs.media.firstHumiliationSound = trap->S_RegisterSound( "sound/feedback/first_gauntlet.wav", qtrue );
-
+	
 	cgs.media.takenLeadSound = trap->S_RegisterSound( "sound/feedback/takenlead.wav", qtrue);
 	cgs.media.tiedLeadSound = trap->S_RegisterSound( "sound/feedback/tiedlead.wav", qtrue);
 	cgs.media.lostLeadSound = trap->S_RegisterSound( "sound/feedback/lostlead.wav", qtrue);
@@ -609,7 +608,6 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.medalImpressive = trap->R_RegisterShaderNoMip( "medal_impressive" );
 	cgs.media.medalExcellent = trap->R_RegisterShaderNoMip( "medal_excellent" );
-	cgs.media.medalGauntlet = trap->R_RegisterShaderNoMip( "medal_gauntlet" );
 	cgs.media.medalDefend = trap->R_RegisterShaderNoMip( "medal_defend" );
 	cgs.media.medalAssist = trap->R_RegisterShaderNoMip( "medal_assist" );
 	cgs.media.medalCapture = trap->R_RegisterShaderNoMip( "medal_capture" );
@@ -1191,7 +1189,7 @@ static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex
 }
 
 static const char *CG_FeederItemText(float feederID, int index, int column, qhandle_t *handle) {
-	gitem_t *item;
+	const gitem_t *item;
 	int scoreIndex = 0;
 	clientInfo_t *info = NULL;
 	int team = -1;
@@ -1293,7 +1291,7 @@ void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, cons
 static float CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	switch (ownerDraw) {
 	case CG_GAME_TYPE:
-		return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, 0);
+		return CG_Text_Width(GametypeStringForID( cgs.gametype ), scale, 0);
 	case CG_GAME_STATUS:
 		return CG_Text_Width(CG_GetGameStatusText(), scale, 0);
 		break;

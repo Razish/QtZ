@@ -60,7 +60,7 @@ playerState_t *SV_GameClientNum( int num ) {
 
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
-		svi.Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	return &sv.svEntities[ gEnt->s.number ];
 }
@@ -118,18 +118,18 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	vector3			mins, maxs;
 
 	if (!name) {
-		svi.Error( ERR_DROP, "SV_SetBrushModel: NULL" );
+		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
 	}
 
 	if (name[0] != '*') {
-		svi.Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
+		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
 	}
 
 
 	ent->s.modelindex = atoi( name + 1 );
 
-	h = svi.CM_InlineModel( ent->s.modelindex );
-	svi.CM_ModelBounds( h, &mins, &maxs );
+	h = CM_InlineModel( ent->s.modelindex );
+	CM_ModelBounds( h, &mins, &maxs );
 	VectorCopy (&mins, &ent->r.mins);
 	VectorCopy (&maxs, &ent->r.maxs);
 	ent->r.bmodel = qtrue;
@@ -155,17 +155,17 @@ qboolean SV_InPVS (const vector3 *p1, const vector3 *p2)
 	int		area1, area2;
 	byte	*mask;
 
-	leafnum = svi.CM_PointLeafnum (p1);
-	cluster = svi.CM_LeafCluster (leafnum);
-	area1 = svi.CM_LeafArea (leafnum);
-	mask = svi.CM_ClusterPVS (cluster);
+	leafnum = CM_PointLeafnum (p1);
+	cluster = CM_LeafCluster (leafnum);
+	area1 = CM_LeafArea (leafnum);
+	mask = CM_ClusterPVS (cluster);
 
-	leafnum = svi.CM_PointLeafnum (p2);
-	cluster = svi.CM_LeafCluster (leafnum);
-	area2 = svi.CM_LeafArea (leafnum);
+	leafnum = CM_PointLeafnum (p2);
+	cluster = CM_LeafCluster (leafnum);
+	area2 = CM_LeafArea (leafnum);
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
-	if (!svi.CM_AreasConnected (area1, area2))
+	if (!CM_AreasConnected (area1, area2))
 		return qfalse;		// a door blocks sight
 	return qtrue;
 }
@@ -185,12 +185,12 @@ static qboolean SV_InPVSIgnorePortals( const vector3 *p1, const vector3 *p2)
 	int		cluster;
 	byte	*mask;
 
-	leafnum = svi.CM_PointLeafnum (p1);
-	cluster = svi.CM_LeafCluster (leafnum);
-	mask = svi.CM_ClusterPVS (cluster);
+	leafnum = CM_PointLeafnum (p1);
+	cluster = CM_LeafCluster (leafnum);
+	mask = CM_ClusterPVS (cluster);
 
-	leafnum = svi.CM_PointLeafnum (p2);
-	cluster = svi.CM_LeafCluster (leafnum);
+	leafnum = CM_PointLeafnum (p2);
+	cluster = CM_LeafCluster (leafnum);
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
@@ -211,7 +211,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 	if ( svEnt->areanum2 == -1 ) {
 		return;
 	}
-	svi.CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, open );
+	CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, open );
 }
 
 
@@ -230,7 +230,7 @@ qboolean	SV_EntityContact( vector3 *mins, vector3 *maxs, const sharedEntity_t *g
 	angles = &gEnt->r.currentAngles;
 
 	ch = SV_ClipHandleForEntity( gEnt );
-	svi.CM_TransformedBoxTrace ( &trace, &vec3_origin, &vec3_origin, mins, maxs, ch, -1, origin, angles, capsule );
+	CM_TransformedBoxTrace ( &trace, &vec3_origin, &vec3_origin, mins, maxs, ch, -1, origin, angles, capsule );
 
 	return trace.startsolid;
 }
@@ -244,8 +244,8 @@ SV_GetServerinfo
 */
 void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 )
-		svi.Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
-	Q_strncpyz( buffer, svi.Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
+		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
+	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
 /*
@@ -272,7 +272,7 @@ SV_GetUsercmd
 */
 void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-		svi.Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
+		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
 	}
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }
@@ -334,7 +334,7 @@ void SV_ShutdownGameProgs( void ) {
 		return;
 
 	game->Shutdown( qfalse );
-	svi.Sys_UnloadDll( gameLib );
+	Sys_UnloadDll( gameLib );
 	gameLib = NULL;
 	game = NULL;
 }
@@ -350,7 +350,7 @@ static void SV_InitGameVM( qboolean restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning
-	sv.entityParsePoint = svi.CM_EntityString();
+	sv.entityParsePoint = CM_EntityString();
 
 	// clear all gentity pointers that might still be set from
 	// a previous level
@@ -362,7 +362,7 @@ static void SV_InitGameVM( qboolean restart ) {
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	game->Init( sv.time, svi.Com_Milliseconds(), restart );
+	game->Init( sv.time, Com_Milliseconds(), restart );
 }
 
 
@@ -380,9 +380,10 @@ void SV_RestartGameProgs( void ) {
 
 	game->Shutdown( qtrue );
 
+	//QTZTODO: OJK restart
 	// do a restart instead of a free
 //	if ( !gvm )
-//		svi.Error( ERR_FATAL, "SV_RestartGameProgs failed" );
+//		Com_Error( ERR_FATAL, "SV_RestartGameProgs failed" );
 
 	SV_InitGameVM( qtrue );
 }
@@ -403,14 +404,14 @@ void SV_InitGameProgs( void ) {
 	GetGameAPI_t		GetModuleAPI;
 	char				dllName[MAX_OSPATH] = "game"ARCH_STRING DLL_EXT;
 
-	var = svi.Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL, NULL );
+	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH, NULL, NULL );
 	if ( var )	bot_enable = var->integer;
 	else		bot_enable = 0;
 
 	svs.gameStarted = qtrue;
 
 	// load the dll or bytecode
-	if ( !(gameLib = svi.Sys_LoadDll( va( "%s/%s", svi.FS_GetCurrentGameDir(), dllName ), qfalse )) ) {
+	if ( !(gameLib = Sys_LoadDll( va( "%s/%s", FS_GetCurrentGameDir(), dllName ), qfalse )) ) {
 		Com_Printf( "failed:\n\"%s\"\n", Sys_LibraryError() );
 		svs.gameStarted = qfalse;
 		Com_Error( ERR_FATAL, "Failed to load game" );
@@ -423,22 +424,22 @@ void SV_InitGameProgs( void ) {
 	}
 
 	// set up the game imports
-	gameTrap.Print						= svi.Print;
-	gameTrap.Error						= svi.Error;
-	gameTrap.Milliseconds				= svi.Sys_Milliseconds;
-	gameTrap.Cvar_Get					= svi.Cvar_Get;
-	gameTrap.Cvar_Set					= svi.Cvar_SetSafe;
-	gameTrap.Cvar_VariableIntegerValue	= svi.Cvar_VariableIntegerValue;
-	gameTrap.Cvar_VariableStringBuffer	= svi.Cvar_VariableStringBuffer;
-	gameTrap.Cmd_Argc					= svi.Cmd_Argc;
-	gameTrap.Cmd_Argv					= svi.Cmd_ArgvBuffer;
-	gameTrap.Cbuf_ExecuteText			= svi.Cbuf_ExecuteText;
-	gameTrap.FS_Open					= svi.FS_FOpenFileByMode;
-	gameTrap.FS_Read					= svi.FS_Read2;
-	gameTrap.FS_Write					= svi.FS_Write;
-	gameTrap.FS_Close					= svi.FS_FCloseFile;
-	gameTrap.FS_GetFileList				= svi.FS_GetFileList;
-	gameTrap.FS_Seek					= svi.FS_Seek;
+	gameTrap.Print						= Com_Printf;
+	gameTrap.Error						= Com_Error;
+	gameTrap.Milliseconds				= Sys_Milliseconds;
+	gameTrap.Cvar_Get					= Cvar_Get;
+	gameTrap.Cvar_Set					= Cvar_SetSafe;
+	gameTrap.Cvar_VariableIntegerValue	= Cvar_VariableIntegerValue;
+	gameTrap.Cvar_VariableStringBuffer	= Cvar_VariableStringBuffer;
+	gameTrap.Cmd_Argc					= Cmd_Argc;
+	gameTrap.Cmd_Argv					= Cmd_ArgvBuffer;
+	gameTrap.Cbuf_ExecuteText			= Cbuf_ExecuteText;
+	gameTrap.FS_Open					= FS_FOpenFileByMode;
+	gameTrap.FS_Read					= FS_Read2;
+	gameTrap.FS_Write					= FS_Write;
+	gameTrap.FS_Close					= FS_FCloseFile;
+	gameTrap.FS_GetFileList				= FS_GetFileList;
+	gameTrap.FS_Seek					= FS_Seek;
 	gameTrap.SV_LocateGameData			= SV_LocateGameData;
 	gameTrap.SV_GameDropClient			= SV_GameDropClient;
 	gameTrap.SV_GameSendServerCommand	= SV_GameSendServerCommand;
@@ -454,7 +455,7 @@ void SV_InitGameProgs( void ) {
 	gameTrap.SV_InPVS					= SV_InPVS;
 	gameTrap.SV_InPVSIgnorePortals		= SV_InPVSIgnorePortals;
 	gameTrap.SV_AdjustAreaPortalState	= SV_AdjustAreaPortalState;
-	gameTrap.CM_AreasConnected			= svi.CM_AreasConnected;
+	gameTrap.CM_AreasConnected			= CM_AreasConnected;
 	gameTrap.SV_LinkEntity				= SV_LinkEntity;
 	gameTrap.SV_UnlinkEntity			= SV_UnlinkEntity;
 	gameTrap.SV_AreaEntities			= SV_AreaEntities;
@@ -464,7 +465,7 @@ void SV_InitGameProgs( void ) {
 	gameTrap.SV_GetEntityToken			= SV_GetEntityToken;
 	gameTrap.DebugPolygonCreate			= BotImport_DebugPolygonCreate;
 	gameTrap.DebugPolygonDelete			= BotImport_DebugPolygonDelete;
-	gameTrap.RealTime					= svi.Com_RealTime;
+	gameTrap.RealTime					= Com_RealTime;
 	gameTrap.SV_BotLibSetup				= SV_BotLibSetup;
 	gameTrap.SV_BotLibShutdown			= SV_BotLibShutdown;
 	gameTrap.BotLibVarSet				= botlib_export->BotLibVarSet;
