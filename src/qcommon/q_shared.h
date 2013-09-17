@@ -205,8 +205,6 @@ typedef int		clipHandle_t;
 #define	MAX_NETNAME			36		// max length of a client name
 
 #define	MAX_SAY_TEXT		150
-#define EC_GLOBAL			"\x19"
-#define EC_PRIVATE			"\x12"
 
 #define DEFAULT_NAME			"Unnamed"
 #define	DEFAULT_MODEL			"nooblet"

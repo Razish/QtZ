@@ -20,9 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// make sure this is the same character as we use in chats in g_cmd.c
-#define EC	"\x19"
-
 //match template contexts
 #define MTCONTEXT_MISC					2
 #define MTCONTEXT_INITIALTEAMCHAT		4

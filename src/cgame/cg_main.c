@@ -211,19 +211,6 @@ int CG_LastAttacker( void ) {
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
-/*
-================
-CG_Argv
-================
-*/
-const char *CG_Argv( int arg ) {
-	static char	buffer[MAX_STRING_CHARS];
-
-	trap->Cmd_Argv( arg, buffer, sizeof( buffer ) );
-
-	return buffer;
-}
-
 const char *CG_Cvar_VariableString( const char *name ) {
 	static char	buffer[MAX_CVAR_VALUE_STRING];
 

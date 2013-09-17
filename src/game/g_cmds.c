@@ -1021,14 +1021,14 @@ static void Cmd_Ready_f( gentity_t *ent ) {
 	}
 }
 
-static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg ) {
+static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *message ) {
 	if ( !other || !other->inuse || !other->client )
 		return;
 
 	if ( other->client->pers.connected != CON_CONNECTED )
 		return;
 
-	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) )
+	if ( mode == SAY_TEAM  && !OnSameTeam( ent, other ) )
 		return;
 
 	//QTZTODO: specmute
@@ -1042,26 +1042,15 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 	*/
 
-	if ( locMsg )
-	{
-		trap->SV_GameSendServerCommand( other-g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"",
-			mode == SAY_TEAM ? "ltchat" : "lchat",
-			name, locMsg, color, message));
-	}
-	else
-	{
-		trap->SV_GameSendServerCommand( other-g_entities, va("%s \"%s%c%c%s\"", 
-			mode == SAY_TEAM ? "tchat" : "chat",
-			name, Q_COLOR_ESCAPE, color, message));
-	}
+	trap->SV_GameSendServerCommand( other-g_entities, va( "%s %i \"%c%c%s\"", 
+		mode == SAY_TEAM ? "tchat" : "chat",
+		ent-g_entities, Q_COLOR_ESCAPE, color, message));
 }
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j, color;
 	gentity_t	*other;
-	char		name[96], location[64], text[MAX_SAY_TEXT];
-	char		*locMsg = NULL;
-	qboolean	isMeCmd = qfalse;
+	char		text[MAX_SAY_TEXT];
 
 	if ( level.gametype < GT_TEAMBLOOD && mode == SAY_TEAM )
 		mode = SAY_ALL;
@@ -1070,38 +1059,15 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	default:
 	case SAY_ALL:
 		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
-		if ( !Q_stricmpn( chatText, "/me ", 4 ) ) {
-			isMeCmd = qtrue;
-			chatText += 4; //Skip "/me "
-		}
-		if ( isMeCmd ) {
-			Com_sprintf( name, sizeof( name ), "^7* %s^7"EC_GLOBAL" ", ent->client->pers.netname );
-			color = COLOR_WHITE;
-		}
-		else {
-			Com_sprintf( name, sizeof( name ), "%s^7"EC_GLOBAL": ", ent->client->pers.netname );
-			color = COLOR_GREEN;
-		}
+		color = COLOR_GREEN;
 		break;
 
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
-		if ( Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
-			Com_sprintf( name, sizeof( name ), EC_GLOBAL"(%s%c%c"EC_GLOBAL")"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			locMsg = location;
-		}
-		else
-			Com_sprintf( name, sizeof( name ), EC_GLOBAL"(%s%c%c"EC_GLOBAL")"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_CYAN;
 		break;
 
 	case SAY_TELL:
-		if ( target && level.gametype >= GT_TEAMBLOOD && target->client->sess.sessionTeam == ent->client->sess.sessionTeam && Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
-			Com_sprintf( name, sizeof( name ), EC_GLOBAL"[%s%c%c"EC_GLOBAL"]"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			locMsg = location;
-		}
-		else
-			Com_sprintf( name, sizeof( name ), EC_GLOBAL"[%s%c%c"EC_GLOBAL"]"EC_GLOBAL": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_PINK;
 		break;
 	}
@@ -1110,17 +1076,17 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	Q_strstrip( text, "\n\r", NULL );
 
 	if ( target ) {
-		G_SayTo( ent, target, mode, color, name, text, locMsg );
+		G_SayTo( ent, target, mode, color, text );
 		return;
 	}
 
 	// echo the text to the console
 	if ( dedicated->integer )
-		trap->Print( "%s%s\n", name, text);
+		trap->Print( "%s%s\n", ent->client->pers.netname, text);
 
 	// send it to all the apropriate clients
 	for ( j=0, other=g_entities; j<level.maxclients; j++, other++ )
-		G_SayTo( ent, other, mode, color, name, text, locMsg );
+		G_SayTo( ent, other, mode, color, text );
 }
 
 static void Cmd_Say_f( gentity_t *ent ) {

@@ -40,29 +40,29 @@ CG_ParseScores
 static void CG_ParseScores( void ) {
 	int i, powerups;
 
-	cg.numScores = atoi( CG_Argv( 1 ) );
+	cg.numScores = atoi( trap->Cmd_Argv( 1 ) );
 	if ( cg.numScores > MAX_CLIENTS )
 		cg.numScores = MAX_CLIENTS;
 
-	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
-	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
+	cg.teamScores[0] = atoi( trap->Cmd_Argv( 2 ) );
+	cg.teamScores[1] = atoi( trap->Cmd_Argv( 3 ) );
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
 
 	for ( i=0; i<cg.numScores; i++ ) {
-		cg.scores[i].client				= atoi( CG_Argv( i*SCORE_OFFSET +  4 ) );
-		cg.scores[i].score				= atoi( CG_Argv( i*SCORE_OFFSET +  5 ) );
-		cg.scores[i].ping				= atoi( CG_Argv( i*SCORE_OFFSET +  6 ) );
-		cg.scores[i].time				= atoi( CG_Argv( i*SCORE_OFFSET +  7 ) );
-		cg.scores[i].scoreFlags			= atoi( CG_Argv( i*SCORE_OFFSET +  8 ) );
-		powerups						= atoi( CG_Argv( i*SCORE_OFFSET +  9 ) );
-		cg.scores[i].accuracy			= atoi( CG_Argv( i*SCORE_OFFSET + 10 ) );
-		cg.scores[i].impressiveCount	= atoi( CG_Argv( i*SCORE_OFFSET + 11 ) );
-		cg.scores[i].excellentCount		= atoi( CG_Argv( i*SCORE_OFFSET + 12 ) );
-		cg.scores[i].defendCount		= atoi( CG_Argv( i*SCORE_OFFSET + 13 ) );
-		cg.scores[i].assistCount		= atoi( CG_Argv( i*SCORE_OFFSET + 14 ) );
-		cg.scores[i].perfect			= atoi( CG_Argv( i*SCORE_OFFSET + 15 ) );
-		cg.scores[i].captures			= atoi( CG_Argv( i*SCORE_OFFSET + 16 ) );
+		cg.scores[i].client				= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  4 ) );
+		cg.scores[i].score				= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  5 ) );
+		cg.scores[i].ping				= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  6 ) );
+		cg.scores[i].time				= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  7 ) );
+		cg.scores[i].scoreFlags			= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  8 ) );
+		powerups						= atoi( trap->Cmd_Argv( i*SCORE_OFFSET +  9 ) );
+		cg.scores[i].accuracy			= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 10 ) );
+		cg.scores[i].impressiveCount	= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 11 ) );
+		cg.scores[i].excellentCount		= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 12 ) );
+		cg.scores[i].defendCount		= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 13 ) );
+		cg.scores[i].assistCount		= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 14 ) );
+		cg.scores[i].perfect			= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 15 ) );
+		cg.scores[i].captures			= atoi( trap->Cmd_Argv( i*SCORE_OFFSET + 16 ) );
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS )
 			cg.scores[i].client = 0;
@@ -83,11 +83,13 @@ CG_ParseTeamInfo
 
 =================
 */
+
+#define TEAMINFO_OFFSET (6)
 static void CG_ParseTeamInfo( void ) {
 	int		i;
 	int		client;
 
-	numSortedTeamPlayers = atoi( CG_Argv( 1 ) );
+	numSortedTeamPlayers = atoi( trap->Cmd_Argv( 1 ) );
 	if( numSortedTeamPlayers < 0 || numSortedTeamPlayers > TEAM_MAXOVERLAY )
 	{
 		trap->Error( ERR_DROP, "CG_ParseTeamInfo: numSortedTeamPlayers out of range (%d)",
@@ -96,7 +98,7 @@ static void CG_ParseTeamInfo( void ) {
 	}
 
 	for ( i = 0 ; i < numSortedTeamPlayers ; i++ ) {
-		client = atoi( CG_Argv( i * 6 + 2 ) );
+		client = atoi( trap->Cmd_Argv( i * 6 + 2 ) );
 		if( client < 0 || client >= MAX_CLIENTS )
 		{
 		  trap->Error( ERR_DROP, "CG_ParseTeamInfo: bad client number: %d", client );
@@ -105,11 +107,11 @@ static void CG_ParseTeamInfo( void ) {
 
 		sortedTeamPlayers[i] = client;
 
-		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
-		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 6 + 4 ) );
-		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 6 + 5 ) );
-		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 6 + 6 ) );
-		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 6 + 7 ) );
+		cgs.clientinfo[ client ].location	= atoi( trap->Cmd_Argv( i*TEAMINFO_OFFSET + 3 ) );
+		cgs.clientinfo[ client ].health		= atoi( trap->Cmd_Argv( i*TEAMINFO_OFFSET + 4 ) );
+		cgs.clientinfo[ client ].armor		= atoi( trap->Cmd_Argv( i*TEAMINFO_OFFSET + 5 ) );
+		cgs.clientinfo[ client ].curWeapon	= atoi( trap->Cmd_Argv( i*TEAMINFO_OFFSET + 6 ) );
+		cgs.clientinfo[ client ].powerups	= atoi( trap->Cmd_Argv( i*TEAMINFO_OFFSET + 7 ) );
 	}
 }
 
@@ -263,7 +265,7 @@ static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
 
-	num = atoi( CG_Argv( 1 ) );
+	num = atoi( trap->Cmd_Argv( 1 ) );
 
 	// get the gamestate from the client system, which will have the
 	// new configstring already integrated
@@ -813,10 +815,10 @@ void CG_VoiceChat( int mode ) {
 	int clientNum, color;
 	qboolean voiceOnly;
 
-	voiceOnly = atoi(CG_Argv(1));
-	clientNum = atoi(CG_Argv(2));
-	color = atoi(CG_Argv(3));
-	cmd = CG_Argv(4);
+	voiceOnly = atoi(trap->Cmd_Argv(1));
+	clientNum = atoi(trap->Cmd_Argv(2));
+	color = atoi(trap->Cmd_Argv(3));
+	cmd = trap->Cmd_Argv(4);
 
 	if (cg_noTaunt->integer != 0) {
 		if (!strcmp(cmd, VOICECHAT_KILLINSULT)  || !strcmp(cmd, VOICECHAT_TAUNT) ||
@@ -830,23 +832,6 @@ void CG_VoiceChat( int mode ) {
 
 /*
 =================
-CG_RemoveChatEscapeChar
-=================
-*/
-static void CG_RemoveChatEscapeChar( char *text ) {
-	int i, l;
-
-	l = 0;
-	for ( i = 0; text[i]; i++ ) {
-		if (text[i] == '\x19')
-			continue;
-		text[l++] = text[i];
-	}
-	text[l] = '\0';
-}
-
-/*
-=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -855,9 +840,8 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand( void ) {
 	const char	*cmd;
-	char		text[MAX_SAY_TEXT];
 
-	cmd = CG_Argv(0);
+	cmd = trap->Cmd_Argv(0);
 
 	if ( !cmd[0] ) {
 		// server claimed the command
@@ -865,7 +849,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "cp" ) ) {
-		CG_CenterPrint( CG_Argv(1), (int)(SCREEN_HEIGHT * 0.30f) );
+		CG_CenterPrint( trap->Cmd_Argv(1), (int)(SCREEN_HEIGHT * 0.30f) );
 		return;
 	}
 
@@ -876,8 +860,8 @@ static void CG_ServerCommand( void ) {
 
 	//RAZTODO: WTF, rewrite plz.
 	if ( !strcmp( cmd, "print" ) ) {
-		trap->Print( "%s", CG_Argv(1) );
-		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
+		trap->Print( "%s", trap->Cmd_Argv(1) );
+		cmd = trap->Cmd_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
 		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
 			trap->S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
@@ -889,9 +873,9 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly->integer ) {
+			char text[MAX_SAY_TEXT] = {0};
 			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
-			CG_RemoveChatEscapeChar( text );
+			Com_sprintf( text, sizeof( text ), "%s"S_COLOR_WHITE": %s", cgs.clientinfo[atoi( trap->Cmd_Argv(1) )].name, trap->Cmd_Argv(2) );
 			CG_ChatboxAdd( text, qfalse );
 			trap->Print( "[skipnotify]%s\n", text );
 		}
@@ -899,9 +883,9 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "tchat" ) ) {
+		char text[MAX_SAY_TEXT] = {0};
 		trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
-		CG_RemoveChatEscapeChar( text );
+		Com_sprintf( text, sizeof( text ), "%s"S_COLOR_WHITE": %s", cgs.clientinfo[atoi( trap->Cmd_Argv(1) )].name, trap->Cmd_Argv(2) );
 		CG_AddToTeamChat( text );
 		CG_ChatboxAdd( text, qfalse );
 		trap->Print( "[skipnotify]%s\n", text );
@@ -946,9 +930,9 @@ static void CG_ServerCommand( void ) {
 			char shader2[MAX_QPATH];
 			char shader3[MAX_QPATH];
 
-			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
-			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
+			Q_strncpyz(shader1, trap->Cmd_Argv(1), sizeof(shader1));
+			Q_strncpyz(shader2, trap->Cmd_Argv(2), sizeof(shader2));
+			Q_strncpyz(shader3, trap->Cmd_Argv(3), sizeof(shader3));
 
 			trap->R_RemapShader(shader1, shader2, shader3);
 		}

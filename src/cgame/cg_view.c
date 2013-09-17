@@ -75,11 +75,11 @@ void CG_TestModel_f (void) {
 		return;
 	}
 
-	Q_strncpyz (cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
+	Q_strncpyz (cg.testModelName, trap->Cmd_Argv( 1 ), MAX_QPATH );
 	cg.testModelEntity.hModel = trap->R_RegisterModel( cg.testModelName );
 
 	if ( trap->Cmd_Argc() == 3 ) {
-		cg.testModelEntity.backlerp = (float)atof( CG_Argv( 2 ) );
+		cg.testModelEntity.backlerp = (float)atof( trap->Cmd_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}

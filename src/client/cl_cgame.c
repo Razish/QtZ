@@ -426,7 +426,7 @@ void CL_InitCGame( void ) {
 	cgameTrap.Cvar_Set						= Cvar_SetSafe;
 	cgameTrap.Cvar_VariableStringBuffer		= Cvar_VariableStringBuffer;
 	cgameTrap.Cmd_Argc						= Cmd_Argc;
-	cgameTrap.Cmd_Argv						= Cmd_ArgvBuffer;
+	cgameTrap.Cmd_Argv						= Cmd_Argv;
 	cgameTrap.Cmd_Args						= Cmd_ArgsBuffer;
 	cgameTrap.SendConsoleCommand			= Cbuf_AddText;
 	cgameTrap.AddCommand					= Cmd_AddCommand;
