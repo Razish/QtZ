@@ -108,7 +108,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <ResourceOutputFileName>..\win$(ProjectName).res</ResourceOutputFileName>
+      <ResourceOutputFileName>$(IntDir)\win$(ProjectName).res</ResourceOutputFileName>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>user32.lib;gdi32.lib;advapi32.lib;winmm.lib;psapi.lib;wsock32.lib;ws2_32.lib;dxguid.lib;OpenGL32.lib;SDL.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -163,7 +163,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <ResourceOutputFileName>..\win$(ProjectName).res</ResourceOutputFileName>
+      <ResourceOutputFileName>$(IntDir)\win$(ProjectName).res</ResourceOutputFileName>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>user32.lib;gdi32.lib;advapi32.lib;winmm.lib;psapi.lib;wsock32.lib;ws2_32.lib;dxguid.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
