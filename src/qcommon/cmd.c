@@ -89,7 +89,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 ============
 */
 void Cbuf_AddText( const char *text ) {
-	int		l;
+	size_t l;
 	
 	l = strlen (text);
 
@@ -112,7 +112,7 @@ Adds a \n to the text
 ============
 */
 void Cbuf_InsertText( const char *text ) {
-	int		len;
+	size_t	len;
 	int		i;
 
 	len = strlen( text ) + 1;

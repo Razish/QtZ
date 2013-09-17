@@ -168,7 +168,7 @@ static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 
 const char *String_Alloc(const char *p) {
-	int len;
+	size_t len;
 	unsigned hash;
 	stringDef_t *str, *last;
 	static const char *staticNULL = "";
@@ -204,7 +204,7 @@ const char *String_Alloc(const char *p) {
 			str = str->next;
 		}
 
-		str  = UI_Alloc(sizeof(stringDef_t));
+		str = UI_Alloc(sizeof(stringDef_t));
 		str->next = NULL;
 		str->str = &strPool[ph];
 		if (last) {
@@ -3038,7 +3038,7 @@ void Leaving_EditField(itemDef_t *item)
 
 qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 	char buff[2048];
-	int len;
+	size_t len;
 	itemDef_t *newItem = NULL;
 	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
 
@@ -3957,7 +3957,7 @@ void Rect_ToWindowCoords(rectDef_t *rect, windowDef_t *window) {
 	ToWindowCoords(&rect->x, &rect->y, window);
 }
 
-void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *text) {
+void Item_SetTextExtents(itemDef_t *item, float *width, float *height, const char *text) {
 	const char *textPtr = (text) ? text : item->text;
 
 	if (textPtr == NULL ) {
@@ -3969,7 +3969,7 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 
 	// keeps us from computing the widths and heights more than once
 	if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER)) {
-		int originalWidth = DC->textWidth(item->text, item->textscale, 0);
+		float originalWidth = DC->textWidth(item->text, item->textscale, 0);
 
 		if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT)) {
 			originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
@@ -4034,7 +4034,8 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 	char text[2048];
 	const char *p, *textPtr, *newLinePtr;
 	char buff[2048];
-	int width, height, len, textWidth, newLine, newLineWidth;
+	float width, height;
+	int len, textWidth, newLine, newLineWidth;
 	float y;
 	vector4 color;
 
@@ -4107,7 +4108,7 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 	char text[1024];
 	const char *p, *start, *textPtr;
 	char buff[1024];
-	int width, height;
+	float width, height;
 	float x, y;
 	vector4 color;
 
@@ -4151,7 +4152,7 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 void Item_Text_Paint(itemDef_t *item) {
 	char text[1024];
 	const char *textPtr;
-	int height, width;
+	float height, width;
 	vector4 color;
 
 	if (item->window.flags & WINDOW_WRAPPED) {
@@ -5058,7 +5059,8 @@ void Item_Paint(itemDef_t *item)
 {
 	vector4		red;
 	menuDef_t *parent = (menuDef_t*)item->parent;
-	int			xPos,textWidth;
+	int			xPos;
+	float		textWidth;
 	vector4		color = {1, 1, 1, 1};
 
 	red.r = red.a = 1;
@@ -5210,7 +5212,7 @@ void Item_Paint(itemDef_t *item)
 			{// stupid C language
 				float fDescScale = parent->descScale ? parent->descScale : 1;
 				float fDescScaleCopy = fDescScale;
-				int iYadj = 0;
+				float Yadj = 0;
 				while (1)
 				{
 					vector4 _color = { 0.0f, 0.0f, 0.0f, 0.5f };
@@ -5243,13 +5245,13 @@ void Item_Paint(itemDef_t *item)
 					//
 					if (fDescScale != fDescScaleCopy)
 					{
-						int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, -1);
-						iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, -1);
+						float iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, -1);
+						Yadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, -1);
 					}
 
 					//Raz: Added background
-					DC->fillRect((float)xPos, (float)(parent->descY + iYadj), (float)textWidth, (float)DC->textHeight( textPtr, fDescScale, -1 ), &_color );
-					DC->drawText((float)xPos, (float)(parent->descY + iYadj), fDescScale, &parent->descColor, textPtr, 0, 0, item->textStyle );
+					DC->fillRect((float)xPos, (float)(parent->descY + Yadj), (float)textWidth, (float)DC->textHeight( textPtr, fDescScale, -1 ), &_color );
+					DC->drawText((float)xPos, (float)(parent->descY + Yadj), fDescScale, &parent->descColor, textPtr, 0, 0, item->textStyle );
 					break;
 				}
 			}

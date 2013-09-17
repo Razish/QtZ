@@ -23,6 +23,87 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
+/*
+ 1	0	black
+ 2	1	grey
+ 3	2	white
+ 4	3	red
+ 5	4	orange
+ 6	5	yellow
+ 7	6	lime
+ 8	7	green
+ 9	8	aqua
+10	9	cyan
+11	a	light blue
+12	b	blue
+13	c	violet
+14	d	purple
+15	e	pink
+16	f	*white, to be changed
+*/
+
+const vector4 g_color_table[Q_COLOR_BITS+1] = {
+	{ 0.0f, 0.0f, 0.0f, 1.0f }, // black
+	{ 0.5f, 0.5f, 0.5f, 1.0f }, // grey
+	{ 1.0f, 1.0f, 1.0f, 1.0f }, // white
+	{ 1.0f, 0.0f, 0.0f, 1.0f }, // red
+	{ 1.0f, 0.5f, 0.0f, 1.0f }, // orange
+	{ 1.0f, 1.0f, 0.0f, 1.0f }, // yellow
+	{ 0.5f, 1.0f, 0.0f, 1.0f }, // lime
+	{ 0.0f, 1.0f, 0.0f, 1.0f }, // green
+	{ 0.0f, 1.0f, 0.5f, 1.0f }, // aqua
+	{ 0.0f, 1.0f, 1.0f, 1.0f }, // cyan
+	{ 0.0f, 0.5f, 1.0f, 1.0f }, // light blue
+	{ 0.0f, 0.0f, 1.0f, 1.0f }, // blue
+	{ 0.5f, 0.0f, 1.0f, 1.0f }, // violet
+	{ 1.0f, 0.0f, 1.0f, 1.0f }, // purple
+	{ 1.0f, 0.0f, 0.5f, 1.0f }, // pink
+	{ 1.0f, 1.0f, 1.0f, 1.0f }, // *white
+};
+
+qboolean Q_IsColorString( const char *p ) {
+	if ( p && p[0] && p[0] == Q_COLOR_ESCAPE && p[1] ) {
+		int c = tolower( p[1] );
+		if ( isdigit( p[1] ) || (c >= 'a' && c <= 'e') )
+			return qtrue;
+	}
+
+	return qfalse;
+}
+
+int ColorIndex( char c ) {
+	int lowc = tolower(c);
+
+	if ( c >= '0' && c <= '9' )
+		return (c-'0') & Q_COLOR_BITS;
+	else if ( lowc >= 'a' && lowc <= 'e' )
+		return (c-'a'+'9') & Q_COLOR_BITS;
+
+	return ColorIndex( COLOR_WHITE );
+}
+
+char *Q_CleanColorStr( char *string ) {
+	char *d, *s;
+	int c;
+	ptrdiff_t len = strlen( string );
+
+	s = d = string;
+	while ( len > s-string && (c = *s) != 0 )
+	{
+		if ( Q_IsColorString( s ) )
+			s += 2;
+		
+		*d = *s;
+
+		d++;
+		s++;
+	}
+
+	*d = '\0';
+
+	return string;
+}
+
 float Q_clamp( float min, float value, float max ) {
 	if ( value < min ) return min;
 	if ( value > max ) return max;
@@ -1211,39 +1292,6 @@ void Q_strrev( char *string ) {
 
 	d = string;
 	s = string + len-1;
-}
-
-int ColorIndex( char c ) {
-	int lowc = tolower(c);
-
-	if ( c >= '0' && c <= '9' )
-		return (c-'0') & Q_COLOR_BITS;
-	else if ( lowc >= 'a' && lowc <= 'e' )
-		return (c-'a'+'9') & Q_COLOR_BITS;
-
-	return ColorIndex( COLOR_WHITE );
-}
-
-char *Q_CleanColorStr( char *string ) {
-	char *d, *s;
-	int c;
-	ptrdiff_t len = strlen( string );
-
-	s = d = string;
-	while ( len > s-string && (c = *s) != 0 )
-	{
-		if ( Q_IsColorString( s ) )
-			s += 2;
-		
-		*d = *s;
-
-		d++;
-		s++;
-	}
-
-	*d = '\0';
-
-	return string;
 }
 
 int Q_CountChar(const char *string, char tocount)

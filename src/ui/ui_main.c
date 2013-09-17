@@ -2008,13 +2008,13 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vector4 *color) {
 
 		if (uiInfo.serverStatus.motdWidth == -1) {
 			uiInfo.serverStatus.motdWidth = 0;
-			uiInfo.serverStatus.motdPaintX = (int)rect->x + 1;
+			uiInfo.serverStatus.motdPaintX = rect->x + 1;
 			uiInfo.serverStatus.motdPaintX2 = -1;
 		}
 
 		if (uiInfo.serverStatus.motdOffset > uiInfo.serverStatus.motdLen) {
 			uiInfo.serverStatus.motdOffset = 0;
-			uiInfo.serverStatus.motdPaintX = (int)rect->x + 1;
+			uiInfo.serverStatus.motdPaintX = rect->x + 1;
 			uiInfo.serverStatus.motdPaintX2 = -1;
 		}
 
@@ -2029,7 +2029,7 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vector4 *color) {
 					if (uiInfo.serverStatus.motdPaintX2 >= 0) {
 						uiInfo.serverStatus.motdPaintX = uiInfo.serverStatus.motdPaintX2;
 					} else {
-						uiInfo.serverStatus.motdPaintX = (int)rect->x + (int)rect->w - 2;
+						uiInfo.serverStatus.motdPaintX = rect->x + rect->w - 2;
 					}
 					uiInfo.serverStatus.motdPaintX2 = -1;
 				}

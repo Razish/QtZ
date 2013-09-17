@@ -48,7 +48,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 void CL_CharEvent( int key ) {
 }
 
-void CL_Disconnect( qboolean showMainMenu ) {
+void CL_Disconnect( qboolean showMainMenu, const char *reason ) {
 }
 
 void CL_MapLoading( void ) {

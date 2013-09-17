@@ -184,7 +184,7 @@ typedef struct serverStatus_s {
 	int			nextSortTime;
 	qhandle_t	currentServerPreview;
 	int			currentServerCinematic;
-	int			motdLen;
+	size_t		motdLen;
 	int			motdWidth;
 	float		motdPaintX;
 	int			motdPaintX2;

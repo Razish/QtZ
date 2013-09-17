@@ -1666,9 +1666,9 @@ Allocate permanent (until the hunk is cleared) memory
 =================
 */
 #ifdef HUNK_DEBUG
-void *Hunk_AllocDebug( int size, hunkallocPref_t preference, char *label, char *file, int line ) {
+void *Hunk_AllocDebug( size_t size, hunkallocPref_t preference, char *label, char *file, int line ) {
 #else
-void *Hunk_Alloc( int size, hunkallocPref_t preference ) {
+void *Hunk_Alloc( size_t size, hunkallocPref_t preference ) {
 #endif
 	void	*buf;
 

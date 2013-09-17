@@ -281,9 +281,9 @@ typedef enum hunkallocPref_e {
 
 #ifdef HUNK_DEBUG
 #define Hunk_Alloc( size, preference ) Hunk_AllocDebug(size, preference, #size, __FILE__, __LINE__)
-void *Hunk_AllocDebug( int size, hunkallocPref_t preference, char *label, char *file, int line );
+void *Hunk_AllocDebug( size_t size, hunkallocPref_t preference, char *label, char *file, int line );
 #else
-void *Hunk_Alloc( int size, hunkallocPref_t preference );
+void *Hunk_Alloc( size_t size, hunkallocPref_t preference );
 #endif
 
 #define CIN_system	0x01
@@ -367,9 +367,6 @@ extern vector3 bytedirs[NUMVERTEXNORMALS];
 
 #define Q_COLOR_ESCAPE	'^'
 #define Q_COLOR_BITS 0xF
-#define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
-
-int ColorIndex( char c );
 
 #define COLOR_BLACK		'0'
 #define COLOR_GREY		'1'
@@ -403,6 +400,8 @@ int ColorIndex( char c );
 #define S_COLOR_PURPLE		"^d"
 #define S_COLOR_PINK		"^e"
 
+qboolean Q_IsColorString( const char *p );
+int ColorIndex( char c );
 extern const vector4 g_color_table[Q_COLOR_BITS+1];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b

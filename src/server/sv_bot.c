@@ -286,7 +286,7 @@ static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vect
 BotImport_GetMemory
 ==================
 */
-static void *BotImport_GetMemory(int size) {
+static void *BotImport_GetMemory(size_t size) {
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_BOTLIB );
@@ -307,7 +307,7 @@ static void BotImport_FreeMemory(void *ptr) {
 BotImport_HunkAlloc
 =================
 */
-static void *BotImport_HunkAlloc( int size ) {
+static void *BotImport_HunkAlloc( size_t size ) {
 	if( Hunk_CheckMark() ) {
 		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set" );
 	}

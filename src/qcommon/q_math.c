@@ -27,45 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 vector3	vec3_origin = {0,0,0};
 vector3	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
-/*
- 1	0	black
- 2	1	grey
- 3	2	white
- 4	3	red
- 5	4	orange
- 6	5	yellow
- 7	6	lime
- 8	7	green
- 9	8	aqua
-10	9	cyan
-11	a	light blue
-12	b	blue
-13	c	violet
-14	d	purple
-15	e	pink
-16	f	*white, to be changed
-*/
-
-const vector4 g_color_table[Q_COLOR_BITS+1] = {
-	{ 0.0f, 0.0f, 0.0f, 1.0f }, // black
-	{ 0.5f, 0.5f, 0.5f, 1.0f }, // grey
-	{ 1.0f, 1.0f, 1.0f, 1.0f }, // white
-	{ 1.0f, 0.0f, 0.0f, 1.0f }, // red
-	{ 1.0f, 0.5f, 0.0f, 1.0f }, // orange
-	{ 1.0f, 1.0f, 0.0f, 1.0f }, // yellow
-	{ 0.5f, 1.0f, 0.0f, 1.0f }, // lime
-	{ 0.0f, 1.0f, 0.0f, 1.0f }, // green
-	{ 0.0f, 1.0f, 0.5f, 1.0f }, // aqua
-	{ 0.0f, 1.0f, 1.0f, 1.0f }, // cyan
-	{ 0.0f, 0.5f, 1.0f, 1.0f }, // light blue
-	{ 0.0f, 0.0f, 1.0f, 1.0f }, // blue
-	{ 0.5f, 0.0f, 1.0f, 1.0f }, // violet
-	{ 1.0f, 0.0f, 1.0f, 1.0f }, // purple
-	{ 1.0f, 0.0f, 0.5f, 1.0f }, // pink
-	{ 1.0f, 1.0f, 1.0f, 1.0f }, // *white
-};
-
-
 vector3 bytedirs[NUMVERTEXNORMALS] = {
 	{ -0.525731f,  0.000000f,  0.850651f }, { -0.442863f,  0.238856f,  0.864188f }, { -0.295242f,  0.000000f,  0.955423f },
 	{ -0.309017f,  0.500000f,  0.809017f }, { -0.162460f,  0.262866f,  0.951056f }, {  0.000000f,  0.000000f,  1.000000f },

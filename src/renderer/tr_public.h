@@ -133,9 +133,9 @@ typedef struct refimport_s {
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
-	void	*(*Hunk_AllocDebug)( int size, hunkallocPref_t pref, char *label, char *file, int line );
+	void	*(*Hunk_AllocDebug)( size_t size, hunkallocPref_t pref, char *label, char *file, int line );
 #else
-	void	*(*Hunk_Alloc)( int size, hunkallocPref_t pref );
+	void	*(*Hunk_Alloc)( size_t size, hunkallocPref_t pref );
 #endif
 	void	*(*Hunk_AllocateTempMemory)( int size );
 	void	(*Hunk_FreeTempMemory)( void *block );
