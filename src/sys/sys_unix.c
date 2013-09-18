@@ -562,7 +562,7 @@ Sys_ClearExecBuffer
 static void Sys_ClearExecBuffer( void )
 {
 	execBufferPointer = execBuffer;
-	Com_Memset( execArgv, 0, sizeof( execArgv ) );
+	memset( execArgv, 0, sizeof( execArgv ) );
 	execArgc = 0;
 }
 
@@ -875,7 +875,7 @@ int Sys_PID( void )
 Sys_PIDIsRunning
 ==============
 */
-qboolean Sys_PIDIsRunning( int pid )
+qboolean Sys_PIDIsRunning( unsigned int pid )
 {
 	return kill( pid, 0 ) == 0;
 }

@@ -98,6 +98,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>

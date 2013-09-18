@@ -1,0 +1,144 @@
+import platform
+
+plat = platform.system()
+arch = platform.machine()
+print( '\n********************************\nBuilding for ' + plat + '/' + arch + '\n********************************\n' )
+
+asm = [
+	'asm/ftola.c' ]
+
+client = [
+	'client/cl_avi.c',
+	'client/cl_bot.c',
+	'client/cl_cgame.c',
+	'client/cl_cin.c',
+	'client/cl_console.c',
+	'client/cl_curl.c',
+	'client/cl_input.c',
+	'client/cl_keys.c',
+	'client/cl_main.c',
+	'client/cl_net_chan.c',
+	'client/cl_parse.c',
+	'client/cl_scrn.c',
+	'client/cl_ui.c',
+	'client/qal.c',
+	'client/snd_adpcm.c',
+	'client/snd_codec.c',
+	'client/snd_codec_ogg.c',
+	'client/snd_codec_wav.c',
+	'client/snd_dma.c',
+	'client/snd_main.c',
+	'client/snd_mem.c',
+	'client/snd_mix.c',
+	'client/snd_openal.c',
+	'client/snd_wavelet.c' ]
+
+libspeex = [
+	'libspeex/bits.c',
+	'libspeex/buffer.c',
+	'libspeex/cb_search.c',
+	'libspeex/exc_10_16_table.c',
+	'libspeex/exc_10_32_table.c',
+	'libspeex/exc_20_32_table.c',
+	'libspeex/exc_5_256_table.c',
+	'libspeex/exc_5_64_table.c',
+	'libspeex/exc_8_128_table.c',
+	'libspeex/fftwrap.c',
+	'libspeex/filterbank.c',
+	'libspeex/filters.c',
+	'libspeex/gain_table.c',
+	'libspeex/gain_table_lbr.c',
+	'libspeex/hexc_10_32_table.c',
+	'libspeex/hexc_table.c',
+	'libspeex/high_lsp_tables.c',
+	'libspeex/jitter.c',
+	'libspeex/kiss_fft.c',
+	'libspeex/kiss_fftr.c',
+	'libspeex/lpc.c',
+	'libspeex/lsp.c',
+	'libspeex/lsp_tables_nb.c',
+	'libspeex/ltp.c',
+	'libspeex/mdf.c',
+	'libspeex/modes.c',
+	'libspeex/modes_wb.c',
+	'libspeex/nb_celp.c',
+	'libspeex/preprocess.c',
+	'libspeex/quant_lsp.c',
+	'libspeex/resample.c',
+	'libspeex/sb_celp.c',
+	'libspeex/smallft.c',
+	'libspeex/speex.c',
+	'libspeex/speex_callbacks.c',
+	'libspeex/speex_header.c',
+	'libspeex/stereo.c',
+	'libspeex/vbr.c',
+	'libspeex/vq.c',
+	'libspeex/window.c' ]
+
+qcommon = [
+	'qcommon/cm_load.c',
+	'qcommon/cm_patch.c',
+	'qcommon/cm_polylib.c',
+	'qcommon/cm_test.c',
+	'qcommon/cm_trace.c',
+	'qcommon/cmd.c',
+	'qcommon/common.c',
+	'qcommon/cvar.c',
+	'qcommon/files.c',
+	'qcommon/huffman.c',
+	'qcommon/ioapi.c',
+	'qcommon/md4.c',
+	'qcommon/md5.c',
+	'qcommon/msg.c',
+	'qcommon/net_chan.c',
+	'qcommon/net_ip.c',
+	'qcommon/puff.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'qcommon/unzip.c' ]
+
+sdl = [
+	'sdl/sdl_snd.c',
+	'sdl/sdl_input.c' ]
+
+sys = [
+	'sys/con_log.c',
+	'sys/con_passive.c',
+	'sys/sys_main.c' ]
+if plat == 'Linux':
+	sys.append( 'sys/sys_unix.c' )
+else:
+	sys.append( 'sys/sys_win32.c' )
+
+zlib = [
+	'zlib/adler32.c',
+	'zlib/crc32.c',
+	'zlib/inffast.c',
+	'zlib/inflate.c',
+	'zlib/inftrees.c',
+	'zlib/zutil.c' ]
+
+server = [
+	'server/sv_bot.c',
+	'server/sv_ccmds.c',
+	'server/sv_client.c',
+	'server/sv_game.c',
+	'server/sv_init.c',
+	'server/sv_main.c',
+	'server/sv_net_chan.c',
+	'server/sv_rankings.c',
+	'server/sv_snapshot.c',
+	'server/sv_world.c' ]
+
+files = asm + client + libspeex + qcommon + sdl + sys + zlib + server
+
+if plat == 'Linux':
+	libs = [ 'SDL', 'm' ]
+else:
+	libs = [ 'dxguid', 'SDLmain', 'SDL', 'OpenGL32' ]
+
+env = Environment( CPPPATH=[ '.', 'SDL12/include', 'libcurl', 'AL', 'libspeex/include', 'zlib', 'jpeg-8c' ],
+			CPPDEFINES=[ 'BOTLIB', 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_OPENAL', 'USE_OPENAL_DLOPEN', 'USE_VOIP', 'USE_INTERNAL_JPEG', 'HAVE_CONFIG_H', 'USE_LOCAL_HEADERS' ] ,
+			LIBS=libs )
+
+env.Program( 'qtz.' + arch, files )
