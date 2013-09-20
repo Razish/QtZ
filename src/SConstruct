@@ -1,10 +1,18 @@
 import platform
 
 plat = platform.system()
-arch = platform.machine()
 
 print( '\n********************************\n' )
-print( 'Building for ' + plat + '/' + arch )
+print( 'Configuring build environment...' )
+env = Environment()
+if env['PLATFORM'] == 'posix':
+	arch = platform.machine()
+	if ( arch != 'x86_64' ):
+		#HACK: pretend we're x86 for consistent naming schemes
+		arch = 'x86'
+#TODO: make sure windows is fine for x86/x64
+
+print( 'Building for ' + plat + '/' + platform.machine() )
 print( '\n********************************\n' )
 
 files = {}
@@ -454,9 +462,9 @@ else:
 
 # compiler options
 if plat == 'Linux':
-	ccflags = [ '-g3' ]
+	env['CCFLAGS'] = [ '-g3', '-march=k8' ]
 else:
-	ccflags = []
+	env['CCFLAGS'] = []
 
 
 #################
@@ -465,72 +473,67 @@ else:
 
 # Client
 if int(ARGUMENTS.get( 'client', 0 )):
-	env = Environment( CPPPATH=[ '.', 'SDL12/include', 'AL', 'libcurl', 'libspeex/include', 'zlib' ],
-				CPPDEFINES=[ 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_OPENAL', 'USE_OPENAL_DLOPEN', 'USE_VOIP', 'USE_INTERNAL_JPEG', 'HAVE_CONFIG_H', 'USE_LOCAL_HEADERS' ],
-				LIBS=libs['client'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.', 'SDL12/include', 'AL', 'libcurl', 'libspeex/include', 'zlib' ]
+	env['CPPDEFINES'] = [ 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_OPENAL', 'USE_OPENAL_DLOPEN', 'USE_VOIP', 'USE_INTERNAL_JPEG', 'HAVE_CONFIG_H', 'USE_LOCAL_HEADERS' ]
+	if plat == 'Linux' and arch == 'x86':
+		# Linux/i386 has issues with assembling asm/snd_mixa.s at the moment
+		env['CPPDEFINES'].append( 'C_ONLY' )
+	env['LIBS'] = libs['client']
+	env['LIBPREFIX'] = ''
 	env.Program( 'qtz'+'.'+arch, files['client'] )
 
 # Server
 if int(ARGUMENTS.get( 'server', 0 )):
-	env = Environment( CPPPATH=[ '.', 'AL', 'libcurl', 'libspeex/include', 'zlib' ],
-				CPPDEFINES=[ 'USE_ICON', 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_VOIP', 'DEDICATED' ],
-				LIBS=libs['server'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.', 'AL', 'libcurl', 'libspeex/include', 'zlib' ]
+	env['CPPDEFINES'] = [ 'USE_ICON', 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_VOIP', 'DEDICATED' ]
+	env['LIBS'] = libs['server']
+	env['LIBPREFIX'] = ''
 	env.Program( 'qtzded'+'.'+arch, files['server'] )
 
 # Botlib
 if int(ARGUMENTS.get( 'botlib', 0 )):
-	env = Environment( CPPPATH=[ '.' ],
-				CPPDEFINES=[ 'BOTLIB' ],
-				LIBS=libs['botlib'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.' ]
+	env['CPPDEFINES'] = [ 'BOTLIB' ]
+	env['LIBS'] = libs['botlib']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'botlib'+'_'+arch, files['botlib'] )
 
 # "Vanilla" renderer
 if int(ARGUMENTS.get( 'rd-vanilla', 0 )):
-	env = Environment( CPPPATH=[ '.', 'rd-vanilla', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ],
-				CPPDEFINES=[ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ],
-				LIBS=libs['rd-vanilla'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.', 'rd-vanilla', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ]
+	env['CPPDEFINES'] = [ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ]
+	env['LIBS'] = libs['rd-vanilla']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'rd-vanilla'+'_'+arch, files['rd-vanilla'] )
 
 # "Rust" renderer
 if int(ARGUMENTS.get( 'rd-rust', 0 )):
-	env = Environment( CPPPATH=[ '.', 'rd-rust', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ],
-				CPPDEFINES=[ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ],
-				LIBS=libs['rd-rust'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.', 'rd-rust', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ]
+	env['CPPDEFINES'] = [ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ]
+	env['LIBS'] = libs['rd-rust']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'rd-rust'+'_'+arch, files['rd-rust'] )
 
 # Game
 if int(ARGUMENTS.get( 'game', 0 )):
-	env = Environment( CPPPATH=[ '.' ],
-				CPPDEFINES=[ 'PROJECT_GAME' ],
-				LIBS=libs['game'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.' ]
+	env['CPPDEFINES'] = [ 'PROJECT_GAME' ]
+	env['LIBS'] = libs['game']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'game'+arch, files['game'] )
 
 # Client Game
 if int(ARGUMENTS.get( 'cgame', 0 )):
-	env = Environment( CPPPATH=[ '.' ],
-				CPPDEFINES=[ 'PROJECT_CGAME' ],
-				LIBS=libs['cgame'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.' ]
+	env['CPPDEFINES'] = [ 'PROJECT_CGAME' ]
+	env['LIBS'] = libs['cgame']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'cgame'+arch, files['cgame'] )
 
 # UI
 if int(ARGUMENTS.get( 'ui', 0 )):
-	env = Environment( CPPPATH=[ '.' ],
-				CPPDEFINES=[ 'UI_EXPORTS', 'PROJECT_UI' ],
-				LIBS=libs['ui'],
-				LIBPREFIX='',
-				CCFLAGS=ccflags )
+	env['CPPPATH'] = [ '.' ]
+	env['CPPDEFINES'] = [ 'UI_EXPORTS', 'PROJECT_UI' ]
+	env['LIBS'] = libs['ui']
+	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'ui'+arch, files['ui'] )
