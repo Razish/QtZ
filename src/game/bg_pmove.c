@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if defined(PROJECT_GAME)
 	#include "g_local.h"
 #elif defined(PROJECT_CGAME)
-	#include "cg_local.h"
+	#include "cgame/cg_local.h"
 #endif
 
 pmove_t		*pm;

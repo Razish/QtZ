@@ -2,38 +2,80 @@ import platform
 
 plat = platform.system()
 arch = platform.machine()
-print( '\n********************************\nBuilding for ' + plat + '/' + arch + '\n********************************\n' )
 
-asm = [
-	'asm/ftola.c' ]
+print( '\n********************************\n' )
+print( 'Building for ' + plat + '/' + arch )
+print( '\n********************************\n' )
 
-client = [
-	'client/cl_avi.c',
-	'client/cl_bot.c',
-	'client/cl_cgame.c',
-	'client/cl_cin.c',
-	'client/cl_console.c',
-	'client/cl_curl.c',
-	'client/cl_input.c',
-	'client/cl_keys.c',
-	'client/cl_main.c',
-	'client/cl_net_chan.c',
-	'client/cl_parse.c',
-	'client/cl_scrn.c',
-	'client/cl_ui.c',
-	'client/qal.c',
-	'client/snd_adpcm.c',
-	'client/snd_codec.c',
-	'client/snd_codec_ogg.c',
-	'client/snd_codec_wav.c',
-	'client/snd_dma.c',
-	'client/snd_main.c',
-	'client/snd_mem.c',
-	'client/snd_mix.c',
-	'client/snd_openal.c',
-	'client/snd_wavelet.c' ]
+files = {}
+libs = {}
 
-libspeex = [
+files['jpeg'] = [
+	'jpeg-8c/jaricom.c',
+	'jpeg-8c/jcapimin.c',
+	'jpeg-8c/jcapistd.c',
+	'jpeg-8c/jcarith.c',
+	'jpeg-8c/jccoefct.c',
+	'jpeg-8c/jccolor.c',
+	'jpeg-8c/jcdctmgr.c',
+	'jpeg-8c/jchuff.c',
+	'jpeg-8c/jcinit.c',
+	'jpeg-8c/jcmainct.c',
+	'jpeg-8c/jcmarker.c',
+	'jpeg-8c/jcmaster.c',
+	'jpeg-8c/jcomapi.c',
+	'jpeg-8c/jcparam.c',
+	'jpeg-8c/jcprepct.c',
+	'jpeg-8c/jcsample.c',
+	'jpeg-8c/jctrans.c',
+	'jpeg-8c/jdapimin.c',
+	'jpeg-8c/jdapistd.c',
+	'jpeg-8c/jdarith.c',
+	'jpeg-8c/jdatadst.c',
+	'jpeg-8c/jdatasrc.c',
+	'jpeg-8c/jdcoefct.c',
+	'jpeg-8c/jdcolor.c',
+	'jpeg-8c/jddctmgr.c',
+	'jpeg-8c/jdhuff.c',
+	'jpeg-8c/jdinput.c',
+	'jpeg-8c/jdmainct.c',
+	'jpeg-8c/jdmarker.c',
+	'jpeg-8c/jdmaster.c',
+	'jpeg-8c/jdmerge.c',
+	'jpeg-8c/jdpostct.c',
+	'jpeg-8c/jdsample.c',
+	'jpeg-8c/jdtrans.c',
+	'jpeg-8c/jerror.c',
+	'jpeg-8c/jfdctflt.c',
+	'jpeg-8c/jfdctfst.c',
+	'jpeg-8c/jfdctint.c',
+	'jpeg-8c/jidctflt.c',
+	'jpeg-8c/jidctfst.c',
+	'jpeg-8c/jidctint.c',
+	'jpeg-8c/jmemmgr.c',
+	'jpeg-8c/jmemnobs.c',
+	'jpeg-8c/jquant1.c',
+	'jpeg-8c/jquant2.c',
+	'jpeg-8c/jutils.c' ]
+
+files['libpng'] = [
+	'libpng/png.c',
+	'libpng/pngerror.c',
+	'libpng/pngget.c',
+	'libpng/pngmem.c',
+	'libpng/pngpread.c',
+	'libpng/pngread.c',
+	'libpng/pngrio.c',
+	'libpng/pngrtran.c',
+	'libpng/pngrutil.c',
+	'libpng/pngset.c',
+	'libpng/pngtrans.c',
+	'libpng/pngwio.c',
+	'libpng/pngwrite.c',
+	'libpng/pngwtran.c',
+	'libpng/pngwutil.c' ]
+
+files['libspeex'] = [
 	'libspeex/bits.c',
 	'libspeex/buffer.c',
 	'libspeex/cb_search.c',
@@ -75,7 +117,49 @@ libspeex = [
 	'libspeex/vq.c',
 	'libspeex/window.c' ]
 
-qcommon = [
+files['zlib'] = [
+	'zlib/adler32.c',
+	'zlib/compress.c',
+	'zlib/crc32.c',
+	'zlib/deflate.c',
+	'zlib/gzclose.c',
+	'zlib/gzlib.c',
+	'zlib/gzread.c',
+	'zlib/gzwrite.c',
+	'zlib/infback.c',
+	'zlib/inffast.c',
+	'zlib/inflate.c',
+	'zlib/inftrees.c',
+	'zlib/trees.c',
+	'zlib/uncompr.c',
+	'zlib/zutil.c' ]
+
+files['client'] = [
+	'asm/ftola.c',
+	'client/cl_avi.c',
+	'client/cl_bot.c',
+	'client/cl_cgame.c',
+	'client/cl_cin.c',
+	'client/cl_console.c',
+	'client/cl_curl.c',
+	'client/cl_input.c',
+	'client/cl_keys.c',
+	'client/cl_main.c',
+	'client/cl_net_chan.c',
+	'client/cl_parse.c',
+	'client/cl_scrn.c',
+	'client/cl_ui.c',
+	'client/qal.c',
+	'client/snd_adpcm.c',
+	'client/snd_codec.c',
+	'client/snd_codec_ogg.c',
+	'client/snd_codec_wav.c',
+	'client/snd_dma.c',
+	'client/snd_main.c',
+	'client/snd_mem.c',
+	'client/snd_mix.c',
+	'client/snd_openal.c',
+	'client/snd_wavelet.c',
 	'qcommon/cm_load.c',
 	'qcommon/cm_patch.c',
 	'qcommon/cm_polylib.c',
@@ -95,30 +179,9 @@ qcommon = [
 	'qcommon/puff.c',
 	'qcommon/q_math.c',
 	'qcommon/q_shared.c',
-	'qcommon/unzip.c' ]
-
-sdl = [
+	'qcommon/unzip.c',
 	'sdl/sdl_snd.c',
-	'sdl/sdl_input.c' ]
-
-sys = [
-	'sys/con_log.c',
-	'sys/con_passive.c',
-	'sys/sys_main.c' ]
-if plat == 'Linux':
-	sys.append( 'sys/sys_unix.c' )
-else:
-	sys.append( 'sys/sys_win32.c' )
-
-zlib = [
-	'zlib/adler32.c',
-	'zlib/crc32.c',
-	'zlib/inffast.c',
-	'zlib/inflate.c',
-	'zlib/inftrees.c',
-	'zlib/zutil.c' ]
-
-server = [
+	'sdl/sdl_input.c',
 	'server/sv_bot.c',
 	'server/sv_ccmds.c',
 	'server/sv_client.c',
@@ -128,17 +191,346 @@ server = [
 	'server/sv_net_chan.c',
 	'server/sv_rankings.c',
 	'server/sv_snapshot.c',
-	'server/sv_world.c' ]
-
-files = asm + client + libspeex + qcommon + sdl + sys + zlib + server
-
+	'server/sv_world.c',
+	'sys/con_log.c',
+	'sys/con_passive.c',
+	'sys/sys_main.c' ] + files['libspeex'] + files['zlib']
 if plat == 'Linux':
-	libs = [ 'SDL', 'm' ]
+	files['client'].append( 'sys/sys_unix.c' )
 else:
-	libs = [ 'dxguid', 'SDLmain', 'SDL', 'OpenGL32' ]
+	files['client'].append( 'sys/sys_win32.c' )
 
-env = Environment( CPPPATH=[ '.', 'SDL12/include', 'libcurl', 'AL', 'libspeex/include', 'zlib', 'jpeg-8c' ],
-			CPPDEFINES=[ 'BOTLIB', 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_OPENAL', 'USE_OPENAL_DLOPEN', 'USE_VOIP', 'USE_INTERNAL_JPEG', 'HAVE_CONFIG_H', 'USE_LOCAL_HEADERS' ] ,
-			LIBS=libs )
+files['server'] = [
+	'asm/ftola.c',
+	'null/null_client.c',
+	'null/null_input.c',
+	'null/null_snddma.c',
+	'qcommon/cm_load.c',
+	'qcommon/cm_patch.c',
+	'qcommon/cm_polylib.c',
+	'qcommon/cm_test.c',
+	'qcommon/cm_trace.c',
+	'qcommon/cmd.c',
+	'qcommon/common.c',
+	'qcommon/cvar.c',
+	'qcommon/files.c',
+	'qcommon/huffman.c',
+	'qcommon/ioapi.c',
+	'qcommon/md4.c',
+	'qcommon/md5.c',
+	'qcommon/msg.c',
+	'qcommon/net_chan.c',
+	'qcommon/net_ip.c',
+	'qcommon/puff.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'qcommon/unzip.c',
+	'server/sv_bot.c',
+	'server/sv_ccmds.c',
+	'server/sv_client.c',
+	'server/sv_game.c',
+	'server/sv_init.c',
+	'server/sv_main.c',
+	'server/sv_net_chan.c',
+	'server/sv_rankings.c',
+	'server/sv_snapshot.c',
+	'server/sv_world.c',
+	'sys/con_log.c',
+	'sys/sys_main.c' ] + files['zlib']
+if plat == 'Linux':
+	files['server'].append( [ 'sys/sys_unix.c', 'sys/con_tty.c' ] )
+else:
+	files['server'].append( [ 'sys/sys_win32.c', 'sys/con_win32.c' ] )
 
-env.Program( 'qtz.' + arch, files )
+files['botlib'] = [
+	'botlib/be_aas_bspq3.c',
+	'botlib/be_aas_cluster.c',
+	'botlib/be_aas_debug.c',
+	'botlib/be_aas_entity.c',
+	'botlib/be_aas_file.c',
+	'botlib/be_aas_main.c',
+	'botlib/be_aas_move.c',
+	'botlib/be_aas_optimize.c',
+	'botlib/be_aas_reach.c',
+	'botlib/be_aas_routealt.c',
+	'botlib/be_aas_route.c',
+	'botlib/be_aas_sample.c',
+	'botlib/be_ai_char.c',
+	'botlib/be_ai_chat.c',
+	'botlib/be_ai_gen.c',
+	'botlib/be_ai_goal.c',
+	'botlib/be_ai_move.c',
+	'botlib/be_ai_weap.c',
+	'botlib/be_ai_weight.c',
+	'botlib/be_ea.c',
+	'botlib/be_interface.c',
+	'botlib/l_crc.c',
+	'botlib/l_libvar.c',
+	'botlib/l_log.c',
+	'botlib/l_memory.c',
+	'botlib/l_precomp.c',
+	'botlib/l_script.c',
+	'botlib/l_struct.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c' ]
+
+files['rd-vanilla'] = [
+	'qcommon/puff.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'rd-vanilla/tr_animation.c',
+	'rd-vanilla/tr_backend.c',
+	'rd-vanilla/tr_bsp.c',
+	'rd-vanilla/tr_cmds.c',
+	'rd-vanilla/tr_curve.c',
+	'rd-vanilla/tr_flares.c',
+	'rd-vanilla/tr_font.c',
+	'rd-vanilla/tr_image.c',
+	'rd-vanilla/tr_image_bmp.c',
+	'rd-vanilla/tr_image_jpg.c',
+	'rd-vanilla/tr_image_pcx.c',
+	'rd-vanilla/tr_image_png.c',
+	'rd-vanilla/tr_image_tga.c',
+	'rd-vanilla/tr_init.c',
+	'rd-vanilla/tr_light.c',
+	'rd-vanilla/tr_main.c',
+	'rd-vanilla/tr_marks.c',
+	'rd-vanilla/tr_mesh.c',
+	'rd-vanilla/tr_model.c',
+	'rd-vanilla/tr_model_iqm.c',
+	'rd-vanilla/tr_noise.c',
+	'rd-vanilla/tr_scene.c',
+	'rd-vanilla/tr_shade.c',
+	'rd-vanilla/tr_shader.c',
+	'rd-vanilla/tr_shade_calc.c',
+	'rd-vanilla/tr_shadows.c',
+	'rd-vanilla/tr_sky.c',
+	'rd-vanilla/tr_subs.c',
+	'rd-vanilla/tr_surface.c',
+	'rd-vanilla/tr_world.c',
+	'sdl/sdl_gamma.c',
+	'sdl/sdl_glimp.c' ] + files['jpeg'] + files['libpng'] + files['zlib']
+
+files['rd-rust'] = [
+	'qcommon/puff.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'rd-rust/GLee.c',
+	'rd-rust/tr_animation.c',
+	'rd-rust/tr_backend.c',
+	'rd-rust/tr_bsp.c',
+	'rd-rust/tr_cmds.c',
+	'rd-rust/tr_curve.c',
+	'rd-rust/tr_ext_framebuffer.c',
+	'rd-rust/tr_ext_glsl_program.c',
+	'rd-rust/tr_flares.c',
+	'rd-rust/tr_font.c',
+	'rd-rust/tr_image.c',
+	'rd-rust/tr_image_bmp.c',
+	'rd-rust/tr_image_jpg.c',
+	'rd-rust/tr_image_pcx.c',
+	'rd-rust/tr_image_png.c',
+	'rd-rust/tr_image_tga.c',
+	'rd-rust/tr_init.c',
+	'rd-rust/tr_light.c',
+	'rd-rust/tr_main.c',
+	'rd-rust/tr_marks.c',
+	'rd-rust/tr_mesh.c',
+	'rd-rust/tr_model.c',
+	'rd-rust/tr_model_iqm.c',
+	'rd-rust/tr_noise.c',
+	'rd-rust/tr_postprocess.c',
+	'rd-rust/tr_scene.c',
+	'rd-rust/tr_shade.c',
+	'rd-rust/tr_shader.c',
+	'rd-rust/tr_shade_calc.c',
+	'rd-rust/tr_shadows.c',
+	'rd-rust/tr_sky.c',
+	'rd-rust/tr_subs.c',
+	'rd-rust/tr_surface.c',
+	'rd-rust/tr_world.c',
+	'sdl/sdl_gamma.c',
+	'sdl/sdl_glimp.c' ] + files['jpeg'] + files['libpng'] + files['zlib']
+
+files['game'] = [
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'game/ai_chat.c',
+	'game/ai_cmd.c',
+	'game/ai_dmnet.c',
+	'game/ai_dmq3.c',
+	'game/ai_main.c',
+	'game/ai_team.c',
+	'game/ai_vcmd.c',
+	'game/bg_misc.c',
+	'game/bg_pmove.c',
+	'game/bg_slidemove.c',
+	'game/bg_weapons.c',
+	'game/g_active.c',
+	'game/g_arenas.c',
+	'game/g_bot.c',
+	'game/g_client.c',
+	'game/g_cmds.c',
+	'game/g_combat.c',
+	'game/g_items.c',
+	'game/g_main.c',
+	'game/g_mem.c',
+	'game/g_misc.c',
+	'game/g_missile.c',
+	'game/g_mover.c',
+	'game/g_session.c',
+	'game/g_spawn.c',
+	'game/g_svcmds.c',
+	'game/g_target.c',
+	'game/g_team.c',
+	'game/g_trigger.c',
+	'game/g_unlagged.c',
+	'game/g_utils.c',
+	'game/g_weapon.c' ]
+
+files['cgame'] = [
+	'game/bg_misc.c',
+	'game/bg_pmove.c',
+	'game/bg_slidemove.c',
+	'game/bg_weapons.c',
+	'qcommon/linkedlist.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'ui/ui_shared.c',
+	'cgame/cg_chatbox.c',
+	'cgame/cg_consolecmds.c',
+	'cgame/cg_draw.c',
+	'cgame/cg_drawtools.c',
+	'cgame/cg_effects.c',
+	'cgame/cg_ents.c',
+	'cgame/cg_event.c',
+	'cgame/cg_info.c',
+	'cgame/cg_localents.c',
+	'cgame/cg_main.c',
+	'cgame/cg_marks.c',
+	'cgame/cg_newdraw.c',
+	'cgame/cg_particles.c',
+	'cgame/cg_players.c',
+	'cgame/cg_playerstate.c',
+	'cgame/cg_predict.c',
+	'cgame/cg_scoreboard.c',
+	'cgame/cg_servercmds.c',
+	'cgame/cg_snapshot.c',
+	'cgame/cg_teambinds.c',
+	'cgame/cg_view.c',
+	'cgame/cg_weapons.c',
+	'cgame/cg_weaponfx.c' ]
+
+files['ui'] = [
+	'game/bg_misc.c',
+	'game/bg_weapons.c',
+	'qcommon/q_math.c',
+	'qcommon/q_shared.c',
+	'ui/ui_atoms.c',
+	'ui/ui_gameinfo.c',
+	'ui/ui_main.c',
+	'ui/ui_players.c',
+	'ui/ui_shared.c' ]
+
+# set up libraries to link with
+if plat == 'Linux':
+    libs['client']      = [ 'SDL', 'm' ]
+    libs['server']      = [ 'm', 'dl' ]
+    libs['botlib']      = [ 'm' ]
+    libs['rd-vanilla']  = [ 'GL', 'freetype', 'm' ]
+    libs['rd-rust']     = [ 'GL', 'freetype', 'm' ]
+    libs['game']        = [ 'm' ]
+    libs['cgame']       = [ 'm' ]
+    libs['ui']          = [ 'm' ]
+else:
+    libs['client']      = [ 'dxguid', 'SDLmain', 'SDL', 'OpenGL32' ]
+    libs['server']      = [ 'ws2_32', 'wsock32', 'psapi' ]
+    libs['botlib']      = []
+    libs['rd-vanilla']  = []
+    libs['rd-rust']     = []
+    libs['game']        = []
+    libs['cgame']       = []
+    libs['ui']          = []
+
+# compiler options
+if plat == 'Linux':
+	ccflags = [ '-g3' ]
+else:
+	ccflags = []
+
+
+#################
+#    TARGETS    #
+#################
+
+# Client
+if int(ARGUMENTS.get( 'client', 0 )):
+	env = Environment( CPPPATH=[ '.', 'SDL12/include', 'AL', 'libcurl', 'libspeex/include', 'zlib' ],
+				CPPDEFINES=[ 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_OPENAL', 'USE_OPENAL_DLOPEN', 'USE_VOIP', 'USE_INTERNAL_JPEG', 'HAVE_CONFIG_H', 'USE_LOCAL_HEADERS' ],
+				LIBS=libs['client'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.Program( 'qtz'+'.'+arch, files['client'] )
+
+# Server
+if int(ARGUMENTS.get( 'server', 0 )):
+	env = Environment( CPPPATH=[ '.', 'AL', 'libcurl', 'libspeex/include', 'zlib' ],
+				CPPDEFINES=[ 'USE_ICON', 'USE_CURL', 'USE_CURL_DLOPEN', 'USE_VOIP', 'DEDICATED' ],
+				LIBS=libs['server'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.Program( 'qtzded'+'.'+arch, files['server'] )
+
+# Botlib
+if int(ARGUMENTS.get( 'botlib', 0 )):
+	env = Environment( CPPPATH=[ '.' ],
+				CPPDEFINES=[ 'BOTLIB' ],
+				LIBS=libs['botlib'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'botlib'+'_'+arch, files['botlib'] )
+
+# "Vanilla" renderer
+if int(ARGUMENTS.get( 'rd-vanilla', 0 )):
+	env = Environment( CPPPATH=[ '.', 'rd-vanilla', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ],
+				CPPDEFINES=[ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ],
+				LIBS=libs['rd-vanilla'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'rd-vanilla'+'_'+arch, files['rd-vanilla'] )
+
+# "Rust" renderer
+if int(ARGUMENTS.get( 'rd-rust', 0 )):
+	env = Environment( CPPPATH=[ '.', 'rd-rust', 'freetype', 'jpeg-8c', 'SDL12/include', 'zlib' ],
+				CPPDEFINES=[ 'BUILD_FREETYPE', 'USE_ICON', 'USE_INTERNAL_JPEG', 'USE_LOCAL_HEADERS' ],
+				LIBS=libs['rd-rust'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'rd-rust'+'_'+arch, files['rd-rust'] )
+
+# Game
+if int(ARGUMENTS.get( 'game', 0 )):
+	env = Environment( CPPPATH=[ '.' ],
+				CPPDEFINES=[ 'PROJECT_GAME' ],
+				LIBS=libs['game'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'game'+arch, files['game'] )
+
+# Client Game
+if int(ARGUMENTS.get( 'cgame', 0 )):
+	env = Environment( CPPPATH=[ '.' ],
+				CPPDEFINES=[ 'PROJECT_CGAME' ],
+				LIBS=libs['cgame'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'cgame'+arch, files['cgame'] )
+
+# UI
+if int(ARGUMENTS.get( 'ui', 0 )):
+	env = Environment( CPPPATH=[ '.' ],
+				CPPDEFINES=[ 'UI_EXPORTS', 'PROJECT_UI' ],
+				LIBS=libs['ui'],
+				LIBPREFIX='',
+				CCFLAGS=ccflags )
+	env.SharedLibrary( 'ui'+arch, files['ui'] )

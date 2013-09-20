@@ -1,4 +1,6 @@
 *.o
+*.os
+*.dblite
 *.lo
 *.la
 *.al

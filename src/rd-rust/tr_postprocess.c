@@ -247,7 +247,7 @@ static void CalculateLightAdaptation( void )
 
 	tau = (currentFrameLuminance.x * rods) + ((1.0f-currentFrameLuminance.x) * cones);
 
-	dt = max( time-lastFrameTime, 0.0f );
+	dt = MAX( time-lastFrameTime, 0.0f );
 
 	//adaptedFrameLuminance = adaptedFrameLuminance + (currentFrameLuminance[0] - adaptedFrameLuminance) * (1.0f - powf (0.98f, 30.0f * dt));
 	adaptedFrameLuminance	+= (currentFrameLuminance.y - adaptedFrameLuminance)	* (1.0f - expf(-dt * tau));

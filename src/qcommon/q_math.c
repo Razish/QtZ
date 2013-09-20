@@ -1259,7 +1259,7 @@ float Q_acos(float c) {
 // eg the typical tint = (rand() * 255) / 32768
 // becomes tint = irand(0, 255)
 
-static unsigned long	holdrand = 0x89abcdef;
+static uint32_t holdrand = 0x89abcdef;
 
 void Rand_Init(int seed)
 {
@@ -1274,7 +1274,7 @@ float flrand(float min, float max)
 
 	holdrand = (holdrand * 214013L) + 2531011L;
 	result = (float)(holdrand >> 17);						// 0 - 32767 range
-	result = ((result * (max - min)) / 32768.0F) + min;
+	result = ((result * (max - min)) / (float)QRAND_MAX) + min;
 
 	return(result);
 }
@@ -1289,7 +1289,7 @@ int irand(int min, int max)
 {
 	int		result;
 
-	assert((max - min) < 32768);
+	assert((max - min) < QRAND_MAX);
 
 	max++;
 	holdrand = (holdrand * 214013L) + 2531011L;

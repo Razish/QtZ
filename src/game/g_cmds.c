@@ -447,7 +447,7 @@ static qboolean G_VoteTimelimit( gentity_t *ent, int numArgs, const char *arg1, 
 
 static qboolean G_VoteWarmup( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
 	int n = Q_clampi( 0, atoi( arg2 ), 1 );
-	Com_sprintf( level.voteString, sizeof( level.voteString ), "g_doWarmup %i", arg1, n );
+	Com_sprintf( level.voteString, sizeof( level.voteString ), "g_doWarmup %i", n );
 	Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	return qtrue;
 }
@@ -1044,7 +1044,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 	trap->SV_GameSendServerCommand( other-g_entities, va( "%s %i \"%c%c%s\"", 
 		mode == SAY_TEAM ? "tchat" : "chat",
-		ent-g_entities, Q_COLOR_ESCAPE, color, message));
+		ent->s.number, Q_COLOR_ESCAPE, color, message));
 }
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {

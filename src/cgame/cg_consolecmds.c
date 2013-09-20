@@ -31,15 +31,12 @@ extern menuDef_t *menuScoreboard;
 
 void CG_TargetCommand_f( void ) {
 	int		targetNum;
-	char	test[4];
 
 	targetNum = CG_CrosshairPlayer();
-	if (!targetNum ) {
+	if ( !targetNum )
 		return;
-	}
 
-	trap->Cmd_Argv( 1, test, 4 );
-	trap->SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	trap->SendConsoleCommand( va( "gc %i %i", targetNum, atoi( trap->Cmd_Argv( 1 ) ) ) );
 }
 
 /*

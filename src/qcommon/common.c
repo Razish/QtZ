@@ -2480,7 +2480,11 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	int	qport;
 
-	Com_Printf( "%s %s %s\n", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
+#ifdef DEDICATED
+	Com_Printf( "%s (dedicated) running on %s compiled on %s\n", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
+#else
+	Com_Printf( "%s running on %s compiled on %s\n", QTZ_VERSION, PLATFORM_STRING, __DATE__ );
+#endif
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");

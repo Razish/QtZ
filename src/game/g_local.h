@@ -629,7 +629,7 @@ void FireWeapon( gentity_t *ent, int special );
 //
 void G_InitGame( int levelTime, int randomSeed, qboolean restart );
 void G_RunFrame( int levelTime );
-void G_ShutdownGame( int restart );
+void G_ShutdownGame( qboolean restart );
 void CheckExitRules( void );
 void MoveClientToIntermission( gentity_t *ent );
 void FindIntermissionPoint( void );

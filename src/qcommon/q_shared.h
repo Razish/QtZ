@@ -543,6 +543,8 @@ int		Q_rand( int *seed );
 float	Q_random( int *seed );
 float	Q_crandom( int *seed );
 
+#define QRAND_MAX (32768)
+
 void Rand_Init(int seed);
 float flrand(float min, float max);
 float Q_flrand(float min, float max);
