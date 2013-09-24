@@ -77,7 +77,7 @@ int ColorIndex( char c ) {
 	if ( c >= '0' && c <= '9' )
 		return (c-'0') & Q_COLOR_BITS;
 	else if ( lowc >= 'a' && lowc <= 'e' )
-		return (c-'a'+'9') & Q_COLOR_BITS;
+		return (lowc-'a'+'9') & Q_COLOR_BITS;
 
 	return ColorIndex( COLOR_WHITE );
 }
