@@ -112,33 +112,28 @@ void S_Base_SoundInfo( void ) {
 
 
 #ifdef USE_VOIP
-static
-void S_Base_StartCapture( void )
+static void S_Base_StartCapture( void )
 {
 	// !!! FIXME: write me.
 }
 
-static
-int S_Base_AvailableCaptureSamples( void )
+static int S_Base_AvailableCaptureSamples( void )
 {
 	// !!! FIXME: write me.
 	return 0;
 }
 
-static
-void S_Base_Capture( int samples, byte *data )
+static void S_Base_Capture( int samples, byte *data )
 {
 	// !!! FIXME: write me.
 }
 
-static
-void S_Base_StopCapture( void )
+static void S_Base_StopCapture( void )
 {
 	// !!! FIXME: write me.
 }
 
-static
-void S_Base_MasterGain( float val )
+static void S_Base_MasterGain( float val )
 {
 	// !!! FIXME: write me.
 }

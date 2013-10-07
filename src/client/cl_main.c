@@ -160,8 +160,7 @@ void CL_ServerStatus_f( void );
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
 #ifdef USE_MUMBLE
-static
-void CL_UpdateMumble( void )
+static void CL_UpdateMumble( void )
 {
 	vector3 pos, forward, up;
 	float scale = cl_mumbleScale->value;
@@ -198,8 +197,7 @@ void CL_UpdateMumble( void )
 
 
 #ifdef USE_VOIP
-static
-void CL_UpdateVoipIgnore(const char *idstr, qboolean ignore)
+static void CL_UpdateVoipIgnore(const char *idstr, qboolean ignore)
 {
 	if ((*idstr >= '0') && (*idstr <= '9')) {
 		const int id = atoi(idstr);
@@ -215,8 +213,7 @@ void CL_UpdateVoipIgnore(const char *idstr, qboolean ignore)
 	Com_Printf("VoIP: invalid player ID#\n");
 }
 
-static
-void CL_UpdateVoipGain(const char *idstr, float gain)
+static void CL_UpdateVoipGain(const char *idstr, float gain)
 {
 	if ((*idstr >= '0') && (*idstr <= '9')) {
 		const int id = atoi(idstr);
@@ -280,8 +277,7 @@ void CL_Voip_f( void )
 }
 
 
-static
-void CL_VoipNewGeneration( void )
+static void CL_VoipNewGeneration( void )
 {
 	// don't have a zero generation so new clients won't match, and don't
 	//  wrap to negative so MSG_ReadLong() doesn't "fail."

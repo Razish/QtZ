@@ -1141,8 +1141,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 
 #ifdef USE_VOIP
-static
-void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
+static void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
 {
 	if ((*idstr >= '0') && (*idstr <= '9')) {
 		const int id = atoi(idstr);
@@ -1390,8 +1389,7 @@ static qboolean SV_ShouldIgnoreVoipSender(const client_t *cl)
 	return qfalse;  // don't ignore.
 }
 
-static
-void SV_UserVoip(client_t *cl, msg_t *msg)
+static void SV_UserVoip(client_t *cl, msg_t *msg)
 {
 	int sender, generation, sequence, frames, packetsize;
 	uint8_t recips[(MAX_CLIENTS + 7) / 8];

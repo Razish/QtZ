@@ -318,8 +318,7 @@ static void kf_bfly_generic(
     }
 }
                
-static
-void kf_shuffle(
+static void kf_shuffle(
          kiss_fft_cpx * Fout,
          const kiss_fft_cpx * f,
          const size_t fstride,
@@ -351,8 +350,7 @@ void kf_shuffle(
    }
 }
 
-static
-void kf_work(
+static void kf_work(
         kiss_fft_cpx * Fout,
         const kiss_fft_cpx * f,
         const size_t fstride,

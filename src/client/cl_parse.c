@@ -588,8 +588,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 }
 
 #ifdef USE_VOIP
-static
-qboolean CL_ShouldIgnoreVoipSender( int sender ) {
+static qboolean CL_ShouldIgnoreVoipSender( int sender ) {
 
 	// VoIP is disabled.
 	if ( !cl_voip->integer )
