@@ -984,7 +984,7 @@ int GametypeIDForString( const char *gametype );
 
 // bit field limits
 #define	MAX_STATS				16
-#define	MAX_PERSISTANT			16
+#define	MAX_PERSISTENT			16
 #define	MAX_POWERUPS			16
 #define	MAX_WEAPONS				16		
 
@@ -1051,7 +1051,7 @@ typedef struct playerState_s {
 	int			damageCount;
 
 	int			stats[MAX_STATS];
-	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+	int			persistent[MAX_PERSISTENT];	// stats that aren't cleared on death
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 

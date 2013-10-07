@@ -214,7 +214,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 // If the client being followed leaves the game, or you just want to drop to free floating spectator mode
 void StopFollowing( gentity_t *ent ) {
-	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
+	ent->client->ps.persistent[ PERS_TEAM ] = TEAM_SPECTATOR;	
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;	
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -639,7 +639,7 @@ static void Cmd_Drop_f( gentity_t *ent ) {
 
 	if ( !Q_stricmp( arg, "flag" ) )
 	{
-		powerup_t powerup = (ent->client->ps.persistant[PERS_TEAM]==TEAM_RED) ? PW_BLUEFLAG : PW_REDFLAG;
+		powerup_t powerup = (ent->client->ps.persistent[PERS_TEAM]==TEAM_RED) ? PW_BLUEFLAG : PW_REDFLAG;
 
 		if ( !g_allowFlagDrop->integer ) {
 			trap->SV_GameSendServerCommand( ent-g_entities, "print \"^3Not allowed to drop the flag\n\"" );

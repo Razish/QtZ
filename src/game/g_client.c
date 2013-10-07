@@ -719,7 +719,7 @@ void ClientBegin( int clientNum ) {
 }
 
 // Called every time a client is placed fresh in the world: after the first ClientBegin, and after each respawn
-//	Initializes all non-persistant parts of playerState
+//	Initializes all non-persistent parts of playerState
 void ClientSpawn(gentity_t *ent) {
 	int		index;
 	vector3	spawn_origin, spawn_angles;
@@ -727,7 +727,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int		persistant[MAX_PERSISTANT];
+	int		persistent[MAX_PERSISTENT];
 	gentity_t	*spawnPoint;
 	gentity_t *tent;
 	int		flags, gameFlags;
@@ -781,7 +781,7 @@ void ClientSpawn(gentity_t *ent) {
 	flags ^= EF_TELEPORT_BIT;
 	gameFlags = ent->client->gameFlags & ( GF_VOTED );
 
-	// clear everything but the persistant data
+	// clear everything but the persistent data
 
 	saved = client->pers;
 	savedSess = client->sess;
@@ -789,8 +789,8 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
-	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
-		persistant[i] = client->ps.persistant[i];
+	for ( i = 0 ; i < MAX_PERSISTENT ; i++ ) {
+		persistent[i] = client->ps.persistent[i];
 	}
 	eventSequence = client->ps.eventSequence;
 
@@ -804,13 +804,13 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
 
-	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
-		client->ps.persistant[i] = persistant[i];
+	for ( i = 0 ; i < MAX_PERSISTENT ; i++ ) {
+		client->ps.persistent[i] = persistent[i];
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
-	client->ps.persistant[PERS_SPAWN_COUNT]++;
-	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+	client->ps.persistent[PERS_SPAWN_COUNT]++;
+	client->ps.persistent[PERS_TEAM] = client->sess.sessionTeam;
 
 	client->airOutTime = level.time + 12000;
 
@@ -1012,7 +1012,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+	ent->client->ps.persistent[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->r.contents = 0;
 

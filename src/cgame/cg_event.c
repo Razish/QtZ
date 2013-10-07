@@ -453,7 +453,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 			// will be played at prediction time
 			if ( item->giType == IT_POWERUP || item->giType == IT_TEAM) {
 				trap->S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.n_healthSound );
-			} else if (item->giType == IT_PERSISTANT_POWERUP) {
+			} else if (item->giType == IT_PERSISTENT_POWERUP) {
 				switch (item->giTag ) {
 					case PW_GUARD:
 						trap->S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.guardSound );
@@ -672,19 +672,19 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 			DEBUGNAME("EV_GLOBAL_TEAM_SOUND");
 			switch( es->eventParm ) {
 				case GTS_RED_CAPTURE: // CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
-					if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED )
+					if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED )
 						CG_AddBufferedSound( cgs.media.captureYourTeamSound );
 					else
 						CG_AddBufferedSound( cgs.media.captureOpponentSound );
 					break;
 				case GTS_BLUE_CAPTURE: // CTF: blue team captured the red flag, 1FCTF: blue team captured the neutral flag
-					if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE )
+					if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE )
 						CG_AddBufferedSound( cgs.media.captureYourTeamSound );
 					else
 						CG_AddBufferedSound( cgs.media.captureOpponentSound );
 					break;
 				case GTS_RED_RETURN: // CTF: blue flag returned, 1FCTF: never used
-					if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED )
+					if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED )
 						CG_AddBufferedSound( cgs.media.returnYourTeamSound );
 					else
 						CG_AddBufferedSound( cgs.media.returnOpponentSound );
@@ -692,7 +692,7 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 					CG_AddBufferedSound( cgs.media.blueFlagReturnedSound );
 					break;
 				case GTS_BLUE_RETURN: // CTF red flag returned, 1FCTF: neutral flag returned
-					if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE )
+					if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE )
 						CG_AddBufferedSound( cgs.media.returnYourTeamSound );
 					else
 						CG_AddBufferedSound( cgs.media.returnOpponentSound );
@@ -705,13 +705,13 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 					if (cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
 					}
 					else {
-						if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+						if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE) {
 							if (cgs.gametype == GT_TROJAN) 
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
-						else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+						else if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED) {
 							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 							else
@@ -724,13 +724,13 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 					if (cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
 					}
 					else {
-						if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+						if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED) {
 							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
-						else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+						else if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE) {
 							if (cgs.gametype == GT_TROJAN)
 								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 							else

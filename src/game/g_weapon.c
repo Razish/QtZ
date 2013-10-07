@@ -361,11 +361,11 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 	// reward sound for headshots, airshots, amazing
 	//	done after all traces so it will only trigger once per frame
 	if ( headshot )
-		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HEADSHOT;
+		ent->client->ps.persistent[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HEADSHOT;
 	if ( airshot )
-		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AIRSHOT;
+		ent->client->ps.persistent[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AIRSHOT;
 	if ( amazing )
-		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AMAZING;
+		ent->client->ps.persistent[PERS_PLAYEREVENTS] ^= PLAYEREVENT_AMAZING;
 
 	if ( g_delagHitscan->integer && ent->client && !(ent->r.svFlags & SVF_BOT) )
 		G_UnTimeShiftAllClients( ent );

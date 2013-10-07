@@ -89,7 +89,7 @@ int BotIsFirstInRankings(bot_state_t *bs) {
 	if (!maxclients)
 		maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 
-	score = bs->cur_ps.persistant[PERS_SCORE];
+	score = bs->cur_ps.persistent[PERS_SCORE];
 	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		trap->SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
 		//if no config string or no name
@@ -98,7 +98,7 @@ int BotIsFirstInRankings(bot_state_t *bs) {
 		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
 		//
 		BotAI_GetClientState(i, &ps);
-		if (score < ps.persistant[PERS_SCORE]) return qfalse;
+		if (score < ps.persistent[PERS_SCORE]) return qfalse;
 	}
 	return qtrue;
 }
@@ -112,7 +112,7 @@ int BotIsLastInRankings(bot_state_t *bs) {
 	if (!maxclients)
 		maxclients = trap->Cvar_VariableIntegerValue("sv_maxclients");
 
-	score = bs->cur_ps.persistant[PERS_SCORE];
+	score = bs->cur_ps.persistent[PERS_SCORE];
 	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		trap->SV_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
 		//if no config string or no name
@@ -121,7 +121,7 @@ int BotIsLastInRankings(bot_state_t *bs) {
 		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
 		//
 		BotAI_GetClientState(i, &ps);
-		if (score > ps.persistant[PERS_SCORE]) return qfalse;
+		if (score > ps.persistent[PERS_SCORE]) return qfalse;
 	}
 	return qtrue;
 }
@@ -146,8 +146,8 @@ char *BotFirstClientInRankings( void ) {
 		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
 		//
 		BotAI_GetClientState(i, &ps);
-		if (ps.persistant[PERS_SCORE] > bestscore) {
-			bestscore = ps.persistant[PERS_SCORE];
+		if (ps.persistent[PERS_SCORE] > bestscore) {
+			bestscore = ps.persistent[PERS_SCORE];
 			bestclient = i;
 		}
 	}
@@ -175,8 +175,8 @@ char *BotLastClientInRankings( void ) {
 		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
 		//
 		BotAI_GetClientState(i, &ps);
-		if (ps.persistant[PERS_SCORE] < worstscore) {
-			worstscore = ps.persistant[PERS_SCORE];
+		if (ps.persistent[PERS_SCORE] < worstscore) {
+			worstscore = ps.persistent[PERS_SCORE];
 			bestclient = i;
 		}
 	}

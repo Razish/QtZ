@@ -408,7 +408,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	if (cgFov > 180)
 		cgFov = 180;
 
-	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( ps->persistent[PERS_TEAM] == TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -474,7 +474,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
 
 	// add everything onto the hand
-	CG_AddPlayerWeapon( &hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM] );
+	CG_AddPlayerWeapon( &hand, ps, &cg.predictedPlayerEntity, ps->persistent[PERS_TEAM] );
 }
 
 /*

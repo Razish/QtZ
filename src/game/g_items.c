@@ -99,14 +99,14 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		}
 
 		// anti-reward
-		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+		client->ps.persistent[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
 	}
 	return g_powerupRespawnTime->integer;
 }
 
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
-	other->client->ps.stats[STAT_PERSISTANT_POWERUP] = ent->item-bg_itemlist;
-	other->client->persistantPowerup = ent;
+	other->client->ps.stats[STAT_PERSISTENT_POWERUP] = ent->item-bg_itemlist;
+	other->client->persistentPowerup = ent;
 
 	switch( ent->item->giTag ) {
 	case PW_GUARD:
@@ -269,7 +269,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Powerup(ent, other);
 		predict = qfalse;
 		break;
-	case IT_PERSISTANT_POWERUP:
+	case IT_PERSISTENT_POWERUP:
 		respawn = Pickup_PersistantPowerup(ent, other);
 		break;
 	case IT_TEAM:
@@ -592,7 +592,7 @@ void G_SpawnItem (gentity_t *ent, const gitem_t *item) {
 		G_SpawnFloat( "noglobalsound", "0", &ent->speed);
 	}
 
-	if ( item->giType == IT_PERSISTANT_POWERUP ) {
+	if ( item->giType == IT_PERSISTENT_POWERUP ) {
 		ent->s.generic1 = ent->spawnflags;
 	}
 }

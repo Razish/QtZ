@@ -769,23 +769,23 @@ static void G_SendScoreboardUpdate( gentity_t *ent ) {
 
 		ping		= (cl->pers.connected == CON_CONNECTING) ? -1 : Q_capi( cl->ps.ping, 999 );
 		accuracy	= (cl->accuracy_shots) ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
-		perfect		= (cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0);
+		perfect		= (cl->ps.persistent[PERS_RANK] == 0 && cl->ps.persistent[PERS_KILLED] == 0);
 
 		Com_sprintf( entry, sizeof( entry ),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i",
 			level.sortedClients[i],
-			cl->ps.persistant[PERS_SCORE],
+			cl->ps.persistent[PERS_SCORE],
 			ping,
 			cl->pers.enterTime,
 			scoreFlags,
 			g_entities[level.sortedClients[i]].s.powerups,
 			accuracy,
-			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_DEFEND_COUNT],
-			cl->ps.persistant[PERS_ASSIST_COUNT],
+			cl->ps.persistent[PERS_IMPRESSIVE_COUNT],
+			cl->ps.persistent[PERS_EXCELLENT_COUNT],
+			cl->ps.persistent[PERS_DEFEND_COUNT],
+			cl->ps.persistent[PERS_ASSIST_COUNT],
 			perfect,
-			cl->ps.persistant[PERS_CAPTURES] );
+			cl->ps.persistent[PERS_CAPTURES] );
 
 		j = strlen( entry );
 		if ( stringlength + j >= sizeof(string))
@@ -833,7 +833,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 
 	// set powerup for player animation
-	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
+	if( bg_itemlist[ent->client->ps.stats[STAT_PERSISTENT_POWERUP]].giTag == PW_GUARD ) {
 		ent->client->ps.powerups[PW_GUARD] = level.time;
 	}
 

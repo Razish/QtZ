@@ -183,7 +183,7 @@ void Pmove (pmove_t *pmove);
 typedef enum statIndex_e {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
-	STAT_PERSISTANT_POWERUP,
+	STAT_PERSISTENT_POWERUP,
 	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
@@ -191,7 +191,7 @@ typedef enum statIndex_e {
 } statIndex_t;
 
 
-// playerState->persistant[] indexes
+// playerState->persistent[] indexes
 // these fields are the only part of playerState that isn't
 // cleared on respawn
 // NOTE: may not have more than 16
@@ -259,7 +259,7 @@ typedef enum holdable_e {
 	HI_NUM_HOLDABLE
 } holdable_t;
 
-// reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
+// reward sounds (stored in ps->persistent[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD	0x0001
 #define	PLAYEREVENT_HOLYSHIT		0x0002
 #define PLAYEREVENT_AIRSHOT			0x0004
@@ -530,7 +530,7 @@ typedef enum itemType_e {
 							// EFX: rotate + external ring that rotates
 	IT_HOLDABLE,			// single use, holdable item
 							// EFX: rotate + bob
-	IT_PERSISTANT_POWERUP,
+	IT_PERSISTENT_POWERUP,
 	IT_TEAM
 } itemType_t;
 

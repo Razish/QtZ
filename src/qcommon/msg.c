@@ -1148,7 +1148,7 @@ netField_t	playerStateFields[] =
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to ) {
 	int				i;
 	playerState_t	dummy;
-	int				statsbits=0, persistantbits=0, ammobits=0, powerupbits=0, cooldownbits=0;
+	int				statsbits=0, persistentbits=0, ammobits=0, powerupbits=0, cooldownbits=0;
 	int				numFields;
 	netField_t		*field;
 	int				*fromF, *toF;
@@ -1218,10 +1218,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			statsbits |= 1<<i;
 		}
 	}
-	persistantbits = 0;
-	for (i=0 ; i<MAX_PERSISTANT ; i++) {
-		if (to->persistant[i] != from->persistant[i]) {
-			persistantbits |= 1<<i;
+	persistentbits = 0;
+	for (i=0 ; i<MAX_PERSISTENT ; i++) {
+		if (to->persistent[i] != from->persistent[i]) {
+			persistentbits |= 1<<i;
 		}
 	}
 	ammobits = 0;
@@ -1243,7 +1243,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			cooldownbits |= 1<<i;
 	}
 
-	if ( !statsbits && !persistantbits && !ammobits && !powerupbits && !cooldownbits ) {
+	if ( !statsbits && !persistentbits && !ammobits && !powerupbits && !cooldownbits ) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 		oldsize += 4;
 		return;
@@ -1261,12 +1261,12 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		MSG_WriteBits( msg, 0, 1 );	// no change
 
 
-	if ( persistantbits ) {
+	if ( persistentbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, persistantbits, MAX_PERSISTANT );
-		for (i=0 ; i<MAX_PERSISTANT ; i++)
-			if (persistantbits & (1<<i) )
-				MSG_WriteShort (msg, to->persistant[i]);
+		MSG_WriteBits( msg, persistentbits, MAX_PERSISTENT );
+		for (i=0 ; i<MAX_PERSISTENT ; i++)
+			if (persistentbits & (1<<i) )
+				MSG_WriteShort (msg, to->persistent[i]);
 	}
 	else
 		MSG_WriteBits( msg, 0, 1 );	// no change
@@ -1399,13 +1399,13 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			}
 		}
 
-		// parse persistant stats
+		// parse persistent stats
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_PERSISTANT");
-			bits = MSG_ReadBits (msg, MAX_PERSISTANT);
-			for (i=0 ; i<MAX_PERSISTANT ; i++) {
+			LOG("PS_PERSISTENT");
+			bits = MSG_ReadBits (msg, MAX_PERSISTENT);
+			for (i=0 ; i<MAX_PERSISTENT ; i++) {
 				if (bits & (1<<i) ) {
-					to->persistant[i] = MSG_ReadShort(msg);
+					to->persistent[i] = MSG_ReadShort(msg);
 				}
 			}
 		}

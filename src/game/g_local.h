@@ -247,7 +247,7 @@ typedef struct clientSession_s {
 // on each level change or team change at ClientBegin()
 typedef struct clientPersistant_s {
 	clientConnected_t	connected;	
-	usercmd_t			cmd;					// we would lose angles if not persistant
+	usercmd_t			cmd;					// we would lose angles if not persistent
 	qboolean			localClient;			// true if "ip" info key is "localhost"
 	qboolean			initialSpawn;			// the first spawn should be at a cool location
 	qboolean			predictItemPickup;		// based on cg_predictItems userinfo
@@ -319,7 +319,7 @@ struct gclient_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 
-	gentity_t	*persistantPowerup;
+	gentity_t	*persistentPowerup;
 
 	char		*areabits;
 

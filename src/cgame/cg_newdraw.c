@@ -180,7 +180,7 @@ static void CG_DrawPlayerLocation( rectDef_t *rect, float scale, vector4 *color,
 
 static void CG_DrawPlayerScore( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
 	char num[16];
-	int value = cg.snap->ps.persistant[PERS_SCORE];
+	int value = cg.snap->ps.persistent[PERS_SCORE];
 
 	if (shader) {
 		trap->R_SetColor( color );
@@ -392,7 +392,7 @@ static void CG_DrawFlagsPowerUp(rectDef_t *rect) {
 	if (cgs.gametype < GT_FLAGS) {
 		return;
 	}
-	value = cg.snap->ps.stats[STAT_PERSISTANT_POWERUP];
+	value = cg.snap->ps.stats[STAT_PERSISTENT_POWERUP];
 	if ( value ) {
 		CG_RegisterItemVisuals( value );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg_items[ value ].icon );
@@ -402,7 +402,7 @@ static void CG_DrawFlagsPowerUp(rectDef_t *rect) {
 
 
 static void CG_DrawTeamColor(rectDef_t *rect, vector4 *color) {
-	CG_DrawTeamBackground( (int)rect->x, (int)rect->y, (int)rect->w, (int)rect->h, color->a, cg.snap->ps.persistant[PERS_TEAM] );
+	CG_DrawTeamBackground( (int)rect->x, (int)rect->y, (int)rect->w, (int)rect->h, color->a, cg.snap->ps.persistent[PERS_TEAM] );
 }
 
 static void CG_DrawAreaPowerUp(rectDef_t *rect, int align, float special, float scale, vector4 *color) {
@@ -501,7 +501,7 @@ float CG_GetValue(int ownerDraw) {
 		}
 		break;
 	case CG_PLAYER_SCORE:
-		return (float)cg.snap->ps.persistant[PERS_SCORE];
+		return (float)cg.snap->ps.persistent[PERS_SCORE];
 		break;
 	case CG_PLAYER_HEALTH:
 		return (float)ps->stats[STAT_HEALTH];
@@ -520,7 +520,7 @@ float CG_GetValue(int ownerDraw) {
 
 qboolean CG_OtherTeamHasFlag( void ) {
 	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
-		int team = cg.snap->ps.persistant[PERS_TEAM];
+		int team = cg.snap->ps.persistent[PERS_TEAM];
 		if (cgs.gametype == GT_TROJAN) {
 			if (team == TEAM_RED && cgs.flagStatus == FLAG_TAKEN_BLUE) {
 				return qtrue;
@@ -544,7 +544,7 @@ qboolean CG_OtherTeamHasFlag( void ) {
 
 qboolean CG_YourTeamHasFlag( void ) {
 	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
-		int team = cg.snap->ps.persistant[PERS_TEAM];
+		int team = cg.snap->ps.persistent[PERS_TEAM];
 		if (cgs.gametype == GT_TROJAN) {
 			if (team == TEAM_RED && cgs.flagStatus == FLAG_TAKEN_RED) {
 				return qtrue;
@@ -702,9 +702,9 @@ static void CG_Draw2ndPlace(rectDef_t *rect, float scale, vector4 *color, qhandl
 const char *CG_GetGameStatusText( void ) {
 	const char *s = "";
 	if ( cgs.gametype < GT_TEAMBLOOD) {
-		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+		if (cg.snap->ps.persistent[PERS_TEAM] != TEAM_SPECTATOR ) {
 			//QTZTODO: CG_PlaceString
-		//	s = va("%s place with %i", CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), cg.snap->ps.persistant[PERS_SCORE] );
+		//	s = va("%s place with %i", CG_PlaceString( cg.snap->ps.persistent[PERS_RANK] + 1 ), cg.snap->ps.persistent[PERS_SCORE] );
 		}
 	} else {
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
@@ -800,7 +800,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == cg.snap->ps.persistent[PERS_TEAM]) {
 			len = CG_Text_Width( ci->name, scale, 0);
 			if (len > pwidth)
 				pwidth = (float)len;
@@ -822,7 +822,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == cg.snap->ps.persistent[PERS_TEAM]) {
 
 			xx = (int)rect->x + 1;
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
@@ -1393,9 +1393,9 @@ qboolean CG_DeferMenuScript (char **args) {
 }
 
 void CG_GetTeamColor(vector4 *color) {
-		 if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+		 if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED)
 		VectorSet4( color, 1.0, 0.0, 0.0, 0.25f );
-	else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	else if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE)
 		VectorSet4( color, 0.0, 0.0, 1.0, 0.25f );
 	else
 		VectorSet4( color, 0.0, 0.17f, 0.0, 0.25f );

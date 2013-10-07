@@ -553,9 +553,9 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "m" );
-	if ( newInfo.team != cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel->string, "none" ) )
+	if ( newInfo.team != cg.predictedPlayerState.persistent[PERS_TEAM] && Q_stricmp( cg_forceEnemyModel->string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceEnemyModel->string, sizeof( newInfo.modelName ) );
-	else if ( newInfo.team == cg.predictedPlayerState.persistant[PERS_TEAM] && Q_stricmp( cg_forceAllyModel->string, "none" ) )
+	else if ( newInfo.team == cg.predictedPlayerState.persistent[PERS_TEAM] && Q_stricmp( cg_forceAllyModel->string, "none" ) )
 		Q_strncpyz( newInfo.modelName, cg_forceAllyModel->string, sizeof( newInfo.modelName ) );
 	else
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
@@ -1287,7 +1287,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 
 	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
 	if ( !(cent->currentState.eFlags & EF_DEAD) && 
-		cg.snap->ps.persistant[PERS_TEAM] == team &&
+		cg.snap->ps.persistent[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAMBLOOD) {
 		CG_PlayerFloatSprite( cent, cgs.media.friendShader );
 		return;
@@ -1427,7 +1427,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 	clientInfo_t *ci = &cgs.clientinfo[state->clientNum];
 	ivector3 *color = NULL;
 
-	if ( (cgs.gametype < GT_TEAMBLOOD && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAMBLOOD && ci->team != cg.predictedPlayerState.persistant[PERS_TEAM]) )
+	if ( (cgs.gametype < GT_TEAMBLOOD && state->number!=cg.snap->ps.clientNum) || (cgs.gametype >= GT_TEAMBLOOD && ci->team != cg.predictedPlayerState.persistent[PERS_TEAM]) )
 		color = &cg.forceModel.enemyColor;
 	else
 		color = &cg.forceModel.allyColor;

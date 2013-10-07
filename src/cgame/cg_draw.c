@@ -700,7 +700,7 @@ static void CG_DrawCrosshair( void )
 	vector4	finalColour = { 1.0 };
 
 	if ( !cg_drawCrosshair->integer
-		|| cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
+		|| cg.snap->ps.persistent[PERS_TEAM] == TEAM_SPECTATOR
 		|| (cg.zoomed && cg_crosshairDisableZoomed->boolean) )//zoom mask?
 		return;
 
@@ -794,7 +794,7 @@ static void CG_DrawCrosshair3D( void )
 		return;
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+	if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_SPECTATOR) {
 		return;
 	}
 
@@ -1082,7 +1082,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		return;
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_SPECTATOR ) {
 		CG_DrawSpectator();
 
 		if ( stereoFrame == STEREO_CENTER )
@@ -1137,7 +1137,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	}
 
 	// optionally draw the tournament scoreboard instead
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && (cg.snap->ps.pm_flags & PMF_SCOREBOARD) ) {
+	if ( cg.snap->ps.persistent[PERS_TEAM] == TEAM_SPECTATOR && (cg.snap->ps.pm_flags & PMF_SCOREBOARD) ) {
 	//	CG_DrawTourneyScoreboard();
 		return;
 	}

@@ -1065,7 +1065,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
 	bs->inventory[INVENTORY_QUAD] = bs->cur_ps.powerups[PW_QUAD] != 0;
 	bs->inventory[INVENTORY_REGEN] = bs->cur_ps.powerups[PW_REGEN] != 0;
-	bs->inventory[INVENTORY_GUARD] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_GUARD;
+	bs->inventory[INVENTORY_GUARD] = bs->cur_ps.stats[STAT_PERSISTENT_POWERUP] == MODELINDEX_GUARD;
 	bs->inventory[INVENTORY_REDFLAG] = bs->cur_ps.powerups[PW_REDFLAG] != 0;
 	bs->inventory[INVENTORY_BLUEFLAG] = bs->cur_ps.powerups[PW_BLUEFLAG] != 0;
 	bs->inventory[INVENTORY_NEUTRALFLAG] = bs->cur_ps.powerups[PW_NEUTRALFLAG] != 0;
@@ -1308,7 +1308,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 }
 
 int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
-	// if the bot does not have a persistant powerup
+	// if the bot does not have a persistent powerup
 	if ( !bs->inventory[INVENTORY_GUARD] )
 		return qfalse;
 
@@ -3618,7 +3618,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 		trap->ai->BotSetChatName(bs->cs, name, bs->client);
 		//
 		bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
-		bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
+		bs->lasthitcount = bs->cur_ps.persistent[PERS_HITS];
 		//
 		bs->setupcount = 0;
 		//
@@ -3670,7 +3670,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	}
 	//
 	bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
-	bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
+	bs->lasthitcount = bs->cur_ps.persistent[PERS_HITS];
 }
 
 void BotSetEntityNumForGoalWithModel(bot_goal_t *goal, int eType, char *modelname) {

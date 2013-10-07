@@ -57,7 +57,7 @@ const gitem_t bg_itemlist[] = {
 	{	"item_armor_small",			"sound/item_pickup.wav",		{ "models/powerups/armor/small.md3",	NULL },									"icons/armor_small",			"25 Armor",				25,			30,			IT_ARMOR,				0,						"",			"" },
 	{	"item_health_large",		"sound/item_pickup.wav",		{ "models/powerups/health/large.md3",	NULL },									"icons/health_large",			"50 Health",			50,			35,			IT_HEALTH,				0,						"",			"" },
 	{	"item_health_medium",		"sound/item_pickup.wav",		{ "models/powerups/health/medium.md3",	NULL },									"icons/health_medium",			"25 Health",			25,			35,			IT_HEALTH,				0,						"",			"" },
-	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			0,			IT_PERSISTANT_POWERUP,	PW_GUARD,				"",			"" },
+	{	"powerup_guard",			"sound/powerups/guard.wav",		{ "models/powerups/guard.md3",			NULL },									"icons/powerup_guard",			"Guard",				30,			0,			IT_PERSISTENT_POWERUP,	PW_GUARD,				"",			"" },
 	{	"powerup_quad",				"sound/powerups/quad.wav",		{ "models/powerups/quad.md3",			"models/powerups/quad_ring.md3" },		"icons/powerup_quad",			"Quad Damage",			30,			0,			IT_POWERUP,				PW_QUAD,				"",			"sound/items/damage2.wav sound/items/damage3.wav" },
 	{	"powerup_regen",			"sound/powerups/regen.wav",		{ "models/powerups/regen.md3",			"models/powerups/regen_ring.md3" },		"icons/powerup_regen",			"Regeneration",			30,			0,			IT_POWERUP,				PW_REGEN,				"",			"sound/items/regen.wav" },
 	{	"team_blueflag",			NULL,							{ "models/flags/blue.md3",				NULL },									"icons/team_blueflag",			"Blue Flag",			0,			0,			IT_TEAM,				PW_BLUEFLAG,			"",			"" },
@@ -77,7 +77,7 @@ const gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
 	int i;
 
 	for ( it=bg_itemlist, i=0; i<bg_numItems; it++, i++ ) {
-		if ( (it->giType == IT_POWERUP || it->giType == IT_TEAM || it->giType == IT_PERSISTANT_POWERUP) &&  it->giTag == pw )
+		if ( (it->giType == IT_POWERUP || it->giType == IT_TEAM || it->giType == IT_PERSISTENT_POWERUP) &&  it->giTag == pw )
 			return it;
 	}
 
@@ -176,13 +176,13 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	case IT_POWERUP:
 		return qtrue;	// powerups are always picked up
 
-	case IT_PERSISTANT_POWERUP:
+	case IT_PERSISTENT_POWERUP:
 		// can only hold one item at a time
-		if ( ps->stats[STAT_PERSISTANT_POWERUP] )
+		if ( ps->stats[STAT_PERSISTENT_POWERUP] )
 			return qfalse;
 
 		// check team only
-		if ( !(ent->generic1 & (1<<ps->persistant[PERS_TEAM])) )
+		if ( !(ent->generic1 & (1<<ps->persistent[PERS_TEAM])) )
 			return qfalse;
 
 		return qtrue;
@@ -194,20 +194,20 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				return qtrue;
 
 			if ( ps->powerups[PW_NEUTRALFLAG] &&
-				((ps->persistant[PERS_TEAM] == TEAM_RED && item->giTag == PW_BLUEFLAG)
-				|| (ps->persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_REDFLAG)) )
+				((ps->persistent[PERS_TEAM] == TEAM_RED && item->giTag == PW_BLUEFLAG)
+				|| (ps->persistent[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_REDFLAG)) )
 				return qtrue;
 		}
 		if( gametype == GT_FLAGS ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
-			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+			if (ps->persistent[PERS_TEAM] == TEAM_RED) {
 				if (item->giTag == PW_BLUEFLAG ||
 					(item->giTag == PW_REDFLAG && ent->modelindex2) ||
 					(item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]) )
 					return qtrue;
-			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+			} else if (ps->persistent[PERS_TEAM] == TEAM_BLUE) {
 				if (item->giTag == PW_REDFLAG ||
 					(item->giTag == PW_BLUEFLAG && ent->modelindex2) ||
 					(item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]) )

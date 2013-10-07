@@ -1270,7 +1270,7 @@ void PM_SetWeaponChargeTime( int weaponTime ) {
 
 static void PM_Weapon( void ) {
 	// don't allow attack until all buttons are up
-	if ( (pm->ps->pm_flags & PMF_RESPAWNED) || pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR )
+	if ( (pm->ps->pm_flags & PMF_RESPAWNED) || pm->ps->persistent[PERS_TEAM] == TEAM_SPECTATOR )
 		return;
 
 	// check for dead player

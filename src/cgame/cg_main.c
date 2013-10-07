@@ -203,7 +203,7 @@ int CG_LastAttacker( void ) {
 	if ( !cg.attackerTime )
 		return -1;
 
-	return cg.snap->ps.persistant[PERS_ATTACKER];
+	return cg.snap->ps.persistent[PERS_ATTACKER];
 }
 
 const char *CG_Cvar_VariableString( const char *name ) {
