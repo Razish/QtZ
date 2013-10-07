@@ -178,7 +178,7 @@ typedef struct pmove_s {
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
 void Pmove (pmove_t *pmove);
 
-// player_state->stats[] indexes
+// playerState->stats[] indexes
 // NOTE: may not have more than 16
 typedef enum statIndex_e {
 	STAT_HEALTH,
@@ -191,8 +191,8 @@ typedef enum statIndex_e {
 } statIndex_t;
 
 
-// player_state->persistant[] indexes
-// these fields are the only part of player_state that isn't
+// playerState->persistant[] indexes
+// these fields are the only part of playerState that isn't
 // cleared on respawn
 // NOTE: may not have more than 16
 typedef enum persEnum_e {

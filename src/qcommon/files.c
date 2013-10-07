@@ -2117,7 +2117,7 @@ void FS_ConvertPath( char *s ) {
 	}
 }
 
-// Ignore case and seprator char distinctions
+// Ignore case and separator char distinctions
 int FS_PathCmp( const char *s1, const char *s2 ) {
 	int		c1, c2;
 

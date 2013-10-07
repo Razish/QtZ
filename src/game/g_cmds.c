@@ -196,7 +196,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 	}
 
-	// they go to the end of the line for tournements
+	// they go to the end of the line for tournaments
 	if ( team == TEAM_SPECTATOR && oldTeam != team )
 		AddTournamentQueue( client );
 
@@ -1033,7 +1033,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 	//QTZTODO: specmute
 	/*
-	// no chatting to players in tournements
+	// no chatting to players in tournaments
 	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
 		&& other->client->sess.sessionTeam == TEAM_FREE
 		&& ent->client->sess.sessionTeam != TEAM_FREE ) {
@@ -1084,7 +1084,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ( dedicated->integer )
 		trap->Print( "%s%s\n", ent->client->pers.netname, text);
 
-	// send it to all the apropriate clients
+	// send it to all the appropriate clients
 	for ( j=0, other=g_entities; j<level.maxclients; j++, other++ )
 		G_SayTo( ent, other, mode, color, text );
 }

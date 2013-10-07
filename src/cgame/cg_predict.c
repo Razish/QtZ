@@ -168,7 +168,7 @@ int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 	return contents;
 }
 
-// Generates cg.predictedPlayerState by interpolating between cg.snap->player_state and cg.nextFrame->player_state
+// Generates cg.predictedPlayerState by interpolating between cg.snap->playerState and cg.nextFrame->player_state
 static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 	float			f;
 	int				i;

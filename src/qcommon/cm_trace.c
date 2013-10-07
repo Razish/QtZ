@@ -135,7 +135,7 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			dist = plane->dist + tw->sphere.radius;
 			// find the closest point on the capsule to the plane
 			t = DotProduct( &plane->normal, &tw->sphere.offset );
@@ -160,7 +160,7 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for mins/maxs
+			// adjust the plane distance appropriately for mins/maxs
 			dist = plane->dist - DotProduct( &tw->offsets[ plane->signbits ], &plane->normal );
 
 			d1 = DotProduct( &tw->start, &plane->normal ) - dist;
@@ -425,7 +425,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			dist = plane->dist + tw->sphere.radius;
 
 			// find the closest point on the capsule to the plane
@@ -492,7 +492,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for mins/maxs
+			// adjust the plane distance appropriately for mins/maxs
 			dist = plane->dist - DotProduct( &tw->offsets[ plane->signbits ], &plane->normal );
 
 			d1 = DotProduct( &tw->start, &plane->normal ) - dist;
@@ -923,7 +923,7 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vector
 	node = cm.nodes + num;
 	plane = node->plane;
 
-	// adjust the plane distance apropriately for mins/maxs
+	// adjust the plane distance appropriately for mins/maxs
 	if ( plane->type < 3 ) {
 		t1 = p1->data[plane->type] - plane->dist;
 		t2 = p2->data[plane->type] - plane->dist;
@@ -1050,7 +1050,7 @@ void CM_Trace( trace_t *results, const vector3 *start, const vector3 *end, const
 
 	tw.maxOffset = tw.size[1].x + tw.size[1].y + tw.size[1].z;
 
-	// tw.offsets[signbits] = vector to apropriate corner from origin
+	// tw.offsets[signbits] = vector to appropriate corner from origin
 	tw.offsets[0].x = tw.size[0].x;
 	tw.offsets[0].y = tw.size[0].y;
 	tw.offsets[0].z = tw.size[0].z;

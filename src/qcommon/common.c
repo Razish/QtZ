@@ -140,7 +140,7 @@ void Com_EndRedirect( void )
 	rd_flush = NULL;
 }
 
-// Both client and server can use this, and it will output to the apropriate place.
+// Both client and server can use this, and it will output to the appropriate place.
 //	A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list		argptr;
@@ -297,7 +297,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 }
 
 
-// Both client and server can use this, and it will do the apropriate things.
+// Both client and server can use this, and it will do the appropriate things.
 void Com_Quit_f( void ) {
 	// don't try to shutdown if we are in a recursive error
 	char *p = Cmd_Args( );

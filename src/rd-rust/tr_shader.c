@@ -2205,10 +2205,10 @@ shader_t *R_FindShaderByName( const char *name ) {
 // Will always return a valid shader, but it might be the default shader if the real one can't be found.
 //	In the interest of not requiring an explicit shader text entry to be defined for every single image used
 //	in the game, three default shader behaviors can be auto-created for any image:
-//	If lightmapIndex == LIGHTMAP_NONE, then the image will have dynamic diffuse lighting applied to it, as apropriate for most entity skin surfaces.
+//	If lightmapIndex == LIGHTMAP_NONE, then the image will have dynamic diffuse lighting applied to it, as appropriate for most entity skin surfaces.
 //	If lightmapIndex == LIGHTMAP_2D, then the image will be used for 2D rendering unless an explicit shader is found
-//	If lightmapIndex == LIGHTMAP_BY_VERTEX, then the image will use the vertex rgba modulate values, as apropriate for misc_model pre-lit surfaces.
-//	Other lightmapIndex values will have a lightmap stage created and src*dest blending applied with the texture, as apropriate for most world construction surfaces.
+//	If lightmapIndex == LIGHTMAP_BY_VERTEX, then the image will use the vertex rgba modulate values, as appropriate for misc_model pre-lit surfaces.
+//	Other lightmapIndex values will have a lightmap stage created and src*dest blending applied with the texture, as appropriate for most world construction surfaces.
 shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage ) {
 	char		strippedName[MAX_QPATH];
 	int			i, hash;
@@ -2258,7 +2258,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
-	// FIXME: set these "need" values apropriately
+	// FIXME: set these "need" values appropriately
 	shader.needsNormal = qtrue;
 	shader.needsST1 = qtrue;
 	shader.needsST2 = qtrue;
@@ -2388,7 +2388,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
-	// FIXME: set these "need" values apropriately
+	// FIXME: set these "need" values appropriately
 	shader.needsNormal = qtrue;
 	shader.needsST1 = qtrue;
 	shader.needsST2 = qtrue;

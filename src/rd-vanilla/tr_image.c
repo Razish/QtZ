@@ -1253,7 +1253,7 @@ void R_DeleteTextures( void ) {
 
 */
 
-// This is unfortunate, but the skin files aren't compatable with our normal parsing rules.
+// This is unfortunate, but the skin files aren't compatible with our normal parsing rules.
 static char *CommaParse( char **data_p ) {
 	int c = 0, len;
 	char *data;

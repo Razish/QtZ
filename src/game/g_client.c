@@ -595,11 +595,11 @@ void ClientUserinfoChanged( int clientNum ) {
 }
 
 // Called when a player begins connecting to the server.
-//	Called again for every map change or tournement restart.
+//	Called again for every map change or tournament restart.
 //	The session information will be valid after exit.
 //	Return NULL if the client should be allowed, otherwise return a string with the reason for denial.
 //	Otherwise, the client will be sent the current gamestate and will eventually get to ClientBegin.
-//	firstTime will be qtrue the very first time a client connects to the server machine, but qfalse on map changes and tournement restarts.
+//	firstTime will be qtrue the very first time a client connects to the server machine, but qfalse on map changes and tournament restarts.
 //	QTZTODO: ClientConnect/ClientUserinfoChanged from modbase/JA++	
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value, userinfo[MAX_INFO_STRING];

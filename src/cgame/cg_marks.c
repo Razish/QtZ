@@ -36,7 +36,7 @@ markPoly_t	*cg_freeMarkPolys;			// single linked list
 markPoly_t	cg_markPolys[MAX_MARK_POLYS];
 static		int	markTotal;
 
-// This is called at startup and for tournement restarts
+// This is called at startup and for tournament restarts
 void	CG_InitMarkPolys( void ) {
 	int		i;
 

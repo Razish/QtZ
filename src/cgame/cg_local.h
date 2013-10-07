@@ -176,7 +176,7 @@ typedef struct centity_s {
 } centity_t;
 
 // local entities are created as a result of events or predicted actions,
-// and live independantly from all server transmitted entities
+// and live independently from all server transmitted entities
 
 typedef struct markPoly_s {
 	struct markPoly_s	*prevMark, *nextMark;
@@ -933,7 +933,7 @@ typedef struct cgMedia_s {
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
-// be cleared when a tournement restart is done, allowing
+// be cleared when a tournament restart is done, allowing
 // all clients to begin playing instantly
 typedef struct cgs_s {
 	gameState_t		gameState;			// gamestate from server

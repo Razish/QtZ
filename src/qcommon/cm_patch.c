@@ -1002,7 +1002,7 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vector3 *
 	CM_RemoveDegenerateColumns( &grid );
 
 	// we now have a grid of points exactly on the curve
-	// the aproximate surface defined by these points will be
+	// the approximate surface defined by these points will be
 	// collided against
 	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), PREF_HIGH );
 	ClearBounds( &pf->bounds[0], &pf->bounds[1] );
@@ -1202,7 +1202,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		VectorCopy((vector3 *)&planes->plane, (vector3 *)&plane);
 		plane.w = planes->plane.w;
 		if ( tw->sphere.use ) {
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			plane.w += tw->sphere.radius;
 
 			// find the closest point on the capsule to the plane
@@ -1241,7 +1241,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				plane.w = planes->plane.w;
 			}
 			if ( tw->sphere.use ) {
-				// adjust the plane distance apropriately for radius
+				// adjust the plane distance appropriately for radius
 				plane.w += tw->sphere.radius;
 
 				// find the closest point on the capsule to the plane
@@ -1323,7 +1323,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 		VectorCopy((vector3 *)&planes->plane, (vector3 *)&plane);
 		plane.w = planes->plane.w;
 		if ( tw->sphere.use ) {
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			plane.z += tw->sphere.radius;
 
 			// find the closest point on the capsule to the plane
@@ -1356,7 +1356,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 				plane.w = planes->plane.w;
 			}
 			if ( tw->sphere.use ) {
-				// adjust the plane distance apropriately for radius
+				// adjust the plane distance appropriately for radius
 				plane.w += tw->sphere.radius;
 
 				// find the closest point on the capsule to the plane

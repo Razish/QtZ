@@ -295,7 +295,7 @@ static void GlobalVectorToLocal( const vector3 *in, vector3 *out ) {
 	out->z = DotProduct( in, &backEnd.or.axis[2] );
 }
 
-// Assuming all the triangles for this shader are independant quads, rebuild them as forward facing sprites
+// Assuming all the triangles for this shader are independent quads, rebuild them as forward facing sprites
 static void AutospriteDeform( void ) {
 	int		i;
 	int		oldVerts;

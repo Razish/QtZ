@@ -62,7 +62,7 @@ void P_DamageFeedback( gentity_t *player ) {
 		client->ps.damageYaw = (int)(angles.yaw/360.0f * 256);
 	}
 
-	// play an apropriate pain sound
+	// play an appropriate pain sound
 	if ( (level.time > player->painDebounceTime) && !(player->flags & FL_GODMODE) ) {
 		player->painDebounceTime = level.time + 700;
 		G_AddEvent( player, EV_PAIN, player->health );

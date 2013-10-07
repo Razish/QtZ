@@ -610,7 +610,7 @@ void ExitLevel( void ) {
 	//bot interbreeding
 	BotInterbreedEndMatch();
 
-	// if we are running a tournement map, kick the loser to spectator status,
+	// if we are running a tournament map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart
 	if ( level.gametype == GT_DUEL  ) {
 		if ( !level.restarted ) {
@@ -919,7 +919,7 @@ void CheckExitRules( void ) {
 */
 
 
-// Once a frame, check for changes in tournement player state
+// Once a frame, check for changes in tournament player state
 void CheckTournament( void ) {
 	// check because we run 3 game frames before calling Connect and/or ClientBegin
 	// for clients on a map_restart
@@ -1296,7 +1296,7 @@ void G_RunFrame( int levelTime ) {
 			ClientEndFrame( ent );
 	}
 
-	// see if it is time to do a tournement restart
+	// see if it is time to do a tournament restart
 	CheckTournament();
 
 	// see if it is time to end the level

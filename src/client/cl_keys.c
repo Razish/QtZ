@@ -1089,7 +1089,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 		return;
 	}
 
-	// distribute the key down event to the apropriate handler
+	// distribute the key down event to the appropriate handler
 		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
 	}
@@ -1156,7 +1156,7 @@ void CL_CharEvent( int key ) {
 		return;
 	}
 
-	// distribute the key down event to the apropriate handler
+	// distribute the key down event to the appropriate handler
 		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )	Field_CharEvent( &g_consoleField, key );
 	else if ( Key_GetCatcher() & KEYCATCH_UI )		ui->KeyEvent( key|K_CHAR_FLAG, qtrue );
 	else if ( Key_GetCatcher() & KEYCATCH_CGAME )	cgame->KeyEvent( key|K_CHAR_FLAG, qtrue );

@@ -305,7 +305,7 @@ static void CG_AddToTeamChat( const char *str ) {
 }
 
 // The server has issued a map_restart, so the next snapshot is completely new and should not be interpolated to.
-//	A tournement restart will clear everything, but doesn't require a reload of all the media
+//	A tournament restart will clear everything, but doesn't require a reload of all the media
 static void CG_MapRestart( void ) {
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
