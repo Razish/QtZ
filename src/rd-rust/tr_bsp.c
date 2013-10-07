@@ -39,8 +39,6 @@ static	byte		*fileBase;
 int			c_subdivisions;
 int			c_gridVerts;
 
-//===============================================================================
-
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 {
 	int i;
@@ -91,12 +89,6 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 	}
 }
 
-/*
-===============
-R_ColorShiftLightingBytes
-
-===============
-*/
 static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	int		shift, r, g, b;
 
@@ -125,12 +117,6 @@ static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	out[3] = in[3];
 }
 
-/*
-===============
-R_LoadLightmaps
-
-===============
-*/
 #define	LIGHTMAP_SIZE	128
 static	void R_LoadLightmaps( lump_t *l ) {
 	byte		*buf, *buf_p;
@@ -212,24 +198,11 @@ static	void R_LoadLightmaps( lump_t *l ) {
 }
 
 
-/*
-=================
-RE_SetWorldVisData
-
-This is called by the clipmodel subsystem so we can share the 1.8 megs of
-space in big maps...
-=================
-*/
+// This is called by the clipmodel subsystem so we can share the 1.8 megs of space in big maps...
 void		RE_SetWorldVisData( const byte *vis ) {
 	tr.externalVisData = vis;
 }
 
-
-/*
-=================
-R_LoadVisibility
-=================
-*/
 static	void R_LoadVisibility( lump_t *l ) {
 	int		len;
 	byte	*buf;
@@ -260,14 +233,6 @@ static	void R_LoadVisibility( lump_t *l ) {
 	}
 }
 
-//===============================================================================
-
-
-/*
-===============
-ShaderForShaderNum
-===============
-*/
 static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shader_t	*shader;
 	dshader_t	*dsh;
@@ -296,11 +261,6 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	return shader;
 }
 
-/*
-===============
-ParseFace
-===============
-*/
 static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes  ) {
 	int			i, j;
 	srfSurfaceFace_t	*cv;
@@ -367,12 +327,6 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	surf->data = (surfaceType_t *)cv;
 }
 
-
-/*
-===============
-ParseMesh
-===============
-*/
 static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	srfGridMesh_t	*grid;
 	int				i, j;
@@ -435,11 +389,6 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	grid->lodRadius = VectorLength( &tmpVec );
 }
 
-/*
-===============
-ParseTriSurf
-===============
-*/
 static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfTriangles_t	*tri;
 	int				i, j;
@@ -494,11 +443,6 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	}
 }
 
-/*
-===============
-ParseFlare
-===============
-*/
 static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfFlare_t		*flare;
 	int				i;
@@ -525,13 +469,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 }
 
 
-/*
-=================
-R_MergedWidthPoints
-
-returns true if there are grid points merged on a width edge
-=================
-*/
+// returns true if there are grid points merged on a width edge
 int R_MergedWidthPoints(srfGridMesh_t *grid, int offset) {
 	int i, j;
 
@@ -546,13 +484,7 @@ int R_MergedWidthPoints(srfGridMesh_t *grid, int offset) {
 	return qfalse;
 }
 
-/*
-=================
-R_MergedHeightPoints
-
-returns true if there are grid points merged on a height edge
-=================
-*/
+// returns true if there are grid points merged on a height edge
 int R_MergedHeightPoints(srfGridMesh_t *grid, int offset) {
 	int i, j;
 
@@ -567,15 +499,8 @@ int R_MergedHeightPoints(srfGridMesh_t *grid, int offset) {
 	return qfalse;
 }
 
-/*
-=================
-R_FixSharedVertexLodError_r
-
-NOTE: never sync LoD through grid edges with merged points!
-
-FIXME: write generalized version that also avoids cracks between a patch and one that meets half way?
-=================
-*/
+// NOTE: never sync LoD through grid edges with merged points!
+//	FIXME: write generalized version that also avoids cracks between a patch and one that meets half way?
 void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1 ) {
 	int j, k, l, m, n, offset1, offset2, touch;
 	srfGridMesh_t *grid2;
@@ -680,14 +605,8 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1 ) {
 	}
 }
 
-/*
-=================
-R_FixSharedVertexLodError
-
-This function assumes that all patches in one group are nicely stitched together for the highest LoD.
-If this is not the case this function will still do its job but won't fix the highest LoD cracks.
-=================
-*/
+// This function assumes that all patches in one group are nicely stitched together for the highest LoD.
+//	If this is not the case this function will still do its job but won't fix the highest LoD cracks.
 void R_FixSharedVertexLodError( void ) {
 	int i;
 	srfGridMesh_t *grid1;
@@ -708,12 +627,6 @@ void R_FixSharedVertexLodError( void ) {
 	}
 }
 
-
-/*
-===============
-R_StitchPatches
-===============
-*/
 int R_StitchPatches( int grid1num, int grid2num ) {
 	vector3 *v1, *v2;
 	srfGridMesh_t *grid1, *grid2;
@@ -1060,19 +973,10 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 	return qfalse;
 }
 
-/*
-===============
-R_TryStitchPatch
-
-This function will try to stitch patches in the same LoD group together for the highest LoD.
-
-Only single missing vertice cracks will be fixed.
-
-Vertices will be joined at the patch side a crack is first found, at the other side
-of the patch (on the same row or column) the vertices will not be joined and cracks
-might still appear at that side.
-===============
-*/
+// This function will try to stitch patches in the same LoD group together for the highest LoD.
+//	Only single missing vertice cracks will be fixed.
+//	Vertices will be joined at the patch side a crack is first found, at the other side of the patch (on the
+//	same row or column) the vertices will not be joined and cracks might still appear at that side.
 int R_TryStitchingPatch( int grid1num ) {
 	int j, numstitches;
 	srfGridMesh_t *grid1, *grid2;
@@ -1099,11 +1003,6 @@ int R_TryStitchingPatch( int grid1num ) {
 	return numstitches;
 }
 
-/*
-===============
-R_StitchAllPatches
-===============
-*/
 void R_StitchAllPatches( void ) {
 	int i, stitched, numstitches;
 	srfGridMesh_t *grid1;
@@ -1132,12 +1031,7 @@ void R_StitchAllPatches( void ) {
 	ri->Printf( PRINT_DEVELOPER, "stitched %d LoD cracks\n", numstitches );
 }
 
-/*
-===============
-R_MovePatchSurfacesToHunk
-===============
-*/
-void R_MovePatchSurfacesToHunk(void) {
+void R_MovePatchSurfacesToHunk( void ) {
 	int i, size;
 	srfGridMesh_t *grid, *hunkgrid;
 
@@ -1164,11 +1058,6 @@ void R_MovePatchSurfacesToHunk(void) {
 	}
 }
 
-/*
-===============
-R_LoadSurfaces
-===============
-*/
 static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	dsurface_t	*in;
 	msurface_t	*out;
@@ -1239,12 +1128,6 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 }
 
 
-
-/*
-=================
-R_LoadSubmodels
-=================
-*/
 static	void R_LoadSubmodels( lump_t *l ) {
 	dmodel_t	*in;
 	bmodel_t	*out;
@@ -1281,15 +1164,6 @@ static	void R_LoadSubmodels( lump_t *l ) {
 	}
 }
 
-
-
-//==================================================================
-
-/*
-=================
-R_SetParent
-=================
-*/
 static	void R_SetParent (mnode_t *node, mnode_t *parent)
 {
 	node->parent = parent;
@@ -1299,11 +1173,6 @@ static	void R_SetParent (mnode_t *node, mnode_t *parent)
 	R_SetParent (node->children[1], node);
 }
 
-/*
-=================
-R_LoadNodesAndLeafs
-=================
-*/
 static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 	int			i, j, p;
 	dnode_t		*in;
@@ -1375,13 +1244,6 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 	R_SetParent (s_worldData.nodes, NULL);
 }
 
-//=============================================================================
-
-/*
-=================
-R_LoadShaders
-=================
-*/
 static	void R_LoadShaders( lump_t *l ) {	
 	int		i, count;
 	dshader_t	*in, *out;
@@ -1403,12 +1265,6 @@ static	void R_LoadShaders( lump_t *l ) {
 	}
 }
 
-
-/*
-=================
-R_LoadMarksurfaces
-=================
-*/
 static	void R_LoadMarksurfaces (lump_t *l)
 {	
 	int		i, j, count;
@@ -1431,12 +1287,6 @@ static	void R_LoadMarksurfaces (lump_t *l)
 	}
 }
 
-
-/*
-=================
-R_LoadPlanes
-=================
-*/
 static	void R_LoadPlanes( lump_t *l ) {
 	int			i, j;
 	cplane_t	*out;
@@ -1468,12 +1318,6 @@ static	void R_LoadPlanes( lump_t *l ) {
 	}
 }
 
-/*
-=================
-R_LoadFogs
-
-=================
-*/
 static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 	int			i;
 	fog_t		*out;
@@ -1582,13 +1426,6 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 }
 
-
-/*
-================
-R_LoadLightGrid
-
-================
-*/
 void R_LoadLightGrid( lump_t *l ) {
 	int		i;
 	vector3	maxs;
@@ -1629,11 +1466,6 @@ void R_LoadLightGrid( lump_t *l ) {
 	}
 }
 
-/*
-================
-R_LoadEntities
-================
-*/
 void R_LoadEntities( lump_t *l ) {
 	char *p, *token, *s;
 	char keyname[MAX_TOKEN_CHARS];
@@ -1675,32 +1507,6 @@ void R_LoadEntities( lump_t *l ) {
 		}
 		Q_strncpyz(value, token, sizeof(value));
 
-		// check for remapping of shaders for vertex lighting
-		s = "vertexremapshader";
-		if (!Q_strncmp(keyname, s, strlen(s)) ) {
-			s = strchr(value, ';');
-			if (!s) {
-				ri->Printf( PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value );
-				break;
-			}
-			*s++ = 0;
-			if (r_vertexLight->integer) {
-				R_RemapShader(value, s, "0");
-			}
-			continue;
-		}
-		// check for remapping of shaders
-		s = "remapshader";
-		if (!Q_strncmp(keyname, s, strlen(s)) ) {
-			s = strchr(value, ';');
-			if (!s) {
-				ri->Printf( PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value );
-				break;
-			}
-			*s++ = 0;
-			R_RemapShader(value, s, "0");
-			continue;
-		}
 		// check for a different grid size
 		if ( !Q_stricmp( keyname, "gridsize" ) )
 		{
@@ -1729,11 +1535,6 @@ void R_LoadEntities( lump_t *l ) {
 	}
 }
 
-/*
-=================
-R_GetEntityToken
-=================
-*/
 qboolean R_GetEntityToken( char *buffer, int size ) {
 	const char	*s;
 
@@ -1747,13 +1548,7 @@ qboolean R_GetEntityToken( char *buffer, int size ) {
 	}
 }
 
-/*
-=================
-RE_LoadWorldMap
-
-Called directly from cgame
-=================
-*/
+// Called directly from cgame
 void RE_LoadWorldMap( const char *name ) {
 	int			i;
 	dheader_t	*header;

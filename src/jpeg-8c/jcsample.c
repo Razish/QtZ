@@ -80,7 +80,7 @@ typedef my_downsampler * my_downsample_ptr;
  * Initialize for a downsampling pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass_downsample (j_compress_ptr cinfo)
 {
   /* no work for now */
@@ -92,7 +92,7 @@ start_pass_downsample (j_compress_ptr cinfo)
  * by duplicating the rightmost samples.
  */
 
-LOCAL(void)
+LOCAL( void )
 expand_right_edge (JSAMPARRAY image_data, int num_rows,
 		   JDIMENSION input_cols, JDIMENSION output_cols)
 {
@@ -119,7 +119,7 @@ expand_right_edge (JSAMPARRAY image_data, int num_rows,
  * In this version we simply downsample each component independently.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 sep_downsample (j_compress_ptr cinfo,
 		JSAMPIMAGE input_buf, JDIMENSION in_row_index,
 		JSAMPIMAGE output_buf, JDIMENSION out_row_group_index)
@@ -146,7 +146,7 @@ sep_downsample (j_compress_ptr cinfo,
  * Note that this version is not actually used for customary sampling ratios.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 int_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
 		JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -195,7 +195,7 @@ int_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * without smoothing.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 fullsize_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
 		     JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -220,7 +220,7 @@ fullsize_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * alternate pixel locations (a simple ordered dither pattern).
  */
 
-METHODDEF(void)
+METHODDEF( void )
 h2v1_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
 		 JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -257,7 +257,7 @@ h2v1_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * without smoothing.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 h2v2_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
 		 JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -301,7 +301,7 @@ h2v2_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * with smoothing.  One row of context is required.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 h2v2_smooth_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
 			JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -402,7 +402,7 @@ h2v2_smooth_downsample (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * with smoothing.  One row of context is required.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 fullsize_smooth_downsample (j_compress_ptr cinfo, jpeg_component_info *compptr,
 			    JSAMPARRAY input_data, JSAMPARRAY output_data)
 {
@@ -474,7 +474,7 @@ fullsize_smooth_downsample (j_compress_ptr cinfo, jpeg_component_info *compptr,
  * Note that we must select a routine for each component.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_downsampler (j_compress_ptr cinfo)
 {
   my_downsample_ptr downsample;

@@ -33,13 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   This file deals with applying shaders to surface data in the tess struct.
 */
 
-/*
-================
-R_ArrayElementDiscrete
-
-This is just for OpenGL conformance testing, it should never be the fastest
-================
-*/
+// This is just for OpenGL conformance testing, it should never be the fastest
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
@@ -51,12 +45,6 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	qglVertex3fv( (GLfloat *)&tess.xyz[ index ] );
 }
 
-/*
-===================
-R_DrawStripElements
-
-===================
-*/
 static int		c_vertexes;		// for seeing how long our average strips are
 static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
@@ -154,15 +142,8 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 
 
 
-/*
-==================
-R_DrawElements
-
-Optionally performs our own glDrawElements that looks for strip conditions
-instead of using the single glDrawElements call that may be inefficient
-without compiled vertex arrays.
-==================
-*/
+// Optionally performs our own glDrawElements that looks for strip conditions instead of using the single
+//	glDrawElements call that may be inefficient without compiled vertex arrays.
 static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	int		primitives;
 
@@ -201,22 +182,14 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 
 /*
-=============================================================
 
-SURFACE SHADERS
+	SURFACE SHADERS
 
-=============================================================
 */
 
 shaderCommands_t	tess;
 static qboolean	setArraysOnce;
 
-/*
-=================
-R_BindAnimatedImage
-
-=================
-*/
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	int index;
 
@@ -244,13 +217,7 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	GL_Bind( bundle->image[ index ] );
 }
 
-/*
-================
-DrawTris
-
-Draws triangle outlines for debugging
-================
-*/
+// Draws triangle outlines for debugging
 static void DrawTris (shaderCommands_t *input) {
 	GL_Bind( tr.whiteImage );
 	qglColor3f (1,1,1);
@@ -278,13 +245,7 @@ static void DrawTris (shaderCommands_t *input) {
 }
 
 
-/*
-================
-DrawNormals
-
-Draws vertex normals for debugging
-================
-*/
+// Draws vertex normals for debugging
 static void DrawNormals (shaderCommands_t *input) {
 	int		i;
 	vector3	temp;
@@ -300,32 +261,21 @@ static void DrawNormals (shaderCommands_t *input) {
 		VectorMA (&input->xyz[i], 2, &input->normal[i], &temp);
 		qglVertex3fv ((GLfloat *)&temp);
 	}
-	qglEnd ();
+	qglEnd();
 
 	qglDepthRange( 0, 1 );
 }
 
-/*
-==============
-RB_BeginSurface
-
-We must set some things up before beginning any tesselation,
-because a surface may be forced to perform a RB_End due
-to overflow.
-==============
-*/
+// We must set some things up before beginning any tesselation, because a surface may be forced to perform a RB_End due to overflow.
 void RB_BeginSurface( shader_t *shader, int fogNum ) {
-
-	shader_t *state = (shader->remappedShader) ? shader->remappedShader : shader;
-
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-	tess.shader = state;
+	tess.shader = shader;
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
-	tess.xstages = state->stages;
-	tess.numPasses = state->numUnfoggedPasses;
-	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+	tess.xstages = shader->stages;
+	tess.numPasses = shader->numUnfoggedPasses;
+	tess.currentStageIteratorFunc = shader->optimalStageIteratorFunc;
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
@@ -335,16 +285,9 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 
 }
 
-/*
-===================
-DrawMultitextured
-
-output = t0 * t1 or t0 + t1
-
-t0 = most upstream according to spec
-t1 = most downstream according to spec
-===================
-*/
+// output = t0 * t1 or t0 + t1
+//	t0 = most upstream according to spec
+//	t1 = most downstream according to spec
 static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	shaderStage_t	*pStage;
 
@@ -393,15 +336,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	GL_SelectTexture( 0 );
 }
 
-
-
-/*
-===================
-ProjectDlightTexture
-
-Perform dynamic lighting with another rendering pass
-===================
-*/
+// Perform dynamic lighting with another rendering pass
 #ifdef idppc_altivec
 static void ProjectDlightTexture_altivec( void ) {
 	int		i, l;
@@ -745,14 +680,7 @@ static void ProjectDlightTexture( void ) {
 	ProjectDlightTexture_scalar();
 }
 
-
-/*
-===================
-RB_FogPass
-
-Blends a fog texture on top of everything else
-===================
-*/
+// Blends a fog texture on top of everything else
 static void RB_FogPass( void ) {
 	fog_t		*fog;
 	int			i;
@@ -782,11 +710,6 @@ static void RB_FogPass( void ) {
 	R_DrawElements( tess.numIndexes, tess.indexes );
 }
 
-/*
-===============
-ComputeColors
-===============
-*/
 static void ComputeColors( shaderStage_t *pStage )
 {
 	int		i;
@@ -999,11 +922,6 @@ static void ComputeColors( shaderStage_t *pStage )
 	}
 }
 
-/*
-===============
-ComputeTexCoords
-===============
-*/
 static void ComputeTexCoords( shaderStage_t *pStage ) {
 	int		i;
 	int		b;
@@ -1103,9 +1021,6 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 	}
 }
 
-/*
-** RB_IterateStagesGeneric
-*/
 static void RB_IterateStagesGeneric( shaderCommands_t *input )
 {
 	int stage = 0;
@@ -1245,10 +1160,6 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 	}
 }
 
-
-/*
-** RB_StageIteratorGeneric
-*/
 void RB_StageIteratorGeneric( void )
 {
 	shaderCommands_t *input;
@@ -1361,10 +1272,6 @@ void RB_StageIteratorGeneric( void )
 	}
 }
 
-
-/*
-** RB_StageIteratorVertexLitTexture
-*/
 void RB_StageIteratorVertexLitTexture( void )
 {
 	shaderCommands_t *input;
@@ -1546,9 +1453,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	}
 }
 
-/*
-** RB_EndSurface
-*/
 void RB_EndSurface( void ) {
 	shaderCommands_t *input;
 

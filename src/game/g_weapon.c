@@ -29,11 +29,6 @@ static	float	s_quadFactor;
 static	vector3	forward, right, up;
 static	vector3	muzzle;
 
-/*
-================
-G_BounceProjectile
-================
-*/
 void G_BounceProjectile( vector3 *start, vector3 *impact, vector3 *dir, vector3 *endout ) {
 	vector3 v, newv;
 	float dot;
@@ -46,11 +41,6 @@ void G_BounceProjectile( vector3 *start, vector3 *impact, vector3 *dir, vector3 
 	VectorMA(impact, 8192, &newv, endout);
 }
 
-/*
-===============
-LogAccuracyHit
-===============
-*/
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	if ( !target->takedamage ||
 		target == attacker ||
@@ -62,14 +52,7 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	return qtrue;
 }
 
-
-/*
-===============
-CalcMuzzlePoint
-
-set muzzle location relative to pivoting eye
-===============
-*/
+// set muzzle location relative to pivoting eye
 void CalcMuzzlePoint ( gentity_t *ent, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) {
 	VectorCopy( &ent->s.pos.trBase, muzzlePoint );
 	muzzlePoint->z += ent->client->ps.viewheight;
@@ -78,13 +61,7 @@ void CalcMuzzlePoint ( gentity_t *ent, vector3 *forward, vector3 *right, vector3
 	VectorSnap( muzzlePoint );
 }
 
-/*
-===============
-CalcMuzzlePointOrigin
-
-set muzzle location relative to pivoting eye
-===============
-*/
+// set muzzle location relative to pivoting eye
 void CalcMuzzlePointOrigin ( gentity_t *ent, vector3 *origin, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) {
 	VectorCopy( &ent->s.pos.trBase, muzzlePoint );
 	muzzlePoint->z += ent->client->ps.viewheight;
@@ -394,11 +371,6 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 		G_UnTimeShiftAllClients( ent );
 }
 
-/*
-===============
-FireWeapon
-===============
-*/
 void FireWeapon( gentity_t *ent, int special )
 {
 	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadFactor->value : 1.0f;

@@ -111,7 +111,7 @@
  * Perform the forward DCT on one block of samples.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_ifast (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   DCTELEM tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;

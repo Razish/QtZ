@@ -113,8 +113,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define AASLUMP_PORTALINDEX			12
 #define AASLUMP_CLUSTERS			13
 
-//========== bounding box =========
-
 //bounding box
 typedef struct aas_bbox_s
 {
@@ -122,8 +120,6 @@ typedef struct aas_bbox_s
 	int flags;
 	vector3 mins, maxs;
 } aas_bbox_t;
-
-//============ settings ===========
 
 //reachability to another area
 typedef struct aas_reachability_s
@@ -170,8 +166,6 @@ typedef struct aas_cluster_s
 	int numportals;						//number of cluster portals
 	int firstportal;					//first cluster portal in the index
 } aas_cluster_t;
-
-//============ 3d definition ============
 
 typedef vector3 aas_vertex_t;
 
@@ -226,8 +220,6 @@ typedef struct aas_node_s
 										//when a child is zero it's a solid leaf
 } aas_node_t;
 
-//=========== aas file ===============
-
 //header lump
 typedef struct aas_lump_s
 {
@@ -246,7 +238,6 @@ typedef struct aas_header_s
 } aas_header_t;
 
 
-//====== additional information ======
 /*
 
 -	when a node child is a solid leaf the node child number is zero

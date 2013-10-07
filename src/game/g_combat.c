@@ -182,11 +182,6 @@ char *hitLocName[HL_MAX] = {
 	"generic6"				//HL_GENERIC6
 };
 
-/*
-============
-ScorePlum
-============
-*/
 void ScorePlum( gentity_t *ent, vector3 *origin, int score ) {
 	gentity_t *plum;
 
@@ -199,13 +194,7 @@ void ScorePlum( gentity_t *ent, vector3 *origin, int score ) {
 	plum->s.time = score;
 }
 
-/*
-============
-AddScore
-
-Adds score to both the client and his team
-============
-*/
+// Adds score to both the client and his team
 void AddScore( gentity_t *ent, vector3 *origin, int score ) {
 	if ( !ent->client ) {
 		return;
@@ -223,13 +212,7 @@ void AddScore( gentity_t *ent, vector3 *origin, int score ) {
 	CalculateRanks();
 }
 
-/*
-=================
-TossClientItems
-
-Toss the weapon and powerups for the killed player
-=================
-*/
+// Toss the weapon and powerups for the killed player
 void TossClientItems( gentity_t *self ) {
 	const gitem_t		*item;
 	int			weapon;
@@ -274,11 +257,6 @@ void TossClientItems( gentity_t *self ) {
 	}
 }
 
-/*
-=================
-TossClientPersistantPowerups
-=================
-*/
 void TossClientPersistantPowerups( gentity_t *ent ) {
 	gentity_t	*powerup;
 
@@ -301,12 +279,6 @@ void TossClientPersistantPowerups( gentity_t *ent ) {
 	ent->client->persistantPowerup = NULL;
 }
 
-
-/*
-==================
-LookAtKiller
-==================
-*/
 void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) {
 	vector3		dir;
 
@@ -322,11 +294,6 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 	self->client->ps.stats[STAT_DEAD_YAW] = (int)vectoyaw( &dir );
 }
 
-/*
-==================
-GibEntity
-==================
-*/
 void GibEntity( gentity_t *self, int killer ) {
 	G_AddEvent( self, EV_GIB_PLAYER, killer );
 	self->takedamage = qfalse;
@@ -334,11 +301,6 @@ void GibEntity( gentity_t *self, int killer ) {
 	self->r.contents = 0;
 }
 
-/*
-==================
-body_die
-==================
-*/
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	if ( self->health > GIB_HEALTH )
 		return;
@@ -369,11 +331,6 @@ char	*modNames[MOD_MAX] = {
 	"MOD_TRIGGER_HURT",
 };
 
-/*
-==================
-CheckAlmostCapture
-==================
-*/
 void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 	gentity_t	*ent;
 	vector3		dir;
@@ -420,11 +377,6 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 	}
 }
 
-/*
-==================
-player_die
-==================
-*/
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
 	gclient_t	*cl;
@@ -616,12 +568,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 }
 
-
-/*
-================
-CheckArmor
-================
-*/
 int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 	gclient_t	*client;
 	int			save, count;
@@ -648,11 +594,6 @@ int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 	return save;
 }
 
-/*
-================
-RaySphereIntersections
-================
-*/
 int RaySphereIntersections( vector3 *origin, float radius, vector3 *point, vector3 *dir, vector3 intersections[2] ) {
 	float b, c, d, t;
 
@@ -685,81 +626,52 @@ int RaySphereIntersections( vector3 *origin, float radius, vector3 *point, vecto
 	return 0;
 }
 
-/*
-============
-T_Damage
-
-targ		entity that is being damaged
-inflictor	entity that is causing the damage
-attacker	entity that caused the inflictor to damage targ
-	example: targ=monster, inflictor=rocket, attacker=player
-
-dir			direction of the attack for knockback
-point		point at which the damage is being inflicted, used for headshots
-damage		amount of damage being inflicted
-knockback	force to be applied against targ as a result of the damage
-
-inflictor, attacker, dir, and point can be NULL for environmental effects
-
-dflags		these flags are used to control how T_Damage works
-	DAMAGE_RADIUS			damage was indirect (from a nearby explosion)
-	DAMAGE_NO_ARMOR			armor does not protect from this damage
-	DAMAGE_NO_KNOCKBACK		do not affect velocity, just view angles
-	DAMAGE_NO_PROTECTION	kills godmode, armor, everything
-============
-*/
-
-//- Raz
-//	NOTE: This function is recursive for partially reflected friendly fire
-//		In that case:	targ == the traitor
-//						inflictor == the traitor
-//						attacker == the traitor
+// NOTE: This function is recursive for partially reflected friendly fire. In that case; targ, inflictor, attacker == the traitor
 //	I've also added an 'affector', which will be the missile entity for weapons so I can apply per-missile knockback multipliers
-//		This is to aid the quantizer movement and rocket jumping tricks
+//	This is to aid the quantizer movement and rocket jumping tricks
+//
+//	targ		entity that is being damaged (player, object)
+//	inflictor	entity that is causing the damage (rocket, or NULL for world)
+//	attacker	entity that caused the inflictor to damage targ (player, or NULL for world)
+//	affector	in the case of friendly fire, will be the inflictor from the previous call, and inflictor will be the traitor
+//	dir			direction of the attack for knockback
+//	point		point at which the damage is being inflicted, used for headshots (NULL for world)
+//	damage		amount of damage being inflicted
+//	knockback	force to be applied against targ as a result of the damage
+//	dflags		these flags are used to control how G_Damage works
 void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_attacker, gentity_t *real_affector, vector3 *real_dir, vector3 *real_point, int real_damage, int real_dflags, int real_mod ) {
-	gclient_t	*client;
-	int			take;
-	int			asave;
-	int			knockback;
-	gentity_t *targ=real_targ, *inflictor=real_inflictor, *attacker=real_attacker, *affector=real_affector;
-	vector3 dir, point;
-	int damage=real_damage, dflags=real_dflags, mod=real_mod;
+	gentity_t	*targ=real_targ, *inflictor=real_inflictor, *attacker=real_attacker, *affector=real_affector;
+	vector3		dir, point;
+	int			take, asave, knockback;
+	int			damage=real_damage, dflags=real_dflags, mod=real_mod;
 
 	if ( real_dir )
 		VectorCopy( real_dir, &dir );
 	if ( real_point )
 		VectorCopy( real_point, &point );
 
-	if (!targ->takedamage) {
+	if ( !targ->takedamage )
 		return;
-	}
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued )
 		return;
 
-	if ( !inflictor ) {
+	if ( !inflictor )
 		inflictor = &g_entities[ENTITYNUM_WORLD];
-	}
-	if ( !attacker ) {
+	if ( !attacker )
 		attacker = &g_entities[ENTITYNUM_WORLD];
-	}
 
 	// shootable doors / buttons don't actually have any health
 	if ( targ->s.eType == ET_MOVER ) {
-		if ( targ->use && targ->moverState == MOVER_POS1 ) {
+		if ( targ->use && targ->moverState == MOVER_POS1 )
 			targ->use( targ, inflictor, attacker );
-		}
 		return;
 	}
 
-	client = targ->client;
-
-	if ( client ) {
-		if ( client->noclip )
-			return;
-	}
+	if ( targ->client && targ->client->noclip )
+		return;
 
 	//QtZ
 	if ( !real_dir )
@@ -819,16 +731,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 
 		// set the timer so that the other client can't cancel out the movement immediately
 		if ( !targ->client->ps.pm_time ) {
-			int		t;
-
-			t = knockback * 2;
-			if ( t < 50 ) {
-				t = 50;
-			}
-			if ( t > 200 ) {
-				t = 200;
-			}
-			targ->client->ps.pm_time = t;
+			targ->client->ps.pm_time = Q_clampi( 50, knockback*2, 200 );
 			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 		}
 	}
@@ -841,7 +744,7 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 			attacker->client->ps.persistant[PERS_HITS]--;
 		else
 			attacker->client->ps.persistant[PERS_HITS]++;
-		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
+		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(targ->client->ps.stats[STAT_ARMOR]);
 	}
 
 	// check for completely getting out of the damage
@@ -854,26 +757,23 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 				return;
 			else if ( g_friendlyFire->integer == 2 )
 				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale->value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
-			else if ( g_friendlyFire->integer == 3 )
-			{
+			else if ( g_friendlyFire->integer == 3 ) {
 				G_Damage( real_attacker, real_attacker, real_attacker, real_affector, real_dir, real_point, (int)(real_damage*g_friendlyFireScale->value), real_dflags|DAMAGE_NO_KNOCKBACK, real_mod );
 				return;
 			}
 		}
 
 		// check for godmode
-		if ( targ->flags & FL_GODMODE ) {
+		if ( targ->flags & FL_GODMODE )
 			return;
-		}
 	}
 
 	// always give half damage if hurting self
 	// calculated after knockback, so rocket jumping works
 	//Raz: Only do this if it's not a recursive reflected friendly-fire call, in which case targ==inflictor
-	if ( targ == attacker && targ != inflictor ) {
-//	if ( targ == attacker) {
+	if ( targ == attacker && targ != inflictor )
+//	if ( targ == attacker)
 		damage /= 2;
-	}
 
 	take = damage;
 
@@ -896,64 +796,56 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
-	if ( client ) {
-		client->ps.persistant[PERS_ATTACKER]	= attacker ? attacker->s.number : ENTITYNUM_WORLD;
-		client->damage_armor					+= asave;
-		client->damage_blood					+= take;
-		client->damage_knockback				+= knockback;
+	if ( targ->client ) {
+		targ->client->ps.persistant[PERS_ATTACKER]	= attacker ? attacker->s.number : ENTITYNUM_WORLD;
+		targ->client->damage_armor					+= asave;
+		targ->client->damage_blood					+= take;
+		targ->client->damage_knockback				+= knockback;
 		if ( real_dir ) {
-			VectorCopy ( &dir, &client->damage_from );
-			client->damage_fromWorld = qfalse;
-		} else {
-			VectorCopy ( &targ->r.currentOrigin, &client->damage_from );
-			client->damage_fromWorld = qtrue;
+			VectorCopy ( &dir, &targ->client->damage_from );
+			targ->client->damage_fromWorld = qfalse;
+		}
+		else {
+			VectorCopy ( &targ->r.currentOrigin, &targ->client->damage_from );
+			targ->client->damage_fromWorld = qtrue;
 		}
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-	if( level.gametype == GT_FLAGS) {
-		Team_CheckHurtCarrier(targ, attacker);
-	}
+	if ( level.gametype == GT_FLAGS)
+		Team_CheckHurtCarrier( targ, attacker );
 
-	if (targ->client) {
+	if ( targ->client ) {
 		// set the last client who damaged the target
 		targ->client->lasthurt_client = attacker->s.number;
 		targ->client->lasthurt_mod = mod;
 	}
 
 	// do the damage
-	if (take) {
+	if ( take ) {
 		targ->health = targ->health - take;
-		if ( targ->client ) {
+		if ( targ->client )
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
-		}
 			
 		if ( targ->health <= 0 ) {
-			if ( client )
+			if ( targ->client )
 				targ->flags |= FL_NO_KNOCKBACK;
 
-			if (targ->health < -999)
+			if ( targ->health < -999 )
 				targ->health = -999;
 
 			targ->enemy = attacker;
-			targ->die (targ, inflictor, attacker, take, mod);
+			targ->die( targ, inflictor, attacker, take, mod );
 			return;
-		} else if ( targ->pain ) {
-			targ->pain (targ, attacker, take);
 		}
+		else if ( targ->pain )
+			targ->pain( targ, attacker, take );
 	}
 
 }
 
 
-/*
-============
-CanDamage
-
-Returns qtrue if the inflictor can directly damage the target.  Used for
-explosions and melee attacks.
-============
-*/
+// Returns qtrue if the inflictor can directly damage the target. Used for explosions and melee attacks.
 qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	vector3	dest;
 	trace_t	tr;
@@ -1003,12 +895,6 @@ qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	return qfalse;
 }
 
-
-/*
-============
-G_RadiusDamage
-============
-*/
 qboolean G_RadiusDamage( vector3 *origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod )
 {
 	float		points, dist;

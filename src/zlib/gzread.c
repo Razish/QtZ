@@ -552,7 +552,7 @@ int ZEXPORT gzdirect(file)
     /* if the state is not known, but we can find out, then do so (this is
        mainly for right after a gzopen() or gzdopen()) */
     if (state->mode == GZ_READ && state->how == LOOK && state->x.have == 0)
-        (void)gz_look(state);
+      ( void )gz_look(state);
 
     /* return 1 if transparent, 0 if processing a gzip stream */
     return state->direct;

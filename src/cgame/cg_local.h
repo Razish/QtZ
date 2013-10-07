@@ -100,8 +100,6 @@ typedef enum impactSound_e {
 	IMPACTSOUND_FLESH
 } impactSound_t;
 
-//=================================================
-
 // player entities need to track more information
 // than any other type of entity.
 
@@ -142,10 +140,6 @@ typedef struct playerEntity_s {
 	qboolean		barrelSpinning;
 } playerEntity_t;
 
-//=================================================
-
-
-
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s {
@@ -180,9 +174,6 @@ typedef struct centity_s {
 	vector3			lerpOrigin;
 	vector3			lerpAngles;
 } centity_t;
-
-
-//======================================================================
 
 // local entities are created as a result of events or predicted actions,
 // and live independantly from all server transmitted entities
@@ -342,8 +333,6 @@ typedef struct localEntity_s {
 	refEntity_t		refEntity;		
 } localEntity_t;
 
-//======================================================================
-
 
 typedef struct score_s {
 	int			client;
@@ -476,8 +465,6 @@ typedef struct powerupInfo_s {
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
 
-//======================================================================
-
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
@@ -544,9 +531,9 @@ typedef struct cg_s {
 
 	// auto rotating items
 	vector3		autoAngles;
-	vector3		autoAxis[3];
+	matrix3		autoAxis;
 	vector3		autoAnglesFast;
-	vector3		autoAxisFast[3];
+	matrix3		autoAxisFast;
 
 	// view rendering
 	refdef_t	refdef;
@@ -621,8 +608,6 @@ typedef struct cg_s {
 	// warmup countdown
 	int			warmup;
 	int			warmupCount;
-
-	//==========================
 
 	int			itemPickup;
 	int			itemPickupTime;
@@ -1024,8 +1009,6 @@ typedef struct cgs_s {
 	} server;
 } cgs_t;
 
-//==============================================================================
-
 extern	cgs_t			cgs;
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
@@ -1060,12 +1043,12 @@ void CG_BuildSpectatorString( void );
 //
 // cg_view.c
 //
-void CG_TestModel_f (void);
-void CG_TestGun_f (void);
-void CG_TestModelNextFrame_f (void);
-void CG_TestModelPrevFrame_f (void);
-void CG_TestModelNextSkin_f (void);
-void CG_TestModelPrevSkin_f (void);
+void CG_TestModel_f( void );
+void CG_TestGun_f( void );
+void CG_TestModelNextFrame_f( void );
+void CG_TestModelPrevFrame_f( void );
+void CG_TestModelNextSkin_f( void );
+void CG_TestModelPrevSkin_f( void );
 void CG_ZoomDown_f( void );
 void CG_ZoomUp_f( void );
 void CG_AddBufferedSound( sfxHandle_t sfx);
@@ -1080,8 +1063,7 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const vector4 *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 //QtZ: Added from JA
-void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader );
-void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader );
+void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader, qboolean centered );
 //~QtZ
 int CG_DrawStrlen( const char *str );
 vector4 *CG_FadeColor( int startMsec, int totalMsec );
@@ -1258,7 +1240,6 @@ void CG_ShutdownConsoleCommands( void );
 void CG_ExecuteNewServerCommands( int latestSequence );
 void CG_ParseServerinfo( void );
 void CG_SetConfigValues( void );
-void CG_ShaderStateChanged(void);
 void CG_LoadVoiceChats( void );
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
@@ -1304,8 +1285,8 @@ qboolean CG_ChatboxActive( void );
 //
 // cg_particles.c
 //
-void	CG_ClearParticles (void);
-void	CG_AddParticles (void);
+void	CG_ClearParticles( void );
+void	CG_AddParticles( void );
 void	CG_ParticleSnow (qhandle_t pshader, vector3 *origin, vector3 *origin2, int turb, float range, int snum);
 void	CG_ParticleSmoke (qhandle_t pshader, centity_t *cent);
 void	CG_AddParticleShrapnel (localEntity_t *le);

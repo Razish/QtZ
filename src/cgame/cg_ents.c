@@ -25,14 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 
-/*
-======================
-CG_PositionEntityOnTag
-
-Modifies the entities position and axis by the given
-tag location
-======================
-*/
+// Modifies the entities position and axis by the given tag location
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
@@ -45,24 +38,15 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qha
 	for ( i=0; i<3; i++ )
 		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 
-	// had to cast away the const to avoid compiler problems...
-	MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
+	MatrixMultiply( lerped.axis, parent->axis, entity->axis );
 	entity->backlerp = parent->backlerp;
 }
 
-
-/*
-======================
-CG_PositionRotatedEntityOnTag
-
-Modifies the entities position and axis by the given
-tag location
-======================
-*/
+// Modifies the entities position and axis by the given tag location
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
-	vector3			tempAxis[3];
+	matrix3			tempAxis;
 
 //AxisClear( entity->axis );
 	// lerp the tag
@@ -73,28 +57,19 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	for ( i=0; i<3; i++ )
 		VectorMA( &entity->origin, lerped.origin.data[i], &parent->axis[i], &entity->origin );
 
-	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( entity->axis, lerped.axis, tempAxis );
-	MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
+	MatrixMultiply( tempAxis, parent->axis, entity->axis );
 }
 
 
 
 /*
-==========================================================================
 
-FUNCTIONS CALLED EACH FRAME
+	FUNCTIONS CALLED EACH FRAME
 
-==========================================================================
 */
 
-/*
-======================
-CG_SetEntitySoundPosition
-
-Also called by event processing code
-======================
-*/
+// Also called by event processing code
 void CG_SetEntitySoundPosition( centity_t *cent ) {
 	if ( cent->currentState.solid == SOLID_BMODEL ) {
 		vector3	origin;
@@ -108,13 +83,7 @@ void CG_SetEntitySoundPosition( centity_t *cent ) {
 	}
 }
 
-/*
-==================
-CG_EntityEffects
-
-Add continuous entity effects, like local entity emission and lighting
-==================
-*/
+// Add continuous entity effects, like local entity emission and lighting
 static void CG_EntityEffects( centity_t *cent ) {
 
 	// update sound origins
@@ -146,12 +115,6 @@ static void CG_EntityEffects( centity_t *cent ) {
 	}
 }
 
-
-/*
-==================
-CG_General
-==================
-*/
 static void CG_General( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -188,13 +151,7 @@ static void CG_General( centity_t *cent ) {
 	trap->R_AddRefEntityToScene (&ent);
 }
 
-/*
-==================
-CG_Speaker
-
-Speaker entities can automatically play sounds
-==================
-*/
+// Speaker entities can automatically play sounds
 static void CG_Speaker( centity_t *cent ) {
 	if ( ! cent->currentState.clientNum ) {	// FIXME: use something other than clientNum...
 		return;		// not auto triggering
@@ -211,11 +168,6 @@ static void CG_Speaker( centity_t *cent ) {
 	cent->miscTime = cg.time + cent->currentState.frame * 100 + (int)(cent->currentState.clientNum * 100 * crandom());
 }
 
-/*
-==================
-CG_Item
-==================
-*/
 static void CG_Item( centity_t *cent ) {
 	refEntity_t		ent;
 	entityState_t	*es;
@@ -375,13 +327,6 @@ static void CG_Item( centity_t *cent ) {
 	}
 }
 
-//============================================================================
-
-/*
-===============
-CG_Missile
-===============
-*/
 static void CG_Missile( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -457,11 +402,6 @@ static void CG_Missile( centity_t *cent ) {
 	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE );
 }
 
-/*
-===============
-CG_Mover
-===============
-*/
 static void CG_Mover( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -498,13 +438,7 @@ static void CG_Mover( centity_t *cent ) {
 
 }
 
-/*
-===============
-CG_Beam
-
-Also called as an event
-===============
-*/
+// Also called as an event
 void CG_Beam( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -524,12 +458,6 @@ void CG_Beam( centity_t *cent ) {
 	trap->R_AddRefEntityToScene(&ent);
 }
 
-
-/*
-===============
-CG_Portal
-===============
-*/
 static void CG_Portal( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -557,14 +485,7 @@ static void CG_Portal( centity_t *cent ) {
 	trap->R_AddRefEntityToScene(&ent);
 }
 
-
-/*
-=========================
-CG_AdjustPositionForMover
-
-Also called by client movement prediction code
-=========================
-*/
+// Also called by client movement prediction code
 void CG_AdjustPositionForMover(const vector3 *in, int moverNum, int fromTime, int toTime, vector3 *out, vector3 *angles_in, vector3 *angles_out) {
 	centity_t	*cent;
 	vector3	oldOrigin, origin, deltaOrigin;
@@ -597,12 +518,6 @@ void CG_AdjustPositionForMover(const vector3 *in, int moverNum, int fromTime, in
 	// FIXME: origin change when on a rotating object
 }
 
-
-/*
-=============================
-CG_InterpolateEntityPosition
-=============================
-*/
 static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	vector3		current, next;
 	float		f;
@@ -633,12 +548,6 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 
 }
 
-/*
-===============
-CG_CalcEntityLerpPositions
-
-===============
-*/
 static void CG_CalcEntityLerpPositions( centity_t *cent )
 {
 	if ( !cg_smoothClients->boolean )
@@ -669,11 +578,6 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
 		CG_AdjustPositionForMover( &cent->lerpOrigin, cent->currentState.groundEntityNum, cg.snap->serverTime, cg.time, &cent->lerpOrigin, &cent->lerpAngles, &cent->lerpAngles );
 }
 
-/*
-===============
-CG_TeamBase
-===============
-*/
 static void CG_TeamBase( centity_t *cent ) {
 	refEntity_t model;
 
@@ -697,12 +601,6 @@ static void CG_TeamBase( centity_t *cent ) {
 	}
 }
 
-/*
-===============
-CG_AddCEntity
-
-===============
-*/
 static void CG_AddCEntity( centity_t *cent ) {
 	// event-only entities will have been dealt with already
 	if ( cent->currentState.eType >= ET_EVENTS ) {
@@ -753,12 +651,6 @@ static void CG_AddCEntity( centity_t *cent ) {
 	}
 }
 
-/*
-===============
-CG_AddPacketEntities
-
-===============
-*/
 void CG_AddPacketEntities( void ) {
 	int					num;
 	centity_t			*cent;

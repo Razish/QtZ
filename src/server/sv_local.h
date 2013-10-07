@@ -51,7 +51,6 @@ typedef struct server_s {
 	int				serverId;			// changes each server start
 	int				restartedServerId;	// serverId before a map_restart
 	int				checksumFeed;		// the feed key that we use to compute the pure checksum strings
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
 	// the serverId associated with the current checksumFeed (always <= serverId)
 	int       checksumFeedServerId;	
 	int				snapshotCounter;	// incremented for each snapshot built
@@ -169,9 +168,6 @@ typedef struct client_s {
 	
 } client_t;
 
-//=============================================================================
-
-
 // MAX_CHALLENGES is made large to prevent a denial
 // of service attack that could cycle all of them
 // out before legitimate users connected
@@ -225,8 +221,6 @@ typedef struct serverBan_t {
 	qboolean isexception;
 } serverBan_t;
 
-//=============================================================================
-
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
 extern	gameExport_t	*game;				// game virtual machine
@@ -270,8 +264,6 @@ extern	cvar_t	*sv_voip;
 #endif
 
 
-//===========================================================
-
 //
 // sv_main.c
 //
@@ -298,11 +290,11 @@ void SV_FinalMessage (char *message);
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 
-void SV_AddOperatorCommands (void);
-void SV_RemoveOperatorCommands (void);
+void SV_AddOperatorCommands( void );
+void SV_RemoveOperatorCommands( void );
 
 
-void SV_MasterShutdown (void);
+void SV_MasterShutdown( void );
 int SV_RateMsec(client_t *client);
 
 
@@ -340,8 +332,8 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean flood );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 
 int SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
-int SV_SendDownloadMessages(void);
-int SV_SendQueuedMessages(void);
+int SV_SendDownloadMessages( void );
+int SV_SendQueuedMessages( void );
 
 
 //
@@ -367,8 +359,8 @@ sharedEntity_t *SV_GentityNum( int num );
 playerState_t *SV_GameClientNum( int num );
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
-void		SV_InitGameProgs ( void );
-void		SV_ShutdownGameProgs ( void );
+void		SV_InitGameProgs( void );
+void		SV_ShutdownGameProgs( void );
 void		SV_RestartGameProgs( void );
 qboolean	SV_InPVS (const vector3 *p1, const vector3 *p2);
 
@@ -376,10 +368,10 @@ qboolean	SV_InPVS (const vector3 *p1, const vector3 *p2);
 // sv_bot.c
 //
 void		SV_BotFrame( int time );
-int			SV_BotAllocateClient(void);
+int			SV_BotAllocateClient( void );
 void		SV_BotFreeClient( int clientNum );
 
-void		SV_BotInitCvars(void);
+void		SV_BotInitCvars( void );
 int			SV_BotLibSetup( void );
 int			SV_BotLibShutdown( void );
 int			SV_BotGetSnapshotEntity( int client, int ent );
@@ -388,14 +380,13 @@ int			SV_BotGetConsoleMessage( int client, char *buf, int size );
 int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points);
 void BotImport_DebugPolygonDelete(int id);
 
-void SV_BotInitBotLib(void);
+void SV_BotInitBotLib( void );
 
-//============================================================
 //
 // high level object sorting to reduce interaction tests
 //
 
-void SV_ClearWorld (void);
+void SV_ClearWorld( void );
 // called after the world model has been loaded, before linking any entities
 
 void SV_UnlinkEntity( sharedEntity_t *ent );

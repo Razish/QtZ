@@ -74,7 +74,7 @@ typedef my_prep_controller * my_prep_ptr;
  * Initialize for a processing pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass_prep (j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
   my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
@@ -102,7 +102,7 @@ start_pass_prep (j_compress_ptr cinfo, J_BUF_MODE pass_mode)
  * by duplicating the bottom row.
  */
 
-LOCAL(void)
+LOCAL( void )
 expand_bottom_edge (JSAMPARRAY image_data, JDIMENSION num_cols,
 		    int input_rows, int output_rows)
 {
@@ -124,7 +124,7 @@ expand_bottom_edge (JSAMPARRAY image_data, JDIMENSION num_cols,
  * input rows.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 pre_process_data (j_compress_ptr cinfo,
 		  JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
 		  JDIMENSION in_rows_avail,
@@ -193,7 +193,7 @@ pre_process_data (j_compress_ptr cinfo,
  * Process some data in the context case.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 pre_process_context (j_compress_ptr cinfo,
 		     JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
 		     JDIMENSION in_rows_avail,
@@ -265,7 +265,7 @@ pre_process_context (j_compress_ptr cinfo,
  * Create the wrapped-around downsampling input buffer needed for context mode.
  */
 
-LOCAL(void)
+LOCAL( void )
 create_context_buffer (j_compress_ptr cinfo)
 {
   my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
@@ -314,7 +314,7 @@ create_context_buffer (j_compress_ptr cinfo)
  * Initialize preprocessing controller.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_c_prep_controller (j_compress_ptr cinfo, boolean need_full_buffer)
 {
   my_prep_ptr prep;

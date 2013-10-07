@@ -136,7 +136,7 @@ int PC_AddGlobalDefine(char *string);
 //remove the given global define
 int PC_RemoveGlobalDefine(char *name);
 //remove all globals defines
-void PC_RemoveAllGlobalDefines(void);
+void PC_RemoveAllGlobalDefines( void );
 //add builtin defines
 void PC_AddBuiltinDefines(source_t *source);
 //set the source include path
@@ -177,4 +177,4 @@ int PC_LoadSourceHandle(const char *filename);
 int PC_FreeSourceHandle(int handle);
 int PC_ReadTokenHandle(int handle, pc_token_t *pc_token);
 int PC_SourceFileAndLine(int handle, char *filename, int *line);
-void PC_CheckOpenSourceHandles(void);
+void PC_CheckOpenSourceHandles( void );

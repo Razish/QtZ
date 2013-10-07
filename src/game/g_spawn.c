@@ -105,8 +105,6 @@ spawnField_t fields[] = {
 	{ "speed",					FOFS( speed ),					F_FLOAT },
 	{ "target",					FOFS( target ),					F_STRING },
 	{ "targetname",				FOFS( targetname ),				F_STRING },
-	{ "targetShaderName",		FOFS( targetShaderName ),		F_STRING },
-	{ "targetShaderNewName",	FOFS( targetShaderNewName ),	F_STRING },
 	{ "team",					FOFS( team ),					F_STRING },
 	{ "wait",					FOFS( wait ),					F_FLOAT },
 };
@@ -225,15 +223,6 @@ spawn_t	spawns[] = {
 	{ "trigger_teleport",			SP_trigger_teleport },
 };
 
-/*
-===============
-G_CallSpawn
-
-Finds the spawn function for the entity and calls it,
-returning qfalse if not found
-===============
-*/
-
 static int itemcmp( const void *a, const void *b) {
 	return strcmp( (const char *)a, ((gitem_t *)b)->classname);
 }
@@ -242,6 +231,7 @@ static int spawncmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((spawn_t*)b)->name );
 }
 
+// Finds the spawn function for the entity and calls it, returning qfalse if not found
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
 	const gitem_t	*item;
@@ -269,14 +259,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	return qfalse;
 }
 
-/*
-=============
-G_NewString
-
-Builds a copy of the string, translating \n to real linefeeds
-so message texts can be multi-line
-=============
-*/
+// Builds a copy of the string, translating \n to real linefeeds so message texts can be multi-line
 char *G_NewString( const char *string ) {
 	char	*newb, *new_p;
 	int		i,l;
@@ -304,21 +287,11 @@ char *G_NewString( const char *string ) {
 	return newb;
 }
 
-
-
-
-/*
-===============
-G_ParseField
-
-Takes a key/value pair and sets the binary values
-in a gentity
-===============
-*/
 static int fieldcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((spawnField_t*)b)->name );
 }
 
+// Takes a key/value pair and sets the binary values in a gentity
 void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	spawnField_t	*f;
 	byte	*b;
@@ -375,14 +348,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 		trap->SV_AdjustAreaPortalState((sharedEntity_t *)ent, qtrue); \
 	}
 
-/*
-===================
-G_SpawnGEntityFromSpawnVars
-
-Spawn an entity and fill in all of the level fields from
-level.spawnVars[], then call the class specfic spawn function
-===================
-*/
+// Spawn an entity and fill in all of the level fields from level.spawnVars[], then call the class specfic spawn function
 void G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
@@ -441,13 +407,6 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 }
 
-
-
-/*
-====================
-G_AddSpawnVarToken
-====================
-*/
 char *G_AddSpawnVarToken( const char *string ) {
 	int		l;
 	char	*dest;
@@ -465,16 +424,8 @@ char *G_AddSpawnVarToken( const char *string ) {
 	return dest;
 }
 
-/*
-====================
-G_ParseSpawnVars
-
-Parses a brace bounded set of key / value pairs out of the
-level's entity strings into level.spawnVars[]
-
-This does not actually spawn an entity.
-====================
-*/
+// Parses a brace bounded set of key / value pairs out of the level's entity strings into level.spawnVars[]
+//	This does not actually spawn an entity.
 qboolean G_ParseSpawnVars( void ) {
 	char		keyname[MAX_TOKEN_CHARS];
 	char		com_token[MAX_TOKEN_CHARS];
@@ -581,14 +532,7 @@ void SP_worldspawn( void ) {
 
 }
 
-
-/*
-==============
-G_SpawnEntitiesFromString
-
-Parses textual entity definitions out of an entstring and spawns gentities.
-==============
-*/
+// Parses textual entity definitions out of an entstring and spawns gentities.
 void G_SpawnEntitiesFromString( void ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;

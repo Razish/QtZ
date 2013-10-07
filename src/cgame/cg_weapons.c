@@ -23,13 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_weaponfx.h"
 
-/*
-=================
-CG_RegisterWeapon
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 void CG_RegisterWeapon( int weaponNum ) {
 	weaponInfo_t	*weaponInfo;
 	const gitem_t	*item, *ammo;
@@ -155,13 +149,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 }
 
-/*
-=================
-CG_RegisterItemVisuals
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo_t		*itemInfo;
 	const gitem_t			*item;
@@ -201,19 +189,11 @@ void CG_RegisterItemVisuals( int itemNum ) {
 
 
 /*
-========================================================================================
 
-VIEW WEAPON
+	VIEW WEAPON
 
-========================================================================================
 */
 
-/*
-=================
-CG_MapTorsoToWeaponFrame
-
-=================
-*/
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
 	// change weapon
@@ -237,12 +217,6 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 	return 0;
 }
 
-
-/*
-==============
-CG_CalculateWeaponPosition
-==============
-*/
 static void CG_CalculateWeaponPosition( vector3 *origin, vector3 *angles ) {
 	float	scale;
 	int		delta;
@@ -282,11 +256,6 @@ static void CG_CalculateWeaponPosition( vector3 *origin, vector3 *angles ) {
 	}
 }
 
-/*
-======================
-CG_MachinegunSpinAngle
-======================
-*/
 #define		SPIN_SPEED	0.9f
 #define		COAST_TIME	1000
 static float	CG_MachinegunSpinAngle( centity_t *cent ) {
@@ -315,12 +284,6 @@ static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 	return angle;
 }
 
-
-/*
-========================
-CG_AddWeaponWithPowerups
-========================
-*/
 static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	// add powerup effects
 	trap->R_AddRefEntityToScene( gun );
@@ -331,16 +294,8 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	}
 }
 
-
-/*
-=============
-CG_AddPlayerWeapon
-
-Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
-The main player will have this called for BOTH cases, so effects like light and
-sound should only be done on the world model case.
-=============
-*/
+// Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
+//	The main player will have this called for BOTH cases, so effects like light and sound should only be done on the world model case.
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team ) {
 	refEntity_t gun, barrel;
 	vector3 angles;
@@ -392,7 +347,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	VectorMA(&gun.origin, lerped.origin.y, &parent->axis[1], &gun.origin);
 	VectorMA(&gun.origin, lerped.origin.z, &parent->axis[2], &gun.origin);
 
-	MatrixMultiply(lerped.axis, ((refEntity_t *)parent)->axis, gun.axis);
+	MatrixMultiply(lerped.axis, parent->axis, gun.axis);
 	gun.backlerp = parent->backlerp;
 
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
@@ -437,14 +392,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 }
 
-/*
-==============
-CG_AddViewWeapon
-
-Add the weapon, and flash for the player's view
-==============
-*/
 extern float zoomFov;
+
+// Add the weapon, and flash for the player's view
 void CG_AddViewWeapon( playerState_t *ps ) {
 	refEntity_t		hand;
 	centity_t		*cent;
@@ -528,18 +478,11 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 }
 
 /*
-==============================================================================
 
-WEAPON SELECTION
+	WEAPON SELECTION
 
-==============================================================================
 */
 
-/*
-===================
-CG_DrawWeaponSelect
-===================
-*/
 void CG_DrawWeaponSelect( void ) {
 	int		i;
 	int		bits;
@@ -610,12 +553,6 @@ void CG_DrawWeaponSelect( void ) {
 	trap->R_SetColor( NULL );
 }
 
-
-/*
-===============
-CG_WeaponSelectable
-===============
-*/
 static qboolean CG_WeaponSelectable( int i ) {
 	if ( !cg.snap->ps.ammo[i] ) {
 		return qfalse;
@@ -627,11 +564,6 @@ static qboolean CG_WeaponSelectable( int i ) {
 	return qtrue;
 }
 
-/*
-===============
-CG_NextWeapon_f
-===============
-*/
 void CG_NextWeapon_f( void ) {
 	int		i;
 	int		original;
@@ -658,11 +590,6 @@ void CG_NextWeapon_f( void ) {
 		cg.weaponSelect = original;
 }
 
-/*
-===============
-CG_PrevWeapon_f
-===============
-*/
 void CG_PrevWeapon_f( void ) {
 	int		i;
 	int		original;
@@ -689,11 +616,6 @@ void CG_PrevWeapon_f( void ) {
 		cg.weaponSelect = original;
 }
 
-/*
-===============
-CG_Weapon_f
-===============
-*/
 weapon_t CG_WeaponForString( const char *weaponName )
 {
 	weapon_t wp = WP_NONE;
@@ -733,13 +655,7 @@ void CG_Weapon_f( void ) {
 	cg.weaponSelect = num;
 }
 
-/*
-===================
-CG_OutOfAmmoChange
-
-The current weapon has just run out of ammo
-===================
-*/
+// The current weapon has just run out of ammo
 void CG_OutOfAmmoChange( void ) {
 	int		i;
 
@@ -756,11 +672,9 @@ void CG_OutOfAmmoChange( void ) {
 
 
 /*
-===================================================================================================
 
-WEAPON EVENTS
+	WEAPON EVENTS
 
-===================================================================================================
 */
 
 //QtZ: equivalent to g_weapon
@@ -784,13 +698,7 @@ void CalcMuzzlePoint( centity_t *cent, vector3 *forward, vector3 *right, vector3
 	}
 }
 
-/*
-================
-CG_FireWeapon
-
-Caused by an EV_FIRE_WEAPON event
-================
-*/
+// Caused by an EV_FIRE_WEAPON event
 void CG_FireWeapon( centity_t *cent, int special ) {
 	entityState_t *ent;
 	int c;
@@ -852,14 +760,7 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 		weap->ejectBrassFunc( cent );
 }
 
-
-/*
-=================
-CG_MissileHitWall
-
-Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
-=================
-*/
+// Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 void CG_MissileHitWall( int weapon, int clientNum, vector3 *origin, vector3 *dir, impactSound_t soundType ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
@@ -916,12 +817,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vector3 *origin, vector3 *dir
 	CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse );
 }
 
-
-/*
-=================
-CG_MissileHitPlayer
-=================
-*/
 void CG_MissileHitPlayer( int weapon, vector3 *origin, vector3 *dir, int entityNum ) {
 	weaponInfo_t *wi = &cg_weapons[weapon];
 
@@ -931,11 +826,6 @@ void CG_MissileHitPlayer( int weapon, vector3 *origin, vector3 *dir, int entityN
 	CG_Bleed( origin, entityNum );
 }
 
-/*
-======================
-CG_CalcMuzzlePoint
-======================
-*/
 static qboolean	CG_CalcMuzzlePoint( int entityNum, vector3 *muzzle ) {
 	vector3		forward;
 	centity_t	*cent;

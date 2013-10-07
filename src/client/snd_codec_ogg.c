@@ -223,11 +223,6 @@ const ov_callbacks S_OGG_Callbacks =
  &S_OGG_Callback_tell
 };
 
-/*
-=================
-S_OGG_CodecOpenStream
-=================
-*/
 snd_stream_t *S_OGG_CodecOpenStream(const char *filename)
 {
 	snd_stream_t *stream;
@@ -328,11 +323,6 @@ snd_stream_t *S_OGG_CodecOpenStream(const char *filename)
 	return stream;
 }
 
-/*
-=================
-S_OGG_CodecCloseStream
-=================
-*/
 void S_OGG_CodecCloseStream(snd_stream_t *stream)
 {
 	// check if input is valid
@@ -351,11 +341,6 @@ void S_OGG_CodecCloseStream(snd_stream_t *stream)
 	S_CodecUtilClose(&stream);
 }
 
-/*
-=================
-S_OGG_CodecReadStream
-=================
-*/
 int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
 {
 	// buffer handling
@@ -413,14 +398,7 @@ int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
 	return bytesRead;
 }
 
-/*
-=====================================================================
-S_OGG_CodecLoad
-
-We handle S_OGG_CodecLoad as a special case of the streaming functions 
-where we read the whole stream at once.
-======================================================================
-*/
+// We handle S_OGG_CodecLoad as a special case of the streaming functions where we read the whole stream at once.
 void *S_OGG_CodecLoad(const char *filename, snd_info_t *info)
 {
 	snd_stream_t *stream;

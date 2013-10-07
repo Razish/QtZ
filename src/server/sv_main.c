@@ -65,20 +65,12 @@ serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;
 
 /*
-=============================================================================
 
-EVENT MESSAGES
+	EVENT MESSAGES
 
-=============================================================================
 */
 
-/*
-===============
-SV_ExpandNewlines
-
-Converts newlines to "\n" so a line prints nicer
-===============
-*/
+// Converts newlines to "\n" so a line prints nicer
 static char	*SV_ExpandNewlines( char *in ) {
 	static	char	string[1024];
 	int		l;
@@ -98,13 +90,7 @@ static char	*SV_ExpandNewlines( char *in ) {
 	return string;
 }
 
-/*
-======================
-SV_ReplacePendingServerCommands
-
-FIXME: This is ugly
-======================
-*/
+// FIXME: This is ugly
 #if 0 // unused
 static int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) {
 	int i, index, csnum1, csnum2;
@@ -130,14 +116,8 @@ static int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) 
 }
 #endif
 
-/*
-======================
-SV_AddServerCommand
-
-The given command will be transmitted to the client, and is guaranteed to
-not have future snapshot_t executed before it is executed
-======================
-*/
+// The given command will be transmitted to the client, and is guaranteed to not have future
+//	snapshot_t executed before it is executed
 void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	int		index, i;
 
@@ -170,15 +150,8 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 }
 
 
-/*
-=================
-SV_SendServerCommand
-
-Sends a reliable command string to be interpreted by 
-the client game module: "cp", "print", "chat", etc
-A NULL client will broadcast to all clients
-=================
-*/
+// Sends a reliable command string to be interpreted by the client game module: "cp", "print", "chat", etc
+//	A NULL client will broadcast to all clients
 void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	va_list		argptr;
 	byte		message[MAX_MSGLEN];
@@ -215,25 +188,16 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 
 
 /*
-==============================================================================
 
-MASTER SERVER FUNCTIONS
+	MASTER SERVER FUNCTIONS
 
-==============================================================================
 */
 
-/*
-================
-SV_MasterHeartbeat
-
-Send a message to the masters every few minutes to
-let it know we are alive, and log information.
-We will also have a heartbeat sent when a server
-changes from empty to non-empty, and full to non-full,
-but not on every player enter or exit.
-================
-*/
 #define	HEARTBEAT_MSEC	300*1000
+
+// Send a message to the masters every few minutes to let it know we are alive, and log information.
+//	We will also have a heartbeat sent when a server changes from empty to non-empty, and full to non-full,
+//	but not on every player enter or exit.
 void SV_MasterHeartbeat(const char *message)
 {
 	static netadr_t	adr[MAX_MASTER_SERVERS][2]; // [2] for v4 and v6 address for the same address string.
@@ -327,13 +291,7 @@ void SV_MasterHeartbeat(const char *message)
 	}
 }
 
-/*
-=================
-SV_MasterShutdown
-
-Informs all masters that this server is going down
-=================
-*/
+// Informs all masters that this server is going down
 void SV_MasterShutdown( void ) {
 	// send a heartbeat right now
 	svs.nextHeartbeatTime = -9999;
@@ -349,11 +307,9 @@ void SV_MasterShutdown( void ) {
 
 
 /*
-==============================================================================
 
-CONNECTIONLESS COMMANDS
+	CONNECTIONLESS COMMANDS
 
-==============================================================================
 */
 
 // This is deliberately quite large to make it more of an effort to DoS
@@ -364,11 +320,6 @@ static leakyBucket_t buckets[ MAX_BUCKETS ];
 static leakyBucket_t *bucketHashes[ MAX_HASHES ];
 leakyBucket_t outboundLeakyBucket;
 
-/*
-================
-SVC_HashForAddress
-================
-*/
 static long SVC_HashForAddress( netadr_t address ) {
 	byte 		*ip = NULL;
 	int			size=0, i;
@@ -390,13 +341,7 @@ static long SVC_HashForAddress( netadr_t address ) {
 	return hash;
 }
 
-/*
-================
-SVC_BucketForAddress
-
-Find or allocate a bucket for an address
-================
-*/
+// Find or allocate a bucket for an address
 static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int period ) {
 	leakyBucket_t	*bucket = NULL;
 	int						i;
@@ -473,11 +418,6 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 	return NULL;
 }
 
-/*
-================
-SVC_RateLimit
-================
-*/
 qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
 	if ( bucket != NULL ) {
 		int now = Sys_Milliseconds();
@@ -503,28 +443,15 @@ qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
 	return qtrue;
 }
 
-/*
-================
-SVC_RateLimitAddress
-
-Rate limit for a particular address
-================
-*/
+// Rate limit for a particular address
 qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
 	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period );
 
 	return SVC_RateLimit( bucket, burst, period );
 }
 
-/*
-================
-SVC_Status
-
-Responds with all the info that qplug or qspy can see about the server
-and all connected players.  Used for getting detailed information after
-the simple info query.
-================
-*/
+// Responds with all the info that qplug or qspy can see about the server and all connected players.
+//	Used for getting detailed information after the simple info query.
 static void SVC_Status( netadr_t from ) {
 	char	player[1024];
 	char	status[MAX_MSGLEN];
@@ -580,14 +507,7 @@ static void SVC_Status( netadr_t from ) {
 	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
-/*
-================
-SVC_Info
-
-Responds with a short info message that should be enough to determine
-if a user is interested in a server to do a full status
-================
-*/
+// Responds with a short info message that should be enough to determine if a user is interested in a server to do a full status
 void SVC_Info( netadr_t from ) {
 	int		i, count, humans;
 	char	*gamedir;
@@ -666,25 +586,13 @@ void SVC_Info( netadr_t from ) {
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
-/*
-================
-SVC_FlushRedirect
-
-================
-*/
 static void SV_FlushRedirect( char *outputbuf ) {
 	NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
 }
 
-/*
-===============
-SVC_RemoteCommand
-
-An rcon packet arrived from the network.
-Shift down the remaining args
-Redirect all printfs
-===============
-*/
+// An rcon packet arrived from the network.
+//	Shift down the remaining args
+//	Redirect all printfs
 static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	qboolean	valid;
 	char		remaining[1024];
@@ -729,7 +637,6 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	} else {
 		remaining[0] = 0;
 		
-		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 		// get the command directly, "rcon <pass> <command>" to avoid quoting issues
 		// extract the command by walking
 		// since the cmd formatting can fuckup (amount of spaces), using a dumb step by step parsing
@@ -748,19 +655,11 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 
 	}
 
-	Com_EndRedirect ();
+	Com_EndRedirect();
 }
 
-/*
-=================
-SV_ConnectionlessPacket
-
-A connectionless packet has four leading 0xff
-characters to distinguish it from a game channel.
-Clients that are in the game can still send
-connectionless packets.
-=================
-*/
+// A connectionless packet has four leading 0xff characters to distinguish it from a game channel.
+//	Clients that are in the game can still send connectionless packets.
 static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	*c;
@@ -798,13 +697,6 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	}
 }
 
-//============================================================================
-
-/*
-=================
-SV_PacketEvent
-=================
-*/
 void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	int			i;
 	client_t	*cl;
@@ -858,14 +750,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	}
 }
 
-
-/*
-===================
-SV_CalcPings
-
-Updates the cl->ping variables
-===================
-*/
+// Updates the cl->ping variables
 static void SV_CalcPings( void ) {
 	int			i, j;
 	client_t	*cl;
@@ -913,19 +798,10 @@ static void SV_CalcPings( void ) {
 	}
 }
 
-/*
-==================
-SV_CheckTimeouts
-
-If a packet has not been received from a client for timeout->integer 
-seconds, drop the conneciton.  Server time is used instead of
-realtime to avoid dropping the local client while debugging.
-
-When a client is normally dropped, the client_t goes into a zombie state
-for a few seconds to make sure any final reliable message gets resent
-if necessary
-==================
-*/
+// If a packet has not been received from a client for timeout->integer seconds, drop the conneciton.
+//	Server time is used instead of realtime to avoid dropping the local client while debugging.
+//	When a client is normally dropped, the client_t goes into a zombie state for a few seconds
+//	to make sure any final reliable message gets resent if necessary
 static void SV_CheckTimeouts( void ) {
 	int		i;
 	client_t	*cl;
@@ -961,12 +837,6 @@ static void SV_CheckTimeouts( void ) {
 	}
 }
 
-
-/*
-==================
-SV_CheckPaused
-==================
-*/
 static qboolean SV_CheckPaused( void ) {
 	int		count;
 	client_t	*cl;
@@ -996,12 +866,7 @@ static qboolean SV_CheckPaused( void ) {
 	return qtrue;
 }
 
-/*
-==================
-SV_FrameMsec
-Return time in millseconds until processing of the next server frame.
-==================
-*/
+// Return time in millseconds until processing of the next server frame.
 int SV_FrameMsec( void ) {
 	if ( sv_frametime ) {
 		int frameMsec = sv_frametime->integer;
@@ -1015,11 +880,6 @@ int SV_FrameMsec( void ) {
 		return 1;
 }
 
-/*
-==================
-SV_CheckCvars
-==================
-*/
 void SV_CheckCvars( void ) {
 	static int lastModHostname = -1;
 	qboolean changed = qfalse;
@@ -1046,17 +906,10 @@ void SV_CheckCvars( void ) {
 	}
 }
 
-/*
-==================
-SV_Frame
-
-Player movement occurs as a result of packet events, which
-happen before SV_Frame is called
-==================
-*/
+// Player movement occurs as a result of packet events, which happen before SV_Frame is called
 void SV_Frame( int msec ) {
-	int		frameMsec;
-	int		startTime;
+	int		frameMsec = 0;
+	int		startTime = 0;
 
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
@@ -1129,11 +982,8 @@ void SV_Frame( int msec ) {
 		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	}
 
-	if ( com_speeds->integer ) {
-		startTime = Sys_Milliseconds ();
-	} else {
-		startTime = 0;	// quite a compiler warning
-	}
+	if ( com_speeds->integer )
+		startTime = Sys_Milliseconds();
 
 	// update ping based on the all received frames
 	SV_CalcPings();
@@ -1151,7 +1001,7 @@ void SV_Frame( int msec ) {
 	}
 
 	if ( com_speeds->integer ) {
-		time_game = Sys_Milliseconds () - startTime;
+		time_game = Sys_Milliseconds() - startTime;
 	}
 
 	// check timeouts
@@ -1166,18 +1016,10 @@ void SV_Frame( int msec ) {
 	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 }
 
-/*
-====================
-SV_RateMsec
-
-Return the number of msec until another message can be sent to
-a client based on its rate settings
-====================
-*/
-
 #define UDPIP_HEADER_SIZE 28
 #define UDPIP6_HEADER_SIZE 48
 
+// Return the number of msec until another message can be sent to a client based on its rate settings
 int SV_RateMsec(client_t *client)
 {
 	int rate, rateMsec;
@@ -1216,16 +1058,8 @@ int SV_RateMsec(client_t *client)
 		return rateMsec - rate;
 }
 
-/*
-====================
-SV_SendQueuedPackets
-
-Send download messages and queued packets in the time that we're idle, i.e.
-not computing a server frame or sending client snapshots.
-Return the time in msec until we expect to be called next
-====================
-*/
-
+// Send download messages and queued packets in the time that we're idle, i.e. not computing a server frame or sending client snapshots.
+//	Return the time in msec until we expect to be called next
 int SV_SendQueuedPackets( void )
 {
 	int numBlocks;

@@ -1248,11 +1248,6 @@ void Cmd_Vote_f( gentity_t *ent ) {
 	}
 }
 
-/*
-=================
-ClientCommand
-=================
-*/
 #define CMDFLAG_NOINTERMISSION	0x0001
 #define CMDFLAG_CHEAT			0x0002
 #define CMDFLAG_ALIVE			0x0004
@@ -1298,14 +1293,8 @@ command_t commands[] = {
 };
 static size_t numCommands = ARRAY_LEN( commands );
 
-/*
-=================
-ClientCommand
-=================
-*/
-
-//returns the flags that failed to pass
-// or 0 if the command is allowed to be executed
+// returns the flags that failed to pass
+//	or 0 if the command is allowed to be executed
 unsigned int G_CmdValid( const gentity_t *ent, const command_t *cmd )
 {
 	if ( (cmd->flags & CMDFLAG_NOINTERMISSION)

@@ -36,7 +36,7 @@ short*   snd_out;
 
 #ifndef id386 // if configured not to use asm
 
-void S_WriteLinearBlastStereo16 (void)
+void S_WriteLinearBlastStereo16( void )
 {
 	int		i;
 	int		val;
@@ -62,10 +62,10 @@ void S_WriteLinearBlastStereo16 (void)
 }
 #elif defined(__GNUC__)
 // uses snd_mixa.s
-void S_WriteLinearBlastStereo16 (void);
+void S_WriteLinearBlastStereo16( void );
 #else
 
-__declspec( naked ) void S_WriteLinearBlastStereo16 (void)
+__declspec( naked ) void S_WriteLinearBlastStereo16( void )
 {
 	__asm {
 		push edi
@@ -137,7 +137,7 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 		snd_linear_count <<= 1;
 
 		// write a linear blast of samples
-		S_WriteLinearBlastStereo16 ();
+		S_WriteLinearBlastStereo16();
 
 		snd_p += snd_linear_count;
 		ls_paintedtime += (snd_linear_count>>1);
@@ -147,12 +147,6 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 	}
 }
 
-/*
-===================
-S_TransferPaintBuffer
-
-===================
-*/
 void S_TransferPaintBuffer(int endtime)
 {
 	int 	out_idx;
@@ -224,11 +218,9 @@ void S_TransferPaintBuffer(int endtime)
 
 
 /*
-===============================================================================
 
-CHANNEL MIXING
+	CHANNEL MIXING
 
-===============================================================================
 */
 
 #ifdef idppc_altivec
@@ -627,11 +619,6 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	}
 }
 
-/*
-===================
-S_PaintChannels
-===================
-*/
 void S_PaintChannels( int endtime ) {
 	int 	i;
 	int 	end;

@@ -288,22 +288,14 @@ keyname_t keynames[] =
 };
 
 /*
-=============================================================================
 
-EDIT FIELDS
+	EDIT FIELDS
 
-=============================================================================
 */
 
 
-/*
-===================
-Field_Draw
-
-Handles horizontal scrolling and cursor blinking
-x, y, and width are in pixels
-===================
-*/
+// Handles horizontal scrolling and cursor blinking
+//	x, y, and width are in pixels
 void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape, vector4 *color ) {
 	int		len;
 	int		drawLen;
@@ -389,11 +381,6 @@ void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor,
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
-/*
-================
-Field_Paste
-================
-*/
 void Field_Paste( field_t *edit ) {
 	char	*cbd;
 	int		pasteLen, i;
@@ -413,16 +400,8 @@ void Field_Paste( field_t *edit ) {
 	Z_Free( cbd );
 }
 
-/*
-=================
-Field_KeyDownEvent
-
-Performs the basic line editing functions for the console,
-in-game talk, and menu fields
-
-Key events are used for non-printable characters, others are gotten from char events.
-=================
-*/
+// Performs the basic line editing functions for the console, in-game talk, and menu fields
+//	Key events are used for non-printable characters, others are gotten from char events.
 void Field_KeyDownEvent( field_t *edit, int key ) {
 	int		len;
 
@@ -526,11 +505,6 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 	}
 }
 
-/*
-==================
-Field_CharEvent
-==================
-*/
 void Field_CharEvent( field_t *edit, int ch ) {
 	int		len;
 
@@ -606,20 +580,12 @@ void Field_CharEvent( field_t *edit, int ch ) {
 }
 
 /*
-=============================================================================
 
-CONSOLE LINE EDITING
+	CONSOLE LINE EDITING
 
-==============================================================================
 */
 
-/*
-====================
-Console_Key
-
-Handles history and console scrollback
-====================
-*/
+// Handles history and console scrollback
 void Console_Key (int key) {
 	// ctrl-L clears screen
 	if ( key == 'l' && keys[K_CTRL].down ) {
@@ -678,7 +644,7 @@ void Console_Key (int key) {
 		CL_SaveConsoleHistory( );
 
 		if ( clc.state == CA_DISCONNECTED ) {
-			SCR_UpdateScreen ();	// force an update, because the command
+			SCR_UpdateScreen();	// force an update, because the command
 		}							// may take some time
 		return;
 	}
@@ -760,9 +726,6 @@ void Console_Key (int key) {
 	Field_KeyDownEvent( &g_consoleField, key );
 }
 
-//============================================================================
-
-
 qboolean Key_GetOverstrikeMode( void ) {
 	return key_overstrikeMode;
 }
@@ -772,12 +735,6 @@ void Key_SetOverstrikeMode( qboolean state ) {
 	key_overstrikeMode = state;
 }
 
-
-/*
-===================
-Key_IsDown
-===================
-*/
 qboolean Key_IsDown( int keynum ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS ) {
 		return qfalse;
@@ -786,19 +743,9 @@ qboolean Key_IsDown( int keynum ) {
 	return keys[keynum].down;
 }
 
-/*
-===================
-Key_StringToKeynum
-
-Returns a key number to be used to index keys[] by looking at
-the given string.  Single ascii characters return themselves, while
-the K_* names are matched up.
-
-0x11 will be interpreted as raw hex, which will allow new controlers
-
-to be configured even if they don't have defined names.
-===================
-*/
+// Returns a key number to be used to index keys[] by looking at the given string.
+//	Single ascii characters return themselves, while the K_* names are matched up.
+//	0x11 will be interpreted as raw hex, which will allow new controlers to be configured even if they don't have defined names.
 int Key_StringToKeynum( char *str ) {
 	keyname_t	*kn;
 	
@@ -827,14 +774,7 @@ int Key_StringToKeynum( char *str ) {
 	return -1;
 }
 
-/*
-===================
-Key_KeynumToString
-
-Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the
-given keynum.
-===================
-*/
+// Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the given keynum.
 char *Key_KeynumToString( int keynum ) {
 	keyname_t	*kn;	
 	static	char	tinystr[5];
@@ -875,12 +815,6 @@ char *Key_KeynumToString( int keynum ) {
 	return tinystr;
 }
 
-
-/*
-===================
-Key_SetBinding
-===================
-*/
 void Key_SetBinding( int keynum, const char *binding ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS ) {
 		return;
@@ -899,12 +833,6 @@ void Key_SetBinding( int keynum, const char *binding ) {
 	cvar_modifiedFlags |= CVAR_ARCHIVE;
 }
 
-
-/*
-===================
-Key_GetBinding
-===================
-*/
 char *Key_GetBinding( int keynum ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS ) {
 		return "";
@@ -912,12 +840,6 @@ char *Key_GetBinding( int keynum ) {
 
 	return keys[ keynum ].binding;
 }
-
-/* 
-===================
-Key_GetKey
-===================
-*/
 
 int Key_GetKey(const char *binding) {
   int i;
@@ -932,12 +854,7 @@ int Key_GetKey(const char *binding) {
   return -1;
 }
 
-/*
-===================
-Key_Unbind_f
-===================
-*/
-void Key_Unbind_f (void)
+void Key_Unbind_f( void )
 {
 	int		b;
 
@@ -957,12 +874,7 @@ void Key_Unbind_f (void)
 	Key_SetBinding (b, "");
 }
 
-/*
-===================
-Key_Unbindall_f
-===================
-*/
-void Key_Unbindall_f (void)
+void Key_Unbindall_f( void )
 {
 	int		i;
 	
@@ -971,12 +883,6 @@ void Key_Unbindall_f (void)
 			Key_SetBinding (i, "");
 }
 
-
-/*
-===================
-Key_Bind_f
-===================
-*/
 void Key_Bind_f( void ) {
 	int i, c, b;
 	char cmd[MAX_STRING_CHARS] = {0};
@@ -1013,13 +919,7 @@ void Key_Bind_f( void ) {
 	Key_SetBinding( b, cmd );
 }
 
-/*
-============
-Key_WriteBindings
-
-Writes lines containing "bind key value"
-============
-*/
+// Writes lines containing "bind key value"
 void Key_WriteBindings( fileHandle_t f ) {
 	int		i;
 
@@ -1034,13 +934,6 @@ void Key_WriteBindings( fileHandle_t f ) {
 	}
 }
 
-
-/*
-============
-Key_Bindlist_f
-
-============
-*/
 void Key_Bindlist_f( void ) {
 	int		i;
 
@@ -1051,11 +944,6 @@ void Key_Bindlist_f( void ) {
 	}
 }
 
-/*
-============
-Key_KeynameCompletion
-============
-*/
 void Key_KeynameCompletion( void(*callback)(const char *s) ) {
 	int		i;
 
@@ -1063,11 +951,6 @@ void Key_KeynameCompletion( void(*callback)(const char *s) ) {
 		callback( keynames[ i ].name );
 }
 
-/*
-====================
-Key_CompleteUnbind
-====================
-*/
 static void Key_CompleteUnbind( char *args, int argNum )
 {
 	if( argNum == 2 )
@@ -1080,11 +963,6 @@ static void Key_CompleteUnbind( char *args, int argNum )
 	}
 }
 
-/*
-====================
-Key_CompleteBind
-====================
-*/
 static void Key_CompleteBind( char *args, int argNum )
 {
 	char *p;
@@ -1107,11 +985,6 @@ static void Key_CompleteBind( char *args, int argNum )
 	}
 }
 
-/*
-===================
-CL_InitKeyCommands
-===================
-*/
 void CL_InitKeyCommands( void ) {
 	// register our functions
 	Cmd_AddCommand( "bind", Key_Bind_f, Key_CompleteBind );
@@ -1120,13 +993,7 @@ void CL_InitKeyCommands( void ) {
 	Cmd_AddCommand( "bindlist", Key_Bindlist_f, NULL );
 }
 
-/*
-===================
-CL_ParseBinding
-
-Execute the commands in the bind string
-===================
-*/
+// Execute the commands in the bind string
 void CL_ParseBinding( int key, qboolean down, unsigned time )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
@@ -1164,13 +1031,7 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 	}
 }
 
-/*
-===================
-CL_KeyDownEvent
-
-Called by CL_KeyEvent to handle a keypress
-===================
-*/
+// Called by CL_KeyEvent to handle a keypress
 void CL_KeyDownEvent( int key, unsigned time )
 {
 	keys[key].down = qtrue;
@@ -1187,8 +1048,8 @@ void CL_KeyDownEvent( int key, unsigned time )
 	// console key is hardcoded, so the user can never unbind it
 	if( key == K_CONSOLE || ( keys[K_SHIFT].down && key == K_ESCAPE ) )
 	{
-		Con_ToggleConsole_f ();
-		Key_ClearStates ();
+		Con_ToggleConsole_f();
+		Key_ClearStates();
 		return;
 	}
 
@@ -1247,13 +1108,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 	return;
 }
 
-/*
-===================
-CL_KeyUpEvent
-
-Called by CL_KeyEvent to handle a keyrelease
-===================
-*/
+// Called by CL_KeyEvent to handle a keyrelease
 void CL_KeyUpEvent( int key, unsigned time )
 {
 	keys[key].repeats = 0;
@@ -1285,13 +1140,7 @@ void CL_KeyUpEvent( int key, unsigned time )
 	}
 }
 
-/*
-===================
-CL_KeyEvent
-
-Called by the system for both key up and key down events
-===================
-*/
+// Called by the system for both key up and key down events
 void CL_KeyEvent (int key, qboolean down, unsigned time) {
 	if( down )
 		CL_KeyDownEvent( key, time );
@@ -1299,13 +1148,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		CL_KeyUpEvent( key, time );
 }
 
-/*
-===================
-CL_CharEvent
-
-Normal keyboard characters, already shifted / capslocked / etc
-===================
-*/
+// Normal keyboard characters, already shifted / capslocked / etc
 void CL_CharEvent( int key ) {
 	// delete is not a printable character and is
 	// otherwise handled by Field_KeyDownEvent
@@ -1320,13 +1163,7 @@ void CL_CharEvent( int key ) {
 	else if ( clc.state == CA_DISCONNECTED )		Field_CharEvent( &g_consoleField, key );
 }
 
-
-/*
-===================
-Key_ClearStates
-===================
-*/
-void Key_ClearStates (void)
+void Key_ClearStates( void )
 {
 	int		i;
 
@@ -1347,20 +1184,10 @@ void Key_ClearStates (void)
 
 static int keyCatchers = 0;
 
-/*
-====================
-Key_GetCatcher
-====================
-*/
 int Key_GetCatcher( void ) {
 	return keyCatchers;
 }
 
-/*
-====================
-Key_SetCatcher
-====================
-*/
 void Key_SetCatcher( int catcher ) {
 	// If the catcher state is changing, clear all key states
 	if( catcher != keyCatchers )
@@ -1375,13 +1202,7 @@ void Key_SetCatcher( int catcher ) {
 static char	consoleSaveBuffer[ MAX_CONSOLE_SAVE_BUFFER ];
 static int	consoleSaveBufferSize = 0;
 
-/*
-================
-CL_LoadConsoleHistory
-
-Load the console history from cl_consoleHistory
-================
-*/
+// Load the console history from cl_consoleHistory
 void CL_LoadConsoleHistory( void )
 {
 	char					*token, *text_p;
@@ -1443,14 +1264,7 @@ void CL_LoadConsoleHistory( void )
 	FS_FCloseFile( f );
 }
 
-/*
-================
-CL_SaveConsoleHistory
-
-Save the console history into the cvar cl_consoleHistory
-so that it persists across invocations of q3
-================
-*/
+// Save the console history into the cvar cl_consoleHistory so that it persists across invocations of q3
 void CL_SaveConsoleHistory( void )
 {
 	int						i;

@@ -31,11 +31,6 @@ static qboolean R_LoadMD4(model_t *mod, void *buffer, const char *name );
 static qboolean R_LoadMDR(model_t *mod, void *buffer, int filesize, const char *name );
 #endif
 
-/*
-====================
-R_RegisterMD3
-====================
-*/
 qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 {
 	union {
@@ -117,11 +112,6 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 }
 
 #ifdef RAVENMD4
-/*
-====================
-R_RegisterMDR
-====================
-*/
 qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 {
 	union {
@@ -156,11 +146,6 @@ qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 }
 #endif
 
-/*
-====================
-R_RegisterIQM
-====================
-*/
 qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 {
 	union {
@@ -211,11 +196,6 @@ static modelExtToLoaderMap_t modelLoaders[ ] =
 
 static int numModelLoaders = ARRAY_LEN(modelLoaders);
 
-//===============================================================================
-
-/*
-** R_GetModelByHandle
-*/
 model_t	*R_GetModelByHandle( qhandle_t index ) {
 	model_t		*mod;
 
@@ -229,11 +209,6 @@ model_t	*R_GetModelByHandle( qhandle_t index ) {
 	return mod;
 }
 
-//===============================================================================
-
-/*
-** R_AllocModel
-*/
 model_t *R_AllocModel( void ) {
 	model_t		*mod;
 
@@ -249,18 +224,9 @@ model_t *R_AllocModel( void ) {
 	return mod;
 }
 
-/*
-====================
-RE_RegisterModel
-
-Loads in a model for the given name
-
-Zero will be returned if the model fails to load.
-An entry will be retained for failed models as an
-optimization to prevent disk rescanning if they are
-asked for again.
-====================
-*/
+// Loads in a model for the given name
+//	Zero will be returned if the model fails to load.
+//	An entry will be retained for failed models as an optimization to prevent disk rescanning if they are asked for again.
 qhandle_t RE_RegisterModel( const char *name ) {
 	model_t		*mod;
 	qhandle_t	hModel;
@@ -377,11 +343,6 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	return hModel;
 }
 
-/*
-=================
-R_LoadMD3
-=================
-*/
 static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name ) {
 	int					i, j;
 	md3Header_t			*pinmodel;
@@ -537,12 +498,6 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 
 #ifdef RAVENMD4
-
-/*
-=================
-R_LoadMDR
-=================
-*/
 static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char *mod_name ) 
 {
 	int					i, j, k, l;
@@ -877,12 +832,6 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 }
 #endif
 
-/*
-=================
-R_LoadMD4
-=================
-*/
-
 static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	int					i, j, k, lodindex;
 	md4Header_t			*pinmodel, *md4;
@@ -1032,13 +981,6 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	return qtrue;
 }
 
-
-
-//=============================================================================
-
-/*
-** RE_BeginRegistration
-*/
 void RE_BeginRegistration( glconfig_t *glconfigOut ) {
 
 	R_Init();
@@ -1059,13 +1001,6 @@ void RE_BeginRegistration( glconfig_t *glconfigOut ) {
 //	RE_StretchPic(0, 0, 0, 0, 0, 0, 1, 1, 0);
 }
 
-//=============================================================================
-
-/*
-===============
-R_ModelInit
-===============
-*/
 void R_ModelInit( void ) {
 	model_t		*mod;
 
@@ -1076,12 +1011,6 @@ void R_ModelInit( void ) {
 	mod->type = MOD_BAD;
 }
 
-
-/*
-================
-R_Modellist_f
-================
-*/
 void R_Modellist_f( void ) {
 	int		i, j;
 	model_t	*mod;
@@ -1109,15 +1038,6 @@ void R_Modellist_f( void ) {
 #endif
 }
 
-
-//=============================================================================
-
-
-/*
-================
-R_GetTag
-================
-*/
 static md3Tag_t *R_GetTag( md3Header_t *mod, int frame, const char *tagName ) {
 	md3Tag_t		*tag;
 	int				i;
@@ -1183,11 +1103,6 @@ void R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3Tag_t
 }
 #endif
 
-/*
-================
-R_LerpTag
-================
-*/
 int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, 
 					 float frac, const char *tagName ) {
 	md3Tag_t	*start, *end;
@@ -1249,12 +1164,6 @@ int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFram
 	return qtrue;
 }
 
-
-/*
-====================
-R_ModelBounds
-====================
-*/
 void R_ModelBounds( qhandle_t handle, vector3 *mins, vector3 *maxs ) {
 	model_t		*model;
 

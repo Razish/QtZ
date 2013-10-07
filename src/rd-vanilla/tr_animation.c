@@ -33,11 +33,6 @@ frame.
 
 */
 
-/*
-==============
-R_AddAnimSurfaces
-==============
-*/
 void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 	md4Header_t		*header;
 	md4Surface_t	*surface;
@@ -56,11 +51,6 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 	}
 }
 
-/*
-==============
-RB_SurfaceAnim
-==============
-*/
 void RB_SurfaceAnim( md4Surface_t *surface ) {
 	int				i, j, k;
 	float			frontlerp, backlerp;
@@ -172,12 +162,6 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 
 // copied and adapted from tr_mesh.c
 
-/*
-=============
-R_MDRCullModel
-=============
-*/
-
 static int R_MDRCullModel( mdrHeader_t *header, trRefEntity_t *ent ) {
 	vector3		bounds[2];
 	mdrFrame_t	*oldFrame, *newFrame;
@@ -264,13 +248,6 @@ static int R_MDRCullModel( mdrHeader_t *header, trRefEntity_t *ent ) {
 	}
 }
 
-/*
-=================
-R_MDRComputeFogNum
-
-=================
-*/
-
 int R_MDRComputeFogNum( mdrHeader_t *header, trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
@@ -305,15 +282,7 @@ int R_MDRComputeFogNum( mdrHeader_t *header, trRefEntity_t *ent ) {
 	return 0;
 }
 
-
-/*
-==============
-R_MDRAddAnimSurfaces
-==============
-*/
-
 // much stuff in there is just copied from R_AddMd3Surfaces in tr_mesh.c
-
 void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	mdrHeader_t		*header;
 	mdrSurface_t	*surface;
@@ -439,11 +408,6 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	}
 }
 
-/*
-==============
-RB_MDRSurfaceAnim
-==============
-*/
 void RB_MDRSurfaceAnim( md4Surface_t *surface )
 {
 	int				i, j, k;

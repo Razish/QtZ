@@ -33,11 +33,6 @@ int	c_peak_windings;
 int	c_winding_allocs;
 int	c_winding_points;
 
-/*
-=============
-AllocWinding
-=============
-*/
 winding_t	*AllocWinding (int points)
 {
 	winding_t	*w;
@@ -65,11 +60,6 @@ void FreeWinding (winding_t *w)
 	Z_Free (w);
 }
 
-/*
-============
-RemoveColinearPoints
-============
-*/
 int	c_removed;
 
 void	RemoveColinearPoints (winding_t *w)
@@ -103,11 +93,6 @@ void	RemoveColinearPoints (winding_t *w)
 	memcpy (w->p, p, nump*sizeof(p[0]));
 }
 
-/*
-============
-WindingPlane
-============
-*/
 void WindingPlane (winding_t *w, vector3 *normal, number *dist)
 {
 	vector3	v1, v2;
@@ -120,11 +105,6 @@ void WindingPlane (winding_t *w, vector3 *normal, number *dist)
 
 }
 
-/*
-=============
-WindingArea
-=============
-*/
 number WindingArea (winding_t *w)
 {
 	int		i;
@@ -142,11 +122,6 @@ number WindingArea (winding_t *w)
 	return total;
 }
 
-/*
-=============
-WindingBounds
-=============
-*/
 void	WindingBounds (winding_t *w, vector3 *mins, vector3 *maxs)
 {
 	number	v;
@@ -166,11 +141,6 @@ void	WindingBounds (winding_t *w, vector3 *mins, vector3 *maxs)
 	}
 }
 
-/*
-=============
-WindingCenter
-=============
-*/
 void	WindingCenter (winding_t *w, vector3 *center)
 {
 	int		i;
@@ -184,11 +154,6 @@ void	WindingCenter (winding_t *w, vector3 *center)
 	VectorScale (center, scale, center);
 }
 
-/*
-=================
-BaseWindingForPlane
-=================
-*/
 winding_t *BaseWindingForPlane (vector3 *normal, number dist)
 {
 	int		i, x;
@@ -255,11 +220,6 @@ winding_t *BaseWindingForPlane (vector3 *normal, number dist)
 	return w;	
 }
 
-/*
-==================
-CopyWinding
-==================
-*/
 winding_t	*CopyWinding (winding_t *w)
 {
 	intptr_t	size;
@@ -271,11 +231,6 @@ winding_t	*CopyWinding (winding_t *w)
 	return c;
 }
 
-/*
-==================
-ReverseWinding
-==================
-*/
 winding_t	*ReverseWinding (winding_t *w)
 {
 	int			i;
@@ -291,11 +246,6 @@ winding_t	*ReverseWinding (winding_t *w)
 }
 
 
-/*
-=============
-ClipWindingEpsilon
-=============
-*/
 void	ClipWindingEpsilon (winding_t *in, vector3 *normal, number dist, number epsilon, winding_t **front, winding_t **back)
 {
 	number	dists[MAX_POINTS_ON_WINDING+4];
@@ -398,11 +348,6 @@ void	ClipWindingEpsilon (winding_t *in, vector3 *normal, number dist, number eps
 }
 
 
-/*
-=============
-ChopWindingInPlace
-=============
-*/
 void ChopWindingInPlace (winding_t **inout, vector3 *normal, number dist, number epsilon)
 {
 	winding_t	*in;
@@ -490,15 +435,8 @@ void ChopWindingInPlace (winding_t **inout, vector3 *normal, number dist, number
 	*inout = f;
 }
 
-
-/*
-=================
-ChopWinding
-
-Returns the fragment of in that is on the front side
-of the cliping plane.  The original is freed.
-=================
-*/
+// Returns the fragment of in that is on the front side of the cliping plane.
+//	The original is freed.
 winding_t	*ChopWinding (winding_t *in, vector3 *normal, number dist)
 {
 	winding_t	*f, *b;
@@ -510,13 +448,6 @@ winding_t	*ChopWinding (winding_t *in, vector3 *normal, number dist)
 	return f;
 }
 
-
-/*
-=================
-CheckWinding
-
-=================
-*/
 void CheckWinding (winding_t *w)
 {
 	int		i, j;
@@ -574,12 +505,6 @@ void CheckWinding (winding_t *w)
 	}
 }
 
-
-/*
-============
-WindingOnPlaneSide
-============
-*/
 int		WindingOnPlaneSide (winding_t *w, vector3 *normal, number dist)
 {
 	qboolean	front, back;
@@ -614,15 +539,9 @@ int		WindingOnPlaneSide (winding_t *w, vector3 *normal, number dist)
 	return SIDE_ON;
 }
 
-
-/*
-=================
-AddWindingToConvexHull
-
-Both w and *hull are on the same plane
-=================
-*/
 #define	MAX_HULL_POINTS		128
+
+// Both w and *hull are on the same plane
 void	AddWindingToConvexHull( winding_t *w, winding_t **hull, vector3 *normal ) {
 	int			i, j, k;
 	vector3		*p, *copy;

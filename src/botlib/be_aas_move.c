@@ -71,7 +71,7 @@ int AAS_DropToFloor(vector3 *origin, vector3 *mins, vector3 *maxs)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitSettings(void)
+void AAS_InitSettings( void )
 {
 	aassettings.phys_gravitydirection.x		= 0;
 	aassettings.phys_gravitydirection.y		= 0;

@@ -459,7 +459,7 @@ void BotResetWeaponState(int weaponstate)
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-int BotAllocWeaponState(void)
+int BotAllocWeaponState( void )
 {
 	int i;
 
@@ -501,7 +501,7 @@ void BotFreeWeaponState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupWeaponAI(void)
+int BotSetupWeaponAI( void )
 {
 	char *file;
 
@@ -525,7 +525,7 @@ int BotSetupWeaponAI(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownWeaponAI(void)
+void BotShutdownWeaponAI( void )
 {
 	int i;
 

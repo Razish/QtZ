@@ -31,13 +31,7 @@ cvar_t		*cl_graphheight;
 cvar_t		*cl_graphscale;
 cvar_t		*cl_graphshift;
 
-/*
-================
-SCR_DrawNamedPic
-
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 void SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
 	qhandle_t	hShader;
 
@@ -48,14 +42,7 @@ void SCR_DrawNamedPic( float x, float y, float width, float height, const char *
 	re->DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
-
-/*
-================
-SCR_AdjustFrom640
-
-Adjusted for resolution and screen aspect ratio
-================
-*/
+// Adjusted for resolution and screen aspect ratio
 void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 	float	xscale;
 	float	yscale;
@@ -84,13 +71,7 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 	}
 }
 
-/*
-================
-SCR_FillRect
-
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 void SCR_FillRect( float x, float y, float width, float height, const vector4 *color ) {
 	re->SetColor( color );
 
@@ -100,25 +81,13 @@ void SCR_FillRect( float x, float y, float width, float height, const vector4 *c
 	re->SetColor( NULL );
 }
 
-
-/*
-================
-SCR_DrawPic
-
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 void SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
 	SCR_AdjustFrom640( &x, &y, &width, &height );
 	re->DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
-
-
-/*
-** SCR_DrawChar
-** chars are drawn at 640*480 virtual screen size
-*/
+// chars are drawn at 640x480 virtual screen size
 static void SCR_DrawChar( int x, int y, float size, int ch ) {
 	int row, col;
 	float frow, fcol;
@@ -153,10 +122,7 @@ static void SCR_DrawChar( int x, int y, float size, int ch ) {
 					   cls.charSetShader );
 }
 
-/*
-** SCR_DrawSmallChar
-** small chars are drawn at native screen resolution
-*/
+// small chars are drawn at native screen resolution
 void SCR_DrawSmallChar( int x, int y, int ch ) {
 	int row, col;
 	float frow, fcol;
@@ -185,10 +151,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 					   cls.charSetShader );
 }
 
-/*
-** SCR_DrawSmallChar2
-** small chars are drawn at native screen resolution
-*/
+// small chars are drawn at native screen resolution
 void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
 {
 	int row, col;
@@ -212,16 +175,8 @@ void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
 					   cls.charSetShader );
 }
 
-/*
-==================
-SCR_DrawBigString[Color]
-
-Draws a multi-colored string with a drop shadow, optionally forcing
-to a fixed color.
-
-Coordinates are at 640 by 480 virtual resolution
-==================
-*/
+// Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
+//	Coordinates are 640x480 virtual values
 void SCR_DrawStringExt( int x, int y, float size, const char *string, const vector4 *setColor, qboolean forceColor, qboolean noColorEscape ) {
 	vector4		color;
 	const char	*s;
@@ -278,15 +233,8 @@ void SCR_DrawBigStringColor( int x, int y, const char *s, vector4 *color, qboole
 	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qtrue, noColorEscape );
 }
 
-
-/*
-==================
-SCR_DrawSmallString[Color]
-
-Draws a multi-colored string with a drop shadow, optionally forcing
-to a fixed color.
-==================
-*/
+// Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
+//	Coordinates are 640x480 virtual values
 void SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor, qboolean forceColor,
 		qboolean noColorEscape ) {
 	vector4		color;
@@ -316,11 +264,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor
 	re->SetColor( NULL );
 }
 
-
-
-/*
-** SCR_Strlen -- skips color escape codes
-*/
+// skips color escape codes
 static int SCR_Strlen( const char *str ) {
 	const char *s = str;
 	int count = 0;
@@ -337,21 +281,10 @@ static int SCR_Strlen( const char *str ) {
 	return count;
 }
 
-/*
-** SCR_GetBigStringWidth
-*/ 
 int	SCR_GetBigStringWidth( const char *str ) {
 	return SCR_Strlen( str ) * BIGCHAR_WIDTH;
 }
 
-
-//===============================================================================
-
-/*
-=================
-SCR_DrawDemoRecording
-=================
-*/
 void SCR_DrawDemoRecording( void ) {
 	char	string[1024];
 	int		pos;
@@ -371,11 +304,6 @@ void SCR_DrawDemoRecording( void ) {
 
 
 #ifdef USE_VOIP
-/*
-=================
-SCR_DrawVoipMeter
-=================
-*/
 void SCR_DrawVoipMeter( void ) {
 	char	buffer[16];
 	char	string[256];
@@ -409,37 +337,22 @@ void SCR_DrawVoipMeter( void ) {
 }
 #endif
 
-
-
-
 /*
-===============================================================================
 
-DEBUG GRAPH
+	DEBUG GRAPH
 
-===============================================================================
 */
 
 static	int			current;
 static	float		values[1024];
 
-/*
-==============
-SCR_DebugGraph
-==============
-*/
 void SCR_DebugGraph (float value)
 {
 	values[current] = value;
 	current = (current + 1) % ARRAY_LEN(values);
 }
 
-/*
-==============
-SCR_DrawDebugGraph
-==============
-*/
-void SCR_DrawDebugGraph (void)
+void SCR_DrawDebugGraph( void )
 {
 	int		a, x, y, w, i, h;
 	float	v;
@@ -467,13 +380,6 @@ void SCR_DrawDebugGraph (void)
 	}
 }
 
-//=============================================================================
-
-/*
-==================
-SCR_Init
-==================
-*/
 void SCR_Init( void ) {
 	cl_timegraph	= Cvar_Get( "timegraph",	"0",	CVAR_CHEAT, NULL, NULL );
 	cl_debuggraph	= Cvar_Get( "debuggraph",	"0",	CVAR_CHEAT, NULL, NULL );
@@ -484,16 +390,7 @@ void SCR_Init( void ) {
 	scr_initialized = qtrue;
 }
 
-
-//=======================================================
-
-/*
-==================
-SCR_DrawScreenField
-
-This will be called twice if rendering in stereo mode
-==================
-*/
+// This will be called twice if rendering in stereo mode
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
 
@@ -562,22 +459,15 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// console draws next
-	Con_DrawConsole ();
+	Con_DrawConsole();
 
 	// debug graph can be drawn on top of anything
 	if ( cl_debuggraph->integer || cl_timegraph->integer || cl_debugMove->integer ) {
-		SCR_DrawDebugGraph ();
+		SCR_DrawDebugGraph();
 	}
 }
 
-/*
-==================
-SCR_UpdateScreen
-
-This is called every frame, and can also be called explicitly to flush
-text to the screen.
-==================
-*/
+// This is called every frame, and can also be called explicitly to flush text to the screen.
 void SCR_UpdateScreen( void ) {
 	static int	recursive;
 

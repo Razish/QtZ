@@ -25,13 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-/*
-=====================
-CG_SmokePuff
-
-Adds a smoke puff or blood trail localEntity.
-=====================
-*/
+// Adds a smoke puff or blood trail localEntity.
 localEntity_t *CG_SmokePuff( const vector3 *p, const vector3 *vel, 
 				   float radius,
 				   float r, float g, float b, float a,
@@ -89,13 +83,7 @@ localEntity_t *CG_SmokePuff( const vector3 *p, const vector3 *vel,
 	return le;
 }
 
-/*
-==================
-CG_SpawnEffect
-
-Player teleporting in or out
-==================
-*/
+// Player teleporting in or out
 void CG_SpawnEffect( vector3 *org ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -121,12 +109,6 @@ void CG_SpawnEffect( vector3 *org ) {
 	re->origin.z += 16;
 }
 
-
-/*
-==================
-CG_ScorePlum
-==================
-*/
 void CG_ScorePlum( int client, vector3 *org, int score ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -167,12 +149,6 @@ void CG_ScorePlum( int client, vector3 *org, int score ) {
 	AnglesToAxis( &angles, re->axis );
 }
 
-
-/*
-====================
-CG_MakeExplosion
-====================
-*/
 localEntity_t *CG_MakeExplosion( vector3 *origin, vector3 *dir, 
 								qhandle_t hModel, qhandle_t shader,
 								int msec, qboolean isSprite ) {
@@ -228,14 +204,7 @@ localEntity_t *CG_MakeExplosion( vector3 *origin, vector3 *dir,
 	return ex;
 }
 
-
-/*
-=================
-CG_Bleed
-
-This is the spurt of blood when a character gets hit
-=================
-*/
+// This is the spurt of blood when a character gets hit
 void CG_Bleed( vector3 *origin, int entityNum ) {
 	localEntity_t	*ex;
 
@@ -261,13 +230,6 @@ void CG_Bleed( vector3 *origin, int entityNum ) {
 	}
 }
 
-
-
-/*
-==================
-CG_LaunchGib
-==================
-*/
 void CG_LaunchGib( vector3 *origin, vector3 *velocity, qhandle_t hModel ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -294,15 +256,10 @@ void CG_LaunchGib( vector3 *origin, vector3 *velocity, qhandle_t hModel ) {
 	le->leMarkType = LEMT_BLOOD;
 }
 
-/*
-===================
-CG_GibPlayer
-
-Generated a bunch of gibs launching out from the bodies location
-===================
-*/
 #define	GIB_VELOCITY	250
 #define	GIB_JUMP		250
+
+// Generated a bunch of gibs launching out from the bodies location
 void CG_GibPlayer( vector3 *playerOrigin ) {
 	vector3	origin, velocity;
 
@@ -377,11 +334,6 @@ void CG_GibPlayer( vector3 *playerOrigin ) {
 	CG_LaunchGib( &origin, &velocity, cgs.media.gibLeg );
 }
 
-/*
-==================
-CG_LaunchGib
-==================
-*/
 void CG_LaunchExplode( vector3 *origin, vector3 *velocity, qhandle_t hModel ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -410,13 +362,8 @@ void CG_LaunchExplode( vector3 *origin, vector3 *velocity, qhandle_t hModel ) {
 
 #define	EXP_VELOCITY	100
 #define	EXP_JUMP		150
-/*
-===================
-CG_GibPlayer
 
-Generated a bunch of gibs launching out from the bodies location
-===================
-*/
+// Generated a bunch of gibs launching out from the bodies location
 void CG_BigExplode( vector3 *playerOrigin ) {
 	vector3	origin, velocity;
 

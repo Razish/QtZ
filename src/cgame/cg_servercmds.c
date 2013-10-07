@@ -28,13 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../../build/qtz/ui/menudef.h"
 
-/*
-=================
-CG_ParseScores
-
-=================
-*/
-
 #define SCORE_OFFSET (13)
 
 static void CG_ParseScores( void ) {
@@ -77,13 +70,6 @@ static void CG_ParseScores( void ) {
 
 }
 
-/*
-=================
-CG_ParseTeamInfo
-
-=================
-*/
-
 #define TEAMINFO_OFFSET (6)
 static void CG_ParseTeamInfo( void ) {
 	int		i;
@@ -115,15 +101,7 @@ static void CG_ParseTeamInfo( void ) {
 	}
 }
 
-
-/*
-================
-CG_ParseServerinfo
-
-This is called explicitly when the gamestate is first received,
-and whenever the server updates any serverinfo flagged cvars
-================
-*/
+// This is called explicitly when the gamestate is first received, and whenever the server updates any serverinfo flagged cvars
 void CG_ParseServerinfo( void ) {
 	const char	*info;
 	char	*mapname;
@@ -165,11 +143,6 @@ void CG_ParseServerinfo( void ) {
 	trap->Cvar_Set( "ui_about_svframetime", va( "%i", atoi( Info_ValueForKey( info, "sv_frametime" ) ) ) );
 }
 
-/*
-==================
-CG_ParseWarmup
-==================
-*/
 static void CG_ParseWarmup( void ) {
 	const char	*info;
 	int			warmup;
@@ -190,13 +163,7 @@ static void CG_ParseWarmup( void ) {
 	cg.warmup = warmup;
 }
 
-/*
-================
-CG_SetConfigValues
-
-Called on load to set the initial values from configure strings
-================
-*/
+// Called on load to set the initial values from configstrings
 void CG_SetConfigValues( void ) {
 	const char *s;
 
@@ -215,52 +182,6 @@ void CG_SetConfigValues( void ) {
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
 }
 
-/*
-=====================
-CG_ShaderStateChanged
-=====================
-*/
-void CG_ShaderStateChanged(void) {
-	char originalShader[MAX_QPATH];
-	char newShader[MAX_QPATH];
-	char timeOffset[16];
-	const char *o;
-	char *n,*t;
-
-	o = CG_ConfigString( CS_SHADERSTATE );
-	while (o && *o) {
-		n = strstr(o, "=");
-		if (n && *n) {
-			strncpy(originalShader, o, n-o);
-			originalShader[n-o] = 0;
-			n++;
-			t = strstr(n, ":");
-			if (t && *t) {
-				strncpy(newShader, n, t-n);
-				newShader[t-n] = 0;
-			} else {
-				break;
-			}
-			t++;
-			o = strstr(t, "@");
-			if (o) {
-				strncpy(timeOffset, t, o-t);
-				timeOffset[o-t] = 0;
-				o++;
-				trap->R_RemapShader( originalShader, newShader, timeOffset );
-			}
-		} else {
-			break;
-		}
-	}
-}
-
-/*
-================
-CG_ConfigStringModified
-
-================
-*/
 static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
@@ -320,19 +241,8 @@ static void CG_ConfigStringModified( void ) {
 			cgs.flagStatus = str[0] - '0';
 		}
 	}
-	else if ( num == CS_SHADERSTATE ) {
-		CG_ShaderStateChanged();
-	}
-		
 }
 
-
-/*
-=======================
-CG_AddToTeamChat
-
-=======================
-*/
 static void CG_AddToTeamChat( const char *str ) {
 	int len;
 	char *p, *ls;
@@ -394,21 +304,12 @@ static void CG_AddToTeamChat( const char *str ) {
 		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
 }
 
-/*
-===============
-CG_MapRestart
-
-The server has issued a map_restart, so the next snapshot
-is completely new and should not be interpolated to.
-
-A tournement restart will clear everything, but doesn't
-require a reload of all the media
-===============
-*/
+// The server has issued a map_restart, so the next snapshot is completely new and should not be interpolated to.
+//	A tournement restart will clear everything, but doesn't require a reload of all the media
 static void CG_MapRestart( void ) {
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
-	CG_ClearParticles ();
+	CG_ClearParticles();
 
 	// make sure the "3 frags left" warnings play again
 	cg.fraglimitWarnings = 0;
@@ -466,11 +367,6 @@ typedef struct modelVoiceChat_s
 voiceChatList_t voiceChatLists[MAX_VOICEFILES];
 modelVoiceChat_t modelVoiceChat[MAX_VOICEMODELS];
 
-/*
-=================
-CG_ParseVoiceChats
-=================
-*/
 int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, int maxVoiceChats ) {
 	int	len, i;
 	fileHandle_t f;
@@ -548,11 +444,6 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	return qtrue;
 }
 
-/*
-=================
-CG_LoadVoiceChats
-=================
-*/
 void CG_LoadVoiceChats( void ) {
 	int size;
 
@@ -568,11 +459,6 @@ void CG_LoadVoiceChats( void ) {
 	trap->Print("voice chat memory size = %d\n", size - trap->MemoryRemaining());
 }
 
-/*
-=================
-CG_HeadModelVoiceChats
-=================
-*/
 int CG_HeadModelVoiceChats( char *filename ) {
 	int	len, i;
 	fileHandle_t f;
@@ -614,12 +500,6 @@ int CG_HeadModelVoiceChats( char *filename ) {
 	return -1;
 }
 
-
-/*
-=================
-CG_GetVoiceChat
-=================
-*/
 int CG_GetVoiceChat( voiceChatList_t *voiceChatList, const char *id, sfxHandle_t *snd, char **chat) {
 	int i, rnd;
 
@@ -634,11 +514,6 @@ int CG_GetVoiceChat( voiceChatList_t *voiceChatList, const char *id, sfxHandle_t
 	return qfalse;
 }
 
-/*
-=================
-CG_VoiceChatListForClient
-=================
-*/
 voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
 	clientInfo_t *ci;
 	int voiceChatNum, i, j, k;
@@ -700,11 +575,6 @@ typedef struct bufferedVoiceChat_s
 
 bufferedVoiceChat_t voiceChatBuffer[MAX_VOICECHATBUFFER];
 
-/*
-=================
-CG_PlayVoiceChat
-=================
-*/
 void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 	// if we are going into the intermission, don't start any voices
 	if ( cg.intermissionStarted ) {
@@ -724,11 +594,6 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 	voiceChatBuffer[cg.voiceChatBufferOut].snd = 0;
 }
 
-/*
-=====================
-CG_PlayBufferedVoieChats
-=====================
-*/
 void CG_PlayBufferedVoiceChats( void ) {
 	if ( cg.voiceChatTime < cg.time ) {
 		if (cg.voiceChatBufferOut != cg.voiceChatBufferIn && voiceChatBuffer[cg.voiceChatBufferOut].snd) {
@@ -741,11 +606,6 @@ void CG_PlayBufferedVoiceChats( void ) {
 	}
 }
 
-/*
-=====================
-CG_AddBufferedVoiceChat
-=====================
-*/
 void CG_AddBufferedVoiceChat( bufferedVoiceChat_t *vchat ) {
 	// if we are going into the intermission, don't start any voices
 	if ( cg.intermissionStarted ) {
@@ -760,11 +620,6 @@ void CG_AddBufferedVoiceChat( bufferedVoiceChat_t *vchat ) {
 	}
 }
 
-/*
-=================
-CG_VoiceChatLocal
-=================
-*/
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd ) {
 	char *chat;
 	voiceChatList_t *voiceChatList;
@@ -805,11 +660,6 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 	}
 }
 
-/*
-=================
-CG_VoiceChat
-=================
-*/
 void CG_VoiceChat( int mode ) {
 	const char *cmd;
 	int clientNum, color;
@@ -830,14 +680,7 @@ void CG_VoiceChat( int mode ) {
 	CG_VoiceChatLocal( mode, voiceOnly, clientNum, color, cmd );
 }
 
-/*
-=================
-CG_ServerCommand
-
-The string has been tokenized and can be retrieved with
-Cmd_Argc() / Cmd_Argv()
-=================
-*/
+// The string has been tokenized and can be retrieved with Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand( void ) {
 	const char	*cmd;
 
@@ -922,24 +765,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if ( Q_stricmp (cmd, "remapShader") == 0 )
-	{
-		if (trap->Cmd_Argc() == 4)
-		{
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			char shader3[MAX_QPATH];
-
-			Q_strncpyz(shader1, trap->Cmd_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, trap->Cmd_Argv(2), sizeof(shader2));
-			Q_strncpyz(shader3, trap->Cmd_Argv(3), sizeof(shader3));
-
-			trap->R_RemapShader(shader1, shader2, shader3);
-		}
-		
-		return;
-	}
-
 	// loaddeferred can be both a servercmd and a consolecmd
 	if ( !strcmp( cmd, "loaddefered" ) ) {	// FIXME: spelled wrong, but not changing for demo
 		CG_LoadDeferredPlayers();
@@ -950,14 +775,7 @@ static void CG_ServerCommand( void ) {
 }
 
 
-/*
-====================
-CG_ExecuteNewServerCommands
-
-Execute all of the server commands that were received along
-with this this snapshot.
-====================
-*/
+// Execute all of the server commands that were received along with this this snapshot.
 void CG_ExecuteNewServerCommands( int latestSequence ) {
 	while ( cgs.serverCommandSequence < latestSequence ) {
 		if ( trap->GetServerCommand( ++cgs.serverCommandSequence ) ) {

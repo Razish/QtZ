@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
-extern int Sys_MilliSeconds(void);
+extern int Sys_MilliSeconds( void );
 
 
 extern botlib_import_t botimport;
@@ -452,7 +452,7 @@ int AAS_BestReachableArea(vector3 *origin, vector3 *mins, vector3 *maxs, vector3
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetupReachabilityHeap(void)
+void AAS_SetupReachabilityHeap( void )
 {
 	int i;
 
@@ -472,7 +472,7 @@ void AAS_SetupReachabilityHeap(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShutDownReachabilityHeap(void)
+void AAS_ShutDownReachabilityHeap( void )
 {
 	FreeMemory(reachabilityheap);
 	numlreachabilities = 0;
@@ -484,7 +484,7 @@ void AAS_ShutDownReachabilityHeap(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_lreachability_t *AAS_AllocReachability(void)
+aas_lreachability_t *AAS_AllocReachability( void )
 {
 	aas_lreachability_t *r;
 
@@ -587,7 +587,7 @@ void AAS_FaceCenter(int facenum, vector3 *center)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FallDamageDistance(void)
+int AAS_FallDamageDistance( void )
 {
 	float maxzvelocity, gravity, t;
 
@@ -771,7 +771,7 @@ int AAS_AreaDoNotEnter(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-unsigned short int AAS_BarrierJumpTravelTime(void)
+unsigned short int AAS_BarrierJumpTravelTime( void )
 {
 	return (unsigned short int)(aassettings.phys_jumpvel / (aassettings.phys_gravity * 0.1f));
 } //end op the function AAS_BarrierJumpTravelTime
@@ -938,7 +938,7 @@ int AAS_Reachability_EqualFloorHeight(int area1num, int area2num)
 	bestheight = 99999;
 	bestlength = 0;
 	foundreach = qfalse;
-	memset(&lr, 0, sizeof(aas_lreachability_t)); //make the compiler happy
+	memset(&lr, 0, sizeof(aas_lreachability_t));
 	//
 	//check if the areas have ground faces with a common edge
 	//if existing use the lowest common edge for a reachability link
@@ -2737,7 +2737,7 @@ int AAS_TravelFlagsForTeam(int ent)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Reachability_Teleport(void)
+void AAS_Reachability_Teleport( void )
 {
 	int area1num, area2num;
 	char target[MAX_EPAIRKEY], targetname[MAX_EPAIRKEY];
@@ -2929,7 +2929,7 @@ void AAS_Reachability_Teleport(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Reachability_Elevator(void)
+void AAS_Reachability_Elevator( void )
 {
 	int area1num, area2num, modelnum, i, j, k, l, n, p;
 	float lip, height, speed;
@@ -3270,7 +3270,7 @@ aas_lreachability_t *AAS_FindFaceReachabilities(vector3 *facepoints, int numpoin
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Reachability_FuncBobbing(void)
+void AAS_Reachability_FuncBobbing( void )
 {
 	int ent, spawnflags, modelnum, axis;
 	int i, numareas, areas[10];
@@ -3482,7 +3482,7 @@ void AAS_Reachability_FuncBobbing(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Reachability_JumpPad(void)
+void AAS_Reachability_JumpPad( void )
 {
 	int face2num, i, ret, area2num, visualize, ent, bot_visualizejumppads;
 	//int modelnum, ent2;
@@ -3917,7 +3917,7 @@ int AAS_Reachability_Grapple(int area1num, int area2num)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetWeaponJumpAreaFlags(void)
+void AAS_SetWeaponJumpAreaFlags( void )
 {
 	int ent, i;
 	vector3 mins = {-15, -15, -15}, maxs = {15, 15, 15};
@@ -4290,7 +4290,7 @@ void AAS_Reachability_WalkOffLedge(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_StoreReachability(void)
+void AAS_StoreReachability( void )
 {
 	int i;
 	aas_areasettings_t *areasettings;
@@ -4493,7 +4493,7 @@ int AAS_ContinueInitReachability(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitReachability(void)
+void AAS_InitReachability( void )
 {
 	if (!aasworld.loaded) return;
 

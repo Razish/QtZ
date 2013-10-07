@@ -24,14 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sv_local.h"
 
-/*
-===============
-SV_SendConfigstring
-
-Creates and sends the server command necessary to update the CS index for the
-given client
-===============
-*/
+// Creates and sends the server command necessary to update the CS index for the given client
 static void SV_SendConfigstring(client_t *client, int index)
 {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
@@ -71,14 +64,8 @@ static void SV_SendConfigstring(client_t *client, int index)
 	}
 }
 
-/*
-===============
-SV_UpdateConfigstrings
-
-Called when a client goes from CS_PRIMED to CS_ACTIVE.  Updates all
-Configstring indexes that have changed while the client was in CS_PRIMED
-===============
-*/
+// Called when a client goes from CS_PRIMED to CS_ACTIVE.
+//	Updates all configstring indexes that have changed while the client was in CS_PRIMED
 void SV_UpdateConfigstrings(client_t *client)
 {
 	int index;
@@ -98,12 +85,6 @@ void SV_UpdateConfigstrings(client_t *client)
 	}
 }
 
-/*
-===============
-SV_SetConfigstring
-
-===============
-*/
 void SV_SetConfigstring (int index, const char *val) {
 	int		i;
 	client_t	*client;
@@ -146,12 +127,6 @@ void SV_SetConfigstring (int index, const char *val) {
 	}
 }
 
-/*
-===============
-SV_GetConfigstring
-
-===============
-*/
 void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
@@ -167,13 +142,6 @@ void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	Q_strncpyz( buffer, sv.configstrings[index], bufferSize );
 }
 
-
-/*
-===============
-SV_SetUserinfo
-
-===============
-*/
 void SV_SetUserinfo( int index, const char *val ) {
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i", index);
@@ -187,14 +155,6 @@ void SV_SetUserinfo( int index, const char *val ) {
 	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "cl_name" ), sizeof(svs.clients[index].name) );
 }
 
-
-
-/*
-===============
-SV_GetUserinfo
-
-===============
-*/
 void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
@@ -206,15 +166,8 @@ void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 }
 
 
-/*
-================
-SV_CreateBaseline
-
-Entity baselines are used to compress non-delta messages
-to the clients -- only the fields that differ from the
-baseline will be transmitted
-================
-*/
+// Entity baselines are used to compress non-delta messages to the clients
+//	only the fields that differ from the baseline will be transmitted
 static void SV_CreateBaseline( void ) {
 	sharedEntity_t *svent;
 	int				entnum;	
@@ -233,13 +186,6 @@ static void SV_CreateBaseline( void ) {
 	}
 }
 
-
-/*
-===============
-SV_BoundMaxClients
-
-===============
-*/
 static void SV_BoundMaxClients( int minimum ) {
 	// get the current maxclients value
 	Cvar_Get( "sv_maxclients", XSTRING( MAX_CLIENTS ), 0, NULL, NULL );
@@ -254,16 +200,8 @@ static void SV_BoundMaxClients( int minimum ) {
 }
 
 
-/*
-===============
-SV_Startup
-
-Called when a host starts a map when it wasn't running
-one before.  Successive map or map_restart commands will
-NOT cause this to be called, unless the game is exited to
-the menu system first.
-===============
-*/
+// Called when a host starts a map when it wasn't running one before.
+//	Successive map or map_restart commands will NOT cause this to be called, unless the game is exited to the menu system first.
 static void SV_Startup( void ) {
 	if ( svs.initialized ) {
 		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
@@ -290,12 +228,6 @@ static void SV_Startup( void ) {
 	NET_JoinMulticast6();
 }
 
-
-/*
-==================
-SV_ChangeMaxClients
-==================
-*/
 void SV_ChangeMaxClients( void ) {
 	int		oldMaxClients;
 	int		i;
@@ -357,12 +289,7 @@ void SV_ChangeMaxClients( void ) {
 	}
 }
 
-/*
-================
-SV_ClearServer
-================
-*/
-static void SV_ClearServer(void) {
+static void SV_ClearServer( void ) {
 	int i;
 
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
@@ -373,14 +300,8 @@ static void SV_ClearServer(void) {
 	memset (&sv, 0, sizeof(sv));
 }
 
-/*
-================
-SV_TouchCGame
-
-  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
-================
-*/
-static void SV_TouchCGame(void) {
+// touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
+static void SV_TouchCGame( void ) {
 	fileHandle_t	f;
 	char filename[MAX_QPATH];
 
@@ -391,15 +312,8 @@ static void SV_TouchCGame(void) {
 	}
 }
 
-/*
-================
-SV_SpawnServer
-
-Change the server to a new map, taking all connected
-clients along with it.
-This is NOT called for map_restart
-================
-*/
+// Change the server to a new map, taking all connected clients along with it.
+//	This is NOT called for map_restart
 void SV_SpawnServer( char *server, qboolean killBots ) {
 	int			i;
 	int			checksum;
@@ -492,7 +406,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 
 	// clear physics interaction links
-	SV_ClearWorld ();
+	SV_ClearWorld();
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -515,7 +429,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// create a baseline for more efficient communications
-	SV_CreateBaseline ();
+	SV_CreateBaseline();
 
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
 		// send the new gamestate to all connected clients
@@ -619,14 +533,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Com_Printf ("-----------------------------------\n");
 }
 
-/*
-===============
-SV_Init
-
-Only called at main exe startup, not for each game
-===============
-*/
-
 // from common, should be read-only
 cvar_t *cl_paused;
 cvar_t *com_cl_running;
@@ -639,7 +545,8 @@ cvar_t *com_timescale;
 cvar_t *sv_paused;
 // end common
 
-void SV_Init ( void ) {
+// Only called at main exe startup, not for each game
+void SV_Init( void ) {
 	int index;
 
 	// serverinfo vars
@@ -713,7 +620,7 @@ void SV_Init ( void ) {
 	sv_paused				= Cvar_Get( "sv_paused",		"0",								CVAR_ROM,					NULL, NULL );
 	// end common
 
-	SV_AddOperatorCommands ();
+	SV_AddOperatorCommands();
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
@@ -725,17 +632,8 @@ void SV_Init ( void ) {
 	Cbuf_AddText("rehashbans\n");
 }
 
-
-/*
-==================
-SV_FinalMessage
-
-Used by SV_Shutdown to send a final message to all
-connected clients before the server goes down.  The messages are sent immediately,
-not just stuck on the outgoing message list, because the server is going
-to totally exit after returning from this function.
-==================
-*/
+// Used by SV_Shutdown to send a final message to all connected clients before the server goes down.
+//	The messages are sent immediately, not just stuck on the outgoing message list, because the server is going to totally exit after returning from this function.
 void SV_FinalMessage( char *message ) {
 	int			i, j;
 	client_t	*cl;
@@ -758,14 +656,7 @@ void SV_FinalMessage( char *message ) {
 }
 
 
-/*
-================
-SV_Shutdown
-
-Called when each game quits,
-before Sys_Quit or Sys_Error
-================
-*/
+// Called when each game quits, before Sys_Quit or Sys_Error
 void SV_Shutdown( char *finalmsg ) {
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;

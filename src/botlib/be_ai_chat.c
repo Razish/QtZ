@@ -233,7 +233,7 @@ bot_chatstate_t *BotChatStateFromHandle(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void InitConsoleMessageHeap(void)
+void InitConsoleMessageHeap( void )
 {
 	int i, max_messages;
 
@@ -261,7 +261,7 @@ void InitConsoleMessageHeap(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bot_consolemessage_t *AllocConsoleMessage(void)
+bot_consolemessage_t *AllocConsoleMessage( void )
 {
 	bot_consolemessage_t *message;
 	message = freeconsolemessages;
@@ -612,9 +612,9 @@ bot_synonymlist_t *BotLoadSynonyms(char *filename)
 	bot_synonym_t *synonym, *lastsynonym;
 
 	size = 0;
-	synlist = NULL; //make compiler happy
-	syn = NULL; //make compiler happy
-	synonym = NULL; //make compiler happy
+	synlist = NULL;
+	syn = NULL;
+	synonym = NULL;
 	//the synonyms are parsed in two phases
 	for (pass = 0; pass < 2; pass++)
 	{
@@ -2862,7 +2862,7 @@ void BotSetChatName(int chatstate, char *name, int client)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotResetChatAI(void)
+void BotResetChatAI( void )
 {
 	bot_replychat_t *rchat;
 	bot_chatmessage_t *m;
@@ -2881,7 +2881,7 @@ void BotResetChatAI(void)
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-int BotAllocChatState(void)
+int BotAllocChatState( void )
 {
 	int i;
 
@@ -2935,7 +2935,7 @@ void BotFreeChatState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupChatAI(void)
+int BotSetupChatAI( void )
 {
 	char *file;
 
@@ -2969,7 +2969,7 @@ int BotSetupChatAI(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownChatAI(void)
+void BotShutdownChatAI( void )
 {
 	int i;
 

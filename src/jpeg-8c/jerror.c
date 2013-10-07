@@ -69,7 +69,7 @@ const char * const jpeg_std_message_table[] = {
  * or jpeg_destroy) at some point.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 error_exit (j_common_ptr cinfo)
 {
   /* Always display the message */
@@ -97,7 +97,7 @@ error_exit (j_common_ptr cinfo)
  * not just not use this routine.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 output_message (j_common_ptr cinfo)
 {
   char buffer[JMSG_LENGTH_MAX];
@@ -127,7 +127,7 @@ output_message (j_common_ptr cinfo)
  * or change the policy about which messages to display.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 emit_message (j_common_ptr cinfo, int msg_level)
 {
   struct jpeg_error_mgr * err = cinfo->err;
@@ -156,7 +156,7 @@ emit_message (j_common_ptr cinfo, int msg_level)
  * Few applications should need to override this method.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 format_message (j_common_ptr cinfo, char * buffer)
 {
   struct jpeg_error_mgr * err = cinfo->err;
@@ -211,7 +211,7 @@ format_message (j_common_ptr cinfo, char * buffer)
  * this method if it has additional error processing state.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 reset_error_mgr (j_common_ptr cinfo)
 {
   cinfo->err->num_warnings = 0;

@@ -26,13 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // for the voice chats
 #include "../../build/qtz/ui/menudef.h"
-//==========================================================================
 
-/*
-=============
-CG_Obituary
-=============
-*/
 static void CG_Obituary( entityState_t *ent )
 {
 	int				mod = ent->eventParm, target = ent->otherEntityNum, attacker = ent->otherEntityNum2;
@@ -103,13 +97,6 @@ static void CG_Obituary( entityState_t *ent )
 		trap->Print( "%s died\n", targetName );
 }
 
-//==========================================================================
-
-/*
-===============
-CG_UseItem
-===============
-*/
 static void CG_UseItem( centity_t *cent ) {
 	clientInfo_t	*ci;
 	int				itemNum, clientNum;
@@ -154,13 +141,7 @@ static void CG_UseItem( centity_t *cent ) {
 
 }
 
-/*
-================
-CG_ItemPickup
-
-A new item was picked up this frame
-================
-*/
+// A new item was picked up this frame
 static void CG_ItemPickup( int itemNum )
 {
 	//QTZTODO: Item pickup HUD
@@ -187,13 +168,7 @@ static void CG_ItemPickup( int itemNum )
 
 }
 
-/*
-================
-CG_WaterLevel
-
-Returns waterlevel for entity origin
-================
-*/
+// Returns waterlevel for entity origin
 int CG_WaterLevel(centity_t *cent) {
 	vector3 point;
 	int contents, sample1, sample2, anim, waterlevel;
@@ -232,13 +207,7 @@ int CG_WaterLevel(centity_t *cent) {
 	return waterlevel;
 }
 
-/*
-================
-CG_PainEvent
-
-Also called by playerstate transition
-================
-*/
+// Also called by playerstate transition
 void CG_PainEvent( centity_t *cent, int health ) {
 	char	*snd;
 
@@ -271,23 +240,15 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	cent->pe.painDirection ^= 1;
 }
 
-
-
-/*
-==============
-CG_EntityEvent
-
-An entity has an event value
-also called by CG_CheckPlayerstateEvents
-==============
-*/
-
 static void CG_FootstepEvent( int entnum, sfxHandle_t sfx ) {
 	if ( cg_footsteps->boolean )
 		trap->S_StartSound( NULL, entnum, CHAN_BODY, sfx );
 }
 
 #define	DEBUGNAME(x) if(cg_debugEvents->boolean){trap->Print(x"\n");}
+
+// An entity has an event value
+//	also called by CG_CheckPlayerstateEvents
 void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 	entityState_t	*es;
 	int				event;
@@ -614,8 +575,6 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 		CG_UseItem( cent );
 		break;
 
-	//=================================================================
-
 	//
 	// other events
 	//
@@ -876,13 +835,6 @@ void CG_EntityEvent( centity_t *cent, vector3 *position ) {
 
 }
 
-
-/*
-==============
-CG_CheckEvents
-
-==============
-*/
 void CG_CheckEvents( centity_t *cent ) {
 	// check for event-only entities
 	if ( cent->currentState.eType > ET_EVENTS ) {

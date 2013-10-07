@@ -24,63 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-typedef struct shaderRemap_s {
-  char oldShader[MAX_QPATH];
-  char newShader[MAX_QPATH];
-  float timeOffset;
-} shaderRemap_t;
-
-#define MAX_SHADER_REMAPS 128
-
-int remapCount = 0;
-shaderRemap_t remappedShaders[MAX_SHADER_REMAPS];
-
-void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
-	int i;
-
-	for (i = 0; i < remapCount; i++) {
-		if (Q_stricmp(oldShader, remappedShaders[i].oldShader) == 0) {
-			// found it, just update this one
-			strcpy(remappedShaders[i].newShader,newShader);
-			remappedShaders[i].timeOffset = timeOffset;
-			return;
-		}
-	}
-	if (remapCount < MAX_SHADER_REMAPS) {
-		strcpy(remappedShaders[remapCount].newShader,newShader);
-		strcpy(remappedShaders[remapCount].oldShader,oldShader);
-		remappedShaders[remapCount].timeOffset = timeOffset;
-		remapCount++;
-	}
-}
-
-const char *BuildShaderStateConfig(void) {
-	static char	buff[MAX_STRING_CHARS*4];
-	char out[(MAX_QPATH * 2) + 5];
-	int i;
-  
-	memset(buff, 0, MAX_STRING_CHARS);
-	for (i = 0; i < remapCount; i++) {
-		Com_sprintf(out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset);
-		Q_strcat( buff, sizeof( buff ), out);
-	}
-	return buff;
-}
-
 /*
-=========================================================================
 
-model / sound configstring indexes
+	model / sound configstring indexes
 
-=========================================================================
 */
 
-/*
-================
-G_FindConfigstringIndex
-
-================
-*/
 int G_FindConfigstringIndex( char *name, int start, int max, qboolean create ) {
 	int		i;
 	char	s[MAX_STRING_CHARS];
@@ -121,16 +70,7 @@ int G_SoundIndex( char *name ) {
 	return G_FindConfigstringIndex (name, CS_SOUNDS, MAX_SOUNDS, qtrue);
 }
 
-//=====================================================================
-
-
-/*
-================
-G_TeamCommand
-
-Broadcasts a command to only a specific team
-================
-*/
+// Broadcasts a command to only a specific team
 void G_TeamCommand( team_t team, char *cmd ) {
 	int		i;
 
@@ -143,19 +83,9 @@ void G_TeamCommand( team_t team, char *cmd ) {
 	}
 }
 
-
-/*
-=============
-G_Find
-
-Searches all active entities for the next one that holds
-the matching string at fieldofs (use the FOFS() macro) in the structure.
-
-Searches beginning at the entity after from, or the beginning if NULL
-NULL will be returned if the end of the list is reached.
-
-=============
-*/
+// Searches all active entities for the next one that holds the matching string at fieldofs (use the FOFS() macro) in the structure.
+//	Searches beginning at the entity after from, or the beginning if NULL
+//	NULL will be returned if the end of the list is reached.
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 {
 	char	*s;
@@ -179,16 +109,9 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 	return NULL;
 }
 
-
-/*
-=============
-G_PickTarget
-
-Selects a random entity from among the targets
-=============
-*/
 #define MAXCHOICES	32
 
+// Selects a random entity from among the targets
 gentity_t *G_PickTarget (char *targetname)
 {
 	gentity_t	*ent = NULL;
@@ -220,29 +143,13 @@ gentity_t *G_PickTarget (char *targetname)
 	return choice[rand() % num_choices];
 }
 
-
-/*
-==============================
-G_UseTargets
-
-"activator" should be set to the entity that initiated the firing.
-
-Search for (string)targetname in all entities that
-match (string)self.target and call their .use function
-
-==============================
-*/
+// "activator" should be set to the entity that initiated the firing.
+//	Search for (string)targetname in all entities that match (string)self.target and call their .use function
 void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	gentity_t		*t;
 	
 	if ( !ent ) {
 		return;
-	}
-
-	if (ent->targetShaderName && ent->targetShaderNewName) {
-		float f = level.time * 0.001f;
-		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
-		trap->SV_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 	}
 
 	if ( !ent->target ) {
@@ -265,32 +172,23 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	}
 }
 
-/*
-===============
-G_SetMovedir
-
-The editor only specifies a single value for angles (yaw),
-but we have special constants to generate an up or down direction.
-Angles will be cleared, because it is being used to represent a direction
-instead of an orientation.
-===============
-*/
+// The editor only specifies a single value for angles (yaw), but we have special constants to generate an up or down direction.
+//	Angles will be cleared, because it is being used to represent a direction instead of an orientation.
 void G_SetMovedir( vector3 *angles, vector3 *movedir ) {
 	static vector3 VEC_UP		= { 0, -1,  0};
 	static vector3 MOVEDIR_UP	= { 0,  0,  1};
 	static vector3 VEC_DOWN		= { 0, -2,  0};
 	static vector3 MOVEDIR_DOWN	= { 0,  0, -1};
 
-	if ( VectorCompare (angles, &VEC_UP) ) {
-		VectorCopy (&MOVEDIR_UP, movedir);
-	} else if ( VectorCompare (angles, &VEC_DOWN) ) {
-		VectorCopy (&MOVEDIR_DOWN, movedir);
-	} else {
-		AngleVectors (angles, movedir, NULL, NULL);
-	}
+	if ( VectorCompare( angles, &VEC_UP ) )
+		VectorCopy( &MOVEDIR_UP, movedir );
+	else if ( VectorCompare( angles, &VEC_DOWN ) )
+		VectorCopy( &MOVEDIR_DOWN, movedir );
+	else
+		AngleVectors( angles, movedir, NULL, NULL );
+
 	VectorClear( angles );
 }
-
 
 float vectoyaw( const vector3 *vec ) {
 	float	yaw;
@@ -321,21 +219,10 @@ void G_InitGentity( gentity_t *e ) {
 	e->r.ownerNum = ENTITYNUM_NONE;
 }
 
-/*
-=================
-G_Spawn
-
-Either finds a free entity, or allocates a new one.
-
-  The slots from 0 to MAX_CLIENTS-1 are always reserved for clients, and will
-never be used by anything else.
-
-Try to avoid reusing an entity that was recently freed, because it
-can cause the client to think the entity morphed into something else
-instead of being removed and recreated, which can cause interpolated
-angles and bad trails.
-=================
-*/
+// Either finds a free entity, or allocates a new one.
+//	The slots from 0 to MAX_CLIENTS-1 are always reserved for clients, and will never be used by anything else.
+//	Try to avoid reusing an entity that was recently freed, because it can cause the client to think the entity
+//	morphed into something else instead of being removed and recreated, which can cause interpolated angles and bad trails.
 gentity_t *G_Spawn( void ) {
 	int			i, force;
 	gentity_t	*e;
@@ -383,11 +270,6 @@ gentity_t *G_Spawn( void ) {
 	return e;
 }
 
-/*
-=================
-G_EntitiesFree
-=================
-*/
 qboolean G_EntitiesFree( void ) {
 	int			i;
 	gentity_t	*e;
@@ -403,14 +285,7 @@ qboolean G_EntitiesFree( void ) {
 	return qfalse;
 }
 
-
-/*
-=================
-G_FreeEntity
-
-Marks the entity as free
-=================
-*/
+// Marks the entity as free
 void G_FreeEntity( gentity_t *ed ) {
 	trap->SV_UnlinkEntity ((sharedEntity_t *)ed);		// unlink from world
 
@@ -424,15 +299,9 @@ void G_FreeEntity( gentity_t *ed ) {
 	ed->inuse = qfalse;
 }
 
-/*
-=================
-G_TempEntity
-
-Spawns an event entity that will be auto-removed
-The origin will be snapped to save net bandwidth, so care
-must be taken if the origin is right on a surface (snap towards start vector first)
-=================
-*/
+// Spawns an event entity that will be auto-removed
+//	The origin will be snapped to save net bandwidth, so care must be taken if the
+//	origin is right on a surface (snap towards start vector first)
 gentity_t *G_TempEntity( vector3 *origin, int event ) {
 	gentity_t		*e;
 	vector3		snapped;
@@ -457,21 +326,13 @@ gentity_t *G_TempEntity( vector3 *origin, int event ) {
 
 
 /*
-==============================================================================
 
-Kill box
+	Kill box
 
-==============================================================================
 */
 
-/*
-=================
-G_KillBox
-
-Kills all entities that would touch the proposed new positioning
-of ent.  Ent should be unlinked before calling this!
-=================
-*/
+// Kills all entities that would touch the proposed new positioning of ent.
+//	Ent should be unlinked before calling this!
 void G_KillBox (gentity_t *ent) {
 	int			i, num;
 	int			touch[MAX_GENTITIES];
@@ -494,17 +355,8 @@ void G_KillBox (gentity_t *ent) {
 
 }
 
-//==============================================================================
-
-/*
-===============
-G_AddPredictableEvent
-
-Use for non-pmove events that would also be predicted on the
-client side: jumppads and item pickups
-Adds an event+parm and twiddles the event counter
-===============
-*/
+// Use for non-pmove events that would also be predicted on the client side: jumppads and item pickups
+//	Adds an event+parm and twiddles the event counter
 void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm ) {
 	if ( !ent->client )
 		return;
@@ -512,14 +364,7 @@ void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm ) {
 	BG_AddPredictableEventToPlayerstate( event, eventParm, &ent->client->ps );
 }
 
-
-/*
-===============
-G_AddEvent
-
-Adds an event+parm and twiddles the event counter
-===============
-*/
+// Adds an event+parm and twiddles the event counter
 void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 	int		bits;
 
@@ -544,12 +389,6 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 	ent->eventTime = level.time;
 }
 
-
-/*
-=============
-G_Sound
-=============
-*/
 void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 	gentity_t	*te;
 
@@ -557,17 +396,7 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 	te->s.eventParm = soundIndex;
 }
 
-
-//==============================================================================
-
-
-/*
-================
-G_SetOrigin
-
-Sets the pos trajectory for a fixed position
-================
-*/
+// Sets the pos trajectory for a fixed position
 void G_SetOrigin( gentity_t *ent, vector3 *origin ) {
 	VectorCopy( origin, &ent->s.pos.trBase );
 	ent->s.pos.trType = TR_STATIONARY;
@@ -578,14 +407,7 @@ void G_SetOrigin( gentity_t *ent, vector3 *origin ) {
 	VectorCopy( origin, &ent->r.currentOrigin );
 }
 
-/*
-================
-DebugLine
-
-  debug polygons only work when running a local game
-  with r_debugSurface set to 2
-================
-*/
+// debug polygons only work when running a local game with r_debugSurface set to 2
 int DebugLine(vector3 *start, vector3 *end, int color) {
 	vector3 points[4], dir, cross, up = {0, 0, 1};
 	float dot;

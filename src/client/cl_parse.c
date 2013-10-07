@@ -45,21 +45,12 @@ void SHOWNET( msg_t *msg, char *s) {
 
 
 /*
-=========================================================================
 
-MESSAGE PARSING
+	MESSAGE PARSING
 
-=========================================================================
 */
 
-/*
-==================
-CL_DeltaEntity
-
-Parses deltas from the given base and adds the resulting entity
-to the current frame
-==================
-*/
+// Parses deltas from the given base and adds the resulting entity to the current frame
 void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, 
 					 qboolean unchanged) {
 	entityState_t	*state;
@@ -81,12 +72,6 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	frame->numEntities++;
 }
 
-/*
-==================
-CL_ParsePacketEntities
-
-==================
-*/
 void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
 	int			newnum;
 	entityState_t	*oldstate;
@@ -190,15 +175,8 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 }
 
 
-/*
-================
-CL_ParseSnapshot
-
-If the snapshot is parsed properly, it will be copied to
-cl.snap and saved in cl.snapshots[].  If the snapshot is invalid
-for any reason, no changes to the state will be made at all.
-================
-*/
+// If the snapshot is parsed properly, it will be copied to cl.snap and saved in cl.snapshots[].
+//	If the snapshot is invalid for any reason, no changes to the state will be made at all.
 void CL_ParseSnapshot( msg_t *msg ) {
 	int			len;
 	clSnapshot_t	*old;
@@ -323,21 +301,11 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	cl.newSnapshots = qtrue;
 }
 
-
-//=====================================================================
-
 int cl_connectedToPureServer;
 int cl_connectedToCheatServer;
 
-/*
-==================
-CL_SystemInfoChanged
-
-The systeminfo configstring has been changed, so parse
-new information out of it.  This will happen at every
-gamestate, and possibly during gameplay.
-==================
-*/
+// The systeminfo configstring has been changed, so parse new information out of it.
+//	This will happen at every gamestate, and possibly during gameplay.
 void CL_SystemInfoChanged( void ) {
 	char			*systemInfo;
 	const char		*s, *t;
@@ -349,7 +317,6 @@ void CL_SystemInfoChanged( void ) {
 	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
 	// NOTE TTimo:
 	// when the serverId changes, any further messages we send to the server will use this new serverId
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
 	// in some cases, outdated cp commands might get sent with this news serverId
 	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
 
@@ -422,12 +389,7 @@ void CL_SystemInfoChanged( void ) {
 	cl_connectedToPureServer = (int)Cvar_VariableValue( "sv_pure" );
 }
 
-/*
-==================
-CL_ParseServerInfo
-==================
-*/
-static void CL_ParseServerInfo(void)
+static void CL_ParseServerInfo( void )
 {
 	const char *serverInfo;
 
@@ -441,11 +403,6 @@ static void CL_ParseServerInfo(void)
 		sizeof(clc.sv_dlURL));
 }
 
-/*
-==================
-CL_ParseGamestate
-==================
-*/
 void CL_ParseGamestate( msg_t *msg ) {
 	int				i;
 	entityState_t	*es;
@@ -538,16 +495,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	Cvar_Set( "cl_paused", "0" );
 }
 
-
-//=====================================================================
-
-/*
-=====================
-CL_ParseDownload
-
-A download message has been received from the server
-=====================
-*/
+// A download message has been received from the server
 void CL_ParseDownload ( msg_t *msg ) {
 	int		size;
 	static unsigned char data[MAX_MSGLEN];
@@ -635,7 +583,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 		CL_WritePacket();
 
 		// get another file if needed
-		CL_NextDownload ();
+		CL_NextDownload();
 	}
 }
 
@@ -670,14 +618,7 @@ qboolean CL_ShouldIgnoreVoipSender( int sender ) {
 	return qfalse;
 }
 
-/*
-=====================
-CL_PlayVoip
-
-Play raw data
-=====================
-*/
-
+// Play raw data
 static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags)
 {
 	if(flags & VOIP_DIRECT)
@@ -693,13 +634,7 @@ static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags)
 	}
 }
 
-/*
-=====================
-CL_ParseVoip
-
-A VoIP message has been received from the server
-=====================
-*/
+// A VoIP message has been received from the server
 static void CL_ParseVoip ( msg_t *msg ) {
 	static short decoded[4096];  // !!! FIXME: don't hardcode.
 
@@ -814,15 +749,7 @@ static void CL_ParseVoip ( msg_t *msg ) {
 }
 #endif
 
-
-/*
-=====================
-CL_ParseCommandString
-
-Command strings are just saved off until cgame asks for them
-when it transitions a snapshot
-=====================
-*/
+// Command strings are just saved off until cgame asks for them when it transitions a snapshot
 void CL_ParseCommandString( msg_t *msg ) {
 	char	*s;
 	int		seq;
@@ -841,12 +768,6 @@ void CL_ParseCommandString( msg_t *msg ) {
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
 }
 
-
-/*
-=====================
-CL_ParseServerMessage
-=====================
-*/
 void CL_ParseServerMessage( msg_t *msg ) {
 	int			cmd;
 

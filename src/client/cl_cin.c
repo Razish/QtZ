@@ -135,7 +135,7 @@ static int				CL_handle = -1;
 extern int				s_soundtime;		// sample PAIRS
 
 
-void CIN_CloseAllVideos(void) {
+void CIN_CloseAllVideos( void ) {
 	int		i;
 
 	for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
@@ -146,7 +146,7 @@ void CIN_CloseAllVideos(void) {
 }
 
 
-static int CIN_HandleForVideo(void) {
+static int CIN_HandleForVideo( void ) {
 	int		i;
 
 	for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
@@ -159,7 +159,7 @@ static int CIN_HandleForVideo(void) {
 }
 
 
-extern int CL_ScaledMilliseconds(void);
+extern int CL_ScaledMilliseconds( void );
 
 //-----------------------------------------------------------------------------
 // RllSetupTable
@@ -1075,7 +1075,7 @@ static void RoQReset( void ) {
 *
 ******************************************************************************/
 
-static void RoQInterrupt(void)
+static void RoQInterrupt( void )
 {
 	byte				*framedata;
 	short		sbuf[32768];
@@ -1278,11 +1278,6 @@ static void RoQShutdown( void ) {
 	currentHandle = -1;
 }
 
-/*
-==================
-CIN_StopCinematic
-==================
-*/
 cinState_t CIN_StopCinematic(int handle) {
 
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
@@ -1305,15 +1300,7 @@ cinState_t CIN_StopCinematic(int handle) {
 	return FMV_EOF;
 }
 
-/*
-==================
-CIN_RunCinematic
-
-Fetch and decompress the pending frame
-==================
-*/
-
-
+// Fetch and decompress the pending frame
 cinState_t CIN_RunCinematic (int handle)
 {
 	unsigned int	start = 0;
@@ -1383,11 +1370,6 @@ cinState_t CIN_RunCinematic (int handle)
 	return cinTable[currentHandle].status;
 }
 
-/*
-==================
-CIN_PlayCinematic
-==================
-*/
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
@@ -1487,13 +1469,7 @@ void CIN_SetLooping(int handle, qboolean loop) {
 	cinTable[handle].looping = loop;
 }
 
-/*
-==================
-CIN_ResampleCinematic
-
-Resample cinematic to 256x256 and store in buf2
-==================
-*/
+// Resample cinematic to 256x256 and store in buf2
 void CIN_ResampleCinematic(int handle, int *buf2) {
 	int ix, iy, *buf3, xm, ym, ll;
 	byte	*buf;
@@ -1547,11 +1523,6 @@ void CIN_ResampleCinematic(int handle, int *buf2) {
 	}
 }
 
-/*
-==================
-CIN_DrawCinematic
-==================
-*/
 void CIN_DrawCinematic (int handle) {
 	float	x, y, w, h;
 	byte	*buf;
@@ -1586,7 +1557,7 @@ void CIN_DrawCinematic (int handle) {
 	cinTable[handle].dirty = qfalse;
 }
 
-void CL_PlayCinematic_f(void) {
+void CL_PlayCinematic_f( void ) {
 	char	*arg, *s;
 	int bits = CIN_system;
 
@@ -1608,7 +1579,7 @@ void CL_PlayCinematic_f(void) {
 		bits |= CIN_loop;
 	}
 
-	S_StopAllSounds ();
+	S_StopAllSounds();
 
 	CL_handle = CIN_PlayCinematic( arg, 0, 0, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT, bits );
 	if (CL_handle >= 0) {
@@ -1619,23 +1590,23 @@ void CL_PlayCinematic_f(void) {
 }
 
 
-void SCR_DrawCinematic (void) {
+void SCR_DrawCinematic( void ) {
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		CIN_DrawCinematic(CL_handle);
 	}
 }
 
-void SCR_RunCinematic (void)
+void SCR_RunCinematic( void )
 {
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		CIN_RunCinematic(CL_handle);
 	}
 }
 
-void SCR_StopCinematic(void) {
+void SCR_StopCinematic( void ) {
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		CIN_StopCinematic(CL_handle);
-		S_StopAllSounds ();
+		S_StopAllSounds();
 		CL_handle = -1;
 	}
 }

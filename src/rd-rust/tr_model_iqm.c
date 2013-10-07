@@ -116,13 +116,7 @@ static void Matrix34Invert( float *inMat, float *outMat )
 	outMat[11] = -DotProduct((vector3 *)&outMat + 8, &trans);
 }
 
-/*
-=================
-R_LoadIQM
-
-Load an IQM model and compute the joint matrices for every frame.
-=================
-*/
+// Load an IQM model and compute the joint matrices for every frame.
 qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const char *mod_name ) {
 	iqmHeader_t		*header;
 	iqmVertexArray_t	*vertexarray;
@@ -653,11 +647,6 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 	return qtrue;
 }
 
-/*
-=============
-R_CullIQM
-=============
-*/
 static int R_CullIQM( iqmData_t *data, trRefEntity_t *ent ) {
 	vector3		bounds[2];
 	number		*oldBounds, *newBounds;
@@ -693,12 +682,6 @@ static int R_CullIQM( iqmData_t *data, trRefEntity_t *ent ) {
 	}
 }
 
-/*
-=================
-R_ComputeIQMFogNum
-
-=================
-*/
 int R_ComputeIQMFogNum( iqmData_t *data, trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
@@ -737,13 +720,7 @@ int R_ComputeIQMFogNum( iqmData_t *data, trRefEntity_t *ent ) {
 	return 0;
 }
 
-/*
-=================
-R_AddIQMSurfaces
-
-Add all surfaces of this model
-=================
-*/
+// Add all surfaces of this model
 void R_AddIQMSurfaces( trRefEntity_t *ent ) {
 	iqmData_t		*data;
 	srfIQModel_t		*surface;
@@ -901,14 +878,7 @@ static void ComputeJointMats( iqmData_t *data, int frame, int oldframe, float ba
 	}
 }
 
-
-/*
-=================
-RB_AddIQMSurfaces
-
-Compute vertices for this model surface
-=================
-*/
+// Compute vertices for this model surface
 void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
 	srfIQModel_t	*surf = (srfIQModel_t *)surface;
 	iqmData_t	*data = surf->data;

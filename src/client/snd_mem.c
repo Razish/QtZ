@@ -35,11 +35,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEF_COMSOUNDMEGS "16"
 
 /*
-===============================================================================
 
-memory management
+	memory management
 
-===============================================================================
 */
 
 static	sndBuffer_t	*buffer = NULL;
@@ -57,7 +55,7 @@ void	SND_free(sndBuffer_t *v) {
 	inUse += sizeof(sndBuffer_t);
 }
 
-sndBuffer_t *SND_malloc(void) {
+sndBuffer_t *SND_malloc( void ) {
 	sndBuffer_t *v;
 redo:
 	if (freelist == NULL) {
@@ -74,7 +72,7 @@ redo:
 	return v;
 }
 
-void SND_setup(void) {
+void SND_setup( void ) {
 	sndBuffer_t *p, *q;
 	cvar_t	*cv;
 	int scs;
@@ -100,19 +98,13 @@ void SND_setup(void) {
 	Com_Printf("Sound memory manager started\n");
 }
 
-void SND_shutdown(void)
+void SND_shutdown( void )
 {
 		free(sfxScratchBuffer);
 		free(buffer);
 }
 
-/*
-================
-ResampleSfx
-
-resample / decimate to the current source rate
-================
-*/
+// resample / decimate to the current source rate
 static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboolean compressed ) {
 	int		outcount;
 	int		srcsample;
@@ -156,13 +148,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 	}
 }
 
-/*
-================
-ResampleSfx
-
-resample / decimate to the current source rate
-================
-*/
+// resample / decimate to the current source rate
 static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byte *data ) {
 	int			outcount;
 	int			srcsample;
@@ -191,16 +177,7 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 	return outcount;
 }
 
-//=============================================================================
-
-/*
-==============
-S_LoadSound
-
-The filename may be different than sfx->name in the case
-of a forced fallback of a player specific sound
-==============
-*/
+// The filename may be different than sfx->name in the case of a forced fallback of a player specific sound
 qboolean S_LoadSound( sfx_t *sfx )
 {
 	byte	*data;
@@ -266,6 +243,6 @@ qboolean S_LoadSound( sfx_t *sfx )
 	return qtrue;
 }
 
-void S_DisplayFreeMemory(void) {
+void S_DisplayFreeMemory( void ) {
 	Com_Printf("%d bytes free sound buffer memory, %d total used\n", inUse, totalInUse);
 }

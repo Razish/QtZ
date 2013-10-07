@@ -47,13 +47,6 @@ typedef enum uiMenuCommand_e {
 #define SORT_GAME			3
 #define SORT_PING			4
 
-
-//================================
-//
-// UI API
-//
-//================================
-
 typedef struct uiImport_s {
 	// common
 	void			(*Print)						( const char *msg, ... );
@@ -100,7 +93,6 @@ typedef struct uiImport_s {
 	qhandle_t		(*R_RegisterModel)				( const char *name );
 	qhandle_t		(*R_RegisterSkin)				( const char *name );
 	qhandle_t		(*R_RegisterShader)				( const char *name );
-	void			(*R_RemapShader)				( const char *oldShader, const char *newShader, const char *offsetTime );
 	void			(*R_RenderScene)				( const refdef_t *fd );
 	void			(*R_SetColor)					( const vector4 *rgba );
 

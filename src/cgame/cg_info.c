@@ -32,12 +32,6 @@ static int			loadingItemIconCount;
 static qhandle_t	loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
 static qhandle_t	loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 
-
-/*
-===================
-CG_DrawLoadingIcons
-===================
-*/
 static void CG_DrawLoadingIcons( void ) {
 	int		n;
 	int		x, y;
@@ -58,24 +52,12 @@ static void CG_DrawLoadingIcons( void ) {
 	}
 }
 
-
-/*
-======================
-CG_LoadingString
-
-======================
-*/
 void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
 
 	trap->UpdateScreen();
 }
 
-/*
-===================
-CG_LoadingItem
-===================
-*/
 void CG_LoadingItem( int itemNum ) {
 	const gitem_t *item;
 
@@ -88,11 +70,6 @@ void CG_LoadingItem( int itemNum ) {
 	CG_LoadingString( item->pickup_name );
 }
 
-/*
-===================
-CG_LoadingClient
-===================
-*/
 void CG_LoadingClient( int clientNum ) {
 	const char		*info;
 	char			personality[MAX_QPATH];
@@ -126,14 +103,7 @@ void CG_LoadingClient( int clientNum ) {
 	CG_LoadingString( personality );
 }
 
-
-/*
-====================
-CG_DrawInformation
-
-Draw all the status / pacifier stuff during level loading
-====================
-*/
+// Draw all the status / pacifier stuff during level loading
 void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info, *sysInfo;

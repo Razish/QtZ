@@ -41,7 +41,7 @@ typedef struct libvar_s
 } libvar_t;
 
 //removes all library variables
-void LibVarDeAllocAll(void);
+void LibVarDeAllocAll( void );
 //gets the library variable with the given name
 libvar_t *LibVarGet(char *name);
 //gets the string of the library variable with the given name

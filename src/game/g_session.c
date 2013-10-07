@@ -24,22 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 /*
-=======================================================================
 
-  SESSION DATA
+	SESSION DATA
 
-Session data is the only data that stays persistant across level loads
-and tournament restarts.
-=======================================================================
+	Session data is the only data that stays persistant across level loads and tournament restarts.
+
 */
 
-/*
-================
-G_WriteClientSessionData
-
-Called on game shutdown
-================
-*/
+// Called on game shutdown
 void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
@@ -55,13 +47,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	trap->Cvar_Set( var, s );
 }
 
-/*
-================
-G_ReadSessionData
-
-Called on a reconnect
-================
-*/
+// Called on a reconnect
 void G_ReadSessionData( gclient_t *client ) {
 	char	s[MAX_CVAR_VALUE_STRING];
 	const char	*var;
@@ -81,14 +67,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 }
 
-
-/*
-================
-G_InitSessionData
-
-Called on a first-time connect
-================
-*/
+// Called on a first-time connect
 void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	clientSession_t	*sess;
 	const char		*value;
@@ -135,13 +114,6 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	G_WriteClientSessionData( client );
 }
 
-
-/*
-==================
-G_InitWorldSession
-
-==================
-*/
 void G_InitWorldSession( void ) {
 	char	s[MAX_CVAR_VALUE_STRING];
 	int			gt;
@@ -157,12 +129,6 @@ void G_InitWorldSession( void ) {
 	}
 }
 
-/*
-==================
-G_WriteSessionData
-
-==================
-*/
 void G_WriteSessionData( void ) {
 	int		i;
 

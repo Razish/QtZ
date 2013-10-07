@@ -62,7 +62,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	#pragma warning( disable: 4820 )	// 'n' bytes padding added after data member 'x'
 	#pragma warning( disable: 4996 )	// deprecated function
 
-//	#pragma warning( error: 4255 )		// no function prototype given: converting '()' to '(void)'
+//	#pragma warning( error: 4255 )		// no function prototype given: converting '()' to '( void )'
 	#pragma warning( error: 4505 ) 		// unreferenced local function has been removed
 	#pragma warning( error: 4013 )		// 'x' undefined; assuming extern returning int
 	#pragma warning( error: 4028 )		// formal parameter n different from declaration
@@ -128,8 +128,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_platform.h"
 #include "q_asm.h"
-
-//=============================================================
 
 typedef unsigned char byte;
 
@@ -292,11 +290,9 @@ void *Hunk_Alloc( size_t size, hunkallocPref_t preference );
 #define CIN_shader	0x10
 
 /*
-==============================================================
 
-MATHLIB
+	MATHLIB
 
-==============================================================
 */
 
 typedef float number;
@@ -325,7 +321,7 @@ typedef union {
 	struct { number r, g, b; }; // red, green, blue?
 	struct { number pitch, yaw, roll; };
 	number data[3];
-} vector3;
+} vector3, matrix3[3];
 typedef union {
 	struct { integer x, y, z; };
 	struct { integer r, g, b; }; // red, green, blue?
@@ -338,7 +334,7 @@ typedef union {
 	struct { number r, g, b, a; };
 	// red, green, blue, alpha?
 	number data[4];
-} vector4;
+} vector4, matrix4[4];
 typedef union {
 	struct { integer x, y, z, w; };
 	struct { integer r, g, b, a; };
@@ -412,7 +408,7 @@ extern const vector4 g_color_table[Q_COLOR_BITS+1];
 struct cplane_s;
 
 extern	vector3	vec3_origin;
-extern	vector3	axisDefault[3];
+extern	matrix3	axisDefault;
 
 #define	nanmask (255<<23)
 
@@ -422,19 +418,19 @@ int Q_isnan(float x);
 
 #ifdef idx64
   extern long qftolsse(float f);
-  extern int qvmftolsse(void);
+  extern int qvmftolsse( void );
 
   #define Q_ftol qftolsse
 
-  extern int (*Q_VMftol)(void);
+  extern int (*Q_VMftol)( void );
 #elif defined(id386)
   extern long QDECL qftolx87(float f);
   extern long QDECL qftolsse(float f);
-  extern int QDECL qvmftolx87(void);
-  extern int QDECL qvmftolsse(void);
+  extern int QDECL qvmftolx87( void );
+  extern int QDECL qvmftolsse( void );
 
   extern long (QDECL *Q_ftol)(float f);
-  extern int (QDECL *Q_VMftol)(void);
+  extern int (QDECL *Q_VMftol)( void );
 #else
   // Q_ftol must expand to a function name so the pluggable renderer can take
   // its address
@@ -512,7 +508,7 @@ void		VectorClear( vector3 *vec );
 void		VectorClear4( vector4 *vec );
 void		VectorInc( vector3 *vec );
 void		VectorDec( vector3 *vec );
-void		VectorRotate( vector3 *in, vector3 matrix[3], vector3 *out );
+void		VectorRotate( const vector3 *in, matrix3 matrix, vector3 *out );
 void		VectorInverse( vector3 *vec );
 void		CrossProduct( const vector3 *vec1, const vector3 *vec2, vector3 *vecOut );
 number		DotProduct( const vector3 *vec1, const vector3 *vec2 );
@@ -555,14 +551,14 @@ float Q_powf ( float x, int y );
 void HSL2RGB( float h, float s, float l, float *r, float *g, float *b );
 void HSV2RGB( float h, float s, float v, float *r, float *g, float *b );
 
-#define random()	((rand () & 0x7fff) / ((float)0x7fff))
+#define random()	((rand() & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0f * (random() - 0.5f))
 
 void vectoangles( const vector3 *value1, vector3 *angles);
-void AnglesToAxis( const vector3 *angles, vector3 axis[3] );
+void AnglesToAxis( const vector3 *angles, matrix3 axis );
 
-void AxisClear( vector3 axis[3] );
-void AxisCopy( vector3 in[3], vector3 out[3] );
+void AxisClear( matrix3 axis );
+void AxisCopy( const matrix3 in, matrix3 out );
 
 void SetPlaneSignbits( struct cplane_s *out );
 int BoxOnPlaneSide (vector3 *emins, vector3 *emaxs, struct cplane_s *plane);
@@ -583,14 +579,14 @@ float AngleDelta ( float angle1, float angle2 );
 qboolean PlaneFromPoints( vector4 *plane, const vector3 *a, const vector3 *b, const vector3 *c );
 void ProjectPointOnPlane( vector3 *dst, const vector3 *p, const vector3 *normal );
 void RotatePointAroundVector( vector3 *dst, const vector3 *dir, const vector3 *point, float degrees );
-void RotateAroundDirection( vector3 axis[3], float yaw );
+void RotateAroundDirection( matrix3 axis, float yaw );
 void MakeNormalVectors( const vector3 *forward, vector3 *right, vector3 *up );
 // perpendicular vector could be replaced by this
 
 //int	PlaneTypeForNormal (vector3 *normal);
 
-void MatrixMultiply( vector3 in1[3], vector3 in2[3], vector3 out[3] );
-void MatrixTranspose( vector3 matrix[3], vector3 transpose[3] );
+void MatrixMultiply( const matrix3 in1, const matrix3 in2, matrix3 out );
+void MatrixTranspose( matrix3 matrix, matrix3 transpose );
 void AngleVectors( const vector3 *angles, vector3 *forward, vector3 *right, vector3 *up);
 void PerpendicularVector( vector3 *dst, const vector3 *src );
 
@@ -601,8 +597,6 @@ void PerpendicularVector( vector3 *dst, const vector3 *src );
 #ifndef MIN
 	#define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
-
-//=============================================
 
 float Q_clamp( float min, float value, float max );
 int Q_clampi( int min, int value, int max );
@@ -682,7 +676,6 @@ typedef enum fsOrigin_e {
 	FS_SEEK_SET
 } fsOrigin_t;
 
-//=============================================
 
 int Q_isprint( int c );
 int Q_islower( int c );
@@ -716,8 +709,6 @@ char *Q_CleanStr( char *string );
 // Count the number of char tocount encountered in string
 int Q_CountChar(const char *string, char tocount);
 
-//=============================================
-
 // 64-bit integers for global rankings interface
 // implemented as a struct for qvm compatibility
 typedef struct qint64_s {
@@ -731,25 +722,10 @@ typedef struct qint64_s {
 	byte	b7;
 } qint64_t;
 
-//=============================================
-/*
-short	BigShort(short l);
-short	LittleShort(short l);
-int		BigLong (int l);
-int		LittleLong (int l);
-qint64_t  BigLong64 (qint64_t l);
-qint64_t  LittleLong64 (qint64_t l);
-float	BigFloat (const float *l);
-float	LittleFloat (const float *l);
-
-void	Swap_Init (void);
-*/
-char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+char * QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
-void Com_TruncateLongString( char *buffer, const char *s );
-
-//=============================================
+void Com_TruncateLongString( char *buffer, size_t len, const char *s );
 
 //
 // key / value info strings
@@ -775,14 +751,11 @@ vector3 *tv( float x, float y, float z );
 char *vtos( const vector3 *v );
 
 /*
-==========================================================
 
-CVARS (console variables)
+	CVARS (console variables)
 
-Many variables can be used for cheating purposes, so when
-cheats is zero, force all unspecified variables to their
-default values.
-==========================================================
+	Many variables can be used for cheating purposes, so when cheats is zero, force all unspecified variables to their default values.
+
 */
 
 #define CVAR_NONE			0x00000000
@@ -838,11 +811,9 @@ typedef struct cvar_s {
 typedef int	cvarHandle_t;
 
 /*
-==============================================================
 
-VoIP
+	VoIP
 
-==============================================================
 */
 
 // if you change the count of flags be sure to also change VOIP_FLAGNUM
@@ -854,11 +825,9 @@ VoIP
 #define VOIP_FLAGCNT		2
 
 /*
-==============================================================
 
-COLLISION DETECTION
+	COLLISION DETECTION
 
-==============================================================
 */
 
 #include "surfaceflags.h"			// shared with the q3map utility
@@ -909,11 +878,8 @@ typedef struct markFragment_s {
 
 typedef struct orientation_s {
 	vector3		origin;
-	vector3		axis[3];
+	matrix3		axis;
 } orientation_t;
-
-//=====================================================================
-
 
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
@@ -938,11 +904,9 @@ typedef enum soundChannel_e {
 
 
 /*
-========================================================================
 
-  ELEMENTS COMMUNICATED ACROSS THE NET
+	ELEMENTS COMMUNICATED ACROSS THE NET
 
-========================================================================
 */
 
 #define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
@@ -1017,8 +981,6 @@ typedef enum gametype_e {
 extern const char *gametypeStringShort[GT_NUM_GAMETYPES];
 const char *GametypeStringForID( int gametype );
 int GametypeIDForString( const char *gametype );
-
-//=========================================================
 
 // bit field limits
 #define	MAX_STATS				16
@@ -1109,10 +1071,6 @@ typedef struct playerState_s {
 	int			weaponCooldown[MAX_WEAPONS];
 } playerState_t;
 
-
-//====================================================================
-
-
 //
 // usercmd_t->button bits, many of which are generated by the client system,
 // so they aren't game/cgame only definitions
@@ -1133,8 +1091,6 @@ typedef struct usercmd_s {
 	byte			weapon;           // weapon 
 	signed char		forwardmove, rightmove, upmove;
 } usercmd_t;
-
-//===================================================================
 
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define	SOLID_BMODEL	0xffffff
@@ -1244,9 +1200,6 @@ typedef struct fontInfo_s {
 #define Square(x) ((x)*(x))
 
 // real time
-//=============================================
-
-
 typedef struct qtime_s {
 	int tm_sec;     /* seconds after the minute - [0,59] */
 	int tm_min;     /* minutes after the hour - [0,59] */

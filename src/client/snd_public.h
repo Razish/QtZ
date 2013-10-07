@@ -47,7 +47,7 @@ void S_StopLoopingSound(int entityNum );
 
 // recompute the relative volumes for all running sounds
 // relative to the given entityNum / orientation
-void S_Respatialize( int entityNum, const vector3 *origin, vector3 axis[3], int inwater );
+void S_Respatialize( int entityNum, const vector3 *origin, matrix3 axis, int inwater );
 
 // let the sound system know where an entity currently is
 void S_UpdateEntityPosition( int entityNum, const vector3 *origin );
@@ -63,7 +63,7 @@ void S_BeginRegistration( void );
 // checks for missing files
 sfxHandle_t	S_RegisterSound( const char *sample, qboolean compressed );
 
-void S_DisplayFreeMemory(void);
+void S_DisplayFreeMemory( void );
 
 void S_ClearSoundBuffer( void );
 

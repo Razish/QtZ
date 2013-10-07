@@ -195,12 +195,6 @@ void CG_Text_Paint(float x, float y, float scale, const vector4 *color, const ch
 	}
 }
 
-/*
-================
-CG_Draw3DModel
-
-================
-*/
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vector3 *origin, vector3 *angles ) {
 	refdef_t		refdef;
 	refEntity_t		ent;
@@ -239,13 +233,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 	trap->R_RenderScene( &refdef );
 }
 
-/*
-================
-CG_DrawHead
-
-Used for both the status bar and the scoreboard
-================
-*/
+// Used for both the status bar and the scoreboard
 void CG_DrawHead( float x, float y, float w, float h, int clientNum, vector3 *headAngles ) {
 	clipHandle_t	cm;
 	clientInfo_t	*ci;
@@ -286,13 +274,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vector3 *he
 	}
 }
 
-/*
-================
-CG_DrawFlagModel
-
-Used for both the status bar and the scoreboard
-================
-*/
+// Used for both the status bar and the scoreboard
 void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
 	qhandle_t		cm;
 	float			len;
@@ -347,12 +329,6 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 	}
 }
 
-/*
-================
-CG_DrawTeamBackground
-
-================
-*/
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 {
 	vector4		hcolor;
@@ -375,185 +351,11 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 }
 
 /*
-===========================================================================================
-
-  UPPER RIGHT CORNER
-
-===========================================================================================
-*/
-
-/*
-================
-CG_DrawAttacker
-
-================
-*/
-static float CG_DrawAttacker( float y ) {
-	int			t;
-	float		size;
-	vector3		angles;
-	const char	*info;
-	const char	*name;
-	int			clientNum;
-
-	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-		return y;
-	}
-
-	if ( !cg.attackerTime ) {
-		return y;
-	}
-
-	clientNum = cg.predictedPlayerState.persistant[PERS_ATTACKER];
-	if ( clientNum < 0 || clientNum >= MAX_CLIENTS || clientNum == cg.snap->ps.clientNum ) {
-		return y;
-	}
-
-	t = cg.time - cg.attackerTime;
-	if ( t > ATTACKER_HEAD_TIME ) {
-		cg.attackerTime = 0;
-		return y;
-	}
-
-	size = ICON_SIZE * 1.25;
-
-	angles.pitch = 0;
-	angles.yaw = 180;
-	angles.roll = 0;
-	CG_DrawHead( SCREEN_WIDTH - size, y, size, size, clientNum, &angles );
-
-	info = CG_ConfigString( CS_PLAYERS + clientNum );
-	name = Info_ValueForKey( info, "n" );
-	y += size;
-	CG_Text_Paint( SCREEN_WIDTH - CG_Text_Width( name, 0.5f, 0 ), y, 0.5f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], name, 0.0f, 0, 0 );
-
-	return y + CG_Text_Height( name, 0.5f, 0 ) + 2;
-}
-
-/*
-==================
-CG_DrawSnapshot
-==================
-*/
-static float CG_DrawSnapshot( float y ) {
-	char		*s;
-	float		w;
-
-	s = va( "time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence );
-	w = CG_Text_Width( s, 1.0f, 0 );
-
-	CG_Text_Paint( 635 - w, y + 2, 1.0f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
-
-	return y + CG_Text_Height( s, 1.0f, 0 ) + 4;
-}
-
-/*
-==================
-CG_DrawFPS
-==================
-*/
-#define	FPS_FRAMES	16
-#define FPS_MASK (FPS_FRAMES-1)
-
-static float CG_DrawFPS( float y ) {
-	static unsigned short previousTimes[FPS_FRAMES];
-	static unsigned short index;
-	static int	previous, lastupdate;
-
-	int t, i, total;
-	unsigned short frameTime;
-	vector4 fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
-	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
-	char *tmp = NULL;
-	float fps, maxFPS = 1000.0f/com_frametime->value;
-
-	if ( !cg_drawFPS->boolean && !cg_debugHUD->boolean )
-		return y;
-
-	// don't use serverTime, because that will be drifting to
-	// correct for internet lag changes, timescales, timedemos, etc
-	t = trap->Milliseconds();
-	frameTime = t - previous;
-	previous = t;
-	if ( t - lastupdate > 50 ) {// don't sample faster than this
-		lastupdate = t;
-		previousTimes[index++ & FPS_MASK] = frameTime;
-	}
-	// average multiple frames together to smooth changes out a bit
-	total = 0;
-	for ( i = 0 ; i < FPS_FRAMES ; i++ )
-		total += previousTimes[i];
-	if ( !total )
-		total = 1;
-
-	fps = 1000.0f * (float)((float)FPS_FRAMES / (float)total);
-
-	point = MIN( MAX(0.0f, fps) / MAX(60.0f, maxFPS), 1.0f );
-	VectorLerp4( &fpsBad, point, &fpsGood, &fpsColour );
-	fpsColour.a = 1.0f;
-
-	tmp = va( "%3i FPS", (int)fps );
-	CG_Text_Paint( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont->value, 0 ), y, ui_smallFont->value, &fpsColour, tmp, 0.0f, 0, 0 );
-
-	return y-14.0f;
-}
-
-static float CG_DrawPing( float y )
-{
-	vector4 pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
-	float point = MIN( cg.snap->ping / 300.0f, 1.0f );
-	char *tmp = NULL;
-
-	if ( !cg_drawPing->boolean && cg_debugHUD->boolean )
-		return y;
-
-	VectorLerp4( &pingBad, point, &pingGood, &pingColour );
-	pingColour.a = 1.0f;
-
-	tmp = va( "%3i ping", cg.snap->ping );
-	CG_Text_Paint( SCREEN_WIDTH-CG_Text_Width( tmp, ui_smallFont->value, 0 ), y, ui_smallFont->value, &pingColour, tmp, 0.0f, 0, 0 );
-	return y-14.0f;
-}
-
-/*
-=================
-CG_DrawTimer
-=================
-*/
-static float CG_DrawTimer( float y ) {
-	char	*s;
-	float	w;
-	int		mins, seconds, tens, msec;
-
-	msec = cg.time - cgs.levelStartTime;
-
-	seconds = msec / 1000;
-	mins = seconds / 60;
-	seconds -= mins * 60;
-	tens = seconds / 10;
-	seconds -= tens * 10;
-
-	s = va( "%i:%i%i", mins, tens, seconds );
-	w = CG_Text_Width( s, 1.0f, 0 );
-
-	CG_Text_Paint( 635 - w, y + 2, 1.0f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
-
-	return y + CG_Text_Height( s, 1.0f, 0 ) + 4;
-}
-
-/*
-===========================================================================================
 
   LOWER RIGHT CORNER
 
-===========================================================================================
 */
 
-/*
-===================
-CG_DrawReward
-===================
-*/
 static void CG_DrawReward( void ) { 
 	vector4 *color;
 	int		i, count;
@@ -622,11 +424,9 @@ static void CG_DrawReward( void ) {
 
 
 /*
-===============================================================================
 
-LAGOMETER
+	LAGOMETER
 
-===============================================================================
 */
 
 #define	LAG_SAMPLES		128
@@ -640,13 +440,7 @@ struct lagometer_s {
 	int		snapshotCount;
 } lagometer;
 
-/*
-==============
-CG_AddLagometerFrameInfo
-
-Adds the current interpolate / extrapolate bar for this frame
-==============
-*/
+// Adds the current interpolate / extrapolate bar for this frame
 void CG_AddLagometerFrameInfo( void ) {
 	int offset;
 
@@ -655,16 +449,8 @@ void CG_AddLagometerFrameInfo( void ) {
 	lagometer.frameCount++;
 }
 
-/*
-==============
-CG_AddLagometerSnapshotInfo
-
-Each time a snapshot is received, log its ping time and
-the number of snapshots that were dropped before it.
-
-Pass NULL for a dropped packet.
-==============
-*/
+// Each time a snapshot is received, log its ping time and the number of snapshots that were dropped before it.
+//	Pass NULL for a dropped packet.
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	// dropped packet
 	if ( !snap ) {
@@ -679,13 +465,7 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	lagometer.snapshotCount++;
 }
 
-/*
-==============
-CG_DrawDisconnect
-
-Should we draw something differnet for long lag vs no packets?
-==============
-*/
+// Should we draw something different for long lag vs no packets?
 static void CG_DrawDisconnect( void ) {
 	float		x, y;
 	int			cmdNum;
@@ -729,11 +509,6 @@ static void CG_DrawDisconnect( void ) {
 #define	MAX_LAGOMETER_PING	900
 #define	MAX_LAGOMETER_RANGE	300
 
-/*
-==============
-CG_DrawLagometer
-==============
-*/
 static void CG_DrawLagometer( void ) {
 	int		a, i;
 	float	v, x, y, ax, ay, aw, ah, mid, range;
@@ -834,22 +609,13 @@ static void CG_DrawLagometer( void ) {
 
 
 /*
-===============================================================================
 
-CENTER PRINTING
+	CENTER PRINTING
 
-===============================================================================
 */
 
 
-/*
-==============
-CG_CenterPrint
-
-Called for important messages that should stay in the center of the screen
-for a few moments
-==============
-*/
+// Called for important messages that should stay in the center of the screen for a few moments
 void CG_CenterPrint( const char *str, int y ) {
 	char	*s;
 
@@ -868,12 +634,6 @@ void CG_CenterPrint( const char *str, int y ) {
 	}
 }
 
-
-/*
-===================
-CG_DrawCenterString
-===================
-*/
 static void CG_DrawCenterString( void ) {
 	char	*start;
 	int		l;
@@ -927,20 +687,13 @@ static void CG_DrawCenterString( void ) {
 
 
 /*
-================================================================================
 
-CROSSHAIR
+	CROSSHAIR
 
-================================================================================
 */
 
 
-/*
-=================
-CG_DrawCrosshair
-=================
-*/
-static void CG_DrawCrosshair(void)
+static void CG_DrawCrosshair( void )
 {
 	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize->value, h = cg_crosshairSize->value, f = 0.0f;
 	int			i = 0;
@@ -971,7 +724,7 @@ static void CG_DrawCrosshair(void)
 
 			trap->R_SetColor( &colour );
 			if ( angle/360.0f < cdmax )
-				CG_DrawRotatePic2( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic );
+				CG_DrawRotatePic( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic, qtrue );
 		}
 		trap->R_SetColor( NULL );
 	}
@@ -1024,12 +777,7 @@ static void CG_DrawCrosshair(void)
 //		w, h, 0, 0, 1, 1, hShader );
 }
 
-/*
-=================
-CG_DrawCrosshair3D
-=================
-*/
-static void CG_DrawCrosshair3D(void)
+static void CG_DrawCrosshair3D( void )
 {
 	float		w;
 	qhandle_t	hShader;
@@ -1095,13 +843,6 @@ static void CG_DrawCrosshair3D(void)
 	trap->R_AddRefEntityToScene(&ent);
 }
 
-
-
-/*
-=================
-CG_ScanForCrosshairEntity
-=================
-*/
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vector3		start, end;
@@ -1127,12 +868,6 @@ static void CG_ScanForCrosshairEntity( void ) {
 	cg.crosshairClientTime = cg.time;
 }
 
-
-/*
-=====================
-CG_DrawCrosshairNames
-=====================
-*/
 static void CG_DrawCrosshairNames( void ) {
 	vector4		*color;
 	char		*name;
@@ -1162,14 +897,6 @@ static void CG_DrawCrosshairNames( void ) {
 	trap->R_SetColor( NULL );
 }
 
-
-//==============================================================================
-
-/*
-=================
-CG_DrawSpectator
-=================
-*/
 static void CG_DrawSpectator( void ) {
 	float scale = 0.5f;
 	char *s = "Following";
@@ -1180,12 +907,7 @@ static void CG_DrawSpectator( void ) {
 	CG_Text_Paint( (SCREEN_WIDTH/2) - CG_Text_Width( s, scale, 0 )/2, 440, scale, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 }
 
-/*
-=================
-CG_DrawVote
-=================
-*/
-static void CG_DrawVote(void) {
+static void CG_DrawVote( void ) {
 	char	*s;
 	int		sec;
 
@@ -1209,23 +931,11 @@ static void CG_DrawVote(void) {
 	CG_Text_Paint( 0, 58 + CG_Text_Height( s, 1.0f, 0 ) + 2, 1.0f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 }
 
-/*
-=================
-CG_DrawIntermission
-=================
-*/
 static void CG_DrawIntermission( void ) {
-//	int key;
-
 	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
-/*
-=================
-CG_DrawFollow
-=================
-*/
 static qboolean CG_DrawFollow( void ) {
 	const char *s;
 	float w;
@@ -1244,13 +954,6 @@ static qboolean CG_DrawFollow( void ) {
 	return qtrue;
 }
 
-
-
-/*
-=================
-CG_DrawAmmoWarning
-=================
-*/
 static void CG_DrawAmmoWarning( void ) {
 	const char *s = "LOW AMMO WARNING";
 	int w;
@@ -1268,11 +971,6 @@ static void CG_DrawAmmoWarning( void ) {
 	CG_Text_Paint( (SCREEN_WIDTH/2.0f) - (w/2.0f), 64, 1.0f, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0.0f, 0, 0 );
 }
 
-/*
-=================
-CG_DrawWarmup
-=================
-*/
 static void CG_DrawWarmup( void ) {
 	float		w, scale;
 	int			sec, i;
@@ -1359,12 +1057,6 @@ static void CG_DrawWarmup( void ) {
 	CG_Text_Paint((SCREEN_WIDTH/2) - (w / 2.0f), 125, scale, (vector4*)&g_color_table[ColorIndex(COLOR_WHITE)], s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
-//==================================================================================
-/* 
-=================
-CG_DrawTimedMenus
-=================
-*/
 void CG_DrawTimedMenus( void ) {
 	if (cg.voiceTime) {
 		int t = cg.time - cg.voiceTime;
@@ -1380,11 +1072,6 @@ void CG_DrawDebugInfo( void ) {
 //	CG_Text_Paint( 32.0f, 128.0f, 0.25f, &g_color_table[ColorIndex(COLOR_WHITE)], va( "movement dir: %d", cg.predictedPlayerState.movementDir ), 0.0f, -1, 0 );
 }
 
-/*
-=================
-CG_Draw2D
-=================
-*/
 static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 	if ( !cg_draw2D->boolean )
@@ -1441,13 +1128,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		CG_DrawCenterString();
 }
 
-/*
-=====================
-CG_DrawActive
-
-Perform all drawing needed to completely fill the screen
-=====================
-*/
+// Perform all drawing needed to completely fill the screen
 void CG_DrawActive( stereoFrame_t stereoView ) {
 	// optionally draw the info screen instead
 	if ( !cg.snap ) {

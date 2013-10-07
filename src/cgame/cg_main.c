@@ -173,11 +173,6 @@ static cvarTable_t cvarTable[] = {
 
 static const int cvarTableSize = ARRAY_LEN( cvarTable );
 
-/*
-=================
-CG_RegisterCvars
-=================
-*/
 void CG_RegisterCvars( void ) {
 	int i = 0;
 	cvarTable_t *cv = NULL;
@@ -219,15 +214,7 @@ const char *CG_Cvar_VariableString( const char *name ) {
 	return buffer;
 }
 
-//========================================================================
-
-/*
-=================
-CG_RegisterItemSounds
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	const gitem_t	*item;
 	char			data[MAX_QPATH];
@@ -269,14 +256,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 	}
 }
 
-
-/*
-=================
-CG_RegisterSounds
-
-called during a precache command
-=================
-*/
+// called during a precache command
 static void CG_RegisterSounds( void ) {
 	int		i;
 	char	items[MAX_ITEMS+1];
@@ -461,17 +441,7 @@ static void CG_RegisterSounds( void ) {
 	trap->S_RegisterSound("sound/player/"DEFAULT_MODEL"/taunt.wav", qfalse );
 }
 
-
-//===================================================================================
-
-
-/*
-=================
-CG_RegisterGraphics
-
-This function may execute for a couple of minutes with a slow disk.
-=================
-*/
+// This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void ) {
 	int			i;
 	char		items[MAX_ITEMS+1];
@@ -667,7 +637,7 @@ static void CG_RegisterGraphics( void ) {
 	trap->R_RegisterModel( "models/players/"DEFAULT_MODEL"/upper.md3" );
 	//trap->R_RegisterModel( "models/players/heads/"DEFAULT_MODEL"/"DEFAULT_MODEL".md3" );
 
-	CG_ClearParticles ();
+	CG_ClearParticles();
 /*
 	for (i=1; i<MAX_PARTICLES_AREAS; i++)
 	{
@@ -691,15 +661,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.scoreboard.line			= trap->R_RegisterShaderNoMip( "gfx/menus/scoreboard" );
 }
 
-
-
-/*																																			
-=======================
-CG_BuildSpectatorString
-
-=======================
-*/
-void CG_BuildSpectatorString(void) {
+void CG_BuildSpectatorString( void ) {
 	int i;
 	cg.spectatorList[0] = 0;
 	for (i = 0; i < MAX_CLIENTS; i++) {
@@ -714,12 +676,6 @@ void CG_BuildSpectatorString(void) {
 	}
 }
 
-
-/*																																			
-===================
-CG_RegisterClients
-===================
-*/
 static void CG_RegisterClients( void ) {
 	int		i;
 
@@ -743,13 +699,6 @@ static void CG_RegisterClients( void ) {
 	CG_BuildSpectatorString();
 }
 
-//===========================================================================
-
-/*
-=================
-CG_ConfigString
-=================
-*/
 const char *CG_ConfigString( int index ) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		trap->Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
@@ -757,14 +706,6 @@ const char *CG_ConfigString( int index ) {
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
 
-//==================================================================
-
-/*
-======================
-CG_StartMusic
-
-======================
-*/
 void CG_StartMusic( void ) {
 	char	*s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
@@ -800,11 +741,6 @@ char *CG_GetMenuBuffer(const char *filename) {
 	return buf;
 }
 
-//
-// ==============================
-// new hud stuff ( mission pack )
-// ==============================
-//
 qboolean CG_Asset_Parse(int handle) {
 	pc_token_t token;
 	const char *tempStr;
@@ -1313,12 +1249,6 @@ static void CG_RunCinematicFrame(int handle) {
 	trap->CIN_RunCinematic(handle);
 }
 
-/*
-=================
-CG_LoadHudMenu();
-
-=================
-*/
 void CG_LoadHudMenu( void ) {
 	char buff[MAX_CVAR_VALUE_STRING];
 	const char *hudSet;
@@ -1403,16 +1333,10 @@ void CG_AssetCache( void ) {
 	cgDC.Assets.sliderThumb = trap->R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 
-/*
-=================
-CG_Init
-
-Called when the level loads or when the renderer is restarted.
-All media should be registered at this time
-CGame will display loading status by calling SCR_Update, which will call CG_DrawInformation during the loading process
-reliableCommandSequence will be 0 on fresh loads, but higher for demos, tourney restarts, or vid_restarts
-=================
-*/
+// Called when the level loads or when the renderer is restarted.
+//	All media should be registered at this time
+//	cgame will display loading status by calling SCR_Update, which will call CG_DrawInformation during the loading process
+//	serverCommandSequence will be 0 on fresh loads, but higher for demos, tourney restarts, or vid_restarts
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 
@@ -1494,43 +1418,16 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	CG_LoadingString( "" );
 
-	CG_ShaderStateChanged();
-
 	trap->S_ClearLoopingSounds( qtrue );
 }
 
-/*
-=================
-CG_Shutdown
-
-Called before every level change or subsystem restart
-=================
-*/
+// Called before every level change or subsystem restart
 void CG_Shutdown( void ) {
 	CG_ShutdownConsoleCommands();
 }
 
-
-/*
-==================
-CG_EventHandling
-==================
- type 0 - no event handling
-      1 - team menu
-      2 - hud editor
-
-*/
-
-/*
-============
-GetModuleAPI
-============
-*/
-
 cgameImport_t *trap = NULL;
-
-Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import )
-{
+Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import ) {
 	static cgameExport_t cge = {0};
 	
 	assert( import );

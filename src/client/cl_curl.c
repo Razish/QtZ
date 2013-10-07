@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cvar_t *cl_cURLLib;
 
-char* (*qcurl_version)(void);
+char* (*qcurl_version)( void );
 
-CURL* (*qcurl_easy_init)(void);
+CURL* (*qcurl_easy_init)( void );
 CURLcode (*qcurl_easy_setopt)(CURL *curl, CURLoption option, ...);
 CURLcode (*qcurl_easy_perform)(CURL *curl);
 void (*qcurl_easy_cleanup)(CURL *curl);
@@ -39,7 +39,7 @@ CURL* (*qcurl_easy_duphandle)(CURL *curl);
 void (*qcurl_easy_reset)(CURL *curl);
 const char *(*qcurl_easy_strerror)(CURLcode);
 
-CURLM* (*qcurl_multi_init)(void);
+CURLM* (*qcurl_multi_init)( void );
 CURLMcode (*qcurl_multi_add_handle)(CURLM *multi_handle,
                                                 CURL *curl_handle);
 CURLMcode (*qcurl_multi_remove_handle)(CURLM *multi_handle,
@@ -58,11 +58,6 @@ const char *(*qcurl_multi_strerror)(CURLMcode);
 
 static void *cURLLib = NULL;
 
-/*
-=================
-GPA
-=================
-*/
 static void *GPA(char *str)
 {
 	void *rv;
@@ -82,11 +77,6 @@ static void *GPA(char *str)
 }
 #endif /* USE_CURL_DLOPEN */
 
-/*
-=================
-CL_cURL_Init
-=================
-*/
 qboolean CL_cURL_Init( void )
 {
 #ifdef USE_CURL_DLOPEN
@@ -141,11 +131,6 @@ qboolean CL_cURL_Init( void )
 #endif /* USE_CURL_DLOPEN */
 }
 
-/*
-=================
-CL_cURL_Shutdown
-=================
-*/
 void CL_cURL_Shutdown( void )
 {
 	CL_cURL_Cleanup();
@@ -174,7 +159,7 @@ void CL_cURL_Shutdown( void )
 #endif /* USE_CURL_DLOPEN */
 }
 
-void CL_cURL_Cleanup(void)
+void CL_cURL_Cleanup( void )
 {
 	if(clc.downloadCURLM) {
 		if(clc.downloadCURL) {
@@ -284,7 +269,7 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 	}
 }
 
-void CL_cURL_PerformDownload(void)
+void CL_cURL_PerformDownload( void )
 {
 	CURLMcode res;
 	CURLMsg *msg;

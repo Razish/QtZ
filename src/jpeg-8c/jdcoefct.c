@@ -75,7 +75,7 @@ METHODDEF(int) decompress_smooth_data
 #endif
 
 
-LOCAL(void)
+LOCAL( void )
 start_iMCU_row (j_decompress_ptr cinfo)
 /* Reset within-iMCU-row counters for a new row (input side) */
 {
@@ -103,7 +103,7 @@ start_iMCU_row (j_decompress_ptr cinfo)
  * Initialize for an input processing pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_input_pass (j_decompress_ptr cinfo)
 {
   cinfo->input_iMCU_row = 0;
@@ -115,7 +115,7 @@ start_input_pass (j_decompress_ptr cinfo)
  * Initialize for an output processing pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_output_pass (j_decompress_ptr cinfo)
 {
 #ifdef BLOCK_SMOOTHING_SUPPORTED
@@ -672,7 +672,7 @@ decompress_smooth_data (j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
  * Initialize coefficient buffer controller.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_d_coef_controller (j_decompress_ptr cinfo, boolean need_full_buffer)
 {
   my_coef_ptr coef;

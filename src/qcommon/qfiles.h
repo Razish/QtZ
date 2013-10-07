@@ -42,11 +42,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_QPATH		64
 
 /*
-========================================================================
 
-.MD3 triangle model file format
+	.MD3 triangle model file format
 
-========================================================================
 */
 
 #define MD3_IDENT			(('3'<<24)+('P'<<16)+('D'<<8)+'I')
@@ -74,7 +72,7 @@ typedef struct md3Frame_s {
 typedef struct md3Tag_s {
 	char		name[MAX_QPATH];	// tag name
 	vector3		origin;
-	vector3		axis[3];
+	matrix3		axis;
 } md3Tag_t;
 
 /*
@@ -148,11 +146,9 @@ typedef struct md3Header_s {
 } md3Header_t;
 
 /*
-==============================================================================
 
-MD4 file format
+	MD4 file format
 
-==============================================================================
 */
 
 #define MD4_IDENT			(('4'<<24)+('P'<<16)+('D'<<8)+'I')
@@ -364,11 +360,9 @@ typedef struct mdrHeader_s {
 #endif
 
 /*
-==============================================================================
 
-  .BSP file format
+	.BSP file format
 
-==============================================================================
 */
 
 
@@ -418,9 +412,6 @@ typedef struct mdrHeader_s {
 #define MAX_WORLD_COORD		( 128*1024 )
 #define MIN_WORLD_COORD		( -128*1024 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
-
-//=============================================================================
-
 
 typedef struct lump_s {
 	int		fileofs, filelen;
@@ -542,7 +533,7 @@ typedef struct dsurface_s {
 	int			lightmapWidth, lightmapHeight;
 
 	vector3		lightmapOrigin;
-	vector3		lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
+	matrix3		lightmapVecs;	// for patches, [0] and [1] are lodbounds
 
 	int			patchWidth;
 	int			patchHeight;

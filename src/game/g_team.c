@@ -108,14 +108,8 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	trap->SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
 }
 
-/*
-==============
-AddTeamScore
-
- used for gametype > GT_TEAMBLOOD
- for gametype GT_TEAMBLOOD the level.teamScores is updated in AddScore in g_combat.c
-==============
-*/
+// used for gametype > GT_TEAMBLOOD
+//	for gametype GT_TEAMBLOOD the level.teamScores is updated in AddScore in g_combat.c
 void AddTeamScore(vector3 *origin, int team, int score) {
 	gentity_t	*te;
 
@@ -155,11 +149,6 @@ void AddTeamScore(vector3 *origin, int team, int score) {
 	level.teamScores[ team ] += score;
 }
 
-/*
-==============
-OnSameTeam
-==============
-*/
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	if ( !ent1->client || !ent2->client ) {
 		return qfalse;
@@ -235,11 +224,6 @@ void Team_CheckDroppedItem( gentity_t *dropped ) {
 	}
 }
 
-/*
-================
-Team_ForceGesture
-================
-*/
 void Team_ForceGesture(int team) {
 	int i;
 	gentity_t *ent;
@@ -257,15 +241,8 @@ void Team_ForceGesture(int team) {
 	}
 }
 
-/*
-================
-Team_FragBonuses
-
-Calculate the bonuses for flag defense, flag carrier defense, etc.
-Note that bonuses are not cumulative.  You get one, they are in importance
-order.
-================
-*/
+// Calculate the bonuses for flag defense, flag carrier defense, etc.
+//	Note that bonuses are not cumulative. You get one, they are in importance order.
 void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker)
 {
 	int i;
@@ -434,14 +411,8 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	}
 }
 
-/*
-================
-Team_CheckHurtCarrier
-
-Check to see if attacker hurt the flag carrier.  Needed when handing out bonuses for assistance to flag
-carrier defense.
-================
-*/
+// Check to see if attacker hurt the flag carrier.
+//	Needed when handing out bonuses for assistance to flag carrier defense.
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 {
 	int flag_pw;
@@ -600,15 +571,8 @@ void Team_FreeEntity( gentity_t *ent ) {
 	}
 }
 
-/*
-==============
-Team_DroppedFlagThink
-
-Automatically set in Launch_Item if the item is one of the flags
-
-Flags are unique in that if they are dropped, the base flag must be respawned when they time out
-==============
-*/
+// Automatically set in Launch_Item if the item is one of the flags
+//	Flags are unique in that if they are dropped, the base flag must be respawned when they time out
 void Team_DroppedFlagThink(gentity_t *ent) {
 	int		team = TEAM_FREE;
 
@@ -626,12 +590,6 @@ void Team_DroppedFlagThink(gentity_t *ent) {
 	// Reset Flag will delete this entity
 }
 
-
-/*
-==============
-Team_DroppedFlagThink
-==============
-*/
 int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	int			i;
 	gentity_t	*player;
@@ -807,13 +765,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	return Team_TouchEnemyFlag( ent, other, team );
 }
 
-/*
-===========
-Team_GetLocation
-
-Report a location for the player. Uses placed nearby target_location entities
-============
-*/
+// Report a location for the player. Uses placed nearby target_location entities
 gentity_t *Team_GetLocation(gentity_t *ent)
 {
 	gentity_t		*eloc, *best;
@@ -847,14 +799,9 @@ gentity_t *Team_GetLocation(gentity_t *ent)
 
 /*---------------------------------------------------------------------------*/
 
-/*
-================
-SelectRandomTeamSpawnPoint
-
-go to a random point that doesn't telefrag
-================
-*/
 #define	MAX_TEAM_SPAWN_POINTS	32
+
+// go to a random point that doesn't telefrag
 gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 	gentity_t	*spot;
 	int			count;
@@ -898,13 +845,6 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 	return spots[ selection ];
 }
 
-
-/*
-===========
-SelectCTFSpawnPoint
-
-============
-*/
 gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vector3 *origin, vector3 *angles, qboolean isbot ) {
 	gentity_t	*spot;
 
@@ -928,15 +868,7 @@ static int QDECL SortClients( const void *a, const void *b ) {
 }
 
 
-/*
-==================
-TeamplayLocationsMessage
-
-Format:
-	clientNum location health armor weapon powerups
-
-==================
-*/
+// Format: clientNum location health armor weapon powerups
 void TeamplayInfoMessage( gentity_t *ent ) {
 	char		entry[1024];
 	char		string[8192];
@@ -1008,7 +940,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	trap->SV_GameSendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
 }
 
-void CheckTeamStatus(void) {
+void CheckTeamStatus( void ) {
 	int i;
 	gentity_t *loc, *ent;
 

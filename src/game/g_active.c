@@ -24,16 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
-/*
-===============
-G_DamageFeedback
-
-Called just before a snapshot is sent to the given player.
-Totals up all damage and generates both the player_state_t
-damage values to that client for pain blends and kicks, and
-global pain sound events for all clients.
-===============
-*/
+// Called just before a snapshot is sent to the given player.
+//	Totals up all damage and generates both the playerState_t damage values to that client for
+//	pain blends and kicks, and global pain sound events for all clients.
 void P_DamageFeedback( gentity_t *player ) {
 	gclient_t	*client;
 	int	count;
@@ -70,8 +63,8 @@ void P_DamageFeedback( gentity_t *player ) {
 	}
 
 	// play an apropriate pain sound
-	if ( (level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE) ) {
-		player->pain_debounce_time = level.time + 700;
+	if ( (level.time > player->painDebounceTime) && !(player->flags & FL_GODMODE) ) {
+		player->painDebounceTime = level.time + 700;
 		G_AddEvent( player, EV_PAIN, player->health );
 		client->ps.damageEvent++;
 	}
@@ -87,15 +80,7 @@ void P_DamageFeedback( gentity_t *player ) {
 	client->damage_knockback = 0;
 }
 
-
-
-/*
-=============
-P_WorldEffects
-
-Check for lava / slime contents and drowning
-=============
-*/
+// Check for lava / slime contents and drowning
 void P_WorldEffects( gentity_t *ent ) {
 	int			waterlevel;
 
@@ -121,7 +106,7 @@ void P_WorldEffects( gentity_t *ent ) {
 					ent->damage = 15;
 
 				// don't play a normal pain sound
-				ent->pain_debounce_time = level.time + 200;
+				ent->painDebounceTime = level.time + 200;
 
 				G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, ent->damage, DAMAGE_NO_ARMOR, MOD_WATER );
 			}
@@ -136,7 +121,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	if (waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
 	{
-		if (ent->health > 0 && ent->pain_debounce_time <= level.time )
+		if (ent->health > 0 && ent->painDebounceTime <= level.time )
 		{
 			if (ent->watertype & CONTENTS_LAVA)
 				G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, 30*waterlevel, 0, MOD_LAVA );
@@ -147,13 +132,6 @@ void P_WorldEffects( gentity_t *ent ) {
 	}
 }
 
-
-
-/*
-===============
-G_SetClientSound
-===============
-*/
 void G_SetClientSound( gentity_t *ent ) {
 	if( ent->s.eFlags & EF_TICKING ) {
 		ent->client->ps.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav");
@@ -166,15 +144,6 @@ void G_SetClientSound( gentity_t *ent ) {
 	}
 }
 
-
-
-//==============================================================
-
-/*
-==============
-ClientImpacts
-==============
-*/
 void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 	int		i, j;
 	trace_t	trace;
@@ -205,14 +174,8 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 
 }
 
-/*
-============
-G_TouchTriggers
-
-Find all trigger entities that ent's current position touches.
-Spectators will only interact with teleporters.
-============
-*/
+// Find all trigger entities that ent's current position touches.
+//	Spectators will only interact with teleporters.
 void	G_TouchTriggers( gentity_t *ent ) {
 	int			i, num;
 	int			touch[MAX_GENTITIES];
@@ -302,11 +265,6 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	}
 }
 
-/*
-=================
-SpectatorThink
-=================
-*/
 void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	pmove_t	pm;
 	gclient_t	*client;
@@ -353,13 +311,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 
 
-/*
-=================
-ClientInactivityTimer
-
-Returns qfalse if the client is dropped
-=================
-*/
+// Returns qfalse if the client is dropped
 qboolean ClientInactivityTimer( gclient_t *client ) {
 	if ( ! g_inactivity->integer ) {
 		// give everyone some time, so if the operator sets g_inactivity during
@@ -385,13 +337,7 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 	return qtrue;
 }
 
-/*
-==================
-ClientTimerActions
-
-Actions that happen once a second
-==================
-*/
+// Actions that happen once a second
 void ClientTimerActions( gentity_t *ent, int msec ) {
 	gclient_t	*client;
 
@@ -414,11 +360,6 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	//RAZTODO: Ammo regen?
 }
 
-/*
-====================
-ClientIntermissionThink
-====================
-*/
 void ClientIntermissionThink( gclient_t *client ) {
 	client->ps.eFlags &= ~EF_TALK;
 	client->ps.eFlags &= ~EF_FIRING;
@@ -435,14 +376,7 @@ void ClientIntermissionThink( gclient_t *client ) {
 }
 
 
-/*
-================
-ClientEvents
-
-Events will be passed on to the clients for presentation,
-but any server game effects are handled here
-================
-*/
+// Events will be passed on to the clients for presentation, but any server game effects are handled here
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;
 	int		ev;
@@ -468,7 +402,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( ev == EV_FALL_FAR )	damage = 10;
 			else						damage = 5;
 
-			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
+			ent->painDebounceTime = level.time + 200;	// no normal pain sound
 			G_Damage( /*targ*/ent, /*inflictor*/NULL, /*attacker*/NULL, /*affector*/NULL, /*dir*/NULL, /*point*/NULL, damage, 0, MOD_FALLING);
 			break;
 
@@ -495,11 +429,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 }
 
-/*
-==============
-StuckInOtherClient
-==============
-*/
 static int StuckInOtherClient(gentity_t *ent) {
 	int i;
 	gentity_t	*ent2;
@@ -522,11 +451,6 @@ static int StuckInOtherClient(gentity_t *ent) {
 
 void BotTestSolid(vector3 *origin);
 
-/*
-==============
-SendPendingPredictableEvents
-==============
-*/
 void SendPendingPredictableEvents( playerState_t *ps ) {
 	gentity_t *t;
 	int event, seq;
@@ -557,14 +481,7 @@ void SendPendingPredictableEvents( playerState_t *ps ) {
 	}
 }
 
-/*
-==============
-ClientThink
-
-This will be called once for each client frame, which will
-usually be a couple times for each server frame on fast clients.
-==============
-*/
+// This will be called once for each client frame, which will usually be a couple times for each server frame on fast clients.
 void ClientThink_real( gentity_t *ent ) {
 	gclient_t	*client;
 	pmove_t		pm;
@@ -752,13 +669,7 @@ void ClientThink_real( gentity_t *ent ) {
 		ClientTimerActions( ent, msec );
 }
 
-/*
-==================
-ClientThink
-
-A new command has arrived from the client
-==================
-*/
+// A new command has arrived from the client
 void ClientThink( int clientNum ) {
 	gentity_t *ent;
 
@@ -796,13 +707,6 @@ void G_RunClient( gentity_t *ent ) {
 	ClientThink_real( ent );
 }
 
-
-/*
-==================
-SpectatorClientEndFrame
-
-==================
-*/
 void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
 
@@ -898,15 +802,9 @@ static void G_SendScoreboardUpdate( gentity_t *ent ) {
 													string ) );
 }
 
-/*
-==============
-ClientEndFrame
-
-Called at the end of each server frame for each connected client
-A fast client will have multiple ClientThink for each ClientEdFrame,
-while a slow client may have multiple ClientEndFrame between ClientThink.
-==============
-*/
+// Called at the end of each server frame for each connected client
+//	A fast client will have multiple ClientThink for each ClientEdFrame, while a slow client may have
+//	multiple ClientEndFrame between ClientThink.
 void ClientEndFrame( gentity_t *ent ) {
 	int			i;
 
@@ -952,7 +850,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->pers.teamState.lasthurtcarrier += time_delta;
 		ent->client->pers.teamState.lastfraggedcarrier += time_delta;
 		ent->client->respawnTime += time_delta;
-		ent->pain_debounce_time += time_delta;
+		ent->painDebounceTime += time_delta;
 	}
 
 	//

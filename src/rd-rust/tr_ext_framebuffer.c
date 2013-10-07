@@ -160,7 +160,7 @@ qboolean R_EXT_FramebufferInit( void )
 	return qtrue;
 }
 
-void R_EXT_FramebufferCleanup ( void )
+void R_EXT_FramebufferCleanup( void )
 {
 	int				i			= 0;
 	framebuffer_t	*fbo		= framebuffers;

@@ -69,11 +69,9 @@ void SP_light( gentity_t *self ) {
 
 
 /*
-=================================================================================
 
-TELEPORTERS
+	TELEPORTERS
 
-=================================================================================
 */
 
 void TeleportPlayer( gentity_t *player, vector3 *origin, vector3 *angles ) {
@@ -172,9 +170,6 @@ an info_notnull
 void SP_misc_teleporter_dest( gentity_t *ent ) {
 }
 
-
-//===========================================================
-
 /*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .md3 file to display
 */
@@ -192,8 +187,6 @@ void SP_misc_model( gentity_t *ent ) {
 	G_FreeEntity( ent );
 #endif
 }
-
-//===========================================================
 
 void locateCamera( gentity_t *ent ) {
 	vector3		dir;
@@ -278,11 +271,9 @@ void SP_misc_portal_camera(gentity_t *ent) {
 }
 
 /*
-======================================================================
 
-  SHOOTERS
+	SHOOTERS
 
-======================================================================
 */
 
 void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {

@@ -109,7 +109,7 @@ static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shade
     return shader;
 }
 
-qboolean R_EXT_GLSL_Init ( void )
+qboolean R_EXT_GLSL_Init( void )
 {
 	if ( !strstr (glConfig.extensions_string, "GL_ARB_shader_objects") )
 	{
@@ -185,7 +185,7 @@ static glslProgramVariable_t* R_EXT_GLSL_GetAttributeLocation ( glslProgram_t* p
 }
 #endif
 
-void R_EXT_GLSL_Cleanup ( void )
+void R_EXT_GLSL_Cleanup( void )
 {
     unsigned int i = 0;
     glslProgram_t* program = NULL;
@@ -231,7 +231,7 @@ void R_EXT_GLSL_Cleanup ( void )
 	memset( glslShaders, 0, sizeof( glslShaders ) );
 }
 
-glslProgram_t* R_EXT_GLSL_CreateProgram ( void )
+glslProgram_t* R_EXT_GLSL_CreateProgram( void )
 {
     glslProgram_t* program = NULL;
     if ( numPrograms >= MAX_GLSL_PROGRAMS )

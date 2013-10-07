@@ -36,10 +36,10 @@ typedef struct glslProgram_s
 } glslProgram_t;
 
 // Function prototypes
-qboolean R_EXT_GLSL_Init ( void );
-void R_EXT_GLSL_Cleanup ( void );
+qboolean R_EXT_GLSL_Init( void );
+void R_EXT_GLSL_Cleanup( void );
 
-glslProgram_t* R_EXT_GLSL_CreateProgram ( void );
+glslProgram_t* R_EXT_GLSL_CreateProgram( void );
 void R_EXT_GLSL_LinkProgram ( const glslProgram_t* program );
 void R_EXT_GLSL_UseProgram ( const glslProgram_t* program );
 

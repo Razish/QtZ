@@ -345,7 +345,7 @@ png_inflate_claim(png_structrp png_ptr, png_uint_32 owner, int window_bits)
        * internal error, but is very useful for debugging.  i18n requirements
        * are minimal.
        */
-      (void)png_safecat(msg, (sizeof msg), 4, " using zstream");
+    ( void )png_safecat(msg, (sizeof msg), 4, " using zstream");
 #     if PNG_LIBPNG_BUILD_BASE_TYPE >= PNG_LIBPNG_BUILD_RC
          png_chunk_warning(png_ptr, msg);
          png_ptr->zowner = 0;
@@ -1225,7 +1225,7 @@ png_handle_cHRM(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
    }
 
    png_ptr->colorspace.flags |= PNG_COLORSPACE_FROM_cHRM;
-   (void)png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy,
+ ( void )png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy,
       1/*prefer cHRM values*/);
    png_colorspace_sync(png_ptr, info_ptr);
 }
@@ -1276,7 +1276,7 @@ png_handle_sRGB(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
       return;
    }
 
-   (void)png_colorspace_set_sRGB(png_ptr, &png_ptr->colorspace, intent);
+ ( void )png_colorspace_set_sRGB(png_ptr, &png_ptr->colorspace, intent);
    png_colorspace_sync(png_ptr, info_ptr);
 }
 #endif /* PNG_READ_sRGB_SUPPORTED */
@@ -1366,7 +1366,7 @@ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 
                png_ptr->zstream.next_in = (Bytef*)keyword + (keyword_length+2);
                png_ptr->zstream.avail_in = read_length;
-               (void)png_inflate_read(png_ptr, local_buffer,
+             ( void )png_inflate_read(png_ptr, local_buffer,
                   (sizeof local_buffer), &length, profile_header, &size,
                   0/*finish: don't, because the output is too small*/);
 
@@ -1404,7 +1404,7 @@ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 
                            size = 12 * tag_count;
 
-                           (void)png_inflate_read(png_ptr, local_buffer,
+                         ( void )png_inflate_read(png_ptr, local_buffer,
                               (sizeof local_buffer), &length,
                               profile + (sizeof profile_header), &size, 0);
 
@@ -1423,7 +1423,7 @@ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
                                  size = profile_length - (sizeof profile_header)
                                     - 12 * tag_count;
 
-                                 (void)png_inflate_read(png_ptr, local_buffer,
+                               ( void )png_inflate_read(png_ptr, local_buffer,
                                     (sizeof local_buffer), &length,
                                     profile + (sizeof profile_header) +
                                     12 * tag_count, &size, 1/*finish*/);
@@ -4089,7 +4089,7 @@ png_read_finish_IDAT(png_structrp png_ptr)
        * crc_finish here.  If idat_size is non-zero we also need to read the
        * spurious bytes at the end of the chunk now.
        */
-      (void)png_crc_finish(png_ptr, png_ptr->idat_size);
+    ( void )png_crc_finish(png_ptr, png_ptr->idat_size);
    }
 }
 

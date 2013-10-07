@@ -69,15 +69,8 @@ typedef struct clSnapshot_s {
 
 
 
-/*
-=============================================================================
-
-the clientActive_t structure is wiped completely at every
-new gamestate_t, potentially several times during an established connection
-
-=============================================================================
-*/
-
+// the clientActive_t structure is wiped completely at every new gamestate_t, potentially
+//	several times during an established connection
 typedef struct outPacket_s {
 	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
 	int		p_serverTime;		// usercmd->serverTime when packet was sent
@@ -146,17 +139,9 @@ typedef struct clientActive_s {
 
 extern	clientActive_t		cl;
 
-/*
-=============================================================================
-
-the clientConnection_t structure is wiped when disconnecting from a server,
-either to go to a full screen console, play a demo, or connect to a different server
-
-A connection can be to either a server through the network layer or a
-demo through a file.
-
-=============================================================================
-*/
+// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a
+//	full screen console, play a demo, or connect to a different server
+//	A connection can be to either a server through the network layer or a demo through a file.
 
 #define MAX_TIMEDEMO_DURATIONS	4096
 
@@ -271,16 +256,7 @@ typedef struct clientConnection_s {
 
 extern	clientConnection_t clc;
 
-/*
-==================================================================
-
-the clientStatic_t structure is never wiped, and is used even when
-no client connection is active at all
-(except when CL_Shutdown is called)
-
-==================================================================
-*/
-
+// the clientStatic_t structure is never wiped, and is used even when no client connection is active at all (except when CL_Shutdown is called)
 typedef struct ping_s {
 	netadr_t	adr;
 	int			start;
@@ -351,8 +327,6 @@ extern	clientStatic_t		cls;
 
 extern	char		cl_oldGame[MAX_QPATH];
 extern	qboolean	cl_oldGameSet;
-
-//=============================================================================
 
 extern	cgameExport_t	*cgame;	// interface to cgame .dll
 extern	uiExport_t		*ui;	// interface to ui .dll
@@ -439,8 +413,6 @@ extern	cvar_t	*cl_voipIgnoreSelf;
 extern	cvar_t	*cl_voip;
 #endif
 
-//=================================================
-
 //
 // cl_bot
 //
@@ -452,23 +424,23 @@ void CL_BotInitBotLib( void );
 // cl_main
 //
 
-void CL_Init (void);
+void CL_Init( void );
 void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 void CL_AddReliableCommand2(const char *cmd);
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 
-void CL_Disconnect_f (void);
-void CL_GetChallengePacket (void);
+void CL_Disconnect_f( void );
+void CL_GetChallengePacket( void );
 void CL_Vid_Restart_f( void );
-void CL_Snd_Restart_f (void);
+void CL_Snd_Restart_f( void );
 void CL_StartDemoLoop( void );
 void CL_NextDemo( void );
 void CL_ReadDemoMessage( void );
-void CL_StopRecord_f(void);
+void CL_StopRecord_f( void );
 
-void CL_InitDownloads(void);
-void CL_NextDownload(void);
+void CL_InitDownloads( void );
+void CL_NextDownload( void );
 
 void CL_GetPing( int n, char *buf, int buflen, int *pingtime );
 void CL_GetPingInfo( int n, char *buf, int buflen );
@@ -479,7 +451,7 @@ void CL_ShutdownRef( void );
 void CL_InitRef( void );
 int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
 
-qboolean CL_CheckPaused(void);
+qboolean CL_CheckPaused( void );
 
 //
 // cl_input
@@ -492,14 +464,14 @@ typedef struct kbutton_s {
 	qboolean	wasPressed;		// set when down, not cleared when up
 } kbutton_t;
 
-void CL_InitInput(void);
-void CL_ShutdownInput(void);
-void CL_SendCmd (void);
-void CL_ClearState (void);
-void CL_ReadPackets (void);
+void CL_InitInput( void );
+void CL_ShutdownInput( void );
+void CL_SendCmd( void );
+void CL_ClearState( void );
+void CL_ReadPackets( void );
 
 void CL_WritePacket( void );
-void IN_CenterView (void);
+void IN_CenterView( void );
 
 void CL_VerifyCode( void );
 
@@ -519,8 +491,6 @@ void CL_Voip_f( void );
 
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
-
-//====================================================================
 
 void	CL_ServerInfoPacket( netadr_t from, msg_t *msg );
 void	CL_LocalServers_f( void );
@@ -546,15 +516,15 @@ qboolean CL_UpdateVisiblePings_f( int source );
 //
 void Con_DrawCharacter (int cx, int line, int num);
 
-void Con_CheckResize (void);
-void Con_Init(void);
-void Con_Shutdown(void);
-void Con_Clear_f (void);
-void Con_ToggleConsole_f (void);
-void Con_DrawNotify (void);
-void Con_ClearNotify (void);
-void Con_RunConsole (void);
-void Con_DrawConsole (void);
+void Con_CheckResize( void );
+void Con_Init( void );
+void Con_Shutdown( void );
+void Con_Clear_f( void );
+void Con_ToggleConsole_f( void );
+void Con_DrawNotify( void );
+void Con_ClearNotify( void );
+void Con_RunConsole( void );
+void Con_DrawConsole( void );
 void Con_PageUp( void );
 void Con_PageDown( void );
 void Con_Top( void );
@@ -567,8 +537,8 @@ void CL_SaveConsoleHistory( void );
 //
 // cl_scrn.c
 //
-void	SCR_Init (void);
-void	SCR_UpdateScreen (void);
+void	SCR_Init( void );
+void	SCR_UpdateScreen( void );
 
 void	SCR_DebugGraph (float value);
 
@@ -591,9 +561,9 @@ void	SCR_DrawSmallChar2( int x, int y, int ch, float scale );
 //
 
 void CL_PlayCinematic_f( void );
-void SCR_DrawCinematic (void);
-void SCR_RunCinematic (void);
-void SCR_StopCinematic (void);
+void SCR_DrawCinematic( void );
+void SCR_RunCinematic( void );
+void SCR_StopCinematic( void );
 int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
 cinState_t CIN_StopCinematic(int handle);
 cinState_t CIN_RunCinematic (int handle);
@@ -601,7 +571,7 @@ void CIN_DrawCinematic (int handle);
 void CIN_SetExtents (int handle, int x, int y, int w, int h);
 void CIN_SetLooping (int handle, qboolean loop);
 void CIN_UploadCinematic(int handle);
-void CIN_CloseAllVideos(void);
+void CIN_CloseAllVideos( void );
 
 //
 // cl_cgame.c
@@ -611,7 +581,6 @@ void CL_ShutdownCGame( void );
 void CL_CGameRendering( stereoFrame_t stereo );
 void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
-void CL_ShaderStateChanged(void);
 
 //
 // cl_ui.c

@@ -80,7 +80,7 @@ void CL_InitKeyCommands( void ) {
 void CL_CDDialog( void ) {
 }
 
-void CL_FlushMemory(void)
+void CL_FlushMemory( void )
 {
 }
 
@@ -91,11 +91,11 @@ void CL_ShutdownAll(qboolean shutdownRef)
 void CL_StartHunkUsers( qboolean rendererOnly ) {
 }
 
-void CL_InitRef(void)
+void CL_InitRef( void )
 {
 }
 
-void CL_Snd_Shutdown(void)
+void CL_Snd_Shutdown( void )
 {
 }
 

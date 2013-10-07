@@ -43,13 +43,7 @@ refimport_t	*ri;
 // point at this for their sorting surface
 surfaceType_t	entitySurface = SF_ENTITY;
 
-/*
-=================
-R_CullLocalBox
-
-Returns CULL_IN, CULL_CLIP, or CULL_OUT
-=================
-*/
+// Returns CULL_IN, CULL_CLIP, or CULL_OUT
 int R_CullLocalBox (vector3 bounds[2]) {
 	int		i, j;
 	vector3	transformed[8];
@@ -106,9 +100,6 @@ int R_CullLocalBox (vector3 bounds[2]) {
 	return CULL_CLIP;		// partially clipped
 }
 
-/*
-** R_CullLocalPointAndRadius
-*/
 int R_CullLocalPointAndRadius( vector3 *pt, float radius )
 {
 	vector3 transformed;
@@ -118,9 +109,6 @@ int R_CullLocalPointAndRadius( vector3 *pt, float radius )
 	return R_CullPointAndRadius( &transformed, radius );
 }
 
-/*
-** R_CullPointAndRadius
-*/
 int R_CullPointAndRadius( vector3 *pt, float radius )
 {
 	int		i;
@@ -156,49 +144,24 @@ int R_CullPointAndRadius( vector3 *pt, float radius )
 	return CULL_IN;		// completely inside frustum
 }
 
-
-/*
-=================
-R_LocalNormalToWorld
-
-=================
-*/
 void R_LocalNormalToWorld (vector3 *local, vector3 *world) {
 	world->x = local->x * tr.or.axis[0].x + local->y * tr.or.axis[1].x + local->z * tr.or.axis[2].x;
 	world->y = local->x * tr.or.axis[0].y + local->y * tr.or.axis[1].y + local->z * tr.or.axis[2].y;
 	world->z = local->x * tr.or.axis[0].z + local->y * tr.or.axis[1].z + local->z * tr.or.axis[2].z;
 }
 
-/*
-=================
-R_LocalPointToWorld
-
-=================
-*/
 void R_LocalPointToWorld (vector3 *local, vector3 *world) {
 	world->x = local->x * tr.or.axis[0].x + local->y * tr.or.axis[1].x + local->z * tr.or.axis[2].x + tr.or.origin.x;
 	world->y = local->x * tr.or.axis[0].y + local->y * tr.or.axis[1].y + local->z * tr.or.axis[2].y + tr.or.origin.y;
 	world->z = local->x * tr.or.axis[0].z + local->y * tr.or.axis[1].z + local->z * tr.or.axis[2].z + tr.or.origin.z;
 }
 
-/*
-=================
-R_WorldToLocal
-
-=================
-*/
 void R_WorldToLocal (vector3 *world, vector3 *local) {
 	local->x = DotProduct(world, &tr.or.axis[0]);
 	local->y = DotProduct(world, &tr.or.axis[1]);
 	local->z = DotProduct(world, &tr.or.axis[2]);
 }
 
-/*
-==========================
-R_TransformModelToClip
-
-==========================
-*/
 void R_TransformModelToClip( const vector3 *src, const float *modelMatrix, const float *projectionMatrix, vector4 *eye, vector4 *dst ) {
 	int i;
 
@@ -219,12 +182,6 @@ void R_TransformModelToClip( const vector3 *src, const float *modelMatrix, const
 	}
 }
 
-/*
-==========================
-R_TransformClipToWindow
-
-==========================
-*/
 void R_TransformClipToWindow( const vector4 *clip, const viewParms_t *view, vector4 *normalized, vector4 *window ) {
 	normalized->x = ( clip->x / clip->w );
 	normalized->y = ( clip->y / clip->w );
@@ -238,13 +195,6 @@ void R_TransformClipToWindow( const vector4 *clip, const viewParms_t *view, vect
 	window->y = window->y + 0.5f;
 }
 
-
-/*
-==========================
-myGlMultMatrix
-
-==========================
-*/
 void myGlMultMatrix( const float *a, const float *b, float *out ) {
 	int i, j;
 
@@ -258,15 +208,9 @@ void myGlMultMatrix( const float *a, const float *b, float *out ) {
 	}
 }
 
-/*
-=================
-R_RotateForEntity
-
-Generates an orientation for an entity and viewParms
-Does NOT produce any GL calls
-Called by both the front end and the back end
-=================
-*/
+// Generates an orientation for an entity and viewParms
+//	Does NOT produce any GL calls
+//	Called by both the front end and the back end
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 					   orientationr_t *or ) {
 	float	glMatrix[16];
@@ -327,14 +271,8 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	or->viewOrigin.z = DotProduct( &delta, &or->axis[2] ) * axisLength;
 }
 
-/*
-=================
-R_RotateForViewer
-
-Sets up the modelview matrix for a given viewParm
-=================
-*/
-void R_RotateForViewer (void) 
+// Sets up the modelview matrix for a given viewParm
+void R_RotateForViewer( void ) 
 {
 	float	viewerMatrix[16];
 	vector3	origin;
@@ -376,9 +314,6 @@ void R_RotateForViewer (void)
 
 }
 
-/*
-** SetFarClip
-*/
 static void R_SetFarClip( void )
 {
 	float	farthestCornerDistance = 0;
@@ -418,14 +353,8 @@ static void R_SetFarClip( void )
 	tr.viewParms.zFar = sqrtf( farthestCornerDistance );
 }
 
-/*
-=================
-R_SetupFrustum
-
-Set up the culling frustum planes for the current view using the results we got from computing the first two rows of
-the projection matrix.
-=================
-*/
+// Set up the culling frustum planes for the current view using the results we got from computing the first
+//	two rows of the projection matrix.
 void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, float zProj, float stereoSep)
 {
 	vector3 ofsorigin;
@@ -481,11 +410,6 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 	}
 }
 
-/*
-===============
-R_SetupProjection
-===============
-*/
 void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
 {
 	float	xmin, xmax, ymin, ymax;
@@ -535,13 +459,7 @@ void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
 		R_SetupFrustum(dest, xmin, xmax, ymax, zProj, stereoSep);
 }
 
-/*
-===============
-R_SetupProjectionZ
-
-Sets the z-component transformation part in the projection matrix
-===============
-*/
+// Sets the z-component transformation part in the projection matrix
 void R_SetupProjectionZ(viewParms_t *dest)
 {
 	float zNear, zFar, depth;
@@ -556,11 +474,6 @@ void R_SetupProjectionZ(viewParms_t *dest)
 	dest->projectionMatrix[14] = -2 * zFar * zNear / depth;
 }
 
-/*
-=================
-R_MirrorPoint
-=================
-*/
 void R_MirrorPoint (vector3 *in, orientation_t *surface, orientation_t *camera, vector3 *out) {
 	int		i;
 	vector3	local;
@@ -589,12 +502,6 @@ void R_MirrorVector (vector3 *in, orientation_t *surface, orientation_t *camera,
 	}
 }
 
-
-/*
-=============
-R_PlaneForSurface
-=============
-*/
 void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	srfTriangles_t	*tri;
 	srfPoly_t		*poly;
@@ -632,16 +539,8 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	}
 }
 
-/*
-=================
-R_GetPortalOrientation
-
-entityNum is the entity that the portal surface is a part of, which may
-be moving and rotating.
-
-Returns qtrue if it should be mirrored
-=================
-*/
+// entityNum is the entity that the portal surface is a part of, which may be moving and rotating.
+//	Returns qtrue if it should be mirrored
 qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum, 
 							 orientation_t *surface, orientation_t *camera,
 							 vector3 *pvsOrigin, qboolean *mirror ) {
@@ -815,11 +714,7 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
 	return qfalse;
 }
 
-/*
-** SurfIsOffscreen
-**
-** Determines if a surface is completely offscreen.
-*/
+// Determines if a surface is completely offscreen.
 static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vector4 clipDest[128] ) {
 	float shortest = 100000000;
 	int entityNum;
@@ -894,13 +789,7 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vector4 clipDest[12
 	return qfalse;
 }
 
-/*
-========================
-R_MirrorViewBySurface
-
-Returns qtrue if another view has been rendered
-========================
-*/
+// Returns qtrue if another view has been rendered
 qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	vector4			clipDest[128];
 	viewParms_t		newParms;
@@ -951,13 +840,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	return qtrue;
 }
 
-/*
-=================
-R_SpriteFogNum
-
-See if a sprite is inside a fog volume
-=================
-*/
+// See if a sprite is inside a fog volume
 //QtZ: Patched with https://github.com/dmead/jkaq3/commit/6a552ec589ed20f1f768ccb0af587aa09f3d3f77
 int R_SpriteFogNum( trRefEntity_t *ent ) {
 	int				i, j;
@@ -991,18 +874,11 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 }
 
 /*
-==========================================================================================
 
-DRAWSURF SORTING
+	DRAWSURF SORTING
 
-==========================================================================================
 */
 
-/*
-===============
-R_Radix
-===============
-*/
 static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *dest )
 {
   int           count[ 256 ] = { 0 };
@@ -1026,13 +902,7 @@ static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t 
     dest[ index[ *sortKey ]++ ] = source[ i ];
 }
 
-/*
-===============
-R_RadixSort
-
-Radix sort with 4 byte size buckets
-===============
-*/
+// Radix sort with 4 byte size buckets
 static void R_RadixSort( drawSurf_t *source, int size )
 {
   static drawSurf_t scratch[ MAX_DRAWSURFS ];
@@ -1049,13 +919,6 @@ static void R_RadixSort( drawSurf_t *source, int size )
 #endif //Q3_LITTLE_ENDIAN
 }
 
-//==========================================================================================
-
-/*
-=================
-R_AddDrawSurf
-=================
-*/
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, 
 				   int fogIndex, int dlightMap ) {
 	int			index;
@@ -1071,11 +934,6 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 	tr.refdef.numDrawSurfs++;
 }
 
-/*
-=================
-R_DecomposeSort
-=================
-*/
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
 					 int *fogNum, int *dlightMap ) {
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
@@ -1084,11 +942,6 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 	*dlightMap = sort & 3;
 }
 
-/*
-=================
-R_SortDrawSurfs
-=================
-*/
 void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t		*shader;
 	int				fogNum;
@@ -1140,12 +993,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
 }
 
-/*
-=============
-R_AddEntitySurfaces
-=============
-*/
-void R_AddEntitySurfaces (void) {
+void R_AddEntitySurfaces( void ) {
 	trRefEntity_t	*ent;
 	shader_t		*shader;
 
@@ -1244,14 +1092,8 @@ void R_AddEntitySurfaces (void) {
 
 }
 
-
-/*
-====================
-R_GenerateDrawSurfs
-====================
-*/
 void R_GenerateDrawSurfs( void ) {
-	R_AddWorldSurfaces ();
+	R_AddWorldSurfaces();
 
 	R_AddPolygonSurfaces();
 
@@ -1267,14 +1109,9 @@ void R_GenerateDrawSurfs( void ) {
 	// we know the size of the clipping volume. Now set the rest of the projection matrix.
 	R_SetupProjectionZ (&tr.viewParms);
 
-	R_AddEntitySurfaces ();
+	R_AddEntitySurfaces();
 }
 
-/*
-================
-R_DebugPolygon
-================
-*/
 void R_DebugPolygon( int color, int numPoints, vector3 *points ) {
 	int		i;
 
@@ -1301,13 +1138,7 @@ void R_DebugPolygon( int color, int numPoints, vector3 *points ) {
 	qglDepthRange( 0, 1 );
 }
 
-/*
-====================
-R_DebugGraphics
-
-Visualization aid for movement clipping debugging
-====================
-*/
+// Visualization aid for movement clipping debugging
 void R_DebugGraphics( void ) {
 	if ( !r_debugSurface->integer ) {
 		return;
@@ -1322,14 +1153,7 @@ void R_DebugGraphics( void ) {
 }
 
 
-/*
-================
-R_RenderView
-
-A view may be either the actual camera view,
-or a mirror / remote location
-================
-*/
+// A view may be either the actual camera view, or a mirror / remote location
 void R_RenderView (viewParms_t *parms) {
 	int		firstDrawSurf;
 
@@ -1348,7 +1172,7 @@ void R_RenderView (viewParms_t *parms) {
 	tr.viewCount++;
 
 	// set viewParms.world
-	R_RotateForViewer ();
+	R_RotateForViewer();
 
 	R_SetupProjection(&tr.viewParms, r_zproj->value, qtrue);
 

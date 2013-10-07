@@ -74,13 +74,8 @@ void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
 void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 
 void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
-void (APIENTRYP qglUnlockArraysEXT) (void);
+void (APIENTRYP qglUnlockArraysEXT)( void );
 
-/*
-===============
-GLimp_Shutdown
-===============
-*/
 void GLimp_Shutdown( void )
 {
 	ri->IN_Shutdown();
@@ -92,33 +87,17 @@ void GLimp_Shutdown( void )
 	memset( &glState, 0, sizeof( glState ) );
 }
 
-/*
-===============
-GLimp_Minimize
-
-Minimize the game so that user is back at the desktop
-===============
-*/
-void GLimp_Minimize(void)
+// Minimize the game so that user is back at the desktop
+void GLimp_Minimize( void )
 {
 	SDL_WM_IconifyWindow();
 }
 
 
-/*
-===============
-GLimp_LogComment
-===============
-*/
 void GLimp_LogComment( char *comment )
 {
 }
 
-/*
-===============
-GLimp_CompareModes
-===============
-*/
 static int GLimp_CompareModes( const void *a, const void *b )
 {
 	const float ASPECT_EPSILON = 0.001f;
@@ -140,13 +119,7 @@ static int GLimp_CompareModes( const void *a, const void *b )
 		return areaA - areaB;
 }
 
-
-/*
-===============
-GLimp_DetectAvailableModes
-===============
-*/
-static void GLimp_DetectAvailableModes(void)
+static void GLimp_DetectAvailableModes( void )
 {
 	char buf[ MAX_STRING_CHARS ] = { 0 };
 	SDL_Rect **modes;
@@ -190,11 +163,6 @@ static void GLimp_DetectAvailableModes(void)
 	}
 }
 
-/*
-===============
-GLimp_SetMode
-===============
-*/
 static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 	const char *glstring;
 	int colorbits, depthbits, stencilbits;
@@ -432,11 +400,6 @@ static int GLimp_SetMode( qboolean fullscreen, qboolean noborder ) {
 	return RSERR_OK;
 }
 
-/*
-===============
-GLimp_StartDriverAndSetMode
-===============
-*/
 static qboolean GLimp_StartDriverAndSetMode( qboolean fullscreen, qboolean noborder ) {
 	rserr_t err;
 
@@ -485,11 +448,6 @@ static qboolean GLimp_HaveExtension( const char *ext ) {
 }
 
 
-/*
-===============
-GLimp_InitExtensions
-===============
-*/
 static void GLimp_InitExtensions( void )
 {
 	if ( !r_allowExtensions->integer ) {
@@ -611,14 +569,7 @@ static void GLimp_InitExtensions( void )
 		ri->Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
 }
 
-/*
-===============
-GLimp_Init
-
-This routine is responsible for initializing the OS specific portions
-of OpenGL
-===============
-*/
+// This routine is responsible for initializing the OS specific portions of OpenGL
 void GLimp_Init( void )
 {
 	r_allowSoftwareGL	= ri->Cvar_Get( "r_allowSoftwareGL",	"0",	CVAR_LATCH,		NULL, NULL );
@@ -702,13 +653,7 @@ success:
 }
 
 
-/*
-===============
-GLimp_EndFrame
-
-Responsible for doing a swapbuffers
-===============
-*/
+// Responsible for doing a swapbuffers
 void GLimp_EndFrame( void )
 {
 	// don't flip if drawing to front buffer

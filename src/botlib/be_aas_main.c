@@ -70,7 +70,7 @@ void QDECL AAS_Error(char *fmt, ...)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Loaded(void)
+int AAS_Loaded( void )
 {
 	return aasworld.loaded;
 } //end of the function AAS_Loaded
@@ -80,7 +80,7 @@ int AAS_Loaded(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Initialized(void)
+int AAS_Initialized( void )
 {
 	return aasworld.initialized;
 } //end of the function AAS_Initialized
@@ -90,7 +90,7 @@ int AAS_Initialized(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetInitialized(void)
+void AAS_SetInitialized( void )
 {
 	aasworld.initialized = qtrue;
 	botimport.Print(PRT_MESSAGE, "AAS initialized.\n");
@@ -191,7 +191,7 @@ int AAS_StartFrame(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float AAS_Time(void)
+float AAS_Time( void )
 {
 	return aasworld.time;
 } //end of the function AAS_Time
@@ -290,7 +290,7 @@ int AAS_LoadMap(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Setup(void)
+int AAS_Setup( void )
 {
 	aasworld.maxclients = (int) LibVarValue("maxclients", "128");
 	aasworld.maxentities = (int) LibVarValue("maxentities", "1024");
@@ -313,7 +313,7 @@ int AAS_Setup(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Shutdown(void)
+void AAS_Shutdown( void )
 {
 	AAS_ShutdownAlternativeRouting();
 	//

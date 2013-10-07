@@ -1,9 +1,7 @@
 #include "cg_local.h"
 #include "cg_weaponfx.h"
 
-//================================
 //	QUANTIZER
-//================================
 
 void FX_Quantizer_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 {
@@ -27,9 +25,7 @@ void FX_Quantizer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon,
 }
 
 
-//================================
 //	REPEATER
-//================================
 
 void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 {
@@ -124,9 +120,7 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 		FX_Splicer_Flare( &trace.endpos );
 }
 
-//================================
 //	MORTAR
-//================================
 
 void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 {
@@ -199,9 +193,7 @@ void FX_Mortar_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, ve
 }
 
 
-//================================
 //	DIVERGENCE
-//================================
 
 void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
 {

@@ -48,7 +48,7 @@
 	#include <Carbon/Carbon.h>
 #endif
 
-typedef GLuint(*GLEE_LINK_FUNCTION)(void);
+typedef GLuint(*GLEE_LINK_FUNCTION)( void );
 
 GLboolean __GLeeInited=GL_FALSE;
 
@@ -1549,7 +1549,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glCreateProgram
 #define GLEE_C_DEFINED_glCreateProgram
-  GLuint __stdcall GLee_Lazy_glCreateProgram(void)  {if (GLeeInit()) return glCreateProgram(); return (GLuint)0;}
+  GLuint __stdcall GLee_Lazy_glCreateProgram( void )  {if (GLeeInit()) return glCreateProgram(); return (GLuint)0;}
   GLEEPFNGLCREATEPROGRAMPROC GLeeFuncPtr_glCreateProgram=GLee_Lazy_glCreateProgram;
 #endif
 #ifndef GLEE_C_DEFINED_glCreateShader
@@ -2049,7 +2049,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndTransformFeedback
 #define GLEE_C_DEFINED_glEndTransformFeedback
-  void __stdcall GLee_Lazy_glEndTransformFeedback(void)  {if (GLeeInit()) glEndTransformFeedback();}
+  void __stdcall GLee_Lazy_glEndTransformFeedback( void )  {if (GLeeInit()) glEndTransformFeedback();}
   GLEEPFNGLENDTRANSFORMFEEDBACKPROC GLeeFuncPtr_glEndTransformFeedback=GLee_Lazy_glEndTransformFeedback;
 #endif
 #ifndef GLEE_C_DEFINED_glBindBufferRange
@@ -2084,7 +2084,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndConditionalRender
 #define GLEE_C_DEFINED_glEndConditionalRender
-  void __stdcall GLee_Lazy_glEndConditionalRender(void)  {if (GLeeInit()) glEndConditionalRender();}
+  void __stdcall GLee_Lazy_glEndConditionalRender( void )  {if (GLeeInit()) glEndConditionalRender();}
   GLEEPFNGLENDCONDITIONALRENDERPROC GLeeFuncPtr_glEndConditionalRender=GLee_Lazy_glEndConditionalRender;
 #endif
 #ifndef GLEE_C_DEFINED_glVertexAttribI1i
@@ -3249,7 +3249,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glCreateProgramObjectARB
 #define GLEE_C_DEFINED_glCreateProgramObjectARB
-  GLhandleARB __stdcall GLee_Lazy_glCreateProgramObjectARB(void)  {if (GLeeInit()) return glCreateProgramObjectARB(); return (GLhandleARB)0;}
+  GLhandleARB __stdcall GLee_Lazy_glCreateProgramObjectARB( void )  {if (GLeeInit()) return glCreateProgramObjectARB(); return (GLhandleARB)0;}
   GLEEPFNGLCREATEPROGRAMOBJECTARBPROC GLeeFuncPtr_glCreateProgramObjectARB=GLee_Lazy_glCreateProgramObjectARB;
 #endif
 #ifndef GLEE_C_DEFINED_glAttachObjectARB
@@ -4349,7 +4349,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_SGIX_instruments
 #ifndef GLEE_C_DEFINED_glGetInstrumentsSGIX
 #define GLEE_C_DEFINED_glGetInstrumentsSGIX
-  GLint __stdcall GLee_Lazy_glGetInstrumentsSGIX(void)  {if (GLeeInit()) return glGetInstrumentsSGIX(); return (GLint)0;}
+  GLint __stdcall GLee_Lazy_glGetInstrumentsSGIX( void )  {if (GLeeInit()) return glGetInstrumentsSGIX(); return (GLint)0;}
   GLEEPFNGLGETINSTRUMENTSSGIXPROC GLeeFuncPtr_glGetInstrumentsSGIX=GLee_Lazy_glGetInstrumentsSGIX;
 #endif
 #ifndef GLEE_C_DEFINED_glInstrumentsBufferSGIX
@@ -4369,7 +4369,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glStartInstrumentsSGIX
 #define GLEE_C_DEFINED_glStartInstrumentsSGIX
-  void __stdcall GLee_Lazy_glStartInstrumentsSGIX(void)  {if (GLeeInit()) glStartInstrumentsSGIX();}
+  void __stdcall GLee_Lazy_glStartInstrumentsSGIX( void )  {if (GLeeInit()) glStartInstrumentsSGIX();}
   GLEEPFNGLSTARTINSTRUMENTSSGIXPROC GLeeFuncPtr_glStartInstrumentsSGIX=GLee_Lazy_glStartInstrumentsSGIX;
 #endif
 #ifndef GLEE_C_DEFINED_glStopInstrumentsSGIX
@@ -4399,7 +4399,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_SGIX_tag_sample_buffer
 #ifndef GLEE_C_DEFINED_glTagSampleBufferSGIX
 #define GLEE_C_DEFINED_glTagSampleBufferSGIX
-  void __stdcall GLee_Lazy_glTagSampleBufferSGIX(void)  {if (GLeeInit()) glTagSampleBufferSGIX();}
+  void __stdcall GLee_Lazy_glTagSampleBufferSGIX( void )  {if (GLeeInit()) glTagSampleBufferSGIX();}
   GLEEPFNGLTAGSAMPLEBUFFERSGIXPROC GLeeFuncPtr_glTagSampleBufferSGIX=GLee_Lazy_glTagSampleBufferSGIX;
 #endif
 #endif 
@@ -4449,7 +4449,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_SGIX_flush_raster
 #ifndef GLEE_C_DEFINED_glFlushRasterSGIX
 #define GLEE_C_DEFINED_glFlushRasterSGIX
-  void __stdcall GLee_Lazy_glFlushRasterSGIX(void)  {if (GLeeInit()) glFlushRasterSGIX();}
+  void __stdcall GLee_Lazy_glFlushRasterSGIX( void )  {if (GLeeInit()) glFlushRasterSGIX();}
   GLEEPFNGLFLUSHRASTERSGIXPROC GLeeFuncPtr_glFlushRasterSGIX=GLee_Lazy_glFlushRasterSGIX;
 #endif
 #endif 
@@ -4684,7 +4684,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glUnlockArraysEXT
 #define GLEE_C_DEFINED_glUnlockArraysEXT
-  void __stdcall GLee_Lazy_glUnlockArraysEXT(void)  {if (GLeeInit()) glUnlockArraysEXT();}
+  void __stdcall GLee_Lazy_glUnlockArraysEXT( void )  {if (GLeeInit()) glUnlockArraysEXT();}
   GLEEPFNGLUNLOCKARRAYSEXTPROC GLeeFuncPtr_glUnlockArraysEXT=GLee_Lazy_glUnlockArraysEXT;
 #endif
 #endif 
@@ -5279,7 +5279,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_SUNX_constant_data
 #ifndef GLEE_C_DEFINED_glFinishTextureSUNX
 #define GLEE_C_DEFINED_glFinishTextureSUNX
-  void __stdcall GLee_Lazy_glFinishTextureSUNX(void)  {if (GLeeInit()) glFinishTextureSUNX();}
+  void __stdcall GLee_Lazy_glFinishTextureSUNX( void )  {if (GLeeInit()) glFinishTextureSUNX();}
   GLEEPFNGLFINISHTEXTURESUNXPROC GLeeFuncPtr_glFinishTextureSUNX=GLee_Lazy_glFinishTextureSUNX;
 #endif
 #endif 
@@ -5664,7 +5664,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_NV_vertex_array_range
 #ifndef GLEE_C_DEFINED_glFlushVertexArrayRangeNV
 #define GLEE_C_DEFINED_glFlushVertexArrayRangeNV
-  void __stdcall GLee_Lazy_glFlushVertexArrayRangeNV(void)  {if (GLeeInit()) glFlushVertexArrayRangeNV();}
+  void __stdcall GLee_Lazy_glFlushVertexArrayRangeNV( void )  {if (GLeeInit()) glFlushVertexArrayRangeNV();}
   GLEEPFNGLFLUSHVERTEXARRAYRANGENVPROC GLeeFuncPtr_glFlushVertexArrayRangeNV=GLee_Lazy_glFlushVertexArrayRangeNV;
 #endif
 #ifndef GLEE_C_DEFINED_glVertexArrayRangeNV
@@ -5769,7 +5769,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_MESA_resize_buffers
 #ifndef GLEE_C_DEFINED_glResizeBuffersMESA
 #define GLEE_C_DEFINED_glResizeBuffersMESA
-  void __stdcall GLee_Lazy_glResizeBuffersMESA(void)  {if (GLeeInit()) glResizeBuffersMESA();}
+  void __stdcall GLee_Lazy_glResizeBuffersMESA( void )  {if (GLeeInit()) glResizeBuffersMESA();}
   GLEEPFNGLRESIZEBUFFERSMESAPROC GLeeFuncPtr_glResizeBuffersMESA=GLee_Lazy_glResizeBuffersMESA;
 #endif
 #endif 
@@ -6604,12 +6604,12 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glBeginFragmentShaderATI
 #define GLEE_C_DEFINED_glBeginFragmentShaderATI
-  void __stdcall GLee_Lazy_glBeginFragmentShaderATI(void)  {if (GLeeInit()) glBeginFragmentShaderATI();}
+  void __stdcall GLee_Lazy_glBeginFragmentShaderATI( void )  {if (GLeeInit()) glBeginFragmentShaderATI();}
   GLEEPFNGLBEGINFRAGMENTSHADERATIPROC GLeeFuncPtr_glBeginFragmentShaderATI=GLee_Lazy_glBeginFragmentShaderATI;
 #endif
 #ifndef GLEE_C_DEFINED_glEndFragmentShaderATI
 #define GLEE_C_DEFINED_glEndFragmentShaderATI
-  void __stdcall GLee_Lazy_glEndFragmentShaderATI(void)  {if (GLeeInit()) glEndFragmentShaderATI();}
+  void __stdcall GLee_Lazy_glEndFragmentShaderATI( void )  {if (GLeeInit()) glEndFragmentShaderATI();}
   GLEEPFNGLENDFRAGMENTSHADERATIPROC GLeeFuncPtr_glEndFragmentShaderATI=GLee_Lazy_glEndFragmentShaderATI;
 #endif
 #ifndef GLEE_C_DEFINED_glPassTexCoordATI
@@ -6744,12 +6744,12 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_EXT_vertex_shader
 #ifndef GLEE_C_DEFINED_glBeginVertexShaderEXT
 #define GLEE_C_DEFINED_glBeginVertexShaderEXT
-  void __stdcall GLee_Lazy_glBeginVertexShaderEXT(void)  {if (GLeeInit()) glBeginVertexShaderEXT();}
+  void __stdcall GLee_Lazy_glBeginVertexShaderEXT( void )  {if (GLeeInit()) glBeginVertexShaderEXT();}
   GLEEPFNGLBEGINVERTEXSHADEREXTPROC GLeeFuncPtr_glBeginVertexShaderEXT=GLee_Lazy_glBeginVertexShaderEXT;
 #endif
 #ifndef GLEE_C_DEFINED_glEndVertexShaderEXT
 #define GLEE_C_DEFINED_glEndVertexShaderEXT
-  void __stdcall GLee_Lazy_glEndVertexShaderEXT(void)  {if (GLeeInit()) glEndVertexShaderEXT();}
+  void __stdcall GLee_Lazy_glEndVertexShaderEXT( void )  {if (GLeeInit()) glEndVertexShaderEXT();}
   GLEEPFNGLENDVERTEXSHADEREXTPROC GLeeFuncPtr_glEndVertexShaderEXT=GLee_Lazy_glEndVertexShaderEXT;
 #endif
 #ifndef GLEE_C_DEFINED_glBindVertexShaderEXT
@@ -7254,7 +7254,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndOcclusionQueryNV
 #define GLEE_C_DEFINED_glEndOcclusionQueryNV
-  void __stdcall GLee_Lazy_glEndOcclusionQueryNV(void)  {if (GLeeInit()) glEndOcclusionQueryNV();}
+  void __stdcall GLee_Lazy_glEndOcclusionQueryNV( void )  {if (GLeeInit()) glEndOcclusionQueryNV();}
   GLEEPFNGLENDOCCLUSIONQUERYNVPROC GLeeFuncPtr_glEndOcclusionQueryNV=GLee_Lazy_glEndOcclusionQueryNV;
 #endif
 #ifndef GLEE_C_DEFINED_glGetOcclusionQueryivNV
@@ -7769,7 +7769,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_NV_primitive_restart
 #ifndef GLEE_C_DEFINED_glPrimitiveRestartNV
 #define GLEE_C_DEFINED_glPrimitiveRestartNV
-  void __stdcall GLee_Lazy_glPrimitiveRestartNV(void)  {if (GLeeInit()) glPrimitiveRestartNV();}
+  void __stdcall GLee_Lazy_glPrimitiveRestartNV( void )  {if (GLeeInit()) glPrimitiveRestartNV();}
   GLEEPFNGLPRIMITIVERESTARTNVPROC GLeeFuncPtr_glPrimitiveRestartNV=GLee_Lazy_glPrimitiveRestartNV;
 #endif
 #ifndef GLEE_C_DEFINED_glPrimitiveRestartIndexNV
@@ -8309,7 +8309,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndTransformFeedbackNV
 #define GLEE_C_DEFINED_glEndTransformFeedbackNV
-  void __stdcall GLee_Lazy_glEndTransformFeedbackNV(void)  {if (GLeeInit()) glEndTransformFeedbackNV();}
+  void __stdcall GLee_Lazy_glEndTransformFeedbackNV( void )  {if (GLeeInit()) glEndTransformFeedbackNV();}
   GLEEPFNGLENDTRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glEndTransformFeedbackNV=GLee_Lazy_glEndTransformFeedbackNV;
 #endif
 #ifndef GLEE_C_DEFINED_glTransformFeedbackAttribsNV
@@ -8419,7 +8419,7 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_GREMEDY_frame_terminator
 #ifndef GLEE_C_DEFINED_glFrameTerminatorGREMEDY
 #define GLEE_C_DEFINED_glFrameTerminatorGREMEDY
-  void __stdcall GLee_Lazy_glFrameTerminatorGREMEDY(void)  {if (GLeeInit()) glFrameTerminatorGREMEDY();}
+  void __stdcall GLee_Lazy_glFrameTerminatorGREMEDY( void )  {if (GLeeInit()) glFrameTerminatorGREMEDY();}
   GLEEPFNGLFRAMETERMINATORGREMEDYPROC GLeeFuncPtr_glFrameTerminatorGREMEDY=GLee_Lazy_glFrameTerminatorGREMEDY;
 #endif
 #endif 
@@ -8434,7 +8434,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndConditionalRenderNV
 #define GLEE_C_DEFINED_glEndConditionalRenderNV
-  void __stdcall GLee_Lazy_glEndConditionalRenderNV(void)  {if (GLeeInit()) glEndConditionalRenderNV();}
+  void __stdcall GLee_Lazy_glEndConditionalRenderNV( void )  {if (GLeeInit()) glEndConditionalRenderNV();}
   GLEEPFNGLENDCONDITIONALRENDERNVPROC GLeeFuncPtr_glEndConditionalRenderNV=GLee_Lazy_glEndConditionalRenderNV;
 #endif
 #endif 
@@ -8454,7 +8454,7 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glEndTransformFeedbackEXT
 #define GLEE_C_DEFINED_glEndTransformFeedbackEXT
-  void __stdcall GLee_Lazy_glEndTransformFeedbackEXT(void)  {if (GLeeInit()) glEndTransformFeedbackEXT();}
+  void __stdcall GLee_Lazy_glEndTransformFeedbackEXT( void )  {if (GLeeInit()) glEndTransformFeedbackEXT();}
   GLEEPFNGLENDTRANSFORMFEEDBACKEXTPROC GLeeFuncPtr_glEndTransformFeedbackEXT=GLee_Lazy_glEndTransformFeedbackEXT;
 #endif
 #ifndef GLEE_C_DEFINED_glBindBufferRangeEXT
@@ -9474,12 +9474,12 @@ int __GLeeGLNumExtensions=322;
 #endif
 #ifndef GLEE_C_DEFINED_glPauseTransformFeedbackNV
 #define GLEE_C_DEFINED_glPauseTransformFeedbackNV
-  void __stdcall GLee_Lazy_glPauseTransformFeedbackNV(void)  {if (GLeeInit()) glPauseTransformFeedbackNV();}
+  void __stdcall GLee_Lazy_glPauseTransformFeedbackNV( void )  {if (GLeeInit()) glPauseTransformFeedbackNV();}
   GLEEPFNGLPAUSETRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glPauseTransformFeedbackNV=GLee_Lazy_glPauseTransformFeedbackNV;
 #endif
 #ifndef GLEE_C_DEFINED_glResumeTransformFeedbackNV
 #define GLEE_C_DEFINED_glResumeTransformFeedbackNV
-  void __stdcall GLee_Lazy_glResumeTransformFeedbackNV(void)  {if (GLeeInit()) glResumeTransformFeedbackNV();}
+  void __stdcall GLee_Lazy_glResumeTransformFeedbackNV( void )  {if (GLeeInit()) glResumeTransformFeedbackNV();}
   GLEEPFNGLRESUMETRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glResumeTransformFeedbackNV=GLee_Lazy_glResumeTransformFeedbackNV;
 #endif
 #ifndef GLEE_C_DEFINED_glDrawTransformFeedbackNV
@@ -9644,12 +9644,12 @@ int __GLeeGLNumExtensions=322;
 #ifdef __GLEE_GL_EXT_scene_marker
 #ifndef GLEE_C_DEFINED_glBeginSceneEXT
 #define GLEE_C_DEFINED_glBeginSceneEXT
-  GLvoid __stdcall GLee_Lazy_glBeginSceneEXT(void)  {if (GLeeInit()) glBeginSceneEXT();}
+  GLvoid __stdcall GLee_Lazy_glBeginSceneEXT( void )  {if (GLeeInit()) glBeginSceneEXT();}
   GLEEPFNGLBEGINSCENEEXTPROC GLeeFuncPtr_glBeginSceneEXT=GLee_Lazy_glBeginSceneEXT;
 #endif
 #ifndef GLEE_C_DEFINED_glEndSceneEXT
 #define GLEE_C_DEFINED_glEndSceneEXT
-  GLvoid __stdcall GLee_Lazy_glEndSceneEXT(void)  {if (GLeeInit()) glEndSceneEXT();}
+  GLvoid __stdcall GLee_Lazy_glEndSceneEXT( void )  {if (GLeeInit()) glEndSceneEXT();}
   GLEEPFNGLENDSCENEEXTPROC GLeeFuncPtr_glEndSceneEXT=GLee_Lazy_glEndSceneEXT;
 #endif
 #endif 
@@ -10091,7 +10091,7 @@ int __GLeeWGLNumExtensions=37;
 #endif
 #ifndef GLEE_C_DEFINED_wglGetCurrentReadDCARB
 #define GLEE_C_DEFINED_wglGetCurrentReadDCARB
-  HDC __stdcall GLee_Lazy_wglGetCurrentReadDCARB(void)  {if (GLeeInit()) return wglGetCurrentReadDCARB(); return (HDC)0;}
+  HDC __stdcall GLee_Lazy_wglGetCurrentReadDCARB( void )  {if (GLeeInit()) return wglGetCurrentReadDCARB(); return (HDC)0;}
   GLEEPFNWGLGETCURRENTREADDCARBPROC GLeeFuncPtr_wglGetCurrentReadDCARB=GLee_Lazy_wglGetCurrentReadDCARB;
 #endif
 #endif 
@@ -10171,7 +10171,7 @@ int __GLeeWGLNumExtensions=37;
 #endif
 #ifndef GLEE_C_DEFINED_wglGetCurrentReadDCEXT
 #define GLEE_C_DEFINED_wglGetCurrentReadDCEXT
-  HDC __stdcall GLee_Lazy_wglGetCurrentReadDCEXT(void)  {if (GLeeInit()) return wglGetCurrentReadDCEXT(); return (HDC)0;}
+  HDC __stdcall GLee_Lazy_wglGetCurrentReadDCEXT( void )  {if (GLeeInit()) return wglGetCurrentReadDCEXT(); return (HDC)0;}
   GLEEPFNWGLGETCURRENTREADDCEXTPROC GLeeFuncPtr_wglGetCurrentReadDCEXT=GLee_Lazy_wglGetCurrentReadDCEXT;
 #endif
 #endif 
@@ -10376,12 +10376,12 @@ int __GLeeWGLNumExtensions=37;
 #ifdef __GLEE_WGL_I3D_swap_frame_lock
 #ifndef GLEE_C_DEFINED_wglEnableFrameLockI3D
 #define GLEE_C_DEFINED_wglEnableFrameLockI3D
-  BOOL __stdcall GLee_Lazy_wglEnableFrameLockI3D(void)  {if (GLeeInit()) return wglEnableFrameLockI3D(); return (BOOL)0;}
+  BOOL __stdcall GLee_Lazy_wglEnableFrameLockI3D( void )  {if (GLeeInit()) return wglEnableFrameLockI3D(); return (BOOL)0;}
   GLEEPFNWGLENABLEFRAMELOCKI3DPROC GLeeFuncPtr_wglEnableFrameLockI3D=GLee_Lazy_wglEnableFrameLockI3D;
 #endif
 #ifndef GLEE_C_DEFINED_wglDisableFrameLockI3D
 #define GLEE_C_DEFINED_wglDisableFrameLockI3D
-  BOOL __stdcall GLee_Lazy_wglDisableFrameLockI3D(void)  {if (GLeeInit()) return wglDisableFrameLockI3D(); return (BOOL)0;}
+  BOOL __stdcall GLee_Lazy_wglDisableFrameLockI3D( void )  {if (GLeeInit()) return wglDisableFrameLockI3D(); return (BOOL)0;}
   GLEEPFNWGLDISABLEFRAMELOCKI3DPROC GLeeFuncPtr_wglDisableFrameLockI3D=GLee_Lazy_wglDisableFrameLockI3D;
 #endif
 #ifndef GLEE_C_DEFINED_wglIsEnabledFrameLockI3D
@@ -10546,7 +10546,7 @@ int __GLeeWGLNumExtensions=37;
 #ifdef __GLEE_WGL_EXT_extensions_string
 #ifndef GLEE_C_DEFINED_wglGetExtensionsStringEXT
 #define GLEE_C_DEFINED_wglGetExtensionsStringEXT
-  const char * __stdcall GLee_Lazy_wglGetExtensionsStringEXT(void)  {if (GLeeInit()) return wglGetExtensionsStringEXT(); return (const char *)0;}
+  const char * __stdcall GLee_Lazy_wglGetExtensionsStringEXT( void )  {if (GLeeInit()) return wglGetExtensionsStringEXT(); return (const char *)0;}
   GLEEPFNWGLGETEXTENSIONSSTRINGEXTPROC GLeeFuncPtr_wglGetExtensionsStringEXT=GLee_Lazy_wglGetExtensionsStringEXT;
 #endif
 #endif 
@@ -10561,7 +10561,7 @@ int __GLeeWGLNumExtensions=37;
 #endif
 #ifndef GLEE_C_DEFINED_wglGetSwapIntervalEXT
 #define GLEE_C_DEFINED_wglGetSwapIntervalEXT
-  int __stdcall GLee_Lazy_wglGetSwapIntervalEXT(void)  {if (GLeeInit()) return wglGetSwapIntervalEXT(); return (int)0;}
+  int __stdcall GLee_Lazy_wglGetSwapIntervalEXT( void )  {if (GLeeInit()) return wglGetSwapIntervalEXT(); return (int)0;}
   GLEEPFNWGLGETSWAPINTERVALEXTPROC GLeeFuncPtr_wglGetSwapIntervalEXT=GLee_Lazy_wglGetSwapIntervalEXT;
 #endif
 #endif 
@@ -10626,12 +10626,12 @@ int __GLeeWGLNumExtensions=37;
 #endif
 #ifndef GLEE_C_DEFINED_wglBeginFrameTrackingI3D
 #define GLEE_C_DEFINED_wglBeginFrameTrackingI3D
-  BOOL __stdcall GLee_Lazy_wglBeginFrameTrackingI3D(void)  {if (GLeeInit()) return wglBeginFrameTrackingI3D(); return (BOOL)0;}
+  BOOL __stdcall GLee_Lazy_wglBeginFrameTrackingI3D( void )  {if (GLeeInit()) return wglBeginFrameTrackingI3D(); return (BOOL)0;}
   GLEEPFNWGLBEGINFRAMETRACKINGI3DPROC GLeeFuncPtr_wglBeginFrameTrackingI3D=GLee_Lazy_wglBeginFrameTrackingI3D;
 #endif
 #ifndef GLEE_C_DEFINED_wglEndFrameTrackingI3D
 #define GLEE_C_DEFINED_wglEndFrameTrackingI3D
-  BOOL __stdcall GLee_Lazy_wglEndFrameTrackingI3D(void)  {if (GLeeInit()) return wglEndFrameTrackingI3D(); return (BOOL)0;}
+  BOOL __stdcall GLee_Lazy_wglEndFrameTrackingI3D( void )  {if (GLeeInit()) return wglEndFrameTrackingI3D(); return (BOOL)0;}
   GLEEPFNWGLENDFRAMETRACKINGI3DPROC GLeeFuncPtr_wglEndFrameTrackingI3D=GLee_Lazy_wglEndFrameTrackingI3D;
 #endif
 #ifndef GLEE_C_DEFINED_wglQueryFrameTrackingI3D
@@ -10837,12 +10837,12 @@ int __GLeeGLXNumExtensions=40;
 #endif
 #ifndef GLEE_C_DEFINED_glXGetCurrentReadDrawable
 #define GLEE_C_DEFINED_glXGetCurrentReadDrawable
-  GLXDrawable __stdcall GLee_Lazy_glXGetCurrentReadDrawable(void)  {if (GLeeInit()) return glXGetCurrentReadDrawable(); return (GLXDrawable)0;}
+  GLXDrawable __stdcall GLee_Lazy_glXGetCurrentReadDrawable( void )  {if (GLeeInit()) return glXGetCurrentReadDrawable(); return (GLXDrawable)0;}
   GLEEPFNGLXGETCURRENTREADDRAWABLEPROC GLeeFuncPtr_glXGetCurrentReadDrawable=GLee_Lazy_glXGetCurrentReadDrawable;
 #endif
 #ifndef GLEE_C_DEFINED_glXGetCurrentDisplay
 #define GLEE_C_DEFINED_glXGetCurrentDisplay
-  Display * __stdcall GLee_Lazy_glXGetCurrentDisplay(void)  {if (GLeeInit()) return glXGetCurrentDisplay(); return (Display *)0;}
+  Display * __stdcall GLee_Lazy_glXGetCurrentDisplay( void )  {if (GLeeInit()) return glXGetCurrentDisplay(); return (Display *)0;}
   GLEEPFNGLXGETCURRENTDISPLAYPROC GLeeFuncPtr_glXGetCurrentDisplay=GLee_Lazy_glXGetCurrentDisplay;
 #endif
 #ifndef GLEE_C_DEFINED_glXQueryContext
@@ -10937,7 +10937,7 @@ int __GLeeGLXNumExtensions=40;
 #endif
 #ifndef GLEE_C_DEFINED_glXGetCurrentReadDrawableSGI
 #define GLEE_C_DEFINED_glXGetCurrentReadDrawableSGI
-  GLXDrawable __stdcall GLee_Lazy_glXGetCurrentReadDrawableSGI(void)  {if (GLeeInit()) return glXGetCurrentReadDrawableSGI(); return (GLXDrawable)0;}
+  GLXDrawable __stdcall GLee_Lazy_glXGetCurrentReadDrawableSGI( void )  {if (GLeeInit()) return glXGetCurrentReadDrawableSGI(); return (GLXDrawable)0;}
   GLEEPFNGLXGETCURRENTREADDRAWABLESGIPROC GLeeFuncPtr_glXGetCurrentReadDrawableSGI=GLee_Lazy_glXGetCurrentReadDrawableSGI;
 #endif
 #endif 
@@ -10952,7 +10952,7 @@ int __GLeeGLXNumExtensions=40;
 #ifdef __GLEE_GLX_EXT_import_context
 #ifndef GLEE_C_DEFINED_glXGetCurrentDisplayEXT
 #define GLEE_C_DEFINED_glXGetCurrentDisplayEXT
-  Display * __stdcall GLee_Lazy_glXGetCurrentDisplayEXT(void)  {if (GLeeInit()) return glXGetCurrentDisplayEXT(); return (Display *)0;}
+  Display * __stdcall GLee_Lazy_glXGetCurrentDisplayEXT( void )  {if (GLeeInit()) return glXGetCurrentDisplayEXT(); return (Display *)0;}
   GLEEPFNGLXGETCURRENTDISPLAYEXTPROC GLeeFuncPtr_glXGetCurrentDisplayEXT=GLee_Lazy_glXGetCurrentDisplayEXT;
 #endif
 #ifndef GLEE_C_DEFINED_glXQueryContextInfoEXT
@@ -11356,7 +11356,7 @@ int __GLeeGLXNumExtensions=40;
 * Extension link functions
 *****************************************************************/
 
-GLuint __GLeeLink_GL_VERSION_1_2(void)
+GLuint __GLeeLink_GL_VERSION_1_2( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_1_2
@@ -11404,9 +11404,9 @@ GLuint __GLeeLink_GL_VERSION_1_2(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_imaging(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_imaging( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_VERSION_1_3(void)
+GLuint __GLeeLink_GL_VERSION_1_3( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_1_3
@@ -11462,7 +11462,7 @@ GLuint __GLeeLink_GL_VERSION_1_3(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_VERSION_1_4(void)
+GLuint __GLeeLink_GL_VERSION_1_4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_1_4
@@ -11517,7 +11517,7 @@ GLuint __GLeeLink_GL_VERSION_1_4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_VERSION_1_5(void)
+GLuint __GLeeLink_GL_VERSION_1_5( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_1_5
@@ -11546,7 +11546,7 @@ GLuint __GLeeLink_GL_VERSION_1_5(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_VERSION_2_0(void)
+GLuint __GLeeLink_GL_VERSION_2_0( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_2_0
@@ -11649,7 +11649,7 @@ GLuint __GLeeLink_GL_VERSION_2_0(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_VERSION_2_1(void)
+GLuint __GLeeLink_GL_VERSION_2_1( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_2_1
@@ -11665,7 +11665,7 @@ GLuint __GLeeLink_GL_VERSION_2_1(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_VERSION_3_0(void)
+GLuint __GLeeLink_GL_VERSION_3_0( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_VERSION_3_0
@@ -11733,7 +11733,7 @@ GLuint __GLeeLink_GL_VERSION_3_0(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_multitexture(void)
+GLuint __GLeeLink_GL_ARB_multitexture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_multitexture
@@ -11777,7 +11777,7 @@ GLuint __GLeeLink_GL_ARB_multitexture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_transpose_matrix(void)
+GLuint __GLeeLink_GL_ARB_transpose_matrix( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_transpose_matrix
@@ -11791,7 +11791,7 @@ GLuint __GLeeLink_GL_ARB_transpose_matrix(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_multisample(void)
+GLuint __GLeeLink_GL_ARB_multisample( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_multisample
@@ -11802,11 +11802,11 @@ GLuint __GLeeLink_GL_ARB_multisample(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_env_add(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_env_add( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_cube_map(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_cube_map( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_compression(void)
+GLuint __GLeeLink_GL_ARB_texture_compression( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_texture_compression
@@ -11823,9 +11823,9 @@ GLuint __GLeeLink_GL_ARB_texture_compression(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_border_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_border_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_point_parameters(void)
+GLuint __GLeeLink_GL_ARB_point_parameters( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_point_parameters
@@ -11837,7 +11837,7 @@ GLuint __GLeeLink_GL_ARB_point_parameters(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_vertex_blend(void)
+GLuint __GLeeLink_GL_ARB_vertex_blend( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_vertex_blend
@@ -11857,7 +11857,7 @@ GLuint __GLeeLink_GL_ARB_vertex_blend(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_matrix_palette(void)
+GLuint __GLeeLink_GL_ARB_matrix_palette( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_matrix_palette
@@ -11872,21 +11872,21 @@ GLuint __GLeeLink_GL_ARB_matrix_palette(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_env_combine(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_env_combine( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_env_crossbar(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_env_crossbar( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_env_dot3(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_env_dot3( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_mirrored_repeat(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_mirrored_repeat( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_depth_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_depth_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_shadow(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_shadow( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_shadow_ambient(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_shadow_ambient( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_window_pos(void)
+GLuint __GLeeLink_GL_ARB_window_pos( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_window_pos
@@ -11912,7 +11912,7 @@ GLuint __GLeeLink_GL_ARB_window_pos(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_vertex_program(void)
+GLuint __GLeeLink_GL_ARB_vertex_program( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_vertex_program
@@ -11984,9 +11984,9 @@ GLuint __GLeeLink_GL_ARB_vertex_program(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_fragment_program(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_fragment_program( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_vertex_buffer_object(void)
+GLuint __GLeeLink_GL_ARB_vertex_buffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_vertex_buffer_object
@@ -12007,7 +12007,7 @@ GLuint __GLeeLink_GL_ARB_vertex_buffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_occlusion_query(void)
+GLuint __GLeeLink_GL_ARB_occlusion_query( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_occlusion_query
@@ -12025,7 +12025,7 @@ GLuint __GLeeLink_GL_ARB_occlusion_query(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_shader_objects(void)
+GLuint __GLeeLink_GL_ARB_shader_objects( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_shader_objects
@@ -12074,7 +12074,7 @@ GLuint __GLeeLink_GL_ARB_shader_objects(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_vertex_shader(void)
+GLuint __GLeeLink_GL_ARB_vertex_shader( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_vertex_shader
@@ -12087,17 +12087,17 @@ GLuint __GLeeLink_GL_ARB_vertex_shader(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_fragment_shader(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_fragment_shader( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_shading_language_100(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_shading_language_100( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_non_power_of_two(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_non_power_of_two( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_point_sprite(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_point_sprite( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_fragment_program_shadow(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_fragment_program_shadow( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_draw_buffers(void)
+GLuint __GLeeLink_GL_ARB_draw_buffers( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_draw_buffers
@@ -12108,9 +12108,9 @@ GLuint __GLeeLink_GL_ARB_draw_buffers(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_rectangle(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_rectangle( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_color_buffer_float(void)
+GLuint __GLeeLink_GL_ARB_color_buffer_float( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_color_buffer_float
@@ -12121,15 +12121,15 @@ GLuint __GLeeLink_GL_ARB_color_buffer_float(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_half_float_pixel(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_half_float_pixel( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_pixel_buffer_object(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_pixel_buffer_object( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_depth_buffer_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_depth_buffer_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_draw_instanced(void)
+GLuint __GLeeLink_GL_ARB_draw_instanced( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_draw_instanced
@@ -12141,7 +12141,7 @@ GLuint __GLeeLink_GL_ARB_draw_instanced(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_framebuffer_object(void)
+GLuint __GLeeLink_GL_ARB_framebuffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_framebuffer_object
@@ -12171,9 +12171,9 @@ GLuint __GLeeLink_GL_ARB_framebuffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_framebuffer_sRGB(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_framebuffer_sRGB( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_geometry_shader4(void)
+GLuint __GLeeLink_GL_ARB_geometry_shader4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_geometry_shader4
@@ -12187,9 +12187,9 @@ GLuint __GLeeLink_GL_ARB_geometry_shader4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_half_float_vertex(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_half_float_vertex( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_instanced_arrays(void)
+GLuint __GLeeLink_GL_ARB_instanced_arrays( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_instanced_arrays
@@ -12200,7 +12200,7 @@ GLuint __GLeeLink_GL_ARB_instanced_arrays(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_map_buffer_range(void)
+GLuint __GLeeLink_GL_ARB_map_buffer_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_map_buffer_range
@@ -12212,7 +12212,7 @@ GLuint __GLeeLink_GL_ARB_map_buffer_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_buffer_object(void)
+GLuint __GLeeLink_GL_ARB_texture_buffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_texture_buffer_object
@@ -12223,11 +12223,11 @@ GLuint __GLeeLink_GL_ARB_texture_buffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ARB_texture_compression_rgtc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_compression_rgtc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_texture_rg(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ARB_texture_rg( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ARB_vertex_array_object(void)
+GLuint __GLeeLink_GL_ARB_vertex_array_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ARB_vertex_array_object
@@ -12241,9 +12241,9 @@ GLuint __GLeeLink_GL_ARB_vertex_array_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_abgr(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_abgr( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_blend_color(void)
+GLuint __GLeeLink_GL_EXT_blend_color( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_blend_color
@@ -12254,7 +12254,7 @@ GLuint __GLeeLink_GL_EXT_blend_color(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_polygon_offset(void)
+GLuint __GLeeLink_GL_EXT_polygon_offset( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_polygon_offset
@@ -12265,9 +12265,9 @@ GLuint __GLeeLink_GL_EXT_polygon_offset(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture3D(void)
+GLuint __GLeeLink_GL_EXT_texture3D( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_texture3D
@@ -12279,7 +12279,7 @@ GLuint __GLeeLink_GL_EXT_texture3D(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_texture_filter4(void)
+GLuint __GLeeLink_GL_SGIS_texture_filter4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_texture_filter4
@@ -12291,7 +12291,7 @@ GLuint __GLeeLink_GL_SGIS_texture_filter4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_subtexture(void)
+GLuint __GLeeLink_GL_EXT_subtexture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_subtexture
@@ -12303,7 +12303,7 @@ GLuint __GLeeLink_GL_EXT_subtexture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_copy_texture(void)
+GLuint __GLeeLink_GL_EXT_copy_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_copy_texture
@@ -12318,7 +12318,7 @@ GLuint __GLeeLink_GL_EXT_copy_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_histogram(void)
+GLuint __GLeeLink_GL_EXT_histogram( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_histogram
@@ -12338,7 +12338,7 @@ GLuint __GLeeLink_GL_EXT_histogram(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_convolution(void)
+GLuint __GLeeLink_GL_EXT_convolution( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_convolution
@@ -12361,9 +12361,9 @@ GLuint __GLeeLink_GL_EXT_convolution(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGI_color_matrix(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGI_color_matrix( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGI_color_table(void)
+GLuint __GLeeLink_GL_SGI_color_table( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGI_color_table
@@ -12380,7 +12380,7 @@ GLuint __GLeeLink_GL_SGI_color_table(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_pixel_texture(void)
+GLuint __GLeeLink_GL_SGIS_pixel_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_pixel_texture
@@ -12396,7 +12396,7 @@ GLuint __GLeeLink_GL_SGIS_pixel_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_pixel_texture(void)
+GLuint __GLeeLink_GL_SGIX_pixel_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_pixel_texture
@@ -12407,7 +12407,7 @@ GLuint __GLeeLink_GL_SGIX_pixel_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_texture4D(void)
+GLuint __GLeeLink_GL_SGIS_texture4D( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_texture4D
@@ -12419,11 +12419,11 @@ GLuint __GLeeLink_GL_SGIS_texture4D(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGI_texture_color_table(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGI_texture_color_table( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_cmyka(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_cmyka( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_object(void)
+GLuint __GLeeLink_GL_EXT_texture_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_texture_object
@@ -12439,7 +12439,7 @@ GLuint __GLeeLink_GL_EXT_texture_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_detail_texture(void)
+GLuint __GLeeLink_GL_SGIS_detail_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_detail_texture
@@ -12451,7 +12451,7 @@ GLuint __GLeeLink_GL_SGIS_detail_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_sharpen_texture(void)
+GLuint __GLeeLink_GL_SGIS_sharpen_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_sharpen_texture
@@ -12463,11 +12463,11 @@ GLuint __GLeeLink_GL_SGIS_sharpen_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_packed_pixels(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_packed_pixels( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_texture_lod(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_texture_lod( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_multisample(void)
+GLuint __GLeeLink_GL_SGIS_multisample( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_multisample
@@ -12479,9 +12479,9 @@ GLuint __GLeeLink_GL_SGIS_multisample(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_rescale_normal(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_rescale_normal( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_vertex_array(void)
+GLuint __GLeeLink_GL_EXT_vertex_array( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_vertex_array
@@ -12500,19 +12500,19 @@ GLuint __GLeeLink_GL_EXT_vertex_array(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_misc_attribute(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_misc_attribute( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_generate_mipmap(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_generate_mipmap( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_clipmap(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_clipmap( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_shadow(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_shadow( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_texture_edge_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_texture_edge_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_texture_border_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_texture_border_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_blend_minmax(void)
+GLuint __GLeeLink_GL_EXT_blend_minmax( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_blend_minmax
@@ -12523,17 +12523,17 @@ GLuint __GLeeLink_GL_EXT_blend_minmax(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_blend_subtract(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_blend_subtract( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_blend_logic_op(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_blend_logic_op( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_interlace(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_interlace( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_pixel_tiles(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_pixel_tiles( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_texture_select(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_texture_select( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_sprite(void)
+GLuint __GLeeLink_GL_SGIX_sprite( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_sprite
@@ -12547,9 +12547,9 @@ GLuint __GLeeLink_GL_SGIX_sprite(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_texture_multi_buffer(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_multi_buffer( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_point_parameters(void)
+GLuint __GLeeLink_GL_EXT_point_parameters( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_point_parameters
@@ -12561,7 +12561,7 @@ GLuint __GLeeLink_GL_EXT_point_parameters(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIS_point_parameters(void)
+GLuint __GLeeLink_GL_SGIS_point_parameters( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_point_parameters
@@ -12573,7 +12573,7 @@ GLuint __GLeeLink_GL_SGIS_point_parameters(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_instruments(void)
+GLuint __GLeeLink_GL_SGIX_instruments( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_instruments
@@ -12589,9 +12589,9 @@ GLuint __GLeeLink_GL_SGIX_instruments(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_texture_scale_bias(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_scale_bias( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_framezoom(void)
+GLuint __GLeeLink_GL_SGIX_framezoom( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_framezoom
@@ -12602,7 +12602,7 @@ GLuint __GLeeLink_GL_SGIX_framezoom(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_tag_sample_buffer(void)
+GLuint __GLeeLink_GL_SGIX_tag_sample_buffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_tag_sample_buffer
@@ -12613,9 +12613,9 @@ GLuint __GLeeLink_GL_SGIX_tag_sample_buffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_FfdMaskSGIX(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_FfdMaskSGIX( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_polynomial_ffd(void)
+GLuint __GLeeLink_GL_SGIX_polynomial_ffd( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_polynomial_ffd
@@ -12629,7 +12629,7 @@ GLuint __GLeeLink_GL_SGIX_polynomial_ffd(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_reference_plane(void)
+GLuint __GLeeLink_GL_SGIX_reference_plane( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_reference_plane
@@ -12640,7 +12640,7 @@ GLuint __GLeeLink_GL_SGIX_reference_plane(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_flush_raster(void)
+GLuint __GLeeLink_GL_SGIX_flush_raster( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_flush_raster
@@ -12651,9 +12651,9 @@ GLuint __GLeeLink_GL_SGIX_flush_raster(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_depth_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_depth_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_fog_function(void)
+GLuint __GLeeLink_GL_SGIS_fog_function( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_fog_function
@@ -12665,9 +12665,9 @@ GLuint __GLeeLink_GL_SGIS_fog_function(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_fog_offset(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_fog_offset( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_HP_image_transform(void)
+GLuint __GLeeLink_GL_HP_image_transform( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_HP_image_transform
@@ -12683,13 +12683,13 @@ GLuint __GLeeLink_GL_HP_image_transform(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_HP_convolution_border_modes(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_HP_convolution_border_modes( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_INGR_palette_buffer(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_INGR_palette_buffer( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_texture_add_env(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_add_env( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_color_subtable(void)
+GLuint __GLeeLink_GL_EXT_color_subtable( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_color_subtable
@@ -12701,9 +12701,9 @@ GLuint __GLeeLink_GL_EXT_color_subtable(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_PGI_vertex_hints(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_PGI_vertex_hints( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_PGI_misc_hints(void)
+GLuint __GLeeLink_GL_PGI_misc_hints( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_PGI_misc_hints
@@ -12714,7 +12714,7 @@ GLuint __GLeeLink_GL_PGI_misc_hints(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_paletted_texture(void)
+GLuint __GLeeLink_GL_EXT_paletted_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_paletted_texture
@@ -12728,9 +12728,9 @@ GLuint __GLeeLink_GL_EXT_paletted_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_clip_volume_hint(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_clip_volume_hint( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_list_priority(void)
+GLuint __GLeeLink_GL_SGIX_list_priority( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_list_priority
@@ -12746,17 +12746,17 @@ GLuint __GLeeLink_GL_SGIX_list_priority(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_ir_instrument1(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_ir_instrument1( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_calligraphic_fragment(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_calligraphic_fragment( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_texture_lod_bias(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_lod_bias( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_shadow_ambient(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_shadow_ambient( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_index_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_index_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_index_material(void)
+GLuint __GLeeLink_GL_EXT_index_material( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_index_material
@@ -12767,7 +12767,7 @@ GLuint __GLeeLink_GL_EXT_index_material(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_index_func(void)
+GLuint __GLeeLink_GL_EXT_index_func( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_index_func
@@ -12778,9 +12778,9 @@ GLuint __GLeeLink_GL_EXT_index_func(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_index_array_formats(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_index_array_formats( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_compiled_vertex_array(void)
+GLuint __GLeeLink_GL_EXT_compiled_vertex_array( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_compiled_vertex_array
@@ -12792,7 +12792,7 @@ GLuint __GLeeLink_GL_EXT_compiled_vertex_array(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_cull_vertex(void)
+GLuint __GLeeLink_GL_EXT_cull_vertex( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_cull_vertex
@@ -12804,9 +12804,9 @@ GLuint __GLeeLink_GL_EXT_cull_vertex(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_ycrcb(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_ycrcb( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_fragment_lighting(void)
+GLuint __GLeeLink_GL_SGIX_fragment_lighting( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_fragment_lighting
@@ -12834,11 +12834,11 @@ GLuint __GLeeLink_GL_SGIX_fragment_lighting(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_IBM_rasterpos_clip(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_IBM_rasterpos_clip( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_HP_texture_lighting(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_HP_texture_lighting( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_draw_range_elements(void)
+GLuint __GLeeLink_GL_EXT_draw_range_elements( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_draw_range_elements
@@ -12849,11 +12849,11 @@ GLuint __GLeeLink_GL_EXT_draw_range_elements(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_WIN_phong_shading(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_WIN_phong_shading( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_WIN_specular_fog(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_WIN_specular_fog( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_light_texture(void)
+GLuint __GLeeLink_GL_EXT_light_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_light_texture
@@ -12866,13 +12866,13 @@ GLuint __GLeeLink_GL_EXT_light_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_blend_alpha_minmax(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_blend_alpha_minmax( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_impact_pixel_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_impact_pixel_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_bgra(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_bgra( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_async(void)
+GLuint __GLeeLink_GL_SGIX_async( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_async
@@ -12888,13 +12888,13 @@ GLuint __GLeeLink_GL_SGIX_async(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_async_pixel(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_async_pixel( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_async_histogram(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_async_histogram( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_INTEL_texture_scissor(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_INTEL_texture_scissor( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_INTEL_parallel_arrays(void)
+GLuint __GLeeLink_GL_INTEL_parallel_arrays( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_INTEL_parallel_arrays
@@ -12908,9 +12908,9 @@ GLuint __GLeeLink_GL_INTEL_parallel_arrays(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_HP_occlusion_test(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_HP_occlusion_test( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_pixel_transform(void)
+GLuint __GLeeLink_GL_EXT_pixel_transform( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_pixel_transform
@@ -12924,13 +12924,13 @@ GLuint __GLeeLink_GL_EXT_pixel_transform(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_pixel_transform_color_table(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_pixel_transform_color_table( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_shared_texture_palette(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_shared_texture_palette( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_separate_specular_color(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_separate_specular_color( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_secondary_color(void)
+GLuint __GLeeLink_GL_EXT_secondary_color( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_secondary_color
@@ -12957,7 +12957,7 @@ GLuint __GLeeLink_GL_EXT_secondary_color(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_perturb_normal(void)
+GLuint __GLeeLink_GL_EXT_texture_perturb_normal( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_texture_perturb_normal
@@ -12968,7 +12968,7 @@ GLuint __GLeeLink_GL_EXT_texture_perturb_normal(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_multi_draw_arrays(void)
+GLuint __GLeeLink_GL_EXT_multi_draw_arrays( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_multi_draw_arrays
@@ -12980,7 +12980,7 @@ GLuint __GLeeLink_GL_EXT_multi_draw_arrays(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_fog_coord(void)
+GLuint __GLeeLink_GL_EXT_fog_coord( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_fog_coord
@@ -12995,9 +12995,9 @@ GLuint __GLeeLink_GL_EXT_fog_coord(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_REND_screen_coordinates(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_REND_screen_coordinates( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_coordinate_frame(void)
+GLuint __GLeeLink_GL_EXT_coordinate_frame( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_coordinate_frame
@@ -13029,15 +13029,15 @@ GLuint __GLeeLink_GL_EXT_coordinate_frame(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_env_combine(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_env_combine( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_APPLE_specular_vector(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_APPLE_specular_vector( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_APPLE_transform_hint(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_APPLE_transform_hint( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_fog_scale(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_fog_scale( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SUNX_constant_data(void)
+GLuint __GLeeLink_GL_SUNX_constant_data( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SUNX_constant_data
@@ -13048,7 +13048,7 @@ GLuint __GLeeLink_GL_SUNX_constant_data(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SUN_global_alpha(void)
+GLuint __GLeeLink_GL_SUN_global_alpha( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SUN_global_alpha
@@ -13066,7 +13066,7 @@ GLuint __GLeeLink_GL_SUN_global_alpha(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SUN_triangle_list(void)
+GLuint __GLeeLink_GL_SUN_triangle_list( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SUN_triangle_list
@@ -13083,7 +13083,7 @@ GLuint __GLeeLink_GL_SUN_triangle_list(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SUN_vertex(void)
+GLuint __GLeeLink_GL_SUN_vertex( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SUN_vertex
@@ -13133,7 +13133,7 @@ GLuint __GLeeLink_GL_SUN_vertex(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_blend_func_separate(void)
+GLuint __GLeeLink_GL_EXT_blend_func_separate( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_blend_func_separate
@@ -13144,27 +13144,27 @@ GLuint __GLeeLink_GL_EXT_blend_func_separate(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_INGR_color_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_INGR_color_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_INGR_interlace_read(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_INGR_interlace_read( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_stencil_wrap(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_stencil_wrap( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_422_pixels(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_422_pixels( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texgen_reflection(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texgen_reflection( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_cube_map(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_cube_map( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SUN_convolution_border_modes(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SUN_convolution_border_modes( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_env_add(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_env_add( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_lod_bias(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_lod_bias( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_filter_anisotropic(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_filter_anisotropic( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_vertex_weighting(void)
+GLuint __GLeeLink_GL_EXT_vertex_weighting( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_vertex_weighting
@@ -13177,9 +13177,9 @@ GLuint __GLeeLink_GL_EXT_vertex_weighting(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_light_max_exponent(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_light_max_exponent( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_array_range(void)
+GLuint __GLeeLink_GL_NV_vertex_array_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_vertex_array_range
@@ -13191,7 +13191,7 @@ GLuint __GLeeLink_GL_NV_vertex_array_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_register_combiners(void)
+GLuint __GLeeLink_GL_NV_register_combiners( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_register_combiners
@@ -13214,15 +13214,15 @@ GLuint __GLeeLink_GL_NV_register_combiners(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_fog_distance(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_fog_distance( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texgen_emboss(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texgen_emboss( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_blend_square(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_blend_square( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texture_env_combine4(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_env_combine4( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_MESA_resize_buffers(void)
+GLuint __GLeeLink_GL_MESA_resize_buffers( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_MESA_resize_buffers
@@ -13233,7 +13233,7 @@ GLuint __GLeeLink_GL_MESA_resize_buffers(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_MESA_window_pos(void)
+GLuint __GLeeLink_GL_MESA_window_pos( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_MESA_window_pos
@@ -13267,11 +13267,11 @@ GLuint __GLeeLink_GL_MESA_window_pos(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_compression_s3tc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_compression_s3tc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_IBM_cull_vertex(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_IBM_cull_vertex( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_IBM_multimode_draw_arrays(void)
+GLuint __GLeeLink_GL_IBM_multimode_draw_arrays( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_IBM_multimode_draw_arrays
@@ -13283,7 +13283,7 @@ GLuint __GLeeLink_GL_IBM_multimode_draw_arrays(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_IBM_vertex_array_lists(void)
+GLuint __GLeeLink_GL_IBM_vertex_array_lists( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_IBM_vertex_array_lists
@@ -13301,19 +13301,19 @@ GLuint __GLeeLink_GL_IBM_vertex_array_lists(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_subsample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_subsample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_ycrcb_subsample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_ycrcb_subsample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_ycrcba(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_ycrcba( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGI_depth_pass_instrument(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGI_depth_pass_instrument( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_3DFX_texture_compression_FXT1(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_3DFX_texture_compression_FXT1( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_3DFX_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_3DFX_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_3DFX_tbuffer(void)
+GLuint __GLeeLink_GL_3DFX_tbuffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_3DFX_tbuffer
@@ -13324,7 +13324,7 @@ GLuint __GLeeLink_GL_3DFX_tbuffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_multisample(void)
+GLuint __GLeeLink_GL_EXT_multisample( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_multisample
@@ -13336,15 +13336,15 @@ GLuint __GLeeLink_GL_EXT_multisample(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_vertex_preclip(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_vertex_preclip( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_convolution_accuracy(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_convolution_accuracy( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_resample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_resample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_point_line_texgen(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIS_point_line_texgen( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIS_texture_color_mask(void)
+GLuint __GLeeLink_GL_SGIS_texture_color_mask( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIS_texture_color_mask
@@ -13355,11 +13355,11 @@ GLuint __GLeeLink_GL_SGIS_texture_color_mask(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_env_dot3(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_env_dot3( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_texture_mirror_once(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ATI_texture_mirror_once( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_fence(void)
+GLuint __GLeeLink_GL_NV_fence( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_fence
@@ -13376,9 +13376,9 @@ GLuint __GLeeLink_GL_NV_fence(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_IBM_texture_mirrored_repeat(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_IBM_texture_mirrored_repeat( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_evaluators(void)
+GLuint __GLeeLink_GL_NV_evaluators( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_evaluators
@@ -13397,9 +13397,9 @@ GLuint __GLeeLink_GL_NV_evaluators(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_packed_depth_stencil(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_packed_depth_stencil( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_register_combiners2(void)
+GLuint __GLeeLink_GL_NV_register_combiners2( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_register_combiners2
@@ -13411,17 +13411,17 @@ GLuint __GLeeLink_GL_NV_register_combiners2(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_texture_compression_vtc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_compression_vtc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texture_rectangle(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_rectangle( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texture_shader(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_shader( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_texture_shader2(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_shader2( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_array_range2(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_vertex_array_range2( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_program(void)
+GLuint __GLeeLink_GL_NV_vertex_program( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_vertex_program
@@ -13495,19 +13495,19 @@ GLuint __GLeeLink_GL_NV_vertex_program(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_texture_coordinate_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_coordinate_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_scalebias_hint(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_scalebias_hint( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_OML_interlace(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OML_interlace( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_OML_subsample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OML_subsample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_OML_resample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OML_resample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_copy_depth_to_color(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_copy_depth_to_color( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_envmap_bumpmap(void)
+GLuint __GLeeLink_GL_ATI_envmap_bumpmap( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_envmap_bumpmap
@@ -13521,7 +13521,7 @@ GLuint __GLeeLink_GL_ATI_envmap_bumpmap(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_fragment_shader(void)
+GLuint __GLeeLink_GL_ATI_fragment_shader( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_fragment_shader
@@ -13545,7 +13545,7 @@ GLuint __GLeeLink_GL_ATI_fragment_shader(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_pn_triangles(void)
+GLuint __GLeeLink_GL_ATI_pn_triangles( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_pn_triangles
@@ -13557,7 +13557,7 @@ GLuint __GLeeLink_GL_ATI_pn_triangles(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_vertex_array_object(void)
+GLuint __GLeeLink_GL_ATI_vertex_array_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_vertex_array_object
@@ -13579,7 +13579,7 @@ GLuint __GLeeLink_GL_ATI_vertex_array_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_vertex_shader(void)
+GLuint __GLeeLink_GL_EXT_vertex_shader( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_vertex_shader
@@ -13631,7 +13631,7 @@ GLuint __GLeeLink_GL_EXT_vertex_shader(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_vertex_streams(void)
+GLuint __GLeeLink_GL_ATI_vertex_streams( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_vertex_streams
@@ -13686,7 +13686,7 @@ GLuint __GLeeLink_GL_ATI_vertex_streams(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_element_array(void)
+GLuint __GLeeLink_GL_ATI_element_array( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_element_array
@@ -13699,7 +13699,7 @@ GLuint __GLeeLink_GL_ATI_element_array(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SUN_mesh_array(void)
+GLuint __GLeeLink_GL_SUN_mesh_array( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SUN_mesh_array
@@ -13710,13 +13710,13 @@ GLuint __GLeeLink_GL_SUN_mesh_array(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SUN_slice_accum(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SUN_slice_accum( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_multisample_filter_hint(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_multisample_filter_hint( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_depth_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_depth_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_occlusion_query(void)
+GLuint __GLeeLink_GL_NV_occlusion_query( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_occlusion_query
@@ -13733,7 +13733,7 @@ GLuint __GLeeLink_GL_NV_occlusion_query(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_point_sprite(void)
+GLuint __GLeeLink_GL_NV_point_sprite( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_point_sprite
@@ -13745,13 +13745,13 @@ GLuint __GLeeLink_GL_NV_point_sprite(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_texture_shader3(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_shader3( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_program1_1(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_vertex_program1_1( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_shadow_funcs(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_shadow_funcs( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_stencil_two_side(void)
+GLuint __GLeeLink_GL_EXT_stencil_two_side( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_stencil_two_side
@@ -13762,11 +13762,11 @@ GLuint __GLeeLink_GL_EXT_stencil_two_side(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_text_fragment_shader(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ATI_text_fragment_shader( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_APPLE_client_storage(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_APPLE_client_storage( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_APPLE_element_array(void)
+GLuint __GLeeLink_GL_APPLE_element_array( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_APPLE_element_array
@@ -13781,7 +13781,7 @@ GLuint __GLeeLink_GL_APPLE_element_array(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_APPLE_fence(void)
+GLuint __GLeeLink_GL_APPLE_fence( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_APPLE_fence
@@ -13799,7 +13799,7 @@ GLuint __GLeeLink_GL_APPLE_fence(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_APPLE_vertex_array_object(void)
+GLuint __GLeeLink_GL_APPLE_vertex_array_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_APPLE_vertex_array_object
@@ -13813,7 +13813,7 @@ GLuint __GLeeLink_GL_APPLE_vertex_array_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_APPLE_vertex_array_range(void)
+GLuint __GLeeLink_GL_APPLE_vertex_array_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_APPLE_vertex_array_range
@@ -13826,11 +13826,11 @@ GLuint __GLeeLink_GL_APPLE_vertex_array_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_APPLE_ycbcr_422(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_APPLE_ycbcr_422( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_S3_s3tc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_S3_s3tc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_draw_buffers(void)
+GLuint __GLeeLink_GL_ATI_draw_buffers( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_draw_buffers
@@ -13841,15 +13841,15 @@ GLuint __GLeeLink_GL_ATI_draw_buffers(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_pixel_format_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ATI_pixel_format_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_texture_env_combine3(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ATI_texture_env_combine3( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_texture_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_ATI_texture_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_float_buffer(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_float_buffer( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_fragment_program(void)
+GLuint __GLeeLink_GL_NV_fragment_program( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_fragment_program
@@ -13865,7 +13865,7 @@ GLuint __GLeeLink_GL_NV_fragment_program(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_half_float(void)
+GLuint __GLeeLink_GL_NV_half_float( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_half_float
@@ -13921,7 +13921,7 @@ GLuint __GLeeLink_GL_NV_half_float(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_pixel_data_range(void)
+GLuint __GLeeLink_GL_NV_pixel_data_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_pixel_data_range
@@ -13933,7 +13933,7 @@ GLuint __GLeeLink_GL_NV_pixel_data_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_primitive_restart(void)
+GLuint __GLeeLink_GL_NV_primitive_restart( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_primitive_restart
@@ -13945,11 +13945,11 @@ GLuint __GLeeLink_GL_NV_primitive_restart(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_texture_expand_normal(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_texture_expand_normal( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_program2(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_vertex_program2( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_ATI_map_object_buffer(void)
+GLuint __GLeeLink_GL_ATI_map_object_buffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_map_object_buffer
@@ -13961,7 +13961,7 @@ GLuint __GLeeLink_GL_ATI_map_object_buffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_separate_stencil(void)
+GLuint __GLeeLink_GL_ATI_separate_stencil( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_separate_stencil
@@ -13973,7 +13973,7 @@ GLuint __GLeeLink_GL_ATI_separate_stencil(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_ATI_vertex_attrib_array_object(void)
+GLuint __GLeeLink_GL_ATI_vertex_attrib_array_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_ATI_vertex_attrib_array_object
@@ -13986,9 +13986,9 @@ GLuint __GLeeLink_GL_ATI_vertex_attrib_array_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_OES_read_format(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OES_read_format( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_depth_bounds_test(void)
+GLuint __GLeeLink_GL_EXT_depth_bounds_test( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_depth_bounds_test
@@ -13999,9 +13999,9 @@ GLuint __GLeeLink_GL_EXT_depth_bounds_test(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_mirror_clamp(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_mirror_clamp( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_blend_equation_separate(void)
+GLuint __GLeeLink_GL_EXT_blend_equation_separate( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_blend_equation_separate
@@ -14012,21 +14012,21 @@ GLuint __GLeeLink_GL_EXT_blend_equation_separate(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_MESA_pack_invert(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_MESA_pack_invert( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_MESA_ycbcr_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_MESA_ycbcr_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_pixel_buffer_object(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_pixel_buffer_object( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_fragment_program_option(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_fragment_program_option( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_fragment_program2(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_fragment_program2( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_program2_option(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_vertex_program2_option( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_vertex_program3(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_vertex_program3( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_framebuffer_object(void)
+GLuint __GLeeLink_GL_EXT_framebuffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_framebuffer_object
@@ -14053,7 +14053,7 @@ GLuint __GLeeLink_GL_EXT_framebuffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_GREMEDY_string_marker(void)
+GLuint __GLeeLink_GL_GREMEDY_string_marker( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_GREMEDY_string_marker
@@ -14064,9 +14064,9 @@ GLuint __GLeeLink_GL_GREMEDY_string_marker(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_packed_depth_stencil(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_packed_depth_stencil( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_stencil_clear_tag(void)
+GLuint __GLeeLink_GL_EXT_stencil_clear_tag( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_stencil_clear_tag
@@ -14077,9 +14077,9 @@ GLuint __GLeeLink_GL_EXT_stencil_clear_tag(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_sRGB(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_sRGB( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_framebuffer_blit(void)
+GLuint __GLeeLink_GL_EXT_framebuffer_blit( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_framebuffer_blit
@@ -14090,7 +14090,7 @@ GLuint __GLeeLink_GL_EXT_framebuffer_blit(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_framebuffer_multisample(void)
+GLuint __GLeeLink_GL_EXT_framebuffer_multisample( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_framebuffer_multisample
@@ -14101,9 +14101,9 @@ GLuint __GLeeLink_GL_EXT_framebuffer_multisample(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_MESAX_texture_stack(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_MESAX_texture_stack( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_timer_query(void)
+GLuint __GLeeLink_GL_EXT_timer_query( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_timer_query
@@ -14115,7 +14115,7 @@ GLuint __GLeeLink_GL_EXT_timer_query(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_gpu_program_parameters(void)
+GLuint __GLeeLink_GL_EXT_gpu_program_parameters( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_gpu_program_parameters
@@ -14127,7 +14127,7 @@ GLuint __GLeeLink_GL_EXT_gpu_program_parameters(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_APPLE_flush_buffer_range(void)
+GLuint __GLeeLink_GL_APPLE_flush_buffer_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_APPLE_flush_buffer_range
@@ -14139,7 +14139,7 @@ GLuint __GLeeLink_GL_APPLE_flush_buffer_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_gpu_shader4(void)
+GLuint __GLeeLink_GL_EXT_gpu_shader4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_gpu_shader4
@@ -14160,7 +14160,7 @@ GLuint __GLeeLink_GL_EXT_gpu_shader4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_draw_instanced(void)
+GLuint __GLeeLink_GL_EXT_draw_instanced( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_draw_instanced
@@ -14172,11 +14172,11 @@ GLuint __GLeeLink_GL_EXT_draw_instanced(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_packed_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_packed_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_array(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_array( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_buffer_object(void)
+GLuint __GLeeLink_GL_EXT_texture_buffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_texture_buffer_object
@@ -14187,13 +14187,13 @@ GLuint __GLeeLink_GL_EXT_texture_buffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_compression_latc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_compression_latc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_compression_rgtc(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_compression_rgtc( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_shared_exponent(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_shared_exponent( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_depth_buffer_float(void)
+GLuint __GLeeLink_GL_NV_depth_buffer_float( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_depth_buffer_float
@@ -14206,7 +14206,7 @@ GLuint __GLeeLink_GL_NV_depth_buffer_float(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_framebuffer_multisample_coverage(void)
+GLuint __GLeeLink_GL_NV_framebuffer_multisample_coverage( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_framebuffer_multisample_coverage
@@ -14217,11 +14217,11 @@ GLuint __GLeeLink_GL_NV_framebuffer_multisample_coverage(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_framebuffer_sRGB(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_framebuffer_sRGB( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_geometry_shader4(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_geometry_shader4( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_parameter_buffer_object(void)
+GLuint __GLeeLink_GL_NV_parameter_buffer_object( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_parameter_buffer_object
@@ -14234,7 +14234,7 @@ GLuint __GLeeLink_GL_NV_parameter_buffer_object(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_draw_buffers2(void)
+GLuint __GLeeLink_GL_EXT_draw_buffers2( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_draw_buffers2
@@ -14250,7 +14250,7 @@ GLuint __GLeeLink_GL_EXT_draw_buffers2(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_transform_feedback(void)
+GLuint __GLeeLink_GL_NV_transform_feedback( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_transform_feedback
@@ -14271,7 +14271,7 @@ GLuint __GLeeLink_GL_NV_transform_feedback(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_bindable_uniform(void)
+GLuint __GLeeLink_GL_EXT_bindable_uniform( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_bindable_uniform
@@ -14284,7 +14284,7 @@ GLuint __GLeeLink_GL_EXT_bindable_uniform(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_integer(void)
+GLuint __GLeeLink_GL_EXT_texture_integer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_texture_integer
@@ -14300,7 +14300,7 @@ GLuint __GLeeLink_GL_EXT_texture_integer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_GREMEDY_frame_terminator(void)
+GLuint __GLeeLink_GL_GREMEDY_frame_terminator( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_GREMEDY_frame_terminator
@@ -14311,7 +14311,7 @@ GLuint __GLeeLink_GL_GREMEDY_frame_terminator(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_conditional_render(void)
+GLuint __GLeeLink_GL_NV_conditional_render( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_conditional_render
@@ -14323,9 +14323,9 @@ GLuint __GLeeLink_GL_NV_conditional_render(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_present_video(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_NV_present_video( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_transform_feedback(void)
+GLuint __GLeeLink_GL_EXT_transform_feedback( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_transform_feedback
@@ -14342,7 +14342,7 @@ GLuint __GLeeLink_GL_EXT_transform_feedback(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_direct_state_access(void)
+GLuint __GLeeLink_GL_EXT_direct_state_access( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_direct_state_access
@@ -14538,11 +14538,11 @@ GLuint __GLeeLink_GL_EXT_direct_state_access(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_vertex_array_bgra(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_vertex_array_bgra( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_swizzle(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_swizzle( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_explicit_multisample(void)
+GLuint __GLeeLink_GL_NV_explicit_multisample( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_explicit_multisample
@@ -14555,7 +14555,7 @@ GLuint __GLeeLink_GL_NV_explicit_multisample(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_NV_transform_feedback2(void)
+GLuint __GLeeLink_GL_NV_transform_feedback2( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_transform_feedback2
@@ -14572,9 +14572,9 @@ GLuint __GLeeLink_GL_NV_transform_feedback2(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_texture_select(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_select( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_INGR_blend_func_separate(void)
+GLuint __GLeeLink_GL_INGR_blend_func_separate( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_INGR_blend_func_separate
@@ -14585,9 +14585,9 @@ GLuint __GLeeLink_GL_INGR_blend_func_separate(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_depth_pass_instrument(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_depth_pass_instrument( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_igloo_interface(void)
+GLuint __GLeeLink_GL_SGIX_igloo_interface( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_SGIX_igloo_interface
@@ -14598,7 +14598,7 @@ GLuint __GLeeLink_GL_SGIX_igloo_interface(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_fragment_lighting(void)
+GLuint __GLeeLink_GL_EXT_fragment_lighting( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_fragment_lighting
@@ -14626,7 +14626,7 @@ GLuint __GLeeLink_GL_EXT_fragment_lighting(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_geometry_shader4(void)
+GLuint __GLeeLink_GL_EXT_geometry_shader4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_geometry_shader4
@@ -14640,7 +14640,7 @@ GLuint __GLeeLink_GL_EXT_geometry_shader4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_scene_marker(void)
+GLuint __GLeeLink_GL_EXT_scene_marker( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_EXT_scene_marker
@@ -14652,13 +14652,13 @@ GLuint __GLeeLink_GL_EXT_scene_marker(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_EXT_texture_compression_dxt1(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_compression_dxt1( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_EXT_texture_env(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_EXT_texture_env( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_IBM_static_data(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_IBM_static_data( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_NV_gpu_program4(void)
+GLuint __GLeeLink_GL_NV_gpu_program4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_NV_gpu_program4
@@ -14709,11 +14709,11 @@ GLuint __GLeeLink_GL_NV_gpu_program4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_OES_byte_coordinates(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OES_byte_coordinates( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_OES_compressed_paletted_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_OES_compressed_paletted_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_OES_single_precision(void)
+GLuint __GLeeLink_GL_OES_single_precision( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GL_OES_single_precision
@@ -14729,13 +14729,13 @@ GLuint __GLeeLink_GL_OES_single_precision(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GL_SGIX_pixel_texture_bits(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_pixel_texture_bits( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GL_SGIX_texture_range(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GL_SGIX_texture_range( void ) {return GLEE_LINK_COMPLETE;}
 
 GLEE_LINK_FUNCTION __GLeeGLLoadFunction[322];
 
-void initGLLoadFunctions(void)
+void initGLLoadFunctions( void )
 {
     __GLeeGLLoadFunction[0]=__GLeeLink_GL_VERSION_1_2;
     __GLeeGLLoadFunction[1]=__GLeeLink_GL_ARB_imaging;
@@ -15062,7 +15062,7 @@ void initGLLoadFunctions(void)
 }
 
 #ifdef WIN32
-GLuint __GLeeLink_WGL_ARB_buffer_region(void)
+GLuint __GLeeLink_WGL_ARB_buffer_region( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_buffer_region
@@ -15076,9 +15076,9 @@ GLuint __GLeeLink_WGL_ARB_buffer_region(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_ARB_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_ARB_extensions_string(void)
+GLuint __GLeeLink_WGL_ARB_extensions_string( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_extensions_string
@@ -15089,7 +15089,7 @@ GLuint __GLeeLink_WGL_ARB_extensions_string(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_pixel_format(void)
+GLuint __GLeeLink_WGL_ARB_pixel_format( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_pixel_format
@@ -15102,7 +15102,7 @@ GLuint __GLeeLink_WGL_ARB_pixel_format(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_make_current_read(void)
+GLuint __GLeeLink_WGL_ARB_make_current_read( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_make_current_read
@@ -15114,7 +15114,7 @@ GLuint __GLeeLink_WGL_ARB_make_current_read(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_pbuffer(void)
+GLuint __GLeeLink_WGL_ARB_pbuffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_pbuffer
@@ -15129,7 +15129,7 @@ GLuint __GLeeLink_WGL_ARB_pbuffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_render_texture(void)
+GLuint __GLeeLink_WGL_ARB_render_texture( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_render_texture
@@ -15142,9 +15142,9 @@ GLuint __GLeeLink_WGL_ARB_render_texture(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_ARB_pixel_format_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_ARB_pixel_format_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_ARB_create_context(void)
+GLuint __GLeeLink_WGL_ARB_create_context( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_ARB_create_context
@@ -15155,7 +15155,7 @@ GLuint __GLeeLink_WGL_ARB_create_context(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_make_current_read(void)
+GLuint __GLeeLink_WGL_EXT_make_current_read( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_make_current_read
@@ -15167,7 +15167,7 @@ GLuint __GLeeLink_WGL_EXT_make_current_read(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_pixel_format(void)
+GLuint __GLeeLink_WGL_EXT_pixel_format( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_pixel_format
@@ -15180,7 +15180,7 @@ GLuint __GLeeLink_WGL_EXT_pixel_format(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_pbuffer(void)
+GLuint __GLeeLink_WGL_EXT_pbuffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_pbuffer
@@ -15195,13 +15195,13 @@ GLuint __GLeeLink_WGL_EXT_pbuffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_depth_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_EXT_depth_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_3DFX_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_3DFX_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_EXT_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_EXT_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_I3D_digital_video_control(void)
+GLuint __GLeeLink_WGL_I3D_digital_video_control( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_digital_video_control
@@ -15213,7 +15213,7 @@ GLuint __GLeeLink_WGL_I3D_digital_video_control(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_I3D_gamma(void)
+GLuint __GLeeLink_WGL_I3D_gamma( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_gamma
@@ -15227,7 +15227,7 @@ GLuint __GLeeLink_WGL_I3D_gamma(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_I3D_genlock(void)
+GLuint __GLeeLink_WGL_I3D_genlock( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_genlock
@@ -15249,7 +15249,7 @@ GLuint __GLeeLink_WGL_I3D_genlock(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_I3D_image_buffer(void)
+GLuint __GLeeLink_WGL_I3D_image_buffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_image_buffer
@@ -15263,7 +15263,7 @@ GLuint __GLeeLink_WGL_I3D_image_buffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_I3D_swap_frame_lock(void)
+GLuint __GLeeLink_WGL_I3D_swap_frame_lock( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_swap_frame_lock
@@ -15277,21 +15277,21 @@ GLuint __GLeeLink_WGL_I3D_swap_frame_lock(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_NV_render_depth_texture(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_NV_render_depth_texture( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_NV_render_texture_rectangle(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_NV_render_texture_rectangle( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_ATI_pixel_format_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_ATI_pixel_format_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_NV_float_buffer(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_NV_float_buffer( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_3DL_stereo_control(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_3DL_stereo_control( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_EXT_pixel_format_packed_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_EXT_pixel_format_packed_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_EXT_framebuffer_sRGB(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_WGL_EXT_framebuffer_sRGB( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_WGL_NV_present_video(void)
+GLuint __GLeeLink_WGL_NV_present_video( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_NV_present_video
@@ -15304,7 +15304,7 @@ GLuint __GLeeLink_WGL_NV_present_video(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_NV_swap_group(void)
+GLuint __GLeeLink_WGL_NV_swap_group( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_NV_swap_group
@@ -15320,7 +15320,7 @@ GLuint __GLeeLink_WGL_NV_swap_group(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_NV_gpu_affinity(void)
+GLuint __GLeeLink_WGL_NV_gpu_affinity( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_NV_gpu_affinity
@@ -15335,7 +15335,7 @@ GLuint __GLeeLink_WGL_NV_gpu_affinity(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_display_color_table(void)
+GLuint __GLeeLink_WGL_EXT_display_color_table( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_display_color_table
@@ -15349,7 +15349,7 @@ GLuint __GLeeLink_WGL_EXT_display_color_table(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_extensions_string(void)
+GLuint __GLeeLink_WGL_EXT_extensions_string( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_extensions_string
@@ -15360,7 +15360,7 @@ GLuint __GLeeLink_WGL_EXT_extensions_string(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_EXT_swap_control(void)
+GLuint __GLeeLink_WGL_EXT_swap_control( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_EXT_swap_control
@@ -15372,7 +15372,7 @@ GLuint __GLeeLink_WGL_EXT_swap_control(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_NV_vertex_array_range(void)
+GLuint __GLeeLink_WGL_NV_vertex_array_range( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_NV_vertex_array_range
@@ -15384,7 +15384,7 @@ GLuint __GLeeLink_WGL_NV_vertex_array_range(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_OML_sync_control(void)
+GLuint __GLeeLink_WGL_OML_sync_control( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_OML_sync_control
@@ -15400,7 +15400,7 @@ GLuint __GLeeLink_WGL_OML_sync_control(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_I3D_swap_frame_usage(void)
+GLuint __GLeeLink_WGL_I3D_swap_frame_usage( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_I3D_swap_frame_usage
@@ -15414,7 +15414,7 @@ GLuint __GLeeLink_WGL_I3D_swap_frame_usage(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_WGL_NV_video_output(void)
+GLuint __GLeeLink_WGL_NV_video_output( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_WGL_NV_video_output
@@ -15432,7 +15432,7 @@ GLuint __GLeeLink_WGL_NV_video_output(void)
 
 GLEE_LINK_FUNCTION __GLeeWGLLoadFunction[37];
 
-void initWGLLoadFunctions(void)
+void initWGLLoadFunctions( void )
 {
     __GLeeWGLLoadFunction[0]=__GLeeLink_WGL_ARB_buffer_region;
     __GLeeWGLLoadFunction[1]=__GLeeLink_WGL_ARB_multisample;
@@ -15475,7 +15475,7 @@ void initWGLLoadFunctions(void)
 
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 #else /* Linux */
-GLuint __GLeeLink_GLX_VERSION_1_3(void)
+GLuint __GLeeLink_GLX_VERSION_1_3( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_VERSION_1_3
@@ -15503,7 +15503,7 @@ GLuint __GLeeLink_GLX_VERSION_1_3(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_VERSION_1_4(void)
+GLuint __GLeeLink_GLX_VERSION_1_4( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_VERSION_1_4
@@ -15514,11 +15514,11 @@ GLuint __GLeeLink_GLX_VERSION_1_4(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_ARB_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_ARB_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_ARB_fbconfig_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_ARB_fbconfig_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_ARB_create_context(void)
+GLuint __GLeeLink_GLX_ARB_create_context( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_ARB_create_context
@@ -15529,11 +15529,11 @@ GLuint __GLeeLink_GLX_ARB_create_context(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIS_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_SGIS_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_EXT_visual_info(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_EXT_visual_info( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_SGI_swap_control(void)
+GLuint __GLeeLink_GLX_SGI_swap_control( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGI_swap_control
@@ -15544,7 +15544,7 @@ GLuint __GLeeLink_GLX_SGI_swap_control(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGI_video_sync(void)
+GLuint __GLeeLink_GLX_SGI_video_sync( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGI_video_sync
@@ -15556,7 +15556,7 @@ GLuint __GLeeLink_GLX_SGI_video_sync(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGI_make_current_read(void)
+GLuint __GLeeLink_GLX_SGI_make_current_read( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGI_make_current_read
@@ -15568,9 +15568,9 @@ GLuint __GLeeLink_GLX_SGI_make_current_read(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_EXT_visual_rating(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_EXT_visual_rating( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_EXT_import_context(void)
+GLuint __GLeeLink_GLX_EXT_import_context( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_EXT_import_context
@@ -15585,7 +15585,7 @@ GLuint __GLeeLink_GLX_EXT_import_context(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_fbconfig(void)
+GLuint __GLeeLink_GLX_SGIX_fbconfig( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_fbconfig
@@ -15601,7 +15601,7 @@ GLuint __GLeeLink_GLX_SGIX_fbconfig(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_pbuffer(void)
+GLuint __GLeeLink_GLX_SGIX_pbuffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_pbuffer
@@ -15616,7 +15616,7 @@ GLuint __GLeeLink_GLX_SGIX_pbuffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGI_cushion(void)
+GLuint __GLeeLink_GLX_SGI_cushion( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGI_cushion
@@ -15627,7 +15627,7 @@ GLuint __GLeeLink_GLX_SGI_cushion(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_video_resize(void)
+GLuint __GLeeLink_GLX_SGIX_video_resize( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_video_resize
@@ -15642,7 +15642,7 @@ GLuint __GLeeLink_GLX_SGIX_video_resize(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_swap_group(void)
+GLuint __GLeeLink_GLX_SGIX_swap_group( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_swap_group
@@ -15653,7 +15653,7 @@ GLuint __GLeeLink_GLX_SGIX_swap_group(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_swap_barrier(void)
+GLuint __GLeeLink_GLX_SGIX_swap_barrier( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_swap_barrier
@@ -15665,11 +15665,11 @@ GLuint __GLeeLink_GLX_SGIX_swap_barrier(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIS_blended_overlay(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_SGIS_blended_overlay( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_SGIS_shared_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_SGIS_shared_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_SUN_get_transparent_index(void)
+GLuint __GLeeLink_GLX_SUN_get_transparent_index( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SUN_get_transparent_index
@@ -15680,9 +15680,9 @@ GLuint __GLeeLink_GLX_SUN_get_transparent_index(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_3DFX_multisample(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_3DFX_multisample( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_MESA_copy_sub_buffer(void)
+GLuint __GLeeLink_GLX_MESA_copy_sub_buffer( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_copy_sub_buffer
@@ -15693,7 +15693,7 @@ GLuint __GLeeLink_GLX_MESA_copy_sub_buffer(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_MESA_pixmap_colormap(void)
+GLuint __GLeeLink_GLX_MESA_pixmap_colormap( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_pixmap_colormap
@@ -15704,7 +15704,7 @@ GLuint __GLeeLink_GLX_MESA_pixmap_colormap(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_MESA_release_buffers(void)
+GLuint __GLeeLink_GLX_MESA_release_buffers( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_release_buffers
@@ -15715,7 +15715,7 @@ GLuint __GLeeLink_GLX_MESA_release_buffers(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_MESA_set_3dfx_mode(void)
+GLuint __GLeeLink_GLX_MESA_set_3dfx_mode( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_set_3dfx_mode
@@ -15726,11 +15726,11 @@ GLuint __GLeeLink_GLX_MESA_set_3dfx_mode(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_SGIX_visual_select_group(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_SGIX_visual_select_group( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_OML_swap_method(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_OML_swap_method( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_OML_sync_control(void)
+GLuint __GLeeLink_GLX_OML_sync_control( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_OML_sync_control
@@ -15745,9 +15745,9 @@ GLuint __GLeeLink_GLX_OML_sync_control(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_NV_float_buffer(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_NV_float_buffer( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_SGIX_hyperpipe(void)
+GLuint __GLeeLink_GLX_SGIX_hyperpipe( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_SGIX_hyperpipe
@@ -15765,7 +15765,7 @@ GLuint __GLeeLink_GLX_SGIX_hyperpipe(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_MESA_agp_offset(void)
+GLuint __GLeeLink_GLX_MESA_agp_offset( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_agp_offset
@@ -15776,11 +15776,11 @@ GLuint __GLeeLink_GLX_MESA_agp_offset(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_EXT_fbconfig_packed_float(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_EXT_fbconfig_packed_float( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_EXT_framebuffer_sRGB(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_EXT_framebuffer_sRGB( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_EXT_texture_from_pixmap(void)
+GLuint __GLeeLink_GLX_EXT_texture_from_pixmap( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_EXT_texture_from_pixmap
@@ -15792,15 +15792,15 @@ GLuint __GLeeLink_GLX_EXT_texture_from_pixmap(void)
     return GLEE_LINK_PARTIAL;
 }
 
-GLuint __GLeeLink_GLX_NV_present_video(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_NV_present_video( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_NV_video_out(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_NV_video_out( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_NV_swap_group(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_NV_swap_group( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_EXT_scene_marker(void) {return GLEE_LINK_COMPLETE;}
+GLuint __GLeeLink_GLX_EXT_scene_marker( void ) {return GLEE_LINK_COMPLETE;}
 
-GLuint __GLeeLink_GLX_NV_video_output(void)
+GLuint __GLeeLink_GLX_NV_video_output( void )
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_NV_video_output
@@ -15818,7 +15818,7 @@ GLuint __GLeeLink_GLX_NV_video_output(void)
 
 GLEE_LINK_FUNCTION __GLeeGLXLoadFunction[40];
 
-void initGLXLoadFunctions(void)
+void initGLXLoadFunctions( void )
 {
     __GLeeGLXLoadFunction[0]=__GLeeLink_GLX_VERSION_1_3;
     __GLeeGLXLoadFunction[1]=__GLeeLink_GLX_VERSION_1_4;

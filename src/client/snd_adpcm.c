@@ -74,7 +74,7 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *stat
     index = state->index;
     step = stepsizeTable[index];
     
-	outputbuffer = 0;	// quiet a compiler warning
+	outputbuffer = 0;
     bufferstep = 1;
 
     for ( ; len > 0 ; len-- ) {
@@ -172,7 +172,7 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *stat
     step = stepsizeTable[index];
 
     bufferstep = 0;
-    inputbuffer = 0;	// quiet a compiler warning
+    inputbuffer = 0;
     for ( ; len > 0 ; len-- ) {
 		
 		/* Step 1 - get the delta value */
@@ -226,14 +226,7 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *stat
     state->index = index;
 }
 
-
-/*
-====================
-S_AdpcmMemoryNeeded
-
-Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format
-====================
-*/
+// Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format
 int S_AdpcmMemoryNeeded( const wavinfo_t *info ) {
 	float	scale;
 	int		scaledSampleCount;
@@ -262,12 +255,6 @@ int S_AdpcmMemoryNeeded( const wavinfo_t *info ) {
 	return sampleMemory + headerMemory;
 }
 
-
-/*
-====================
-S_AdpcmGetSamples
-====================
-*/
 void S_AdpcmGetSamples(sndBuffer_t *chunk, short *to) {
 	adpcm_state_t	state;
 	byte			*out;
@@ -281,12 +268,6 @@ void S_AdpcmGetSamples(sndBuffer_t *chunk, short *to) {
 	S_AdpcmDecode((char *) out, to, SND_CHUNK_SIZE_BYTE*2, &state );
 }
 
-
-/*
-====================
-S_AdpcmEncodeSound
-====================
-*/
 void S_AdpcmEncodeSound( sfx_t *sfx, short *samples ) {
 	adpcm_state_t	state;
 	int				inOffset;

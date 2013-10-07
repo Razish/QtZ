@@ -57,7 +57,7 @@ local uLong crc32_combine_ OF((uLong crc1, uLong crc2, z_off64_t len2));
 
 local volatile int crc_table_empty = 1;
 local z_crc_t FAR crc_table[TBLS][256];
-local void make_crc_table OF((void));
+local void make_crc_table OF(( void ));
 #ifdef MAKECRCH
    local void write_table OF((FILE *, const z_crc_t FAR *));
 #endif /* MAKECRCH */

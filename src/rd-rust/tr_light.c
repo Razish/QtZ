@@ -30,15 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // never calculate a range less than this to prevent huge light numbers
 
 
-/*
-===============
-R_TransformDlights
-
-Transforms the origins of an array of dlights.
-Used by both the front end (for DlightBmodel) and
-the back end (before doing the lighting calculation)
-===============
-*/
+// Transforms the origins of an array of dlights.
+//	Used by both the front end (for DlightBmodel) and the back end (before doing the lighting calculation)
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or) {
 	int		i;
 	vector3	temp;
@@ -51,13 +44,7 @@ void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or) {
 	}
 }
 
-/*
-=============
-R_DlightBmodel
-
-Determine which dynamic lights may effect this bmodel
-=============
-*/
+// Determine which dynamic lights may effect this bmodel
 void R_DlightBmodel( bmodel_t *bmodel ) {
 	int			i, j;
 	dlight_t	*dl;
@@ -99,23 +86,15 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 
 
 /*
-=============================================================================
 
-LIGHT SAMPLING
+	LIGHT SAMPLING
 
-=============================================================================
 */
 
 extern	cvar_t	*r_ambientScale;
 extern	cvar_t	*r_directedScale;
 extern	cvar_t	*r_debugLight;
 
-/*
-=================
-R_SetupEntityLightingGrid
-
-=================
-*/
 static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	vector3	lightOrigin;
 	int		pos[3];
@@ -233,12 +212,6 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	VectorNormalize2( &direction, &ent->lightDir );
 }
 
-
-/*
-===============
-LogLight
-===============
-*/
 static void LogLight( trRefEntity_t *ent ) {
 	float max1, max2;
 
@@ -256,14 +229,7 @@ static void LogLight( trRefEntity_t *ent ) {
 	ri->Printf( PRINT_ALL, "amb:%.2f  dir:%.2f\n", max1, max2 );
 }
 
-/*
-=================
-R_SetupEntityLighting
-
-Calculates all the lighting values that will be used
-by the Calc_* functions
-=================
-*/
+// Calculates all the lighting values that will be used by the Calc_* functions
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	int				i;
 	dlight_t		*dl;
@@ -364,11 +330,6 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	ent->lightDir.z = DotProduct( &lightDir, &ent->e.axis[2] );
 }
 
-/*
-=================
-R_LightForPoint
-=================
-*/
 int R_LightForPoint( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir )
 {
 	trRefEntity_t ent;

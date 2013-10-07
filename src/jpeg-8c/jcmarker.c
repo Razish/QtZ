@@ -105,7 +105,7 @@ typedef my_marker_writer * my_marker_ptr;
  * points where markers will be written.
  */
 
-LOCAL(void)
+LOCAL( void )
 emit_byte (j_compress_ptr cinfo, int val)
 /* Emit a byte */
 {
@@ -119,7 +119,7 @@ emit_byte (j_compress_ptr cinfo, int val)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_marker (j_compress_ptr cinfo, JPEG_MARKER mark)
 /* Emit a marker code */
 {
@@ -128,7 +128,7 @@ emit_marker (j_compress_ptr cinfo, JPEG_MARKER mark)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_2bytes (j_compress_ptr cinfo, int value)
 /* Emit a 2-byte integer; these are always MSB first in JPEG files */
 {
@@ -182,7 +182,7 @@ emit_dqt (j_compress_ptr cinfo, int index)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_dht (j_compress_ptr cinfo, int index, boolean is_ac)
 /* Emit a DHT marker */
 {
@@ -220,7 +220,7 @@ emit_dht (j_compress_ptr cinfo, int index, boolean is_ac)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_dac (j_compress_ptr cinfo)
 /* Emit a DAC marker */
 /* Since the useful info is so small, we want to emit all the tables in */
@@ -269,7 +269,7 @@ emit_dac (j_compress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_dri (j_compress_ptr cinfo)
 /* Emit a DRI marker */
 {
@@ -281,7 +281,7 @@ emit_dri (j_compress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_sof (j_compress_ptr cinfo, JPEG_MARKER code)
 /* Emit a SOF marker */
 {
@@ -312,7 +312,7 @@ emit_sof (j_compress_ptr cinfo, JPEG_MARKER code)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_sos (j_compress_ptr cinfo)
 /* Emit a SOS marker */
 {
@@ -347,7 +347,7 @@ emit_sos (j_compress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_pseudo_sos (j_compress_ptr cinfo)
 /* Emit a pseudo SOS marker */
 {
@@ -363,7 +363,7 @@ emit_pseudo_sos (j_compress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_jfif_app0 (j_compress_ptr cinfo)
 /* Emit a JFIF-compliant APP0 marker */
 {
@@ -398,7 +398,7 @@ emit_jfif_app0 (j_compress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 emit_adobe_app14 (j_compress_ptr cinfo)
 /* Emit an Adobe APP14 marker */
 {
@@ -452,7 +452,7 @@ emit_adobe_app14 (j_compress_ptr cinfo)
  * Counting the parameter bytes properly is the caller's responsibility.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_marker_header (j_compress_ptr cinfo, int marker, unsigned int datalen)
 /* Emit an arbitrary marker header */
 {
@@ -464,7 +464,7 @@ write_marker_header (j_compress_ptr cinfo, int marker, unsigned int datalen)
   emit_2bytes(cinfo, (int) (datalen + 2));	/* total length */
 }
 
-METHODDEF(void)
+METHODDEF( void )
 write_marker_byte (j_compress_ptr cinfo, int val)
 /* Emit one byte of marker parameters following write_marker_header */
 {
@@ -483,7 +483,7 @@ write_marker_byte (j_compress_ptr cinfo, int val)
  * jpeg_start_compress returns.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_file_header (j_compress_ptr cinfo)
 {
   my_marker_ptr marker = (my_marker_ptr) cinfo->marker;
@@ -508,7 +508,7 @@ write_file_header (j_compress_ptr cinfo)
  * try to error-check the quant table numbers as soon as they see the SOF.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_frame_header (j_compress_ptr cinfo)
 {
   int ci, prec;
@@ -572,7 +572,7 @@ write_frame_header (j_compress_ptr cinfo)
  * Compressed data will be written following the SOS.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_scan_header (j_compress_ptr cinfo)
 {
   my_marker_ptr marker = (my_marker_ptr) cinfo->marker;
@@ -616,7 +616,7 @@ write_scan_header (j_compress_ptr cinfo)
  * Write datastream trailer.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_file_trailer (j_compress_ptr cinfo)
 {
   emit_marker(cinfo, M_EOI);
@@ -630,7 +630,7 @@ write_file_trailer (j_compress_ptr cinfo)
  * emitted.  Note that all tables will be marked sent_table = TRUE at exit.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 write_tables_only (j_compress_ptr cinfo)
 {
   int i;
@@ -639,7 +639,7 @@ write_tables_only (j_compress_ptr cinfo)
 
   for (i = 0; i < NUM_QUANT_TBLS; i++) {
     if (cinfo->quant_tbl_ptrs[i] != NULL)
-      (void) emit_dqt(cinfo, i);
+    ( void ) emit_dqt(cinfo, i);
   }
 
   if (! cinfo->arith_code) {
@@ -659,7 +659,7 @@ write_tables_only (j_compress_ptr cinfo)
  * Initialize the marker writer module.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_marker_writer (j_compress_ptr cinfo)
 {
   my_marker_ptr marker;

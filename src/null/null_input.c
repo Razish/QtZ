@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void IN_Init( void ) {
 }
 
-void IN_Frame (void) {
+void IN_Frame( void ) {
 }
 
 void IN_Shutdown( void ) {
@@ -32,6 +32,6 @@ void IN_Shutdown( void ) {
 void IN_Restart( void ) {
 }
 
-void Sys_SendKeyEvents (void) {
+void Sys_SendKeyEvents( void ) {
 }
 

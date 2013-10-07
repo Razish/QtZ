@@ -20,13 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=======================================================================
-
-USER INTERFACE MAIN
-
-=======================================================================
-*/
 
 #include "ui_local.h"
 
@@ -114,13 +107,8 @@ void UI_DrawTopBottom2(float x, float y, float w, float h, float size) {
 	trap->R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap->R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
-/*
-================
-UI_DrawRect
 
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 void UI_DrawRect2( float x, float y, float width, float height, float size, const vector4 *color ) {
 	trap->R_SetColor( color );
 
@@ -445,12 +433,6 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4
 
 }
 
-/*
-=================
-UI_Refresh
-=================
-*/
-
 void UI_DrawCenteredPic(qhandle_t image, int w, int h) {
 	float x, y;
 	x = (SCREEN_WIDTH - w) / 2;
@@ -506,11 +488,6 @@ struct serverStatusCvar_s {
 	{ NULL, NULL }
 };
 
-/*
-==================
-UI_SortServerStatusInfo
-==================
-*/
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
 	char *tmp1, *tmp2;
@@ -542,11 +519,6 @@ static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	}
 }
 
-/*
-==================
-UI_GetServerStatusInfo
-==================
-*/
 static int UI_GetServerStatusInfo( char *serverAddress, serverStatusInfo_t *info ) {
 	char *p, *score, *ping, *name;
 	int i;
@@ -641,11 +613,6 @@ static int UI_GetServerStatusInfo( char *serverAddress, serverStatusInfo_t *info
 	return qfalse;
 }
 
-/*
-==================
-UI_BuildServerStatus
-==================
-*/
 static void UI_BuildServerStatus( qboolean force ) {
 	if ( uiInfo.nextFindPlayerRefresh )
 		return;
@@ -769,11 +736,6 @@ static void UI_FeederSelection(float feederID, int index) {
 	}
 }
 
-/*
-==================
-UI_BuildFindPlayerList
-==================
-*/
 static void UI_BuildFindPlayerList(qboolean force) {
 	static int numFound, numTimeOuts;
 	int i, j, resend;
@@ -907,11 +869,6 @@ static void UI_BuildFindPlayerList(qboolean force) {
 	}
 }
 
-/*
-==================
-UI_RemoveServerFromDisplayList
-==================
-*/
 static void UI_RemoveServerFromDisplayList( int num ) {
 	int i, j;
 
@@ -926,11 +883,6 @@ static void UI_RemoveServerFromDisplayList( int num ) {
 	}
 }
 
-/*
-==================
-UI_InsertServerIntoDisplayList
-==================
-*/
 static void UI_InsertServerIntoDisplayList( int num, int position ) {
 	int i;
 
@@ -944,11 +896,6 @@ static void UI_InsertServerIntoDisplayList( int num, int position ) {
 	uiInfo.serverStatus.displayServers[position] = num;
 }
 
-/*
-==================
-UI_BinaryServerInsertion
-==================
-*/
 static void UI_BinaryServerInsertion( int num ) {
 	int mid, offset, res, len;
 
@@ -981,11 +928,6 @@ static void UI_BinaryServerInsertion( int num ) {
 	UI_InsertServerIntoDisplayList( num, offset );
 }
 
-/*
-==================
-UI_BuildServerDisplayList
-==================
-*/
 static void UI_BuildServerDisplayList( qboolean force ) {
 	int i, count, clients, maxClients, ping, game, visible;
 	char info[MAX_STRING_CHARS];
@@ -1102,11 +1044,6 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	}
 }
 
-/*
-=================
-UI_StopServerRefresh
-=================
-*/
 static void UI_StopServerRefresh( void ) {
 	int count;
 
@@ -1121,11 +1058,6 @@ static void UI_StopServerRefresh( void ) {
 		Com_Printf( "%d servers not listed due to packet loss or pings higher than %d\n", count - uiInfo.serverStatus.numDisplayServers, (int)trap->Cvar_VariableValue( "cl_maxPing" ) );
 }
 
-/*
-=================
-UI_DoServerRefresh
-=================
-*/
 static void UI_DoServerRefresh( void ) {
 	qboolean wait = qfalse;
 
@@ -1210,11 +1142,6 @@ void UI_Refresh( int realtime )
 	}
 }
 
-/*
-=================
-UI_Shutdown
-=================
-*/
 void UI_Shutdown( void ) {
 	trap->LAN_SaveServersToCache();
 }
@@ -1530,7 +1457,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 	trap->PC_FreeSourceHandle( handle );
 }
 
-void UI_Load(void) {
+void UI_Load( void ) {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
 	char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
@@ -1927,11 +1854,6 @@ static void UI_DrawCrosshair(rectDef_t *rect, float scale, vector4 *color) {
 	trap->R_SetColor( NULL );
 }
 
-/*
-===============
-UI_BuildPlayerList
-===============
-*/
 static void UI_BuildPlayerList( void ) {
 	uiClientState_t	cs;
 	int		n, count, team, team2, playerTeamNumber;
@@ -2081,7 +2003,6 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vector4 *color, int text
 	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle);
 
 	// build null terminated extension strings
-	// TTimo: https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=399
 	// in TA this was not directly crashing, but displaying a nasty broken shader right in the middle
 	// brought down the string size to 1024, there's not much that can be shown on the screen anyway
 	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 1024);
@@ -2301,12 +2222,7 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 	return vis;
 }
 
-/*
-==================
-UI_MapCountByGameType
-==================
-*/
-static int UI_MapCountByGameType(void) {
+static int UI_MapCountByGameType( void ) {
 	int i=0, c=0;
 
 	for ( i=0; i<uiInfo.mapCount; i++ ) {
@@ -2408,11 +2324,6 @@ static void UI_UpdatePendingPings( void ) {
 
 }
 
-/*
-=================
-UI_StartServerRefresh
-=================
-*/
 static void UI_StartServerRefresh( qboolean full ) {
 	char	*ptr;
 	int		lanSource;
@@ -2680,20 +2591,10 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 	return qfalse;
 }
 
-/*
-=================
-UI_ServersQsortCompare
-=================
-*/
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
 	return trap->LAN_CompareServers( UI_SourceForLAN(), uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir, *(int*)arg1, *(int*)arg2);
 }
 
-/*
-=================
-UI_ServersSort
-=================
-*/
 void UI_ServersSort(int column, qboolean force) {
 
 	if ( !force ) {
@@ -2706,11 +2607,6 @@ void UI_ServersSort(int column, qboolean force) {
 	qsort( &uiInfo.serverStatus.displayServers[0], uiInfo.serverStatus.numDisplayServers, sizeof(int), UI_ServersQsortCompare);
 }
 
-/*
-===============
-UI_LoadMods
-===============
-*/
 static void UI_LoadMods( void ) {
 	int		numdirs;
 	char	dirlist[2048];
@@ -2736,11 +2632,6 @@ static void UI_LoadMods( void ) {
 
 }
 
-/*
-===============
-UI_LoadMovies
-===============
-*/
 static void UI_LoadMovies( void ) {
 	char	movielist[4096];
 	char	*moviename;
@@ -2769,11 +2660,6 @@ static void UI_LoadMovies( void ) {
 
 #define NAMEBUFSIZE (MAX_DEMOS * 32)
 
-/*
-===============
-UI_LoadDemos
-===============
-*/
 static void UI_LoadDemosInDirectory( const char *directory )
 {
 	char			demolist[MAX_DEMOLIST] = {0}, *demoname = NULL;
@@ -2961,13 +2847,7 @@ static void UI_Update(const char *name) {
 	}
 }
 
-/*
-===============
-UI_DeferMenuScript
-
-Return true if the menu script should be deferred for later
-===============
-*/
+// Return true if the menu script should be deferred for later
 static qboolean UI_DeferMenuScript ( char **args )
 {
 	const char* name;
@@ -3318,12 +3198,7 @@ qboolean UI_hasSkinForBase(const char *base, const char *team) {
 	return qfalse;
 }
 
-/*
-==================
-UI_MapCountByTeam
-==================
-*/
-static int UI_HeadCountByTeam(void) {
+static int UI_HeadCountByTeam( void ) {
 	static int init = 0;
 	int i, c=0;
 
@@ -3340,11 +3215,6 @@ static int UI_HeadCountByTeam(void) {
 	return c;
 }
 
-/*
-==================
-UI_FeederCount
-==================
-*/
 static int UI_FeederCount(float feederID) {
 	if (feederID == FEEDER_HEADS) {
 		return UI_HeadCountByTeam();
@@ -3623,12 +3493,6 @@ static void UI_RunCinematicFrame(int handle) {
 }
 
 
-
-/*
-=================
-PlayerModel_BuildList
-=================
-*/
 static void UI_BuildQ3Model_List( void )
 {
 	unsigned int	numdirs, numfiles;
@@ -3690,12 +3554,6 @@ static void UI_BuildQ3Model_List( void )
 
 static float UI_GetValue( int ownerdraw ) { return 0.0f; }
 
-/*
-================
-cvars
-================
-*/
-
 #define XCVAR_DECL
 	#include "ui_xcvar.h"
 #undef XCVAR_DECL
@@ -3717,12 +3575,6 @@ static cvarTable_t cvarTable[] = {
 
 static const int cvarTableSize = ARRAY_LEN( cvarTable );
 
-
-/*
-=================
-UI_RegisterCvars
-=================
-*/
 static void UI_RegisterCvars( void ) {
 	int i = 0;
 	cvarTable_t *cv = NULL;
@@ -3739,11 +3591,6 @@ static void UI_RegisterCvars( void ) {
 
 static void UI_GetTeamColor( vector4 *color ) {}
 
-/*
-=================
-UI_Init
-=================
-*/
 void UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 
@@ -3869,12 +3716,6 @@ void UI_Init( qboolean inGameLoad ) {
 	trap->Cvar_Get( "debug_protocol", "", 0, NULL, NULL );
 }
 
-
-/*
-=================
-UI_KeyEvent
-=================
-*/
 void UI_KeyEvent( int key, qboolean down ) {
 
 	if (Menu_Count() > 0) {
@@ -3897,11 +3738,6 @@ void UI_KeyEvent( int key, qboolean down ) {
 	//}
 }
 
-/*
-=================
-UI_MouseEvent
-=================
-*/
 void UI_MouseEvent( int dx, int dy )
 {
 	// update mouse screen position
@@ -4153,14 +3989,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	}
 }
 
-/*
-========================
-UI_DrawConnectScreen
-
-This will also be overlaid on the cgame info screen during loading
-to prevent it from blinking away too rapidly on local or lan games.
-========================
-*/
+// This will also be overlaid on the cgame info screen during loading to prevent it from blinking away too rapidly on local or lan games.
 static void UI_DrawConnectScreen( qboolean overlay ) {
 	char			*s;
 	uiClientState_t	cstate;
@@ -4244,14 +4073,7 @@ static void UI_DrawConnectScreen( qboolean overlay ) {
 	// password required / connection rejected information goes here
 }
 
-/*
-============
-GetModuleAPI
-============
-*/
-
 uiImport_t *trap = NULL;
-
 Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
 {
 	static uiExport_t uie = {0};

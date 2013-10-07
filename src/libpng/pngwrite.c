@@ -2291,10 +2291,10 @@ png_image_write_to_file(png_imagep image, const char *file_name,
                else
                {
                   error = errno; /* from fflush or ferror */
-                  (void)fclose(fp);
+                ( void )fclose(fp);
                }
 
-               (void)remove(file_name);
+             ( void )remove(file_name);
                /* The image has already been cleaned up; this is just used to
                 * set the error (because the original write succeeded).
                 */
@@ -2304,8 +2304,8 @@ png_image_write_to_file(png_imagep image, const char *file_name,
             else
             {
                /* Clean up: just the opened file. */
-               (void)fclose(fp);
-               (void)remove(file_name);
+             ( void )fclose(fp);
+             ( void )remove(file_name);
                return 0;
             }
          }

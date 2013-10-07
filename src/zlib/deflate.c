@@ -86,7 +86,7 @@ local void putShortMSB    OF((deflate_state *s, uInt b));
 local void flush_pending  OF((z_streamp strm));
 local int read_buf        OF((z_streamp strm, Bytef *buf, unsigned size));
 #ifdef ASMV
-      void match_init OF((void)); /* asm code initialization */
+      void match_init OF(( void )); /* asm code initialization */
       uInt longest_match  OF((deflate_state *s, IPos cur_match));
 #else
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));

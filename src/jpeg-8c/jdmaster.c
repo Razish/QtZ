@@ -84,7 +84,7 @@ use_merged_upsample (j_decompress_ptr cinfo)
  * Also note that it may be called before the master module is initialized!
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_calc_output_dimensions (j_decompress_ptr cinfo)
 /* Do computations that are needed before master selection phase.
  * This function is used for full decompression.
@@ -227,7 +227,7 @@ jpeg_calc_output_dimensions (j_decompress_ptr cinfo)
  * enough and used often enough to justify this.
  */
 
-LOCAL(void)
+LOCAL( void )
 prepare_range_limit_table (j_decompress_ptr cinfo)
 /* Allocate and fill in the sample_range_limit table */
 {
@@ -267,7 +267,7 @@ prepare_range_limit_table (j_decompress_ptr cinfo)
  * settings.
  */
 
-LOCAL(void)
+LOCAL( void )
 master_selection (j_decompress_ptr cinfo)
 {
   my_master_ptr master = (my_master_ptr) cinfo->master;
@@ -410,7 +410,7 @@ master_selection (j_decompress_ptr cinfo)
  * (In the latter case, jdapistd.c will crank the pass to completion.)
  */
 
-METHODDEF(void)
+METHODDEF( void )
 prepare_for_output_pass (j_decompress_ptr cinfo)
 {
   my_master_ptr master = (my_master_ptr) cinfo->master;
@@ -470,7 +470,7 @@ prepare_for_output_pass (j_decompress_ptr cinfo)
  * Finish up at end of an output pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 finish_output_pass (j_decompress_ptr cinfo)
 {
   my_master_ptr master = (my_master_ptr) cinfo->master;
@@ -487,7 +487,7 @@ finish_output_pass (j_decompress_ptr cinfo)
  * Switch to a new external colormap between output passes.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_new_colormap (j_decompress_ptr cinfo)
 {
   my_master_ptr master = (my_master_ptr) cinfo->master;
@@ -515,7 +515,7 @@ jpeg_new_colormap (j_decompress_ptr cinfo)
  * This is performed at the start of jpeg_start_decompress.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_master_decompress (j_decompress_ptr cinfo)
 {
   my_master_ptr master;

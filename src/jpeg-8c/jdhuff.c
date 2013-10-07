@@ -319,7 +319,7 @@ static const int jpeg_zigzag_order2[2][2] = {
  * This routine also performs some validation checks on the table.
  */
 
-LOCAL(void)
+LOCAL( void )
 jpeg_make_d_derived_tbl (j_decompress_ptr cinfo, boolean isDC, int tblno,
 			 d_derived_tbl ** pdtbl)
 {
@@ -1306,7 +1306,7 @@ decode_mcu (j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * Initialize for a Huffman-compressed scan.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass_huff_decoder (j_decompress_ptr cinfo)
 {
   huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
@@ -1505,7 +1505,7 @@ start_pass_huff_decoder (j_decompress_ptr cinfo)
  * Module initialization routine for Huffman entropy decoding.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_huff_decoder (j_decompress_ptr cinfo)
 {
   huff_entropy_ptr entropy;

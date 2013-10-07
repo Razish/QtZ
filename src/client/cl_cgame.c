@@ -41,30 +41,15 @@ extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
 extern qboolean getCameraInfo(int time, vector3 *origin, vector3 *angles);
 
-/*
-====================
-CL_GetGameState
-====================
-*/
 void CL_GetGameState( gameState_t *gs ) {
 	*gs = cl.gameState;
 }
 
-/*
-====================
-CL_GetGlconfig
-====================
-*/
 void CL_GetGlconfig( glconfig_t *glconfig ) {
 	*glconfig = cls.glconfig;
 }
 
 
-/*
-====================
-CL_GetUserCmd
-====================
-*/
 qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -88,12 +73,6 @@ int CL_GetCurrentCmdNumber( void ) {
 	return cl.cmdNumber;
 }
 
-
-/*
-====================
-CL_GetParseEntityState
-====================
-*/
 qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
@@ -110,21 +89,11 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	return qtrue;
 }
 
-/*
-====================
-CL_GetCurrentSnapshotNumber
-====================
-*/
 void	CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
 }
 
-/*
-====================
-CL_GetSnapshot
-====================
-*/
 qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
@@ -173,21 +142,11 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	return qtrue;
 }
 
-/*
-=====================
-CL_SetUserCmdValue
-=====================
-*/
 void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 	cl.cgameUserCmdValue = userCmdValue;
 	cl.cgameSensitivity = sensitivityScale;
 }
 
-/*
-=====================
-CL_ConfigstringModified
-=====================
-*/
 void CL_ConfigstringModified( void ) {
 	char		*old, *s;
 	int			i, index;
@@ -245,13 +204,7 @@ void CL_ConfigstringModified( void ) {
 }
 
 
-/*
-===================
-CL_GetServerCommand
-
-Set up argc/argv for the given command
-===================
-*/
+// Set up argc/argv for the given command
 qboolean CL_GetServerCommand( int serverCommandNumber ) {
 	char	*s;
 	char	*cmd;
@@ -284,7 +237,6 @@ rescan:
 	argc = Cmd_Argc();
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
-		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=552
 		// allow server to indicate why they were disconnected
 		if ( argc >= 2 )
 			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected - %s", Cmd_Argv( 1 ) );
@@ -341,25 +293,13 @@ rescan:
 }
 
 
-/*
-====================
-CL_CM_LoadMap
-
-Just adds default parameters that cgame doesn't need to know about
-====================
-*/
+// Just adds default parameters that cgame doesn't need to know about
 void CL_CM_LoadMap( const char *mapname ) {
 	int checksum;
 
 	CM_LoadMap( mapname, qtrue, &checksum );
 }
 
-/*
-====================
-CL_ShutdownCGame
-
-====================
-*/
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 	cls.cgameStarted = qfalse;
@@ -379,13 +319,7 @@ static int	FloatAsInt( float f ) {
 	return fi.i;
 }
 
-/*
-====================
-CL_InitCGame
-
-Should only be called by CL_StartHunkUsers
-====================
-*/
+// Should only be called by CL_StartHunkUsers
 
 void CL_InitCGame( void ) {
 	const char			*info;
@@ -476,7 +410,6 @@ void CL_InitCGame( void ) {
 	cgameTrap.R_RegisterSkin				= re->RegisterSkin;
 	cgameTrap.R_RegisterShader				= re->RegisterShader;
 	cgameTrap.R_RegisterShaderNoMip			= re->RegisterShaderNoMip;
-	cgameTrap.R_RemapShader					= re->RemapShader;
 	cgameTrap.R_RenderScene					= re->RenderScene;
 	cgameTrap.R_SetColor					= re->SetColor;
 	cgameTrap.GetGLConfig					= CL_GetGlconfig;
@@ -543,38 +476,18 @@ void CL_InitCGame( void ) {
 	Con_ClearNotify();
 }
 
-/*
-=====================
-CL_CGameRendering
-=====================
-*/
 void CL_CGameRendering( stereoFrame_t stereo ) {
 	cgame->DrawActiveFrame( cl.serverTime, stereo, clc.demoplaying );
 }
 
-
-/*
-=================
-CL_AdjustTimeDelta
-
-Adjust the clients view of server time.
-
-We attempt to have cl.serverTime exactly equal the server's view
-of time plus the timeNudge, but with variable latencies over
-the internet it will often need to drift a bit to match conditions.
-
-Our ideal time would be to have the adjusted time approach, but not pass,
-the very latest snapshot.
-
-Adjustments are only made when a new snapshot arrives with a rational
-latency, which keeps the adjustment process framerate independent and
-prevents massive overadjustment during times of significant packet loss
-or bursted delayed packets.
-=================
-*/
-
 #define	RESET_TIME	500
 
+// Adjust the clients view of server time.
+//	We attempt to have cl.serverTime exactly equal the server's view of time plus the timeNudge, but with
+//	variable latencies over the internet it will often need to drift a bit to match conditions.
+//	Our ideal time would be to have the adjusted time approach, but not pass, the very latest snapshot.
+//	Adjustments are only made when a new snapshot arrives with a rational latency, which keeps the adjustment process
+//	framerate independent and prevents massive overadjustment during times of significant packet loss or bursted delayed packets.
 void CL_AdjustTimeDelta( void ) {
 	int		newDelta;
 	int		deltaDelta;
@@ -624,12 +537,6 @@ void CL_AdjustTimeDelta( void ) {
 	}
 }
 
-
-/*
-==================
-CL_FirstSnapshot
-==================
-*/
 void CL_FirstSnapshot( void ) {
 	// ignore snapshots that don't have entities
 	if ( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) {
@@ -704,11 +611,6 @@ void CL_FirstSnapshot( void ) {
 #endif
 }
 
-/*
-==================
-CL_SetCGameTime
-==================
-*/
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
 	if ( clc.state != CA_ACTIVE ) {

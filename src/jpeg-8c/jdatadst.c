@@ -60,7 +60,7 @@ typedef my_mem_destination_mgr * my_mem_dest_ptr;
  * before any data is actually written.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 init_destination (j_compress_ptr cinfo)
 {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
@@ -74,7 +74,7 @@ init_destination (j_compress_ptr cinfo)
   dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 }
 
-METHODDEF(void)
+METHODDEF( void )
 init_mem_destination (j_compress_ptr cinfo)
 {
   /* no work necessary here */
@@ -159,7 +159,7 @@ empty_mem_output_buffer (j_compress_ptr cinfo)
  * for error exit.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 term_destination (j_compress_ptr cinfo)
 {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
@@ -176,7 +176,7 @@ term_destination (j_compress_ptr cinfo)
     ERREXIT(cinfo, JERR_FILE_WRITE);
 }
 
-METHODDEF(void)
+METHODDEF( void )
 term_mem_destination (j_compress_ptr cinfo)
 {
   my_mem_dest_ptr dest = (my_mem_dest_ptr) cinfo->dest;
@@ -192,7 +192,7 @@ term_mem_destination (j_compress_ptr cinfo)
  * for closing it after finishing compression.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
 {
   my_dest_ptr dest;
@@ -228,7 +228,7 @@ jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
  * freeing the requested memory.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_mem_dest (j_compress_ptr cinfo,
 	       unsigned char ** outbuffer, unsigned long * outsize)
 {

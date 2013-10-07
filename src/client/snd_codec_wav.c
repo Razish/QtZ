@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include "snd_codec.h"
 
-/*
-=================
-FGetLittleLong
-=================
-*/
 static int FGetLittleLong( fileHandle_t f ) {
 	int		v;
 
@@ -37,11 +32,6 @@ static int FGetLittleLong( fileHandle_t f ) {
 	return LittleLong( v);
 }
 
-/*
-=================
-FGetLittleShort
-=================
-*/
 static short FGetLittleShort( fileHandle_t f ) {
 	short	v;
 
@@ -50,11 +40,6 @@ static short FGetLittleShort( fileHandle_t f ) {
 	return LittleShort( v);
 }
 
-/*
-=================
-S_ReadChunkInfo
-=================
-*/
 static int S_ReadChunkInfo(fileHandle_t f, char *name)
 {
 	int len, r;
@@ -74,13 +59,7 @@ static int S_ReadChunkInfo(fileHandle_t f, char *name)
 	return len;
 }
 
-/*
-=================
-S_FindRIFFChunk
-
-Returns the length of the data in the chunk, or -1 if not found
-=================
-*/
+// Returns the length of the data in the chunk, or -1 if not found
 static int S_FindRIFFChunk( fileHandle_t f, char *chunk ) {
 	char	name[5];
 	int		len;
@@ -100,11 +79,6 @@ static int S_FindRIFFChunk( fileHandle_t f, char *chunk ) {
 	return -1;
 }
 
-/*
-=================
-S_ByteSwapRawSamples
-=================
-*/
 static void S_ByteSwapRawSamples( int samples, int width, int s_channels, const byte *data ) {
 	int		i;
 
@@ -123,11 +97,6 @@ static void S_ByteSwapRawSamples( int samples, int width, int s_channels, const 
 	}
 }
 
-/*
-=================
-S_ReadRIFFHeader
-=================
-*/
 static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 {
 	char dump[16];
@@ -190,11 +159,6 @@ snd_codec_t wav_codec =
 	NULL
 };
 
-/*
-=================
-S_WAV_CodecLoad
-=================
-*/
 void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 {
 	fileHandle_t file;
@@ -235,11 +199,6 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	return buffer;
 }
 
-/*
-=================
-S_WAV_CodecOpenStream
-=================
-*/
 snd_stream_t *S_WAV_CodecOpenStream(const char *filename)
 {
 	snd_stream_t *rv;
@@ -259,21 +218,11 @@ snd_stream_t *S_WAV_CodecOpenStream(const char *filename)
 	return rv;
 }
 
-/*
-=================
-S_WAV_CodecCloseStream
-=================
-*/
 void S_WAV_CodecCloseStream(snd_stream_t *stream)
 {
 	S_CodecUtilClose(&stream);
 }
 
-/*
-=================
-S_WAV_CodecReadStream
-=================
-*/
 int S_WAV_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
 {
 	int remaining = stream->info.size - stream->pos;

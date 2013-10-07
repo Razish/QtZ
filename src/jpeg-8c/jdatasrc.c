@@ -41,7 +41,7 @@ typedef my_source_mgr * my_src_ptr;
  * before any data is actually read.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 init_source (j_decompress_ptr cinfo)
 {
   my_src_ptr src = (my_src_ptr) cinfo->src;
@@ -53,7 +53,7 @@ init_source (j_decompress_ptr cinfo)
   src->start_of_file = TRUE;
 }
 
-METHODDEF(void)
+METHODDEF( void )
 init_mem_source (j_decompress_ptr cinfo)
 {
   /* no work necessary here */
@@ -151,7 +151,7 @@ fill_mem_input_buffer (j_decompress_ptr cinfo)
  * buffer is the application writer's problem.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 {
   struct jpeg_source_mgr * src = cinfo->src;
@@ -163,7 +163,7 @@ skip_input_data (j_decompress_ptr cinfo, long num_bytes)
   if (num_bytes > 0) {
     while (num_bytes > (long) src->bytes_in_buffer) {
       num_bytes -= (long) src->bytes_in_buffer;
-      (void) (*src->fill_input_buffer) (cinfo);
+    ( void ) (*src->fill_input_buffer) (cinfo);
       /* note we assume that fill_input_buffer will never return FALSE,
        * so suspension need not be handled.
        */
@@ -192,7 +192,7 @@ skip_input_data (j_decompress_ptr cinfo, long num_bytes)
  * for error exit.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 term_source (j_decompress_ptr cinfo)
 {
   /* no work necessary here */
@@ -205,7 +205,7 @@ term_source (j_decompress_ptr cinfo)
  * for closing it after finishing decompression.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
 {
   my_src_ptr src;
@@ -244,7 +244,7 @@ jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
  * The buffer must contain the whole JPEG data.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_mem_src (j_decompress_ptr cinfo,
 	      unsigned char * inbuffer, unsigned long insize)
 {

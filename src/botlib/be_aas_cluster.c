@@ -61,7 +61,7 @@ int nofaceflood = qtrue;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveClusterAreas(void)
+void AAS_RemoveClusterAreas( void )
 {
 	int i;
 
@@ -387,7 +387,7 @@ void AAS_NumberClusterAreas(int clusternum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FindClusters(void)
+int AAS_FindClusters( void )
 {
 	int i;
 	aas_cluster_t *cluster;
@@ -437,7 +437,7 @@ int AAS_FindClusters(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CreatePortals(void)
+void AAS_CreatePortals( void )
 {
 	int i;
 	aas_portal_t *portal;
@@ -467,7 +467,7 @@ void AAS_CreatePortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_MapContainsTeleporters(void)
+int AAS_MapContainsTeleporters( void )
 {
 	bsp_entity_t *entities, *ent;
 	char *classname;
@@ -918,7 +918,7 @@ int AAS_CheckAreaForPossiblePortals(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FindPossiblePortals(void)
+void AAS_FindPossiblePortals( void )
 {
 	int i, numpossibleportals;
 
@@ -935,7 +935,7 @@ void AAS_FindPossiblePortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveAllPortals(void)
+void AAS_RemoveAllPortals( void )
 {
 	int i;
 
@@ -1004,7 +1004,7 @@ void AAS_FloodCluster_r(int areanum, int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveTeleporterPortals(void)
+void AAS_RemoveTeleporterPortals( void )
 {
 	int i, j, areanum;
 
@@ -1062,7 +1062,7 @@ void AAS_FloodClusterReachabilities(int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveNotClusterClosingPortals(void)
+void AAS_RemoveNotClusterClosingPortals( void )
 {
 	int i, j, k, facenum, otherareanum, nonclosingportals;
 	aas_area_t *area;
@@ -1136,7 +1136,7 @@ void AAS_RemoveNotClusterClosingPortals(void)
 // Changes Globals:		-
 //===========================================================================
 
-void AAS_RemoveNotClusterClosingPortals(void)
+void AAS_RemoveNotClusterClosingPortals( void )
 {
 	int i, j, facenum, otherareanum, nonclosingportals, numseperatedclusters;
 	aas_area_t *area;
@@ -1210,7 +1210,7 @@ void AAS_RemoveNotClusterClosingPortals(void)
 // Changes Globals:		-
 //===========================================================================
 
-void AAS_AddTeleporterPortals(void)
+void AAS_AddTeleporterPortals( void )
 {
 	int j, area2num, facenum, otherareanum;
 	char *target, *targetname, *classname;
@@ -1347,7 +1347,7 @@ void AAS_AddTeleporterPortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_AddTeleporterPortals(void)
+void AAS_AddTeleporterPortals( void )
 {
 	int i, j, areanum;
 
@@ -1370,7 +1370,7 @@ void AAS_AddTeleporterPortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_TestPortals(void)
+int AAS_TestPortals( void )
 {
 	int i;
 	aas_portal_t *portal;
@@ -1399,7 +1399,7 @@ int AAS_TestPortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CountForcedClusterPortals(void)
+void AAS_CountForcedClusterPortals( void )
 {
 	int num, i;
 
@@ -1420,7 +1420,7 @@ void AAS_CountForcedClusterPortals(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CreateViewPortals(void)
+void AAS_CreateViewPortals( void )
 {
 	int i;
 
@@ -1438,7 +1438,7 @@ void AAS_CreateViewPortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetViewPortalsAsClusterPortals(void)
+void AAS_SetViewPortalsAsClusterPortals( void )
 {
 	int i;
 
@@ -1456,7 +1456,7 @@ void AAS_SetViewPortalsAsClusterPortals(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitClustering(void)
+void AAS_InitClustering( void )
 {
 	int i, removedPortalAreas;
 	int n, total, numreachabilityareas;

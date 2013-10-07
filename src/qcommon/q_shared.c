@@ -134,12 +134,6 @@ int Q_bumpi( int min, int value ) {
 	return (value < min) ? min : value;
 }
 
-
-/*
-============
-COM_SkipPath
-============
-*/
 char *COM_SkipPath (char *pathname)
 {
 	char	*last;
@@ -154,11 +148,6 @@ char *COM_SkipPath (char *pathname)
 	return last;
 }
 
-/*
-============
-COM_GetExtension
-============
-*/
 const char *COM_GetExtension( const char *name )
 {
 	const char *dot = strrchr(name, '.'), *slash;
@@ -168,12 +157,6 @@ const char *COM_GetExtension( const char *name )
 		return "";
 }
 
-
-/*
-============
-COM_StripExtension
-============
-*/
 void COM_StripExtension( const char *in, char *out, size_t destsize )
 {
 	const char *dot = strrchr(in, '.'), *slash;
@@ -183,13 +166,7 @@ void COM_StripExtension( const char *in, char *out, size_t destsize )
 		Q_strncpyz(out, in, destsize);
 }
 
-/*
-============
-COM_CompareExtension
-
-string compare the end of the strings and return qtrue if strings match
-============
-*/
+// string compare the end of the strings and return qtrue if strings match
 qboolean COM_CompareExtension(const char *in, const char *ext)
 {
 	size_t inlen, extlen;
@@ -208,14 +185,7 @@ qboolean COM_CompareExtension(const char *in, const char *ext)
 	return qfalse;
 }
 
-/*
-==================
-COM_DefaultExtension
-
-if path doesn't have an extension, then append
- the specified one (which should include the .)
-==================
-*/
+// if path doesn't have an extension, then append the specified one (which should include the .)
 void COM_DefaultExtension( char *path, size_t maxSize, const char *extension )
 {
 	const char *dot = strrchr(path, '.'), *slash;
@@ -232,35 +202,6 @@ QINLINE int PlaneTypeForNormal( vector3 *normal ) {
 	else if ( normal->z == 1.0f )	return PLANE_Z;
 	else							return PLANE_NON_AXIAL;
 }
-
-/*
-============================================================================
-
-					BYTE ORDER FUNCTIONS
-
-============================================================================
-*/
-/*
-// can't just use function pointers, or dll linkage can
-// mess up when qcommon is included in multiple places
-static short	(*_BigShort) (short l);
-static short	(*_LittleShort) (short l);
-static int		(*_BigLong) (int l);
-static int		(*_LittleLong) (int l);
-static qint64_t	(*_BigLong64) (qint64_t l);
-static qint64_t	(*_LittleLong64) (qint64_t l);
-static float	(*_BigFloat) (const float *l);
-static float	(*_LittleFloat) (const float *l);
-
-short	BigShort(short l){return _BigShort(l);}
-short	LittleShort(short l) {return _LittleShort(l);}
-int		BigLong (int l) {return _BigLong(l);}
-int		LittleLong (int l) {return _LittleLong(l);}
-qint64_t 	BigLong64 (qint64_t l) {return _BigLong64(l);}
-qint64_t 	LittleLong64 (qint64_t l) {return _LittleLong64(l);}
-float	BigFloat (const float *l) {return _BigFloat(l);}
-float	LittleFloat (const float *l) {return _LittleFloat(l);}
-*/
 
 void CopyShortSwap(void *dest, void *src)
 {
@@ -348,48 +289,9 @@ float FloatNoSwap (const float *f)
 }
 
 /*
-================
-Swap_Init
-================
-*/
-/*
-void Swap_Init (void)
-{
-	byte	swaptest[2] = {1,0};
 
-// set the byte swapping variables in a portable manner	
-	if ( *(short *)swaptest == 1)
-	{
-		_BigShort = ShortSwap;
-		_LittleShort = ShortNoSwap;
-		_BigLong = LongSwap;
-		_LittleLong = LongNoSwap;
-		_BigLong64 = Long64Swap;
-		_LittleLong64 = Long64NoSwap;
-		_BigFloat = FloatSwap;
-		_LittleFloat = FloatNoSwap;
-	}
-	else
-	{
-		_BigShort = ShortNoSwap;
-		_LittleShort = ShortSwap;
-		_BigLong = LongNoSwap;
-		_LittleLong = LongSwap;
-		_BigLong64 = Long64NoSwap;
-		_LittleLong64 = Long64Swap;
-		_BigFloat = FloatNoSwap;
-		_LittleFloat = FloatSwap;
-	}
+	PARSING
 
-}
-*/
-
-/*
-============================================================================
-
-PARSING
-
-============================================================================
 */
 
 static	char	com_token[MAX_TOKEN_CHARS];
@@ -440,18 +342,9 @@ void COM_ParseWarning( char *format, ... )
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
-/*
-==============
-COM_Parse
-
-Parse a token out of a string
-Will never return NULL, just empty strings
-
-If "allowLineBreaks" is qtrue then an empty
-string will be returned if the next token is
-a newline.
-==============
-*/
+// Parse a token out of a string
+//	Will never return NULL, just empty strings
+//	If "allowLineBreaks" is qtrue then an empty string will be returned if the next token is a newline.
 const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 	int c;
 
@@ -648,65 +541,6 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	return com_token;
 }
 
-#if 0
-// no longer used
-/*
-===============
-COM_ParseInfos
-===============
-*/
-int COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] ) {
-	char	*token;
-	int		count;
-	char	key[MAX_TOKEN_CHARS];
-
-	count = 0;
-
-	while ( 1 ) {
-		token = COM_Parse( &buf );
-		if ( !token[0] ) {
-			break;
-		}
-		if ( strcmp( token, "{" ) ) {
-			Com_Printf( "Missing { in info file\n" );
-			break;
-		}
-
-		if ( count == max ) {
-			Com_Printf( "Max infos exceeded\n" );
-			break;
-		}
-
-		infos[count][0] = 0;
-		while ( 1 ) {
-			token = COM_ParseExt( &buf, qtrue );
-			if ( !token[0] ) {
-				Com_Printf( "Unexpected end of info file\n" );
-				break;
-			}
-			if ( !strcmp( token, "}" ) ) {
-				break;
-			}
-			Q_strncpyz( key, token, sizeof( key ) );
-
-			token = COM_ParseExt( &buf, qfalse );
-			if ( !token[0] ) {
-				strcpy( token, "<NULL>" );
-			}
-			Info_SetValueForKey( infos[count], key, token );
-		}
-		count++;
-	}
-
-	return count;
-}
-#endif
-
-/*
-===============
-COM_ParseString
-===============
-*/
 qboolean COM_ParseString( const char **data, const char **s ) 
 {
 //	*s = COM_ParseExt( data, qtrue );
@@ -719,11 +553,6 @@ qboolean COM_ParseString( const char **data, const char **s )
 	return qfalse;
 }
 
-/*
-===============
-COM_ParseInt
-===============
-*/
 qboolean COM_ParseInt( const char **data, int *i ) 
 {
 	const char	*token;
@@ -739,11 +568,6 @@ qboolean COM_ParseInt( const char **data, int *i )
 	return qfalse;
 }
 
-/*
-===============
-COM_ParseFloat
-===============
-*/
 qboolean COM_ParseFloat( const char **data, float *f ) 
 {
 	const char	*token;
@@ -759,11 +583,6 @@ qboolean COM_ParseFloat( const char **data, float *f )
 	return qfalse;
 }
 
-/*
-===============
-COM_ParseVec4
-===============
-*/
 qboolean COM_ParseVec4( const char **buffer, vector4 *c) 
 {
 	int i;
@@ -780,11 +599,6 @@ qboolean COM_ParseVec4( const char **buffer, vector4 *c)
 	return qfalse;
 }
 
-/*
-==================
-COM_MatchToken
-==================
-*/
 void COM_MatchToken( char **buf_p, char *match ) {
 	char	*token;
 
@@ -795,15 +609,9 @@ void COM_MatchToken( char **buf_p, char *match ) {
 }
 
 
-/*
-=================
-SkipBracedSection
-
-The next token should be an open brace or set depth to 1 if already parsed it.
-Skips until a matching close brace is found.
-Internal brace depths are properly skipped.
-=================
-*/
+// The next token should be an open brace or set depth to 1 if already parsed it.
+//	Skips until a matching close brace is found.
+//	Internal brace depths are properly skipped.
 qboolean SkipBracedSection( char **program, int depth ) {
 	char *token;
 
@@ -820,11 +628,6 @@ qboolean SkipBracedSection( char **program, int depth ) {
 	return (depth == 0);
 }
 
-/*
-=================
-SkipRestOfLine
-=================
-*/
 void SkipRestOfLine ( char **data ) {
 	char	*p;
 	int		c;
@@ -879,11 +682,6 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m) {
 	COM_MatchToken( buf_p, ")" );
 }
 
-/*
-===================
-Com_HexStrToInt
-===================
-*/
 int Com_HexStrToInt( const char *str ) {
 	if ( !str || !str[ 0 ] )
 		return -1;
@@ -917,11 +715,9 @@ int Com_HexStrToInt( const char *str ) {
 }
 
 /*
-============================================================================
 
-					LIBRARY REPLACEMENT FUNCTIONS
+	LIBRARY REPLACEMENT FUNCTIONS
 
-============================================================================
 */
 
 int Q_isprint( int c )
@@ -971,15 +767,8 @@ qboolean Q_isintegral( float f )
 }
 
 #ifdef _MSC_VER
-/*
-=============
-Q_vsnprintf
- 
-Special wrapper function for Microsoft's broken _vsnprintf() function.
-MinGW comes with its own snprintf() which is not broken.
-=============
-*/
-
+// Special wrapper function for Microsoft's broken _vsnprintf() function.
+//	MinGW comes with its own snprintf() which is not broken.
 size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	int retval;
@@ -1003,13 +792,7 @@ size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 }
 #endif
 
-/*
-=============
-Q_strncpyz
- 
-Safe strncpy that ensures a trailing zero
-=============
-*/
+// Safe strncpy that ensures a trailing zero
 void Q_strncpyz( char *dest, const char *src, size_t destsize ) {
   if ( !dest ) {
     Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
@@ -1322,17 +1105,10 @@ size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...)
 	return len;
 }
 
-/*
-============
-va
-
-does a varargs printf into a temp buffer, so I don't need to have
-varargs versions of all text functions.
-============
-*/
 #define VARARGS_BUFFERS		(4)
 #define VARARGS_MASK		(VARARGS_BUFFERS-1)
 
+// does a varargs printf into a temp buffer, so I don't need to have varargs versions of all text functions.
 char *va( char *format, ... ) {
 	static char buf[VARARGS_BUFFERS][32000]; // in case va is called by nested functions
 	static int	index = 0;
@@ -1346,44 +1122,27 @@ char *va( char *format, ... ) {
 	return s;
 }
 
-/*
-============
-Com_TruncateLongString
-
-Assumes buffer is atleast TRUNCATE_LENGTH big
-============
-*/
-void Com_TruncateLongString( char *buffer, const char *s )
-{
+// Assumes buffer is atleast TRUNCATE_LENGTH big
+void Com_TruncateLongString( char *buffer, size_t len, const char *s ) {
 	size_t length = strlen( s );
 
-	if( length <= TRUNCATE_LENGTH )
-		Q_strncpyz( buffer, s, TRUNCATE_LENGTH );
-	else
-	{
-		Q_strncpyz( buffer, s, ( TRUNCATE_LENGTH / 2 ) - 3 );
-		Q_strcat( buffer, TRUNCATE_LENGTH, " ... " );
-		Q_strcat( buffer, TRUNCATE_LENGTH, s + length - ( TRUNCATE_LENGTH / 2 ) + 3 );
+	if ( length <= len )
+		Q_strncpyz( buffer, s, len );
+	else {
+		Q_strncpyz( buffer, s, ( len / 2 ) - 3 );
+		Q_strcat( buffer, len, " ... " );
+		Q_strcat( buffer, len, s + length - ( len / 2 ) + 3 );
 	}
 }
 
 /*
-=====================================================================
 
-  INFO STRINGS
+	INFO STRINGS
 
-=====================================================================
 */
 
-/*
-===============
-Info_ValueForKey
-
-Searches the string for the given
-key and returns the associated value, or an empty string.
-FIXME: overflow check?
-===============
-*/
+// Searches the string for the given key and returns the associated value, or an empty string.
+//	FIXME: overflow check?
 char *Info_ValueForKey( const char *s, const char *key ) {
 	char	pkey[BIG_INFO_KEY];
 	static	char value[2][BIG_INFO_VALUE];	// use two buffers so compares
@@ -1433,14 +1192,7 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 	return "";
 }
 
-
-/*
-===================
-Info_NextPair
-
-Used to itterate through all the key/value pairs in an info string
-===================
-*/
+// Used to itterate through all the key/value pairs in an info string
 void Info_NextPair( const char **head, char *key, char *value ) {
 	char	*o;
 	const char	*s;
@@ -1474,12 +1226,6 @@ void Info_NextPair( const char **head, char *key, char *value ) {
 	*head = s;
 }
 
-
-/*
-===================
-Info_RemoveKey
-===================
-*/
 void Info_RemoveKey( char *s, const char *key ) {
 	char	*start;
 	char	pkey[MAX_INFO_KEY];
@@ -1531,11 +1277,6 @@ void Info_RemoveKey( char *s, const char *key ) {
 
 }
 
-/*
-===================
-Info_RemoveKey_Big
-===================
-*/
 void Info_RemoveKey_Big( char *s, const char *key ) {
 	char	*start;
 	char	pkey[BIG_INFO_KEY];
@@ -1586,17 +1327,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 
 }
 
-
-
-
-/*
-==================
-Info_Validate
-
-Some characters are illegal in info strings because they
-can mess up the server's parsing
-==================
-*/
+// Some characters are illegal in info strings because they can mess up the server's parsing
 qboolean Info_Validate( const char *s ) {
 	if ( strchr( s, '\"' ) ) {
 		return qfalse;
@@ -1607,13 +1338,7 @@ qboolean Info_Validate( const char *s ) {
 	return qtrue;
 }
 
-/*
-==================
-Info_SetValueForKey
-
-Changes or adds a key/value pair
-==================
-*/
+// Changes or adds a key/value pair
 void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	char	newi[MAX_INFO_STRING];
 	const char* blacklist = "\\;\"";
@@ -1647,14 +1372,8 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	Q_strncpyz( s, newi, MAX_INFO_STRING );
 }
 
-/*
-==================
-Info_SetValueForKey_Big
-
-Changes or adds a key/value pair
-Includes and retains zero-length values
-==================
-*/
+// Changes or adds a key/value pair
+//	Includes and retains zero-length values
 void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	char	newi[BIG_INFO_STRING];
 	const char* blacklist = "\\;\"";
@@ -1687,16 +1406,6 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	Q_strcat( s, MAX_INFO_STRING, newi );
 }
 
-
-
-
-//====================================================================
-
-/*
-==================
-Com_CharIsOneOfCharset
-==================
-*/
 static qboolean Com_CharIsOneOfCharset( char c, char *set ) {
 	unsigned int i;
 
@@ -1708,11 +1417,6 @@ static qboolean Com_CharIsOneOfCharset( char c, char *set ) {
 	return qfalse;
 }
 
-/*
-==================
-Com_SkipCharset
-==================
-*/
 char *Com_SkipCharset( char *s, char *sep )
 {
 	char	*p = s;
@@ -1728,11 +1432,6 @@ char *Com_SkipCharset( char *s, char *sep )
 	return p;
 }
 
-/*
-==================
-Com_SkipTokens
-==================
-*/
 char *Com_SkipTokens( char *s, int numTokens, char *sep )
 {
 	int		sepCount = 0;
@@ -1756,17 +1455,11 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep )
 		return s;
 }
 
-/*
-=============
-TempVector
-
-This is just a convenience function for making temporary vectors
-=============
-*/
 #define NUM_TEMPVECS 8
 #define TEMPVEC_MASK (NUM_TEMPVECS-1)
 static vector3 tempVecs[NUM_TEMPVECS];
 
+// This is just a convenience function for making temporary vectors
 vector3 *tv( float x, float y, float z ) {
 	static int index;
 	vector3 *v = &tempVecs[index++ & TEMPVEC_MASK];
@@ -1776,15 +1469,9 @@ vector3 *tv( float x, float y, float z ) {
 	return v;
 }
 
-/*
-=============
-VectorToString
-
-This is just a convenience function for printing vectors
-=============
-*/
 static char tempStrs[NUM_TEMPVECS][32];
 
+// This is just a convenience function for printing vectors
 char *vtos( const vector3 *v ) {
 	static int index=0;
 	char *s = tempStrs[index++ & TEMPVEC_MASK];
@@ -1794,11 +1481,6 @@ char *vtos( const vector3 *v ) {
 	return s;
 }
 
-/*
-==================
-Field_Clear
-==================
-*/
 void Field_Clear( field_t *edit ) {
 	memset( edit->buffer, 0, MAX_EDIT_LINE );
 	edit->cursor = 0;

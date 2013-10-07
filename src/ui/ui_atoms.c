@@ -55,12 +55,6 @@ static void	UI_Cache_f( void ) {
 	Display_CacheAll();
 }
 
-
-/*
-=================
-UI_ConsoleCommand
-=================
-*/
 qboolean UI_ConsoleCommand( int realTime ) {
 	char	*cmd;
 
@@ -81,21 +75,6 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		return qtrue;
 	}
 
-	if ( Q_stricmp (cmd, "remapShader") == 0 ) {
-		if (trap->Cmd_Argc() == 4) {
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			char shader3[MAX_QPATH];
-			
-			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
-			Q_strncpyz(shader3, UI_Argv(3), sizeof(shader3));
-			
-			trap->R_RemapShader(shader1, shader2, shader3);
-			return qtrue;
-		}
-	}
-
 	if ( Q_stricmp (cmd, "ui_cache") == 0 ) {
 		UI_Cache_f();
 		return qtrue;
@@ -109,13 +88,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	return qfalse;
 }
 
-/*
-================
-UI_AdjustFrom640
-
-Adjusted for resolution and screen aspect ratio
-================
-*/
+// Adjusted for resolution and screen aspect ratio
 void UI_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 	// expect valid pointers
 #if 0
@@ -162,13 +135,7 @@ void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
 	trap->R_DrawStretchPic( x, y, w, h, s0, t0, s1, t1, hShader );
 }
 
-/*
-================
-UI_FillRect
-
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 void UI_FillRect( float x, float y, float width, float height, const vector4 *color ) {
 	trap->R_SetColor( color );
 
@@ -189,13 +156,8 @@ static void UI_DrawTopBottom(float x, float y, float w, float h) {
 	trap->R_DrawStretchPic( x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap->R_DrawStretchPic( x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
-/*
-================
-UI_DrawRect
 
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640x480 virtual values
 static void UI_DrawRect( float x, float y, float width, float height, const vector4 *color ) {
 	trap->R_SetColor( color );
 

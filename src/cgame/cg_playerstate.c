@@ -27,13 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-/*
-==============
-CG_CheckAmmo
-
-If the ammo has gone low enough to generate the warning, play a sound
-==============
-*/
+// If the ammo has gone low enough to generate the warning, play a sound
 void CG_CheckAmmo( void ) {
 	//RAZTODO: CG_CheckAmmo
 #if 0
@@ -52,11 +46,6 @@ void CG_CheckAmmo( void ) {
 #endif
 }
 
-/*
-==============
-CG_DamageFeedback
-==============
-*/
 void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		left, front, up;
 	float		kick;
@@ -138,16 +127,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	cg.damageTime = cg.snap->serverTime;
 }
 
-
-
-
-/*
-================
-CG_Respawn
-
-A respawn happened this snapshot
-================
-*/
+// A respawn happened this snapshot
 void CG_Respawn( void ) {
 	// no error decay on player movement
 	cg.thisFrameTeleport = qtrue;
@@ -161,11 +141,6 @@ void CG_Respawn( void ) {
 
 extern char *eventnames[];
 
-/*
-==============
-CG_CheckPlayerstateEvents
-==============
-*/
 void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	int			i;
 	int			event;
@@ -199,11 +174,6 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	}
 }
 
-/*
-==================
-CG_CheckChangedPredictableEvents
-==================
-*/
 void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	int i;
 	int event;
@@ -235,13 +205,8 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	}
 }
 
-/*
-==================
-pushReward
-==================
-*/
-static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
-	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
+static void CG_PushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
+	if ( cg.rewardStack < (MAX_REWARDSTACK-1) ) {
 		cg.rewardStack++;
 		cg.rewardSound[cg.rewardStack] = sfx;
 		cg.rewardShader[cg.rewardStack] = shader;
@@ -249,11 +214,6 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 	}
 }
 
-/*
-==================
-CG_CheckLocalSounds
-==================
-*/
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	int			highScore, reward;
 	int			health, armor;
@@ -291,7 +251,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// reward sounds
 	reward = qfalse;
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
+		CG_PushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
 		reward = qtrue;
 		//Com_Printf("capture\n");
 	}
@@ -301,7 +261,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		} else {
 			sfx = cgs.media.impressiveSound;
 		}
-		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
+		CG_PushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
 		reward = qtrue;
 		//Com_Printf("impressive\n");
 	}
@@ -311,17 +271,17 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		} else {
 			sfx = cgs.media.excellentSound;
 		}
-		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
+		CG_PushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
 		reward = qtrue;
 		//Com_Printf("excellent\n");
 	}
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
+		CG_PushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
 		reward = qtrue;
 		//Com_Printf("defend\n");
 	}
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-		pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
+		CG_PushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
 		reward = qtrue;
 		//Com_Printf("assist\n");
 	}
@@ -409,12 +369,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 }
 
-/*
-===============
-CG_TransitionPlayerState
-
-===============
-*/
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {

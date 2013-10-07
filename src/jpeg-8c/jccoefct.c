@@ -68,7 +68,7 @@ METHODDEF(boolean) compress_output
 #endif
 
 
-LOCAL(void)
+LOCAL( void )
 start_iMCU_row (j_compress_ptr cinfo)
 /* Reset within-iMCU-row counters for a new row */
 {
@@ -96,7 +96,7 @@ start_iMCU_row (j_compress_ptr cinfo)
  * Initialize for a processing pass.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass_coef (j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
   my_coef_ptr coef = (my_coef_ptr) cinfo->coef;
@@ -405,7 +405,7 @@ compress_output (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
  * Initialize coefficient buffer controller.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_c_coef_controller (j_compress_ptr cinfo, boolean need_full_buffer)
 {
   my_coef_ptr coef;

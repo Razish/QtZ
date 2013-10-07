@@ -112,7 +112,7 @@ typedef arith_entropy_encoder * arith_entropy_ptr;
 #endif
 
 
-LOCAL(void)
+LOCAL( void )
 emit_byte (int val, j_compress_ptr cinfo)
 /* Write next output byte; we do not support suspension in this module. */
 {
@@ -129,7 +129,7 @@ emit_byte (int val, j_compress_ptr cinfo)
  * Finish up at the end of an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 finish_pass (j_compress_ptr cinfo)
 {
   arith_entropy_ptr e = (arith_entropy_ptr) cinfo->entropy;
@@ -215,7 +215,7 @@ finish_pass (j_compress_ptr cinfo)
  * derived from Markus Kuhn's JBIG implementation.
  */
 
-LOCAL(void)
+LOCAL( void )
 arith_encode (j_compress_ptr cinfo, unsigned char *st, int val) 
 {
   register arith_entropy_ptr e = (arith_entropy_ptr) cinfo->entropy;
@@ -315,7 +315,7 @@ arith_encode (j_compress_ptr cinfo, unsigned char *st, int val)
  * Emit a restart marker & resynchronize predictions.
  */
 
-LOCAL(void)
+LOCAL( void )
 emit_restart (j_compress_ptr cinfo, int restart_num)
 {
   arith_entropy_ptr entropy = (arith_entropy_ptr) cinfo->entropy;
@@ -827,7 +827,7 @@ encode_mcu (j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * Initialize for an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass (j_compress_ptr cinfo, boolean gather_statistics)
 {
   arith_entropy_ptr entropy = (arith_entropy_ptr) cinfo->entropy;
@@ -910,7 +910,7 @@ start_pass (j_compress_ptr cinfo, boolean gather_statistics)
  * Module initialization routine for arithmetic entropy encoding.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_arith_encoder (j_compress_ptr cinfo)
 {
   arith_entropy_ptr entropy;

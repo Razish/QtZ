@@ -85,7 +85,7 @@ static int BotImport_inPVS(vector3 *p1, vector3 *p2) {
 	return 0;
 }
 
-static char *BotImport_BSPEntityData(void) {
+static char *BotImport_BSPEntityData( void ) {
 	return CM_EntityString();
 }
 
@@ -110,7 +110,7 @@ static void *BotImport_HunkAlloc( size_t size ) {
 static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3 *points) {
 }
 
-static int BotImport_DebugLineCreate(void) {
+static int BotImport_DebugLineCreate( void ) {
 	vector3 points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
 }
@@ -138,11 +138,6 @@ static void BotClientCommand( int client, char *command ) {
 void CL_BotFrame( int time ) {
 }
 
-/*
-===============
-CL_BotLibSetup
-===============
-*/
 int CL_BotLibSetup( void ) {
 	if ( !botlib_export ) {
 		Com_Printf( S_COLOR_RED "Error: CL_BotLibSetup without CL_BotInitBotLib\n" );
@@ -152,14 +147,7 @@ int CL_BotLibSetup( void ) {
 	return botlib_export->BotLibSetup();
 }
 
-/*
-===============
-CL_ShutdownBotLib
-
-Called when either the entire client is being killed, or
-it is changing to a different game directory.
-===============
-*/
+// Called when either the entire client is being killed, or it is changing to a different game directory.
 int CL_BotLibShutdown( void ) {
 
 	if ( !botlib_export ) {
@@ -169,12 +157,7 @@ int CL_BotLibShutdown( void ) {
 	return botlib_export->BotLibShutdown();
 }
 
-/*
-==================
-CL_BotInitCvars
-==================
-*/
-void CL_BotInitCvars(void) {
+void CL_BotInitCvars( void ) {
 
 	Cvar_Get( "bot_enable",					"1",	CVAR_NONE,	NULL, NULL );	// enable the bot
 	Cvar_Get( "bot_developer",				"0",	CVAR_CHEAT,	NULL, NULL );	// bot developer mode
@@ -208,12 +191,7 @@ void CL_BotInitCvars(void) {
 	Cvar_Get( "bot_interbreedwrite",		"",		CVAR_CHEAT,	NULL, NULL );	// write interbreeded bots to this file
 }
 
-/*
-==================
-CL_BotInitBotLib
-==================
-*/
-void CL_BotInitBotLib(void) {
+void CL_BotInitBotLib( void ) {
 	botlib_import_t	botlib_import;
 	GetBotLibAPI_t GetBotLibAPI;
 	char dllName[MAX_OSPATH] = "botlib_"ARCH_STRING DLL_EXT;

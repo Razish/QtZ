@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sv_local.h"
 
-/*
-=================
-SV_Netchan_FreeQueue
-=================
-*/
 void SV_Netchan_FreeQueue(client_t *client)
 {
 	netchan_buffer_t *netbuf, *next;
@@ -43,11 +38,6 @@ void SV_Netchan_FreeQueue(client_t *client)
 	client->netchan_end_queue = &client->netchan_start_queue;
 }
 
-/*
-=================
-SV_Netchan_TransmitNextInQueue
-=================
-*/
 void SV_Netchan_TransmitNextInQueue(client_t *client)
 {
 	netchan_buffer_t *netbuf;
@@ -75,15 +65,9 @@ void SV_Netchan_TransmitNextInQueue(client_t *client)
 	Z_Free(netbuf);
 }
 
-/*
-=================
-SV_Netchan_TransmitNextFragment
-Transmit the next fragment and the next queued packet
-Return number of ms until next message can be sent based on throughput given by client rate,
--1 if no packet was sent.
-=================
-*/
-
+// Transmit the next fragment and the next queued packet
+//	Return number of ms until next message can be sent based on throughput given by client rate
+//	-1 if no packet was sent.
 int SV_Netchan_TransmitNextFragment(client_t *client)
 {
 	if(client->netchan.unsentFragments)
@@ -101,17 +85,9 @@ int SV_Netchan_TransmitNextFragment(client_t *client)
 }
 
 
-/*
-===============
-SV_Netchan_Transmit
-TTimo
-https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=462
-if there are some unsent fragments (which may happen if the snapshots
-and the gamestate are fragmenting, and collide on send for instance)
-then buffer them and make sure they get sent in correct order
-================
-*/
-
+// if there are some unsent fragments (which may happen if the snapshots and the gamestate are fragmenting,
+//	and collide on send for instance)
+//	then buffer them and make sure they get sent in correct order
 void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 {
 	MSG_WriteByte( msg, svc_EOF );
@@ -134,11 +110,6 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 	}
 }
 
-/*
-=================
-Netchan_SV_Process
-=================
-*/
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
 	int ret;
 	ret = Netchan_Process( &client->netchan, msg );

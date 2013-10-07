@@ -63,11 +63,9 @@ static const char *ShaderSource( const char *path )
 	}
 }
 
-// ================
 //
 // FBO/Shader initialisation
 //
-// ================
 
 static void CreateFramebuffers( void )
 {
@@ -174,11 +172,9 @@ void R_EXT_Init( void )
 	R_EXT_BindDefaultFramebuffer();
 }
 
-// ================
 //
 // Shutdown
 //
-// ================
 
 void R_EXT_Cleanup( void )
 {
@@ -190,11 +186,9 @@ void R_EXT_Cleanup( void )
 	tr.postprocessing.loaded = qfalse;
 }
 
-// ================
 //
 // Post processing
 //
-// ================
 
 void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 	float	xscale;
@@ -323,9 +317,7 @@ void RB_PostProcess( void )
 	//>>> BACKBUFFER
 
 
-	//================================
 	//	Dynamic Glow
-	//================================
 
 	if ( r_postprocess_glow->integer )
 	{
@@ -391,9 +383,7 @@ void RB_PostProcess( void )
 		GL_SelectTexture( 0 );
 	}
 
-	//================================
 	//	High Dynamic Range
-	//================================
 
 	if ( r_postprocess_hdr->integer )
 	{
@@ -438,10 +428,7 @@ void RB_PostProcess( void )
 		lastFullscreenFBO = tr.framebuffers.tonemapping;
 	}
 
-
-	//================================
 	//	Bloom
-	//================================
 
 	if ( r_postprocess_bloom->integer )
 	{
@@ -532,10 +519,7 @@ void RB_PostProcess( void )
 		GL_SelectTexture( 0 );
 	}
 
-
-	//================================
 	//	Final Pass (Colour correction, filters, funky stuff)
-	//================================
 
 	if ( r_postprocess_finalPass->integer )
 	{
@@ -555,10 +539,7 @@ void RB_PostProcess( void )
 		lastFullscreenFBO = tr.framebuffers.final;
 	}
 
-
-	//================================
 	//	DISPLAY
-	//================================
 
 	R_EXT_GLSL_UseProgram( NULL );
 	R_EXT_BlitFramebufferColor( lastFullscreenFBO, NULL, (int)w, (int)h, (int)w, (int)h );

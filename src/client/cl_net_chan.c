@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "client.h"
 
-/*
-=================
-CL_Netchan_TransmitNextFragment
-=================
-*/
 qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan)
 {
 	if(chan->unsentFragments)
@@ -40,11 +35,6 @@ qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan)
 	return qfalse;
 }
 
-/*
-===============
-CL_Netchan_Transmit
-================
-*/
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 	MSG_WriteByte( msg, clc_EOF );
 
@@ -62,11 +52,6 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 	}
 }
 
-/*
-=================
-CL_Netchan_Process
-=================
-*/
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int ret;
 

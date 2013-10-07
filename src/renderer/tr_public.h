@@ -108,7 +108,6 @@ typedef struct refexport_s {
 	void    (*A3D_RenderGeometry) (void *pVoidA3D, void *pVoidGeom, void *pVoidMat, void *pVoidGeomStatus);
 #endif
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
-	void	(*RemapShader)(const char *oldShader, const char *newShader, const char *offsetTime);
 	qboolean (*GetEntityToken)( char *buffer, int size );
 	qboolean (*inPVS)( const vector3 *p1, const vector3 *p2 );
 
@@ -154,7 +153,7 @@ typedef struct refimport_s {
 	void	(*Cmd_AddCommand)( const char *name, xcommand_t cmd, completionFunc_t complete );
 	void	(*Cmd_RemoveCommand)( const char *name );
 
-	int		(*Cmd_Argc) (void);
+	int		(*Cmd_Argc)( void );
 	char	*(*Cmd_Argv) (int i);
 
 	void	(*Cmd_ExecuteText) (int exec_when, const char *text);

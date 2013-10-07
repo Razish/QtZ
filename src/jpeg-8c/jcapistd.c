@@ -34,7 +34,7 @@
  * wrong thing.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_start_compress (j_compress_ptr cinfo, boolean write_all_tables)
 {
   if (cinfo->global_state != CSTATE_START)

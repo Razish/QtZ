@@ -110,11 +110,9 @@ void SP_trigger_multiple( gentity_t *ent ) {
 
 
 /*
-==============================================================================
 
-trigger_always
+	trigger_always
 
-==============================================================================
 */
 
 void trigger_always_think( gentity_t *ent ) {
@@ -133,11 +131,9 @@ void SP_trigger_always (gentity_t *ent) {
 
 
 /*
-==============================================================================
 
-trigger_push
+	trigger_push
 
-==============================================================================
 */
 
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
@@ -149,14 +145,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	BG_TouchJumpPad( &other->client->ps, &self->s );
 }
 
-
-/*
-=================
-AimAtTarget
-
-Calculate origin2 so the target apogee will be hit
-=================
-*/
+// Calculate origin2 so the target apogee will be hit
 void AimAtTarget( gentity_t *self ) {
 	gentity_t	*ent;
 	vector3		origin;
@@ -225,9 +214,9 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 	VectorCopy (&self->s.origin2, &activator->client->ps.velocity);
 
 	// play fly sound every 1.5 seconds
-	if ( activator->fly_sound_debounce_time < level.time ) {
-		activator->fly_sound_debounce_time = level.time + 1500;
-		G_Sound( activator, CHAN_AUTO, self->noise_index );
+	if ( activator->flySoundDebounceTime < level.time ) {
+		activator->flySoundDebounceTime = level.time + 1500;
+		G_Sound( activator, CHAN_AUTO, self->noiseIndex );
 	}
 }
 
@@ -244,9 +233,9 @@ void SP_target_push( gentity_t *self ) {
 	VectorScale (&self->s.origin2, self->speed, &self->s.origin2);
 
 	if ( self->spawnflags & 1 ) {
-		self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
+		self->noiseIndex = G_SoundIndex("sound/world/jumppad.wav");
 	} else {
-		self->noise_index = G_SoundIndex("sound/misc/windfly.wav");
+		self->noiseIndex = G_SoundIndex("sound/misc/windfly.wav");
 	}
 	if ( self->target ) {
 		VectorCopy( &self->s.origin, &self->r.absmin );
@@ -258,11 +247,9 @@ void SP_target_push( gentity_t *self ) {
 }
 
 /*
-==============================================================================
 
-trigger_teleport
+	trigger_teleport
 
-==============================================================================
 */
 
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
@@ -328,11 +315,9 @@ void SP_trigger_teleport( gentity_t *self ) {
 
 
 /*
-==============================================================================
 
-trigger_hurt
+	trigger_hurt
 
-==============================================================================
 */
 
 /*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF - SILENT NO_PROTECTION SLOW
@@ -374,7 +359,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	// play sound
 	if ( !(self->spawnflags & 4) ) {
-		G_Sound( other, CHAN_AUTO, self->noise_index );
+		G_Sound( other, CHAN_AUTO, self->noiseIndex );
 	}
 
 	if (self->spawnflags & 8)
@@ -387,7 +372,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 void SP_trigger_hurt( gentity_t *self ) {
 	InitTrigger (self);
 
-	self->noise_index = G_SoundIndex( "sound/world/electro.wav" );
+	self->noiseIndex = G_SoundIndex( "sound/world/electro.wav" );
 	self->touch = hurt_touch;
 
 	if ( !self->damage ) {
@@ -407,11 +392,9 @@ void SP_trigger_hurt( gentity_t *self ) {
 
 
 /*
-==============================================================================
 
-timer
+	timer
 
-==============================================================================
 */
 
 

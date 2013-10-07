@@ -29,11 +29,9 @@ static float s_cloudTexCoords[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
 static float s_cloudTexP[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1];
 
 /*
-===================================================================================
 
-POLYGON TO BOX SIDE PROJECTION
+	POLYGON TO BOX SIDE PROJECTION
 
-===================================================================================
 */
 
 static vector3 sky_clip[6] = {
@@ -48,11 +46,6 @@ static vector3 sky_clip[6] = {
 static float	sky_mins[2][6], sky_maxs[2][6];
 static float	sky_min, sky_max;
 
-/*
-================
-AddSkyPolygon
-================
-*/
 static void AddSkyPolygon (int nump, vector3 *vecs) 
 {
 	int		i,j;
@@ -123,11 +116,7 @@ static void AddSkyPolygon (int nump, vector3 *vecs)
 
 #define	ON_EPSILON		0.1f			// point on plane side epsilon
 #define	MAX_CLIP_VERTS	64
-/*
-================
-ClipSkyPolygon
-================
-*/
+
 static void ClipSkyPolygon (int nump, vector3 *vecs, int stage) 
 {
 	vector3	*norm, *v;
@@ -216,12 +205,7 @@ static void ClipSkyPolygon (int nump, vector3 *vecs, int stage)
 	ClipSkyPolygon (newc[1], &newv[1][0], stage+1);
 }
 
-/*
-==============
-ClearSkyBox
-==============
-*/
-static void ClearSkyBox (void) {
+static void ClearSkyBox( void ) {
 	int		i;
 
 	for (i=0 ; i<6 ; i++) {
@@ -230,11 +214,6 @@ static void ClearSkyBox (void) {
 	}
 }
 
-/*
-================
-RB_ClipSkyPolygons
-================
-*/
 void RB_ClipSkyPolygons( shaderCommands_t *input )
 {
 	vector3		p[5];	// need one extra point for clipping
@@ -255,18 +234,12 @@ void RB_ClipSkyPolygons( shaderCommands_t *input )
 }
 
 /*
-===================================================================================
 
-CLOUD VERTEX GENERATION
+	CLOUD VERTEX GENERATION
 
-===================================================================================
 */
 
-/*
-** MakeSkyVec
-**
-** Parms: s, t range from -1 to 1
-*/
+// Parms: s, t range from -1 to 1
 static void MakeSkyVec( float s, float t, int axis, float outSt[2], vector3 *outXYZ )
 {
 	// 1 = s, 2 = t, 3 = 2048
@@ -529,9 +502,6 @@ static void FillCloudBox( const shader_t *shader, int stage )
 	}
 }
 
-/*
-** R_BuildCloudData
-*/
 void R_BuildCloudData( shaderCommands_t *input )
 {
 	int			i;
@@ -559,11 +529,9 @@ void R_BuildCloudData( shaderCommands_t *input )
 	}
 }
 
-/*
-** R_InitSkyTexCoords
-** Called when a sky shader is parsed
-*/
 #define SQR( a ) ((a)*(a))
+
+// Called when a sky shader is parsed
 void R_InitSkyTexCoords( float heightCloud )
 {
 	int i, s, t;
@@ -620,11 +588,6 @@ void R_InitSkyTexCoords( float heightCloud )
 	}
 }
 
-//======================================================================================
-
-/*
-** RB_DrawSun
-*/
 void RB_DrawSun( float scale, shader_t *shader ) {
 	float		size;
 	float		dist;
@@ -659,18 +622,8 @@ void RB_DrawSun( float scale, shader_t *shader ) {
 	qglDepthRange( 0.0, 1.0 );
 }
 
-
-
-
-/*
-================
-RB_StageIteratorSky
-
-All of the visible sky triangles are in tess
-
-Other things could be stuck in here, like birds in the sky, etc
-================
-*/
+// All of the visible sky triangles are in tess
+//	Other things could be stuck in here, like birds in the sky, etc
 void RB_StageIteratorSky( void ) {
 	if ( r_fastsky->integer ) {
 		return;
@@ -693,7 +646,7 @@ void RB_StageIteratorSky( void ) {
 	if ( tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage ) {
 		qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 		
-		qglPushMatrix ();
+		qglPushMatrix();
 		GL_State( 0 );
 		qglTranslatef (backEnd.viewParms.or.origin.x, backEnd.viewParms.or.origin.y, backEnd.viewParms.or.origin.z);
 

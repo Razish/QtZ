@@ -111,11 +111,6 @@ static void *OpenALLib = NULL;
 
 static qboolean alinit_fail = qfalse;
 
-/*
-=================
-GPA
-=================
-*/
 static void *GPA(char *str)
 {
 	void *rv;
@@ -134,11 +129,6 @@ static void *GPA(char *str)
 	}
 }
 
-/*
-=================
-QAL_Init
-=================
-*/
 qboolean QAL_Init(const char *libname)
 {
 	if(OpenALLib)
@@ -235,11 +225,6 @@ qboolean QAL_Init(const char *libname)
 	return qtrue;
 }
 
-/*
-=================
-QAL_Shutdown
-=================
-*/
 void QAL_Shutdown( void )
 {
 	if(OpenALLib)

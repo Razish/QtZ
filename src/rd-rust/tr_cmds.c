@@ -21,11 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-/*
-=====================
-R_PerformanceCounters
-=====================
-*/
 void R_PerformanceCounters( void ) {
 	if ( !r_speeds->integer ) {
 		// clear the counters even if we aren't printing
@@ -69,11 +64,6 @@ void R_PerformanceCounters( void ) {
 	memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
 }
 
-/*
-====================
-R_IssueRenderCommands
-====================
-*/
 int	c_blockedOnRender;
 int	c_blockedOnMain;
 
@@ -101,17 +91,9 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	}
 }
 
-
-/*
-====================
-R_SyncRenderThread
-
-Issue any pending commands and wait for them to complete.
-After exiting, the render thread will have completed its work
-and will remain idle and the main thread is free to issue
-OpenGL calls until R_IssueRenderCommands is called.
-====================
-*/
+// Issue any pending commands and wait for them to complete.
+//	After exiting, the render thread will have completed its work and will remain idle and the main thread is
+//	free to issue OpenGL calls until R_IssueRenderCommands is called.
 void R_SyncRenderThread( void ) {
 	if ( !tr.registered )
 		return;
@@ -119,14 +101,7 @@ void R_SyncRenderThread( void ) {
 	R_IssueRenderCommands( qfalse );
 }
 
-/*
-============
-R_GetCommandBuffer
-
-make sure there is enough command space, waiting on the
-render thread if needed.
-============
-*/
+// make sure there is enough command space, waiting on the render thread if needed.
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
@@ -148,13 +123,6 @@ void *R_GetCommandBuffer( int bytes ) {
 	return cmdList->cmds + cmdList->used - bytes;
 }
 
-
-/*
-=============
-R_AddDrawSurfCmd
-
-=============
-*/
 void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurfsCommand_t	*cmd;
 
@@ -171,14 +139,7 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	cmd->viewParms = tr.viewParms;
 }
 
-
-/*
-=============
-RE_SetColor
-
-Passing NULL will set the color to white
-=============
-*/
+// Passing NULL will set the color to white
 void RE_SetColor( const vector4 *rgba ) {
 	setColorCommand_t	*cmd;
 
@@ -201,11 +162,6 @@ void RE_SetColor( const vector4 *rgba ) {
 }
 
 //QtZ: Post processing
-/*
-=============
-RE_PostProcess
-=============
-*/
 void RE_PostProcess( void ) {
 	postProcessCommand_t *cmd;
     drawBufferCommand_t *cmd2;
@@ -230,11 +186,6 @@ void RE_PostProcess( void ) {
 }
 //~QtZ
 
-/*
-=============
-RE_StretchPic
-=============
-*/
 void RE_StretchPic ( float x, float y, float w, float h, 
 					  float s1, float t1, float s2, float t2, qhandle_t hShader ) {
 	stretchPicCommand_t	*cmd;
@@ -259,11 +210,6 @@ void RE_StretchPic ( float x, float y, float w, float h,
 }
 
 //QtZ: Added from JA/EF
-/*
-=============
-RE_RotatedPic
-=============
-*/
 void RE_RotatedPic( float x, float y, float w, float h,
 					float s1, float t1, float s2, float t2, float angle, qboolean centered, qhandle_t hShader ) {
 	stretchPicCommand_t *cmd;
@@ -339,15 +285,7 @@ void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
 	}
 }
 
-
-/*
-====================
-RE_BeginFrame
-
-If running in stereo, RE_BeginFrame will be called twice
-for each RE_EndFrame
-====================
-*/
+// If running in stereo, RE_BeginFrame will be called twice for each RE_EndFrame
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	drawBufferCommand_t	*cmd = NULL;
 	colorMaskCommand_t *colcmd = NULL;
@@ -514,14 +452,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	tr.refdef.stereoFrame = stereoFrame;
 }
 
-
-/*
-=============
-RE_EndFrame
-
-Returns the number of msec spent in the back end
-=============
-*/
+// Returns the number of msec spent in the back end
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	swapBuffersCommand_t	*cmd;
 
@@ -550,11 +481,6 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	backEnd.pc.msec = 0;
 }
 
-/*
-=============
-RE_TakeVideoFrame
-=============
-*/
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
 {

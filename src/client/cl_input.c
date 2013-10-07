@@ -27,23 +27,17 @@ unsigned	frame_msec;
 int			old_com_frameTime;
 
 /*
-===============================================================================
+	KEY BUTTONS
 
-KEY BUTTONS
+	Continuous button event tracking is complicated by the fact that two different input sources (say, mouse button 1 and the control key)
+	can both press the same button, but the button should only be released when both of the pressing key have been released.
 
-Continuous button event tracking is complicated by the fact that two different
-input sources (say, mouse button 1 and the control key) can both press the
-same button, but the button should only be released when both of the
-pressing key have been released.
+	When a key event issues a button command (+forward, +attack, etc), it appends its key number as argv(1)
+	so it can be matched up with the release.
 
-When a key event issues a button command (+forward, +attack, etc), it appends
-its key number as argv(1) so it can be matched up with the release.
+	argv(2) will be set to the time the event happened, which allows exact control even at low framerates
+	when the down and up events may both get qued at the same time.
 
-argv(2) will be set to the time the event happened, which allows exact
-control even at low framerates when the down and up events may both get qued
-at the same time.
-
-===============================================================================
 */
 
 
@@ -67,7 +61,7 @@ void IN_MLookDown( void ) {
 void IN_MLookUp( void ) {
 	in_mlooking = qfalse;
 	if ( !cl_freelook->integer ) {
-		IN_CenterView ();
+		IN_CenterView();
 	}
 }
 
@@ -147,15 +141,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	b->active = qfalse;
 }
 
-
-
-/*
-===============
-CL_KeyState
-
-Returns the fraction of the frame that the key was down
-===============
-*/
+// Returns the fraction of the frame that the key was down
 float CL_KeyState( kbutton_t *key ) {
 	float		val;
 	int			msec;
@@ -185,8 +171,6 @@ float CL_KeyState( kbutton_t *key ) {
 	return val;
 }
 
-//==========================================================================
-
 cvar_t	*cl_yawspeed;
 cvar_t	*cl_pitchspeed;
 
@@ -194,14 +178,7 @@ cvar_t	*cl_run;
 
 cvar_t	*cl_anglespeedkey;
 
-
-/*
-================
-CL_AdjustAngles
-
-Moves the local angle positions
-================
-*/
+// Moves the local angle positions
 void CL_AdjustAngles( void ) {
 	float	speed, keystateRight=1.0f, keystateLeft=1.0f, keystateLookUp=1.0f, keystateLookDown=1.0f;
 	
@@ -234,13 +211,7 @@ void CL_AdjustAngles( void ) {
 
 }
 
-/*
-================
-CL_KeyMove
-
-Sets the usercmd_t based on key states
-================
-*/
+// Sets the usercmd_t based on key states
 void CL_KeyMove( usercmd_t *cmd ) {
 	int		movespeed;
 	int		forward, side, up;
@@ -281,11 +252,6 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	cmd->upmove = ClampChar( up );
 }
 
-/*
-=================
-CL_MouseEvent
-=================
-*/
 void CL_MouseEvent( int dx, int dy, int time ) {
 	if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
 		ui->MouseEvent( dx, dy );
@@ -297,13 +263,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 	}
 }
 
-/*
-=================
-CL_JoystickEvent
-
-Joystick values stay set until changed
-=================
-*/
+// Joystick values stay set until changed
 void CL_JoystickEvent( int axis, int value, int time ) {
 	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
 		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
@@ -311,11 +271,6 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 	cl.joystickAxis[axis] = value;
 }
 
-/*
-=================
-CL_JoystickMove
-=================
-*/
 void CL_JoystickMove( usercmd_t *cmd ) {
 	float	anglespeed;
 
@@ -347,12 +302,6 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 
 	cmd->upmove = ClampChar( cmd->upmove + (int) (j_up->value * cl.joystickAxis[j_up_axis->integer]) );
 }
-
-/*
-=================
-CL_MouseMove
-=================
-*/
 
 void CL_MouseMove(usercmd_t *cmd)
 {
@@ -439,12 +388,6 @@ void CL_MouseMove(usercmd_t *cmd)
 		Com_Printf( "(%.2f %.2f)\n", cl.viewangles.yaw, cl.viewangles.pitch );
 }
 
-
-/*
-==============
-CL_CmdButtons
-==============
-*/
 void CL_CmdButtons( usercmd_t *cmd ) {
 	int		i;
 
@@ -471,12 +414,6 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 	}
 }
 
-
-/*
-==============
-CL_FinishMove
-==============
-*/
 void CL_FinishMove( usercmd_t *cmd ) {
 	int		i;
 
@@ -492,12 +429,6 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	}
 }
 
-
-/*
-=================
-CL_CreateCmd
-=================
-*/
 usercmd_t CL_CreateCmd( void ) {
 	usercmd_t	cmd;
 	vector3		oldAngles;
@@ -505,7 +436,7 @@ usercmd_t CL_CreateCmd( void ) {
 	VectorCopy( &cl.viewangles, &oldAngles );
 
 	// keyboard angle adjustment
-	CL_AdjustAngles ();
+	CL_AdjustAngles();
 	
 	memset( &cmd, 0, sizeof( cmd ) );
 
@@ -543,14 +474,7 @@ usercmd_t CL_CreateCmd( void ) {
 	return cmd;
 }
 
-
-/*
-=================
-CL_CreateNewCommands
-
-Create a new usercmd_t structure for this frame
-=================
-*/
+// Create a new usercmd_t structure for this frame
 void CL_CreateNewCommands( void ) {
 	// no need to create usercmds until we have a gamestate
 	if ( clc.state < CA_PRIMED )
@@ -565,17 +489,9 @@ void CL_CreateNewCommands( void ) {
 	cl.cmds[++cl.cmdNumber & CMD_MASK] = CL_CreateCmd();
 }
 
-/*
-=================
-CL_ReadyToSendPacket
-
-Returns qfalse if we are over the maxpackets limit
-and should choke back the bandwidth a bit by not sending
-a packet this frame.  All the commands will still get
-delivered in the next packet, but saving a header and
-getting more delta compression will reduce total bandwidth.
-=================
-*/
+// Returns qfalse if we are over the maxpackets limit and should choke back the bandwidth a bit by not sending a packet this frame.
+//	All the commands will still get delivered in the next packet, but saving a header and getting more
+//	delta compression will reduce total bandwidth.
 qboolean CL_ReadyToSendPacket( void ) {
 	int		oldPacketNum;
 	int		delta;
@@ -626,27 +542,17 @@ qboolean CL_ReadyToSendPacket( void ) {
 	return qtrue;
 }
 
-/*
-===================
-CL_WritePacket
-
-Create and send the command packet to the server
-Including both the reliable commands and the usercmds
-
-During normal gameplay, a client packet will contain something like:
-
-4	sequence number
-2	qport
-4	serverid
-4	acknowledged sequence number
-4	clc.serverCommandSequence
-<optional reliable commands>
-1	clc_move or clc_moveNoDelta
-1	command count
-<count * usercmds>
-
-===================
-*/
+// Create and send the command packet to the server including both the reliable commands and the usercmds
+//	During normal gameplay, a client packet will contain something like:
+//		4	sequence number
+//		2	qport
+//		4	serverid
+//		4	acknowledged sequence number
+//		4	clc.serverCommandSequence
+//		<optional reliable commands>
+//		1	clc_move or clc_moveNoDelta
+//		1	command count
+//		<count * usercmds>
 void CL_WritePacket( void ) {
 	msg_t		buf;
 	byte		data[MAX_MSGLEN];
@@ -801,13 +707,7 @@ void CL_WritePacket( void ) {
 	CL_Netchan_Transmit (&clc.netchan, &buf);	
 }
 
-/*
-=================
-CL_SendCmd
-
-Called every frame to builds and sends a command packet to the server.
-=================
-*/
+// Called every frame to builds and sends a command packet to the server.
 void CL_SendCmd( void ) {
 	// don't send any message if not connected
 	if ( clc.state < CA_CONNECTED ) {
@@ -832,12 +732,6 @@ void CL_SendCmd( void ) {
 
 	CL_WritePacket();
 }
-
-/*
-============
-CL_InitInput
-============
-*/
 
 void IN_UpDown( void )			{ IN_KeyDown( &in_up ); }
 void IN_UpUp( void )			{ IN_KeyUp( &in_up ); }
@@ -870,8 +764,8 @@ void IN_VoipRecordUp( void )	{ IN_KeyUp( &in_voiprecord ); Cvar_Set( "cl_voipSen
 #endif
 
 #define INBUTTON_LIST( x ) \
-	static QINLINE void IN_ButtonDown##x ( void ) { IN_KeyDown( &in_buttons[x] ); } \
-	static QINLINE void IN_ButtonUp##x ( void ) { IN_KeyUp( &in_buttons[x] ); }
+	static QINLINE void IN_ButtonDown##x( void ) { IN_KeyDown( &in_buttons[x] ); } \
+	static QINLINE void IN_ButtonUp##x( void ) { IN_KeyUp( &in_buttons[x] ); }
 
 INBUTTON_LIST(  0 )
 INBUTTON_LIST(  1 )
@@ -945,12 +839,7 @@ void CL_InitInput( void ) {
 	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0, "Show graph for mouse movement", NULL );
 }
 
-/*
-============
-CL_ShutdownInput
-============
-*/
-void CL_ShutdownInput(void)
+void CL_ShutdownInput( void )
 {
 	Cmd_RemoveCommand( "centerview" );
 

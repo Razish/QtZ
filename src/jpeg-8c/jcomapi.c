@@ -25,7 +25,7 @@
  * responsibility.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_abort (j_common_ptr cinfo)
 {
   int pool;
@@ -65,7 +65,7 @@ jpeg_abort (j_common_ptr cinfo)
  * responsibility.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_destroy (j_common_ptr cinfo)
 {
   /* We need only tell the memory manager to release everything. */

@@ -23,11 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 /*
-========================================================================
 
 TGA files are used for 24/32 bit images
 
-========================================================================
 */
 
 typedef struct _TargaHeader {

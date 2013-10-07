@@ -48,13 +48,7 @@ static qboolean qconsole_drawinput = qtrue;
 static HANDLE qconsole_hout;
 static HANDLE qconsole_hin;
 
-/*
-==================
-CON_ColorCharToAttrib
-
-Convert Quake color character to Windows text attrib
-==================
-*/
+// Convert Quake color character to Windows text attrib
 static WORD CON_ColorCharToAttrib( char color ) {
 	WORD attrib;
 
@@ -80,29 +74,16 @@ static WORD CON_ColorCharToAttrib( char color ) {
 	return attrib;
 }
 
-/*
-==================
-CON_CtrlHandler
-
-The Windows Console doesn't use signals for terminating the application
-with Ctrl-C, logging off, window closing, etc.  Instead it uses a special
-handler routine.  Fortunately, the values for Ctrl signals don't seem to
-overlap with true signal codes that Windows provides, so calling
-Sys_SigHandler() with those numbers should be safe for generating unique
-shutdown messages.
-==================
-*/
+// The Windows Console doesn't use signals for terminating the application with Ctrl-C, logging off, window closing, etc.
+//	Instead it uses a special handler routine. Fortunately, the values for Ctrl signals don't seem to overlap with true
+//	signal codes that Windows provides, so calling Sys_SigHandler() with those numbers should be safe for generating
+//	unique shutdown messages.
 static BOOL WINAPI CON_CtrlHandler( DWORD sig )
 {
 	Sys_SigHandler( sig );
 	return TRUE;
 }
 
-/*
-==================
-CON_HistAdd
-==================
-*/
 static void CON_HistAdd( void )
 {
 	Q_strncpyz( qconsole_history[ qconsole_history_oldest ], qconsole_line,
@@ -119,11 +100,6 @@ static void CON_HistAdd( void )
 	qconsole_history_pos = qconsole_history_oldest;
 }
 
-/*
-==================
-CON_HistPrev
-==================
-*/
 static void CON_HistPrev( void )
 {
 	int pos;
@@ -141,11 +117,6 @@ static void CON_HistPrev( void )
 	qconsole_linelen = strlen( qconsole_line );
 }
 
-/*
-==================
-CON_HistNext
-==================
-*/
 static void CON_HistNext( void )
 {
 	int pos;
@@ -172,12 +143,6 @@ static void CON_HistNext( void )
 	qconsole_linelen = strlen( qconsole_line );
 }
 
-
-/*
-==================
-CON_Show
-==================
-*/
 static void CON_Show( void )
 {
 	CONSOLE_SCREEN_BUFFER_INFO binfo;
@@ -238,11 +203,6 @@ static void CON_Show( void )
 	SetConsoleCursorPosition( qconsole_hout, cursorPos );
 }
 
-/*
-==================
-CON_Hide
-==================
-*/
 static void CON_Hide( void )
 {
 	int realLen;
@@ -256,12 +216,6 @@ static void CON_Hide( void )
 	qconsole_linelen = realLen;
 }
 
-
-/*
-==================
-CON_Shutdown
-==================
-*/
 void CON_Shutdown( void )
 {
 	CON_Hide( );
@@ -272,11 +226,6 @@ void CON_Shutdown( void )
 	CloseHandle( qconsole_hin );
 }
 
-/*
-==================
-CON_Init
-==================
-*/
 void CON_Init( void )
 {
 	CONSOLE_SCREEN_BUFFER_INFO info;
@@ -315,11 +264,6 @@ void CON_Init( void )
 	SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( COLOR_WHITE ) );
 }
 
-/*
-==================
-CON_Input
-==================
-*/
 char *CON_Input( void )
 {
 	INPUT_RECORD buff[ MAX_EDIT_LINE ];
@@ -424,13 +368,7 @@ char *CON_Input( void )
 	return qconsole_line;
 }
 
-/*
-=================
-CON_WindowsColorPrint
-
-Set text colors based on Q3 color codes
-=================
-*/
+// Set text colors based on Q3 color codes
 void CON_WindowsColorPrint( const char *msg )
 {
 	static char buffer[ MAXPRINTMSG ];
@@ -483,11 +421,6 @@ void CON_WindowsColorPrint( const char *msg )
 	}
 }
 
-/*
-==================
-CON_Print
-==================
-*/
 void CON_Print( const char *msg )
 {
 	CON_Hide( );

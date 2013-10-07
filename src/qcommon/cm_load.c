@@ -70,23 +70,16 @@ cbrush_t	*box_brush;
 
 
 
-void	CM_InitBoxHull (void);
-void	CM_FloodAreaConnections (void);
+void	CM_InitBoxHull( void );
+void	CM_FloodAreaConnections( void );
 
 
 /*
-===============================================================================
 
-					MAP LOADING
+	MAP LOADING
 
-===============================================================================
 */
 
-/*
-=================
-CMod_LoadShaders
-=================
-*/
 void CMod_LoadShaders( lump_t *l ) {
 	dshader_t	*in, *out;
 	int			i, count;
@@ -112,12 +105,6 @@ void CMod_LoadShaders( lump_t *l ) {
 	}
 }
 
-
-/*
-=================
-CMod_LoadSubmodels
-=================
-*/
 void CMod_LoadSubmodels( lump_t *l ) {
 	dmodel_t	*in;
 	cmodel_t	*out;
@@ -169,13 +156,6 @@ void CMod_LoadSubmodels( lump_t *l ) {
 	}
 }
 
-
-/*
-=================
-CMod_LoadNodes
-
-=================
-*/
 void CMod_LoadNodes( lump_t *l ) {
 	dnode_t		*in;
 	int			child;
@@ -206,12 +186,6 @@ void CMod_LoadNodes( lump_t *l ) {
 
 }
 
-/*
-=================
-CM_BoundBrush
-
-=================
-*/
 void CM_BoundBrush( cbrush_t *b ) {
 	b->bounds[0].x = -b->sides[0].plane->dist;
 	b->bounds[1].x =  b->sides[1].plane->dist;
@@ -221,13 +195,6 @@ void CM_BoundBrush( cbrush_t *b ) {
 	b->bounds[1].z =  b->sides[5].plane->dist;
 }
 
-
-/*
-=================
-CMod_LoadBrushes
-
-=================
-*/
 void CMod_LoadBrushes( lump_t *l ) {
 	dbrush_t	*in;
 	cbrush_t	*out;
@@ -259,11 +226,6 @@ void CMod_LoadBrushes( lump_t *l ) {
 
 }
 
-/*
-=================
-CMod_LoadLeafs
-=================
-*/
 void CMod_LoadLeafs (lump_t *l)
 {
 	int			i;
@@ -302,11 +264,6 @@ void CMod_LoadLeafs (lump_t *l)
 	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), PREF_HIGH );
 }
 
-/*
-=================
-CMod_LoadPlanes
-=================
-*/
 void CMod_LoadPlanes (lump_t *l)
 {
 	int			i, j;
@@ -343,11 +300,6 @@ void CMod_LoadPlanes (lump_t *l)
 	}
 }
 
-/*
-=================
-CMod_LoadLeafBrushes
-=================
-*/
 void CMod_LoadLeafBrushes (lump_t *l)
 {
 	int			i;
@@ -370,11 +322,6 @@ void CMod_LoadLeafBrushes (lump_t *l)
 	}
 }
 
-/*
-=================
-CMod_LoadLeafSurfaces
-=================
-*/
 void CMod_LoadLeafSurfaces( lump_t *l )
 {
 	int			i;
@@ -397,11 +344,6 @@ void CMod_LoadLeafSurfaces( lump_t *l )
 	}
 }
 
-/*
-=================
-CMod_LoadBrushSides
-=================
-*/
 void CMod_LoadBrushSides (lump_t *l)
 {
 	int				i;
@@ -433,23 +375,12 @@ void CMod_LoadBrushSides (lump_t *l)
 	}
 }
 
-
-/*
-=================
-CMod_LoadEntityString
-=================
-*/
 void CMod_LoadEntityString( lump_t *l ) {
 	cm.entityString = Hunk_Alloc( l->filelen, PREF_HIGH );
 	cm.numEntityChars = l->filelen;
 	memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
 }
 
-/*
-=================
-CMod_LoadVisibility
-=================
-*/
 #define	VIS_HEADER	8
 void CMod_LoadVisibility( lump_t *l ) {
 	int		len;
@@ -471,14 +402,6 @@ void CMod_LoadVisibility( lump_t *l ) {
 	memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
-//==================================================================
-
-
-/*
-=================
-CMod_LoadPatches
-=================
-*/
 #define	MAX_PATCH_VERTS		1024
 void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	drawVert_t	*dv, *dv_p;
@@ -535,8 +458,6 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	}
 }
 
-//==================================================================
-
 unsigned CM_LumpChecksum(lump_t *lump) {
 	return LittleLong (Com_BlockChecksum (cmod_base + lump->fileofs, lump->filelen));
 }
@@ -558,13 +479,7 @@ unsigned CM_Checksum(dheader_t *header) {
 	return LittleLong(Com_BlockChecksum(checksums, 11 * 4));
 }
 
-/*
-==================
-CM_LoadMap
-
-Loads in the map and all submodels
-==================
-*/
+// Loads in the map and all submodels
 void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	union {
 		int				*i;
@@ -650,9 +565,9 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile (buf.v);
 
-	CM_InitBoxHull ();
+	CM_InitBoxHull();
 
-	CM_FloodAreaConnections ();
+	CM_FloodAreaConnections();
 
 	// allow this to be cached if it is loaded by the server
 	if ( !clientload ) {
@@ -660,21 +575,11 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 }
 
-/*
-==================
-CM_ClearMap
-==================
-*/
 void CM_ClearMap( void ) {
 	memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 }
 
-/*
-==================
-CM_ClipHandleToModel
-==================
-*/
 cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 	if ( handle < 0 ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
@@ -695,11 +600,6 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 
 }
 
-/*
-==================
-CM_InlineModel
-==================
-*/
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
 		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
@@ -733,18 +633,8 @@ int		CM_LeafArea( int leafnum ) {
 	return cm.leafs[leafnum].area;
 }
 
-//=======================================================================
-
-
-/*
-===================
-CM_InitBoxHull
-
-Set up the planes and nodes so that the six floats of a bounding box
-can just be stored out and get a proper clipping hull structure.
-===================
-*/
-void CM_InitBoxHull (void)
+// Set up the planes and nodes so that the six floats of a bounding box can just be stored out and get a proper clipping hull structure.
+void CM_InitBoxHull( void )
 {
 	int			i;
 	int			side;
@@ -789,15 +679,8 @@ void CM_InitBoxHull (void)
 	}	
 }
 
-/*
-===================
-CM_TempBoxModel
-
-To keep everything totally uniform, bounding boxes are turned into small
-BSP trees instead of being compared directly.
-Capsules are handled differently though.
-===================
-*/
+// To keep everything totally uniform, bounding boxes are turned into small BSP trees instead of being compared directly.
+//	Capsules are handled differently though.
 clipHandle_t CM_TempBoxModel( const vector3 *mins, const vector3 *maxs, int capsule ) {
 
 	VectorCopy( mins, &box_model.mins );
@@ -825,11 +708,6 @@ clipHandle_t CM_TempBoxModel( const vector3 *mins, const vector3 *maxs, int caps
 	return BOX_MODEL_HANDLE;
 }
 
-/*
-===================
-CM_ModelBounds
-===================
-*/
 void CM_ModelBounds( clipHandle_t model, vector3 *mins, vector3 *maxs ) {
 	cmodel_t	*cmod;
 

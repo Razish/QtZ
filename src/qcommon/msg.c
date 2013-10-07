@@ -29,12 +29,11 @@ static qboolean			msgInit = qfalse;
 int pcount[256];
 
 /*
-==============================================================================
 
-			MESSAGE IO FUNCTIONS
+	MESSAGE IO FUNCTIONS
 
-Handles byte ordering and avoids alignment errors
-==============================================================================
+	Handles byte ordering and avoids alignment errors
+
 */
 
 int oldsize = 0;
@@ -94,11 +93,9 @@ void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
 }
 
 /*
-=============================================================================
 
-bit functions
+	bit functions
   
-=============================================================================
 */
 
 int	overflows;
@@ -255,10 +252,6 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 	return value;
 }
 
-
-
-//================================================================================
-
 //
 // writing functions
 //
@@ -366,9 +359,6 @@ void MSG_WriteAngle( msg_t *sb, float f ) {
 void MSG_WriteAngle16( msg_t *sb, float f ) {
 	MSG_WriteShort (sb, ANGLE2SHORT(f));
 }
-
-
-//============================================================
 
 //
 // reading functions
@@ -553,11 +543,9 @@ int MSG_HashKey(const char *string, int maxlen) {
 }
 
 /*
-=============================================================================
 
-delta functions
+	delta functions
   
-=============================================================================
 */
 
 extern cvar_t *cl_shownet;
@@ -602,11 +590,9 @@ float MSG_ReadDeltaFloat( msg_t *msg, float oldV ) {
 }
 
 /*
-=============================================================================
 
-delta functions with keys
+	delta functions with keys
   
-=============================================================================
 */
 
 int kbitmask[32] = {
@@ -659,11 +645,9 @@ float MSG_ReadDeltaKeyFloat( msg_t *msg, int key, float oldV ) {
 
 
 /*
-============================================================================
 
-usercmd_t communication
+	usercmd_t communication
 
-============================================================================
 */
 
 // ms is allways sent, the others are optional
@@ -677,11 +661,6 @@ usercmd_t communication
 #define	CM_BUTTONS	(1<<6)
 #define CM_WEAPON	(1<<7)
 
-/*
-=====================
-MSG_WriteDeltaUsercmd
-=====================
-*/
 void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	if ( to->serverTime - from->serverTime < 256 ) {
 		MSG_WriteBits( msg, 1, 1 );
@@ -700,12 +679,6 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
 }
 
-
-/*
-=====================
-MSG_ReadDeltaUsercmd
-=====================
-*/
 void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	if ( MSG_ReadBits( msg, 1 ) ) {
 		to->serverTime = from->serverTime + MSG_ReadBits( msg, 8 );
@@ -728,11 +701,6 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	to->weapon = MSG_ReadDelta( msg, from->weapon, 8);
 }
 
-/*
-=====================
-MSG_WriteDeltaUsercmd
-=====================
-*/
 void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to ) {
 	if ( to->serverTime - from->serverTime < 256 ) {
 		MSG_WriteBits( msg, 1, 1 );
@@ -765,12 +733,6 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 	MSG_WriteDeltaKey( msg, key, from->weapon, to->weapon, 8 );
 }
 
-
-/*
-=====================
-MSG_ReadDeltaUsercmd
-=====================
-*/
 void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to ) {
 	if ( MSG_ReadBits( msg, 1 ) ) {
 		to->serverTime = from->serverTime + MSG_ReadBits( msg, 8 );
@@ -806,20 +768,12 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 }
 
 /*
-=============================================================================
 
-entityState_t communication
-  
-=============================================================================
+	entityState_t communication
+
 */
 
-/*
-=================
-MSG_ReportChangeVectors_f
-
-Prints out a table from the current statistics for copying to code
-=================
-*/
+// Prints out a table from the current statistics for copying to code
 void MSG_ReportChangeVectors_f( void ) {
 	int i;
 	for(i=0;i<256;i++) {
@@ -899,17 +853,11 @@ netField_t	entityStateFields[] =
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
 
-/*
-==================
-MSG_WriteDeltaEntity
-
-Writes part of a packetentities message, including the entity number.
-Can delta from either a baseline or a previous packet_entity
-If to is NULL, a remove entity update will be sent
-If force is not set, then nothing at all will be generated if the entity is
-identical, under the assumption that the in-order delta code will catch it.
-==================
-*/
+// Writes part of a packetentities message, including the entity number.
+//	Can delta from either a baseline or a previous packet_entity
+//	If to is NULL, a remove entity update will be sent
+//	If force is not set, then nothing at all will be generated if the entity is identical, under the
+//	assumption that the in-order delta code will catch it.
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to, 
 						   qboolean force ) {
 	int			i, lc;
@@ -1015,18 +963,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	}
 }
 
-/*
-==================
-MSG_ReadDeltaEntity
-
-The entity number has already been read from the message, which
-is how the from state is identified.
-
-If the delta removes the entity, entityState_t->number will be set to MAX_GENTITIES-1
-
-Can go from either a baseline or a previous packet_entity
-==================
-*/
+// The entity number has already been read from the message, which is how the from state is identified.
+//	If the delta removes the entity, entityState_t->number will be set to MAX_GENTITIES-1
+//	Can go from either a baseline or a previous packet_entity
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
 						 int number) {
 	int			i, lc;
@@ -1145,11 +1084,9 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 
 /*
-============================================================================
 
-plyer_state_t communication
+	playerState_t communication
 
-============================================================================
 */
 
 // using the stringizing operator to save typing...
@@ -1208,12 +1145,6 @@ netField_t	playerStateFields[] =
 { PSF(loopSound), 16 }
 };
 
-/*
-=============
-MSG_WriteDeltaPlayerstate
-
-=============
-*/
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to ) {
 	int				i;
 	playerState_t	dummy;
@@ -1373,12 +1304,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		MSG_WriteBits( msg, 0, 1 );	// no change
 }
 
-
-/*
-===================
-MSG_ReadDeltaPlayerstate
-===================
-*/
 void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *to ) {
 	int			i, lc;
 	int			bits;
@@ -1800,40 +1725,3 @@ void MSG_initHuffman( void ) {
 		}
 	}
 }
-
-/*
-void MSG_NUinitHuffman() {
-	byte	*data;
-	int		size, i, ch;
-	int		array[256];
-
-	msgInit = qtrue;
-
-	Huff_Init(&msgHuff);
-	// load it in
-	size = FS_ReadFile( "netchan/netchan.bin", (void **)&data );
-
-	for(i=0;i<256;i++) {
-		array[i] = 0;
-	}
-	for(i=0;i<size;i++) {
-		ch = data[i];
-		Huff_addRef(&msgHuff.compressor,	ch);			// Do update
-		Huff_addRef(&msgHuff.decompressor,	ch);			// Do update
-		array[ch]++;
-	}
-	Com_Printf("msg_hData {\n");
-	for(i=0;i<256;i++) {
-		if (array[i] == 0) {
-			Huff_addRef(&msgHuff.compressor,	i);			// Do update
-			Huff_addRef(&msgHuff.decompressor,	i);			// Do update
-		}
-		Com_Printf("%d,			// %d\n", array[i], i);
-	}
-	Com_Printf("};\n");
-	FS_FreeFile( data );
-	Cbuf_AddText( "condump dump.txt\n" );
-}
-*/
-
-//===========================================================================

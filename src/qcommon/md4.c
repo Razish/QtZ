@@ -193,8 +193,6 @@ static void mdfour(byte *out, byte *in, int n)
 	mdfour_result(&md, out);
 }
 
-//===================================================================
-
 unsigned Com_BlockChecksum (const void *buffer, int length)
 {
 	int				digest[4];

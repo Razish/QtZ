@@ -70,11 +70,6 @@ static float ProjectRadius( float r, vector3 *location )
 	return pr;
 }
 
-/*
-=============
-R_CullModel
-=============
-*/
 static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	vector3		bounds[2];
 	md3Frame_t	*oldFrame, *newFrame;
@@ -156,13 +151,6 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	}
 }
 
-
-/*
-=================
-R_ComputeLOD
-
-=================
-*/
 int R_ComputeLOD( trRefEntity_t *ent ) {
 	float radius;
 	float flod, lodscale;
@@ -240,12 +228,6 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 	return lod;
 }
 
-/*
-=================
-R_ComputeFogNum
-
-=================
-*/
 int R_ComputeFogNum( md3Header_t *header, trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
@@ -273,12 +255,6 @@ int R_ComputeFogNum( md3Header_t *header, trRefEntity_t *ent ) {
 	return 0;
 }
 
-/*
-=================
-R_AddMD3Surfaces
-
-=================
-*/
 void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	int				i;
 	md3Header_t		*header = NULL;

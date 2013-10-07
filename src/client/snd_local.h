@@ -121,7 +121,7 @@ typedef struct wavinfo_s {
 
 // Interface between Q3 sound "api" and the sound backend
 typedef struct soundInterface_s {
-	void (*Shutdown)(void);
+	void (*Shutdown)( void );
 	void (*StartSound)( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx );
 	void (*StartLocalSound)( sfxHandle_t sfx, int channelNum );
 	void (*StartBackgroundTrack)( const char *intro, const char *loop );
@@ -132,7 +132,7 @@ typedef struct soundInterface_s {
 	void (*AddLoopingSound)( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 	void (*AddRealLoopingSound)( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 	void (*StopLoopingSound)(int entityNum );
-	void (*Respatialize)( int entityNum, const vector3 *origin, vector3 axis[3], int inwater );
+	void (*Respatialize)( int entityNum, const vector3 *origin, matrix3 axis, int inwater );
 	void (*UpdateEntityPosition)( int entityNum, const vector3 *origin );
 	void (*Update)( void );
 	void (*DisableSounds)( void );
@@ -152,27 +152,23 @@ typedef struct soundInterface_s {
 
 
 /*
-====================================================================
 
-  SYSTEM SPECIFIC FUNCTIONS
+	SYSTEM SPECIFIC FUNCTIONS
 
-====================================================================
 */
 
 // initializes cycling through a DMA buffer and returns information on it
-qboolean SNDDMA_Init(void);
+qboolean SNDDMA_Init( void );
 
 // gets the current DMA position
-int		SNDDMA_GetDMAPos(void);
+int		SNDDMA_GetDMAPos( void );
 
 // shutdown the DMA xfer.
-void	SNDDMA_Shutdown(void);
+void	SNDDMA_Shutdown( void );
 
-void	SNDDMA_BeginPainting (void);
+void	SNDDMA_BeginPainting( void );
 
-void	SNDDMA_Submit(void);
-
-//====================================================================
+void	SNDDMA_Submit( void );
 
 #define	MAX_CHANNELS			96
 
@@ -203,7 +199,7 @@ qboolean S_LoadSound( sfx_t *sfx );
 void		SND_free(sndBuffer_t *v);
 sndBuffer_t	*SND_malloc( void );
 void		SND_setup( void );
-void		SND_shutdown(void);
+void		SND_shutdown( void );
 
 void S_PaintChannels(int endtime);
 

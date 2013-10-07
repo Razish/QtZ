@@ -26,7 +26,7 @@
  * which modules will be used and give them appropriate initialization calls.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_compress_master (j_compress_ptr cinfo)
 {
   /* Initialize master control (includes parameter checking/processing) */

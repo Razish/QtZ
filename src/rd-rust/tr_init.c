@@ -202,14 +202,9 @@ cvar_t *r_environmentMapping;
 //~QtZ
 
 
-/*
-** InitOpenGL
-**
-** This function is responsible for initializing a valid OpenGL subsystem.  This
-** is done by calling GLimp_Init (which gives us a working OGL subsystem) then
-** setting variables, checking GL constants, and reporting the gfx system config
-** to the user.
-*/
+// This function is responsible for initializing a valid OpenGL subsystem. This is done by calling GLimp_Init
+//	(which gives us a working OGL subsystem) then setting variables, checking GL constants, and reporting
+//	the gfx system config to the user.
 static void InitOpenGL( void )
 {
 	char renderer_buffer[1024];
@@ -248,11 +243,6 @@ static void InitOpenGL( void )
 	GL_SetDefaultState();
 }
 
-/*
-==================
-GL_CheckErrors
-==================
-*/
 void GL_CheckErrors( void ) {
 	int		err;
 	char	s[64];
@@ -292,40 +282,26 @@ void GL_CheckErrors( void ) {
 }
 
 /* 
-============================================================================== 
- 
-						SCREEN SHOTS 
 
-NOTE TTimo
-some thoughts about the screenshots system:
-screenshots get written in fs_homepath + fs_gamedir
-vanilla q3 .. baseq3/screenshots/ *.tga
-team arena .. missionpack/screenshots/ *.tga
+	SCREEN SHOTS
 
-two commands: "screenshot" and "screenshotJPEG"
-we use statics to store a count and start writing the first screenshot/screenshot????.tga (.jpg) available
-(with FS_FileExists / FS_FOpenFileWrite calls)
-FIXME: the statics don't get a reinit between fs_game changes
+	NOTE TTimo
+	some thoughts about the screenshots system:
+	screenshots get written in fs_homepath + fs_gamedir
+	vanilla q3 .. baseq3/screenshots/ *.tga
+	team arena .. missionpack/screenshots/ *.tga
 
-============================================================================== 
+	commands: "screenshot" "screenshot_tga" "screenshot_png"
+	filenames are timestamped
+
 */ 
 
-/* 
-================== 
-RB_ReadPixels
-
-Reads an image but takes care of alignment issues for reading RGB images.
-
-Reads a minimum offset for where the RGB data starts in the image from
-integer stored at pointer offset. When the function has returned the actual
-offset was written back to address offset. This address will always have an
-alignment of packAlign to ensure efficient copying.
-
-Stores the length of padding after a line of pixels to address padlen
-
-Return value must be freed with ri->Hunk_FreeTempMemory()
-================== 
-*/  
+// Reads an image but takes care of alignment issues for reading RGB images.
+//	Reads a minimum offset for where the RGB data starts in the image from integer stored at pointer offset.
+//	When the function has returned the actual offset was written back to address offset. This address will
+//	always have an alignment of packAlign to ensure efficient copying.
+//	Stores the length of padding after a line of pixels to address padlen
+//	Return value must be freed with ri->Hunk_FreeTempMemory()
 
 byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *padlen)
 {
@@ -522,11 +498,6 @@ void R_ScreenShotJPEG_f( void ) {
 }
 
 //QtZ: Post processing
-/*
-==================
-RB_PostProcessCmd
-==================
-*/
 const void *RB_PostProcessCmd( const void *data ) {
 	const postProcessCommand_t*cmd;
 	
@@ -538,13 +509,6 @@ const void *RB_PostProcessCmd( const void *data ) {
 }
 //~QtZ
 
-//============================================================================
-
-/*
-==================
-RB_TakeVideoFrameCmd
-==================
-*/
 const void *RB_TakeVideoFrameCmd( const void *data )
 {
 	const videoFrameCommand_t	*cmd;
@@ -617,11 +581,6 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	return (const void *)(cmd + 1);	
 }
 
-//============================================================================
-
-/*
-** GL_SetDefaultState
-*/
 void GL_SetDefaultState( void )
 {
 	qglClearDepth( 1.0f );
@@ -664,13 +623,7 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_BLEND );
 }
 
-/*
-================
-R_PrintLongString
-
-Workaround for ri->Printf's 1024 characters buffer limit.
-================
-*/
+// Workaround for ri->Printf's 1024 characters buffer limit.
 void R_PrintLongString(const char *string) {
 	char buffer[1024];
 	const char *p;
@@ -686,11 +639,6 @@ void R_PrintLongString(const char *string) {
 	}
 }
 
-/*
-================
-GfxInfo_f
-================
-*/
 void GfxInfo_f( void ) {
 	const char *enablestrings[] = {
 		"disabled",
@@ -751,11 +699,6 @@ void GfxInfo_f( void ) {
 		ri->Printf( PRINT_ALL, "Forcing glFinish\n" );
 }
 
-/*
-===============
-R_Register
-===============
-*/
 void R_Register( void ) 
 {
 	com_altivec							= ri->Cvar_Get( "com_altivec",						"1",								CVAR_ARCHIVE,				NULL, NULL );
@@ -906,11 +849,6 @@ void R_Register( void )
 	ri->Cmd_AddCommand( "postprocess_reload", R_PostProcessReload_f, NULL );
 }
 
-/*
-===============
-R_Init
-===============
-*/
 void R_Init( void ) {	
 	int	err;
 	int i;
@@ -1007,11 +945,6 @@ void R_Init( void ) {
 	ri->Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
-/*
-===============
-RE_Shutdown
-===============
-*/
 void RE_Shutdown( qboolean destroyWindow ) {	
 
 	ri->Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
@@ -1026,9 +959,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	ri->Cmd_RemoveCommand( "gfxinfo" );
 	ri->Cmd_RemoveCommand( "minimize" );
 	ri->Cmd_RemoveCommand( "modelist" );
-	ri->Cmd_RemoveCommand( "shaderstate" );
 	ri->Cmd_RemoveCommand( "postprocess_reload" );
-
 
 	if ( tr.registered ) {
 		R_SyncRenderThread();
@@ -1049,13 +980,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 }
 
 
-/*
-=============
-RE_EndRegistration
-
-Touch all images to make sure they are resident
-=============
-*/
+// Touch all images to make sure they are resident
 void RE_EndRegistration( void ) {
 	R_SyncRenderThread();
 	if (!ri->Sys_LowPhysicalMemory()) {
@@ -1063,13 +988,6 @@ void RE_EndRegistration( void ) {
 	}
 }
 
-
-/*
-@@@@@@@@@@@@@@@@@@@@@
-GetRefAPI
-
-@@@@@@@@@@@@@@@@@@@@@
-*/
 Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	static refexport_t re;
 
@@ -1119,7 +1037,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.UploadCinematic = RE_UploadCinematic;
 
 	re.RegisterFont = RE_RegisterFont;
-	re.RemapShader = R_RemapShader;
 	re.GetEntityToken = R_GetEntityToken;
 	re.inPVS = R_inPVS;
 

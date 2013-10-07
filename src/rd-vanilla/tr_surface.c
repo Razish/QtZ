@@ -39,15 +39,6 @@ It is safe to actually issue drawing commands here if you don't want to
 use the shader system.
 */
 
-
-//============================================================================
-
-
-/*
-==============
-RB_CheckOverflow
-==============
-*/
 void RB_CheckOverflow( int verts, int indexes ) {
 	if (tess.numVertexes + verts < SHADER_MAX_VERTEXES
 		&& tess.numIndexes + indexes < SHADER_MAX_INDEXES) {
@@ -66,12 +57,6 @@ void RB_CheckOverflow( int verts, int indexes ) {
 	RB_BeginSurface(tess.shader, tess.fogNum );
 }
 
-
-/*
-==============
-RB_AddQuadStampExt
-==============
-*/
 void RB_AddQuadStampExt( vector3 *origin, vector3 *left, vector3 *up, byte *color, float s1, float t1, float s2, float t2 ) {
 	vector3		normal;
 	int			ndx;
@@ -133,20 +118,10 @@ void RB_AddQuadStampExt( vector3 *origin, vector3 *left, vector3 *up, byte *colo
 	tess.numIndexes += 6;
 }
 
-/*
-==============
-RB_AddQuadStamp
-==============
-*/
 void RB_AddQuadStamp( vector3 *origin, vector3 *left, vector3 *up, byte *color ) {
 	RB_AddQuadStampExt( origin, left, up, color, 0, 0, 1, 1 );
 }
 
-/*
-==============
-RB_SurfaceSprite
-==============
-*/
 static void RB_SurfaceSprite( void ) {
 	vector3		left, up;
 	float		radius;
@@ -177,11 +152,6 @@ static void RB_SurfaceSprite( void ) {
 	RB_AddQuadStamp( &backEnd.currentEntity->e.origin, &left, &up, backEnd.currentEntity->e.shaderRGBA );
 }
 
-/*
-=============
-RB_SurfacePolychain
-=============
-*/
 static void RB_SurfacePolychain( srfPoly_t *p ) {
 	int		i;
 	int		numv;
@@ -211,11 +181,6 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
 }
 
 
-/*
-=============
-RB_SurfaceTriangles
-=============
-*/
 static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	int			i;
 	drawVert_t	*dv;
@@ -271,13 +236,6 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	tess.numVertexes += srf->numVerts;
 }
 
-
-
-/*
-==============
-RB_SurfaceBeam
-==============
-*/
 static void RB_SurfaceBeam( void )
 {
 #define NUM_BEAM_SEGS 6
@@ -329,8 +287,6 @@ static void RB_SurfaceBeam( void )
 	}
 	qglEnd();
 }
-
-//================================================================================
 
 static void DoRailCore( const vector3 *start, const vector3 *end, const vector3 *up, float len, float spanWidth )
 {
@@ -385,9 +341,6 @@ static void DoRailCore( const vector3 *start, const vector3 *end, const vector3 
 	tess.indexes[tess.numIndexes++] = vbase + 3;
 }
 
-/*
-** RB_SurfaceRailCore
-*/
 static void RB_SurfaceRailCore( void ) {
 	refEntity_t *e;
 	float		len;
@@ -415,9 +368,6 @@ static void RB_SurfaceRailCore( void ) {
 	DoRailCore( &start, &end, &right, len, e->radius );
 }
 
-/*
-** RB_SurfaceLightningBolt
-*/
 static void RB_SurfaceLightningBolt( void ) {
 	refEntity_t *e;
 	float		len;
@@ -453,12 +403,8 @@ static void RB_SurfaceLightningBolt( void ) {
 	}
 }
 
-/*
-** VectorArrayNormalize
-*
-* The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
-* This means that we don't have to worry about zero length or enormously long vectors.
-*/
+// The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
+//	This means that we don't have to worry about zero length or enormously long vectors.
 static void VectorArrayNormalize(vector3 *normals, unsigned int count)
 {
 //    assert(count);
@@ -509,11 +455,6 @@ static void VectorArrayNormalize(vector3 *normals, unsigned int count)
 
 }
 
-
-
-/*
-** LerpMeshVertexes
-*/
 #ifdef idppc_altivec
 static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
 {
@@ -752,12 +693,6 @@ static void LerpMeshVertexes(md3Surface_t *surf, float backlerp)
 	LerpMeshVertexes_scalar( surf, backlerp );
 }
 
-
-/*
-=============
-RB_SurfaceMesh
-=============
-*/
 static void RB_SurfaceMesh(md3Surface_t *surface) {
 	int				j;
 	float			backlerp;
@@ -799,12 +734,6 @@ static void RB_SurfaceMesh(md3Surface_t *surface) {
 
 }
 
-
-/*
-==============
-RB_SurfaceFace
-==============
-*/
 static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 	int			i;
 	unsigned	*indices, *tessIndexes;
@@ -881,13 +810,7 @@ static float	LodErrorForVolume( vector3 *local, float radius ) {
 	return r_lodCurveError->value / d;
 }
 
-/*
-=============
-RB_SurfaceGrid
-
-Just copy the grid of points and triangulate
-=============
-*/
+// Just copy the grid of points and triangulate
 static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 	int		i, j;
 	vector3	*xyz;
@@ -1040,20 +963,12 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 
 
 /*
-===========================================================================
 
-NULL MODEL
+	NULL MODEL
 
-===========================================================================
 */
 
-/*
-===================
-RB_SurfaceAxis
-
-Draws x/y/z lines from the origin for orientation debugging
-===================
-*/
+// Draws x/y/z lines from the origin for orientation debugging
 static void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
 	GL_State( GLS_DEFAULT );
@@ -1072,15 +987,7 @@ static void RB_SurfaceAxis( void ) {
 	qglLineWidth( 1 );
 }
 
-//===========================================================================
-
-/*
-====================
-RB_SurfaceEntity
-
-Entities that have a single procedurally generated surface
-====================
-*/
+// Entities that have a single procedurally generated surface
 static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	switch( backEnd.currentEntity->e.reType ) {
 	case RT_SPRITE:

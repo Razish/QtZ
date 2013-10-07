@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #ifdef AASINTERN
-void AAS_InitAlternativeRouting(void);
-void AAS_ShutdownAlternativeRouting(void);
+void AAS_InitAlternativeRouting( void );
+void AAS_ShutdownAlternativeRouting( void );
 #endif //AASINTERN
 
 

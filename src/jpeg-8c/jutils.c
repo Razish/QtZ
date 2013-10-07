@@ -159,7 +159,7 @@ jround_up (long a, long b)
 #endif
 
 
-GLOBAL(void)
+GLOBAL( void )
 jcopy_sample_rows (JSAMPARRAY input_array, int source_row,
 		   JSAMPARRAY output_array, int dest_row,
 		   int num_rows, JDIMENSION num_cols)
@@ -193,7 +193,7 @@ jcopy_sample_rows (JSAMPARRAY input_array, int source_row,
 }
 
 
-GLOBAL(void)
+GLOBAL( void )
 jcopy_block_row (JBLOCKROW input_row, JBLOCKROW output_row,
 		 JDIMENSION num_blocks)
 /* Copy a row of coefficient blocks from one place to another. */
@@ -213,7 +213,7 @@ jcopy_block_row (JBLOCKROW input_row, JBLOCKROW output_row,
 }
 
 
-GLOBAL(void)
+GLOBAL( void )
 jzero_far (void FAR * target, size_t bytestozero)
 /* Zero out a chunk of FAR memory. */
 /* This might be sample-array data, block-array data, or alloc_large data. */

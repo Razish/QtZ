@@ -186,7 +186,7 @@ arith_decode (j_decompress_ptr cinfo, unsigned char *st)
  * Check for a restart marker & resynchronize decoder.
  */
 
-LOCAL(void)
+LOCAL( void )
 process_restart (j_decompress_ptr cinfo)
 {
   arith_entropy_ptr entropy = (arith_entropy_ptr) cinfo->entropy;
@@ -627,7 +627,7 @@ decode_mcu (j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * Initialize for an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass (j_decompress_ptr cinfo)
 {
   arith_entropy_ptr entropy = (arith_entropy_ptr) cinfo->entropy;
@@ -737,7 +737,7 @@ start_pass (j_decompress_ptr cinfo)
  * Module initialization routine for arithmetic entropy decoding.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_arith_decoder (j_decompress_ptr cinfo)
 {
   arith_entropy_ptr entropy;

@@ -43,7 +43,7 @@ METHODDEF(int) consume_markers JPP((j_decompress_ptr cinfo));
  * Hence it mustn't do anything that can't be done twice.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_core_output_dimensions (j_decompress_ptr cinfo)
 /* Do computations that are needed before master selection phase.
  * This function is used for transcoding and full decompression.
@@ -204,7 +204,7 @@ jpeg_core_output_dimensions (j_decompress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 initial_setup (j_decompress_ptr cinfo)
 /* Called once, when first SOS marker is reached */
 {
@@ -384,7 +384,7 @@ initial_setup (j_decompress_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 per_scan_setup (j_decompress_ptr cinfo)
 /* Do computations that are needed before processing a JPEG scan */
 /* cinfo->comps_in_scan and cinfo->cur_comp_info[] were set from SOS marker */
@@ -483,7 +483,7 @@ per_scan_setup (j_decompress_ptr cinfo)
  * not at the current Q-table slots.
  */
 
-LOCAL(void)
+LOCAL( void )
 latch_quant_tables (j_decompress_ptr cinfo)
 {
   int ci, qtblno;
@@ -517,7 +517,7 @@ latch_quant_tables (j_decompress_ptr cinfo)
  * Subsequent calls come from consume_markers, below.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_input_pass (j_decompress_ptr cinfo)
 {
   per_scan_setup(cinfo);
@@ -534,7 +534,7 @@ start_input_pass (j_decompress_ptr cinfo)
  * the expected data of the scan.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 finish_input_pass (j_decompress_ptr cinfo)
 {
   cinfo->inputctl->consume_input = consume_markers;
@@ -615,7 +615,7 @@ consume_markers (j_decompress_ptr cinfo)
  * Reset state to begin a fresh datastream.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 reset_input_controller (j_decompress_ptr cinfo)
 {
   my_inputctl_ptr inputctl = (my_inputctl_ptr) cinfo->inputctl;
@@ -637,7 +637,7 @@ reset_input_controller (j_decompress_ptr cinfo)
  * This is called only once, when the decompression object is created.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_input_controller (j_decompress_ptr cinfo)
 {
   my_inputctl_ptr inputctl;

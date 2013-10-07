@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-//============================================================================
-
 //
 // msg.c
 //
@@ -110,14 +108,10 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct pl
 
 void MSG_ReportChangeVectors_f( void );
 
-//============================================================================
-
 /*
-==============================================================
 
-NET
+	NET
 
-==============================================================
 */
 
 #define NET_ENABLEV4            0x01
@@ -171,7 +165,7 @@ void		NET_Init( void );
 void		NET_Shutdown( void );
 void		NET_Restart_f( void );
 void		NET_Config( qboolean enableNetworking );
-void		NET_FlushPacketQueue(void);
+void		NET_FlushPacketQueue( void );
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
 void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
@@ -184,8 +178,8 @@ const char	*NET_AdrToString (netadr_t a);
 const char	*NET_AdrToStringwPort (netadr_t a);
 int		NET_StringToAdr ( const char *s, netadr_t *a, netadrtype_t family);
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
-void		NET_JoinMulticast6(void);
-void		NET_LeaveMulticast6(void);
+void		NET_JoinMulticast6( void );
+void		NET_LeaveMulticast6( void );
 void		NET_Sleep(int msec);
 
 
@@ -241,11 +235,9 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
 
 
 /*
-==============================================================
 
-PROTOCOL
+	PROTOCOL
 
-==============================================================
 */
 
 #define	PROTOCOL_VERSION 1
@@ -307,13 +299,11 @@ enum clc_ops_e {
 };
 
 /*
-==============================================================
 
-CMD
+	CMD
 
-Command text buffering and command execution
+	Command text buffering and command execution
 
-==============================================================
 */
 
 /*
@@ -324,7 +314,7 @@ files can be execed.
 
 */
 
-void Cbuf_Init (void);
+void Cbuf_Init( void );
 // allocates an initial text buffer that will grow as needed
 
 void Cbuf_AddText( const char *text );
@@ -333,13 +323,11 @@ void Cbuf_AddText( const char *text );
 void Cbuf_ExecuteText( int exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
-void Cbuf_Execute (void);
+void Cbuf_Execute( void );
 // Pulls off \n terminated lines of text from the command buffer and sends
 // them through Cmd_ExecuteString.  Stops when the buffer is empty.
 // Normally called once per frame, but may be explicitly invoked.
 // Do not call inside a command function, or current args will be destroyed.
-
-//===========================================================================
 
 /*
 
@@ -351,7 +339,7 @@ then searches for a command or variable that matches the first token.
 typedef void (*xcommand_t)( void );
 typedef void (*completionFunc_t)( char *args, int argNum );
 
-void	Cmd_Init (void);
+void	Cmd_Init( void );
 
 void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, completionFunc_t complete );
 // called by the init functions of other parts of the program to
@@ -369,16 +357,16 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) );
 void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 
-int		Cmd_Argc (void);
+int		Cmd_Argc( void );
 char	*Cmd_Argv (int arg);
 void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
-char	*Cmd_Args (void);
+char	*Cmd_Args( void );
 char	*Cmd_ArgsFrom( int arg );
 void	Cmd_ArgsBuffer( char *buffer, int bufferLength );
-char	*Cmd_Cmd (void);
+char	*Cmd_Cmd( void );
 void	Cmd_Args_Sanitize( void );
 // The functions that execute commands get their parameters with these
-// functions. Cmd_Argv () will return an empty string, not a NULL
+// functions. Cmd_Argv() will return an empty string, not a NULL
 // if arg > argc, so string operations are allways safe.
 
 void	Cmd_TokenizeString( const char *text );
@@ -392,11 +380,9 @@ void	Cmd_ExecuteString( const char *text );
 
 
 /*
-==============================================================
 
-CVAR
+	CVAR
 
-==============================================================
 */
 
 /*
@@ -489,14 +475,12 @@ extern	int			cvar_modifiedFlags;
 // can then be cleared to allow another change detection.
 
 /*
-==============================================================
 
-FILESYSTEM
+	FILESYSTEM
 
-No stdio calls should be used by any part of the game, because
-we need to deal with all sorts of directory and seperator char
-issues.
-==============================================================
+	No stdio calls should be used by any part of the game, because we need to deal with all sorts of
+	directory and seperator char issues.
+
 */
 
 // referenced flags
@@ -515,7 +499,7 @@ issues.
 
 qboolean FS_Initialized( void );
 
-void	FS_InitFilesystem ( void );
+void	FS_InitFilesystem( void );
 void	FS_Shutdown( qboolean closemfp );
 
 qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect);
@@ -640,15 +624,13 @@ void FS_HomeRemove( const char *homePath );
 
 void	FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk );
 
-const char *FS_GetCurrentGameDir(void);
+const char *FS_GetCurrentGameDir( void );
 qboolean FS_Which(const char *filename, void *searchPath);
 
 /*
-==============================================================
 
-Edit fields and command line history/completion
+	Edit fields and command line history/completion
 
-==============================================================
 */
 
 //QtZ: Centralized this, could opt for a cvar later
@@ -660,11 +642,9 @@ void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt
 void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
 
 /*
-==============================================================
 
-MISC
+	MISC
 
-==============================================================
 */
 
 // returned by Sys_GetProcessorFeatures
@@ -841,11 +821,9 @@ void Com_Shutdown( void );
 
 
 /*
-==============================================================
 
-CLIENT / SERVER SYSTEMS
+	CLIENT / SERVER SYSTEMS
 
-==============================================================
 */
 
 //
@@ -889,13 +867,13 @@ void CL_FlushMemory( void );
 void CL_ShutdownAll(qboolean shutdownRef);
 // shutdown client
 
-void CL_InitRef(void);
+void CL_InitRef( void );
 // initialize renderer interface
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 // start all the client stuff using the hunk
 
-void CL_Snd_Shutdown(void);
+void CL_Snd_Shutdown( void );
 // Restart sound subsystem
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );
@@ -932,16 +910,14 @@ void		SV_ShutdownGameProgs( void );
 qboolean UI_GameCommand( void );
 
 /*
-==============================================================
 
-NON-PORTABLE SYSTEM SERVICES
+	NON-PORTABLE SYSTEM SERVICES
 
-==============================================================
 */
 
 #define MAX_JOYSTICK_AXIS 16
 
-void	Sys_Init (void);
+void	Sys_Init( void );
 
 // general development dll loading for virtual machine testing
 void	Sys_UnloadDll( void *dllHandle );
@@ -949,14 +925,14 @@ void	Sys_UnloadDll( void *dllHandle );
 char	*Sys_GetCurrentUser( void );
 
 void	QDECL Sys_Error( const char *error, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
-void	Sys_Quit (void) __attribute__ ((noreturn));
+void	Sys_Quit( void ) __attribute__ ((noreturn));
 char	*Sys_GetClipboardData( void );	// note that this isn't journaled...
 
 void	Sys_Print( const char *msg );
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-int		Sys_Milliseconds (void);
+int		Sys_Milliseconds( void );
 
 qboolean Sys_RandomBytes( byte *string, int len );
 
@@ -973,24 +949,24 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family );
 //Does NOT parse port numbers, only base addresses.
 
 qboolean	Sys_IsLANAddress (netadr_t adr);
-void		Sys_ShowIP(void);
+void		Sys_ShowIP( void );
 
 FILE	*Sys_FOpen( const char *ospath, const char *mode );
 qboolean Sys_Mkdir( const char *path );
 FILE	*Sys_Mkfifo( const char *ospath );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
-char	*Sys_DefaultInstallPath(void);
+char	*Sys_DefaultInstallPath( void );
 
 #ifdef MACOS_X
-char    *Sys_DefaultAppPath(void);
+char    *Sys_DefaultAppPath( void );
 #endif
 
 void  Sys_SetDefaultHomePath(const char *path);
-char	*Sys_DefaultHomePath(void);
+char	*Sys_DefaultHomePath( void );
 const char *Sys_Dirname( char *path );
 const char *Sys_Basename( char *path );
-char *Sys_ConsoleInput(void);
+char *Sys_ConsoleInput( void );
 
 char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
 void	Sys_FreeFileList( char **list );
@@ -1067,7 +1043,7 @@ void	Huff_putBit( int bit, byte *fout, int *offset);
 int		Huff_getBit( byte *fout, int *offset);
 
 // don't use if you don't know what you're doing.
-int		Huff_getBloc(void);
+int		Huff_getBloc( void );
 void	Huff_setBloc(int _bloc);
 
 

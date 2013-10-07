@@ -71,8 +71,8 @@ static qboolean debugMode = qfalse;
 static int lastListBoxClickTime = 0;
 
 void Item_RunScript(itemDef_t *item, const char *s);
-void Item_SetupKeywordHash(void);
-void Menu_SetupKeywordHash(void);
+void Item_SetupKeywordHash( void );
+void Menu_SetupKeywordHash( void );
 int BindingIDFromName(const char *name);
 qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down);
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu);
@@ -90,12 +90,6 @@ static char memoryPool[MEM_POOL_SIZE];
 static unsigned int allocPoint;
 static qboolean outOfMemory;
 
-
-/*
-===============
-UI_Alloc
-===============
-*/				  
 void *UI_Alloc( size_t size ) {
 	char	*p; 
 
@@ -115,11 +109,6 @@ void *UI_Alloc( size_t size ) {
 	return p;
 }
 
-/*
-===============
-UI_InitMemory
-===============
-*/
 void UI_InitMemory( void ) {
 	allocPoint = 0;
 	outOfMemory = qfalse;
@@ -134,11 +123,6 @@ qboolean UI_OutOfMemory( void ) {
 
 
 #define HASH_TABLE_SIZE 2048
-/*
-================
-return a hash value for the string
-================
-*/
 static unsigned hashForString(const char *str) {
 	int		i;
 	unsigned	hash;
@@ -217,7 +201,7 @@ const char *String_Alloc(const char *p) {
 	return NULL;
 }
 
-void String_Report(void) {
+void String_Report( void ) {
 	float f;
 	Com_Printf("Memory/String Pool Info\n");
 	Com_Printf("----------------\n");
@@ -227,12 +211,7 @@ void String_Report(void) {
 	Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
 }
 
-/*
-=================
-String_Init
-=================
-*/
-void String_Init(void) {
+void String_Init( void ) {
 	int i;
 	for (i = 0; i < HASH_TABLE_SIZE; i++) {
 		strHandle[i] = NULL;
@@ -249,35 +228,6 @@ void String_Init(void) {
 	}
 }
 
-#if 0
-/*
-=================
-PC_SourceWarning
-=================
-*/
-static __attribute__ ((format (printf, 2, 3))) void PC_SourceWarning(int handle, char *format, ...) {
-	int line;
-	char filename[128];
-	va_list argptr;
-	static char string[4096];
-
-	va_start (argptr, format);
-	Q_vsnprintf (string, sizeof(string), format, argptr);
-	va_end (argptr);
-
-	filename[0] = '\0';
-	line = 0;
-	trap->PC_SourceFileAndLine(handle, filename, &line);
-
-	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
-}
-#endif
-
-/*
-=================
-PC_SourceError
-=================
-*/
 static __attribute__ ((format (printf, 2, 3))) void PC_SourceError(int handle, char *format, ...) {
 	int line;
 	char filename[128];
@@ -295,11 +245,6 @@ static __attribute__ ((format (printf, 2, 3))) void PC_SourceError(int handle, c
 	Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
 }
 
-/*
-=================
-LerpColor
-=================
-*/
 void LerpColor(vector4 *a, vector4 *b, vector4 *c, float t)
 {
 	int i;
@@ -315,11 +260,6 @@ void LerpColor(vector4 *a, vector4 *b, vector4 *c, float t)
 	}
 }
 
-/*
-=================
-Float_Parse
-=================
-*/
 qboolean Float_Parse(char **p, float *f) {
 	char	*token;
 	token = COM_ParseExt(p, qfalse);
@@ -331,11 +271,6 @@ qboolean Float_Parse(char **p, float *f) {
 	}
 }
 
-/*
-=================
-PC_Float_Parse
-=================
-*/
 qboolean PC_Float_Parse(int handle, float *f) {
 	pc_token_t token;
 	int negative = qfalse;
@@ -358,11 +293,6 @@ qboolean PC_Float_Parse(int handle, float *f) {
 	return qtrue;
 }
 
-/*
-=================
-Color_Parse
-=================
-*/
 qboolean Color_Parse(char **p, vector4 *c) {
 	int i;
 	float f;
@@ -376,11 +306,6 @@ qboolean Color_Parse(char **p, vector4 *c) {
 	return qtrue;
 }
 
-/*
-=================
-PC_Color_Parse
-=================
-*/
 qboolean PC_Color_Parse(int handle, vector4 *c) {
 	int i;
 	float f;
@@ -394,11 +319,6 @@ qboolean PC_Color_Parse(int handle, vector4 *c) {
 	return qtrue;
 }
 
-/*
-=================
-Int_Parse
-=================
-*/
 qboolean Int_Parse(char **p, int *i) {
 	char	*token;
 	token = COM_ParseExt(p, qfalse);
@@ -411,11 +331,6 @@ qboolean Int_Parse(char **p, int *i) {
 	}
 }
 
-/*
-=================
-PC_Int_Parse
-=================
-*/
 qboolean PC_Int_Parse(int handle, int *i) {
 	pc_token_t token;
 	int negative = qfalse;
@@ -437,11 +352,6 @@ qboolean PC_Int_Parse(int handle, int *i) {
 	return qtrue;
 }
 
-/*
-=================
-Rect_Parse
-=================
-*/
 qboolean Rect_Parse(char **p, rectDef_t *r) {
 	if (Float_Parse(p, &r->x)) {
 		if (Float_Parse(p, &r->y)) {
@@ -455,11 +365,6 @@ qboolean Rect_Parse(char **p, rectDef_t *r) {
 	return qfalse;
 }
 
-/*
-=================
-PC_Rect_Parse
-=================
-*/
 qboolean PC_Rect_Parse(int handle, rectDef_t *r) {
 	if (PC_Float_Parse(handle, &r->x)) {
 		if (PC_Float_Parse(handle, &r->y)) {
@@ -473,11 +378,6 @@ qboolean PC_Rect_Parse(int handle, rectDef_t *r) {
 	return qfalse;
 }
 
-/*
-=================
-String_Parse
-=================
-*/
 qboolean String_Parse(char **p, const char **out) {
 	char *token;
 
@@ -489,11 +389,6 @@ qboolean String_Parse(char **p, const char **out) {
 	return qfalse;
 }
 
-/*
-=================
-PC_String_Parse
-=================
-*/
 qboolean PC_String_Parse(int handle, const char **out) {
 	pc_token_t token;
 
@@ -504,11 +399,6 @@ qboolean PC_String_Parse(int handle, const char **out) {
 	return qtrue;
 }
 
-/*
-=================
-PC_Script_Parse
-=================
-*/
 qboolean PC_Script_Parse(int handle, const char **out) {
 	char script[2048];
 	pc_token_t token;
@@ -545,13 +435,7 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 // display, window, menu, item code
 // 
 
-/*
-==================
-Init_Display
-
-Initializes the display with a structure to all the drawing routines
-==================
-*/
+// Initializes the display with a structure to all the drawing routines
 void Init_Display(displayContextDef_t *dc) {
 	DC = dc;
 }
@@ -568,14 +452,7 @@ void GradientBar_Paint(rectDef_t *rect, vector4 *color) {
 }
 
 
-/*
-==================
-Window_Init
-
-Initializes a window structure ( windowDef_t ) with defaults
-
-==================
-*/
+// Initializes a window structure ( windowDef_t ) with defaults
 void Window_Init(windowDef_t *w) {
 	memset(w, 0, sizeof(windowDef_t));
 	w->borderSize = 1;
@@ -1574,14 +1451,8 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 char		ui_deferredScript [ MAX_DEFERRED_SCRIPT ];
 itemDef_t*	ui_deferredScriptItem = NULL;
 
-/*
-=================
-Script_Defer
-
-Defers the rest of the script based on the defer condition.  The deferred
-portion of the script can later be run with the "rundeferred"
-=================
-*/
+// Defers the rest of the script based on the defer condition.
+//	The deferred portion of the script can later be run with the "rundeferred"
 qboolean Script_Defer ( itemDef_t* item, char **args )
 {
 	// Should the script be deferred?
@@ -1601,14 +1472,7 @@ qboolean Script_Defer ( itemDef_t* item, char **args )
 	return qtrue;
 }
 
-/*
-=================
-Script_RunDeferred
-
-Runs the last deferred script, there can only be one script deferred at a 
-time so be careful of recursion
-=================
-*/
+// Runs the last deferred script, there can only be one script deferred at a time so be careful of recursion
 qboolean Script_RunDeferred ( itemDef_t* item, char **args )
 {
 	// Make sure there is something to run.
@@ -1804,11 +1668,6 @@ qboolean Script_SetPlayerModel(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-/*
-=================
-ParseRect
-=================
-*/
 qboolean ParseRect(const char **p, rectDef_t *r) 
 {
 	if (!COM_ParseFloat(p, &r->x)) 
@@ -1826,14 +1685,9 @@ qboolean ParseRect(const char **p, rectDef_t *r)
 	}
 	return qfalse;
 }
-/*
-=================
-Script_Transition2
-uses current origin instead of specifing a starting origin
 
-transition2		lfvscr		25 0 202 264  20 25
-=================
-*/
+// uses current origin instead of specifing a starting origin
+//	transition2 lfvscr 25 0 202 264 20 25
 qboolean Script_Transition2(itemDef_t *item, char **args) 
 {
 	const char *name;
@@ -4357,11 +4211,6 @@ static bind_t g_bindings[] =
 
 static const int g_bindCount = ARRAY_LEN(g_bindings);
 
-/*
-=================
-Controls_GetKeyAssignment
-=================
-*/
 static void Controls_GetKeyAssignment (char *command, int *twokeys)
 {
 	int		count;
@@ -4387,11 +4236,6 @@ static void Controls_GetKeyAssignment (char *command, int *twokeys)
 	}
 }
 
-/*
-=================
-Controls_GetConfig
-=================
-*/
 void Controls_GetConfig( void )
 {
 	int		i;
@@ -4408,11 +4252,6 @@ void Controls_GetConfig( void )
 	}
 }
 
-/*
-=================
-Controls_SetConfig
-=================
-*/
 void Controls_SetConfig(qboolean restart)
 {
 	int		i;
@@ -4446,11 +4285,6 @@ void Controls_SetConfig(qboolean restart)
 	//trap->Cmd_ExecuteText( EXEC_APPEND, "in_restart\n" );
 }
 
-/*
-=================
-Controls_SetDefaults
-=================
-*/
 void Controls_SetDefaults( void )
 {
 	int	i;
@@ -4578,7 +4412,7 @@ void Item_Bind_Paint(itemDef_t *item) {
 	}
 }
 
-qboolean Display_KeyBindPending(void) {
+qboolean Display_KeyBindPending( void ) {
 	return g_waitingForKey;
 }
 
@@ -5342,7 +5176,7 @@ itemDef_t *Menu_GetFocusedItem(menuDef_t *menu) {
 	return NULL;
 }
 
-menuDef_t *Menu_GetFocused(void) {
+menuDef_t *Menu_GetFocused( void ) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
@@ -5392,7 +5226,7 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
 	}
 }
 
-qboolean Menus_AnyFullScreenVisible(void) {
+qboolean Menus_AnyFullScreenVisible( void ) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen) {
@@ -5572,11 +5406,6 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	}
 }
 
-/*
-===============
-Item_ValidateTypeData
-===============
-*/
 void Item_ValidateTypeData(itemDef_t *item) {
 	if (item->typeData) {
 		return;
@@ -5602,12 +5431,6 @@ void Item_ValidateTypeData(itemDef_t *item) {
 		item->typeData = UI_Alloc(sizeof(textScrollDef_t));
 	}
 }
-
-/*
-===============
-Keyword Hash
-===============
-*/
 
 #define KEYWORDHASH_SIZE	512
 
@@ -5657,12 +5480,6 @@ keywordHash_t *KeywordHash_Find(keywordHash_t *table[], char *keyword)
 	}
 	return NULL;
 }
-
-/*
-===============
-Item Keyword Parse functions
-===============
-*/
 
 // name <string>
 qboolean ItemParse_name( itemDef_t *item, int handle ) {
@@ -6444,12 +6261,7 @@ keywordHash_t itemParseKeywords[] = {
 
 keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
 
-/*
-===============
-Item_SetupKeywordHash
-===============
-*/
-void Item_SetupKeywordHash(void) {
+void Item_SetupKeywordHash( void ) {
 	int i;
 
 	memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
@@ -6458,11 +6270,6 @@ void Item_SetupKeywordHash(void) {
 	}
 }
 
-/*
-===============
-Item_Parse
-===============
-*/
 qboolean Item_Parse(int handle, itemDef_t *item) {
 	pc_token_t token;
 	keywordHash_t *key;
@@ -6590,12 +6397,6 @@ void Item_InitControls(itemDef_t *item) {
 	}
 }
 
-/*
-===============
-Menu Keyword Parse functions
-===============
-*/
-
 qboolean MenuParse_font( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_String_Parse(handle, &menu->font)) {
@@ -6680,11 +6481,6 @@ qboolean MenuParse_onClose( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_onAccept
-=================
-*/
 qboolean MenuParse_onAccept( itemDef_t *item, int handle ) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -6736,11 +6532,6 @@ qboolean MenuParse_backcolor( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_descAlignment
-=================
-*/
 qboolean MenuParse_descAlignment( itemDef_t *item, int handle ) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -6754,11 +6545,6 @@ qboolean MenuParse_descAlignment( itemDef_t *item, int handle )
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_descX
-=================
-*/
 qboolean MenuParse_descX( itemDef_t *item, int handle ) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -6770,11 +6556,6 @@ qboolean MenuParse_descX( itemDef_t *item, int handle )
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_descY
-=================
-*/
 qboolean MenuParse_descY( itemDef_t *item, int handle ) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -6786,11 +6567,6 @@ qboolean MenuParse_descY( itemDef_t *item, int handle )
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_descScale
-=================
-*/
 qboolean MenuParse_descScale( itemDef_t *item, int handle) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -6802,11 +6578,6 @@ qboolean MenuParse_descScale( itemDef_t *item, int handle)
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_descColor
-=================
-*/
 qboolean MenuParse_descColor( itemDef_t *item, int handle) 
 {
 	int i;
@@ -6997,11 +6768,6 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-/*
-=================
-MenuParse_focuscolor
-=================
-*/
 qboolean MenuParse_appearanceIncrement( itemDef_t *item, int handle ) 
 {
 	menuDef_t *menu = (menuDef_t*)item;
@@ -7054,12 +6820,7 @@ keywordHash_t menuParseKeywords[] = {
 
 keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE];
 
-/*
-===============
-Menu_SetupKeywordHash
-===============
-*/
-void Menu_SetupKeywordHash(void) {
+void Menu_SetupKeywordHash( void ) {
 	int i;
 
 	memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
@@ -7068,11 +6829,6 @@ void Menu_SetupKeywordHash(void) {
 	}
 }
 
-/*
-===============
-Menu_Parse
-===============
-*/
 qboolean Menu_Parse(int handle, menuDef_t *menu) {
 	pc_token_t token;
 	keywordHash_t *key;
@@ -7108,11 +6864,6 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 	return qfalse;
 }
 
-/*
-===============
-Menu_New
-===============
-*/
 void Menu_New(int handle) {
 	menuDef_t *menu = &Menus[menuCount];
 
@@ -7125,11 +6876,11 @@ void Menu_New(int handle) {
 	}
 }
 
-int Menu_Count(void) {
+int Menu_Count( void ) {
 	return menuCount;
 }
 
-void Menu_PaintAll(void) {
+void Menu_PaintAll( void ) {
 	int i;
 	if (captureFunc) {
 		captureFunc(captureData);
@@ -7146,11 +6897,11 @@ void Menu_PaintAll(void) {
 	}
 }
 
-void Menu_Reset(void) {
+void Menu_Reset( void ) {
 	menuCount = 0;
 }
 
-displayContextDef_t *Display_GetContext(void) {
+displayContextDef_t *Display_GetContext( void ) {
 	return DC;
 }
 
@@ -7250,7 +7001,7 @@ static void Menu_CacheContents(menuDef_t *menu) {
 
 }
 
-void Display_CacheAll(void) {
+void Display_CacheAll( void ) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		Menu_CacheContents(&Menus[i]);

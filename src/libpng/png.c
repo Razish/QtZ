@@ -882,7 +882,7 @@ png_reset_zstream(png_structrp png_ptr)
 
 /* This function was added to libpng-1.0.7 */
 png_uint_32 PNGAPI
-png_access_version_number(void)
+png_access_version_number( void )
 {
    /* Version of *.c files used when building libpng */
    return((png_uint_32)PNG_LIBPNG_VER);
@@ -1799,7 +1799,7 @@ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colorspacerp colorspace,
    /* This check is just done for the error reporting - the routine always
     * returns true when the 'from' argument corresponds to sRGB (2).
     */
-   (void)png_colorspace_check_gamma(png_ptr, colorspace, PNG_GAMMA_sRGB_INVERSE,
+ ( void )png_colorspace_check_gamma(png_ptr, colorspace, PNG_GAMMA_sRGB_INVERSE,
       2/*from sRGB*/);
 
    /* intent: bugs in GCC force 'int' to be used as the parameter type. */
@@ -1883,7 +1883,7 @@ png_icc_check_header(png_const_structrp png_ptr, png_colorspacerp colorspace,
     * versions.
     */
    if (temp >= PNG_sRGB_INTENT_LAST)
-      (void)png_icc_profile_error(png_ptr, NULL, name, temp,
+    ( void )png_icc_profile_error(png_ptr, NULL, name, temp,
          "intent outside defined range");
 
    /* At this point the tag table can't be checked because it hasn't necessarily
@@ -1911,7 +1911,7 @@ png_icc_check_header(png_const_structrp png_ptr, png_colorspacerp colorspace,
     * following is just a warning.
     */
    if (memcmp(profile+68, D50_nCIEXYZ, 12) != 0)
-      (void)png_icc_profile_error(png_ptr, NULL, name, 0/*no tag value*/,
+    ( void )png_icc_profile_error(png_ptr, NULL, name, 0/*no tag value*/,
          "PCS illuminant is not D50");
 
    /* The PNG spec requires this:
@@ -1993,7 +1993,7 @@ png_icc_check_header(png_const_structrp png_ptr, png_colorspacerp colorspace,
           * contain an AToB0 tag that is open to misintrepretation.  Almost
           * certainly it will fail the tests below.
           */
-         (void)png_icc_profile_error(png_ptr, NULL, name, temp,
+       ( void )png_icc_profile_error(png_ptr, NULL, name, temp,
             "unexpected NamedColor ICC profile class");
          break;
 
@@ -2003,7 +2003,7 @@ png_icc_check_header(png_const_structrp png_ptr, png_colorspacerp colorspace,
           * tag content to ensure they are backward compatible with one of the
           * understood profiles.
           */
-         (void)png_icc_profile_error(png_ptr, NULL, name, temp,
+       ( void )png_icc_profile_error(png_ptr, NULL, name, temp,
             "unrecognized ICC profile class");
          break;
    }
@@ -2056,7 +2056,7 @@ png_icc_check_tag_table(png_const_structrp png_ptr, png_colorspacerp colorspace,
           * only a warning here because libpng does not care about the
           * alignment.
           */
-         (void)png_icc_profile_error(png_ptr, NULL, name, tag_id,
+       ( void )png_icc_profile_error(png_ptr, NULL, name, tag_id,
             "ICC profile tag start not a multiple of 4");
       }
 
@@ -2256,7 +2256,7 @@ png_icc_set_sRGB(png_const_structrp png_ptr,
     * the sRGB information.
     */
    if (png_compare_ICC_profile_with_sRGB(png_ptr, profile, adler))
-      (void)png_colorspace_set_sRGB(png_ptr, colorspace,
+    ( void )png_colorspace_set_sRGB(png_ptr, colorspace,
          (int)/*already checked*/png_get_uint_32(profile+64));
 }
 #endif /* PNG_READ_sRGB_SUPPORTED */
@@ -2727,7 +2727,7 @@ png_ascii_from_fp(png_const_structrp png_ptr, png_charp ascii, png_size_t size,
           * C multiply would break the following for negative
           * exponents.
           */
-         (void)frexp(fp, &exp_b10); /* exponent to base 2 */
+       ( void )frexp(fp, &exp_b10); /* exponent to base 2 */
 
          exp_b10 = (exp_b10 * 77) >> 8; /* <= exponent to base 10 */
 
@@ -4229,7 +4229,7 @@ png_image_free_function(png_voidp argument)
          if (fp != NULL)
          {
             cp->png_ptr->io_ptr = NULL;
-            (void)fclose(fp);
+          ( void )fclose(fp);
          }
       }
 #  endif
@@ -4276,7 +4276,7 @@ png_image_free(png_imagep image)
       image->opaque->error_buf == NULL)
    {
       /* Ignore errors here: */
-      (void)png_safe_execute(image, png_image_free_function, image);
+    ( void )png_safe_execute(image, png_image_free_function, image);
       image->opaque = NULL;
    }
 }

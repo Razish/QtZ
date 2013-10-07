@@ -153,12 +153,7 @@ vector3			rforward, rright, rup;
 
 float			oldtime;
 
-/*
-===============
-CL_ClearParticles
-===============
-*/
-void CG_ClearParticles (void)
+void CG_ClearParticles( void )
 {
 	int		i;
 
@@ -190,12 +185,6 @@ void CG_ClearParticles (void)
 	initparticles = qtrue;
 }
 
-
-/*
-=====================
-CG_AddParticleToScene
-=====================
-*/
 void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha)
 {
 
@@ -223,7 +212,7 @@ void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha)
 					p->time = (float)cg.time;	
 					VectorCopy (org, &p->org); // Ridah, fixes rare snow flakes that flicker on the ground
 									
-					p->org.z = ( p->start + crandom () * 4 );
+					p->org.z = ( p->start + crandom() * 4 );
 					
 					
 					if (p->type == P_BUBBLE_TURBULENT)
@@ -840,12 +829,7 @@ void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha)
 // Ridah, made this static so it doesn't interfere with other files
 static float roll = 0.0;
 
-/*
-===============
-CG_AddParticles
-===============
-*/
-void CG_AddParticles (void)
+void CG_AddParticles( void )
 {
 	cparticle_t		*p, *next;
 	float			alpha;
@@ -855,7 +839,7 @@ void CG_AddParticles (void)
 	vector3			rotate_ang;
 
 	if (!initparticles)
-		CG_ClearParticles ();
+		CG_ClearParticles();
 
 	VectorCopy( &cg.refdef.viewaxis[0], &vforward );
 	VectorCopy( &cg.refdef.viewaxis[1], &vright );
@@ -968,11 +952,6 @@ void CG_AddParticles (void)
 	active_particles = active;
 }
 
-/*
-======================
-CG_AddParticles
-======================
-*/
 void CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent)
 {
 	cparticle_t	*p;
@@ -1035,8 +1014,8 @@ void CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent)
 
 	if (turb)
 	{
-		p->accel.x = crandom () * 16;
-		p->accel.y = crandom () * 16;
+		p->accel.x = crandom() * 16;
+		p->accel.y = crandom() * 16;
 	}
 
 }
@@ -1248,12 +1227,6 @@ void CG_ParticleBulletDebris (vector3 *org, vector3 *vel, int duration)
 	
 }
 
-/*
-======================
-CG_ParticleExplosion
-======================
-*/
-
 void CG_ParticleExplosion (char *animStr, vector3 *origin, vector3 *vel, int duration, int sizeStart, int sizeEnd)
 {
 	cparticle_t	*p;
@@ -1312,8 +1285,7 @@ void CG_ParticleExplosion (char *animStr, vector3 *origin, vector3 *vel, int dur
 }
 
 // Rafael Shrapnel
-void CG_AddParticleShrapnel (localEntity_t *le)
-{
+void CG_AddParticleShrapnel( localEntity_t *le ) {
 	return;
 }
 // done.
@@ -1883,8 +1855,8 @@ void CG_ParticleSparks (vector3 *org, vector3 *vel, int duration, float x, float
 	p->vel.y += (crandom() * 4);
 	p->vel.z += (20 + (crandom() * 10)) * speed;	
 
-	p->accel.x = crandom () * 4;
-	p->accel.y = crandom () * 4;
+	p->accel.x = crandom() * 4;
+	p->accel.y = crandom() * 4;
 	
 }
 

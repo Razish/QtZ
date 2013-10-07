@@ -26,11 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 /*
-===============================================================================
 
-PUSHMOVE
+	PUSHMOVE
 
-===============================================================================
 */
 
 typedef struct pushed_s {
@@ -41,13 +39,6 @@ typedef struct pushed_s {
 } pushed_t;
 pushed_t	pushed[MAX_GENTITIES], *pushed_p;
 
-
-/*
-============
-G_TestEntityPosition
-
-============
-*/
 gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	trace_t	tr;
 	int		mask;
@@ -69,39 +60,23 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	return NULL;
 }
 
-/*
-================
-G_CreateRotationMatrix
-================
-*/
-void G_CreateRotationMatrix(vector3 *angles, vector3 matrix[3]) {
+void G_CreateRotationMatrix(vector3 *angles, matrix3 matrix) {
 	AngleVectors(angles, &matrix[0], &matrix[1], &matrix[2]);
 	VectorInverse(&matrix[1]);
 }
 
-/*
-================
-G_RotatePoint
-================
-*/
-void G_RotatePoint(vector3 point, vector3 matrix[3]) {
+void G_RotatePoint(vector3 *point, matrix3 matrix) {
 	vector3 tvec;
 
-	VectorCopy(&point, &tvec);
-	point.x = DotProduct(&matrix[0], &tvec);
-	point.y = DotProduct(&matrix[1], &tvec);
-	point.z = DotProduct(&matrix[2], &tvec);
+	VectorCopy(point, &tvec);
+	point->x = DotProduct(&matrix[0], &tvec);
+	point->y = DotProduct(&matrix[1], &tvec);
+	point->z = DotProduct(&matrix[2], &tvec);
 }
 
-/*
-==================
-G_TryPushingEntity
-
-Returns qfalse if the move is blocked
-==================
-*/
+// Returns qfalse if the move is blocked
 qboolean G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vector3 *move, vector3 *amove ) {
-	vector3		matrix[3], transpose[3];
+	matrix3		matrix, transpose;
 	vector3		org, org2, move2;
 	gentity_t	*block;
 
@@ -136,7 +111,7 @@ qboolean G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vector3 *move,
 		VectorSubtract (&check->s.pos.trBase, &pusher->r.currentOrigin, &org);
 	}
 	VectorCopy( &org, &org2 );
-	G_RotatePoint( org2, matrix );
+	G_RotatePoint( &org2, matrix );
 	VectorSubtract (&org2, &org, &move2);
 	// add movement
 	VectorAdd (&check->s.pos.trBase, move, &check->s.pos.trBase);
@@ -186,15 +161,8 @@ qboolean G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vector3 *move,
 
 void G_ExplodeMissile( gentity_t *ent );
 
-/*
-============
-G_MoverPush
-
-Objects need to be moved back on a failed push,
-otherwise riders would continue to slide.
-If qfalse is returned, *obstacle will be the blocking entity
-============
-*/
+// Objects need to be moved back on a failed push, otherwise riders would continue to slide.
+//	If qfalse is returned, *obstacle will be the blocking entity
 qboolean G_MoverPush( gentity_t *pusher, vector3 *move, vector3 *amove, gentity_t **obstacle ) {
 	int			i, e;
 	gentity_t	*check;
@@ -307,12 +275,6 @@ qboolean G_MoverPush( gentity_t *pusher, vector3 *move, vector3 *amove, gentity_
 	return qtrue;
 }
 
-
-/*
-=================
-G_MoverTeam
-=================
-*/
 void G_MoverTeam( gentity_t *ent ) {
 	vector3		move, amove;
 	gentity_t	*part, *obstacle;
@@ -365,12 +327,6 @@ void G_MoverTeam( gentity_t *ent ) {
 	}
 }
 
-/*
-================
-G_RunMover
-
-================
-*/
 void G_RunMover( gentity_t *ent ) {
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
@@ -392,20 +348,14 @@ void G_RunMover( gentity_t *ent ) {
 }
 
 /*
-============================================================================
 
-GENERAL MOVERS
+	GENERAL MOVERS
 
-Doors, plats, and buttons are all binary (two position) movers
-Pos1 is "at rest", pos2 is "activated"
-============================================================================
+	Doors, plats, and buttons are all binary (two position) movers
+	Pos1 is "at rest", pos2 is "activated"
+
 */
 
-/*
-===============
-SetMoverState
-===============
-*/
 void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	vector3			delta;
 	float			f;
@@ -441,14 +391,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
-/*
-================
-MatchTeam
-
-All entities in a mover team will move from pos1 to pos2
-in the same amount of time
-================
-*/
+// All entities in a mover team will move from pos1 to pos2 in the same amount of time
 void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	gentity_t		*slave;
 
@@ -457,13 +400,6 @@ void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	}
 }
 
-
-
-/*
-================
-ReturnToPos1
-================
-*/
 void ReturnToPos1( gentity_t *ent ) {
 	MatchTeam( ent, MOVER_2TO1, level.time );
 
@@ -476,12 +412,6 @@ void ReturnToPos1( gentity_t *ent ) {
 	}
 }
 
-
-/*
-================
-Reached_BinaryMover
-================
-*/
 void Reached_BinaryMover( gentity_t *ent ) {
 
 	// stop the looping sound
@@ -523,12 +453,6 @@ void Reached_BinaryMover( gentity_t *ent ) {
 	}
 }
 
-
-/*
-================
-Use_BinaryMover
-================
-*/
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	int		total;
 	int		partial;
@@ -600,16 +524,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	}
 }
 
-
-
-/*
-================
-InitMover
-
-"pos1", "pos2", and "speed" should be set before calling,
-so the movement delta can be calculated
-================
-*/
+// "pos1", "pos2", and "speed" should be set before calling, so the movement delta can be calculated
 void InitMover( gentity_t *ent ) {
 	vector3		move;
 	float		distance;
@@ -678,23 +593,14 @@ void InitMover( gentity_t *ent ) {
 	}
 }
 
-
 /*
-===============================================================================
 
-DOOR
+	DOOR
 
-A use can be triggered either by a touch function, by being shot, or by being
-targeted by another entity.
+	A use can be triggered either by a touch function, by being shot, or by being targeted by another entity.
 
-===============================================================================
 */
 
-/*
-================
-Blocked_Door
-================
-*/
 void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client
 	if ( !other->client ) {
@@ -719,11 +625,6 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	Use_BinaryMover( ent, ent, other );
 }
 
-/*
-================
-Touch_DoorTriggerSpectator
-================
-*/
 static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	int axis;
 	float doorMin, doorMax;
@@ -748,11 +649,6 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 	TeleportPlayer(other, &origin, tv(10000000.0, 0, 0));
 }
 
-/*
-================
-Touch_DoorTrigger
-================
-*/
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		// if the door is not open and not opening
@@ -766,15 +662,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-
-/*
-======================
-Think_SpawnNewDoorTrigger
-
-All of the parts of a door have been spawned, so create
-a trigger that encloses all of them
-======================
-*/
+// All of the parts of a door have been spawned, so create a trigger that encloses all of them
 void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	gentity_t		*other;
 	vector3		mins, maxs;
@@ -805,7 +693,7 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	mins.data[best] -= 120;
 
 	// create a trigger with this size
-	other = G_Spawn ();
+	other = G_Spawn();
 	other->classname = "door_trigger";
 	VectorCopy (&mins, &other->r.mins);
 	VectorCopy (&maxs, &other->r.maxs);
@@ -911,20 +799,12 @@ void SP_func_door (gentity_t *ent) {
 }
 
 /*
-===============================================================================
 
 PLAT
 
-===============================================================================
 */
 
-/*
-==============
-Touch_Plat
-
-Don't allow decent if a living player is on it
-===============
-*/
+// Don't allow descent if a living player is on it
 void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( !other->client || other->client->ps.stats[STAT_HEALTH] <= 0 ) {
 		return;
@@ -936,13 +816,7 @@ void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-/*
-==============
-Touch_PlatCenterTrigger
-
-If the plat is at the bottom position, start it going up
-===============
-*/
+// If the plat is at the bottom position, start it going up
 void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
@@ -954,15 +828,8 @@ void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace ) 
 }
 
 
-/*
-================
-SpawnPlatTrigger
-
-Spawn a trigger in the middle of the plat's low position
-Elevator cars require that the trigger extend through the entire low position,
-not just sit on top of it.
-================
-*/
+// Spawn a trigger in the middle of the plat's low position
+//	Elevator cars require that the trigger extend through the entire low position, not just sit on top of it.
 void SpawnPlatTrigger( gentity_t *ent ) {
 	gentity_t	*trigger;
 	vector3	tmin, tmax;
@@ -1055,19 +922,11 @@ void SP_func_plat (gentity_t *ent) {
 
 
 /*
-===============================================================================
 
-BUTTON
+	BUTTON
 
-===============================================================================
 */
 
-/*
-==============
-Touch_Button
-
-===============
-*/
 void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
@@ -1139,11 +998,9 @@ void SP_func_button( gentity_t *ent ) {
 
 
 /*
-===============================================================================
 
-TRAIN
+	TRAIN
 
-===============================================================================
 */
 
 
@@ -1151,23 +1008,12 @@ TRAIN
 #define TRAIN_TOGGLE		2
 #define TRAIN_BLOCK_STOPS	4
 
-/*
-===============
-Think_BeginMoving
-
-The wait time at a corner has completed, so start moving again
-===============
-*/
+// The wait time at a corner has completed, so start moving again
 void Think_BeginMoving( gentity_t *ent ) {
 	ent->s.pos.trTime = level.time;
 	ent->s.pos.trType = TR_LINEAR_STOP;
 }
 
-/*
-===============
-Reached_Train
-===============
-*/
 void Reached_Train( gentity_t *ent ) {
 	gentity_t		*next;
 	float			speed;
@@ -1239,13 +1085,7 @@ void Reached_Train( gentity_t *ent ) {
 }
 
 
-/*
-===============
-Think_SetupTrainTargets
-
-Link all the corners together
-===============
-*/
+// Link all the corners together
 void Think_SetupTrainTargets( gentity_t *ent ) {
 	gentity_t		*path, *next, *start;
 
@@ -1352,11 +1192,9 @@ void SP_func_train (gentity_t *self) {
 }
 
 /*
-===============================================================================
 
-STATIC
+	STATIC
 
-===============================================================================
 */
 
 
@@ -1375,11 +1213,9 @@ void SP_func_static( gentity_t *ent ) {
 
 
 /*
-===============================================================================
 
-ROTATING
+	ROTATING
 
-===============================================================================
 */
 
 
@@ -1420,11 +1256,9 @@ void SP_func_rotating (gentity_t *ent) {
 
 
 /*
-===============================================================================
 
-BOBBING
+	BOBBING
 
-===============================================================================
 */
 
 
@@ -1464,11 +1298,9 @@ void SP_func_bobbing (gentity_t *ent) {
 }
 
 /*
-===============================================================================
 
-PENDULUM
+	PENDULUM
 
-===============================================================================
 */
 
 

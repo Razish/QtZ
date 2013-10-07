@@ -39,14 +39,8 @@ void CG_TargetCommand_f( void ) {
 	trap->SendConsoleCommand( va( "gc %i %i", targetNum, atoi( trap->Cmd_Argv( 1 ) ) ) );
 }
 
-/*
-=============
-CG_Viewpos_f
-
-Debugging command to print the current position
-=============
-*/
-static void CG_Viewpos_f (void) {
+// Debugging command to print the current position
+static void CG_Viewpos_f( void ) {
 	trap->Print ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg.x, (int)cg.refdef.vieworg.y, (int)cg.refdef.vieworg.z, (int)cg.refdefViewAngles.yaw);
 }
 
@@ -206,7 +200,7 @@ static void CG_TaskSuicide_f (void ) {
 
 typedef struct consoleCommand_s {
 	const char *name;
-	void (*function)(void);
+	void (*function)( void );
 } consoleCommand_t;
 
 static consoleCommand_t	commands[] = {
@@ -273,14 +267,7 @@ static consoleCommand_t	commands[] = {
 	{ "loaddefered", NULL }, // spelled wrong, but not changing for demo
 };
 
-/*
-=================
-CG_InitConsoleCommands
-
-Let the client system know about all of our commands
-so it can perform tab completion
-=================
-*/
+// Let the client system know about all of our commands so it can perform tab completion
 void CG_InitConsoleCommands( void ) {
 	int i;
 

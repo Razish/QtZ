@@ -56,7 +56,7 @@
  * Perform the forward DCT on one block of samples.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_float (FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   FAST_FLOAT tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;

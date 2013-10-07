@@ -34,15 +34,8 @@ static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT];
 static	int			cg_numTriggerEntities;
 static	centity_t	*cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
 
-/*
-====================
-CG_BuildSolidList
-
-When a new cg.snap has been set, this function builds a sublist
-of the entities that are actually solid, to make for more
-efficient collision detection
-====================
-*/
+// When a new cg.snap has been set, this function builds a sublist of the entities that are actually solid,
+//	to make for more efficient collision detection
 void CG_BuildSolidList( void ) {
 	int			i;
 	centity_t	*cent;
@@ -76,12 +69,6 @@ void CG_BuildSolidList( void ) {
 	}
 }
 
-/*
-====================
-CG_ClipMoveToEntities
-
-====================
-*/
 static void CG_ClipMoveToEntities ( const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end,
 							int skipNumber, int mask, trace_t *tr ) {
 	int			i, x, zd, zu;
@@ -136,11 +123,6 @@ static void CG_ClipMoveToEntities ( const vector3 *start, const vector3 *mins, c
 	}
 }
 
-/*
-================
-CG_Trace
-================
-*/
 void	CG_Trace( trace_t *result, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, 
 					 int skipNumber, int mask ) {
 	trace_t	t;
@@ -153,11 +135,6 @@ void	CG_Trace( trace_t *result, const vector3 *start, const vector3 *mins, const
 	*result = t;
 }
 
-/*
-================
-CG_PointContents
-================
-*/
 int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 	int			i;
 	entityState_t	*ent;
@@ -191,15 +168,7 @@ int		CG_PointContents( const vector3 *point, int passEntityNum ) {
 	return contents;
 }
 
-
-/*
-========================
-CG_InterpolatePlayerState
-
-Generates cg.predictedPlayerState by interpolating between
-cg.snap->player_state and cg.nextFrame->player_state
-========================
-*/
+// Generates cg.predictedPlayerState by interpolating between cg.snap->player_state and cg.nextFrame->player_state
 static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 	float			f;
 	int				i;
@@ -249,11 +218,6 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 
 }
 
-/*
-===================
-CG_TouchItem
-===================
-*/
 static void CG_TouchItem( centity_t *cent ) {
 	const gitem_t		*item;
 
@@ -310,14 +274,7 @@ static void CG_TouchItem( centity_t *cent ) {
 	}
 }
 
-
-/*
-=========================
-CG_TouchTriggerPrediction
-
-Predict push triggers and items
-=========================
-*/
+// Predict push triggers and items
 static void CG_TouchTriggerPrediction( void ) {
 	int			i;
 	trace_t		trace;
@@ -375,35 +332,18 @@ static void CG_TouchTriggerPrediction( void ) {
 	}
 }
 
-
-
-/*
-=================
-CG_PredictPlayerState
-
-Generates cg.predictedPlayerState for the current cg.time
-cg.predictedPlayerState is guaranteed to be valid after exiting.
-
-For demo playback, this will be an interpolation between two valid
-playerState_t.
-
-For normal gameplay, it will be the result of predicted usercmd_t on
-top of the most recent playerState_t received from the server.
-
-Each new snapshot will usually have one or more new usercmd over the last,
-but we simulate all unacknowledged commands each time, not just the new ones.
-This means that on an internet connection, quite a few pmoves may be issued
-each frame.
-
-OPTIMIZE: don't re-simulate unless the newly arrived snapshot playerState_t
-differs from the predicted one.  Would require saving all intermediate
-playerState_t during prediction.
-
-We detect prediction errors and allow them to be decayed off over several frames
-to ease the jerk.
-=================
-*/
 //#define DEBUG_PREDICTION
+
+// Generates cg.predictedPlayerState for the current cg.time
+//	cg.predictedPlayerState is guaranteed to be valid after exiting.
+//	For demo playback, this will be an interpolation between two valid playerState_t.
+//	For normal gameplay, it will be the result of predicted usercmd_t on top of the most recent playerState_t received from the server.
+//	Each new snapshot will usually have one or more new usercmd over the last, but we simulate all unacknowledged
+//	commands each time, not just the new ones.
+//	This means that on an internet connection, quite a few pmoves may be issued each frame.
+//	OPTIMIZE: don't re-simulate unless the newly arrived snapshot playerState_t differs from the predicted one.
+//	Would require saving all intermediate playerState_t during prediction.
+//	We detect prediction errors and allow them to be decayed off over several frames to ease the jerk.
 void CG_PredictPlayerState( void ) {
 	int			cmdNum, current;
 	playerState_t	oldPlayerState;

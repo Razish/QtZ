@@ -21,16 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-
-
-/*
-=================
-R_CullTriSurf
-
-Returns true if the grid is completely culled away.
-Also sets the clipped hint bit in tess
-=================
-*/
+// Returns true if the grid is completely culled away.
+//	Also sets the clipped hint bit in tess
 static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
 	int 	boxCull;
 
@@ -42,14 +34,8 @@ static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
 	return qfalse;
 }
 
-/*
-=================
-R_CullGrid
-
-Returns true if the grid is completely culled away.
-Also sets the clipped hint bit in tess
-=================
-*/
+// Returns true if the grid is completely culled away.
+//	Also sets the clipped hint bit in tess
 static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	int 	boxCull;
 	int 	sphereCull;
@@ -99,17 +85,8 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	return qfalse;
 }
 
-
-/*
-================
-R_CullSurface
-
-Tries to back face cull surfaces before they are lighted or
-added to the sorting list.
-
-This will also allow mirrors on both sides of a model without recursion.
-================
-*/
+// Tries to back face cull surfaces before they are lighted or added to the sorting list.
+//	This will also allow mirrors on both sides of a model without recursion.
 static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
@@ -246,15 +223,8 @@ static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 #endif
 }
 
-/*
-====================
-R_DlightSurface
-
-The given surface is going to be drawn, and it touches a leaf
-that is touched by one or more dlights, so try to throw out
-more dlights if possible.
-====================
-*/
+// The given surface is going to be drawn, and it touches a leaf that is touched by one or more dlights,
+//	so try to throw out more dlights if possible.
 static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 	if ( *surf->data == SF_FACE ) {
 		dlightBits = R_DlightFace( (srfSurfaceFace_t *)surf->data, dlightBits );
@@ -274,12 +244,6 @@ static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 }
 
 
-
-/*
-======================
-R_AddWorldSurface
-======================
-*/
 static void R_AddWorldSurface( msurface_t *surf, int dlightBits ) {
 	if ( surf->viewCount == tr.viewCount ) {
 		return;		// already in this view
@@ -303,18 +267,11 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits ) {
 }
 
 /*
-=============================================================
 
 	BRUSH MODELS
 
-=============================================================
 */
 
-/*
-=================
-R_AddBrushModelSurfaces
-=================
-*/
 void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	bmodel_t	*bmodel;
 	int			clip;
@@ -340,19 +297,11 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 
 
 /*
-=============================================================
 
 	WORLD MODEL
 
-=============================================================
 */
 
-
-/*
-================
-R_RecursiveWorldNode
-================
-*/
 static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits ) {
 
 	do {
@@ -479,12 +428,6 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 
 }
 
-
-/*
-===============
-R_PointInLeaf
-===============
-*/
 static mnode_t *R_PointInLeaf( const vector3 *p ) {
 	mnode_t		*node;
 	float		d;
@@ -511,11 +454,6 @@ static mnode_t *R_PointInLeaf( const vector3 *p ) {
 	return node;
 }
 
-/*
-==============
-R_ClusterPVS
-==============
-*/
 static const byte *R_ClusterPVS (int cluster) {
 	if (!tr.world || !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters ) {
 		return tr.world->novis;
@@ -524,11 +462,6 @@ static const byte *R_ClusterPVS (int cluster) {
 	return tr.world->vis + cluster * tr.world->clusterBytes;
 }
 
-/*
-=================
-R_inPVS
-=================
-*/
 qboolean R_inPVS( const vector3 *p1, const vector3 *p2 ) {
 	mnode_t *leaf;
 	byte	*vis;
@@ -543,15 +476,8 @@ qboolean R_inPVS( const vector3 *p1, const vector3 *p2 ) {
 	return qtrue;
 }
 
-/*
-===============
-R_MarkLeaves
-
-Mark the leaves and nodes that are in the PVS for the current
-cluster
-===============
-*/
-static void R_MarkLeaves (void) {
+// Mark the leaves and nodes that are in the PVS for the current cluster
+static void R_MarkLeaves( void ) {
 	const byte	*vis;
 	mnode_t	*leaf, *parent;
 	int		i;
@@ -623,13 +549,7 @@ static void R_MarkLeaves (void) {
 	}
 }
 
-
-/*
-=============
-R_AddWorldSurfaces
-=============
-*/
-void R_AddWorldSurfaces (void) {
+void R_AddWorldSurfaces( void ) {
 	if ( !r_drawworld->integer ) {
 		return;
 	}
@@ -642,7 +562,7 @@ void R_AddWorldSurfaces (void) {
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 
 	// determine which leaves are in the PVS / areamask
-	R_MarkLeaves ();
+	R_MarkLeaves();
 
 	// clear out the visible min/max
 	ClearBounds( &tr.viewParms.visBounds[0], &tr.viewParms.visBounds[1] );

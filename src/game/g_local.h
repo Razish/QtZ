@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "g_public.h"
 
-//==================================================================
-
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	BASEGAME
 
@@ -93,122 +91,106 @@ typedef enum hitLocation_e {
 	HL_MAX
 } hitLocation_t;
 
-//============================================================================
-
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
 #include "g_unlagged.h"
 
 struct gentity_s {
-	entityState_t	s;				// communicated by server to clients
-	entityShared_t	r;				// shared by both the server system and game
+	entityState_t	s;	// communicated by server to clients
+	entityShared_t	r;	// shared by both the server system and game
 
-	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
-	// EXPECTS THE FIELDS IN THAT ORDER!
-	//================================
+	// DO NOT MODIFY ANYTHING ABOVE THIS
+	//	THE SERVER EXPECTS THE FIELDS IN THAT ORDER!
 
-	struct gclient_s	*client;			// NULL if not a client
+	// house-keeping
+	qboolean			inuse;
+	char				*classname;
+	qboolean			neverFree;	// if true, FreeEntity will only unlink. bodyque uses this
+	int					freetime;	// level.time when the object was freed
+	int					eventTime;	// events will be cleared EVENT_VALID_MSEC after set
+	qboolean			freeAfterEvent;
+	qboolean			unlinkAfterEvent;
+	struct gclient_s	*client;	// NULL if not a client
 
-	qboolean	inuse;
-
-	char		*classname;			// set in QuakeEd
-	int			spawnflags;			// set in QuakeEd
-
-	qboolean	neverFree;			// if true, FreeEntity will only unlink
-									// bodyque uses this
-
+	// generic entity info
+	int			spawnflags;
 	int			flags;				// FL_* variables
-
-	char		*model, *model2;
-	int			freetime;			// level.time when the object was freed
-	
-	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
-	qboolean	freeAfterEvent;
-	qboolean	unlinkAfterEvent;
-
-	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges
-									// all game items are physicsObjects, 
+	char		*model, *model2;	// non-player entities render this model
+	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges. all game items are physicsObjects.
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
-	int			clipmask;			// brushes with this content value will be collided against when moving.
-									// items and corpses do not collide against players, for instance
-
-	// movers
-	moverState_t moverState;
-	int			soundPos1, soundPos2;
-	int			sound1to2, sound2to1;
-	int			soundLoop;
-	gentity_t	*parent;
-	gentity_t	*nextTrain, *prevTrain;
-	vector3		pos1, pos2;
-
-	char		*message;
-
-	int			timestamp;		// body queue sinking, etc
-
+	int			clipmask;			// brushes with this content value will be collided against when moving. items and corpses do not collide against players, for instance
 	char		*target, *targetname;
 	char		*team;
-	char		*targetShaderName, *targetShaderNewName;
-	gentity_t	*target_ent;
 
+	// damageable entities
+	int			health;
+	qboolean	takedamage;
+
+	// thinking
+	int		nextthink; // level.time the next think() will occur
+	void	(*think)	( gentity_t *self );
+	void	(*reached)	( gentity_t *self ); // movers call this when hitting endpoint
+	void	(*blocked)	( gentity_t *self, gentity_t *other );
+	void	(*touch)	( gentity_t *self, gentity_t *other, trace_t *trace );
+	void	(*use)		( gentity_t *self, gentity_t *other, gentity_t *activator );
+	void	(*pain)		( gentity_t *self, gentity_t *attacker, int damage );
+	void	(*die)		( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+
+	// target_print
+	// target_location
+	char	*message;
+
+	// missiles
+	// movers
+	gentity_t	*parent;
+
+	// movers
+	moverState_t	moverState;
+	int				soundPos1, sound1to2, soundPos2, sound2to1;
+	int				soundLoop;
+	gentity_t		*nextTrain, *prevTrain;
+	vector3			pos1, pos2;
+
+	// trigger_hurt
+	// bodyqueue
+	int		timestamp;
+
+	gentity_t	*target_ent;
 	float		speed;
 	vector3		movedir;
 
-	int			nextthink;
-	void		(*think)(gentity_t *self);
-	void		(*reached)(gentity_t *self);	// movers call this when hitting endpoint
-	void		(*blocked)(gentity_t *self, gentity_t *other);
-	void		(*touch)(gentity_t *self, gentity_t *other, trace_t *trace);
-	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
-	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage);
-	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+	int			painDebounceTime;
+	int			flySoundDebounceTime; // wind tunnel
+	int			lastMoveTime;
 
-	int			pain_debounce_time;
-	int			fly_sound_debounce_time;	// wind tunnel
-	int			last_move_time;
-
-	int			health;
-
-	qboolean	takedamage;
-
-	int			damage;
-	int			splashDamage;	// quad will increase this without increasing radius
-	int			splashRadius;
-	int			methodOfDeath;
-	int			splashMethodOfDeath;
-
-	//QtZ: Added
-	int			bounceCount;
-	int			dflags;
-	float		knockbackMulti;
-	float		knockbackMultiSelf;
-	float		knockbackDampVert; //special multiplier for dflags & DAMAGE_VERTICAL_KNOCKBACK
+	// missiles
+	int		damage, splashDamage;
+	int		splashRadius;
+	int		methodOfDeath, splashMethodOfDeath;
+	int		bounceCount;
+	int		dflags;
+	float	knockbackMulti, knockbackMultiSelf;
+	float	knockbackDampVert; //special multiplier for dflags & DAMAGE_VERTICAL_KNOCKBACK
 
 	int			count;
-
-	gentity_t	*chain;
 	gentity_t	*enemy;
+	
+	// movers?
+	gentity_t	*chain;
 	gentity_t	*activator;
-	gentity_t	*teamchain;		// next entity in team
-	gentity_t	*teammaster;	// master of the team
+	gentity_t	*teamchain; // next entity in team
+	gentity_t	*teammaster; // master of the team
 
-	int			watertype;
-	int			waterlevel;
-
-	int			noise_index;
-
-	// timing variables
-	float		wait;
-	float		random;
-
-	const gitem_t *item;			// for bonus items
-
-	//generic values used by various entities for different purposes.
-	int			genericValue1;			// for flags, will contain the time (in accurate ms) it has been held for speed caps
-	int			genericValue2;			// for flags, the lowest 5 bits will refer to the clientNum who dropped it if the 6th bit is set
-										//			the remaining bits will contain the level.time it was dropped
+	int				watertype;
+	int				waterlevel;
+	int				noiseIndex;
+	float			wait;
+	float			random;
+	const gitem_t	*item; // for bonus items
+	int				genericValue1; // for flags, will contain the time (in accurate ms) it has been held for speed caps
+	int				genericValue2; // for flags, the lowest 5 bits will refer to the clientNum who dropped it if the 6th bit is set. the remaining bits will contain the level.time it was dropped
 };
-
 
 typedef enum clientConnected_e {
 	CON_DISCONNECTED,
@@ -520,7 +502,7 @@ void	G_UseTargets (gentity_t *ent, gentity_t *activator);
 void	G_SetMovedir ( vector3 *angles, vector3 *movedir);
 
 void	G_InitGentity( gentity_t *e );
-gentity_t	*G_Spawn (void);
+gentity_t	*G_Spawn( void );
 gentity_t *G_TempEntity( vector3 *origin, int event );
 void	G_Sound( gentity_t *ent, int channel, int soundIndex );
 void	G_FreeEntity( gentity_t *e );
@@ -533,8 +515,6 @@ float vectoyaw( const vector3 *vec );
 void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
 void G_AddEvent( gentity_t *ent, int event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vector3 *origin );
-void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
-const char *BuildShaderStateConfig( void );
 
 //
 // g_combat.c
@@ -603,8 +583,8 @@ void SetClientViewAngle( gentity_t *ent, vector3 *angle );
 gentity_t *SelectSpawnPoint (vector3 *avoidPoint, vector3 *origin, vector3 *angles, qboolean isbot);
 void CopyToBodyQue( gentity_t *ent );
 void ClientRespawn(gentity_t *ent);
-void BeginIntermission (void);
-void InitBodyQue (void);
+void BeginIntermission( void );
+void InitBodyQue( void );
 void ClientSpawn( gentity_t *ent );
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, vector3 *origin, int score );
@@ -616,7 +596,7 @@ void G_ClearVote( gentity_t *ent );
 // g_svcmds.c
 //
 qboolean ConsoleCommand( void );
-void G_ProcessIPBans(void);
+void G_ProcessIPBans( void );
 qboolean G_FilterPacket (char *from);
 
 //

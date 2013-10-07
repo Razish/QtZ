@@ -27,31 +27,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static void SV_CloseDownload( client_t *cl );
 
-/*
-=================
-SV_GetChallenge
-
-A "getchallenge" OOB command has been received
-Returns a challenge number that can be used
-in a subsequent connectResponse command.
-We do this to prevent denial of service attacks that
-flood the server with invalid connection IPs.  With a
-challenge, they must give a valid IP address.
-
-If we are authorizing, a challenge request will cause a packet
-to be sent to the authorize server.
-
-When an authorizeip is returned, a challenge response will be
-sent to that ip.
-
-ioquake3: we added a possibility for clients to add a challenge
-to their packets, to make it more difficult for malicious servers
-to hi-jack client connections.
-Also, the auth stuff is completely disabled for com_standalone games
-as well as IPv6 connections, since there is no way to use the
-v4-only auth server for these new types of connections.
-=================
-*/
+// A "getchallenge" OOB command has been received
+//	Returns a challenge number that can be used in a subsequent connectResponse command.
+//	We do this to prevent denial of service attacks that flood the server with invalid connection IPs.
+//	With a challenge, they must give a valid IP address.
+//	If we are authorizing, a challenge request will cause a packet to be sent to the authorize server.
+//	When an authorizeip is returned, a challenge response will be sent to that ip.
+//	ioquake3: we added a possibility for clients to add a challenge to their packets, to make it more difficult
+//	for malicious servers to hi-jack client connections.
+//	Also, the auth stuff is completely disabled for com_standalone games as well as IPv6 connections, since there
+//	is no way to use the v4-only auth server for these new types of connections.
 void SV_GetChallenge(netadr_t from)
 {
 	int		i;
@@ -139,14 +124,7 @@ void SV_GetChallenge(netadr_t from)
 			   challenge->challenge, clientChallenge, com_protocol->integer);
 }
 
-/*
-==================
-SV_IsBanned
-
-Check whether a certain address is banned
-==================
-*/
-
+// Check whether a certain address is banned
 static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 {
 	int index;
@@ -173,14 +151,7 @@ static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 	return qfalse;
 }
 
-/*
-==================
-SV_DirectConnect
-
-A "connect" OOB command has been received
-==================
-*/
-
+// A "connect" OOB command has been received
 void SV_DirectConnect( netadr_t from ) {
 	char		userinfo[MAX_INFO_STRING];
 	int			i;
@@ -197,7 +168,7 @@ void SV_DirectConnect( netadr_t from ) {
 	int			count;
 	char		*ip;
 
-	Com_DPrintf ("SVC_DirectConnect ()\n");
+	Com_DPrintf ("SVC_DirectConnect()\n");
 	
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
@@ -440,13 +411,7 @@ gotnewcl:
 	}
 }
 
-/*
-=====================
-SV_FreeClient
-
-Destructor for data allocated in a client structure
-=====================
-*/
+// Destructor for data allocated in a client structure
 void SV_FreeClient(client_t *client)
 {
 #ifdef USE_VOIP
@@ -466,15 +431,8 @@ void SV_FreeClient(client_t *client)
 	SV_CloseDownload(client);
 }
 
-/*
-=====================
-SV_DropClient
-
-Called when the player is totally leaving the server, either willingly
-or unwillingly.  This is NOT called if the entire server is quiting
-or crashing -- SV_FinalMessage() will handle that
-=====================
-*/
+// Called when the player is totally leaving the server, either willingly or unwillingly.
+//	This is NOT called if the entire server is quiting or crashing -- SV_FinalMessage() will handle that
 void SV_DropClient( client_t *drop, const char *reason ) {
 	int		i;
 	challenge_t	*challenge;
@@ -540,17 +498,9 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	}
 }
 
-/*
-================
-SV_SendClientGameState
-
-Sends the first message from the server to a connected client.
-This will be sent on the initial connection and upon each new map load.
-
-It will be resent if the client acknowledges a later message but has
-the wrong gamestate.
-================
-*/
+// Sends the first message from the server to a connected client.
+//	This will be sent on the initial connection and upon each new map load.
+//	It will be resent if the client acknowledges a later message but has the wrong gamestate.
 static void SV_SendClientGameState( client_t *client ) {
 	int			start;
 	entityState_t	*base, nullstate;
@@ -617,12 +567,6 @@ static void SV_SendClientGameState( client_t *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
-
-/*
-==================
-SV_ClientEnterWorld
-==================
-*/
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
 	sharedEntity_t *ent;
@@ -653,20 +597,12 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 }
 
 /*
-============================================================
 
-CLIENT COMMAND EXECUTION
+	CLIENT COMMAND EXECUTION
 
-============================================================
 */
 
-/*
-==================
-SV_CloseDownload
-
-clear/free any download vars
-==================
-*/
+// clear/free any download vars
 static void SV_CloseDownload( client_t *cl ) {
 	int i;
 
@@ -687,13 +623,7 @@ static void SV_CloseDownload( client_t *cl ) {
 
 }
 
-/*
-==================
-SV_StopDownload_f
-
-Abort a download if in progress
-==================
-*/
+// Abort a download if in progress
 static void SV_StopDownload_f( client_t *cl ) {
 	if (*cl->downloadName)
 		Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", (int) (cl - svs.clients), cl->downloadName );
@@ -701,13 +631,7 @@ static void SV_StopDownload_f( client_t *cl ) {
 	SV_CloseDownload( cl );
 }
 
-/*
-==================
-SV_DoneDownload_f
-
-Downloads are finished
-==================
-*/
+// Downloads are finished
 static void SV_DoneDownload_f( client_t *cl ) {
 	//QtZ: We'll fix this further downstream so the client can still restart their FS =]
 //	if ( cl->state == CS_ACTIVE )
@@ -718,14 +642,7 @@ static void SV_DoneDownload_f( client_t *cl ) {
 	SV_SendClientGameState(cl);
 }
 
-/*
-==================
-SV_NextDownload_f
-
-The argument will be the last acknowledged block from the client, it should be
-the same as cl->downloadClientBlock
-==================
-*/
+// The argument will be the last acknowledged block from the client, it should be the same as cl->downloadClientBlock
 static void SV_NextDownload_f( client_t *cl )
 {
 	int block = atoi( Cmd_Argv(1) );
@@ -750,11 +667,6 @@ static void SV_NextDownload_f( client_t *cl )
 	SV_DropClient( cl, "broken download" );
 }
 
-/*
-==================
-SV_BeginDownload_f
-==================
-*/
 static void SV_BeginDownload_f( client_t *cl ) {
 
 	// Kill any existing download
@@ -765,14 +677,8 @@ static void SV_BeginDownload_f( client_t *cl ) {
 	Q_strncpyz( cl->downloadName, Cmd_Argv(1), sizeof(cl->downloadName) );
 }
 
-/*
-==================
-SV_WriteDownloadToClient
-
-Check to see if the client wants a file, open it if needed and start pumping the client
-Fill up msg with data, return number of download blocks added
-==================
-*/
+// Check to see if the client wants a file, open it if needed and start pumping the client
+//	Fill up msg with data, return number of download blocks added
 int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 {
 	int curindex;
@@ -942,16 +848,9 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 	return 1;
 }
 
-/*
-==================
-SV_SendQueuedMessages
-
-Send one round of fragments, or queued messages to all clients that have data pending.
-Return the shortest time interval for sending next packet to client
-==================
-*/
-
-int SV_SendQueuedMessages(void)
+// Send one round of fragments, or queued messages to all clients that have data pending.
+//	Return the shortest time interval for sending next packet to client
+int SV_SendQueuedMessages( void )
 {
 	int i, retval = -1, nextFragT;
 	client_t *cl;
@@ -976,15 +875,8 @@ int SV_SendQueuedMessages(void)
 }
 
 
-/*
-==================
-SV_SendDownloadMessages
-
-Send one round of download messages to all clients
-==================
-*/
-
-int SV_SendDownloadMessages(void)
+// Send one round of download messages to all clients
+int SV_SendDownloadMessages( void )
 {
 	int i, numDLs = 0, retval;
 	client_t *cl;
@@ -1014,13 +906,8 @@ int SV_SendDownloadMessages(void)
 	return numDLs;
 }
 
-/*
-=================
-SV_Disconnect_f
-
-The client is going to disconnect, so remove the connection immediately  FIXME: move to game?
-=================
-*/
+// The client is going to disconnect, so remove the connection immediately
+//	FIXME: move to game?
 static void SV_Disconnect_f( client_t *cl ) {
 	if ( Cmd_Argc() > 1 ) {
 		char reason[MAX_STRING_CHARS] = {0};
@@ -1032,19 +919,10 @@ static void SV_Disconnect_f( client_t *cl ) {
 		SV_DropClient( cl, "disconnected" );
 }
 
-/*
-=================
-SV_VerifyPaks_f
-
-If we are pure, disconnect the client if they do no meet the following conditions:
-
-1. the first two checksums match our view of cgame and ui
-2. there are no any additional checksums that we do not have
-
-This routine would be a bit simpler with a goto but i abstained
-
-=================
-*/
+// If we are pure, disconnect the client if they do no meet the following conditions:
+//	1. the first two checksums match our view of cgame and ui
+//	2. there are no any additional checksums that we do not have
+//	This routine would be a bit simpler with a goto but i abstained
 static void SV_VerifyPaks_f( client_t *cl ) {
 	int nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nCurArg;
 	int nClientChkSum[1024];
@@ -1075,7 +953,6 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 		}
 		else
 		{
-			// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
 			// we may get incoming cp sequences from a previous checksumFeed, which we need to ignore
 			// since serverId is a frame count, it always goes up
 			if (atoi(pArg) < sv.checksumFeedServerId)
@@ -1194,24 +1071,12 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 	}
 }
 
-/*
-=================
-SV_ResetPureClient_f
-=================
-*/
 static void SV_ResetPureClient_f( client_t *cl ) {
 	cl->pureAuthentic = 0;
 	cl->gotCP = qfalse;
 }
 
-/*
-=================
-SV_UserinfoChanged
-
-Pull specific info from a newly changed userinfo string
-into a more C friendly form.
-=================
-*/
+// Pull specific info from a newly changed userinfo string into a more C friendly form.
 void SV_UserinfoChanged( client_t *cl ) {
 	char *val, *ip;
 	int i, len;
@@ -1266,12 +1131,6 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 }
 
-
-/*
-==================
-SV_UpdateUserinfo_f
-==================
-*/
 static void SV_UpdateUserinfo_f( client_t *cl ) {
 	Q_strncpyz( cl->userinfo, Cmd_Argv(1), sizeof(cl->userinfo) );
 
@@ -1293,11 +1152,6 @@ void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
 	}
 }
 
-/*
-==================
-SV_Voip_f
-==================
-*/
 static void SV_Voip_f( client_t *cl ) {
 	const char *cmd = Cmd_Argv(1);
 	if (strcmp(cmd, "ignore") == 0) {
@@ -1335,13 +1189,7 @@ static ucmd_t ucmds[] = {
 	{NULL, NULL}
 };
 
-/*
-==================
-SV_ExecuteClientCommand
-
-Also called by bot code
-==================
-*/
+// Also called by bot code
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean flood ) {
 	ucmd_t *u = NULL;
 	const char *arg = NULL;
@@ -1369,11 +1217,6 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean flood ) {
 	}
 }
 
-/*
-===============
-SV_ClientCommand
-===============
-*/
 static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	int		seq;
 	const char	*s;
@@ -1422,17 +1265,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	return qtrue; // continue procesing
 }
 
-
-//==================================================================================
-
-
-/*
-==================
-SV_ClientThink
-
-Also called by bot code
-==================
-*/
+// Also called by bot code
 void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 	cl->lastUsercmd = *cmd;
 
@@ -1443,18 +1276,9 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 	game->ClientThink( cl - svs.clients );
 }
 
-/*
-==================
-SV_UserMove
-
-The message usually contains all the movement commands 
-that were in the last three packets, so that the information
-in dropped packets can be recovered.
-
-On very fast clients, there may be multiple usercmd packed into
-each of the backup packets.
-==================
-*/
+// The message usually contains all the movement commands that were in the last three packets, so that
+//	the information in dropped packets can be recovered.
+//	On very fast clients, there may be multiple usercmd packed into each of the backup packets.
 static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	int			i, key;
 	int			cmdCount;
@@ -1553,14 +1377,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 
 
 #ifdef USE_VOIP
-/*
-==================
-SV_ShouldIgnoreVoipSender
-
-Blocking of voip packets based on source client
-==================
-*/
-
+// Blocking of voip packets based on source client
 static qboolean SV_ShouldIgnoreVoipSender(const client_t *cl)
 {
 	if (!sv_voip->integer)
@@ -1664,20 +1481,12 @@ void SV_UserVoip(client_t *cl, msg_t *msg)
 
 
 /*
-===========================================================================
 
-USER CMD EXECUTION
+	USER CMD EXECUTION
 
-===========================================================================
 */
 
-/*
-===================
-SV_ExecuteClientMessage
-
-Parse a client packet
-===================
-*/
+// Parse a client packet
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	int			c;
 	int			serverId;
@@ -1718,7 +1527,6 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// the gamestate changes.  After the download is finished, we'll
 	// notice and send it a new game state
 	//
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=536
 	// don't drop as long as previous command was a nextdl, after a dl is done, downloadName is set back to ""
 	// but we still need to read the next message to move to next download or send gamestate
 	// I don't like this hack though, it must have been working fine at some point, suspecting the fix is somewhere else

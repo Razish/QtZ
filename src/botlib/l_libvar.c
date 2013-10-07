@@ -111,7 +111,7 @@ void LibVarDeAlloc(libvar_t *v)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void LibVarDeAllocAll(void)
+void LibVarDeAllocAll( void )
 {
 	libvar_t *v;
 

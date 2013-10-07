@@ -28,13 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MARKER_OFFSET			0	// 1
 
-/*
-=============
-R_ChopPolyBehindPlane
-
-Out must have space for two more vertexes than in
-=============
-*/
+// Out must have space for two more vertexes than in
 #define	SIDE_FRONT	0
 #define	SIDE_BACK	1
 #define	SIDE_ON		2
@@ -119,12 +113,6 @@ static void R_ChopPolyBehindPlane( int numInPoints, vector3 inPoints[MAX_VERTS_O
 	}
 }
 
-/*
-=================
-R_BoxSurfaces_r
-
-=================
-*/
 void R_BoxSurfaces_r(mnode_t *node, vector3 *mins, vector3 *maxs, surfaceType_t **list, int listsize, int *listlength, vector3 *dir) {
 
 	int			s, c;
@@ -186,12 +174,6 @@ void R_BoxSurfaces_r(mnode_t *node, vector3 *mins, vector3 *maxs, surfaceType_t 
 	}
 }
 
-/*
-=================
-R_AddMarkFragments
-
-=================
-*/
 void R_AddMarkFragments( int numClipPoints, vector3 clipPoints[2][MAX_VERTS_ON_POLY], int numPlanes, vector3 *normals, float *dists, int maxPoints, vector3 *pointBuffer,
 	int maxFragments, markFragment_t *fragmentBuffer, int *returnedPoints, int *returnedFragments, vector3 *mins, vector3 *maxs ) {
 	int pingPong, i;
@@ -241,12 +223,6 @@ void R_AddMarkFragments( int numClipPoints, vector3 clipPoints[2][MAX_VERTS_ON_P
 	(*returnedFragments)++;
 }
 
-/*
-=================
-R_MarkFragments
-
-=================
-*/
 int R_MarkFragments( int numPoints, const vector3 *points, const vector3 *projection, int maxPoints, vector3 *pointBuffer, int maxFragments, markFragment_t *fragmentBuffer ) {
 	int				numsurfaces, numPlanes;
 	int				i, j, k, m, n;

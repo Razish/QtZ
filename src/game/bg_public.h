@@ -86,10 +86,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_LEVEL_START_TIME		13		// so the timer only shows the current level
 #define	CS_INTERMISSION			14		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
 #define CS_FLAGSTATUS			15		// string indicating flag status in CTF
-#define CS_SHADERSTATE			16
-#define CS_BOTINFO				17
-
-#define	CS_ITEMS				19		// string of 0's and 1's that tell which items are present
+#define CS_BOTINFO				16
+#define	CS_ITEMS				17		// string of 0's and 1's that tell which items are present
 
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
@@ -104,14 +102,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 /*
-===================================================================================
+	PMOVE MODULE
 
-PMOVE MODULE
-
-The pmove code takes a player_state_t and a usercmd_t and generates a new player_state_t
-and some other output data.  Used for local prediction on the client game and true
-movement on the server game.
-===================================================================================
+	The pmove code takes a playerState_t and a usercmd_t and generates a new playerState_t and some other output data.
+	Used for local prediction on the client game and true movement on the server game.
 */
 
 typedef enum pmtype_e {
@@ -183,9 +177,6 @@ typedef struct pmove_s {
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
 void Pmove (pmove_t *pmove);
-
-//===================================================================================
-
 
 // player_state->stats[] indexes
 // NOTE: may not have more than 16

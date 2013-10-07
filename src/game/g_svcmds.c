@@ -27,36 +27,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 /*
-==============================================================================
 
-PACKET FILTERING
+	PACKET FILTERING
  
 
-You can add or remove addresses from the filter list with:
+	You can add or remove addresses from the filter list with:
+		addip <ip>
+		removeip <ip>
 
-addip <ip>
-removeip <ip>
+	The ip address is specified in dot format, and you can use '*' to match any value
+	so you can specify an entire class C network with "addip 192.246.40.*"
 
-The ip address is specified in dot format, and you can use '*' to match any value
-so you can specify an entire class C network with "addip 192.246.40.*"
+	Removeip will only remove an address specified exactly the same way.
+	You cannot addip a subnet, then removeip a single host.
 
-Removeip will only remove an address specified exactly the same way.  You cannot addip a subnet, then removeip a single host.
+	listip -- Prints the current list of filters.
 
-listip
-Prints the current list of filters.
+	g_filterban <0 or 1>
+	If 1 (the default), then ip addresses matching the current list will be prohibited from entering the game.  This is the default setting.
+	If 0, then only addresses matching the list will be allowed.  This lets you easily set up a private game, or a game that only allows players from your local network.
 
-g_filterban <0 or 1>
+	TTimo NOTE: for persistence, bans are stored in g_banIPs cvar MAX_CVAR_VALUE_STRING
+	The size of the cvar string buffer is limiting the banning to around 20 masks
+	this could be improved by putting some g_banIPs2 g_banIps3 etc. maybe
+	still, you should rely on PB for banning instead
 
-If 1 (the default), then ip addresses matching the current list will be prohibited from entering the game.  This is the default setting.
-
-If 0, then only addresses matching the list will be allowed.  This lets you easily set up a private game, or a game that only allows players from your local network.
-
-TTimo NOTE: for persistence, bans are stored in g_banIPs cvar MAX_CVAR_VALUE_STRING
-The size of the cvar string buffer is limiting the banning to around 20 masks
-this could be improved by putting some g_banIPs2 g_banIps3 etc. maybe
-still, you should rely on PB for banning instead
-
-==============================================================================
 */
 
 typedef struct ipFilter_s
@@ -70,11 +65,6 @@ typedef struct ipFilter_s
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
-/*
-=================
-StringToFilter
-=================
-*/
 static qboolean StringToFilter (char *s, ipFilter_t *f)
 {
 	char	num[128];
@@ -125,12 +115,7 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 	return qtrue;
 }
 
-/*
-=================
-UpdateIPBans
-=================
-*/
-static void UpdateIPBans (void)
+static void UpdateIPBans( void )
 {
 	byte	b[4];
 	byte	m[4];
@@ -169,11 +154,6 @@ static void UpdateIPBans (void)
 	trap->Cvar_Set( "g_banIPs", iplist_final );
 }
 
-/*
-=================
-G_FilterPacket
-=================
-*/
 qboolean G_FilterPacket (char *from)
 {
 	int		i;
@@ -203,11 +183,6 @@ qboolean G_FilterPacket (char *from)
 	return g_filterBan->integer == 0;
 }
 
-/*
-=================
-AddIP
-=================
-*/
 static void AddIP( char *str )
 {
 	int		i;
@@ -231,11 +206,6 @@ static void AddIP( char *str )
 	UpdateIPBans();
 }
 
-/*
-=================
-G_ProcessIPBans
-=================
-*/
 void G_ProcessIPBans( void ) {
 	char *s = NULL, *t = NULL, str[MAX_CVAR_VALUE_STRING] = {0};
 
@@ -257,13 +227,7 @@ void G_ProcessIPBans( void ) {
 	}
 }
 
-
-/*
-=================
-Svcmd_AddIP_f
-=================
-*/
-void Svcmd_AddIP_f (void)
+void Svcmd_AddIP_f( void )
 {
 	char		str[MAX_TOKEN_CHARS];
 
@@ -278,12 +242,7 @@ void Svcmd_AddIP_f (void)
 
 }
 
-/*
-=================
-Svcmd_RemoveIP_f
-=================
-*/
-void Svcmd_RemoveIP_f (void)
+void Svcmd_RemoveIP_f( void )
 {
 	ipFilter_t	f;
 	int			i;
@@ -313,12 +272,7 @@ void Svcmd_RemoveIP_f (void)
 	trap->Print ( "Didn't find %s.\n", str );
 }
 
-/*
-===================
-Svcmd_EntityList_f
-===================
-*/
-void	Svcmd_EntityList_f (void) {
+void	Svcmd_EntityList_f( void ) {
 	int			e;
 	gentity_t		*check;
 
@@ -411,13 +365,7 @@ gclient_t	*ClientForString( const char *s ) {
 	return NULL;
 }
 
-/*
-===================
-Svcmd_ForceTeam_f
-
-forceteam <player> <team>
-===================
-*/
+// forceteam <player> <team>
 void	Svcmd_ForceTeam_f( void ) {
 	gclient_t	*cl;
 	char		str[MAX_TOKEN_CHARS];
@@ -441,12 +389,6 @@ void	Svcmd_ForceTeam_f( void ) {
 
 char	*ConcatArgs( int start );
 
-/*
-=================
-ConsoleCommand
-
-=================
-*/
 qboolean	ConsoleCommand( void ) {
 	char	cmd[MAX_TOKEN_CHARS];
 

@@ -122,7 +122,7 @@ bot_movestate_t *botmovestates[MAX_CLIENTS+1];
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-int BotAllocMoveState(void)
+int BotAllocMoveState( void )
 {
 	int i;
 
@@ -508,7 +508,7 @@ int MoverDown(aas_reachability_t *reach)
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-void BotSetBrushModelTypes(void)
+void BotSetBrushModelTypes( void )
 {
 	int ent, modelnum;
 	char classname[MAX_EPAIRKEY], model[MAX_EPAIRKEY];
@@ -3269,7 +3269,7 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 			else if (botDeveloper)
 			{
 				botimport.Print(PRT_MESSAGE, "goal not reachable\n");
-				memset(&reach, 0, sizeof(aas_reachability_t)); //make compiler happy
+				memset(&reach, 0, sizeof(aas_reachability_t));
 			} //end else
 			if (botDeveloper)
 			{
@@ -3524,7 +3524,7 @@ void BotResetMoveState(int movestate)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupMoveAI(void)
+int BotSetupMoveAI( void )
 {
 	BotSetBrushModelTypes();
 	sv_maxstep = LibVar("sv_step", "18");
@@ -3545,7 +3545,7 @@ int BotSetupMoveAI(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownMoveAI(void)
+void BotShutdownMoveAI( void )
 {
 	int i;
 

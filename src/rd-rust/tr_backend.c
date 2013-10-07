@@ -34,10 +34,6 @@ static float	s_flipMatrix[16] = {
 	0, 0, 0, 1
 };
 
-
-/*
-** GL_Bind
-*/
 void GL_Bind( image_t *image ) {
 	int texnum;
 
@@ -59,9 +55,6 @@ void GL_Bind( image_t *image ) {
 	}
 }
 
-/*
-** GL_SelectTexture
-*/
 void GL_SelectTexture( int unit )
 {
 	if ( glState.currenttmu == unit )
@@ -104,10 +97,6 @@ void GL_SelectTexture( int unit )
 	glState.currenttmu = unit;
 }
 
-
-/*
-** GL_BindMultitexture
-*/
 void GL_BindMultitexture( image_t *image0, GLuint env0, image_t *image1, GLuint env1 ) {
 	int		texnum0, texnum1;
 
@@ -132,10 +121,6 @@ void GL_BindMultitexture( image_t *image0, GLuint env0, image_t *image1, GLuint 
 	}
 }
 
-
-/*
-** GL_Cull
-*/
 void GL_Cull( int cullType ) {
 	if ( glState.faceCulling == cullType ) {
 		return;
@@ -162,9 +147,6 @@ void GL_Cull( int cullType ) {
 	}
 }
 
-/*
-** GL_TexEnv
-*/
 void GL_TexEnv( int env )
 {
 	if ( env == glState.texEnv[glState.currenttmu] )
@@ -195,12 +177,7 @@ void GL_TexEnv( int env )
 	}
 }
 
-/*
-** GL_State
-**
-** This routine is responsible for setting the most commonly changed state
-** in Q3.
-*/
+// This routine is responsible for setting the most commonly changed state in Q3.
 void GL_State( unsigned long stateBits )
 {
 	unsigned long diff = stateBits ^ glState.glStateBits;
@@ -386,15 +363,7 @@ void GL_State( unsigned long stateBits )
 	glState.glStateBits = stateBits;
 }
 
-
-
-/*
-================
-RB_Hyperspace
-
-A player has predicted a teleport, but hasn't arrived yet
-================
-*/
+// A player has predicted a teleport, but hasn't arrived yet
 static void RB_Hyperspace( void ) {
 	float		c;
 
@@ -422,20 +391,13 @@ static void SetViewportAndScissor( void ) {
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 }
 
-/*
-=================
-RB_BeginDrawingView
-
-Any mirrored or portaled views have already been drawn, so prepare
-to actually render the visible surfaces for this view
-=================
-*/
-void RB_BeginDrawingView (void) {
+// Any mirrored or portaled views have already been drawn, so prepare to actually render the visible surfaces for this view
+void RB_BeginDrawingView( void ) {
 	int clearBits = 0;
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
-		qglFinish ();
+		qglFinish();
 		glState.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
@@ -530,11 +492,6 @@ void RB_BeginDrawingView (void) {
 
 #define	MAC_EVENT_PUMP_MSEC		5
 
-/*
-==================
-RB_RenderDrawSurfList
-==================
-*/
 void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t		*shader, *oldShader;
 	int				fogNum, oldFogNum;
@@ -550,7 +507,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	originalTime = backEnd.refdef.floatTime;
 
 	// clear the z buffer, set the modelview, etc
-	RB_BeginDrawingView ();
+	RB_BeginDrawingView();
 
 	// draw everything
 	oldEntityNum = -1;
@@ -713,30 +670,22 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 
 /*
-============================================================================
 
-RENDER BACK END THREAD FUNCTIONS
+	RENDER BACK END THREAD FUNCTIONS
 
-============================================================================
 */
 
-/*
-================
-RB_SetGL2D
-
-================
-*/
-void	RB_SetGL2D (void) {
+void	RB_SetGL2D( void ) {
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
+    qglLoadIdentity();
 	qglOrtho (0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
 	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+    qglLoadIdentity();
 
 	GL_State( GLS_DEPTHTEST_DISABLE |
 			  GLS_SRCBLEND_SRC_ALPHA |
@@ -751,15 +700,9 @@ void	RB_SetGL2D (void) {
 }
 
 
-/*
-=============
-RE_StretchRaw
-
-FIXME: not exactly backend
-Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
-Used for cinematics.
-=============
-*/
+// FIXME: not exactly backend
+//	Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
+//	Used for cinematics.
 void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
 	int			i, j;
 	int			start, end;
@@ -823,7 +766,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	qglVertex2f ((float)(x+w), (float)(y+h));
 	qglTexCoord2f ( 0.5f / cols, ( rows - 0.5f ) / rows );
 	qglVertex2f ((float)x, (float)(y+h));
-	qglEnd ();
+	qglEnd();
 }
 
 void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
@@ -848,13 +791,6 @@ void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int
 	}
 }
 
-
-/*
-=============
-RB_SetColor
-
-=============
-*/
 const void	*RB_SetColor( const void *data ) {
 	const setColorCommand_t	*cmd;
 
@@ -868,11 +804,6 @@ const void	*RB_SetColor( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-/*
-=============
-RB_StretchPic
-=============
-*/
 const void *RB_StretchPic ( const void *data ) {
 	const stretchPicCommand_t	*cmd;
 	shader_t *shader;
@@ -945,11 +876,6 @@ const void *RB_StretchPic ( const void *data ) {
 
 
 //QtZ: Added from JA/EF
-/*
-=============
-RB_RotatedPic
-=============
-*/
 
 //QTZTODO: Support Centered Pic or vice versa?
 const void *RB_RotatedPic( const void *data ) {
@@ -1029,12 +955,6 @@ const void *RB_RotatedPic( const void *data ) {
 }
 //~QtZ
 
-/*
-=============
-RB_DrawSurfs
-
-=============
-*/
 const void	*RB_DrawSurfs( const void *data ) {
 	const drawSurfsCommand_t	*cmd;
 
@@ -1054,12 +974,6 @@ const void	*RB_DrawSurfs( const void *data ) {
 }
 
 
-/*
-=============
-RB_DrawBuffer
-
-=============
-*/
 const void	*RB_DrawBuffer( const void *data ) {
 	const drawBufferCommand_t	*cmd;
 
@@ -1084,16 +998,8 @@ const void	*RB_DrawBuffer( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-/*
-===============
-RB_ShowImages
-
-Draw all the images to the screen, on top of whatever
-was there.  This is used to test for texture thrashing.
-
-Also called by RE_EndRegistration
-===============
-*/
+// Draw all the images to the screen, on top of whatever was there. This is used to test for texture thrashing.
+//	Also called by RE_EndRegistration
 void RB_ShowImages( void ) {
 	int		i;
 	image_t	*image;
@@ -1144,12 +1050,6 @@ void RB_ShowImages( void ) {
 
 }
 
-/*
-=============
-RB_ColorMask
-
-=============
-*/
 const void *RB_ColorMask(const void *data)
 {
 	const colorMaskCommand_t *cmd = data;
@@ -1159,12 +1059,6 @@ const void *RB_ColorMask(const void *data)
 	return (const void *)(cmd + 1);
 }
 
-/*
-=============
-RB_ClearDepth
-
-=============
-*/
 const void *RB_ClearDepth(const void *data)
 {
 	const clearDepthCommand_t *cmd = data;
@@ -1181,12 +1075,6 @@ const void *RB_ClearDepth(const void *data)
 	return (const void *)(cmd + 1);
 }
 
-/*
-=============
-RB_SwapBuffers
-
-=============
-*/
 const void	*RB_SwapBuffers( const void *data ) {
 	const swapBuffersCommand_t	*cmd;
 
@@ -1234,18 +1122,11 @@ const void	*RB_SwapBuffers( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-/*
-====================
-RB_ExecuteRenderCommands
-
-This function will be called synchronously if running without
-smp extensions, or asynchronously by another thread.
-====================
-*/
+// This function will be called synchronously if running without smp extensions, or asynchronously by another thread.
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
 
-	t1 = ri->Milliseconds ();
+	t1 = ri->Milliseconds();
 
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));
@@ -1288,7 +1169,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering on this thread
-			t2 = ri->Milliseconds ();
+			t2 = ri->Milliseconds();
 			backEnd.pc.msec = t2 - t1;
 			return;
 		}
@@ -1296,12 +1177,6 @@ void RB_ExecuteRenderCommands( const void *data ) {
 
 }
 
-
-/*
-================
-RB_RenderThread
-================
-*/
 void RB_RenderThread( void ) {
 	const void	*data;
 

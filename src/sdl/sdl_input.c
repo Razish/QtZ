@@ -139,12 +139,9 @@ static LONG WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 
 /*
-============================================================
 
-RAW INPUT MOUSE
-(Cgg)
+	RAW INPUT MOUSE (Cgg)
 
-============================================================
 */
 
 qboolean IN_InitRawMouse( void ) {
@@ -201,11 +198,6 @@ qboolean IN_ShutdownRawMouse( void ) {
 
 #endif
 
-/*
-===============
-IN_PrintKey
-===============
-*/
 static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down )
 {
 	if( down )
@@ -243,11 +235,6 @@ static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down )
 
 #define MAX_CONSOLE_KEYS 16
 
-/*
-===============
-IN_IsConsoleKey
-===============
-*/
 static qboolean IN_IsConsoleKey( keyNum_t key, const unsigned char character )
 {
 	typedef struct consoleKey_s
@@ -334,11 +321,6 @@ static qboolean IN_IsConsoleKey( keyNum_t key, const unsigned char character )
 	return qfalse;
 }
 
-/*
-===============
-IN_TranslateSDLToQ3Key
-===============
-*/
 static const char *IN_TranslateSDLToQ3Key( SDL_keysym *keysym,
 	keyNum_t *key, qboolean down )
 {
@@ -489,12 +471,7 @@ static const char *IN_TranslateSDLToQ3Key( SDL_keysym *keysym,
 }
 
 #ifdef MACOS_X_ACCELERATION_HACK
-/*
-===============
-IN_GetIOHandle
-===============
-*/
-static io_connect_t IN_GetIOHandle(void) // mac os x mouse accel hack
+static io_connect_t IN_GetIOHandle( void ) // mac os x mouse accel hack
 {
 	io_connect_t iohandle = MACH_PORT_NULL;
 	kern_return_t status;
@@ -516,11 +493,6 @@ static io_connect_t IN_GetIOHandle(void) // mac os x mouse accel hack
 }
 #endif
 
-/*
-===============
-IN_GobbleMotionEvents
-===============
-*/
 static void IN_GobbleMotionEvents( void )
 {
 	SDL_Event dummy[ 1 ];
@@ -531,11 +503,6 @@ static void IN_GobbleMotionEvents( void )
 		SDL_EVENTMASK( SDL_MOUSEMOTION ) ) ) { }
 }
 
-/*
-===============
-IN_ActivateMouse
-===============
-*/
 static void IN_ActivateMouse( void )
 {
 	if ( !SDL_WasInit( SDL_INIT_VIDEO ) )
@@ -607,11 +574,6 @@ static void IN_ActivateMouse( void )
 	mouseActive = qtrue;
 }
 
-/*
-===============
-IN_DeactivateMouse
-===============
-*/
 static void IN_DeactivateMouse( void )
 {
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
@@ -690,11 +652,6 @@ struct
 } stick_state;
 
 
-/*
-===============
-IN_InitJoystick
-===============
-*/
 static void IN_InitJoystick( void )
 {
 	int i = 0;
@@ -760,11 +717,6 @@ static void IN_InitJoystick( void )
 	SDL_JoystickEventState(SDL_QUERY);
 }
 
-/*
-===============
-IN_ShutdownJoystick
-===============
-*/
 static void IN_ShutdownJoystick( void )
 {
 	if (stick)
@@ -776,11 +728,6 @@ static void IN_ShutdownJoystick( void )
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
-/*
-===============
-IN_JoyMove
-===============
-*/
 static void IN_JoyMove( void )
 {
 	qboolean joy_pressed[ARRAY_LEN(joy_keys)];
@@ -983,11 +930,6 @@ static void IN_JoyMove( void )
 	stick_state.oldaxes = axes;
 }
 
-/*
-===============
-IN_ProcessEvents
-===============
-*/
 static void IN_ProcessEvents( void )
 {
 	SDL_Event e;
@@ -1090,11 +1032,6 @@ static void IN_ProcessEvents( void )
 	}
 }
 
-/*
-===============
-IN_Frame
-===============
-*/
 void IN_Frame( void )
 {
 	qboolean loading;
@@ -1131,11 +1068,6 @@ void IN_Frame( void )
 	}
 }
 
-/*
-===============
-IN_InitKeyLockStates
-===============
-*/
 void IN_InitKeyLockStates( void )
 {
 	unsigned char *keystate = SDL_GetKeyState(NULL);
@@ -1145,11 +1077,6 @@ void IN_InitKeyLockStates( void )
 	keys[K_CAPSLOCK].down = keystate[SDLK_CAPSLOCK];
 }
 
-/*
-===============
-IN_Init
-===============
-*/
 void IN_Init( void )
 {
 	int appState;
@@ -1208,11 +1135,6 @@ void IN_Init( void )
 	Com_DPrintf( "------------------------------------\n" );
 }
 
-/*
-===============
-IN_Shutdown
-===============
-*/
 void IN_Shutdown( void )
 {
 	//QtZ: Raw mouse input
@@ -1224,11 +1146,6 @@ void IN_Shutdown( void )
 	IN_ShutdownJoystick( );
 }
 
-/*
-===============
-IN_Restart
-===============
-*/
 void IN_Restart( void )
 {
 	IN_ShutdownJoystick( );

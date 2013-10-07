@@ -815,12 +815,12 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 
 	/* GLX */
 
-	typedef void (*__GLXextFuncPtr)(void);
+	typedef void (*__GLXextFuncPtr)( void );
 
 	#ifndef GLX_ARB_get_proc_address 
 	#define GLX_ARB_get_proc_address 1
 	    extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
-	    extern void ( * glXGetProcAddressARB (const GLubyte *procName))(void);
+	    extern void ( * glXGetProcAddressARB (const GLubyte *procName))( void );
 	    typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procName);
 	#endif
 
@@ -2262,7 +2262,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glCreateProgram
 #define GLEE_H_DEFINED_glCreateProgram
-  typedef GLuint (APIENTRYP GLEEPFNGLCREATEPROGRAMPROC) ();
+  typedef GLuint (APIENTRYP GLEEPFNGLCREATEPROGRAMPROC)();
   GLEE_EXTERN GLEEPFNGLCREATEPROGRAMPROC GLeeFuncPtr_glCreateProgram;
   #define glCreateProgram GLeeFuncPtr_glCreateProgram
 #endif
@@ -2997,7 +2997,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndTransformFeedback
 #define GLEE_H_DEFINED_glEndTransformFeedback
-  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKPROC)();
   GLEE_EXTERN GLEEPFNGLENDTRANSFORMFEEDBACKPROC GLeeFuncPtr_glEndTransformFeedback;
   #define glEndTransformFeedback GLeeFuncPtr_glEndTransformFeedback
 #endif
@@ -3039,7 +3039,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndConditionalRender
 #define GLEE_H_DEFINED_glEndConditionalRender
-  typedef void (APIENTRYP GLEEPFNGLENDCONDITIONALRENDERPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDCONDITIONALRENDERPROC)();
   GLEE_EXTERN GLEEPFNGLENDCONDITIONALRENDERPROC GLeeFuncPtr_glEndConditionalRender;
   #define glEndConditionalRender GLeeFuncPtr_glEndConditionalRender
 #endif
@@ -4809,7 +4809,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glCreateProgramObjectARB
 #define GLEE_H_DEFINED_glCreateProgramObjectARB
-  typedef GLhandleARB (APIENTRYP GLEEPFNGLCREATEPROGRAMOBJECTARBPROC) ();
+  typedef GLhandleARB (APIENTRYP GLEEPFNGLCREATEPROGRAMOBJECTARBPROC)();
   GLEE_EXTERN GLEEPFNGLCREATEPROGRAMOBJECTARBPROC GLeeFuncPtr_glCreateProgramObjectARB;
   #define glCreateProgramObjectARB GLeeFuncPtr_glCreateProgramObjectARB
 #endif
@@ -6754,7 +6754,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #define GL_INSTRUMENT_MEASUREMENTS_SGIX                    0x8181
 #ifndef GLEE_H_DEFINED_glGetInstrumentsSGIX
 #define GLEE_H_DEFINED_glGetInstrumentsSGIX
-  typedef GLint (APIENTRYP GLEEPFNGLGETINSTRUMENTSSGIXPROC) ();
+  typedef GLint (APIENTRYP GLEEPFNGLGETINSTRUMENTSSGIXPROC)();
   GLEE_EXTERN GLEEPFNGLGETINSTRUMENTSSGIXPROC GLeeFuncPtr_glGetInstrumentsSGIX;
   #define glGetInstrumentsSGIX GLeeFuncPtr_glGetInstrumentsSGIX
 #endif
@@ -6778,7 +6778,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glStartInstrumentsSGIX
 #define GLEE_H_DEFINED_glStartInstrumentsSGIX
-  typedef void (APIENTRYP GLEEPFNGLSTARTINSTRUMENTSSGIXPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLSTARTINSTRUMENTSSGIXPROC)();
   GLEE_EXTERN GLEEPFNGLSTARTINSTRUMENTSSGIXPROC GLeeFuncPtr_glStartInstrumentsSGIX;
   #define glStartInstrumentsSGIX GLeeFuncPtr_glStartInstrumentsSGIX
 #endif
@@ -6827,7 +6827,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 /* Constants */
 #ifndef GLEE_H_DEFINED_glTagSampleBufferSGIX
 #define GLEE_H_DEFINED_glTagSampleBufferSGIX
-  typedef void (APIENTRYP GLEEPFNGLTAGSAMPLEBUFFERSGIXPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLTAGSAMPLEBUFFERSGIXPROC)();
   GLEE_EXTERN GLEEPFNGLTAGSAMPLEBUFFERSGIXPROC GLeeFuncPtr_glTagSampleBufferSGIX;
   #define glTagSampleBufferSGIX GLeeFuncPtr_glTagSampleBufferSGIX
 #endif
@@ -6903,7 +6903,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 /* Constants */
 #ifndef GLEE_H_DEFINED_glFlushRasterSGIX
 #define GLEE_H_DEFINED_glFlushRasterSGIX
-  typedef void (APIENTRYP GLEEPFNGLFLUSHRASTERSGIXPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLFLUSHRASTERSGIXPROC)();
   GLEE_EXTERN GLEEPFNGLFLUSHRASTERSGIXPROC GLeeFuncPtr_glFlushRasterSGIX;
   #define glFlushRasterSGIX GLeeFuncPtr_glFlushRasterSGIX
 #endif
@@ -7330,7 +7330,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glUnlockArraysEXT
 #define GLEE_H_DEFINED_glUnlockArraysEXT
-  typedef void (APIENTRYP GLEEPFNGLUNLOCKARRAYSEXTPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLUNLOCKARRAYSEXTPROC)();
   GLEE_EXTERN GLEEPFNGLUNLOCKARRAYSEXTPROC GLeeFuncPtr_glUnlockArraysEXT;
   #define glUnlockArraysEXT GLeeFuncPtr_glUnlockArraysEXT
 #endif
@@ -8253,7 +8253,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #define GL_TEXTURE_CONSTANT_DATA_SUNX                      0x81D6
 #ifndef GLEE_H_DEFINED_glFinishTextureSUNX
 #define GLEE_H_DEFINED_glFinishTextureSUNX
-  typedef void (APIENTRYP GLEEPFNGLFINISHTEXTURESUNXPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLFINISHTEXTURESUNXPROC)();
   GLEE_EXTERN GLEEPFNGLFINISHTEXTURESUNXPROC GLeeFuncPtr_glFinishTextureSUNX;
   #define glFinishTextureSUNX GLeeFuncPtr_glFinishTextureSUNX
 #endif
@@ -8827,7 +8827,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #define GL_VERTEX_ARRAY_RANGE_POINTER_NV                   0x8521
 #ifndef GLEE_H_DEFINED_glFlushVertexArrayRangeNV
 #define GLEE_H_DEFINED_glFlushVertexArrayRangeNV
-  typedef void (APIENTRYP GLEEPFNGLFLUSHVERTEXARRAYRANGENVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLFLUSHVERTEXARRAYRANGENVPROC)();
   GLEE_EXTERN GLEEPFNGLFLUSHVERTEXARRAYRANGENVPROC GLeeFuncPtr_glFlushVertexArrayRangeNV;
   #define glFlushVertexArrayRangeNV GLeeFuncPtr_glFlushVertexArrayRangeNV
 #endif
@@ -9027,7 +9027,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 /* Constants */
 #ifndef GLEE_H_DEFINED_glResizeBuffersMESA
 #define GLEE_H_DEFINED_glResizeBuffersMESA
-  typedef void (APIENTRYP GLEEPFNGLRESIZEBUFFERSMESAPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLRESIZEBUFFERSMESAPROC)();
   GLEE_EXTERN GLEEPFNGLRESIZEBUFFERSMESAPROC GLeeFuncPtr_glResizeBuffersMESA;
   #define glResizeBuffersMESA GLeeFuncPtr_glResizeBuffersMESA
 #endif
@@ -10503,13 +10503,13 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glBeginFragmentShaderATI
 #define GLEE_H_DEFINED_glBeginFragmentShaderATI
-  typedef void (APIENTRYP GLEEPFNGLBEGINFRAGMENTSHADERATIPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLBEGINFRAGMENTSHADERATIPROC)();
   GLEE_EXTERN GLEEPFNGLBEGINFRAGMENTSHADERATIPROC GLeeFuncPtr_glBeginFragmentShaderATI;
   #define glBeginFragmentShaderATI GLeeFuncPtr_glBeginFragmentShaderATI
 #endif
 #ifndef GLEE_H_DEFINED_glEndFragmentShaderATI
 #define GLEE_H_DEFINED_glEndFragmentShaderATI
-  typedef void (APIENTRYP GLEEPFNGLENDFRAGMENTSHADERATIPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDFRAGMENTSHADERATIPROC)();
   GLEE_EXTERN GLEEPFNGLENDFRAGMENTSHADERATIPROC GLeeFuncPtr_glEndFragmentShaderATI;
   #define glEndFragmentShaderATI GLeeFuncPtr_glEndFragmentShaderATI
 #endif
@@ -10804,13 +10804,13 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #define GL_LOCAL_CONSTANT_DATATYPE_EXT                     0x87ED
 #ifndef GLEE_H_DEFINED_glBeginVertexShaderEXT
 #define GLEE_H_DEFINED_glBeginVertexShaderEXT
-  typedef void (APIENTRYP GLEEPFNGLBEGINVERTEXSHADEREXTPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLBEGINVERTEXSHADEREXTPROC)();
   GLEE_EXTERN GLEEPFNGLBEGINVERTEXSHADEREXTPROC GLeeFuncPtr_glBeginVertexShaderEXT;
   #define glBeginVertexShaderEXT GLeeFuncPtr_glBeginVertexShaderEXT
 #endif
 #ifndef GLEE_H_DEFINED_glEndVertexShaderEXT
 #define GLEE_H_DEFINED_glEndVertexShaderEXT
-  typedef void (APIENTRYP GLEEPFNGLENDVERTEXSHADEREXTPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDVERTEXSHADEREXTPROC)();
   GLEE_EXTERN GLEEPFNGLENDVERTEXSHADEREXTPROC GLeeFuncPtr_glEndVertexShaderEXT;
   #define glEndVertexShaderEXT GLeeFuncPtr_glEndVertexShaderEXT
 #endif
@@ -11452,7 +11452,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndOcclusionQueryNV
 #define GLEE_H_DEFINED_glEndOcclusionQueryNV
-  typedef void (APIENTRYP GLEEPFNGLENDOCCLUSIONQUERYNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDOCCLUSIONQUERYNVPROC)();
   GLEE_EXTERN GLEEPFNGLENDOCCLUSIONQUERYNVPROC GLeeFuncPtr_glEndOcclusionQueryNV;
   #define glEndOcclusionQueryNV GLeeFuncPtr_glEndOcclusionQueryNV
 #endif
@@ -12221,7 +12221,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #define GL_PRIMITIVE_RESTART_INDEX_NV                      0x8559
 #ifndef GLEE_H_DEFINED_glPrimitiveRestartNV
 #define GLEE_H_DEFINED_glPrimitiveRestartNV
-  typedef void (APIENTRYP GLEEPFNGLPRIMITIVERESTARTNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLPRIMITIVERESTARTNVPROC)();
   GLEE_EXTERN GLEEPFNGLPRIMITIVERESTARTNVPROC GLeeFuncPtr_glPrimitiveRestartNV;
   #define glPrimitiveRestartNV GLeeFuncPtr_glPrimitiveRestartNV
 #endif
@@ -13161,7 +13161,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndTransformFeedbackNV
 #define GLEE_H_DEFINED_glEndTransformFeedbackNV
-  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKNVPROC)();
   GLEE_EXTERN GLEEPFNGLENDTRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glEndTransformFeedbackNV;
   #define glEndTransformFeedbackNV GLeeFuncPtr_glEndTransformFeedbackNV
 #endif
@@ -13352,7 +13352,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 /* Constants */
 #ifndef GLEE_H_DEFINED_glFrameTerminatorGREMEDY
 #define GLEE_H_DEFINED_glFrameTerminatorGREMEDY
-  typedef void (APIENTRYP GLEEPFNGLFRAMETERMINATORGREMEDYPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLFRAMETERMINATORGREMEDYPROC)();
   GLEE_EXTERN GLEEPFNGLFRAMETERMINATORGREMEDYPROC GLeeFuncPtr_glFrameTerminatorGREMEDY;
   #define glFrameTerminatorGREMEDY GLeeFuncPtr_glFrameTerminatorGREMEDY
 #endif
@@ -13376,7 +13376,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndConditionalRenderNV
 #define GLEE_H_DEFINED_glEndConditionalRenderNV
-  typedef void (APIENTRYP GLEEPFNGLENDCONDITIONALRENDERNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDCONDITIONALRENDERNVPROC)();
   GLEE_EXTERN GLEEPFNGLENDCONDITIONALRENDERNVPROC GLeeFuncPtr_glEndConditionalRenderNV;
   #define glEndConditionalRenderNV GLeeFuncPtr_glEndConditionalRenderNV
 #endif
@@ -13425,7 +13425,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glEndTransformFeedbackEXT
 #define GLEE_H_DEFINED_glEndTransformFeedbackEXT
-  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKEXTPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLENDTRANSFORMFEEDBACKEXTPROC)();
   GLEE_EXTERN GLEEPFNGLENDTRANSFORMFEEDBACKEXTPROC GLeeFuncPtr_glEndTransformFeedbackEXT;
   #define glEndTransformFeedbackEXT GLeeFuncPtr_glEndTransformFeedbackEXT
 #endif
@@ -14681,13 +14681,13 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 #ifndef GLEE_H_DEFINED_glPauseTransformFeedbackNV
 #define GLEE_H_DEFINED_glPauseTransformFeedbackNV
-  typedef void (APIENTRYP GLEEPFNGLPAUSETRANSFORMFEEDBACKNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLPAUSETRANSFORMFEEDBACKNVPROC)();
   GLEE_EXTERN GLEEPFNGLPAUSETRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glPauseTransformFeedbackNV;
   #define glPauseTransformFeedbackNV GLeeFuncPtr_glPauseTransformFeedbackNV
 #endif
 #ifndef GLEE_H_DEFINED_glResumeTransformFeedbackNV
 #define GLEE_H_DEFINED_glResumeTransformFeedbackNV
-  typedef void (APIENTRYP GLEEPFNGLRESUMETRANSFORMFEEDBACKNVPROC) ();
+  typedef void (APIENTRYP GLEEPFNGLRESUMETRANSFORMFEEDBACKNVPROC)();
   GLEE_EXTERN GLEEPFNGLRESUMETRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glResumeTransformFeedbackNV;
   #define glResumeTransformFeedbackNV GLeeFuncPtr_glResumeTransformFeedbackNV
 #endif
@@ -14933,13 +14933,13 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 /* Constants */
 #ifndef GLEE_H_DEFINED_glBeginSceneEXT
 #define GLEE_H_DEFINED_glBeginSceneEXT
-  typedef GLvoid (APIENTRYP GLEEPFNGLBEGINSCENEEXTPROC) ();
+  typedef GLvoid (APIENTRYP GLEEPFNGLBEGINSCENEEXTPROC)();
   GLEE_EXTERN GLEEPFNGLBEGINSCENEEXTPROC GLeeFuncPtr_glBeginSceneEXT;
   #define glBeginSceneEXT GLeeFuncPtr_glBeginSceneEXT
 #endif
 #ifndef GLEE_H_DEFINED_glEndSceneEXT
 #define GLEE_H_DEFINED_glEndSceneEXT
-  typedef GLvoid (APIENTRYP GLEEPFNGLENDSCENEEXTPROC) ();
+  typedef GLvoid (APIENTRYP GLEEPFNGLENDSCENEEXTPROC)();
   GLEE_EXTERN GLEEPFNGLENDSCENEEXTPROC GLeeFuncPtr_glEndSceneEXT;
   #define glEndSceneEXT GLeeFuncPtr_glEndSceneEXT
 #endif
@@ -15613,7 +15613,7 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_wglGetCurrentReadDCARB
 #define GLEE_H_DEFINED_wglGetCurrentReadDCARB
-  typedef HDC (APIENTRYP GLEEPFNWGLGETCURRENTREADDCARBPROC) ();
+  typedef HDC (APIENTRYP GLEEPFNWGLGETCURRENTREADDCARBPROC)();
   GLEE_EXTERN GLEEPFNWGLGETCURRENTREADDCARBPROC GLeeFuncPtr_wglGetCurrentReadDCARB;
   #define wglGetCurrentReadDCARB GLeeFuncPtr_wglGetCurrentReadDCARB
 #endif
@@ -15769,7 +15769,7 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_wglGetCurrentReadDCEXT
 #define GLEE_H_DEFINED_wglGetCurrentReadDCEXT
-  typedef HDC (APIENTRYP GLEEPFNWGLGETCURRENTREADDCEXTPROC) ();
+  typedef HDC (APIENTRYP GLEEPFNWGLGETCURRENTREADDCEXTPROC)();
   GLEE_EXTERN GLEEPFNWGLGETCURRENTREADDCEXTPROC GLeeFuncPtr_wglGetCurrentReadDCEXT;
   #define wglGetCurrentReadDCEXT GLeeFuncPtr_wglGetCurrentReadDCEXT
 #endif
@@ -16111,13 +16111,13 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 /* Constants */
 #ifndef GLEE_H_DEFINED_wglEnableFrameLockI3D
 #define GLEE_H_DEFINED_wglEnableFrameLockI3D
-  typedef BOOL (APIENTRYP GLEEPFNWGLENABLEFRAMELOCKI3DPROC) ();
+  typedef BOOL (APIENTRYP GLEEPFNWGLENABLEFRAMELOCKI3DPROC)();
   GLEE_EXTERN GLEEPFNWGLENABLEFRAMELOCKI3DPROC GLeeFuncPtr_wglEnableFrameLockI3D;
   #define wglEnableFrameLockI3D GLeeFuncPtr_wglEnableFrameLockI3D
 #endif
 #ifndef GLEE_H_DEFINED_wglDisableFrameLockI3D
 #define GLEE_H_DEFINED_wglDisableFrameLockI3D
-  typedef BOOL (APIENTRYP GLEEPFNWGLDISABLEFRAMELOCKI3DPROC) ();
+  typedef BOOL (APIENTRYP GLEEPFNWGLDISABLEFRAMELOCKI3DPROC)();
   GLEE_EXTERN GLEEPFNWGLDISABLEFRAMELOCKI3DPROC GLeeFuncPtr_wglDisableFrameLockI3D;
   #define wglDisableFrameLockI3D GLeeFuncPtr_wglDisableFrameLockI3D
 #endif
@@ -16366,7 +16366,7 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 /* Constants */
 #ifndef GLEE_H_DEFINED_wglGetExtensionsStringEXT
 #define GLEE_H_DEFINED_wglGetExtensionsStringEXT
-  typedef const char * (APIENTRYP GLEEPFNWGLGETEXTENSIONSSTRINGEXTPROC) ();
+  typedef const char * (APIENTRYP GLEEPFNWGLGETEXTENSIONSSTRINGEXTPROC)();
   GLEE_EXTERN GLEEPFNWGLGETEXTENSIONSSTRINGEXTPROC GLeeFuncPtr_wglGetExtensionsStringEXT;
   #define wglGetExtensionsStringEXT GLeeFuncPtr_wglGetExtensionsStringEXT
 #endif
@@ -16386,7 +16386,7 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_wglGetSwapIntervalEXT
 #define GLEE_H_DEFINED_wglGetSwapIntervalEXT
-  typedef int (APIENTRYP GLEEPFNWGLGETSWAPINTERVALEXTPROC) ();
+  typedef int (APIENTRYP GLEEPFNWGLGETSWAPINTERVALEXTPROC)();
   GLEE_EXTERN GLEEPFNWGLGETSWAPINTERVALEXTPROC GLeeFuncPtr_wglGetSwapIntervalEXT;
   #define wglGetSwapIntervalEXT GLeeFuncPtr_wglGetSwapIntervalEXT
 #endif
@@ -16470,13 +16470,13 @@ GLEE_EXTERN GLboolean _GLEE_WGL_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_wglBeginFrameTrackingI3D
 #define GLEE_H_DEFINED_wglBeginFrameTrackingI3D
-  typedef BOOL (APIENTRYP GLEEPFNWGLBEGINFRAMETRACKINGI3DPROC) ();
+  typedef BOOL (APIENTRYP GLEEPFNWGLBEGINFRAMETRACKINGI3DPROC)();
   GLEE_EXTERN GLEEPFNWGLBEGINFRAMETRACKINGI3DPROC GLeeFuncPtr_wglBeginFrameTrackingI3D;
   #define wglBeginFrameTrackingI3D GLeeFuncPtr_wglBeginFrameTrackingI3D
 #endif
 #ifndef GLEE_H_DEFINED_wglEndFrameTrackingI3D
 #define GLEE_H_DEFINED_wglEndFrameTrackingI3D
-  typedef BOOL (APIENTRYP GLEEPFNWGLENDFRAMETRACKINGI3DPROC) ();
+  typedef BOOL (APIENTRYP GLEEPFNWGLENDFRAMETRACKINGI3DPROC)();
   GLEE_EXTERN GLEEPFNWGLENDFRAMETRACKINGI3DPROC GLeeFuncPtr_wglEndFrameTrackingI3D;
   #define wglEndFrameTrackingI3D GLeeFuncPtr_wglEndFrameTrackingI3D
 #endif
@@ -16775,13 +16775,13 @@ GLEE_EXTERN GLboolean _GLEE_GLX_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_glXGetCurrentReadDrawable
 #define GLEE_H_DEFINED_glXGetCurrentReadDrawable
-  typedef GLXDrawable (APIENTRYP GLEEPFNGLXGETCURRENTREADDRAWABLEPROC) ();
+  typedef GLXDrawable (APIENTRYP GLEEPFNGLXGETCURRENTREADDRAWABLEPROC)();
   GLEE_EXTERN GLEEPFNGLXGETCURRENTREADDRAWABLEPROC GLeeFuncPtr_glXGetCurrentReadDrawable;
   #define glXGetCurrentReadDrawable GLeeFuncPtr_glXGetCurrentReadDrawable
 #endif
 #ifndef GLEE_H_DEFINED_glXGetCurrentDisplay
 #define GLEE_H_DEFINED_glXGetCurrentDisplay
-  typedef Display * (APIENTRYP GLEEPFNGLXGETCURRENTDISPLAYPROC) ();
+  typedef Display * (APIENTRYP GLEEPFNGLXGETCURRENTDISPLAYPROC)();
   GLEE_EXTERN GLEEPFNGLXGETCURRENTDISPLAYPROC GLeeFuncPtr_glXGetCurrentDisplay;
   #define glXGetCurrentDisplay GLeeFuncPtr_glXGetCurrentDisplay
 #endif
@@ -16942,7 +16942,7 @@ GLEE_EXTERN GLboolean _GLEE_GLX_NV_video_output;
 #endif
 #ifndef GLEE_H_DEFINED_glXGetCurrentReadDrawableSGI
 #define GLEE_H_DEFINED_glXGetCurrentReadDrawableSGI
-  typedef GLXDrawable (APIENTRYP GLEEPFNGLXGETCURRENTREADDRAWABLESGIPROC) ();
+  typedef GLXDrawable (APIENTRYP GLEEPFNGLXGETCURRENTREADDRAWABLESGIPROC)();
   GLEE_EXTERN GLEEPFNGLXGETCURRENTREADDRAWABLESGIPROC GLeeFuncPtr_glXGetCurrentReadDrawableSGI;
   #define glXGetCurrentReadDrawableSGI GLeeFuncPtr_glXGetCurrentReadDrawableSGI
 #endif
@@ -16970,7 +16970,7 @@ GLEE_EXTERN GLboolean _GLEE_GLX_NV_video_output;
 #define GLX_SCREEN_EXT                                     0x800C
 #ifndef GLEE_H_DEFINED_glXGetCurrentDisplayEXT
 #define GLEE_H_DEFINED_glXGetCurrentDisplayEXT
-  typedef Display * (APIENTRYP GLEEPFNGLXGETCURRENTDISPLAYEXTPROC) ();
+  typedef Display * (APIENTRYP GLEEPFNGLXGETCURRENTDISPLAYEXTPROC)();
   GLEE_EXTERN GLEEPFNGLXGETCURRENTDISPLAYEXTPROC GLeeFuncPtr_glXGetCurrentDisplayEXT;
   #define glXGetCurrentDisplayEXT GLeeFuncPtr_glXGetCurrentDisplayEXT
 #endif

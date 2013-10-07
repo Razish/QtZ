@@ -25,34 +25,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sv_local.h"
 
 /*
-=============================================================================
 
-Delta encode a client frame onto the network channel
+	Delta encode a client frame onto the network channel
 
-A normal server packet will look like:
+	A normal server packet will look like:
 
-4	sequence number (high bit set if an oversize fragment)
-<optional reliable commands>
-1	svc_snapshot
-4	last client reliable command
-4	serverTime
-1	lastframe for delta compression
-1	snapFlags
-1	areaBytes
-<areabytes>
-<playerstate>
-<packetentities>
+		4	sequence number (high bit set if an oversize fragment)
+		<optional reliable commands>
+		1	svc_snapshot
+		4	last client reliable command
+		4	serverTime
+		1	lastframe for delta compression
+		1	snapFlags
+		1	areaBytes
+		<areabytes>
+		<playerstate>
+		<packetentities>
 
-=============================================================================
 */
 
-/*
-=============
-SV_EmitPacketEntities
-
-Writes a delta update of an entityState_t list to the message.
-=============
-*/
+// Writes a delta update of an entityState_t list to the message.
 static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to, msg_t *msg ) {
 	entityState_t	*oldent, *newent;
 	int		oldindex, newindex;
@@ -113,13 +105,6 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 	MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
 }
 
-
-
-/*
-==================
-SV_WriteSnapshotToClient
-==================
-*/
 static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	clientSnapshot_t	*frame, *oldframe;
 	int					lastframe;
@@ -209,13 +194,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 }
 
 
-/*
-==================
-SV_UpdateServerCommandsToClient
-
-(re)send all server commands the client hasn't acknowledged yet
-==================
-*/
+// (re)send all server commands the client hasn't acknowledged yet
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 	int		i;
 
@@ -229,11 +208,9 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 }
 
 /*
-=============================================================================
 
-Build a client snapshot structure
+	Build a client snapshot structure
 
-=============================================================================
 */
 
 typedef struct snapshotEntityNumbers_s {
@@ -241,11 +218,6 @@ typedef struct snapshotEntityNumbers_s {
 	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];	
 } snapshotEntityNumbers_t;
 
-/*
-=======================
-SV_QsortEntityNumbers
-=======================
-*/
 static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	int	*ea, *eb;
 
@@ -263,12 +235,6 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	return 1;
 }
 
-
-/*
-===============
-SV_AddEntToSnapshot
-===============
-*/
 static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
@@ -285,11 +251,6 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 	eNums->numSnapshotEntities++;
 }
 
-/*
-===============
-SV_AddEntitiesVisibleFromPoint
-===============
-*/
 static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, qboolean portal ) {
 	int		e, i;
 	sharedEntity_t *ent;
@@ -426,19 +387,9 @@ static void SV_AddEntitiesVisibleFromPoint( vector3 *origin, clientSnapshot_t *f
 	}
 }
 
-/*
-=============
-SV_BuildClientSnapshot
-
-Decides which entities are going to be visible to the client, and
-copies off the playerstate and areabits.
-
-This properly handles multiple recursive portals, but the render
-currently doesn't.
-
-For viewing through other player's eyes, clent can be something other than client->gentity
-=============
-*/
+// Decides which entities are going to be visible to the client, and copies off the playerstate and areabits.
+//	This properly handles multiple recursive portals, but the render currently doesn't.
+//	For viewing through other player's eyes, clent can be something other than client->gentity
 static void SV_BuildClientSnapshot( client_t *client ) {
 	vector3						org;
 	clientSnapshot_t			*frame;
@@ -461,7 +412,6 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	entityNumbers.numSnapshotEntities = 0;
 	memset( frame->areabits, 0, sizeof( frame->areabits ) );
 
-  // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
 	frame->num_entities = 0;
 	
 	clent = client->gentity;
@@ -521,13 +471,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 }
 
 #ifdef USE_VOIP
-/*
-==================
-SV_WriteVoipToClient
-
-Check to see if there is any VoIP queued for a client, and send if there is.
-==================
-*/
+// Check to see if there is any VoIP queued for a client, and send if there is.
 static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 {
 	int totalbytes = 0;
@@ -567,13 +511,7 @@ static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 }
 #endif
 
-/*
-=======================
-SV_SendMessageToClient
-
-Called by SV_SendClientSnapshot and SV_SendClientGameState
-=======================
-*/
+// Called by SV_SendClientSnapshot and SV_SendClientGameState
 void SV_SendMessageToClient(msg_t *msg, client_t *client)
 {
 	// record information about the message
@@ -586,14 +524,7 @@ void SV_SendMessageToClient(msg_t *msg, client_t *client)
 }
 
 
-/*
-=======================
-SV_SendClientSnapshot
-
-Also called by SV_FinalMessage
-
-=======================
-*/
+// Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
@@ -634,13 +565,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
-
-/*
-=======================
-SV_SendClientMessages
-=======================
-*/
-void SV_SendClientMessages(void)
+void SV_SendClientMessages( void )
 {
 	int		i;
 	client_t	*c;

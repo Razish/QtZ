@@ -25,11 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 /*
-===================================================================
 
-MARK POLYS
+	MARK POLYS
 
-===================================================================
 */
 
 
@@ -38,13 +36,7 @@ markPoly_t	*cg_freeMarkPolys;			// single linked list
 markPoly_t	cg_markPolys[MAX_MARK_POLYS];
 static		int	markTotal;
 
-/*
-===================
-CG_InitMarkPolys
-
-This is called at startup and for tournement restarts
-===================
-*/
+// This is called at startup and for tournement restarts
 void	CG_InitMarkPolys( void ) {
 	int		i;
 
@@ -58,12 +50,6 @@ void	CG_InitMarkPolys( void ) {
 	}
 }
 
-
-/*
-==================
-CG_FreeMarkPoly
-==================
-*/
 void CG_FreeMarkPoly( markPoly_t *le ) {
 	if ( !le->prevMark ) {
 		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
@@ -78,13 +64,7 @@ void CG_FreeMarkPoly( markPoly_t *le ) {
 	cg_freeMarkPolys = le;
 }
 
-/*
-===================
-CG_AllocMark
-
-Will allways succeed, even if it requires freeing an old active mark
-===================
-*/
+// Will allways succeed, even if it requires freeing an old active mark
 markPoly_t	*CG_AllocMark( void ) {
 	markPoly_t	*le;
 	int time;
@@ -111,24 +91,14 @@ markPoly_t	*CG_AllocMark( void ) {
 	return le;
 }
 
-
-
-/*
-=================
-CG_ImpactMark
-
-origin should be a point within a unit of the plane
-dir should be the plane normal
-
-temporary marks will not be stored or randomly oriented, but immediately
-passed to the renderer.
-=================
-*/
 #define	MAX_MARK_FRAGMENTS	128
 #define	MAX_MARK_POINTS		384
 
+// origin should be a point within a unit of the plane
+//	dir should be the plane normal
+//	temporary marks will not be stored or randomly oriented, but immediately passed to the renderer.
 void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *dir, float orientation, float red, float green, float blue, float alpha, qboolean alphaFade, float radius, qboolean temporary ) {
-	vector3			axis[3];
+	matrix3			axis;
 	float			texCoordScale;
 	vector3			originalPoints[4];
 	byte			colors[4];
@@ -216,12 +186,6 @@ void CG_ImpactMark( qhandle_t markShader, const vector3 *origin, const vector3 *
 	}
 }
 
-
-/*
-===============
-CG_AddMarks
-===============
-*/
 #define	MARK_TOTAL_TIME		10000
 #define	MARK_FADE_TIME		1000
 

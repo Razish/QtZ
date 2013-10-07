@@ -35,13 +35,6 @@ int			r_firstScenePoly;
 
 int			r_numpolyverts;
 
-
-/*
-====================
-R_ToggleSmpFrame
-
-====================
-*/
 void R_ToggleSmpFrame( void ) {
 	backEndData->commands.used = 0;
 
@@ -59,13 +52,6 @@ void R_ToggleSmpFrame( void ) {
 	r_numpolyverts = 0;
 }
 
-
-/*
-====================
-RE_ClearScene
-
-====================
-*/
 void RE_ClearScene( void ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
@@ -73,20 +59,12 @@ void RE_ClearScene( void ) {
 }
 
 /*
-===========================================================================
 
-DISCRETE POLYS
+	DISCRETE POLYS
 
-===========================================================================
 */
 
-/*
-=====================
-R_AddPolygonSurfaces
-
-Adds all the scene's polys into this view's drawsurf list
-=====================
-*/
+// Adds all the scene's polys into this view's drawsurf list
 void R_AddPolygonSurfaces( void ) {
 	int			i;
 	shader_t	*sh;
@@ -101,12 +79,6 @@ void R_AddPolygonSurfaces( void ) {
 	}
 }
 
-/*
-=====================
-RE_AddPolyToScene
-
-=====================
-*/
 void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
 	srfPoly_t	*poly;
 	int			i, j;
@@ -181,16 +153,6 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 }
 
-
-//=================================================================================
-
-
-/*
-=====================
-RE_AddRefEntityToScene
-
-=====================
-*/
 void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	if ( !tr.registered ) {
 		return;
@@ -217,13 +179,6 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	r_numentities++;
 }
 
-
-/*
-=====================
-RE_AddDynamicLightToScene
-
-=====================
-*/
 void RE_AddDynamicLightToScene( const vector3 *org, float intensity, float r, float g, float b, int additive ) {
 	dlight_t	*dl;
 
@@ -246,37 +201,16 @@ void RE_AddDynamicLightToScene( const vector3 *org, float intensity, float r, fl
 	dl->additive = additive;
 }
 
-/*
-=====================
-RE_AddLightToScene
-
-=====================
-*/
 void RE_AddLightToScene( const vector3 *org, float intensity, float r, float g, float b ) {
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
 }
 
-/*
-=====================
-RE_AddAdditiveLightToScene
-
-=====================
-*/
 void RE_AddAdditiveLightToScene( const vector3 *org, float intensity, float r, float g, float b ) {
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qtrue );
 }
 
-/*
-@@@@@@@@@@@@@@@@@@@@@
-RE_RenderScene
-
-Draw a 3D view into a part of the window, then return
-to 2D drawing.
-
-Rendering a scene may require multiple views to be rendered
-to handle mirrors,
-@@@@@@@@@@@@@@@@@@@@@
-*/
+// Draw a 3D view into a part of the window, then return to 2D drawing.
+// Rendering a scene may require multiple views to be rendered to handle mirrors
 void RE_RenderScene( const refdef_t *fd ) {
 	viewParms_t		parms;
 	int				startTime;

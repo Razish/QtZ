@@ -74,11 +74,6 @@ static char*	SV_RankStatusString( GR_STATUS status );
 static void		SV_RankError( const char* fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 static char     SV_RankGameKey[64];
 
-/*
-================
-SV_RankBegin
-================
-*/
 void SV_RankBegin( char *gamekey )
 {
 	GR_INIT		init;
@@ -169,11 +164,6 @@ void SV_RankBegin( char *gamekey )
 		* sizeof(ranked_player_t));
 }
 
-/*
-================
-SV_RankEnd
-================
-*/
 void SV_RankEnd( void )
 {
 	GR_STATUS	status;
@@ -233,41 +223,21 @@ void SV_RankEnd( void )
 	Cvar_Set( "sv_rankingsActive", "0" );
 }
 
-/*
-================
-SV_RankPoll
-================
-*/
 void SV_RankPoll( void )
 {
 	GRankPoll();
 }
 
-/*
-================
-SV_RankCheckInit
-================
-*/
 qboolean SV_RankCheckInit( void )
 {
 	return (s_rankings_contexts > 0);
 }
 
-/*
-================
-SV_RankActive
-================
-*/
 qboolean SV_RankActive( void )
 {
 	return s_rankings_active;
 }
 
-/*
-=================
-SV_RankUserStatus
-=================
-*/
 grank_status_t SV_RankUserStatus( int index )
 {
 	if( !s_rankings_active )
@@ -282,11 +252,6 @@ grank_status_t SV_RankUserStatus( int index )
 	return s_ranked_players[index].grank_status;
 }
 
-/*
-================
-SV_RankUserGRank
-================
-*/
 int SV_RankUserGrank( int index )
 {
 	if( !s_rankings_active )
@@ -301,11 +266,6 @@ int SV_RankUserGrank( int index )
 	return s_ranked_players[index].grank;
 }
 
-/*
-================
-SV_RankUserReset
-================
-*/
 void SV_RankUserReset( int index )
 {
 	if( !s_rankings_active )
@@ -333,11 +293,6 @@ void SV_RankUserReset( int index )
 	}
 }
 
-/*
-================
-SV_RankUserSpectate
-================
-*/
 void SV_RankUserSpectate( int index )
 {
 	if( !s_rankings_active )
@@ -353,11 +308,6 @@ void SV_RankUserSpectate( int index )
 	s_ranked_players[index].grank_status = QGR_STATUS_SPECTATOR;
 }
 
-/*
-================
-SV_RankUserCreate
-================
-*/
 void SV_RankUserCreate( int index, char* username, char* password, 
 	char* email )
 {
@@ -419,11 +369,6 @@ void SV_RankUserCreate( int index, char* username, char* password,
 	}
 }
 
-/*
-================
-SV_RankUserLogin
-================
-*/
 void SV_RankUserLogin( int index, char* username, char* password )
 {
 	GR_INIT		init;
@@ -481,11 +426,6 @@ void SV_RankUserLogin( int index, char* username, char* password )
 	}
 }
 
-/*
-===================
-SV_RankUserValidate
-===================
-*/
 qboolean SV_RankUserValidate( int index, const char* player_id, const char* key, int token_len, int rank, char* name )
 {
 	GR_INIT		init;
@@ -583,11 +523,6 @@ qboolean SV_RankUserValidate( int index, const char* player_id, const char* key,
 	return rVal;
 }
 
-/*
-================
-SV_RankUserLogout
-================
-*/
 void SV_RankUserLogout( int index )
 {
 	GR_STATUS	status;
@@ -651,11 +586,6 @@ void SV_RankUserLogout( int index )
 	}
 }
 
-/*
-================
-SV_RankReportInt
-================
-*/
 void SV_RankReportInt( int index1, int index2, int key, int value, 
 	qboolean accum )
 {
@@ -765,11 +695,6 @@ void SV_RankReportInt( int index1, int index2, int key, int value,
 	}
 }
 
-/*
-================
-SV_RankReportStr
-================
-*/
 void SV_RankReportStr( int index1, int index2, int key, char* value )
 {
 	GR_STATUS	status;
@@ -871,11 +796,6 @@ void SV_RankReportStr( int index1, int index2, int key, char* value )
 	}
 }
 
-/*
-================
-SV_RankQuit
-================
-*/
 void SV_RankQuit( void )
 {
 	int	i;
@@ -927,18 +847,11 @@ void SV_RankQuit( void )
 }
 
 /*
-==============================================================================
 
-Private Functions
+	Private Functions
 
-==============================================================================
 */
 
-/*
-=================
-SV_RankNewGameCBF
-=================
-*/
 static void SV_RankNewGameCBF( GR_NEWGAME* gr_newgame, void* cbf_arg )
 {
 	GR_MATCH	match;
@@ -994,11 +907,6 @@ static void SV_RankNewGameCBF( GR_NEWGAME* gr_newgame, void* cbf_arg )
 	}
 }
 
-/*
-================
-SV_RankUserCBF
-================
-*/
 static void SV_RankUserCBF( GR_LOGIN* gr_login, void* cbf_arg )
 {
 	ranked_player_t*	ranked_player;
@@ -1078,11 +986,6 @@ static void SV_RankUserCBF( GR_LOGIN* gr_login, void* cbf_arg )
 	}
 }
 
-/*
-================
-SV_RankJoinGameCBF
-================
-*/
 static void SV_RankJoinGameCBF( GR_JOINGAME* gr_joingame, void* cbf_arg )
 {
 	ranked_player_t*	ranked_player;
@@ -1140,11 +1043,6 @@ static void SV_RankJoinGameCBF( GR_JOINGAME* gr_joingame, void* cbf_arg )
 	}		
 }
 
-/*
-================
-SV_RankSendReportsCBF
-================
-*/
 static void SV_RankSendReportsCBF( GR_STATUS* status, void* cbf_arg )
 {
 	ranked_player_t*	ranked_player;
@@ -1201,11 +1099,6 @@ static void SV_RankSendReportsCBF( GR_STATUS* status, void* cbf_arg )
 	}
 }
 
-/*
-================
-SV_RankCleanupCBF
-================
-*/
 static void SV_RankCleanupCBF( GR_STATUS* status, void* cbf_arg )
 {
 	ranked_player_t*	ranked_player;
@@ -1225,11 +1118,6 @@ static void SV_RankCleanupCBF( GR_STATUS* status, void* cbf_arg )
 	SV_RankCloseContext( ranked_player );
 }
 
-/*
-================
-SV_RankCloseContext
-================
-*/
 static void SV_RankCloseContext( ranked_player_t* ranked_player )
 {
 	if( ranked_player == NULL )
@@ -1282,19 +1170,10 @@ static void SV_RankCloseContext( ranked_player_t* ranked_player )
 	}
 }
 
-/*
-================
-SV_RankAsciiEncode
-
-Encodes src_len bytes of binary data from the src buffer as ASCII text, 
-using 6 bits per character. The result string is null-terminated and 
-stored in the dest buffer.
-
-The dest buffer must be at least (src_len * 4) / 3 + 2 bytes in length.
-
-Returns the length of the result string, not including the null.
-================
-*/
+// Encodes src_len bytes of binary data from the src buffer as ASCII text, using 6 bits per character.
+//	The result string is null-terminated and stored in the dest buffer.
+//	The dest buffer must be at least (src_len * 4) / 3 + 2 bytes in length.
+//	Returns the length of the result string, not including the null.
 static int SV_RankAsciiEncode( char* dest, const unsigned char* src, 
 	int src_len )
 {
@@ -1335,18 +1214,9 @@ static int SV_RankAsciiEncode( char* dest, const unsigned char* src,
 	return dest_len;
 }
 
-/*
-================
-SV_RankAsciiDecode
-
-Decodes src_len characters of ASCII text from the src buffer, stores 
-the binary result in the dest buffer.
-
-The dest buffer must be at least (src_len * 3) / 4 bytes in length.
-
-Returns the length of the binary result, or zero for invalid input.
-================
-*/
+// Decodes src_len characters of ASCII text from the src buffer, stores the binary result in the dest buffer.
+//	The dest buffer must be at least (src_len * 3) / 4 bytes in length.
+//	Returns the length of the binary result, or zero for invalid input.
 static int SV_RankAsciiDecode( unsigned char* dest, const char* src, 
 	int src_len )
 {
@@ -1402,11 +1272,6 @@ static int SV_RankAsciiDecode( unsigned char* dest, const char* src,
 	return dest_len;
 }
 
-/*
-================
-SV_RankEncodeGameID
-================
-*/
 static void SV_RankEncodeGameID( uint64_t game_id, char* result, 
 	int len )
 {
@@ -1425,11 +1290,6 @@ static void SV_RankEncodeGameID( uint64_t game_id, char* result,
 	}
 }
 
-/*
-================
-SV_RankDecodePlayerID
-================
-*/
 static uint64_t SV_RankDecodePlayerID( const char* string )
 {
 	unsigned char	buffer[9];
@@ -1445,11 +1305,6 @@ static uint64_t SV_RankDecodePlayerID( const char* string )
 	return *(qint64_t*)&player_id;
 }
 
-/*
-================
-SV_RankDecodePlayerKey
-================
-*/
 static void SV_RankDecodePlayerKey( const char* string, GR_PLAYER_TOKEN key )
 {
 	unsigned char	buffer[1400];
@@ -1464,11 +1319,6 @@ static void SV_RankDecodePlayerKey( const char* string, GR_PLAYER_TOKEN key )
 	memcpy( key, buffer, SV_RankAsciiDecode( buffer, string, len ) );
 }
 
-/*
-================
-SV_RankStatusString
-================
-*/
 static char* SV_RankStatusString( GR_STATUS status )
 {
 	switch( status )
@@ -1490,11 +1340,6 @@ static char* SV_RankStatusString( GR_STATUS status )
 	}
 }
 
-/*
-================
-SV_RankError
-================
-*/
 static void SV_RankError( const char* fmt, ... )
 {
 	va_list	arg_ptr;

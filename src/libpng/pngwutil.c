@@ -287,7 +287,7 @@ optimize_cmf(png_bytep data, png_alloc_size_t data_size)
    }
 }
 #else
-#  define optimize_cmf(dp,dl) ((void)0)
+#  define optimize_cmf(dp,dl) (( void )0)
 #endif /* PNG_WRITE_OPTIMIZE_CMF_SUPPORTED */
 
 /* Initialize the compressor for the appropriate type of compression. */
@@ -307,7 +307,7 @@ png_deflate_claim(png_structrp png_ptr, png_uint_32 owner,
        * internal error, but is very useful for debugging.  i18n requirements
        * are minimal.
        */
-      (void)png_safecat(msg, (sizeof msg), 10, " using zstream");
+    ( void )png_safecat(msg, (sizeof msg), 10, " using zstream");
 #     if PNG_LIBPNG_BUILD_BASE_TYPE >= PNG_LIBPNG_BUILD_RC
          png_warning(png_ptr, msg);
 

@@ -88,12 +88,6 @@ cvar_t *bot_interbreedwrite;
 
 void ExitLevel( void );
 
-
-/*
-==================
-BotAI_Print
-==================
-*/
 void QDECL BotAI_Print(int type, char *fmt, ...) {
 	char str[2048];
 	va_list ap;
@@ -130,12 +124,6 @@ void QDECL BotAI_Print(int type, char *fmt, ...) {
 	}
 }
 
-
-/*
-==================
-BotAI_Trace
-==================
-*/
 void BotAI_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask) {
 	trace_t trace;
 
@@ -156,11 +144,6 @@ void BotAI_Trace(bsp_trace_t *bsptrace, vector3 *start, vector3 *mins, vector3 *
 	bsptrace->contents = 0;
 }
 
-/*
-==================
-BotAI_GetClientState
-==================
-*/
 int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 	gentity_t	*ent;
 
@@ -176,11 +159,6 @@ int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 	return qtrue;
 }
 
-/*
-==================
-BotAI_GetEntityState
-==================
-*/
 int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	gentity_t	*ent;
 
@@ -193,11 +171,6 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	return qtrue;
 }
 
-/*
-==================
-BotAI_GetSnapshotEntity
-==================
-*/
 int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state ) {
 	int		entNum;
 
@@ -212,11 +185,6 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state )
 	return sequence + 1;
 }
 
-/*
-==================
-BotAI_BotInitialChat
-==================
-*/
 void QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
 	int		i, mcontext;
 	va_list	ap;
@@ -240,12 +208,6 @@ void QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
 	trap->ai->BotInitialChat( bs->cs, type, mcontext, vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7] );
 }
 
-
-/*
-==================
-BotTestAAS
-==================
-*/
 void BotTestAAS(vector3 *origin) {
 	int areanum;
 	aas_areainfo_t info;
@@ -268,11 +230,6 @@ void BotTestAAS(vector3 *origin) {
 	}
 }
 
-/*
-==================
-BotReportStatus
-==================
-*/
 void BotReportStatus(bot_state_t *bs) {
 	char goalname[MAX_MESSAGE_SIZE];
 	char netname[MAX_MESSAGE_SIZE];
@@ -364,12 +321,7 @@ void BotReportStatus(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTeamplayReport
-==================
-*/
-void BotTeamplayReport(void) {
+void BotTeamplayReport( void ) {
 	int i;
 	char buf[MAX_INFO_STRING];
 
@@ -401,11 +353,6 @@ void BotTeamplayReport(void) {
 	}
 }
 
-/*
-==================
-BotSetInfoConfigString
-==================
-*/
 void BotSetInfoConfigString(bot_state_t *bs) {
 	char goalname[MAX_MESSAGE_SIZE];
 	char netname[MAX_MESSAGE_SIZE];
@@ -501,12 +448,7 @@ void BotSetInfoConfigString(bot_state_t *bs) {
   	trap->SV_SetConfigstring (CS_BOTINFO + bs->client, cs);
 }
 
-/*
-==============
-BotUpdateInfoConfigStrings
-==============
-*/
-void BotUpdateInfoConfigStrings(void) {
+void BotUpdateInfoConfigStrings( void ) {
 	int i;
 	char buf[MAX_INFO_STRING];
 
@@ -523,12 +465,7 @@ void BotUpdateInfoConfigStrings(void) {
 	}
 }
 
-/*
-==============
-BotInterbreedBots
-==============
-*/
-void BotInterbreedBots(void) {
+void BotInterbreedBots( void ) {
 	float ranks[MAX_CLIENTS];
 	int parent1, parent2, child;
 	int i;
@@ -556,11 +493,6 @@ void BotInterbreedBots(void) {
 	}
 }
 
-/*
-==============
-BotWriteInterbreeded
-==============
-*/
 void BotWriteInterbreeded(char *filename) {
 	float rank, bestrank;
 	int i, bestbot;
@@ -586,14 +518,8 @@ void BotWriteInterbreeded(char *filename) {
 	}
 }
 
-/*
-==============
-BotInterbreedEndMatch
-
-add link back into ExitLevel?
-==============
-*/
-void BotInterbreedEndMatch(void) {
+// add link back into ExitLevel?
+void BotInterbreedEndMatch( void ) {
 
 	if (!bot_interbreed) return;
 	bot_interbreedmatchcount++;
@@ -608,12 +534,7 @@ void BotInterbreedEndMatch(void) {
 	}
 }
 
-/*
-==============
-BotInterbreeding
-==============
-*/
-void BotInterbreeding(void) {
+void BotInterbreeding( void ) {
 	int i;
 
 	if (!strlen(bot_interbreedchar->string)) return;
@@ -641,29 +562,14 @@ void BotInterbreeding(void) {
 	bot_interbreed = qtrue;
 }
 
-/*
-==============
-BotEntityInfo
-==============
-*/
 void BotEntityInfo(int entnum, aas_entityinfo_t *info) {
 	trap->aas->AAS_EntityInfo(entnum, info);
 }
 
-/*
-==============
-NumBots
-==============
-*/
-int NumBots(void) {
+int NumBots( void ) {
 	return numbots;
 }
 
-/*
-==============
-AngleDifference
-==============
-*/
 float AngleDifference(float ang1, float ang2) {
 	float diff;
 
@@ -677,11 +583,6 @@ float AngleDifference(float ang1, float ang2) {
 	return diff;
 }
 
-/*
-==============
-BotChangeViewAngle
-==============
-*/
 float BotChangeViewAngle(float angle, float ideal_angle, float speed) {
 	float move;
 
@@ -704,11 +605,6 @@ float BotChangeViewAngle(float angle, float ideal_angle, float speed) {
 	return AngleMod(angle + move);
 }
 
-/*
-==============
-BotChangeViewAngles
-==============
-*/
 void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	float diff, factor, maxchange, anglespeed, disired_speed;
 	int i;
@@ -763,11 +659,6 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	trap->ea->EA_View(bs->client, &bs->viewangles);
 }
 
-/*
-==============
-BotInputToUserCommand
-==============
-*/
 void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, ivector3 *delta_angles, int time) {
 	vector3 angles, forward, right;
 	short temp;
@@ -859,11 +750,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, ivector3 *delta_ang
 	if ( bi->actionflags & ACTION_CROUCH )		ucmd->upmove = -127;
 }
 
-/*
-==============
-BotUpdateInput
-==============
-*/
 void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	bot_input_t bi;
 	int j;
@@ -888,23 +774,13 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	}
 }
 
-/*
-==============
-BotAIRegularUpdate
-==============
-*/
-void BotAIRegularUpdate(void) {
+void BotAIRegularUpdate( void ) {
 	if (regularupdate_time < FloatTime()) {
 		trap->ai->BotUpdateEntityItems();
 		regularupdate_time = FloatTime() + 0.3f;
 	}
 }
 
-/*
-==============
-RemoveColorEscapeSequences
-==============
-*/
 void RemoveColorEscapeSequences( char *text ) {
 	int i, l;
 
@@ -921,11 +797,6 @@ void RemoveColorEscapeSequences( char *text ) {
 	text[l] = '\0';
 }
 
-/*
-==============
-BotAI
-==============
-*/
 int BotAI(int client, float thinktime) {
 	bot_state_t *bs;
 	char buf[1024], *args;
@@ -1013,12 +884,7 @@ int BotAI(int client, float thinktime) {
 	return qtrue;
 }
 
-/*
-==================
-BotScheduleBotThink
-==================
-*/
-void BotScheduleBotThink(void) {
+void BotScheduleBotThink( void ) {
 	int i, botnum;
 
 	botnum = 0;
@@ -1033,11 +899,6 @@ void BotScheduleBotThink(void) {
 	}
 }
 
-/*
-==============
-BotWriteSessionData
-==============
-*/
 void BotWriteSessionData(bot_state_t *bs) {
 	const char	*s;
 	const char	*var;
@@ -1071,11 +932,6 @@ void BotWriteSessionData(bot_state_t *bs) {
 	trap->Cvar_Set( var, s );
 }
 
-/*
-==============
-BotReadSessionData
-==============
-*/
 void BotReadSessionData(bot_state_t *bs) {
 	char	s[MAX_CVAR_VALUE_STRING];
 	const char	*var;
@@ -1108,11 +964,6 @@ void BotReadSessionData(bot_state_t *bs) {
 		);
 }
 
-/*
-==============
-BotAISetupClient
-==============
-*/
 int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart) {
 	char filename[MAX_PATH], name[MAX_PATH];
 	bot_state_t *bs;
@@ -1198,11 +1049,6 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	return qtrue;
 }
 
-/*
-==============
-BotAIShutdownClient
-==============
-*/
 int BotAIShutdownClient(int client, qboolean restart) {
 	bot_state_t *bs;
 
@@ -1244,14 +1090,7 @@ int BotAIShutdownClient(int client, qboolean restart) {
 	return qtrue;
 }
 
-/*
-==============
-BotResetState
-
-called when a bot enters the intermission or observer mode and
-when the level is changed
-==============
-*/
+// called when a bot enters the intermission or observer mode and when the level is changed
 void BotResetState(bot_state_t *bs) {
 	int client, entitynum, inuse;
 	int movestate, goalstate, chatstate, weaponstate;
@@ -1297,11 +1136,6 @@ void BotResetState(bot_state_t *bs) {
 	if (bs->ms) trap->ai->BotResetAvoidReach(bs->ms);
 }
 
-/*
-==============
-BotAILoadMap
-==============
-*/
 int BotAILoadMap( int restart ) {
 	int			i;
 	cvar_t *mapname;
@@ -1323,11 +1157,6 @@ int BotAILoadMap( int restart ) {
 	return qtrue;
 }
 
-/*
-==================
-BotAIStartFrame
-==================
-*/
 int BotAIStartFrame(int time) {
 	int i;
 	gentity_t	*ent;
@@ -1496,12 +1325,7 @@ int BotAIStartFrame(int time) {
 	return qtrue;
 }
 
-/*
-==============
-BotInitLibrary
-==============
-*/
-int BotInitLibrary(void) {
+int BotInitLibrary( void ) {
 	char buf[MAX_CVAR_VALUE_STRING];
 
 	//set the maxclients and maxentities library variables before calling BotSetupLibrary
@@ -1568,11 +1392,6 @@ int BotInitLibrary(void) {
 	return trap->SV_BotLibSetup();
 }
 
-/*
-==============
-BotAISetup
-==============
-*/
 int BotAISetup( int restart ) {
 	int			errnum;
 
@@ -1602,11 +1421,6 @@ int BotAISetup( int restart ) {
 	return qtrue;
 }
 
-/*
-==============
-BotAIShutdown
-==============
-*/
 int BotAIShutdown( int restart ) {
 
 	int i;

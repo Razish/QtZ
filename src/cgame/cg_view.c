@@ -26,48 +26,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 /*
-=============================================================================
 
-  MODEL TESTING
+	MODEL TESTING
 
-The viewthing and gun positioning tools from Q2 have been integrated and
-enhanced into a single model testing facility.
+	The viewthing and gun positioning tools from Q2 have been integrated and enhanced into a single model testing facility.
 
-Model viewing can begin with either "testmodel <modelname>" or "testgun <modelname>".
+	Model viewing can begin with either "testmodel <modelname>" or "testgun <modelname>".
 
-The names must be the full pathname after the basedir, like 
-"models/weapons/v_launch/tris.md3" or "players/male/tris.md3"
+	The names must be the full pathname after the basedir, like "models/weapons/v_launch/tris.md3" or "players/male/tris.md3"
 
-Testmodel will create a fake entity 100 units in front of the current view
-position, directly facing the viewer.  It will remain immobile, so you can
-move around it to view it from different angles.
+	Testmodel will create a fake entity 100 units in front of the current view position, directly facing the viewer.
+	It will remain immobile, so you can move around it to view it from different angles.
 
-Testgun will cause the model to follow the player around and supress the real
-view weapon model.  The default frame 0 of most guns is completely off screen,
-so you will probably have to cycle a couple frames to see it.
+	Testgun will cause the model to follow the player around and supress the real view weapon model.
+	The default frame 0 of most guns is completely off screen, so you will probably have to cycle a couple frames to see it.
 
-"nextframe", "prevframe", "nextskin", and "prevskin" commands will change the
-frame or skin of the testmodel.
+	"nextframe", "prevframe", "nextskin", and "prevskin" commands will change the frame or skin of the testmodel.
+	
+	If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let you adjust the positioning.
 
-If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let
-you adjust the positioning.
+	Note that none of the model testing features update while the game is paused, so it may be convenient to test
+	with deathmatch set to 1 so that bringing down the console doesn't pause the game.
 
-Note that none of the model testing features update while the game is paused, so
-it may be convenient to test with deathmatch set to 1 so that bringing down the
-console doesn't pause the game.
-
-=============================================================================
 */
 
-/*
-=================
-CG_TestModel_f
-
-Creates an entity in front of the current position, which
-can then be moved around
-=================
-*/
-void CG_TestModel_f (void) {
+// Creates an entity in front of the current position, which can then be moved around
+void CG_TestModel_f( void ) {
 	vector3		angles;
 
 	memset( &cg.testModelEntity, 0, sizeof(cg.testModelEntity) );
@@ -98,26 +82,20 @@ void CG_TestModel_f (void) {
 	cg.testGun = qfalse;
 }
 
-/*
-=================
-CG_TestGun_f
-
-Replaces the current view weapon with the given model
-=================
-*/
-void CG_TestGun_f (void) {
+// Replaces the current view weapon with the given model
+void CG_TestGun_f( void ) {
 	CG_TestModel_f();
 	cg.testGun = qtrue;
 	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
 
 
-void CG_TestModelNextFrame_f (void) {
+void CG_TestModelNextFrame_f( void ) {
 	cg.testModelEntity.frame++;
 	trap->Print( "frame %i\n", cg.testModelEntity.frame );
 }
 
-void CG_TestModelPrevFrame_f (void) {
+void CG_TestModelPrevFrame_f( void ) {
 	cg.testModelEntity.frame--;
 	if ( cg.testModelEntity.frame < 0 ) {
 		cg.testModelEntity.frame = 0;
@@ -125,12 +103,12 @@ void CG_TestModelPrevFrame_f (void) {
 	trap->Print( "frame %i\n", cg.testModelEntity.frame );
 }
 
-void CG_TestModelNextSkin_f (void) {
+void CG_TestModelNextSkin_f( void ) {
 	cg.testModelEntity.skinNum++;
 	trap->Print( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
-void CG_TestModelPrevSkin_f (void) {
+void CG_TestModelPrevSkin_f( void ) {
 	cg.testModelEntity.skinNum--;
 	if ( cg.testModelEntity.skinNum < 0 ) {
 		cg.testModelEntity.skinNum = 0;
@@ -138,7 +116,7 @@ void CG_TestModelPrevSkin_f (void) {
 	trap->Print( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
-static void CG_AddTestModel (void) {
+static void CG_AddTestModel( void ) {
 	// re-register the model, because the level may have changed
 	cg.testModelEntity.hModel = trap->R_RegisterModel( cg.testModelName );
 	if (! cg.testModelEntity.hModel ) {
@@ -162,19 +140,8 @@ static void CG_AddTestModel (void) {
 	trap->R_AddRefEntityToScene( &cg.testModelEntity );
 }
 
-
-
-//============================================================================
-
-
-/*
-=================
-CG_CalcVrect
-
-Sets the coordinates of the rendered window
-=================
-*/
-static void CG_CalcVrect (void) {
+// Sets the coordinates of the rendered window
+static void CG_CalcVrect( void ) {
 	cg.refdef.width = cgs.glconfig.vidWidth;
 	cg.refdef.width &= ~1;
 
@@ -185,18 +152,8 @@ static void CG_CalcVrect (void) {
 	cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
 }
 
-//==============================================================================
-
-
-/*
-===============
-CG_OffsetThirdPersonView
-
-===============
-*/
 #define	FOCUS_DISTANCE	512
 
-// this causes a compiler bug on mac MrC compiler
 static void CG_StepOffset( void ) {
 	int		timeDelta;
 	
@@ -207,12 +164,6 @@ static void CG_StepOffset( void ) {
 	}
 }
 
-/*
-===============
-CG_OffsetFirstPersonView
-
-===============
-*/
 static void CG_OffsetFirstPersonView( void ) {
 	vector3 *origin, *angles;
 	float bob, ratio, delta, speed, f;
@@ -285,7 +236,6 @@ static void CG_OffsetFirstPersonView( void ) {
 		angles->roll += delta;
 	}
 
-	//===================================
 
 	// add view height
 	origin->z += cg.predictedPlayerState.viewheight;
@@ -336,8 +286,6 @@ static void CG_OffsetFirstPersonView( void ) {
 #endif
 }
 
-//======================================================================
-
 void CG_ZoomDown_f( void ) { 
 	if ( cg.zoomed ) {
 		return;
@@ -354,19 +302,12 @@ void CG_ZoomUp_f( void ) {
 	cg.zoomTime = cg.time;
 }
 
-
-/*
-====================
-CG_CalcFov
-
-Fixed fov at intermissions, otherwise account for fov variable and zooms.
-====================
-*/
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4f
 
 float zoomFov; //this has to be global client-side
 
+// Fixed fov at intermissions, otherwise account for fov variable and zooms.
 static int CG_CalcFov( void ) {
 	float	x;
 	float	phase;
@@ -468,12 +409,6 @@ static int CG_CalcFov( void ) {
 	return inwater;
 }
 
-/*
-===============
-CG_DamageBlendBlob
-
-===============
-*/
 static void CG_DamageBlendBlob( void ) {
 	int			t;
 	int			maxTime;
@@ -511,13 +446,7 @@ static void CG_DamageBlendBlob( void ) {
 	trap->R_AddRefEntityToScene( &ent );
 }
 
-/*
-===============
-CG_CalcViewValues
-
-Sets cg.refdef view values
-===============
-*/
+// Sets cg.refdef view values
 static int CG_CalcViewValues( void ) {
 	playerState_t	*ps;
 
@@ -593,12 +522,6 @@ static int CG_CalcViewValues( void ) {
 	return CG_CalcFov();
 }
 
-
-/*
-=====================
-CG_PowerupTimerSounds
-=====================
-*/
 static void CG_PowerupTimerSounds( void ) {
 	int		i;
 	int		t;
@@ -618,11 +541,6 @@ static void CG_PowerupTimerSounds( void ) {
 	}
 }
 
-/*
-=====================
-CG_AddBufferedSound
-=====================
-*/
 void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
@@ -633,11 +551,6 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	}
 }
 
-/*
-=====================
-CG_PlayBufferedSounds
-=====================
-*/
 static void CG_PlayBufferedSounds( void ) {
 	if ( cg.soundTime < cg.time ) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
@@ -649,16 +562,8 @@ static void CG_PlayBufferedSounds( void ) {
 	}
 }
 
-//=========================================================================
-
-/*
-=================
-CG_DrawActiveFrame
-
-Generates and draws a game scene and status information at the given time.
-If demoPlayback is set, local movement prediction will not be enabled
-=================
-*/
+// Generates and draws a game scene and status information at the given time.
+//	If demoPlayback is set, local movement prediction will not be enabled
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;
 
@@ -708,7 +613,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
-		CG_AddParticles ();
+		CG_AddParticles();
 		CG_AddLocalEntities();
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );

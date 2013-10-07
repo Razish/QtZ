@@ -92,13 +92,6 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vector3 *forward )
 	}*/
 }
 
-
-/*
-================
-G_BounceMissile
-
-================
-*/
 void G_BounceMissile_Q3( gentity_t *ent, trace_t *trace ) {
 	vector3	velocity;
 	float	dot;
@@ -203,13 +196,7 @@ gentity_t *CreateMissile( vector3 *org, vector3 *dir, float vel, int life, genti
 	return missile;
 }
 
-/*
-================
-G_ExplodeMissile
-
-Explode a missile without an impact
-================
-*/
+// Explode a missile without an impact
 void G_ExplodeMissile( gentity_t *ent ) {
 	vector3 dir = { 0.0f, 0.0f, 1.0f }, origin = { 0.0f };
 
@@ -236,48 +223,6 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
-//QtZ: Old Q3 style, replaced by JA's method above
-#if 0
-/*
-================
-G_ExplodeMissile
-
-Explode a missile without an impact
-================
-*/
-void G_ExplodeMissile( gentity_t *ent ) {
-	vector3		dir;
-	vector3		origin;
-
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
-	VectorSnap( origin );
-	G_SetOrigin( ent, origin );
-
-	// we don't have a valid direction, so just point straight up
-	dir[0] = dir[1] = 0;
-	dir[2] = 1;
-
-	ent->s.eType = ET_GENERAL;
-	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
-
-	ent->freeAfterEvent = qtrue;
-
-	// splash damage
-	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent, ent->splashMethodOfDeath ) ) {
-			g_entities[ent->r.ownerNum].client->accuracy_hits++;
-		}
-	}
-
-	trap->SV_LinkEntity( (sharedEntity_t *)ent );
-}
-#endif
-
-/*
-================
-G_MissileImpact
-================
-*/
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;
@@ -361,11 +306,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
-/*
-================
-G_RunMissile
-================
-*/
 void G_RunMissile( gentity_t *ent ) {
 	vector3		origin;
 	trace_t		tr;
@@ -416,6 +356,3 @@ void G_RunMissile( gentity_t *ent ) {
 	// check think function after bouncing
 	G_RunThink( ent );
 }
-
-
-//=============================================================================

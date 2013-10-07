@@ -48,21 +48,11 @@ static const facet_t		*debugFacet;
 static qboolean		debugBlock;
 static vector3		debugBlockPoints[4];
 
-/*
-=================
-CM_ClearLevelPatches
-=================
-*/
 void CM_ClearLevelPatches( void ) {
 	debugPatchCollide = NULL;
 	debugFacet = NULL;
 }
 
-/*
-=================
-CM_SignbitsForNormal
-=================
-*/
 static int CM_SignbitsForNormal( vector3 *normal ) {
 	int	bits, j;
 
@@ -75,14 +65,8 @@ static int CM_SignbitsForNormal( vector3 *normal ) {
 	return bits;
 }
 
-/*
-=====================
-CM_PlaneFromPoints
-
-Returns false if the triangle is degenrate.
-The normal will point out of the clock for clockwise ordered points
-=====================
-*/
+// Returns false if the triangle is degenrate.
+//	The normal will point out of the clock for clockwise ordered points
 static qboolean CM_PlaneFromPoints( vector4 *plane, vector3 *a, vector3 *b, vector3 *c ) {
 	vector3	d1, d2;
 
@@ -99,21 +83,12 @@ static qboolean CM_PlaneFromPoints( vector4 *plane, vector3 *a, vector3 *b, vect
 
 
 /*
-================================================================================
 
-GRID SUBDIVISION
+	GRID SUBDIVISION
 
-================================================================================
 */
 
-/*
-=================
-CM_NeedsSubdivision
-
-Returns true if the given quadratic curve is not flat enough for our
-collision detection purposes
-=================
-*/
+// Returns true if the given quadratic curve is not flat enough for our collision detection purposes
 static qboolean	CM_NeedsSubdivision( vector3 *a, vector3 *b, vector3 *c ) {
 	vector3		cmid;
 	vector3		lmid;
@@ -138,14 +113,8 @@ static qboolean	CM_NeedsSubdivision( vector3 *a, vector3 *b, vector3 *c ) {
 	return !!(dist >= SUBDIVIDE_DISTANCE);
 }
 
-/*
-===============
-CM_Subdivide
-
-a, b, and c are control points.
-the subdivided sequence will be: a, out1, out2, out3, c
-===============
-*/
+// a, b, and c are control points.
+//	the subdivided sequence will be: a, out1, out2, out3, c
 static void CM_Subdivide( vector3 *a, vector3 *b, vector3 *c, vector3 *out1, vector3 *out2, vector3 *out3 ) {
 	int		i;
 
@@ -156,13 +125,7 @@ static void CM_Subdivide( vector3 *a, vector3 *b, vector3 *c, vector3 *out1, vec
 	}
 }
 
-/*
-=================
-CM_TransposeGrid
-
-Swaps the rows and columns in place
-=================
-*/
+// Swaps the rows and columns in place
 static void CM_TransposeGrid( cGrid_t *grid ) {
 	int			i, j, l;
 	vector3		temp;
@@ -207,13 +170,7 @@ static void CM_TransposeGrid( cGrid_t *grid ) {
 	grid->wrapHeight = tempWrap;
 }
 
-/*
-===================
-CM_SetGridWrapWidth
-
-If the left and right columns are exactly equal, set grid->wrapWidth qtrue
-===================
-*/
+// If the left and right columns are exactly equal, set grid->wrapWidth qtrue
 static void CM_SetGridWrapWidth( cGrid_t *grid ) {
 	int		i, j;
 	float	d;
@@ -236,15 +193,7 @@ static void CM_SetGridWrapWidth( cGrid_t *grid ) {
 	}
 }
 
-/*
-=================
-CM_SubdivideGridColumns
-
-Adds columns as necessary to the grid until
-all the aproximating points are within SUBDIVIDE_DISTANCE
-from the true curve
-=================
-*/
+// Adds columns as necessary to the grid until all the aproximating points are within SUBDIVIDE_DISTANCE from the true curve
 static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 	int		i, j, k;
 
@@ -307,11 +256,6 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 	}
 }
 
-/*
-======================
-CM_ComparePoints
-======================
-*/
 #define	POINT_EPSILON	0.1
 static qboolean CM_ComparePoints( vector3 *a, vector3 *b ) {
 	float d;
@@ -331,13 +275,7 @@ static qboolean CM_ComparePoints( vector3 *a, vector3 *b ) {
 	return qtrue;
 }
 
-/*
-=================
-CM_RemoveDegenerateColumns
-
-If there are any identical columns, remove them
-=================
-*/
+// If there are any identical columns, remove them
 static void CM_RemoveDegenerateColumns( cGrid_t *grid ) {
 	int		i, j, k;
 
@@ -366,11 +304,9 @@ static void CM_RemoveDegenerateColumns( cGrid_t *grid ) {
 }
 
 /*
-================================================================================
 
-PATCH COLLIDE GENERATION
+	PATCH COLLIDE GENERATION
 
-================================================================================
 */
 
 static	int				numPlanes;
@@ -382,11 +318,6 @@ static	facet_t			facets[MAX_PATCH_PLANES]; //maybe MAX_FACETS ??
 #define	NORMAL_EPSILON	0.0001f
 #define	DIST_EPSILON	0.02f
 
-/*
-==================
-CM_PlaneEqual
-==================
-*/
 int CM_PlaneEqual(patchPlane_t *p, vector4 *plane, qboolean *flipped) {
 	vector4 invplane;
 
@@ -414,11 +345,6 @@ int CM_PlaneEqual(patchPlane_t *p, vector4 *plane, qboolean *flipped) {
 	return qfalse;
 }
 
-/*
-==================
-CM_SnapVector
-==================
-*/
 void CM_SnapVector(vector3 *normal) {
 	int		i;
 
@@ -439,11 +365,6 @@ void CM_SnapVector(vector3 *normal) {
 	}
 }
 
-/*
-==================
-CM_FindPlane2
-==================
-*/
 int CM_FindPlane2(vector4 *plane, qboolean *flipped) {
 	int i;
 
@@ -467,11 +388,6 @@ int CM_FindPlane2(vector4 *plane, qboolean *flipped) {
 	return numPlanes-1;
 }
 
-/*
-==================
-CM_FindPlane
-==================
-*/
 static int CM_FindPlane( vector3 *p1, vector3 *p2, vector3 *p3 ) {
 	vector4 plane;
 	int		i;
@@ -513,11 +429,6 @@ static int CM_FindPlane( vector3 *p1, vector3 *p2, vector3 *p3 ) {
 	return numPlanes++; // post increment
 }
 
-/*
-==================
-CM_PointOnPlaneSide
-==================
-*/
 static int CM_PointOnPlaneSide( vector3 *p, int planeNum ) {
 	vector4	*plane;
 	float	d;
@@ -540,11 +451,6 @@ static int CM_PointOnPlaneSide( vector3 *p, int planeNum ) {
 	return SIDE_ON;
 }
 
-/*
-==================
-CM_GridPlane
-==================
-*/
 static int	CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int tri ) {
 	int		p;
 
@@ -561,11 +467,6 @@ static int	CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i,
 	return -1;
 }
 
-/*
-==================
-CM_EdgePlaneNum
-==================
-*/
 static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int k ) {
 	vector3	*p1, *p2;
 	vector3		up;
@@ -620,11 +521,6 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 	return -1;
 }
 
-/*
-===================
-CM_SetBorderInward
-===================
-*/
 static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2],
 						  int i, int j, int which ) {
 	int		k, l;
@@ -696,13 +592,7 @@ static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MA
 	}
 }
 
-/*
-==================
-CM_ValidateFacet
-
-If the facet isn't bounded by its borders, we screwed up.
-==================
-*/
+// If the facet isn't bounded by its borders, we screwed up.
 static qboolean CM_ValidateFacet( facet_t *facet ) {
 	vector4		plane;
 	int			j;
@@ -745,11 +635,6 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 	return qtrue;		// winding is fine
 }
 
-/*
-==================
-CM_AddFacetBevels
-==================
-*/
 void CM_AddFacetBevels( facet_t *facet ) {
 
 	int i, j, k, l;
@@ -916,11 +801,6 @@ typedef enum edgeName_e {
 	EN_LEFT
 } edgeName_t;
 
-/*
-==================
-CM_PatchCollideFromGrid
-==================
-*/
 static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	int				i, j;
 	vector3			*p1, *p2, *p3;
@@ -1079,16 +959,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 }
 
 
-/*
-===================
-CM_GeneratePatchCollide
-
-Creates an internal structure that will be used to perform
-collision detection with a patch mesh.
-
-Points is packed as concatenated rows.
-===================
-*/
+// Creates an internal structure that will be used to perform collision detection with a patch mesh.
+//	Points is packed as concatenated rows.
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vector3 *points ) {
 	patchCollide_t	*pf;
 	cGrid_t			grid;
@@ -1158,20 +1030,12 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vector3 *
 }
 
 /*
-================================================================================
 
-TRACE TESTING
+	TRACE TESTING
 
-================================================================================
 */
 
-/*
-====================
-CM_TracePointThroughPatchCollide
-
-  special case for point traces because the patch collide "brushes" have no volume
-====================
-*/
+// special case for point traces because the patch collide "brushes" have no volume
 void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
 	qboolean	frontFacing[MAX_PATCH_PLANES];
 	float		intersection[MAX_PATCH_PLANES];
@@ -1267,11 +1131,6 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	}
 }
 
-/*
-====================
-CM_CheckFacetPlane
-====================
-*/
 int CM_CheckFacetPlane(vector4 *plane, vector3 *start, vector3 *end, float *enterFrac, float *leaveFrac, int *hit) {
 	float d1, d2, f;
 
@@ -1313,11 +1172,6 @@ int CM_CheckFacetPlane(vector4 *plane, vector3 *start, vector3 *end, float *ente
 	return qtrue;
 }
 
-/*
-====================
-CM_TraceThroughPatchCollide
-====================
-*/
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
 	int i, j, hit, hitnum;
 	float offset, enterFrac, leaveFrac, t;
@@ -1446,18 +1300,11 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 
 
 /*
-=======================================================================
 
-POSITION TEST
+	POSITION TEST
 
-=======================================================================
 */
 
-/*
-====================
-CM_PositionTestInPatchCollide
-====================
-*/
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
 	int i, j;
 	float offset, t;
@@ -1542,21 +1389,13 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 }
 
 /*
-=======================================================================
 
-DEBUGGING
+	DEBUGGING
 
-=======================================================================
 */
 
 
-/*
-==================
-CM_DrawDebugSurface
-
-Called from the renderer
-==================
-*/
+// Called from the renderer
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *points) ) {
 	static cvar_t	*cv;
 #ifndef BSPC
@@ -1678,7 +1517,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 
 	// draw the debug block
 	{
-		vector3			v[3];
+		matrix3 v;
 
 		VectorCopy( &debugBlockPoints[0], &v[0] );
 		VectorCopy( &debugBlockPoints[1], &v[1] );

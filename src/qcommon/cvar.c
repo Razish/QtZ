@@ -35,11 +35,6 @@ int			cvar_numIndexes;
 #define FILE_HASH_SIZE		256
 static	cvar_t	*hashTable[FILE_HASH_SIZE];
 
-/*
-================
-return a hash value for the filename
-================
-*/
 static long generateHashValue( const char *fname ) {
 	int		i;
 	long	hash;
@@ -56,11 +51,6 @@ static long generateHashValue( const char *fname ) {
 	return hash;
 }
 
-/*
-============
-Cvar_ValidateString
-============
-*/
 static qboolean Cvar_ValidateString( const char *s ) {
 	if ( !s ) {
 		return qfalse;
@@ -77,11 +67,6 @@ static qboolean Cvar_ValidateString( const char *s ) {
 	return qtrue;
 }
 
-/*
-============
-Cvar_FindVar
-============
-*/
 static cvar_t *Cvar_FindVar( const char *name ) {
 	cvar_t	*var;
 	long hash;
@@ -97,11 +82,6 @@ static cvar_t *Cvar_FindVar( const char *name ) {
 	return NULL;
 }
 
-/*
-============
-Cvar_VariableValue
-============
-*/
 float Cvar_VariableValue( const char *name ) {
 	cvar_t	*var;
 	
@@ -111,12 +91,6 @@ float Cvar_VariableValue( const char *name ) {
 	return var->value;
 }
 
-
-/*
-============
-Cvar_VariableIntegerValue
-============
-*/
 int Cvar_VariableIntegerValue( const char *name ) {
 	cvar_t	*var;
 	
@@ -126,12 +100,6 @@ int Cvar_VariableIntegerValue( const char *name ) {
 	return var->integer;
 }
 
-
-/*
-============
-Cvar_VariableString
-============
-*/
 char *Cvar_VariableString( const char *name ) {
 	cvar_t *var;
 	
@@ -141,12 +109,6 @@ char *Cvar_VariableString( const char *name ) {
 	return var->string;
 }
 
-
-/*
-============
-Cvar_VariableStringBuffer
-============
-*/
 void Cvar_VariableStringBuffer( const char *name, char *buffer, int bufsize ) {
 	cvar_t *var;
 	
@@ -159,11 +121,6 @@ void Cvar_VariableStringBuffer( const char *name, char *buffer, int bufsize ) {
 	}
 }
 
-/*
-============
-Cvar_Flags
-============
-*/
 int Cvar_Flags(const char *name)
 {
 	cvar_t *var;
@@ -179,11 +136,6 @@ int Cvar_Flags(const char *name)
 	}
 }
 
-/*
-============
-Cvar_CommandCompletion
-============
-*/
 void Cvar_CommandCompletion(void (*callback)(const char *s))
 {
 	cvar_t		*cvar;
@@ -195,11 +147,6 @@ void Cvar_CommandCompletion(void (*callback)(const char *s))
 	}
 }
 
-/*
-============
-Cvar_Validate
-============
-*/
 static const char *Cvar_Validate( cvar_t *var,
     const char *value, qboolean warn )
 {
@@ -298,16 +245,9 @@ static const char *Cvar_Validate( cvar_t *var,
 		return value;
 }
 
-
-/*
-============
-Cvar_Get
-
-If the variable already exists, the value will not be set unless CVAR_ROM
-The flags will be or'ed in if the variable exists.
-You can pass NULL for the description.
-============
-*/
+// If the variable already exists, the value will not be set unless CVAR_ROM
+//	The flags will be or'ed in if the variable exists.
+//	You can pass NULL for the description.
 cvar_t *Cvar_Get( const char *name, const char *value, int flags, const char *description, void (*update)( void ) ) {
 	cvar_t *var = NULL;
 	long hash = 0;
@@ -447,13 +387,7 @@ cvar_t *Cvar_Get( const char *name, const char *value, int flags, const char *de
 	return var;
 }
 
-/*
-============
-Cvar_Print
-
-Prints the value, default, latched string and description of the given variable
-============
-*/
+// Prints the value, default, latched string and description of the given variable
 void Cvar_Print( cvar_t *v ) {
 	Com_Printf( S_COLOR_GREY"Cvar "S_COLOR_WHITE"%s = "S_COLOR_GREY"\""S_COLOR_WHITE"%s"S_COLOR_GREY"\""S_COLOR_WHITE, v->name, v->string );
 
@@ -471,11 +405,6 @@ void Cvar_Print( cvar_t *v ) {
 		Com_Printf( "     "S_COLOR_GREY"%s\n", v->description );
 }
 
-/*
-============
-Cvar_Set2
-============
-*/
 cvar_t *Cvar_Set2( const char *name, const char *value, qboolean force ) {
 	cvar_t	*var;
 
@@ -600,20 +529,10 @@ cvar_t *Cvar_Set2( const char *name, const char *value, qboolean force ) {
 	return var;
 }
 
-/*
-============
-Cvar_Set
-============
-*/
 void Cvar_Set( const char *name, const char *value) {
 	Cvar_Set2 (name, value, qtrue);
 }
 
-/*
-============
-Cvar_SetSafe
-============
-*/
 void Cvar_SetSafe( const char *name, const char *value )
 {
 	int flags = Cvar_Flags( name );
@@ -631,20 +550,10 @@ void Cvar_SetSafe( const char *name, const char *value )
 	Cvar_Set( name, value );
 }
 
-/*
-============
-Cvar_SetLatched
-============
-*/
 void Cvar_SetLatched( const char *name, const char *value) {
 	Cvar_Set2 (name, value, qfalse);
 }
 
-/*
-============
-Cvar_SetValue
-============
-*/
 void Cvar_SetValue( const char *name, float value) {
 	char	val[32];
 
@@ -656,11 +565,6 @@ void Cvar_SetValue( const char *name, float value) {
 	Cvar_Set (name, val);
 }
 
-/*
-============
-Cvar_SetValueSafe
-============
-*/
 void Cvar_SetValueSafe( const char *name, float value )
 {
 	char val[32];
@@ -672,33 +576,17 @@ void Cvar_SetValueSafe( const char *name, float value )
 	Cvar_SetSafe( name, val );
 }
 
-/*
-============
-Cvar_Reset
-============
-*/
 void Cvar_Reset( const char *name ) {
 	Cvar_Set2( name, NULL, qfalse );
 }
 
-/*
-============
-Cvar_ForceReset
-============
-*/
 void Cvar_ForceReset(const char *name)
 {
 	Cvar_Set2(name, NULL, qtrue);
 }
 
-/*
-============
-Cvar_SetCheatState
-
-Any testing variables will be reset to the safe values
-============
-*/
-void Cvar_SetCheatState(void)
+// Any testing variables will be reset to the safe values
+void Cvar_SetCheatState( void )
 {
 	cvar_t	*var;
 
@@ -720,13 +608,7 @@ void Cvar_SetCheatState(void)
 	}
 }
 
-/*
-============
-Cvar_Command
-
-Handles variable inspection and changing from the console
-============
-*/
+// Handles variable inspection and changing from the console
 qboolean Cvar_Command( void ) {
 	cvar_t	*v;
 	char *args = Cmd_Args();
@@ -751,16 +633,8 @@ qboolean Cvar_Command( void ) {
 	return qtrue;
 }
 
-
-/*
-============
-Cvar_Print_f
-
-Prints the contents of a cvar 
-(preferred over Cvar_Command where cvar names and commands conflict)
-============
-*/
-void Cvar_Print_f(void)
+// Prints the contents of a cvar  (preferred over Cvar_Command where cvar names and commands conflict)
+void Cvar_Print_f( void )
 {
 	char *name;
 	cvar_t *cv;
@@ -781,14 +655,7 @@ void Cvar_Print_f(void)
 		Com_Printf ("Cvar %s does not exist.\n", name);
 }
 
-/*
-============
-Cvar_Toggle_f
-
-Toggles a cvar for easy single key binding, optionally through a list of
-given values
-============
-*/
+// Toggles a cvar for easy single key binding, optionally through a list of given values
 void Cvar_Toggle_f( void ) {
 	int		i, c = Cmd_Argc();
 	char		*curval;
@@ -825,14 +692,7 @@ void Cvar_Toggle_f( void ) {
 	Cvar_Set2(Cmd_Argv(1), Cmd_Argv(2), qfalse);
 }
 
-/*
-============
-Cvar_Set_f
-
-Allows setting and defining of arbitrary cvars from console, even if they
-weren't declared in C code.
-============
-*/
+// Allows setting and defining of arbitrary cvars from console, even if they weren't declared in C code.
 void Cvar_Set_f( void ) {
 	int		c;
 	char	*cmd;
@@ -876,11 +736,6 @@ void Cvar_Set_f( void ) {
 	}
 }
 
-/*
-============
-Cvar_Reset_f
-============
-*/
 void Cvar_Reset_f( void ) {
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf ("usage: reset <variable>\n");
@@ -888,15 +743,6 @@ void Cvar_Reset_f( void ) {
 	}
 	Cvar_Reset( Cmd_Argv( 1 ) );
 }
-
-/*
-============
-Cvar_WriteVariables
-
-Appends lines containing "seta variable value" for all variables
-with the archive flag set to qtrue.
-============
-*/
 
 //#define DEBUG_CVAR_SORT
 
@@ -908,6 +754,7 @@ static int cvarSort( const void *cvar1, const void *cvar2 ) {
 	return strcmp( ((cvarSerialise_t *)cvar1)->name, ((cvarSerialise_t *)cvar2)->name );
 }
 
+// Appends lines containing "seta variable value" for all variables with the archive flag set to qtrue.
 void Cvar_WriteVariables( fileHandle_t f ) {
 	cvar_t *var;
 	char buffer[MAX_STRING_CHARS] = {0};
@@ -955,11 +802,6 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	list = listPtr = NULL;
 }
 
-/*
-============
-Cvar_List_f
-============
-*/
 void Cvar_List_f( void ) {
 	cvar_t *var;
 	int i;
@@ -1012,14 +854,7 @@ void Cvar_ListChanged_f( void ) {
 	}
 }
 
-/*
-============
-Cvar_Unset
-
-Unsets a cvar
-============
-*/
-
+// Unsets a cvar
 cvar_t *Cvar_Unset(cvar_t *cv)
 {
 	cvar_t *next = cv->next;
@@ -1049,15 +884,8 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 	return next;
 }
 
-/*
-============
-Cvar_Unset_f
-
-Unsets a userdefined cvar
-============
-*/
-
-void Cvar_Unset_f(void)
+// Unsets a userdefined cvar
+void Cvar_Unset_f( void )
 {
 	cvar_t *cv;
 	
@@ -1080,15 +908,7 @@ void Cvar_Unset_f(void)
 
 
 
-/*
-============
-Cvar_Restart
-
-Resets all cvars to their hardcoded values and removes userdefined variables
-and variables added via the VMs if requested.
-============
-*/
-
+// Resets all cvars to their hardcoded values and removes userdefined variables and variables added via the VMs if requested.
 void Cvar_Restart( void ) {
 	cvar_t *curvar = cvar_vars;
 
@@ -1108,11 +928,6 @@ void Cvar_Restart( void ) {
 	}
 }
 
-/*
-=====================
-Cvar_InfoString
-=====================
-*/
 char *Cvar_InfoString( int bit ) {
 	static char	info[MAX_INFO_STRING];
 	cvar_t *var;
@@ -1127,13 +942,7 @@ char *Cvar_InfoString( int bit ) {
 	return info;
 }
 
-/*
-=====================
-Cvar_InfoString_Big
-
-  handles large info strings ( CS_SYSTEMINFO )
-=====================
-*/
+// handles large info strings ( CS_SYSTEMINFO )
 char *Cvar_InfoString_Big(int bit)
 {
 	static char	info[BIG_INFO_STRING];
@@ -1149,22 +958,10 @@ char *Cvar_InfoString_Big(int bit)
 	return info;
 }
 
-
-
-/*
-=====================
-Cvar_InfoStringBuffer
-=====================
-*/
 void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
 	Q_strncpyz(buff,Cvar_InfoString(bit),buffsize);
 }
 
-/*
-=====================
-Cvar_CheckRange
-=====================
-*/
 void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
 {
 	var->validate = qtrue;
@@ -1176,11 +973,6 @@ void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
 	Cvar_Set( var->name, var->string );
 }
 
-/*
-==================
-Cvar_CompleteCvarName
-==================
-*/
 void Cvar_CompleteCvarName( char *args, int argNum )
 {
 	if( argNum == 2 ) {
@@ -1192,13 +984,7 @@ void Cvar_CompleteCvarName( char *args, int argNum )
 	}
 }
 
-/*
-============
-Cvar_Init
-
-Reads in all archived cvars
-============
-*/
+// Reads in all archived cvars
 void Cvar_Init( void ) {
 	memset( cvar_indexes, 0, sizeof( cvar_indexes ) );
 	memset( hashTable, 0, sizeof( hashTable ) );

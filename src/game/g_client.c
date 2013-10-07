@@ -62,22 +62,6 @@ void SP_info_player_intermission( gentity_t *ent ) {
 
 }
 
-
-
-/*
-=======================================================================
-
-  SelectSpawnPoint
-
-=======================================================================
-*/
-
-/*
-================
-SpotWouldTelefrag
-
-================
-*/
 qboolean SpotWouldTelefrag( gentity_t *spot ) {
 	int			i, num;
 	int			touch[MAX_GENTITIES];
@@ -100,14 +84,9 @@ qboolean SpotWouldTelefrag( gentity_t *spot ) {
 	return qfalse;
 }
 
-/*
-================
-SelectNearestDeathmatchSpawnPoint
+#define	MAX_SPAWN_POINTS (128)
 
-Find the spot that we DON'T want to use
-================
-*/
-#define	MAX_SPAWN_POINTS	128
+// Find the spot that we DON'T want to use
 gentity_t *SelectNearestDeathmatchSpawnPoint( vector3 *from ) {
 	gentity_t	*spot;
 	vector3		delta;
@@ -131,15 +110,7 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vector3 *from ) {
 	return nearestSpot;
 }
 
-
-/*
-================
-SelectRandomDeathmatchSpawnPoint
-
-go to a random point that doesn't telefrag
-================
-*/
-#define	MAX_SPAWN_POINTS	128
+// go to a random point that doesn't telefrag
 gentity_t *SelectRandomDeathmatchSpawnPoint(qboolean isbot) {
 	gentity_t	*spot;
 	int			count;
@@ -173,13 +144,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint(qboolean isbot) {
 	return spots[ selection ];
 }
 
-/*
-===========
-SelectRandomFurthestSpawnPoint
-
-Chooses a player start, deathmatch start, etc
-============
-*/
+// Chooses a player start, deathmatch start, etc
 gentity_t *SelectRandomFurthestSpawnPoint ( vector3 *avoidPoint, vector3 *origin, vector3 *angles, qboolean isbot ) {
 	gentity_t	*spot;
 	vector3		delta;
@@ -258,13 +223,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vector3 *avoidPoint, vector3 *origin
 	return list_spot[rnd];
 }
 
-/*
-===========
-SelectSpawnPoint
-
-Chooses a player start, deathmatch start, etc
-============
-*/
+// Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint ( vector3 *avoidPoint, vector3 *origin, vector3 *angles, qboolean isbot ) {
 	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, isbot );
 
@@ -297,14 +256,7 @@ gentity_t *SelectSpawnPoint ( vector3 *avoidPoint, vector3 *origin, vector3 *ang
 	*/
 }
 
-/*
-===========
-SelectInitialSpawnPoint
-
-Try to find a spawn point marked 'initial', otherwise
-use normal spawn selection.
-============
-*/
+// Try to find a spawn point marked 'initial', otherwise use normal spawn selection.
 gentity_t *SelectInitialSpawnPoint( vector3 *origin, vector3 *angles, qboolean isbot ) {
 	gentity_t	*spot;
 
@@ -332,12 +284,6 @@ gentity_t *SelectInitialSpawnPoint( vector3 *origin, vector3 *angles, qboolean i
 	return spot;
 }
 
-/*
-===========
-SelectSpectatorSpawnPoint
-
-============
-*/
 gentity_t *SelectSpectatorSpawnPoint( vector3 *origin, vector3 *angles ) {
 	FindIntermissionPoint();
 
@@ -347,20 +293,7 @@ gentity_t *SelectSpectatorSpawnPoint( vector3 *origin, vector3 *angles ) {
 	return NULL;
 }
 
-/*
-=======================================================================
-
-BODYQUE
-
-=======================================================================
-*/
-
-/*
-===============
-InitBodyQue
-===============
-*/
-void InitBodyQue (void) {
+void InitBodyQue( void ) {
 	int		i;
 	gentity_t	*ent;
 
@@ -373,13 +306,7 @@ void InitBodyQue (void) {
 	}
 }
 
-/*
-=============
-BodySink
-
-After sitting around for five seconds, fall into the ground and dissapear
-=============
-*/
+// After sitting around for five seconds, fall into the ground and disappear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
@@ -391,14 +318,7 @@ void BodySink( gentity_t *ent ) {
 	ent->s.pos.trBase.z -= 1;
 }
 
-/*
-=============
-CopyToBodyQue
-
-A player is respawning, so make an entity that looks
-just like the existing corpse to leave behind.
-=============
-*/
+// A player is respawning, so make an entity that looks just like the existing corpse to leave behind.
 void CopyToBodyQue( gentity_t *ent ) {
 	gentity_t		*body;
 	int			contents;
@@ -477,15 +397,6 @@ void CopyToBodyQue( gentity_t *ent ) {
 	trap->SV_LinkEntity ((sharedEntity_t *)body);
 }
 
-//======================================================================
-
-
-/*
-==================
-SetClientViewAngle
-
-==================
-*/
 void SetClientViewAngle( gentity_t *ent, vector3 *angle ) {
 	int			i;
 
@@ -500,24 +411,13 @@ void SetClientViewAngle( gentity_t *ent, vector3 *angle ) {
 	VectorCopy (&ent->s.angles, &ent->client->ps.viewangles);
 }
 
-/*
-================
-ClientRespawn
-================
-*/
 void ClientRespawn( gentity_t *ent ) {
 
 	CopyToBodyQue (ent);
 	ClientSpawn(ent);
 }
 
-/*
-================
-TeamCount
-
-Returns number of players on a team
-================
-*/
+// Returns number of players on a team
 int TeamCount( int ignoreClientNum, team_t team ) {
 	int		i;
 	int		count = 0;
@@ -537,12 +437,6 @@ int TeamCount( int ignoreClientNum, team_t team ) {
 	return count;
 }
 
-/*
-================
-PickTeam
-
-================
-*/
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
@@ -562,31 +456,6 @@ team_t PickTeam( int ignoreClientNum ) {
 	return TEAM_BLUE;
 }
 
-/*
-===========
-ForceClientSkin
-
-Forces a client's skin (for teamplay)
-===========
-*/
-/*
-static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
-	char *p;
-
-	if ((p = strrchr(model, '/')) != 0) {
-		*p = 0;
-	}
-
-	Q_strcat(model, MAX_QPATH, "/");
-	Q_strcat(model, MAX_QPATH, skin);
-}
-*/
-
-/*
-===========
-ClientCheckName
-============
-*/
 static void ClientCleanName(const char *in, char *out, int outSize)
 {
 	int outpos = 0, colorlessLen = 0, spaces = 0;
@@ -643,17 +512,8 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 }
 
 
-/*
-===========
-ClientUserInfoChanged
-
-Called from ClientConnect when the player first connects and
-directly by the server system when the player updates a userinfo variable.
-
-The game can override any of the settings and call trap->SV_SetUserinfo
-if desired.
-============
-*/
+// Called from ClientConnect when the player first connects and directly by the server system when the player updates a userinfo variable.
+//	The game can override any of the settings and call trap->SV_SetUserinfo if desired.
 void ClientUserinfoChanged( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
@@ -734,52 +594,31 @@ void ClientUserinfoChanged( int clientNum ) {
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, buf );
 }
 
-
-/*
-===========
-ClientConnect
-
-Called when a player begins connecting to the server.
-Called again for every map change or tournement restart.
-
-The session information will be valid after exit.
-
-Return NULL if the client should be allowed, otherwise return
-a string with the reason for denial.
-
-Otherwise, the client will be sent the current gamestate
-and will eventually get to ClientBegin.
-
-firstTime will be qtrue the very first time a client connects
-to the server machine, but qfalse on map changes and tournement
-restarts.
-============
-*/
-//RAZTODO: ClientConnect/ClientUserinfoChanged from modbase/JA++	
+// Called when a player begins connecting to the server.
+//	Called again for every map change or tournement restart.
+//	The session information will be valid after exit.
+//	Return NULL if the client should be allowed, otherwise return a string with the reason for denial.
+//	Otherwise, the client will be sent the current gamestate and will eventually get to ClientBegin.
+//	firstTime will be qtrue the very first time a client connects to the server machine, but qfalse on map changes and tournement restarts.
+//	QTZTODO: ClientConnect/ClientUserinfoChanged from modbase/JA++	
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char		*value;
-//	char		*areabits;
+	char		*value, userinfo[MAX_INFO_STRING];
+	gentity_t	*ent = &g_entities[clientNum];
 	gclient_t	*client;
-	char		userinfo[MAX_INFO_STRING];
-	gentity_t	*ent;
-
-	ent = &g_entities[ clientNum ];
 
 	trap->SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
  	// IP filtering
- 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
  	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
  	// check to see if they are on the banned IP list
-	value = Info_ValueForKey (userinfo, "ip");
-	if ( G_FilterPacket( value ) ) {
+	value = Info_ValueForKey( userinfo, "ip" );
+	if ( G_FilterPacket( value ) )
 		return "You are banned from this server.";
-	}
 
-  // we don't check password for bots and local client
-  // NOTE: local client <-> "ip" "localhost"
-  //   this means this client is not running in our current process
-	if ( !isBot && (strcmp(value, "localhost") != 0)) {
+	// we don't check password for bots and local client
+	// NOTE: local client <-> "ip" "localhost"
+	//   this means this client is not running in our current process
+	if ( !isBot && strcmp( value, "localhost" ) ) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
 		if ( g_password->string[0] && Q_stricmp( g_password->string, "none" ) &&
@@ -787,34 +626,31 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			return "Invalid password";
 		}
 	}
+
 	// if a player reconnects quickly after a disconnect, the client disconnect may never be called, thus flag can get lost in the ether
-	if (ent->inuse) {
-		G_LogPrintf("Forcing disconnect on active client: %i\n", clientNum);
+	if ( ent->inuse ) {
+		G_LogPrintf( "Forcing disconnect on active client: %i\n", clientNum );
 		// so lets just fix up anything that should happen on a disconnect
-		ClientDisconnect(clientNum);
+		ClientDisconnect( clientNum );
 	}
+
 	// they can connect
 	ent->client = level.clients + clientNum;
 	client = ent->client;
-
-//	areabits = client->areabits;
-
 	memset( client, 0, sizeof(*client) );
 
 	client->pers.connected = CON_CONNECTING;
 
 	// read or initialize the session data
-	if ( firstTime || level.newSession ) {
+	if ( firstTime || level.newSession )
 		G_InitSessionData( client, userinfo );
-	}
 	G_ReadSessionData( client );
 
-	if( isBot ) {
+	if ( isBot ) {
 		ent->r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
-		if( !G_BotConnect( clientNum, !firstTime ) ) {
+		if ( !G_BotConnect( clientNum, !firstTime ) )
 			return "BotConnectfailed";
-		}
 	}
 
 	// get and distribute relevent paramters
@@ -822,9 +658,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	ClientUserinfoChanged( clientNum );
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
-	if ( firstTime ) {
+	if ( firstTime )
 		trap->SV_GameSendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
-	}
 
 	if ( level.gametype >= GT_TEAMBLOOD &&
 		client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -834,23 +669,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// count current clients and rank for scoreboard
 	CalculateRanks();
 
-	// for statistics
-//	client->areabits = areabits;
-//	if ( !client->areabits )
-//		client->areabits = G_Alloc( (trap->aas->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
-
 	return NULL;
 }
 
-/*
-===========
-ClientBegin
-
-called when a client has finished connecting, and is ready
-to be placed into the level.  This will happen every level load,
-and on transition between teams, but doesn't happen on respawns
-============
-*/
+// called when a client has finished connecting, and is ready to be placed into the level.
+//	This will happen every level load, and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
@@ -895,15 +718,8 @@ void ClientBegin( int clientNum ) {
 	CalculateRanks();
 }
 
-/*
-===========
-ClientSpawn
-
-Called every time a client is placed fresh in the world:
-after the first ClientBegin, and after each respawn
-Initializes all non-persistant parts of playerState
-============
-*/
+// Called every time a client is placed fresh in the world: after the first ClientBegin, and after each respawn
+//	Initializes all non-persistant parts of playerState
 void ClientSpawn(gentity_t *ent) {
 	int		index;
 	vector3	spawn_origin, spawn_angles;
@@ -1114,18 +930,10 @@ void G_ClearVote( gentity_t *ent ) {
 	ent->client->pers.vote = 0;
 }
 
-/*
-===========
-ClientDisconnect
-
-Called when a player drops from the server.
-Will not be called between levels.
-
-This should NOT be called directly by any game logic,
-call trap->SV_GameDropClient(), which will call this and do
-server system housekeeping.
-============
-*/
+// Called when a player drops from the server.
+//	Will not be called between levels.
+//	This should NOT be called directly by any game logic, call trap->SV_GameDropClient(), which will
+//	call this and do server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t		*ent;
 	gentity_t		*tent;

@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void UI_Report( void );
 void UI_Load( void );
 void UI_LoadMenus( const char *menuFile, qboolean reset );
-void UI_LoadArenas(void);
+void UI_LoadArenas( void );
 
 //
 // ui_players.c

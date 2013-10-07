@@ -28,32 +28,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GAME_API_VERSION	1
 
 // entity->svFlags
-// the server does not know how to interpret most of the values
-// in entityStates (level eType), so the game must explicitly flag
-// special server behaviors
-#define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
-
-// TTimo
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=551
-#define SVF_CLIENTMASK 0x00000002
-
-#define SVF_BOT					0x00000008	// set if the entity is a bot
-#define	SVF_BROADCAST			0x00000020	// send to all connected clients
-#define	SVF_PORTAL				0x00000040	// merge a second pvs at origin2 into snapshots
-#define	SVF_USE_CURRENT_ORIGIN	0x00000080	// entity->r.currentOrigin instead of entity->s.origin
-											// for link position (missiles and movers)
-#define SVF_SINGLECLIENT		0x00000100	// only send to a single client (entityShared_t->singleClient)
-#define SVF_NOSERVERINFO		0x00000200	// don't send CS_SERVERINFO updates to this client
-											// so that it can be updated for ping tools without
-											// lagging clients
-#define SVF_CAPSULE				0x00000400	// use capsule for collision detection instead of bbox
-#define SVF_NOTSINGLECLIENT		0x00000800	// send entity to everyone but one client
-											// (entityShared_t->singleClient)
-
-
-
-//===============================================================
-
+// the server does not know how to interpret most of the values in entityStates (level eType),
+//	so the game must explicitly flag special server behaviors
+#define	SVF_NOCLIENT			0x0001	// don't send entity to clients, even if it has effects
+#define SVF_CLIENTMASK			0x0002	//	
+#define SVF_UNUSED0004			0x0004	// 
+#define SVF_BOT					0x0008	// set if the entity is a bot
+#define SVF_UNUSED0010			0x0010	// 
+#define	SVF_BROADCAST			0x0020	// send to all connected clients
+#define	SVF_PORTAL				0x0040	// merge a second pvs at origin2 into snapshots
+#define	SVF_USE_CURRENT_ORIGIN	0x0080	// entity->r.currentOrigin instead of entity->s.origin for link position (missiles and movers)
+#define SVF_SINGLECLIENT		0x0100	// only send to a single client (entityShared_t->singleClient)
+#define SVF_NOSERVERINFO		0x0200	// don't send CS_SERVERINFO updates to this client so that it can be updated for ping tools without lagging clients
+#define SVF_CAPSULE				0x0400	// use capsule for collision detection instead of bbox
+#define SVF_NOTSINGLECLIENT		0x0800	// send entity to everyone but one client (entityShared_t->singleClient)
 
 typedef struct entityShared_s {
 	entityState_t	unused;			// apparently this field was put here accidentally
@@ -98,13 +86,6 @@ typedef struct sharedEntity_s {
 	entityState_t	s;				// communicated by server to clients
 	entityShared_t	r;				// shared by both the server system and game
 } sharedEntity_t;
-
-
-//================================
-//
-// GAME API
-//
-//================================
 
 #include "../botlib/botlib.h"
 

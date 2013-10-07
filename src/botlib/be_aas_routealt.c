@@ -213,7 +213,7 @@ int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, i
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAlternativeRouting(void)
+void AAS_InitAlternativeRouting( void )
 {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);
@@ -228,7 +228,7 @@ void AAS_InitAlternativeRouting(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShutdownAlternativeRouting(void)
+void AAS_ShutdownAlternativeRouting( void )
 {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);

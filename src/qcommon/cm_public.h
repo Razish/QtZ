@@ -30,9 +30,9 @@ clipHandle_t CM_TempBoxModel( const vector3 *mins, const vector3 *maxs, int caps
 
 void		CM_ModelBounds( clipHandle_t model, vector3 *mins, vector3 *maxs );
 
-int			CM_NumClusters (void);
+int			CM_NumClusters( void );
 int			CM_NumInlineModels( void );
-char		*CM_EntityString (void);
+char		*CM_EntityString( void );
 
 // returns an ORed contents mask
 int			CM_PointContents( const vector3 *p, clipHandle_t model );

@@ -617,7 +617,7 @@ get_dri (j_decompress_ptr cinfo)
 #define APPN_DATA_LEN	14	/* Must be the largest of the above!! */
 
 
-LOCAL(void)
+LOCAL( void )
 examine_app0 (j_decompress_ptr cinfo, JOCTET FAR * data,
 	      unsigned int datalen, INT32 remaining)
 /* Examine first few bytes from an APP0.
@@ -693,7 +693,7 @@ examine_app0 (j_decompress_ptr cinfo, JOCTET FAR * data,
 }
 
 
-LOCAL(void)
+LOCAL( void )
 examine_app14 (j_decompress_ptr cinfo, JOCTET FAR * data,
 	       unsigned int datalen, INT32 remaining)
 /* Examine first few bytes from an APP14.
@@ -1284,7 +1284,7 @@ jpeg_resync_to_restart (j_decompress_ptr cinfo, int desired)
  * Reset marker processing state to begin a fresh datastream.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 reset_marker_reader (j_decompress_ptr cinfo)
 {
   my_marker_ptr marker = (my_marker_ptr) cinfo->marker;
@@ -1304,7 +1304,7 @@ reset_marker_reader (j_decompress_ptr cinfo)
  * This is called only once, when the decompression object is created.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_marker_reader (j_decompress_ptr cinfo)
 {
   my_marker_ptr marker;
@@ -1342,7 +1342,7 @@ jinit_marker_reader (j_decompress_ptr cinfo)
 
 #ifdef SAVE_MARKERS_SUPPORTED
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_save_markers (j_decompress_ptr cinfo, int marker_code,
 		   unsigned int length_limit)
 {
@@ -1391,7 +1391,7 @@ jpeg_save_markers (j_decompress_ptr cinfo, int marker_code,
  * Install a special processing method for COM or APPn markers.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_set_marker_processor (j_decompress_ptr cinfo, int marker_code,
 			   jpeg_marker_parser_method routine)
 {

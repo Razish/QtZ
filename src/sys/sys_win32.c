@@ -47,13 +47,6 @@ static char homePath[ MAX_OSPATH ] = { 0 };
 static UINT timerResolution = 0;
 #endif
 
-/*
-================
-Sys_SetFPUCW
-Set FPU control word to default value
-================
-*/
-
 #ifndef _RC_CHOP
 // mingw doesn't seem to have these defined :(
 
@@ -75,16 +68,12 @@ Set FPU control word to default value
 #define FPUCWMASK	(FPUCWMASK1 | _MCW_PC)
 #endif
 
-void Sys_SetFloatEnv(void)
+// Set FPU control word to default value
+void Sys_SetFloatEnv( void )
 {
 	_controlfp(FPUCW, FPUCWMASK);
 }
 
-/*
-================
-Sys_DefaultHomePath
-================
-*/
 char *Sys_DefaultHomePath( void )
 {
 	TCHAR szPath[MAX_PATH];
@@ -126,14 +115,8 @@ char *Sys_DefaultHomePath( void )
 	return homePath;
 }
 
-
-/*
-================
-Sys_Milliseconds
-================
-*/
 int sys_timeBase;
-int Sys_Milliseconds (void)
+int Sys_Milliseconds( void )
 {
 	int             sys_curtime;
 	static qboolean initialized = qfalse;
@@ -147,11 +130,6 @@ int Sys_Milliseconds (void)
 	return sys_curtime;
 }
 
-/*
-================
-Sys_RandomBytes
-================
-*/
 qboolean Sys_RandomBytes( byte *string, int len )
 {
 	HCRYPTPROV  prov;
@@ -170,11 +148,6 @@ qboolean Sys_RandomBytes( byte *string, int len )
 	return qtrue;
 }
 
-/*
-================
-Sys_GetCurrentUser
-================
-*/
 char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
@@ -191,11 +164,6 @@ char *Sys_GetCurrentUser( void )
 	return s_userName;
 }
 
-/*
-================
-Sys_GetClipboardData
-================
-*/
 char *Sys_GetClipboardData( void )
 {
 	char *data = NULL;
@@ -220,11 +188,6 @@ char *Sys_GetClipboardData( void )
 
 #define MEM_THRESHOLD 96*1024*1024
 
-/*
-==================
-Sys_LowPhysicalMemory
-==================
-*/
 qboolean Sys_LowPhysicalMemory( void )
 {
 	MEMORYSTATUS stat;
@@ -232,11 +195,6 @@ qboolean Sys_LowPhysicalMemory( void )
 	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
 }
 
-/*
-==============
-Sys_Basename
-==============
-*/
 const char *Sys_Basename( char *path )
 {
 	static char base[ MAX_OSPATH ] = { 0 };
@@ -262,11 +220,6 @@ const char *Sys_Basename( char *path )
 	return base;
 }
 
-/*
-==============
-Sys_Dirname
-==============
-*/
 const char *Sys_Dirname( char *path )
 {
 	static char dir[ MAX_OSPATH ] = { 0 };
@@ -285,20 +238,10 @@ const char *Sys_Dirname( char *path )
 	return dir;
 }
 
-/*
-==================
-Sys_FOpen
-==================
-*/
 FILE *Sys_FOpen( const char *ospath, const char *mode ) {
 	return fopen( ospath, mode );
 }
 
-/*
-==============
-Sys_Mkdir
-==============
-*/
 qboolean Sys_Mkdir( const char *path )
 {
 	if( !CreateDirectory( path, NULL ) )
@@ -310,22 +253,12 @@ qboolean Sys_Mkdir( const char *path )
 	return qtrue;
 }
 
-/*
-==================
-Sys_Mkfifo
-Noop on windows because named pipes do not function the same way
-==================
-*/
+// Noop on windows because named pipes do not function the same way
 FILE *Sys_Mkfifo( const char *ospath )
 {
 	return NULL;
 }
 
-/*
-==============
-Sys_Cwd
-==============
-*/
 char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
@@ -336,20 +269,13 @@ char *Sys_Cwd( void ) {
 }
 
 /*
-==============================================================
 
-DIRECTORY SCANNING
+	DIRECTORY SCANNING
 
-==============================================================
 */
 
 #define MAX_FOUND_FILES 0x1000
 
-/*
-==============
-Sys_ListFilteredFiles
-==============
-*/
 void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
@@ -398,11 +324,6 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	_findclose (findhandle);
 }
 
-/*
-==============
-strgtr
-==============
-*/
 static qboolean strgtr(const char *s0, const char *s1)
 {
 	int l0, l1, i;
@@ -425,11 +346,6 @@ static qboolean strgtr(const char *s0, const char *s1)
 	return qfalse;
 }
 
-/*
-==============
-Sys_ListFiles
-==============
-*/
 char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
 {
 	char		search[MAX_OSPATH];
@@ -526,11 +442,6 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	return listCopy;
 }
 
-/*
-==============
-Sys_FreeFileList
-==============
-*/
 void Sys_FreeFileList( char **list )
 {
 	int i;
@@ -547,13 +458,7 @@ void Sys_FreeFileList( char **list )
 }
 
 
-/*
-==============
-Sys_Sleep
-
-Block execution for msec or until input is received.
-==============
-*/
+// Block execution for msec or until input is received.
 void Sys_Sleep( int msec )
 {
 	if( msec == 0 )
@@ -573,13 +478,7 @@ void Sys_Sleep( int msec )
 #endif
 }
 
-/*
-==============
-Sys_ErrorDialog
-
-Display an error message
-==============
-*/
+// Display an error message
 void Sys_ErrorDialog( const char *error )
 {
 	if( Sys_Dialog( DT_YES_NO, va( "%s. Copy console log to clipboard?", error ),
@@ -614,13 +513,7 @@ void Sys_ErrorDialog( const char *error )
 	}
 }
 
-/*
-==============
-Sys_Dialog
-
-Display a win32 dialog box
-==============
-*/
+// Display a win32 dialog box
 dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title )
 {
 	UINT uType;
@@ -649,13 +542,7 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 static qboolean SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
 
-/*
-==============
-Sys_GLimpSafeInit
-
-Windows specific "safe" GL implementation initialisation
-==============
-*/
+// Windows specific "safe" GL implementation initialisation
 void Sys_GLimpSafeInit( void )
 {
 #ifndef DEDICATED
@@ -668,13 +555,7 @@ void Sys_GLimpSafeInit( void )
 #endif
 }
 
-/*
-==============
-Sys_GLimpInit
-
-Windows specific GL implementation initialisation
-==============
-*/
+// Windows specific GL implementation initialisation
 void Sys_GLimpInit( void )
 {
 #ifndef DEDICATED
@@ -685,13 +566,7 @@ void Sys_GLimpInit( void )
 #endif
 }
 
-/*
-==============
-Sys_PlatformInit
-
-Windows specific initialisation
-==============
-*/
+// Windows specific initialisation
 void Sys_PlatformInit( void )
 {
 #ifndef DEDICATED
@@ -726,13 +601,7 @@ void Sys_PlatformInit( void )
 #endif
 }
 
-/*
-==============
-Sys_PlatformExit
-
-Windows specific initialisation
-==============
-*/
+// Windows specific initialisation
 void Sys_PlatformExit( void )
 {
 #ifndef DEDICATED
@@ -741,13 +610,7 @@ void Sys_PlatformExit( void )
 #endif
 }
 
-/*
-==============
-Sys_SetEnv
-
-set/unset environment variables (empty value removes it)
-==============
-*/
+// set/unset environment variables (empty value removes it)
 void Sys_SetEnv( const char *name, const char *value ) {
 	if ( value )
 		_putenv( va( "%s=%s", name, value ) );
@@ -755,20 +618,10 @@ void Sys_SetEnv( const char *name, const char *value ) {
 		_putenv( va( "%s=", name ) );
 }
 
-/*
-==============
-Sys_PID
-==============
-*/
 int Sys_PID( void ) {
 	return GetCurrentProcessId();
 }
 
-/*
-==============
-Sys_PIDIsRunning
-==============
-*/
 qboolean Sys_PIDIsRunning( unsigned int pid )
 {
 	DWORD processes[ 1024 ];

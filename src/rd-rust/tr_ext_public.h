@@ -3,9 +3,9 @@
 #include "tr_ext_glsl_program.h"
 #include "tr_ext_framebuffer.h"
 
-void R_EXT_Init ( void );
-void R_EXT_Cleanup ( void );
-void R_EXT_PostProcess ( void );
+void R_EXT_Init( void );
+void R_EXT_Cleanup( void );
+void R_EXT_PostProcess( void );
 void DrawQuad( float x, float y, float width, float height );
 
 #define NUM_LUMINANCE_FBOS (9)

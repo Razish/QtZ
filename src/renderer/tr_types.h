@@ -100,9 +100,9 @@ typedef struct refEntity_s {
 	vector3		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
 	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
 
-	vector3		axis[3];			// rotation vectors
+	matrix3		axis;				// rotation vectors
 	qboolean	nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	vector3		origin;			// also used as MODEL_BEAM's "from"
+	vector3		origin;				// also used as MODEL_BEAM's "from"
 	int			frame;				// also used as MODEL_BEAM's diameter
 
 	// previous data for frame interpolation
@@ -132,7 +132,7 @@ typedef struct refdef_s {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
 	vector3		vieworg;
-	vector3		viewaxis[3];		// transformation matrix
+	matrix3		viewaxis;		// transformation matrix
 
 	// time in milliseconds for shader effects and other time dependent rendering issues
 	int			time;

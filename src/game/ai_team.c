@@ -63,11 +63,6 @@ typedef struct bot_ctftaskpreference_s
 
 bot_ctftaskpreference_t ctftaskpreferences[MAX_CLIENTS];
 
-/*
-==================
-BotNumTeamMates
-==================
-*/
 int BotNumTeamMates(bot_state_t *bs) {
 	int i, numplayers;
 	char buf[MAX_INFO_STRING];
@@ -91,11 +86,6 @@ int BotNumTeamMates(bot_state_t *bs) {
 	return numplayers;
 }
 
-/*
-==================
-BotClientTravelTimeToGoal
-==================
-*/
 int BotClientTravelTimeToGoal(int client, bot_goal_t *goal) {
 	playerState_t ps;
 	int areanum;
@@ -106,11 +96,6 @@ int BotClientTravelTimeToGoal(int client, bot_goal_t *goal) {
 	return trap->aas->AAS_AreaTravelTimeToGoalArea(areanum, &ps.origin, goal->areanum, TFL_DEFAULT);
 }
 
-/*
-==================
-BotSortTeamMatesByBaseTravelTime
-==================
-*/
 int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxteammates) {
 
 	int i, j, k, numteammates, traveltime;
@@ -165,11 +150,6 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 	return numteammates;
 }
 
-/*
-==================
-BotSetTeamMateTaskPreference
-==================
-*/
 void BotSetTeamMateTaskPreference(bot_state_t *bs, int teammate, int preference) {
 	char teammatename[MAX_NETNAME];
 
@@ -178,11 +158,6 @@ void BotSetTeamMateTaskPreference(bot_state_t *bs, int teammate, int preference)
 	strcpy(ctftaskpreferences[teammate].name, teammatename);
 }
 
-/*
-==================
-BotGetTeamMateTaskPreference
-==================
-*/
 int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate) {
 	char teammatename[MAX_NETNAME];
 
@@ -192,11 +167,6 @@ int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate) {
 	return ctftaskpreferences[teammate].preference;
 }
 
-/*
-==================
-BotSortTeamMatesByTaskPreference
-==================
-*/
 int BotSortTeamMatesByTaskPreference(bot_state_t *bs, int *teammates, int numteammates) {
 	int defenders[MAX_CLIENTS], numdefenders;
 	int attackers[MAX_CLIENTS], numattackers;
@@ -230,11 +200,6 @@ int BotSortTeamMatesByTaskPreference(bot_state_t *bs, int *teammates, int numtea
 	return numteammates;
 }
 
-/*
-==================
-BotSayTeamOrders
-==================
-*/
 void BotSayTeamOrderAlways(bot_state_t *bs, int toclient) {
 	char teamchat[MAX_MESSAGE_SIZE];
 	char buf[MAX_MESSAGE_SIZE];
@@ -253,11 +218,6 @@ void BotSayTeamOrderAlways(bot_state_t *bs, int toclient) {
 	}
 }
 
-/*
-==================
-BotSayTeamOrders
-==================
-*/
 void BotSayTeamOrder(bot_state_t *bs, int toclient) {
 	// voice chats only
 	char buf[MAX_MESSAGE_SIZE];
@@ -265,11 +225,6 @@ void BotSayTeamOrder(bot_state_t *bs, int toclient) {
 	trap->ai->BotGetChatMessage(bs->cs, buf, sizeof(buf));
 }
 
-/*
-==================
-BotVoiceChat
-==================
-*/
 void BotVoiceChat(bot_state_t *bs, int toclient, char *voicechat) {
 	if (toclient == -1)
 		// voice only say team
@@ -279,11 +234,6 @@ void BotVoiceChat(bot_state_t *bs, int toclient, char *voicechat) {
 		trap->ea->EA_Command(bs->client, va("vtell %d %s", toclient, voicechat));
 }
 
-/*
-==================
-BotVoiceChatOnly
-==================
-*/
 void BotVoiceChatOnly(bot_state_t *bs, int toclient, char *voicechat) {
 	if (toclient == -1)
 		// voice only say team
@@ -293,20 +243,10 @@ void BotVoiceChatOnly(bot_state_t *bs, int toclient, char *voicechat) {
 		trap->ea->EA_Command(bs->client, va("votell %d %s", toclient, voicechat));
 }
 
-/*
-==================
-BotSayVoiceTeamOrder
-==================
-*/
 void BotSayVoiceTeamOrder(bot_state_t *bs, int toclient, char *voicechat) {
 	BotVoiceChat(bs, toclient, voicechat);
 }
 
-/*
-==================
-BotCTFOrders
-==================
-*/
 void BotCTFOrders_BothFlagsNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
@@ -416,11 +356,6 @@ void BotCTFOrders_BothFlagsNotAtBase(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotCTFOrders
-==================
-*/
 void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -557,11 +492,6 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotCTFOrders
-==================
-*/
 void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
@@ -660,11 +590,6 @@ void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 }
 
 
-/*
-==================
-BotCTFOrders
-==================
-*/
 void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -801,11 +726,6 @@ void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotCTFOrders
-==================
-*/
 void BotCTFOrders(bot_state_t *bs) {
 	int flagstatus;
 
@@ -821,13 +741,7 @@ void BotCTFOrders(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTrojanOrders_FlagAtCenter
-
-  X% defend the base, Y% get the flag
-==================
-*/
+// X% defend the base, Y% get the flag
 void BotTrojanOrders_FlagAtCenter(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -968,13 +882,8 @@ void BotTrojanOrders_FlagAtCenter(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTrojanOrders_TeamHasFlag
-
-  X% towards neutral flag, Y% go towards enemy base and accompany flag carrier if visible
-==================
-*/
+// X% towards neutral flag
+//	Y% go towards enemy base and accompany flag carrier if visible
 void BotTrojanOrders_TeamHasFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
@@ -1171,13 +1080,8 @@ void BotTrojanOrders_TeamHasFlag(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTrojanOrders_EnemyHasFlag
-
-  X% defend the base, Y% towards neutral flag
-==================
-*/
+// X% defend the base
+//	Y% towards neutral flag
 void BotTrojanOrders_EnemyHasFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -1318,13 +1222,8 @@ void BotTrojanOrders_EnemyHasFlag(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTrojanOrders_EnemyDroppedFlag
-
-  X% defend the base, Y% get the flag
-==================
-*/
+// X% defend the base
+//	Y% get the flag
 void BotTrojanOrders_EnemyDroppedFlag(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -1466,11 +1365,6 @@ void BotTrojanOrders_EnemyDroppedFlag(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotTrojanOrders
-==================
-*/
 void BotTrojanOrders(bot_state_t *bs) {
 	switch(bs->neutralflagstatus) {
 		case 0: BotTrojanOrders_FlagAtCenter(bs); break;
@@ -1480,13 +1374,8 @@ void BotTrojanOrders(bot_state_t *bs) {
 	}
 }
 
-/*
-==================
-BotObeliskOrders
-
-  X% in defence Y% in offence
-==================
-*/
+// X% in defence
+//	Y% in offence
 void BotObeliskOrders(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];

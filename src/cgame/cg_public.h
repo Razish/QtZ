@@ -62,13 +62,6 @@ enum {
   CGAME_EVENT_EDITHUD
 };
 
-
-//================================
-//
-// CGAME API
-//
-//================================
-
 typedef struct cgameImport_s {
 	// common
 	void			(*Print)						( const char *msg, ... );
@@ -113,7 +106,7 @@ typedef struct cgameImport_s {
 	void			(*S_AddLoopingSound)			( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 	void			(*S_AddRealLoopingSound)		( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx );
 	void			(*S_ClearLoopingSounds)			( qboolean killall );
-	void			(*S_Respatialize)				( int entityNum, const vector3 *origin, vector3 axis[3], int inwater );
+	void			(*S_Respatialize)				( int entityNum, const vector3 *origin, matrix3 axis, int inwater );
 	sfxHandle_t		(*S_RegisterSound)				( const char *sample, qboolean compressed );
 	void			(*S_StartSound)					( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx );
 	void			(*S_StartBackgroundTrack)		( const char *intro, const char *loop );
@@ -142,7 +135,6 @@ typedef struct cgameImport_s {
 	qhandle_t		(*R_RegisterSkin)				( const char *name );
 	qhandle_t		(*R_RegisterShader)				( const char *name );
 	qhandle_t		(*R_RegisterShaderNoMip)		( const char *name );
-	void			(*R_RemapShader)				( const char *oldShader, const char *newShader, const char *offsetTime );
 	void			(*R_RenderScene)				( const refdef_t *fd );
 	void			(*R_SetColor)					( const vector4 *rgba );
 

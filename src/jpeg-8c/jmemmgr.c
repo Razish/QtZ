@@ -182,7 +182,7 @@ struct jvirt_barray_control {
 
 #ifdef MEM_STATS		/* optional extra stuff for statistics */
 
-LOCAL(void)
+LOCAL( void )
 print_mem_stats (j_common_ptr cinfo, int pool_id)
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
@@ -213,7 +213,7 @@ print_mem_stats (j_common_ptr cinfo, int pool_id)
 #endif /* MEM_STATS */
 
 
-LOCAL(void)
+LOCAL( void )
 out_of_memory (j_common_ptr cinfo, int which)
 /* Report an out-of-memory error and stop execution */
 /* If we compiled MEM_STATS support, report alloc requests before dying */
@@ -579,7 +579,7 @@ request_virt_barray (j_common_ptr cinfo, int pool_id, boolean pre_zero,
 }
 
 
-METHODDEF(void)
+METHODDEF( void )
 realize_virt_arrays (j_common_ptr cinfo)
 /* Allocate the in-memory buffers for any unrealized virtual arrays */
 {
@@ -686,7 +686,7 @@ realize_virt_arrays (j_common_ptr cinfo)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 do_sarray_io (j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
 /* Do backing store read or write of a virtual sample array */
 {
@@ -719,7 +719,7 @@ do_sarray_io (j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
 }
 
 
-LOCAL(void)
+LOCAL( void )
 do_barray_io (j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
 /* Do backing store read or write of a virtual coefficient-block array */
 {
@@ -926,7 +926,7 @@ access_virt_barray (j_common_ptr cinfo, jvirt_barray_ptr ptr,
  * Release all objects belonging to a specified pool.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 free_pool (j_common_ptr cinfo, int pool_id)
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
@@ -998,7 +998,7 @@ free_pool (j_common_ptr cinfo, int pool_id)
  * Note that this cannot be called unless cinfo->mem is non-NULL.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 self_destruct (j_common_ptr cinfo)
 {
   int pool;
@@ -1024,7 +1024,7 @@ self_destruct (j_common_ptr cinfo)
  * When this is called, only the error manager pointer is valid in cinfo!
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_memory_mgr (j_common_ptr cinfo)
 {
   my_mem_ptr mem;

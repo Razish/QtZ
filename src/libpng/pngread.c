@@ -1076,7 +1076,7 @@ png_read_png(png_structrp png_ptr, png_inforp info_ptr,
    /* We use png_read_image and rely on that for interlace handling, but we also
     * call png_read_update_info therefore must turn on interlace handling now:
     */
-   (void)png_set_interlace_handling(png_ptr);
+ ( void )png_set_interlace_handling(png_ptr);
 
    /* Optional call to gamma correct and add the background to the palette
     * and update info structure.  REQUIRED if you are expecting libpng to
@@ -1383,7 +1383,7 @@ png_image_begin_read_from_file(png_imagep image, const char *file_name)
             }
 
             /* Clean up: just the opened file. */
-            (void)fclose(fp);
+          ( void )fclose(fp);
          }
 
          else
@@ -1511,7 +1511,7 @@ png_image_skip_unused_chunks(png_structrp png_ptr)
 
 #  define PNG_SKIP_CHUNKS(p) png_image_skip_unused_chunks(p)
 #else
-#  define PNG_SKIP_CHUNKS(p) ((void)0)
+#  define PNG_SKIP_CHUNKS(p) (( void )0)
 #endif /* PNG_HANDLE_AS_UNKNOWN_SUPPORTED */
 
 /* The following macro gives the exact rounded answer for all values in the

@@ -35,8 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   movers and respawn apropriately.
 */
 
-//======================================================================
-
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	int			quantity;
 	int			i;
@@ -106,8 +104,6 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	return g_powerupRespawnTime->integer;
 }
 
-//======================================================================
-
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	other->client->ps.stats[STAT_PERSISTANT_POWERUP] = ent->item-bg_itemlist;
 	other->client->persistantPowerup = ent;
@@ -124,8 +120,6 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	return -1;
 }
 
-//======================================================================
-
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
@@ -133,8 +127,6 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 	return g_holdableRespawnTime->integer;
 }
 
-
-//======================================================================
 
 void Add_Ammo (gentity_t *ent, int weapon, int count)
 {
@@ -150,9 +142,6 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 	return g_ammoRespawnTime->integer;
 }
-
-//======================================================================
-
 
 int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 	int quantity;
@@ -184,9 +173,6 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 	return g_weaponRespawnTime->integer;
 }
 
-
-//======================================================================
-
 int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int quantity;
 
@@ -204,8 +190,6 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	return ent->item->respawn;
 }
 
-//======================================================================
-
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 	if ( other->client->ps.stats[STAT_ARMOR] > ent->item->quantity )
@@ -214,13 +198,6 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	return ent->item->respawn;
 }
 
-//======================================================================
-
-/*
-===============
-RespawnItem
-===============
-*/
 void RespawnItem( gentity_t *ent ) {
 	// randomly select from teamed entities
 	if (ent->team) {
@@ -254,12 +231,6 @@ void RespawnItem( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
-
-/*
-===============
-Touch_Item
-===============
-*/
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	int			respawn;
 	qboolean	predict;
@@ -391,16 +362,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	trap->SV_LinkEntity( (sharedEntity_t *)ent );
 }
 
-
-//======================================================================
-
-/*
-================
-LaunchItem
-
-Spawns an item and tosses it forward
-================
-*/
+// Spawns an item and tosses it forward
 gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity ) {
 	gentity_t	*dropped;
 	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
@@ -441,13 +403,7 @@ gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity )
 	return dropped;
 }
 
-/*
-================
-Drop_Item
-
-Spawns an item and tosses it forward
-================
-*/
+// Spawns an item and drops it
 gentity_t *Drop_Item( gentity_t *ent, const gitem_t *item, float angle ) {
 	vector3	velocity;
 	vector3	angles;
@@ -463,28 +419,12 @@ gentity_t *Drop_Item( gentity_t *ent, const gitem_t *item, float angle ) {
 	return LaunchItem( item, &ent->s.pos.trBase, &velocity );
 }
 
-
-/*
-================
-Use_Item
-
-Respawn the item
-================
-*/
+// Respawn the item
 void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	RespawnItem( ent );
 }
 
-//======================================================================
-
-/*
-================
-FinishSpawningItem
-
-Traces down to find where an item should rest, instead of letting them
-free fall from their spawn points
-================
-*/
+// Traces down to find where an item should rest, instead of letting them free fall from their spawn points
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vector3		dest;
@@ -547,11 +487,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 qboolean	itemRegistered[MAX_ITEMS];
 
-/*
-==================
-G_CheckTeamItems
-==================
-*/
 void G_CheckTeamItems( void ) {
 
 	// Set up team stuff
@@ -589,11 +524,6 @@ void G_CheckTeamItems( void ) {
 	}
 }
 
-/*
-==============
-ClearRegisteredItems
-==============
-*/
 void ClearRegisteredItems( void ) {
 	memset( itemRegistered, 0, sizeof( itemRegistered ) );
 
@@ -602,13 +532,7 @@ void ClearRegisteredItems( void ) {
 	RegisterItem( BG_FindItemForWeapon( WP_QUANTIZER ) );
 }
 
-/*
-===============
-RegisterItem
-
-The item will be added to the precache list
-===============
-*/
+// The item will be added to the precache list
 void RegisterItem( const gitem_t *item ) {
 	if ( !item ) {
 		trap->Error( ERR_DROP, "RegisterItem: NULL" );
@@ -616,15 +540,7 @@ void RegisterItem( const gitem_t *item ) {
 	itemRegistered[ item - bg_itemlist ] = qtrue;
 }
 
-
-/*
-===============
-SaveRegisteredItems
-
-Write the needed items to a config string
-so the client will know which ones to precache
-===============
-*/
+// Write the needed items to a configstring so the client will know which ones to precache
 void SaveRegisteredItems( void ) {
 	char	string[MAX_ITEMS+1];
 	int		i;
@@ -645,11 +561,6 @@ void SaveRegisteredItems( void ) {
 	trap->SV_SetConfigstring(CS_ITEMS, string);
 }
 
-/*
-============
-G_ItemDisabled
-============
-*/
 int G_ItemDisabled( const gitem_t *item ) {
 
 	char name[128];
@@ -658,16 +569,8 @@ int G_ItemDisabled( const gitem_t *item ) {
 	return trap->Cvar_VariableIntegerValue( name );
 }
 
-/*
-============
-G_SpawnItem
-
-Sets the clipping size and plants the object on the floor.
-
-Items can't be immediately dropped to floor, because they might
-be on an entity that hasn't spawned yet.
-============
-*/
+// Sets the clipping size and plants the object on the floor.
+//	Items can't be immediately dropped to floor, because they might be on an entity that hasn't spawned yet.
 void G_SpawnItem (gentity_t *ent, const gitem_t *item) {
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
@@ -694,13 +597,6 @@ void G_SpawnItem (gentity_t *ent, const gitem_t *item) {
 	}
 }
 
-
-/*
-================
-G_BounceItem
-
-================
-*/
 void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	vector3	velocity;
 	float	dot;
@@ -729,13 +625,6 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	ent->s.pos.trTime = level.time;
 }
 
-
-/*
-================
-G_RunItem
-
-================
-*/
 void G_RunItem( gentity_t *ent ) {
 	vector3		origin;
 	trace_t		tr;

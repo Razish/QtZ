@@ -31,12 +31,6 @@ gentity_t	*podium1;
 gentity_t	*podium2;
 gentity_t	*podium3;
 
-
-/*
-==================
-UpdateTournamentInfo
-==================
-*/
 void UpdateTournamentInfo( void ) {
 	int			i;
 	gentity_t	*player;

@@ -27,7 +27,7 @@
  * The error manager must already be set up (in case memory manager fails).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_CreateDecompress (j_decompress_ptr cinfo, int version, size_t structsize)
 {
   int i;
@@ -88,7 +88,7 @@ jpeg_CreateDecompress (j_decompress_ptr cinfo, int version, size_t structsize)
  * Destruction of a JPEG decompression object
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_destroy_decompress (j_decompress_ptr cinfo)
 {
   jpeg_destroy((j_common_ptr) cinfo); /* use common routine */
@@ -100,7 +100,7 @@ jpeg_destroy_decompress (j_decompress_ptr cinfo)
  * but don't destroy the object itself.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_abort_decompress (j_decompress_ptr cinfo)
 {
   jpeg_abort((j_common_ptr) cinfo); /* use common routine */
@@ -111,7 +111,7 @@ jpeg_abort_decompress (j_decompress_ptr cinfo)
  * Set default decompression parameters.
  */
 
-LOCAL(void)
+LOCAL( void )
 default_decompress_parms (j_decompress_ptr cinfo)
 {
   /* Guess the input colorspace, and set output colorspace accordingly. */

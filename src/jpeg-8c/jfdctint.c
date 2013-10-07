@@ -154,7 +154,7 @@
  * Perform the forward DCT on one block of samples.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_islow (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3;
@@ -324,7 +324,7 @@ jpeg_fdct_islow (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 7x7 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_7x7 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3;
@@ -459,7 +459,7 @@ jpeg_fdct_7x7 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 6x6 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_6x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2;
@@ -572,7 +572,7 @@ jpeg_fdct_6x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 5x5 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_5x5 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2;
@@ -682,7 +682,7 @@ jpeg_fdct_5x5 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 4x4 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_4x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1;
@@ -775,7 +775,7 @@ jpeg_fdct_4x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 3x3 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_3x3 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2;
@@ -860,7 +860,7 @@ jpeg_fdct_3x3 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 2x2 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_2x2 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3;
@@ -904,7 +904,7 @@ jpeg_fdct_2x2 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 1x1 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_1x1 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   /* Pre-zero output coefficient block. */
@@ -922,7 +922,7 @@ jpeg_fdct_1x1 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 9x9 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_9x9 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4;
@@ -1072,7 +1072,7 @@ jpeg_fdct_9x9 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 10x10 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_10x10 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4;
@@ -1235,7 +1235,7 @@ jpeg_fdct_10x10 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on an 11x11 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_11x11 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
@@ -1418,7 +1418,7 @@ jpeg_fdct_11x11 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 12x12 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_12x12 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
@@ -1583,7 +1583,7 @@ jpeg_fdct_12x12 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 13x13 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_13x13 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
@@ -1782,7 +1782,7 @@ jpeg_fdct_13x13 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 14x14 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_14x14 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
@@ -1982,7 +1982,7 @@ jpeg_fdct_14x14 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 15x15 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_15x15 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
@@ -2161,7 +2161,7 @@ jpeg_fdct_15x15 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * Perform the forward DCT on a 16x16 sample block.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_16x16 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
@@ -2369,7 +2369,7 @@ jpeg_fdct_16x16 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 16-point FDCT in pass 1 (rows), 8-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_16x8 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
@@ -2550,7 +2550,7 @@ jpeg_fdct_16x8 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 14-point FDCT in pass 1 (rows), 7-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_14x7 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
@@ -2714,7 +2714,7 @@ jpeg_fdct_14x7 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 12-point FDCT in pass 1 (rows), 6-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_12x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
@@ -2853,7 +2853,7 @@ jpeg_fdct_12x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 10-point FDCT in pass 1 (rows), 5-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_10x5 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4;
@@ -2985,7 +2985,7 @@ jpeg_fdct_10x5 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 8-point FDCT in pass 1 (rows), 4-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_8x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3;
@@ -3121,7 +3121,7 @@ jpeg_fdct_8x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 6-point FDCT in pass 1 (rows), 3-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_6x3 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2;
@@ -3221,7 +3221,7 @@ jpeg_fdct_6x3 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 4-point FDCT in pass 1 (rows), 2-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_4x2 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1;
@@ -3304,7 +3304,7 @@ jpeg_fdct_4x2 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 2-point FDCT in pass 1 (rows), 1-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_2x1 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1;
@@ -3337,7 +3337,7 @@ jpeg_fdct_2x1 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 8-point FDCT in pass 1 (rows), 16-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_8x16 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
@@ -3525,7 +3525,7 @@ jpeg_fdct_8x16 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 7-point FDCT in pass 1 (rows), 14-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_7x14 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
@@ -3706,7 +3706,7 @@ jpeg_fdct_7x14 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 6-point FDCT in pass 1 (rows), 12-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_6x12 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
@@ -3855,7 +3855,7 @@ jpeg_fdct_6x12 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 5-point FDCT in pass 1 (rows), 10-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_5x10 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3, tmp4;
@@ -4001,7 +4001,7 @@ jpeg_fdct_5x10 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 4-point FDCT in pass 1 (rows), 8-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_4x8 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2, tmp3;
@@ -4137,7 +4137,7 @@ jpeg_fdct_4x8 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 3-point FDCT in pass 1 (rows), 6-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_3x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1, tmp2;
@@ -4242,7 +4242,7 @@ jpeg_fdct_3x6 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 2-point FDCT in pass 1 (rows), 4-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_2x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1;
@@ -4321,7 +4321,7 @@ jpeg_fdct_2x4 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
  * 1-point FDCT in pass 1 (rows), 2-point in pass 2 (columns).
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jpeg_fdct_1x2 (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
   INT32 tmp0, tmp1;

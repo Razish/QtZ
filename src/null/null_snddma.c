@@ -26,25 +26,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-qboolean SNDDMA_Init(void)
+qboolean SNDDMA_Init( void )
 {
 	return qfalse;
 }
 
-int	SNDDMA_GetDMAPos(void)
+int	SNDDMA_GetDMAPos( void )
 {
 	return 0;
 }
 
-void SNDDMA_Shutdown(void)
+void SNDDMA_Shutdown( void )
 {
 }
 
-void SNDDMA_BeginPainting (void)
+void SNDDMA_BeginPainting( void )
 {
 }
 
-void SNDDMA_Submit(void)
+void SNDDMA_Submit( void )
 {
 }
 

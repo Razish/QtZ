@@ -61,7 +61,7 @@ typedef my_fdct_controller * my_fdct_ptr;
  * blocks. The quantized coefficients are returned in coef_blocks[].
  */
 
-METHODDEF(void)
+METHODDEF( void )
 forward_DCT (j_compress_ptr cinfo, jpeg_component_info * compptr,
 	     JSAMPARRAY sample_data, JBLOCKROW coef_blocks,
 	     JDIMENSION start_row, JDIMENSION start_col,
@@ -124,7 +124,7 @@ forward_DCT (j_compress_ptr cinfo, jpeg_component_info * compptr,
 
 #ifdef DCT_FLOAT_SUPPORTED
 
-METHODDEF(void)
+METHODDEF( void )
 forward_DCT_float (j_compress_ptr cinfo, jpeg_component_info * compptr,
 		   JSAMPARRAY sample_data, JBLOCKROW coef_blocks,
 		   JDIMENSION start_row, JDIMENSION start_col,
@@ -176,7 +176,7 @@ forward_DCT_float (j_compress_ptr cinfo, jpeg_component_info * compptr,
  * first scan.  Hence all components should be examined here.
  */
 
-METHODDEF(void)
+METHODDEF( void )
 start_pass_fdctmgr (j_compress_ptr cinfo)
 {
   my_fdct_ptr fdct = (my_fdct_ptr) cinfo->fdct;
@@ -460,7 +460,7 @@ start_pass_fdctmgr (j_compress_ptr cinfo)
  * Initialize FDCT manager.
  */
 
-GLOBAL(void)
+GLOBAL( void )
 jinit_forward_dct (j_compress_ptr cinfo)
 {
   my_fdct_ptr fdct;

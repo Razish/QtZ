@@ -45,21 +45,10 @@ float pm_flyaccelerate = 8.0f;
 float pm_waterfriction = 1.0f;
 float pm_spectatorfriction = 5.0f;
 
-/*
-===============
-PM_AddEvent
-
-===============
-*/
 void PM_AddEvent( int newEvent ) {
 	BG_AddPredictableEventToPlayerstate( newEvent, 0, pm->ps );
 }
 
-/*
-===============
-PM_AddTouchEnt
-===============
-*/
 void PM_AddTouchEnt( int entityNum ) {
 	int		i;
 
@@ -82,11 +71,6 @@ void PM_AddTouchEnt( int entityNum ) {
 	pm->numtouch++;
 }
 
-/*
-===================
-PM_StartTorsoAnim
-===================
-*/
 static void PM_StartTorsoAnim( int anim ) {
 	if ( pm->ps->pm_type >= PM_DEAD ) {
 		return;
@@ -130,14 +114,7 @@ static void PM_ForceLegsAnim( int anim ) {
 	PM_StartLegsAnim( anim );
 }
 
-
-/*
-==================
-PM_ClipVelocity
-
-Slide off of the impacting surface
-==================
-*/
+// Slide off of the impacting surface
 void PM_ClipVelocity( vector3 *in, vector3 *normal, vector3 *out, float overbounce ) {
 	float	backoff;
 	float	change;
@@ -154,14 +131,7 @@ void PM_ClipVelocity( vector3 *in, vector3 *normal, vector3 *out, float overboun
 	}
 }
 
-
-/*
-==================
-PM_Friction
-
-Handles both ground friction and water friction
-==================
-*/
+// Handles both ground friction and water friction
 static void PM_Friction( void ) {
 	vector3	vec;
 	vector3 *vel;
@@ -214,14 +184,7 @@ static void PM_Friction( void ) {
 	vel->z = vel->z * newspeed;
 }
 
-
-/*
-==============
-PM_Accelerate
-
-Handles user intended acceleration
-==============
-*/
+// Handles user intended acceleration
 static void PM_Accelerate( vector3 *wishDir, float wishSpeed, float accel ) {
 	float addSpeed, accelSpeed, currentSpeed;
 	int i;
@@ -240,15 +203,8 @@ static void PM_Accelerate( vector3 *wishDir, float wishSpeed, float accel ) {
 		pm->ps->velocity.data[i] += accelSpeed * wishDir->data[i];
 }
 
-/*
-============
-PM_CmdScale
-
-Returns the scale factor to apply to cmd movements
-This allows the clients to use axial -127 to 127 values for all directions
-without getting a sqrt(2) distortion in speed.
-============
-*/
+// Returns the scale factor to apply to cmd movements
+//	This allows the clients to use axial -127 to 127 values for all directions without getting a sqrt(2) distortion in speed.
 static float PM_CmdScale( usercmd_t *cmd ) {
 	int		max = abs( cmd->forwardmove );
 	float	total;
@@ -266,14 +222,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 	return scale;
 }
 
-/*
-================
-PM_SetMovementDir
-
-Determine the rotation of the legs relative
-to the facing dir
-================
-*/
+// Determine the rotation of the legs relative to the facing dir
 static void PM_SetMovementDir( void ) {
 		 if ( pm->cmd.rightmove == 0	&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 0; // W
 	else if ( pm->cmd.rightmove < 0		&& pm->cmd.forwardmove > 0 )	pm->ps->movementDir = 1; // W + A
@@ -286,11 +235,6 @@ static void PM_SetMovementDir( void ) {
 //	else																pm->ps->movementDir = 8; // ???
 }
 
-/*
-=============
-PM_CheckJump
-=============
-*/
 static qboolean PM_CheckJump( void ) {
 	float dot = 0.0f;
 	if ( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -388,11 +332,6 @@ dojump:
 	return qtrue;
 }
 
-/*
-=============
-PM_CheckWaterJump
-=============
-*/
 static qboolean	PM_CheckWaterJump( void ) {
 	vector3	spot;
 	int		cont;
@@ -435,13 +374,7 @@ static qboolean	PM_CheckWaterJump( void ) {
 	return qtrue;
 }
 
-/*
-===================
-PM_WaterJumpMove
-
-Flying out of the water
-===================
-*/
+// Flying out of the water
 static void PM_WaterJumpMove( void ) {
 	// waterjump has no control, but falls
 
@@ -455,12 +388,6 @@ static void PM_WaterJumpMove( void ) {
 	}
 }
 
-/*
-===================
-PM_WaterMove
-
-===================
-*/
 static void PM_WaterMove( void ) {
 	int		i;
 	vector3	wishvel;
@@ -487,7 +414,7 @@ static void PM_WaterMove( void ) {
 		}
 	}
 #endif
-	PM_Friction ();
+	PM_Friction();
 
 	scale = PM_CmdScale( &pm->cmd );
 	//
@@ -525,13 +452,7 @@ static void PM_WaterMove( void ) {
 	PM_SlideMove( qfalse );
 }
 
-/*
-===================
-PM_InvulnerabilityMove
-
-Only with the invulnerability powerup
-===================
-*/
+// Only with the invulnerability powerup
 static void PM_InvulnerabilityMove( void ) {
 	pm->cmd.forwardmove = 0;
 	pm->cmd.rightmove = 0;
@@ -539,13 +460,7 @@ static void PM_InvulnerabilityMove( void ) {
 	VectorClear(&pm->ps->velocity);
 }
 
-/*
-===================
-PM_FlyMove
-
-Only with the flight powerup
-===================
-*/
+// Only with the flight powerup
 static void PM_FlyMove( void ) {
 	int		i;
 	vector3	wishvel;
@@ -554,7 +469,7 @@ static void PM_FlyMove( void ) {
 	float	scale;
 
 	// normal slowdown
-	PM_Friction ();
+	PM_Friction();
 
 	scale = PM_CmdScale( &pm->cmd );
 	//
@@ -579,13 +494,6 @@ static void PM_FlyMove( void ) {
 
 	PM_StepSlideMove( qfalse );
 }
-
-/*
-===================
-PM_AirMove
-
-===================
-*/
 
 void PM_AirControl( vector3 *wishDir, float wishspeed ) {
 	float zspeed, speed, dot, k;
@@ -666,12 +574,6 @@ static void PM_AirMove( void ) {
 	PM_StepSlideMove ( qtrue );
 }
 
-/*
-===================
-PM_WalkMove
-
-===================
-*/
 static void PM_WalkMove( void ) {
 	vector3		wishvel;
 	float		fmove, smove;
@@ -685,7 +587,7 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 
-	if ( PM_CheckJump () ) {
+	if ( PM_CheckJump() ) {
 		if ( pm->waterlevel > 1 )
 			PM_WaterMove();
 		else
@@ -764,12 +666,6 @@ static void PM_WalkMove( void ) {
 	PM_StepSlideMove( qfalse );
 }
 
-
-/*
-==============
-PM_DeadMove
-==============
-*/
 static void PM_DeadMove( void ) {
 	float	forward;
 
@@ -789,12 +685,6 @@ static void PM_DeadMove( void ) {
 	}
 }
 
-
-/*
-===============
-PM_NoclipMove
-===============
-*/
 static void PM_NoclipMove( void ) {
 	float	speed, drop, friction, control, newspeed;
 	vector3		wishvel;
@@ -847,15 +737,7 @@ static void PM_NoclipMove( void ) {
 	VectorMA (&pm->ps->origin, pml.frametime, &pm->ps->velocity, &pm->ps->origin);
 }
 
-//============================================================================
-
-/*
-================
-PM_FootstepForSurface
-
-Returns an event number apropriate for the groundsurface
-================
-*/
+// Returns an event number apropriate for the groundsurface
 static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) {
 		return 0;
@@ -866,14 +748,7 @@ static int PM_FootstepForSurface( void ) {
 	return EV_FOOTSTEP;
 }
 
-
-/*
-=================
-PM_CrashLand
-
-Check for hard landings that generate sound events
-=================
-*/
+// Check for hard landings that generate sound events
 static void PM_CrashLand( void ) {
 	float		delta;
 	float		dist;
@@ -945,11 +820,6 @@ static void PM_CrashLand( void ) {
 	pm->ps->bobCycle = 0;
 }
 
-/*
-=============
-PM_CorrectAllSolid
-=============
-*/
 static int PM_CorrectAllSolid( trace_t *trace ) {
 	int			i, j, k;
 	vector3		point;
@@ -983,14 +853,7 @@ static int PM_CorrectAllSolid( trace_t *trace ) {
 	return qfalse;
 }
 
-
-/*
-=============
-PM_GroundTraceMissed
-
-The ground trace didn't hit a surface, so we are in freefall
-=============
-*/
+// The ground trace didn't hit a surface, so we are in freefall
 static void PM_GroundTraceMissed( void ) {
 	trace_t		trace;
 	vector3		point;
@@ -1020,12 +883,6 @@ static void PM_GroundTraceMissed( void ) {
 	pml.walking = qfalse;
 }
 
-
-/*
-=============
-PM_GroundTrace
-=============
-*/
 static void PM_GroundTrace( void ) {
 	vector3		point;
 	trace_t		trace;
@@ -1108,12 +965,7 @@ static void PM_GroundTrace( void ) {
 	PM_AddTouchEnt( trace.entityNum );
 }
 
-
-/*
-=============
-PM_SetWaterLevel	FIXME: avoid this twice?  certainly if not moving
-=============
-*/
+// FIXME: avoid this twice?  certainly if not moving
 static void PM_SetWaterLevel( void ) {
 	vector3		point;
 	int			cont;
@@ -1151,14 +1003,8 @@ static void PM_SetWaterLevel( void ) {
 
 }
 
-/*
-==============
-PM_CheckDuck
-
-Sets mins, maxs, and pm->ps->viewheight
-==============
-*/
-static void PM_CheckDuck (void)
+// Sets mins, maxs, and pm->ps->viewheight
+static void PM_CheckDuck( void )
 {
 	trace_t	trace;
 
@@ -1207,11 +1053,6 @@ static void PM_CheckDuck (void)
 	}
 }
 
-/*
-===============
-PM_Footsteps
-===============
-*/
 static void PM_Footsteps( void ) {
 	float		bobmove;
 	int			old;
@@ -1312,13 +1153,7 @@ static void PM_Footsteps( void ) {
 	}
 }
 
-/*
-==============
-PM_WaterEvents
-
-Generate sound events for entering and leaving water
-==============
-*/
+// Generate sound events for entering and leaving water
 static void PM_WaterEvents( void ) {		// FIXME?
 	//
 	// if just entered a water volume, play a sound
@@ -1349,12 +1184,6 @@ static void PM_WaterEvents( void ) {		// FIXME?
 	}
 }
 
-
-/*
-===============
-PM_BeginWeaponChange
-===============
-*/
 static void PM_BeginWeaponChange( int weapon ) {
 	if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		return;
@@ -1374,12 +1203,6 @@ static void PM_BeginWeaponChange( int weapon ) {
 	PM_StartTorsoAnim( TORSO_DROP );
 }
 
-
-/*
-===============
-PM_FinishWeaponChange
-===============
-*/
 static void PM_FinishWeaponChange( void ) {
 	int		weapon;
 
@@ -1398,13 +1221,6 @@ static void PM_FinishWeaponChange( void ) {
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
-
-/*
-==============
-PM_TorsoAnimation
-
-==============
-*/
 //RAZMARK: ADDING NEW WEAPONS
 const animNumber_t weaponAnimations[WP_NUM_WEAPONS] = {
 	TORSO_STAND2,	//WP_NONE
@@ -1422,14 +1238,7 @@ static void PM_TorsoAnimation( void )
 		PM_ContinueTorsoAnim( weaponAnimations[pm->ps->weapon] );
 }
 
-
-/*
-==============
-PM_Weapon
-
-Generates weapon events and modifes the weapon counter
-==============
-*/
+// Generates weapon events and modifes the weapon counter
 int PM_GetWeaponChargeTime( void ) {
 	return pm->ps->weaponCooldown[pm->ps->weapon];
 }
@@ -1553,12 +1362,6 @@ static void PM_Weapon( void ) {
 	PM_SetWeaponChargeTime( 0 );
 }
 
-/*
-================
-PM_Animate
-================
-*/
-
 static void PM_Animate( void ) {
 	if ( pm->cmd.buttons & BUTTON_GESTURE ) {
 		if ( pm->ps->torsoTimer == 0 ) {
@@ -1569,12 +1372,6 @@ static void PM_Animate( void ) {
 	}
 }
 
-
-/*
-================
-PM_DropTimers
-================
-*/
 static void PM_DropTimers( void ) {
 	// drop misc timing counter
 	if ( pm->ps->pm_time ) {
@@ -1622,14 +1419,7 @@ static void PM_DropTimers( void ) {
 	}
 }
 
-/*
-================
-PM_UpdateViewAngles
-
-This can be used as another entry point when only the viewangles
-are being updated isntead of a full move
-================
-*/
+// This can be used as another entry point when only the viewangles are being updated isntead of a full move
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 	short		temp;
 	int		i;
@@ -1661,13 +1451,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 
 }
 
-
-/*
-================
-PmoveSingle
-
-================
-*/
 void PmoveSingle (pmove_t *pmove) {
 	pm = pmove;
 
@@ -1760,15 +1543,15 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	if ( pm->ps->pm_type == PM_SPECTATOR ) {
-		PM_CheckDuck ();
-		PM_FlyMove ();
-		PM_DropTimers ();
+		PM_CheckDuck();
+		PM_FlyMove();
+		PM_DropTimers();
 		return;
 	}
 
 	if ( pm->ps->pm_type == PM_NOCLIP ) {
-		PM_NoclipMove ();
-		PM_DropTimers ();
+		PM_NoclipMove();
+		PM_DropTimers();
 		return;
 	}
 
@@ -1785,13 +1568,13 @@ void PmoveSingle (pmove_t *pmove) {
 	pml.previous_waterlevel = pmove->waterlevel;
 
 	// set mins, maxs, and viewheight
-	PM_CheckDuck ();
+	PM_CheckDuck();
 
 	// set groundentity
 	PM_GroundTrace();
 
 	if ( pm->ps->pm_type == PM_DEAD )
-		PM_DeadMove ();
+		PM_DeadMove();
 
 	PM_DropTimers();
 
@@ -1827,14 +1610,7 @@ void PmoveSingle (pmove_t *pmove) {
 		VectorSnap( &pm->ps->velocity );
 }
 
-
-/*
-================
-Pmove
-
-Can be called by either the server or the client
-================
-*/
+// Can be called by either the server or the client
 void Pmove (pmove_t *pmove) {
 	int finalTime = pmove->cmd.serverTime;
 

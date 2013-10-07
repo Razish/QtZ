@@ -57,12 +57,7 @@ static struct console_s {
 cvar_t		*con_conspeed;
 cvar_t		*con_notifytime;
 
-/*
-================
-Con_ToggleConsole_f
-================
-*/
-void Con_ToggleConsole_f (void) {
+void Con_ToggleConsole_f( void ) {
 	// Can't toggle the console when it's the only thing available
 	if ( clc.state == CA_DISCONNECTED && Key_GetCatcher( ) == KEYCATCH_CONSOLE ) {
 		return;
@@ -71,16 +66,11 @@ void Con_ToggleConsole_f (void) {
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
 
-	Con_ClearNotify ();
+	Con_ClearNotify();
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_CONSOLE );
 }
 
-/*
-================
-Con_Clear_f
-================
-*/
-void Con_Clear_f (void) {
+void Con_Clear_f( void ) {
 	int		i;
 
 	for ( i = 0 ; i < CON_TEXTSIZE ; i++ ) {
@@ -90,15 +80,8 @@ void Con_Clear_f (void) {
 	Con_Bottom();		// go to end
 }
 
-						
-/*
-================
-Con_Dump_f
-
-Save the console contents out to a file
-================
-*/
-void Con_Dump_f (void)
+// Save the console contents out to a file
+void Con_Dump_f( void )
 {
 	int		l, x, i;
 	short	*line;
@@ -152,12 +135,6 @@ void Con_Dump_f (void)
 	FS_FCloseFile( f );
 }
 
-						
-/*
-================
-Con_ClearNotify
-================
-*/
 void Con_ClearNotify( void ) {
 	int		i;
 	
@@ -166,16 +143,8 @@ void Con_ClearNotify( void ) {
 	}
 }
 
-						
-
-/*
-================
-Con_CheckResize
-
-If the line width has changed, reformat the buffer.
-================
-*/
-void Con_CheckResize (void)
+// If the line width has changed, reformat the buffer.
+void Con_CheckResize( void )
 {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	short	tbuf[CON_TEXTSIZE];
@@ -222,30 +191,19 @@ void Con_CheckResize (void)
 			}
 		}
 
-		Con_ClearNotify ();
+		Con_ClearNotify();
 	}
 
 	con.current = con.totallines - 1;
 	con.display = con.current;
 }
 
-/*
-==================
-Cmd_CompleteTxtName
-==================
-*/
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if ( argNum == 2 )
 		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 }
 
-
-/*
-================
-Con_Init
-================
-*/
-void Con_Init (void) {
+void Con_Init( void ) {
 	int		i;
 
 	con_notifytime = Cvar_Get( "con_notifytime", "3", 0, "How long messages appear in the notify area", NULL );
@@ -264,22 +222,12 @@ void Con_Init (void) {
 	Cmd_AddCommand( "condump", Con_Dump_f, Cmd_CompleteTxtName );
 }
 
-/*
-================
-Con_Shutdown
-================
-*/
 void Con_Shutdown( void ) {
 	Cmd_RemoveCommand( "toggleconsole" );
 	Cmd_RemoveCommand( "clear" );
 	Cmd_RemoveCommand( "condump" );
 }
 
-/*
-===============
-Con_Linefeed
-===============
-*/
 void Con_Linefeed (qboolean skipnotify)
 {
 	int		i;
@@ -301,15 +249,9 @@ void Con_Linefeed (qboolean skipnotify)
 		con.text[(con.current%con.totallines)*con.linewidth+i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 }
 
-/*
-================
-CL_ConsolePrint
-
-Handles cursor positioning, line wrapping, etc
-All console printing must go through this in order to be logged to disk
-If no console is visible, the text will appear at the top of the game window
-================
-*/
+// Handles cursor positioning, line wrapping, etc
+//	All console printing must go through this in order to be logged to disk
+//	If no console is visible, the text will appear at the top of the game window
 void CL_ConsolePrint( char *txt ) {
 	int		y, l;
 	unsigned char	c;
@@ -332,7 +274,7 @@ void CL_ConsolePrint( char *txt ) {
 	if (!con.initialized) {
 		VectorSet4( &con.color, 1.0f, 0.788f, 0.054f, 0.8f );
 		con.linewidth = -1;
-		Con_CheckResize ();
+		Con_CheckResize();
 		con.initialized = qtrue;
 	}
 
@@ -397,22 +339,14 @@ void CL_ConsolePrint( char *txt ) {
 
 
 /*
-==============================================================================
 
-DRAWING
+	DRAWING
 
-==============================================================================
 */
 
 
-/*
-================
-Con_DrawInput
-
-Draw the editline after a ] prompt
-================
-*/
-void Con_DrawInput (void) {
+// Draw the editline after a ] prompt
+void Con_DrawInput( void ) {
 	int		y;
 
 	if ( clc.state != CA_DISCONNECTED && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
@@ -428,15 +362,8 @@ void Con_DrawInput (void) {
 	Field_Draw( &g_consoleField, (int)con.xadjust + 2 * SMALLCHAR_WIDTH, y, (int)SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue, &con.color );
 }
 
-
-/*
-================
-Con_DrawNotify
-
-Draws the last few lines of output transparently over the game top
-================
-*/
-void Con_DrawNotify (void)
+// Draws the last few lines of output transparently over the game top
+void Con_DrawNotify( void )
 {
 	int		x, v;
 	short	*text;
@@ -485,13 +412,7 @@ void Con_DrawNotify (void)
 		return;
 }
 
-/*
-================
-Con_DrawSolidConsole
-
-Draws the console with the solid background
-================
-*/
+// Draws the console with the solid background
 void Con_DrawSolidConsole( float frac ) {
 	int				i, x, y;
 	int				rows;
@@ -586,21 +507,14 @@ void Con_DrawSolidConsole( float frac ) {
 	}
 
 	// draw the input prompt, user text, and cursor if desired
-	Con_DrawInput ();
+	Con_DrawInput();
 
 	re->SetColor( NULL );
 }
 
-
-
-/*
-==================
-Con_DrawConsole
-==================
-*/
 void Con_DrawConsole( void ) {
 	// check for console width changes from a vid mode change
-	Con_CheckResize ();
+	Con_CheckResize();
 
 	// if disconnected, render console full screen
 	if ( clc.state == CA_DISCONNECTED ) {
@@ -615,21 +529,13 @@ void Con_DrawConsole( void ) {
 	} else {
 		// draw notify lines
 		if ( clc.state == CA_ACTIVE ) {
-			Con_DrawNotify ();
+			Con_DrawNotify();
 		}
 	}
 }
 
-//================================================================
-
-/*
-==================
-Con_RunConsole
-
-Scroll it up or down
-==================
-*/
-void Con_RunConsole (void) {
+// Scroll it up or down
+void Con_RunConsole( void ) {
 	// decide on the destination height of the console
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
 		con.finalFrac = 0.5;		// half screen
@@ -685,7 +591,7 @@ void Con_Close( void ) {
 		return;
 	}
 	Field_Clear( &g_consoleField );
-	Con_ClearNotify ();
+	Con_ClearNotify();
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
 	con.finalFrac = 0;				// none visible
 	con.displayFrac = 0;

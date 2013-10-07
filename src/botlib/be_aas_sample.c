@@ -92,7 +92,7 @@ void AAS_PresenceTypeBoundingBox(int presencetype, vector3 *mins, vector3 *maxs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAASLinkHeap(void)
+void AAS_InitAASLinkHeap( void )
 {
 	int i, max_aaslinks;
 
@@ -130,7 +130,7 @@ void AAS_InitAASLinkHeap(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FreeAASLinkHeap(void)
+void AAS_FreeAASLinkHeap( void )
 {
 	if (aasworld.linkheap) FreeMemory(aasworld.linkheap);
 	aasworld.linkheap = NULL;
@@ -142,7 +142,7 @@ void AAS_FreeAASLinkHeap(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_link_t *AAS_AllocAASLink(void)
+aas_link_t *AAS_AllocAASLink( void )
 {
 	aas_link_t *link;
 
@@ -184,7 +184,7 @@ void AAS_DeAllocAASLink(aas_link_t *link)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAASLinkedEntities(void)
+void AAS_InitAASLinkedEntities( void )
 {
 	if (!aasworld.loaded) return;
 	if (aasworld.arealinkedentities) FreeMemory(aasworld.arealinkedentities);
@@ -197,7 +197,7 @@ void AAS_InitAASLinkedEntities(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FreeAASLinkedEntities(void)
+void AAS_FreeAASLinkedEntities( void )
 {
 	if (aasworld.arealinkedentities) FreeMemory(aasworld.arealinkedentities);
 	aasworld.arealinkedentities = NULL;
@@ -409,7 +409,7 @@ qboolean AAS_AreaEntityCollision(int areanum, vector3 *start, vector3 *end, int 
 
 	AAS_PresenceTypeBoundingBox(presencetype, &boxmins, &boxmaxs);
 
-	memset(&bsptrace, 0, sizeof(bsp_trace_t)); //make compiler happy
+	memset(&bsptrace, 0, sizeof(bsp_trace_t));
 	//assume no collision
 	bsptrace.fraction = 1;
 	collision = qfalse;

@@ -518,7 +518,7 @@ float CG_GetValue(int ownerDraw) {
 	return -1;
 }
 
-qboolean CG_OtherTeamHasFlag(void) {
+qboolean CG_OtherTeamHasFlag( void ) {
 	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (cgs.gametype == GT_TROJAN) {
@@ -542,7 +542,7 @@ qboolean CG_OtherTeamHasFlag(void) {
 	return qfalse;
 }
 
-qboolean CG_YourTeamHasFlag(void) {
+qboolean CG_YourTeamHasFlag( void ) {
 	if (cgs.gametype == GT_FLAGS || cgs.gametype == GT_TROJAN) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (cgs.gametype == GT_TROJAN) {
@@ -663,7 +663,7 @@ static void CG_DrawPlayerHasFlag(rectDef_t *rect, qboolean force2D) {
 	}
 }
 
-const char *CG_GetKillerText(void) {
+const char *CG_GetKillerText( void ) {
 	const char *s = "";
 	if ( cg.killerName[0] ) {
 		s = va("Fragged by %s", cg.killerName );
@@ -699,7 +699,7 @@ static void CG_Draw2ndPlace(rectDef_t *rect, float scale, vector4 *color, qhandl
 	}
 }
 
-const char *CG_GetGameStatusText(void) {
+const char *CG_GetGameStatusText( void ) {
 	const char *s = "";
 	if ( cgs.gametype < GT_TEAMBLOOD) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
@@ -1304,40 +1304,16 @@ void CG_MouseEvent(int x, int y) {
 
 }
 
-/*
-==================
-CG_HideTeamMenus
-==================
-
-*/
 void CG_HideTeamMenu( void ) {
 	Menus_CloseByName("teamMenu");
 	Menus_CloseByName("getMenu");
 }
 
-/*
-==================
-CG_ShowTeamMenus
-==================
-
-*/
 void CG_ShowTeamMenu( void ) {
 	Menus_OpenByName("teamMenu");
 }
 
-
-
-
-/*
-==================
-CG_EventHandling
-==================
-type 0 - no event handling
-1 - team menu
-2 - hud editor
-
-*/
-void CG_EventHandling(int type) {
+void CG_EventHandling( int type ) {
 //	cgs.eventHandling = type;
 	if (type == CGAME_EVENT_NONE) {
 		CG_HideTeamMenu();
@@ -1347,8 +1323,6 @@ void CG_EventHandling(int type) {
 	}
 
 }
-
-
 
 void CG_KeyEvent(int key, qboolean down) {
 
@@ -1405,7 +1379,7 @@ int CG_ClientNumFromName(const char *p) {
 	return -1;
 }
 
-void CG_ShowResponseHead(void) {
+void CG_ShowResponseHead( void ) {
 	Menus_OpenByName("voiceMenu");
 	trap->Cvar_Set("cl_conXOffset", "72");
 	cg.voiceTime = cg.time;

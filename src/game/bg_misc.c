@@ -72,12 +72,6 @@ const gitem_t bg_itemlist[] = {
 };
 const int bg_numItems = ARRAY_LEN( bg_itemlist );
 
-
-/*
-==============
-BG_FindItemForPowerup
-==============
-*/
 const gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
 	const gitem_t *it = NULL;
 	int i;
@@ -92,12 +86,6 @@ const gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
 	return NULL;
 }
 
-
-/*
-==============
-BG_FindItemForHoldable
-==============
-*/
 const gitem_t *BG_FindItemForHoldable( holdable_t hi ) {
 	const gitem_t *it = NULL;
 	int i;
@@ -112,13 +100,6 @@ const gitem_t *BG_FindItemForHoldable( holdable_t hi ) {
 	return NULL;
 }
 
-
-/*
-===============
-BG_FindItemForWeapon
-
-===============
-*/
 const gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
 	const gitem_t *it = NULL;
 	int i=0;
@@ -132,12 +113,6 @@ const gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
 	return NULL;
 }
 
-/*
-===============
-BG_FindItem
-
-===============
-*/
 static int itempickupcmp( const void *a, const void *b ) {
 	return strcmp( (const char *)a, ((gitem_t *)b)->classname );
 }
@@ -147,14 +122,7 @@ const gitem_t *BG_FindItem( const char *classname ) {
 	return (gitem_t *)bsearch( classname, bg_itemlist, bg_numItems, sizeof( gitem_t ), itempickupcmp );
 }
 
-/*
-============
-BG_PlayerTouchesItem
-
-Items can be picked up without actually touching their physical bounds to make
-grabbing them easier
-============
-*/
+// Items can be picked up without actually touching their physical bounds to make grabbing them easier
 qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
 	vector3 origin;
 	vector3 mins=ITEM_MINS, maxs=ITEM_MAXS;
@@ -176,15 +144,8 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 
 
-/*
-================
-BG_CanItemBeGrabbed
-
-Returns false if the item should not be picked up.
-This needs to be the same for client side prediction and server use.
-================
-*/
-
+// Returns false if the item should not be picked up.
+//	This needs to be the same for client side prediction and server use.
 qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
 	const gitem_t *item = NULL;
 
@@ -275,14 +236,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	return qfalse;
 }
 
-//======================================================================
-
-/*
-================
-BG_EvaluateTrajectory
-
-================
-*/
 void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vector3 *result ) {
 	float		deltaTime;
 	float		phase;
@@ -322,13 +275,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vector3 *result 
 	}
 }
 
-/*
-================
-BG_EvaluateTrajectoryDelta
-
-For determining velocity at a given time
-================
-*/
+// For determining velocity at a given time
 void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vector3 *result ) {
 	float	deltaTime;
 	float	phase;
@@ -453,14 +400,7 @@ char *eventnames[EV_NUM_EVENTS] = {
 	"EV_TAUNT_PATROL"
 };
 
-/*
-===============
-BG_AddPredictableEventToPlayerstate
-
-Handles the sequence numbers
-===============
-*/
-
+// Handles the sequence numbers
 void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
 
 	#ifdef _DEBUG
@@ -476,11 +416,6 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 	ps->eventSequence++;
 }
 
-/*
-========================
-BG_TouchJumpPad
-========================
-*/
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	vector3	angles;
 	float p;
@@ -511,14 +446,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	VectorCopy( &jumppad->origin2, &ps->velocity );
 }
 
-/*
-========================
-BG_PlayerStateToEntityState
-
-This is done after each set of usercmd_t on the server,
-and after local prediction on the client
-========================
-*/
+// This is done after each set of usercmd_t on the server, and after local prediction on the client
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap ) {
 	int i;
 
@@ -588,14 +516,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	s->generic1 = ps->generic1;
 }
 
-/*
-========================
-BG_PlayerStateToEntityStateExtraPolate
-
-This is done after each set of usercmd_t on the server,
-and after local prediction on the client
-========================
-*/
+// This is done after each set of usercmd_t on the server if g_smoothClients is on
 #ifdef PROJECT_GAME
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
 	int i;
