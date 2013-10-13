@@ -326,12 +326,12 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient ) {
 		if ( level.time > client->inactivityTime ) {
-			trap->SV_GameDropClient( client - level.clients, "Dropped due to inactivity" );
+			trap->SV_GameDropClient( (int)(client - level.clients), "Dropped due to inactivity" );
 			return qfalse;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
 			client->inactivityWarning = qtrue;
-			trap->SV_GameSendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
+			trap->SV_GameSendServerCommand( (int)(client - level.clients), "cp \"Ten seconds until inactivity drop!\n\"" );
 		}
 	}
 	return qtrue;
@@ -687,7 +687,7 @@ void ClientThink( int clientNum ) {
 void G_RunClient( gentity_t *ent ) {
 	// force client updates if they're not sending packets at roughly 4hz
 	if ( !(ent->r.svFlags & SVF_BOT) && g_forceClientUpdateRate->integer && ent->client->lastCmdTime < level.time - g_forceClientUpdateRate->integer ) {
-		trap->SV_GetUsercmd( ent-g_entities, &ent->client->pers.cmd );
+		trap->SV_GetUsercmd( ent->s.number, &ent->client->pers.cmd );
 
 		ent->client->lastCmdTime = level.time;
 
@@ -736,7 +736,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				// drop them to free spectators unless they are dedicated camera followers
 				if ( ent->client->sess.spectatorClient >= 0 ) {
 					ent->client->sess.spectatorState = SPECTATOR_FREE;
-					ClientBegin( ent->client - level.clients );
+					ClientBegin( (int)(ent->client - level.clients) );
 				}
 			}
 		}
@@ -750,8 +750,9 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 static void G_SendScoreboardUpdate( gentity_t *ent ) {
 	char		entry[MAX_STRING_CHARS] = {0}, string[MAX_STRING_CHARS] = {0};
-	int			i, j, stringlength=0, numSorted, scoreFlags=0, accuracy, perfect;
+	int			i, numSorted, scoreFlags=0, accuracy, perfect;
 	gclient_t	*cl = NULL;
+	size_t		j = 0, stringLength = 0;
 
 	// only send updates every g_scoreUpdateRate msec
 	if ( !ent->client->scoresWaiting || ent->client->lastScoresTime > level.time - g_scoreUpdateRate->integer )
@@ -788,14 +789,14 @@ static void G_SendScoreboardUpdate( gentity_t *ent ) {
 			cl->ps.persistent[PERS_CAPTURES] );
 
 		j = strlen( entry );
-		if ( stringlength + j >= sizeof(string))
+		if ( stringLength + j >= sizeof( string ) )
 			break;
 
-		strcpy( string + stringlength, entry );
-		stringlength += j;
+		strcpy( string + stringLength, entry );
+		stringLength += j;
 	}
 
-	trap->SV_GameSendServerCommand( ent-g_entities, va("scores %i %i %i%s",
+	trap->SV_GameSendServerCommand( ent->s.number, va( "scores %i %i %i%s",
 													i,
 													level.teamScores[TEAM_RED],
 													level.teamScores[TEAM_BLUE],

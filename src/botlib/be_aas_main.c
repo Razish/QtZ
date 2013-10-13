@@ -54,8 +54,7 @@ libvar_t *saveroutingcache;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL AAS_Error(char *fmt, ...)
-{
+void QDECL AAS_Error(char *fmt, ...) {
 	char str[1024];
 	va_list arglist;
 
@@ -70,8 +69,7 @@ void QDECL AAS_Error(char *fmt, ...)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Loaded( void )
-{
+int AAS_Loaded( void ) {
 	return aasworld.loaded;
 } //end of the function AAS_Loaded
 //===========================================================================
@@ -80,8 +78,7 @@ int AAS_Loaded( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Initialized( void )
-{
+int AAS_Initialized( void ) {
 	return aasworld.initialized;
 } //end of the function AAS_Initialized
 //===========================================================================
@@ -90,8 +87,7 @@ int AAS_Initialized( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetInitialized( void )
-{
+void AAS_SetInitialized( void ) {
 	aasworld.initialized = qtrue;
 	botimport.Print(PRT_MESSAGE, "AAS initialized.\n");
 #ifdef DEBUG
@@ -107,8 +103,7 @@ void AAS_SetInitialized( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ContinueInit(float time)
-{
+void AAS_ContinueInit(float time) {
 	//if no AAS file loaded
 	if (!aasworld.loaded) return;
 	//if AAS is already initialized
@@ -145,8 +140,7 @@ void AAS_ContinueInit(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_StartFrame(float time)
-{
+int AAS_StartFrame(float time) {
 	aasworld.time = time;
 	//unlink all entities that were not updated last frame
 	AAS_UnlinkInvalidEntities();
@@ -191,8 +185,7 @@ int AAS_StartFrame(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float AAS_Time( void )
-{
+float AAS_Time( void ) {
 	return aasworld.time;
 } //end of the function AAS_Time
 //===========================================================================
@@ -201,8 +194,7 @@ float AAS_Time( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd, vector3 *vProj )
-{
+void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd, vector3 *vProj ) {
 	vector3 pVec, vec;
 
 	VectorSubtract( point, vStart, &pVec );
@@ -217,8 +209,7 @@ void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd,
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadFiles(const char *mapname)
-{
+int AAS_LoadFiles(const char *mapname) {
 	int errnum;
 	char aasfile[MAX_PATH];
 //	char bspfile[MAX_PATH];
@@ -248,8 +239,7 @@ int AAS_LoadFiles(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadMap(const char *mapname)
-{
+int AAS_LoadMap(const char *mapname) {
 	int	errnum;
 
 	//if no mapname is provided then the string indexes are updated
@@ -290,8 +280,7 @@ int AAS_LoadMap(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Setup( void )
-{
+int AAS_Setup( void ) {
 	aasworld.maxclients = (int) LibVarValue("maxclients", "128");
 	aasworld.maxentities = (int) LibVarValue("maxentities", "1024");
 	// as soon as it's set to 1 the routing cache will be saved
@@ -313,8 +302,7 @@ int AAS_Setup( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Shutdown( void )
-{
+void AAS_Shutdown( void ) {
 	AAS_ShutdownAlternativeRouting();
 	//
 	AAS_DumpBSPData();

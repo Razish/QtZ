@@ -39,8 +39,7 @@ static	byte		*fileBase;
 int			c_subdivisions;
 int			c_gridVerts;
 
-static void HSVtoRGB( float h, float s, float v, float rgb[3] )
-{
+static void HSVtoRGB( float h, float s, float v, float rgb[3] ) {
 	int i;
 	float f;
 	float p, q, t;
@@ -111,9 +110,9 @@ static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 		b = b * 255 / max;
 	}
 
-	out[0] = r;
-	out[1] = g;
-	out[2] = b;
+	out[0] = (byte)r;
+	out[1] = (byte)g;
+	out[2] = (byte)b;
 	out[3] = in[3];
 }
 
@@ -266,7 +265,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	srfSurfaceFace_t	*cv;
 	int			numPoints, numIndexes;
 	int			lightmapNum;
-	int			sfaceSize, ofsIndexes;
+	size_t		sfaceSize, ofsIndexes;
 
 	lightmapNum = LittleLong( ds->lightmapNum );
 
@@ -289,7 +288,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	numIndexes = LittleLong( ds->numIndexes );
 
 	// create the srfSurfaceFace_t
-	sfaceSize = ( size_t ) &((srfSurfaceFace_t *)0)->points[numPoints];
+	sfaceSize = offsetof( srfSurfaceFace_t, points[numPoints] );
 	ofsIndexes = sfaceSize;
 	sfaceSize += sizeof( int ) * numIndexes;
 
@@ -322,7 +321,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	}
 	cv->plane.dist = DotProduct( (vector3 *)&cv->points[0], &cv->plane.normal );
 	SetPlaneSignbits( &cv->plane );
-	cv->plane.type = PlaneTypeForNormal( &cv->plane.normal );
+	cv->plane.type = (byte)PlaneTypeForNormal( &cv->plane.normal );
 
 	surf->data = (surfaceType_t *)cv;
 }
@@ -1164,8 +1163,7 @@ static	void R_LoadSubmodels( lump_t *l ) {
 	}
 }
 
-static	void R_SetParent (mnode_t *node, mnode_t *parent)
-{
+static	void R_SetParent (mnode_t *node, mnode_t *parent) {
 	node->parent = parent;
 	if (node->contents != -1)
 		return;
@@ -1265,8 +1263,7 @@ static	void R_LoadShaders( lump_t *l ) {
 	}
 }
 
-static	void R_LoadMarksurfaces (lump_t *l)
-{	
+static	void R_LoadMarksurfaces (lump_t *l) {	
 	int		i, j, count;
 	int		*in;
 	msurface_t **out;
@@ -1313,8 +1310,8 @@ static	void R_LoadPlanes( lump_t *l ) {
 		}
 
 		out->dist = LittleFloat (in->dist);
-		out->type = PlaneTypeForNormal( &out->normal );
-		out->signbits = bits;
+		out->type = (byte)PlaneTypeForNormal( &out->normal );
+		out->signbits = (byte)bits;
 	}
 }
 
@@ -1467,7 +1464,7 @@ void R_LoadLightGrid( lump_t *l ) {
 }
 
 void R_LoadEntities( lump_t *l ) {
-	char *p, *token, *s;
+	char *p, *token;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
 	world_t	*w;
@@ -1520,7 +1517,7 @@ void R_LoadEntities( lump_t *l ) {
 	}
 }
 
-qboolean R_GetEntityToken( char *buffer, int size ) {
+qboolean R_GetEntityToken( char *buffer, size_t size ) {
 	const char	*s;
 
 	s = COM_Parse( &s_worldData.entityParsePoint );

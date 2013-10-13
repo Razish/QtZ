@@ -69,13 +69,11 @@ static UINT timerResolution = 0;
 #endif
 
 // Set FPU control word to default value
-void Sys_SetFloatEnv( void )
-{
+void Sys_SetFloatEnv( void ) {
 	_controlfp(FPUCW, FPUCWMASK);
 }
 
-char *Sys_DefaultHomePath( void )
-{
+char *Sys_DefaultHomePath( void ) {
 	TCHAR szPath[MAX_PATH];
 	FARPROC qSHGetFolderPath;
 	HMODULE shfolder = LoadLibrary( "shfolder.dll" );
@@ -116,8 +114,7 @@ char *Sys_DefaultHomePath( void )
 }
 
 int sys_timeBase;
-int Sys_Milliseconds( void )
-{
+int Sys_Milliseconds( void ) {
 	int             sys_curtime;
 	static qboolean initialized = qfalse;
 
@@ -130,8 +127,7 @@ int Sys_Milliseconds( void )
 	return sys_curtime;
 }
 
-qboolean Sys_RandomBytes( byte *string, int len )
-{
+qboolean Sys_RandomBytes( byte *string, size_t len ) {
 	HCRYPTPROV  prov;
 
 	if( !CryptAcquireContext( &prov, NULL, NULL,
@@ -140,7 +136,7 @@ qboolean Sys_RandomBytes( byte *string, int len )
 		return qfalse;
 	}
 
-	if( !CryptGenRandom( prov, len, (BYTE *)string ) )  {
+	if( !CryptGenRandom( prov, (DWORD)len, (BYTE *)string ) )  {
 		CryptReleaseContext( prov, 0 );
 		return qfalse;
 	}
@@ -148,8 +144,7 @@ qboolean Sys_RandomBytes( byte *string, int len )
 	return qtrue;
 }
 
-char *Sys_GetCurrentUser( void )
-{
+char *Sys_GetCurrentUser( void ) {
 	static char s_userName[1024];
 	unsigned long size = sizeof( s_userName );
 
@@ -164,8 +159,7 @@ char *Sys_GetCurrentUser( void )
 	return s_userName;
 }
 
-char *Sys_GetClipboardData( void )
-{
+char *Sys_GetClipboardData( void ) {
 	char *data = NULL;
 	char *cliptext;
 
@@ -188,17 +182,15 @@ char *Sys_GetClipboardData( void )
 
 #define MEM_THRESHOLD 96*1024*1024
 
-qboolean Sys_LowPhysicalMemory( void )
-{
+qboolean Sys_LowPhysicalMemory( void ) {
 	MEMORYSTATUS stat;
 	GlobalMemoryStatus (&stat);
 	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
 }
 
-const char *Sys_Basename( char *path )
-{
+const char *Sys_Basename( char *path ) {
 	static char base[ MAX_OSPATH ] = { 0 };
-	int length;
+	size_t length;
 
 	length = strlen( path ) - 1;
 
@@ -220,10 +212,9 @@ const char *Sys_Basename( char *path )
 	return base;
 }
 
-const char *Sys_Dirname( char *path )
-{
+const char *Sys_Dirname( char *path ) {
 	static char dir[ MAX_OSPATH ] = { 0 };
-	int length;
+	size_t length;
 
 	Q_strncpyz( dir, path, sizeof( dir ) );
 	length = strlen( dir ) - 1;
@@ -242,8 +233,7 @@ FILE *Sys_FOpen( const char *ospath, const char *mode ) {
 	return fopen( ospath, mode );
 }
 
-qboolean Sys_Mkdir( const char *path )
-{
+qboolean Sys_Mkdir( const char *path ) {
 	if( !CreateDirectory( path, NULL ) )
 	{
 		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
@@ -254,8 +244,7 @@ qboolean Sys_Mkdir( const char *path )
 }
 
 // Noop on windows because named pipes do not function the same way
-FILE *Sys_Mkfifo( const char *ospath )
-{
+FILE *Sys_Mkfifo( const char *ospath ) {
 	return NULL;
 }
 
@@ -276,8 +265,7 @@ char *Sys_Cwd( void ) {
 
 #define MAX_FOUND_FILES 0x1000
 
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
-{
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, const char *filter, char **list, int *numfiles ) {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
 	intptr_t	findhandle;
@@ -324,9 +312,8 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	_findclose (findhandle);
 }
 
-static qboolean strgtr(const char *s0, const char *s1)
-{
-	int l0, l1, i;
+static qboolean strgtr(const char *s0, const char *s1) {
+	size_t l0, l1, i;
 
 	l0 = strlen(s0);
 	l1 = strlen(s1);
@@ -346,8 +333,7 @@ static qboolean strgtr(const char *s0, const char *s1)
 	return qfalse;
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
-{
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs ) {
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;
@@ -442,8 +428,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	return listCopy;
 }
 
-void Sys_FreeFileList( char **list )
-{
+void Sys_FreeFileList( char **list ) {
 	int i;
 
 	if ( !list ) {
@@ -459,8 +444,7 @@ void Sys_FreeFileList( char **list )
 
 
 // Block execution for msec or until input is received.
-void Sys_Sleep( int msec )
-{
+void Sys_Sleep( int msec ) {
 	if( msec == 0 )
 		return;
 
@@ -479,8 +463,7 @@ void Sys_Sleep( int msec )
 }
 
 // Display an error message
-void Sys_ErrorDialog( const char *error )
-{
+void Sys_ErrorDialog( const char *error ) {
 	if( Sys_Dialog( DT_YES_NO, va( "%s. Copy console log to clipboard?", error ),
 			"Error" ) == DR_YES )
 	{
@@ -494,7 +477,7 @@ void Sys_ErrorDialog( const char *error )
 		{
 			char *p = clipMemory;
 			char buffer[ 1024 ];
-			unsigned int size;
+			size_t size;
 
 			while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
 			{
@@ -514,8 +497,7 @@ void Sys_ErrorDialog( const char *error )
 }
 
 // Display a win32 dialog box
-dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title )
-{
+dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title ) {
 	UINT uType;
 
 	switch( type )
@@ -543,8 +525,7 @@ static qboolean SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
 
 // Windows specific "safe" GL implementation initialisation
-void Sys_GLimpSafeInit( void )
-{
+void Sys_GLimpSafeInit( void ) {
 #ifndef DEDICATED
 	if( !SDL_VIDEODRIVER_externallySet )
 	{
@@ -556,8 +537,7 @@ void Sys_GLimpSafeInit( void )
 }
 
 // Windows specific GL implementation initialisation
-void Sys_GLimpInit( void )
-{
+void Sys_GLimpInit( void ) {
 #ifndef DEDICATED
 	if ( !SDL_VIDEODRIVER_externallySet ) {
 		// Use the windib SDL backend, which is closest to the behaviour of idq3 with in_mouse set to -1
@@ -567,8 +547,7 @@ void Sys_GLimpInit( void )
 }
 
 // Windows specific initialisation
-void Sys_PlatformInit( void )
-{
+void Sys_PlatformInit( void ) {
 #ifndef DEDICATED
 	TIMECAPS ptc;
 	const char *SDL_VIDEODRIVER = getenv( "SDL_VIDEODRIVER" );
@@ -602,8 +581,7 @@ void Sys_PlatformInit( void )
 }
 
 // Windows specific initialisation
-void Sys_PlatformExit( void )
-{
+void Sys_PlatformExit( void ) {
 #ifndef DEDICATED
 	if(timerResolution)
 		timeEndPeriod(timerResolution);
@@ -622,8 +600,7 @@ int Sys_PID( void ) {
 	return GetCurrentProcessId();
 }
 
-qboolean Sys_PIDIsRunning( unsigned int pid )
-{
+qboolean Sys_PIDIsRunning( unsigned int pid ) {
 	DWORD processes[ 1024 ];
 	DWORD numBytes, numProcesses;
 	unsigned int i;

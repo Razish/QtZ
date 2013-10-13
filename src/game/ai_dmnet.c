@@ -1432,8 +1432,7 @@ void AIEnter_Seek_LTG(bot_state_t *bs, char *s) {
 	bs->ainode = AINode_Seek_LTG;
 }
 
-int AINode_Seek_LTG(bot_state_t *bs)
-{
+int AINode_Seek_LTG(bot_state_t *bs) {
 	bot_goal_t goal;
 	vector3 target, dir;
 	bot_moveresult_t moveresult;
@@ -1758,8 +1757,7 @@ void AIEnter_Battle_Chase(bot_state_t *bs, char *s) {
 	bs->ainode = AINode_Battle_Chase;
 }
 
-int AINode_Battle_Chase(bot_state_t *bs)
-{
+int AINode_Battle_Chase(bot_state_t *bs) {
 	bot_goal_t goal;
 	vector3 target, dir;
 	bot_moveresult_t moveresult;

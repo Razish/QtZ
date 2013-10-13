@@ -113,8 +113,7 @@ struct state {
  *   buffer, using shift right, and new bytes are appended to the top of the
  *   bit buffer, using shift left.
  */
-local int32_t bits(struct state *s, int32_t need)
-{
+local int32_t bits(struct state *s, int32_t need) {
     int32_t val;           /* bit accumulator (can use up to 20 bits) */
 
     /* load at least need bits into val */
@@ -150,8 +149,7 @@ local int32_t bits(struct state *s, int32_t need)
  * - A stored block can have zero length.  This is sometimes used to byte-align
  *   subsets of the compressed data for random access or partial recovery.
  */
-local int32_t stored(struct state *s)
-{
+local int32_t stored(struct state *s) {
     uint32_t len;       /* length of stored block */
 
     /* discard leftover bits from current byte (assumes s->bitcnt < 8) */
@@ -218,8 +216,7 @@ struct huffman {
  * - Incomplete codes are handled by this decoder, since they are permitted
  *   in the deflate format.  See the format notes for fixed() and dynamic().
  */
-local int32_t decode(struct state *s, struct huffman *h)
-{
+local int32_t decode(struct state *s, struct huffman *h) {
     int32_t len;            /* current number of bits in code */
     int32_t code;           /* len bits being decoded */
     int32_t first;          /* first code of length len */
@@ -291,8 +288,7 @@ local int32_t decode(struct state *s, struct huffman *h)
  * - Within a given code length, the symbols are kept in ascending order for
  *   the code bits definition.
  */
-local int32_t construct(struct huffman *h, int16_t *length, int32_t n)
-{
+local int32_t construct(struct huffman *h, int16_t *length, int32_t n) {
     int32_t symbol;         /* current symbol when stepping through length[] */
     int32_t len;            /* current length when stepping through h->count[] */
     int32_t left;           /* number of possible codes left of current length */
@@ -325,7 +321,7 @@ local int32_t construct(struct huffman *h, int16_t *length, int32_t n)
      */
     for (symbol = 0; symbol < n; symbol++)
         if (length[symbol] != 0)
-            h->symbol[offs[length[symbol]]++] = symbol;
+            h->symbol[offs[length[symbol]]++] = (int16_t)symbol;
 
     /* return zero for complete set, positive for incomplete set */
     return left;
@@ -416,7 +412,7 @@ local int32_t codes(struct state *s,
             /* write out the literal */
             if (s->out != NULL) {
                 if (s->outcnt == s->outlen) return 1;
-                s->out[s->outcnt] = symbol;
+                s->out[s->outcnt] = (uint8_t)symbol;
             }
             s->outcnt++;
         }
@@ -474,8 +470,7 @@ local int32_t codes(struct state *s,
  *   length, this can be implemented as an incomplete code.  Then the invalid
  *   codes are detected while decoding.
  */
-local int32_t fixed(struct state *s)
-{
+local int32_t fixed(struct state *s) {
     static int32_t virgin = 1;
     static int16_t lencnt[MAXBITS+1], lensym[FIXLCODES];
     static int16_t distcnt[MAXBITS+1], distsym[MAXDCODES];
@@ -598,18 +593,22 @@ local int32_t fixed(struct state *s)
  * - For reference, a "typical" size for the code description in a dynamic
  *   block is around 80 bytes.
  */
-local int32_t dynamic(struct state *s)
-{
+local int32_t dynamic(struct state *s) {
     int32_t nlen, ndist, ncode;             /* number of lengths in descriptor */
     int32_t index;                          /* index of lengths[] */
     int32_t err;                            /* construct() return value */
     int16_t lengths[MAXCODES];            /* descriptor code lengths */
     int16_t lencnt[MAXBITS+1], lensym[MAXLCODES];         /* lencode memory */
     int16_t distcnt[MAXBITS+1], distsym[MAXDCODES];       /* distcode memory */
-    struct huffman lencode = {lencnt, lensym};          /* length code */
-    struct huffman distcode = {distcnt, distsym};       /* distance code */
+    struct huffman lencode;				/* length code */
+    struct huffman distcode;			/* distance code */
     static const int16_t order[19] =      /* permutation of code length codes */
         {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+
+	lencode.count = lencnt;
+	lencode.symbol = lensym;
+	distcode.count = distcnt;
+	distcode.symbol = distsym;
 
     /* get number of lengths in each table, check lengths */
     nlen = bits(s, 5) + 257;
@@ -620,7 +619,7 @@ local int32_t dynamic(struct state *s)
 
     /* read code length code lengths (really), missing lengths are zero */
     for (index = 0; index < ncode; index++)
-        lengths[order[index]] = bits(s, 3);
+        lengths[order[index]] = (int16_t)bits(s, 3);
     for (; index < 19; index++)
         lengths[order[index]] = 0;
 
@@ -636,7 +635,7 @@ local int32_t dynamic(struct state *s)
 
         symbol = decode(s, &lencode);
         if (symbol < 16)                /* length in 0..15 */
-            lengths[index++] = symbol;
+            lengths[index++] = (int16_t)symbol;
         else {                          /* repeat instruction */
             len = 0;                    /* assume repeating zeros */
             if (symbol == 16) {         /* repeat last length 3..6 times */
@@ -651,7 +650,7 @@ local int32_t dynamic(struct state *s)
             if (index + symbol > nlen + ndist)
                 return -6;              /* too many lengths! */
             while (symbol--)            /* repeat last or zero symbol times */
-                lengths[index++] = len;
+                lengths[index++] = (int16_t)len;
         }
     }
 

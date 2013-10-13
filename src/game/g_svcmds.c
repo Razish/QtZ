@@ -65,8 +65,7 @@ typedef struct ipFilter_s
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
-static qboolean StringToFilter (char *s, ipFilter_t *f)
-{
+static qboolean StringToFilter (char *s, ipFilter_t *f) {
 	char	num[128];
 	int		i, j;
 	byte	b[4];
@@ -101,7 +100,7 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			num[j++] = *s++;
 		}
 		num[j] = 0;
-		b[i] = atoi(num);
+		b[i] = (char)atoi(num);
 		m[i] = 255;
 
 		if (!*s)
@@ -115,8 +114,7 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 	return qtrue;
 }
 
-static void UpdateIPBans( void )
-{
+static void UpdateIPBans( void ) {
 	byte	b[4];
 	byte	m[4];
 	int		i,j;
@@ -154,8 +152,7 @@ static void UpdateIPBans( void )
 	trap->Cvar_Set( "g_banIPs", iplist_final );
 }
 
-qboolean G_FilterPacket (char *from)
-{
+qboolean G_FilterPacket (char *from) {
 	int		i;
 	unsigned	in;
 	byte m[4];
@@ -183,8 +180,7 @@ qboolean G_FilterPacket (char *from)
 	return g_filterBan->integer == 0;
 }
 
-static void AddIP( char *str )
-{
+static void AddIP( char *str ) {
 	int		i;
 
 	for (i = 0 ; i < numIPFilters ; i++)
@@ -227,8 +223,7 @@ void G_ProcessIPBans( void ) {
 	}
 }
 
-void Svcmd_AddIP_f( void )
-{
+void Svcmd_AddIP_f( void ) {
 	char		str[MAX_TOKEN_CHARS];
 
 	if ( trap->Cmd_Argc() < 2 ) {
@@ -242,8 +237,7 @@ void Svcmd_AddIP_f( void )
 
 }
 
-void Svcmd_RemoveIP_f( void )
-{
+void Svcmd_RemoveIP_f( void ) {
 	ipFilter_t	f;
 	int			i;
 	char		str[MAX_TOKEN_CHARS];

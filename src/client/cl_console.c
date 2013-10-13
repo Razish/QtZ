@@ -81,8 +81,7 @@ void Con_Clear_f( void ) {
 }
 
 // Save the console contents out to a file
-void Con_Dump_f( void )
-{
+void Con_Dump_f( void ) {
 	int		l, x, i;
 	short	*line;
 	fileHandle_t	f;
@@ -144,8 +143,7 @@ void Con_ClearNotify( void ) {
 }
 
 // If the line width has changed, reformat the buffer.
-void Con_CheckResize( void )
-{
+void Con_CheckResize( void ) {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	short	tbuf[CON_TEXTSIZE];
 
@@ -228,8 +226,7 @@ void Con_Shutdown( void ) {
 	Cmd_RemoveCommand( "condump" );
 }
 
-void Con_Linefeed (qboolean skipnotify)
-{
+void Con_Linefeed (qboolean skipnotify) {
 	int		i;
 
 	// mark time for transparent overlay
@@ -255,7 +252,7 @@ void Con_Linefeed (qboolean skipnotify)
 void CL_ConsolePrint( char *txt ) {
 	int		y, l;
 	unsigned char	c;
-	unsigned short	color;
+	char color;
 	qboolean skipnotify = qfalse;		// NERVE - SMF
 	int prev;							// NERVE - SMF
 
@@ -363,14 +360,9 @@ void Con_DrawInput( void ) {
 }
 
 // Draws the last few lines of output transparently over the game top
-void Con_DrawNotify( void )
-{
-	int		x, v;
+void Con_DrawNotify( void ) {
+	int		x, v, i, time, currentColor;
 	short	*text;
-	int		i;
-	int		time;
-	int		skip;
-	int		currentColor;
 
 	currentColor = 7;
 	re->SetColor( &g_color_table[currentColor] );

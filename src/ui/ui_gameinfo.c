@@ -26,21 +26,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-
 //
 // arena and bot info
 //
 
-
-int				ui_numBots;
+size_t			ui_numBots;
 static char		*ui_botInfos[MAX_BOTS];
 
-static int		ui_numArenas;
+static size_t	ui_numArenas;
 static char		*ui_arenaInfos[MAX_ARENAS];
 
-int UI_ParseInfos( char *buf, int max, char *infos[] ) {
+size_t UI_ParseInfos( char *buf, size_t max, char *infos[] ) {
 	char	*token;
-	int		count;
+	size_t	count;
 	char	key[MAX_TOKEN_CHARS];
 	char	info[MAX_INFO_STRING];
 
@@ -113,11 +111,11 @@ static void UI_LoadArenasFromFile( char *filename ) {
 }
 
 void UI_LoadArenas( void ) {
-	int			numdirs;
-	cvar_t	*arenasFile;
+	size_t		numdirs;
+	cvar_t		*arenasFile;
 	char		filename[128];
 	char		dirlist[1024];
-	char*		dirptr;
+	char		*dirptr;
 	int			i, n;
 	size_t		dirlen;
 	char		*type;
@@ -150,7 +148,6 @@ void UI_LoadArenas( void ) {
 	for( n = 0; n < ui_numArenas; n++ ) {
 		// determine type
 
-		uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
 		uiInfo.mapList[uiInfo.mapCount].mapLoadName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "map"));
 		uiInfo.mapList[uiInfo.mapCount].mapName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "longname"));
 		uiInfo.mapList[uiInfo.mapCount].levelShot = -1;
@@ -209,11 +206,11 @@ static void UI_LoadBotsFromFile( char *filename ) {
 }
 
 void UI_LoadBots( void ) {
-	cvar_t	*botsFile;
-	int			numdirs;
+	cvar_t		*botsFile;
+	size_t		numdirs;
 	char		filename[128];
 	char		dirlist[1024];
-	char*		dirptr;
+	char		*dirptr;
 	int			i;
 	size_t		dirlen;
 
@@ -239,8 +236,8 @@ void UI_LoadBots( void ) {
 	trap->Print( "%i bots parsed\n", ui_numBots );
 }
 
-static char *UI_GetBotInfoByNumber( int num ) {
-	if( num < 0 || num >= ui_numBots ) {
+static char *UI_GetBotInfoByNumber( size_t num ) {
+	if( num >= ui_numBots ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
 	}
@@ -261,12 +258,12 @@ static char *UI_GetBotInfoByName( const char *name ) {
 	return NULL;
 }
 
-int UI_GetNumBots( void ) {
+size_t UI_GetNumBots( void ) {
 	return ui_numBots;
 }
 
 
-char *UI_GetBotNameByNumber( int num ) {
+char *UI_GetBotNameByNumber( size_t num ) {
 	char *info = UI_GetBotInfoByNumber(num);
 	if (info) {
 		return Info_ValueForKey( info, "cl_name" );

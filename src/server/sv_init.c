@@ -25,16 +25,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sv_local.h"
 
 // Creates and sends the server command necessary to update the CS index for the given client
-static void SV_SendConfigstring(client_t *client, int index)
-{
+static void SV_SendConfigstring(client_t *client, int index) {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
-	int len;
+	size_t len;
 
 	len = strlen(sv.configstrings[index]);
 
 	if( len >= maxChunkSize ) {
 		int		sent = 0;
-		int		remaining = len;
+		size_t	remaining = len;
 		char	*cmd;
 		char	buf[MAX_STRING_CHARS];
 
@@ -66,8 +65,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 
 // Called when a client goes from CS_PRIMED to CS_ACTIVE.
 //	Updates all configstring indexes that have changed while the client was in CS_PRIMED
-void SV_UpdateConfigstrings(client_t *client)
-{
+void SV_UpdateConfigstrings(client_t *client) {
 	int index;
 
 	for( index = 0; index <= MAX_CONFIGSTRINGS; index++ ) {
@@ -127,7 +125,7 @@ void SV_SetConfigstring (int index, const char *val) {
 	}
 }
 
-void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
+void SV_GetConfigstring( int index, char *buffer, size_t bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
 	}
@@ -155,7 +153,7 @@ void SV_SetUserinfo( int index, const char *val ) {
 	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "cl_name" ), sizeof(svs.clients[index].name) );
 }
 
-void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
+void SV_GetUserinfo( int index, char *buffer, size_t bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
 	}
@@ -634,7 +632,7 @@ void SV_Init( void ) {
 
 // Used by SV_Shutdown to send a final message to all connected clients before the server goes down.
 //	The messages are sent immediately, not just stuck on the outgoing message list, because the server is going to totally exit after returning from this function.
-void SV_FinalMessage( char *message ) {
+void SV_FinalMessage( const char *message ) {
 	int			i, j;
 	client_t	*cl;
 	
@@ -657,7 +655,7 @@ void SV_FinalMessage( char *message ) {
 
 
 // Called when each game quits, before Sys_Quit or Sys_Error
-void SV_Shutdown( char *finalmsg ) {
+void SV_Shutdown( const char *finalmsg ) {
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}

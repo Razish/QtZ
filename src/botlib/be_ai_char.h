@@ -43,6 +43,6 @@ int Characteristic_Integer(int character, int index);
 //returns a bounded integer characteristic
 int Characteristic_BInteger(int character, int index, int min, int max);
 //returns a string characteristic
-void Characteristic_String(int character, int index, char *buf, int size);
+void Characteristic_String(int character, int index, char *buf, size_t size);
 //free cached bot characters
 void BotShutdownCharacters( void );

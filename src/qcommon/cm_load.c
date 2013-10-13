@@ -141,15 +141,15 @@ void CMod_LoadSubmodels( lump_t *l ) {
 
 		// make a "leaf" just to hold the model's brushes and surfaces
 		out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
-		indexes = Hunk_Alloc( out->leaf.numLeafBrushes * 4, PREF_HIGH );
-		out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
+		indexes = (int *)Hunk_Alloc( out->leaf.numLeafBrushes * 4, PREF_HIGH );
+		out->leaf.firstLeafBrush = (int)(indexes - cm.leafbrushes);
 		for ( j = 0 ; j < out->leaf.numLeafBrushes ; j++ ) {
 			indexes[j] = LittleLong( in->firstBrush ) + j;
 		}
 
 		out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
-		indexes = Hunk_Alloc( out->leaf.numLeafSurfaces * 4, PREF_HIGH );
-		out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
+		indexes = (int *)Hunk_Alloc( out->leaf.numLeafSurfaces * 4, PREF_HIGH );
+		out->leaf.firstLeafSurface = (int)(indexes - cm.leafsurfaces);
 		for ( j = 0 ; j < out->leaf.numLeafSurfaces ; j++ ) {
 			indexes[j] = LittleLong( in->firstSurface ) + j;
 		}
@@ -226,8 +226,7 @@ void CMod_LoadBrushes( lump_t *l ) {
 
 }
 
-void CMod_LoadLeafs (lump_t *l)
-{
+void CMod_LoadLeafs (lump_t *l) {
 	int			i;
 	cLeaf_t		*out;
 	dleaf_t 	*in;
@@ -264,8 +263,7 @@ void CMod_LoadLeafs (lump_t *l)
 	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), PREF_HIGH );
 }
 
-void CMod_LoadPlanes (lump_t *l)
-{
+void CMod_LoadPlanes (lump_t *l) {
 	int			i, j;
 	cplane_t	*out;
 	dplane_t 	*in;
@@ -295,13 +293,12 @@ void CMod_LoadPlanes (lump_t *l)
 		}
 
 		out->dist = LittleFloat (in->dist);
-		out->type = PlaneTypeForNormal( &out->normal );
-		out->signbits = bits;
+		out->type = (byte)PlaneTypeForNormal( &out->normal );
+		out->signbits = (byte)bits;
 	}
 }
 
-void CMod_LoadLeafBrushes (lump_t *l)
-{
+void CMod_LoadLeafBrushes (lump_t *l) {
 	int			i;
 	int			*out;
 	int		 	*in;
@@ -322,8 +319,7 @@ void CMod_LoadLeafBrushes (lump_t *l)
 	}
 }
 
-void CMod_LoadLeafSurfaces( lump_t *l )
-{
+void CMod_LoadLeafSurfaces( lump_t *l ) {
 	int			i;
 	int			*out;
 	int		 	*in;
@@ -344,8 +340,7 @@ void CMod_LoadLeafSurfaces( lump_t *l )
 	}
 }
 
-void CMod_LoadBrushSides (lump_t *l)
-{
+void CMod_LoadBrushSides (lump_t *l) {
 	int				i;
 	cbrushside_t	*out;
 	dbrushside_t 	*in;
@@ -634,8 +629,7 @@ int		CM_LeafArea( int leafnum ) {
 }
 
 // Set up the planes and nodes so that the six floats of a bounding box can just be stored out and get a proper clipping hull structure.
-void CM_InitBoxHull( void )
-{
+void CM_InitBoxHull( void ) {
 	int			i;
 	int			side;
 	cplane_t	*p;
@@ -664,13 +658,13 @@ void CM_InitBoxHull( void )
 
 		// planes
 		p = &box_planes[i*2];
-		p->type = i>>1;
+		p->type = (byte)(i>>1);
 		p->signbits = 0;
 		VectorClear (&p->normal);
 		p->normal.data[i>>1] = 1;
 
 		p = &box_planes[i*2+1];
-		p->type = 3 + (i>>1);
+		p->type = (byte)(3 + (i>>1));
 		p->signbits = 0;
 		VectorClear (&p->normal);
 		p->normal.data[i>>1] = -1;

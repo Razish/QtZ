@@ -48,7 +48,7 @@ static long generateHashValue( const char *fname, const int size ) {
 	hash = 0;
 	i = 0;
 	while (fname[i] != '\0') {
-		letter = tolower(fname[i]);
+		letter = (char)tolower(fname[i]);
 		if (letter =='.') break;				// don't include extension
 		if (letter =='\\') letter = '/';		// damn path names
 		if (letter == PATH_SEP) letter = '/';		// damn path names
@@ -95,8 +95,7 @@ stringToEnum_t alphaTestKeywords[] = {
 	{ "GE128",	GLS_ATEST_GE_80 }
 };
 static const unsigned int numAlphaTestKeywords = ARRAY_LEN( alphaTestKeywords );
-static unsigned NameToAFunc( const char *funcname )
-{	
+static unsigned NameToAFunc( const char *funcname ) {	
 	unsigned int i=0;
 	for ( i=0; i<numAlphaTestKeywords; i++ ) {
 		if ( !Q_stricmp( funcname, alphaTestKeywords[i].s ) )
@@ -119,8 +118,7 @@ stringToEnum_t srcBlendFuncKeywords[] = {
 	{ "GL_SRC_ALPHA_SATURATE",	GLS_SRCBLEND_ALPHA_SATURATE }
 };
 static const unsigned int numSrcBlendFuncKeywords = ARRAY_LEN( srcBlendFuncKeywords );
-static int NameToSrcBlendMode( const char *name )
-{
+static int NameToSrcBlendMode( const char *name ) {
 	unsigned int i=0;
 	for ( i=0; i<numSrcBlendFuncKeywords; i++ ) {
 		if ( !Q_stricmp( name, srcBlendFuncKeywords[i].s ) )
@@ -142,8 +140,7 @@ stringToEnum_t dstBlendFuncKeywords[] = {
 	{ "GL_ONE_MINUS_SRC_COLOR",	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR }
 };
 static const unsigned int numDstBlendFuncKeywords = ARRAY_LEN( dstBlendFuncKeywords );
-static int NameToDstBlendMode( const char *name )
-{
+static int NameToDstBlendMode( const char *name ) {
 	unsigned int i=0;
 	for ( i=0; i<numDstBlendFuncKeywords; i++ ) {
 		if ( !Q_stricmp( name, dstBlendFuncKeywords[i].s ) )
@@ -163,8 +160,7 @@ stringToEnum_t genFuncKeywords[] = {
 	{ "noise",				GF_NOISE }
 };
 static const unsigned int numGenFuncKeywords = ARRAY_LEN( genFuncKeywords );
-static genFunc_t NameToGenFunc( const char *funcname )
-{
+static genFunc_t NameToGenFunc( const char *funcname ) {
 	unsigned int i=0;
 	for ( i=0; i<numGenFuncKeywords; i++ ) {
 		if ( !Q_stricmp( funcname, genFuncKeywords[i].s ) )
@@ -175,8 +171,7 @@ static genFunc_t NameToGenFunc( const char *funcname )
 	return GF_SIN;
 }
 
-static void ParseWaveForm( char **text, waveForm_t *wave )
-{
+static void ParseWaveForm( char **text, waveForm_t *wave ) {
 	char *token;
 
 	token = COM_ParseExt( text, qfalse );
@@ -220,8 +215,7 @@ static void ParseWaveForm( char **text, waveForm_t *wave )
 	wave->frequency = (float)atof( token );
 }
 
-static void ParseTexMod( char *_text, shaderStage_t *stage )
-{
+static void ParseTexMod( char *_text, shaderStage_t *stage ) {
 	const char *token;
 	char **text = &_text;
 	texModInfo_t *tmi;
@@ -444,8 +438,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage )
 	}
 }
 
-static qboolean ParseStage( shaderStage_t *stage, char **text )
-{
+static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 	char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
@@ -574,20 +567,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					}
 					stage->bundle[0].numImageAnimations++;
 				}
-			}
-		}
-		else if ( !Q_stricmp( token, "videoMap" ) )
-		{
-			token = COM_ParseExt( text, qfalse );
-			if ( !token[0] )
-			{
-				ri->Printf( PRINT_WARNING, "WARNING: missing parameter for 'videoMmap' keyword in shader '%s'\n", shader.name );
-				return qfalse;
-			}
-			stage->bundle[0].videoMapHandle = ri->CIN_PlayCinematic( token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
-			if (stage->bundle[0].videoMapHandle != -1) {
-				stage->bundle[0].isVideoMap = qtrue;
-				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
 			}
 		}
 		//
@@ -1149,8 +1128,7 @@ stringToEnum_t sortKeywords[] = {
 	{ "nearest",	SS_NEAREST },
 	{ "underwater",	SS_UNDERWATER }
 };
-float NameToSort( const char *name )
-{
+float NameToSort( const char *name ) {
 	int i=0;
 	for ( i=0; i<ARRAY_LEN( sortKeywords ); i++ )
 	{
@@ -1249,8 +1227,7 @@ static void ParseSurfaceParm( char **text ) {
 
 // The current text pointer is at the explicit text definition of the shader.
 //	Parse it into the global shader variable. Later functions will optimize it.
-static qboolean ParseShader( char **text )
-{
+static qboolean ParseShader( char **text ) {
 	char *token;
 	int s;
 
@@ -1480,8 +1457,7 @@ static qboolean ParseShader( char **text )
 */
 
 // See if we can use on of the simple fastpath stage functions, otherwise set to the generic stage function
-static void ComputeStageIteratorFunc( void )
-{
+static void ComputeStageIteratorFunc( void ) {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
 
 	//
@@ -2596,13 +2572,11 @@ void	R_ShaderList_f( void ) {
 #define	MAX_SHADER_FILES	4096
 
 // Finds and loads all .shader files, combining them into a single large text block that can be scanned for shader names
-static void ScanAndLoadShaderFiles( void )
-{
+static void ScanAndLoadShaderFiles( void ) {
 	char **shaderFiles;
 	char *buffers[MAX_SHADER_FILES];
 	char *p;
-	int numShaderFiles;
-	int i;
+	size_t numShaderFiles, i;
 	char *oldp, *token, *hashMem, *textEnd;
 	int shaderTextHashTableSizes[MAX_SHADERTEXT_HASH], hash, size;
 	char shaderName[MAX_QPATH];
@@ -2677,7 +2651,7 @@ static void ScanAndLoadShaderFiles( void )
 	textEnd = s_shaderText;
  
 	// free in reverse order, so the temp files are all dumped
-	for ( i = numShaderFiles - 1; i >= 0 ; i-- )
+	for ( i = numShaderFiles-1; i > 0 ; i-- )
 	{
 		if ( !buffers[i] )
 			continue;

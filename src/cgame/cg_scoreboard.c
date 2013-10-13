@@ -71,8 +71,7 @@ void DrawServerInformation( float fade ) {
 
 
 
-void DrawPlayerCount_Free( float fade )
-{
+void DrawPlayerCount_Free( float fade ) {
 	float fontScale = 0.33333f, y = 108.0f;
 	const char *tmp = NULL;
 	vector4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -100,8 +99,7 @@ void DrawPlayerCount_Free( float fade )
 	CG_Text_Paint( width/* + width/2.0f*/ - CG_Text_Width( tmp, fontScale, 0 )/2.0f, y + lineHeight*20, fontScale, &colour, tmp, 0.0f, 0, 0 );
 }
 
-void DrawPlayerCount_Team( float fade )
-{
+void DrawPlayerCount_Team( float fade ) {
 	float fontScale = 0.33333f, y = 108.0f;
 	const char *tmp = NULL;
 	vector4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };

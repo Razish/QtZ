@@ -3,8 +3,7 @@
 
 //	QUANTIZER
 
-void FX_Quantizer_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
-{
+void FX_Quantizer_Missile( centity_t *cent, const struct weaponInfo_s *weapon ) {
 	vector3 forward = { 0.0f };
 
 	if ( VectorNormalize2( &cent->currentState.pos.trDelta, &forward ) == 0.0f )
@@ -14,21 +13,18 @@ void FX_Quantizer_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	trap->R_AddLightToScene( &cent->lerpOrigin, 200, 0.13f, 0.13f, 0.87f );
 }
 
-void FX_Quantizer_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Quantizer_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.quantizerHitWallEffect, origin, dir, -1, -1 );
 }
 
-void FX_Quantizer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Quantizer_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.quantizerHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
 //	REPEATER
 
-void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
-{
+void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon ) {
 	vector3 forward = { 0.0f };
 
 	if ( VectorNormalize2( &cent->currentState.pos.trDelta, &forward ) == 0.0f )
@@ -38,13 +34,11 @@ void FX_Repeater_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	trap->R_AddLightToScene( &cent->lerpOrigin, 200, 0.87f, 0.13f, 0.13f );
 }
 
-void FX_Repeater_HitWall(  centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Repeater_HitWall(  centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.repeaterHitWallEffect, origin, dir, -1, -1 );
 }
 
-void FX_Repeater_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Repeater_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.repeaterHitPlayerEffect, origin, dir, -1, -1 );
 }
 
@@ -57,10 +51,10 @@ static void FX_Splicer_Flare( vector3 *origin ) {
 		flare.radius = 10.0f;
 		flare.customShader = cgs.media.weapons.splicerFlare;
 		flare.renderfx |= RF_RGB_TINT;
-		flare.shaderRGBA[0] = colour->r * 255;
-		flare.shaderRGBA[1] = colour->g * 255;
-		flare.shaderRGBA[2] = colour->b * 255;
-		flare.shaderRGBA[3] = cg_splicerAlpha->integer * 255;
+		flare.shaderRGBA[0] = (byte)(colour->r * 255);
+		flare.shaderRGBA[1] = (byte)(colour->g * 255);
+		flare.shaderRGBA[2] = (byte)(colour->b * 255);
+		flare.shaderRGBA[3] = (byte)(cg_splicerAlpha->integer * 255); //QTZFIXME: splicer alpha no worky
 		VectorCopy( origin, &flare.origin );
 
 		trap->R_AddRefEntityToScene( &flare );
@@ -109,10 +103,10 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 	beam.reType = RT_ELECTRICITY;
 	beam.customShader = cgs.media.weapons.splicerCore;
 	beam.renderfx |= RF_RGB_TINT;
-	beam.shaderRGBA[0] = colour->r * 255;
-	beam.shaderRGBA[1] = colour->g * 255;
-	beam.shaderRGBA[2] = colour->b * 255;
-	beam.shaderRGBA[3] = cg_splicerAlpha->integer * 255;
+	beam.shaderRGBA[0] = (byte)(colour->r * 255);
+	beam.shaderRGBA[1] = (byte)(colour->g * 255);
+	beam.shaderRGBA[2] = (byte)(colour->b * 255);
+	beam.shaderRGBA[3] = (byte)(cg_splicerAlpha->integer * 255); //QTZFIXME: splicer alpha no worky
 	trap->R_AddRefEntityToScene( &beam );
 
 	// add the flare
@@ -122,8 +116,7 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 
 //	MORTAR
 
-void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
-{
+void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon ) {
 	refEntity_t ent;
 	vector3 ang;
 	float vLen;
@@ -182,21 +175,18 @@ void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon )
 	trap->R_AddLightToScene( &cent->lerpOrigin, 400, 0.13f, 0.43f, 0.87f );
 }
 
-void FX_Mortar_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Mortar_HitWall( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.mortarHitWallEffect, origin, dir, -1, -1 );
 }
 
-void FX_Mortar_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir )
-{
+void FX_Mortar_HitPlayer( centity_t *cent, const struct weaponInfo_s *weapon, vector3 *origin, vector3 *dir ) {
 //	trap->FX_PlayEffectID( cgs.effects.weapons.mortarHitPlayerEffect, origin, dir, -1, -1 );
 }
 
 
 //	DIVERGENCE
 
-void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end )
-{
+void FX_Divergence_Fire( centity_t *cent, vector3 *start, vector3 *end ) {
 	localEntity_t	*leCore = CG_AllocLocalEntity(),	*leGlow = CG_AllocLocalEntity(),	*leMuzzle = CG_AllocLocalEntity();
 	refEntity_t		*reCore = &leCore->refEntity,		*reGlow = &leGlow->refEntity,		*reMuzzle = &leMuzzle->refEntity;
 	clientInfo_t	*ci = &cgs.clientinfo[cent->currentState.number];

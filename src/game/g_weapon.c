@@ -70,8 +70,7 @@ void CalcMuzzlePointOrigin ( gentity_t *ent, vector3 *origin, vector3 *forward, 
 	VectorSnap( muzzlePoint );
 }
 
-void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
+void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 	self->die = 0;
 	self->r.contents = 0;
 
@@ -87,8 +86,7 @@ void RocketDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 #define QUANTIZER_SPLASHDAMAGE (15) //(11)
 #define QUANTIZER_SPLASHRADIUS (64)
 #define QUANTIZER_SIZE (6.0f)
-static void WP_Quantizer_Fire( gentity_t *ent, int special )
-{
+static void WP_Quantizer_Fire( gentity_t *ent, int special ) {
 	gentity_t *missile = NULL;
 	vector3 dir = { 0.0f }, angs = { 0.0f };
 
@@ -120,8 +118,7 @@ static void WP_Quantizer_Fire( gentity_t *ent, int special )
 #define REPEATER_VELOCITY (8000)
 #define REPEATER_LIFE (10000)
 #define REPEATER_SIZE (3.0f)
-static void WP_Repeater_Fire( gentity_t *ent, int special )
-{
+static void WP_Repeater_Fire( gentity_t *ent, int special ) {
 	gentity_t *missile = NULL;
 	vector3 dir = { 0.0f }, angs = { 0.0f };
 
@@ -205,8 +202,7 @@ void WP_Splicer_Fire( gentity_t *ent, int special ) {
 #define MORTAR_SPLASHDAMAGE (35)
 #define MORTAR_SPLASHRADIUS (160)
 #define MORTAR_SIZE (4.0f)
-static void WP_Mortar_Fire( gentity_t *ent, int special )
-{
+static void WP_Mortar_Fire( gentity_t *ent, int special ) {
 	gentity_t	*missile = NULL;
 	vector3		dir = { 0.0f }, angs = { 0.0f };
 	int			damage = (int)(MORTAR_DAMAGE * s_quadFactor);
@@ -257,8 +253,7 @@ qboolean G_CanDisruptify( gentity_t *ent ) {
 	return qfalse;
 }
 
-static void WP_Divergence_Fire( gentity_t *ent, int special )
-{
+static void WP_Divergence_Fire( gentity_t *ent, int special ) {
 	qboolean render_impact = qtrue;
 	vector3 start = { 0.0f }, end = { 0.0f }, mins = { -DIVERGENCE_SIZE }, maxs = { DIVERGENCE_SIZE };
 	trace_t tr = { 0 };
@@ -371,11 +366,10 @@ static void WP_Divergence_Fire( gentity_t *ent, int special )
 		G_UnTimeShiftAllClients( ent );
 }
 
-void FireWeapon( gentity_t *ent, int special )
-{
+void FireWeapon( gentity_t *ent, int special ) {
 	s_quadFactor = ent->client->ps.powerups[PW_QUAD] ? g_quadFactor->value : 1.0f;
 
-	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
+	// track shots taken for accuracy tracking.
 	ent->client->accuracy_shots++;
 
 	// set aiming directions

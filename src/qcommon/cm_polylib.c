@@ -33,8 +33,7 @@ int	c_peak_windings;
 int	c_winding_allocs;
 int	c_winding_points;
 
-winding_t	*AllocWinding (int points)
-{
+winding_t	*AllocWinding (int points) {
 	winding_t	*w;
 	int			s;
 
@@ -50,8 +49,7 @@ winding_t	*AllocWinding (int points)
 	return w;
 }
 
-void FreeWinding (winding_t *w)
-{
+void FreeWinding (winding_t *w) {
 	if (*(unsigned *)w == 0xdeaddead)
 		Com_Error (ERR_FATAL, "FreeWinding: freed a freed winding");
 	*(unsigned *)w = 0xdeaddead;
@@ -62,8 +60,7 @@ void FreeWinding (winding_t *w)
 
 int	c_removed;
 
-void	RemoveColinearPoints (winding_t *w)
-{
+void	RemoveColinearPoints (winding_t *w) {
 	int		i, j, k;
 	vector3	v1, v2;
 	int		nump;
@@ -93,8 +90,7 @@ void	RemoveColinearPoints (winding_t *w)
 	memcpy (w->p, p, nump*sizeof(p[0]));
 }
 
-void WindingPlane (winding_t *w, vector3 *normal, number *dist)
-{
+void WindingPlane (winding_t *w, vector3 *normal, number *dist) {
 	vector3	v1, v2;
 
 	VectorSubtract (&w->p[1], &w->p[0], &v1);
@@ -105,8 +101,7 @@ void WindingPlane (winding_t *w, vector3 *normal, number *dist)
 
 }
 
-number WindingArea (winding_t *w)
-{
+number WindingArea (winding_t *w) {
 	int		i;
 	vector3	d1, d2, cross;
 	number	total;
@@ -122,8 +117,7 @@ number WindingArea (winding_t *w)
 	return total;
 }
 
-void	WindingBounds (winding_t *w, vector3 *mins, vector3 *maxs)
-{
+void	WindingBounds (winding_t *w, vector3 *mins, vector3 *maxs) {
 	number	v;
 	int		i,j;
 
@@ -141,8 +135,7 @@ void	WindingBounds (winding_t *w, vector3 *mins, vector3 *maxs)
 	}
 }
 
-void	WindingCenter (winding_t *w, vector3 *center)
-{
+void	WindingCenter (winding_t *w, vector3 *center) {
 	int		i;
 	float	scale;
 
@@ -154,8 +147,7 @@ void	WindingCenter (winding_t *w, vector3 *center)
 	VectorScale (center, scale, center);
 }
 
-winding_t *BaseWindingForPlane (vector3 *normal, number dist)
-{
+winding_t *BaseWindingForPlane (vector3 *normal, number dist) {
 	int		i, x;
 	number	max, v;
 	vector3	org, vright, vup;
@@ -220,8 +212,7 @@ winding_t *BaseWindingForPlane (vector3 *normal, number dist)
 	return w;	
 }
 
-winding_t	*CopyWinding (winding_t *w)
-{
+winding_t	*CopyWinding (winding_t *w) {
 	intptr_t	size;
 	winding_t	*c;
 
@@ -231,8 +222,7 @@ winding_t	*CopyWinding (winding_t *w)
 	return c;
 }
 
-winding_t	*ReverseWinding (winding_t *w)
-{
+winding_t	*ReverseWinding (winding_t *w) {
 	int			i;
 	winding_t	*c;
 
@@ -246,8 +236,7 @@ winding_t	*ReverseWinding (winding_t *w)
 }
 
 
-void	ClipWindingEpsilon (winding_t *in, vector3 *normal, number dist, number epsilon, winding_t **front, winding_t **back)
-{
+void	ClipWindingEpsilon (winding_t *in, vector3 *normal, number dist, number epsilon, winding_t **front, winding_t **back) {
 	number	dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
 	int		counts[3];
@@ -348,8 +337,7 @@ void	ClipWindingEpsilon (winding_t *in, vector3 *normal, number dist, number eps
 }
 
 
-void ChopWindingInPlace (winding_t **inout, vector3 *normal, number dist, number epsilon)
-{
+void ChopWindingInPlace (winding_t **inout, vector3 *normal, number dist, number epsilon) {
 	winding_t	*in;
 	number	dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
@@ -437,8 +425,7 @@ void ChopWindingInPlace (winding_t **inout, vector3 *normal, number dist, number
 
 // Returns the fragment of in that is on the front side of the cliping plane.
 //	The original is freed.
-winding_t	*ChopWinding (winding_t *in, vector3 *normal, number dist)
-{
+winding_t	*ChopWinding (winding_t *in, vector3 *normal, number dist) {
 	winding_t	*f, *b;
 
 	ClipWindingEpsilon (in, normal, dist, ON_EPSILON, &f, &b);
@@ -448,8 +435,7 @@ winding_t	*ChopWinding (winding_t *in, vector3 *normal, number dist)
 	return f;
 }
 
-void CheckWinding (winding_t *w)
-{
+void CheckWinding (winding_t *w) {
 	int		i, j;
 	vector3	*p1, *p2;
 	number	d, edgedist;
@@ -505,8 +491,7 @@ void CheckWinding (winding_t *w)
 	}
 }
 
-int		WindingOnPlaneSide (winding_t *w, vector3 *normal, number dist)
-{
+int		WindingOnPlaneSide (winding_t *w, vector3 *normal, number dist) {
 	qboolean	front, back;
 	int			i;
 	number		d;

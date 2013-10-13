@@ -35,11 +35,12 @@ void UpdateTournamentInfo( void ) {
 	int			i;
 	gentity_t	*player;
 	int			playerClientNum;
-	int			n, accuracy, perfect,	msglen;
-  int score1, score2;
+	int			n, accuracy, perfect;
+	int score1, score2;
 	qboolean won;
 	char		buf[32];
 	char		msg[MAX_STRING_CHARS];
+	size_t		msglen;
 
 	// find the real player
 	player = NULL;

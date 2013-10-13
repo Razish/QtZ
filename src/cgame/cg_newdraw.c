@@ -48,6 +48,7 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 static void CG_DrawPlayerArmorValue(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle) {
 	char	num[16];
 	int		value;
+	float	width;
 	playerState_t	*ps;
 
 	ps = &cg.snap->ps;
@@ -60,8 +61,8 @@ static void CG_DrawPlayerArmorValue(rectDef_t *rect, float scale, vector4 *color
 		trap->R_SetColor( NULL );
 	} else {
 		Com_sprintf (num, sizeof(num), "%i", value);
-		value = CG_Text_Width(num, scale, 0);
-		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+		width = CG_Text_Width(num, scale, 0);
+		CG_Text_Paint(rect->x + (rect->w - width) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 	}
 }
 
@@ -92,7 +93,8 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 
 static void CG_DrawPlayerAmmoValue(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle) {
 	char	num[16];
-	int value;
+	int		value;
+	float	width;
 	centity_t	*cent;
 	playerState_t	*ps;
 
@@ -108,8 +110,8 @@ static void CG_DrawPlayerAmmoValue(rectDef_t *rect, float scale, vector4 *color,
 				trap->R_SetColor( NULL );
 			} else {
 				Com_sprintf (num, sizeof(num), "%i", value);
-				value = CG_Text_Width(num, scale, 0);
-				CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+				width = CG_Text_Width(num, scale, 0);
+				CG_Text_Paint(rect->x + (rect->w - width) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 			}
 		}
 	}
@@ -181,6 +183,7 @@ static void CG_DrawPlayerLocation( rectDef_t *rect, float scale, vector4 *color,
 static void CG_DrawPlayerScore( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
 	char num[16];
 	int value = cg.snap->ps.persistent[PERS_SCORE];
+	float width;
 
 	if (shader) {
 		trap->R_SetColor( color );
@@ -188,8 +191,8 @@ static void CG_DrawPlayerScore( rectDef_t *rect, float scale, vector4 *color, qh
 		trap->R_SetColor( NULL );
 	} else {
 		Com_sprintf (num, sizeof(num), "%i", value);
-		value = CG_Text_Width(num, scale, 0);
-		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+		width = CG_Text_Width(num, scale, 0);
+		CG_Text_Paint(rect->x + (rect->w - width) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 	}
 }
 
@@ -218,7 +221,8 @@ static void CG_DrawPlayerItem( rectDef_t *rect, float scale, qboolean draw2D) {
 
 static void CG_DrawPlayerHealth(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
 	playerState_t	*ps;
-	int value;
+	int		value;
+	float	width;
 	char	num[16];
 
 	ps = &cg.snap->ps;
@@ -231,37 +235,36 @@ static void CG_DrawPlayerHealth(rectDef_t *rect, float scale, vector4 *color, qh
 		trap->R_SetColor( NULL );
 	} else {
 		Com_sprintf (num, sizeof(num), "%i", value);
-		value = CG_Text_Width(num, scale, 0);
-		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+		width = CG_Text_Width(num, scale, 0);
+		CG_Text_Paint(rect->x + (rect->w - width) / 2, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 	}
 }
 
 
 static void CG_DrawRedScore(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
-	int value;
-	char num[16];
-	if ( cgs.scores1 == SCORE_NOT_PRESENT ) {
+	char	num[16];
+	float	width;
+
+	if ( cgs.scores1 == SCORE_NOT_PRESENT )
 		Com_sprintf (num, sizeof(num), "-");
-	}
-	else {
+	else
 		Com_sprintf (num, sizeof(num), "%i", cgs.scores1);
-	}
-	value = CG_Text_Width(num, scale, 0);
-	CG_Text_Paint(rect->x + rect->w - value, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+
+	width = CG_Text_Width(num, scale, 0);
+	CG_Text_Paint(rect->x + rect->w - width, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 }
 
 static void CG_DrawBlueScore(rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
-	int value;
-	char num[16];
+	char	num[16];
+	float	width;
 
-	if ( cgs.scores2 == SCORE_NOT_PRESENT ) {
+	if ( cgs.scores2 == SCORE_NOT_PRESENT )
 		Com_sprintf (num, sizeof(num), "-");
-	}
-	else {
+	else
 		Com_sprintf (num, sizeof(num), "%i", cgs.scores2);
-	}
-	value = CG_Text_Width(num, scale, 0);
-	CG_Text_Paint(rect->x + rect->w - value, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
+
+	width = CG_Text_Width(num, scale, 0);
+	CG_Text_Paint(rect->x + rect->w - width, rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 }
 
 static void CG_DrawRedName(rectDef_t *rect, float scale, vector4 *color, int textStyle ) {
@@ -727,7 +730,7 @@ static void CG_DrawGameType(rectDef_t *rect, float scale, vector4 *color, qhandl
 }
 
 static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vector4 *color, const char* text, float adjust, int limit) {
-	int len, count;
+	size_t len, count;
 	vector4 newColor;
 	glyphInfo_t *glyph;
 	if (text) {
@@ -786,12 +789,10 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vect
 #define PIC_WIDTH 12
 
 void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale, vector4 *color, qhandle_t shader) {
-	int xx;
-	float y;
-	int i, j, len, count;
-	const char *p;
+	int			i, j, count, xx;
+	const char	*p;
 	vector4		hcolor;
-	float pwidth, lwidth, maxx, leftOver;
+	float		pwidth, lwidth, maxx, leftOver, len, y;
 	clientInfo_t *ci;
 	const gitem_t	*item;
 
@@ -893,13 +894,13 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vector4 *color, qhandle
 
 		if (cg.spectatorWidth == -1) {
 			cg.spectatorWidth = 0;
-			cg.spectatorPaintX = (int)rect->x + 1;
+			cg.spectatorPaintX = rect->x + 1;
 			cg.spectatorPaintX2 = -1;
 		}
 
 		if (cg.spectatorOffset > cg.spectatorLen) {
 			cg.spectatorOffset = 0;
-			cg.spectatorPaintX = (int)rect->x + 1;
+			cg.spectatorPaintX = rect->x + 1;
 			cg.spectatorPaintX2 = -1;
 		}
 
@@ -914,7 +915,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vector4 *color, qhandle
 					if (cg.spectatorPaintX2 >= 0) {
 						cg.spectatorPaintX = cg.spectatorPaintX2;
 					} else {
-						cg.spectatorPaintX = (int)rect->x + (int)rect->w - 2;
+						cg.spectatorPaintX = rect->x + rect->w - 2;
 					}
 					cg.spectatorPaintX2 = -1;
 				}
@@ -935,7 +936,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vector4 *color, qhandle
 		if (cg.spectatorOffset && maxX > 0) {
 			// if we have an offset ( we are skipping the first part of the string ) and we fit the string
 			if (cg.spectatorPaintX2 == -1) {
-				cg.spectatorPaintX2 = (int)(rect->x + rect->w - 2);
+				cg.spectatorPaintX2 = rect->x + rect->w - 2;
 			}
 		} else {
 			cg.spectatorPaintX2 = -1;
@@ -949,7 +950,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vector4 *color, qhandle
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vector4 *color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
 	float value = 0;
-	char *text = NULL;
+	const char *text = NULL;
 	color->a = 0.25f;
 
 	switch (ownerDraw) {
@@ -1013,14 +1014,10 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vector4 *color, q
 #define FPS_MASK (FPS_FRAMES-1)
 
 static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
-	static unsigned short previousTimes[FPS_FRAMES];
-	static unsigned short index;
-	static int	previous, lastupdate;
-	int		t, i, total;
-	unsigned short frameTime;
-	vector4 fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
-	float point = 1.0f;//= min( cg.snap->ping / 300.0f, 1.0f );
-	float fps, maxFPS = 1000.0f/com_frametime->value;
+	static int	previousTimes[FPS_FRAMES], index, previous, lastupdate;
+	int			t, i, total, frameTime;
+	float		point = 1.0f, fps, maxFPS = 1000.0f/com_frametime->value;
+	vector4		fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	if ( !cg_drawFPS->boolean && !cg_debugHUD->boolean )
 		return;
@@ -1044,15 +1041,14 @@ static void CG_DrawFPSInfo( rectDef_t *rect, float scale, vector4 *color, qhandl
 	fps = 1000.0f * (float)((float)FPS_FRAMES / (float)total);
 
 	point = MIN( MAX(0.0f, fps) / MAX(IDEAL_FPS, maxFPS), 1.0f );
-	VectorLerp4( &fpsBad, point, &fpsGood, &fpsColour );
+	VectorLerp4( QCOLOR(COLOR_RED), point, QCOLOR(COLOR_GREEN), &fpsColour );
 	fpsColour.a = 1.0f;
 
 	CG_Text_Paint( rect->x, rect->y, scale, &fpsColour, va( "%i FPS", (int)fps ), 0, 0, textStyle );
 }
 
 #define BAD_PING (250.0f)
-static void CG_DrawPingInfo( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle )
-{
+static void CG_DrawPingInfo( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
 	vector4 pingColour = { 1.0f, 1.0f, 1.0f, 1.0f }, pingGood = { 0.0f, 1.0f, 0.0f, 1.0f }, pingBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float point = MIN( cg.snap->ping / BAD_PING, 1.0f );
 
@@ -1065,8 +1061,7 @@ static void CG_DrawPingInfo( rectDef_t *rect, float scale, vector4 *color, qhand
 	CG_Text_Paint( rect->x, rect->y, scale, &pingColour, va( "%i ping", cg.snap->ping ), 0, 0, textStyle );
 }
 
-static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle )
-{
+static void CG_DrawTimer( rectDef_t *rect, float scale, vector4 *color, qhandle_t shader, int textStyle ) {
 	const vector4 *timeColour = NULL;
 	int msec=0, secs=0, mins=0, limitSec=cgs.timelimit*60;
 
@@ -1340,7 +1335,7 @@ void CG_KeyEvent(int key, qboolean down) {
 		else if ( key == K_DOWNARROW )	CG_ChatboxHistoryDn();
 		else if ( key == K_BACKSPACE )	CG_ChatboxClear();
 		else if ( key == K_ESCAPE )		CG_ChatboxEscape();
-		else if ( key & K_CHAR_FLAG )	CG_ChatboxChar( key & ~K_CHAR_FLAG );
+		else if ( key & K_CHAR_FLAG )	CG_ChatboxChar( (char)(key & ~K_CHAR_FLAG) );
 		return;
 	}
 
@@ -1403,8 +1398,7 @@ void CG_GetTeamColor(vector4 *color) {
 
 //QTZTODO: Item pickup HUD
 #if 0
-void CG_DrawPickupItem( void )
-{
+void CG_DrawPickupItem( void ) {
 	linkedList_t *node = NULL;
 	float x = ICON_SIZE*0.25f, y = SCREEN_HEIGHT-ICON_SIZE*0.25;
 	int count = 0;
@@ -1438,8 +1432,7 @@ void CG_DrawPickupItem( void )
 
 //QTZTODO: Obituary HUD
 #if 0
-void CG_DrawObituary( void )
-{
+void CG_DrawObituary( void ) {
 	linkedList_t *node = NULL;
 	float x = SCREEN_WIDTH/2.0f, y = 0.0f;
 	float lineHeight = 20.0f;
@@ -1511,8 +1504,7 @@ void CG_DrawObituary( void )
 
 //QTZTODO: Flag carrier HUD
 #if 0
-void CG_DrawFlagCarrierName( void )
-{
+void CG_DrawFlagCarrierName( void ) {
 	int fontHandle = MenuFontToHandle( FONT_Q3PLARGE );
 	float fontScale = 0.137f;
 	vector4 color = { 1.0f, 1.0f, 1.0f, 1.0f };

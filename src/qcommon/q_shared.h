@@ -62,12 +62,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	#pragma warning( disable: 4820 )	// 'n' bytes padding added after data member 'x'
 	#pragma warning( disable: 4996 )	// deprecated function
 
-//	#pragma warning( error: 4255 )		// no function prototype given: converting '()' to '( void )'
-	#pragma warning( error: 4505 ) 		// unreferenced local function has been removed
 	#pragma warning( error: 4013 )		// 'x' undefined; assuming extern returning int
 	#pragma warning( error: 4028 )		// formal parameter n different from declaration
 	#pragma warning( error: 4090 )		// '=' : different 'const' qualifiers
-//	#pragma intrinsic( memset, memcpy )
+	#pragma warning( error: 4133 )		// 'function' : incompatible types - from 'x *' to 'y *'
+//	#pragma warning( error: 4255 )		// no function prototype given: converting '()' to '( void )'
+	#pragma warning( error: 4505 ) 		// unreferenced local function has been removed
 #endif
 
 //QtZ: Add common headers here
@@ -159,18 +159,22 @@ typedef int		clipHandle_t;
 	#define NULL ((void *)0)
 #endif
 
-#define STRING(s)			#s
+#define STRING(s)				#s
 // expand constants before stringifying them
-#define XSTRING(s)			STRING(s)
+#define XSTRING(s)				STRING(s)
 
-#define	MAX_QINT			0x7fffffff
-#define	MIN_QINT			(-MAX_QINT-1)
+#define	MAX_QINT				0x7fffffff
+#define	MIN_QINT				(-MAX_QINT-1)
 
-#define VALIDSTRING( s )	((s) && *(s))
-#define VALIDENT( e )		((e) && ((e)->inuse))
+#define VALIDSTRING( s )		((s) && *(s))
+#define VALIDENT( e )			((e) && ((e)->inuse))
 
-#define ARRAY_LEN(x)		(sizeof(x) / sizeof(*(x)))
-#define STRARRAY_LEN(x)		(ARRAY_LEN(x) - 1)
+// QTZTODO: replace "(:b*)\-(:b*)g_entities" with this macro
+//	maybe use a more correct 'index' type - size_t? unsigned?
+#define ARRAY_INDEX(arr, el)	((int)( (el) - (arr) ))
+
+#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
+#define STRARRAY_LEN(x)			(ARRAY_LEN(x) - 1)
 
 // angle indexes
 /*
@@ -283,12 +287,6 @@ void *Hunk_AllocDebug( size_t size, hunkallocPref_t preference, char *label, cha
 void *Hunk_Alloc( size_t size, hunkallocPref_t preference );
 #endif
 
-#define CIN_system	0x01
-#define CIN_loop	0x02
-#define	CIN_hold	0x04
-#define CIN_silent	0x08
-#define CIN_shader	0x10
-
 /*
 
 	MATHLIB
@@ -396,9 +394,10 @@ extern vector3 bytedirs[NUMVERTEXNORMALS];
 #define S_COLOR_PINK		"^e"
 
 qboolean Q_IsColorString( const char *p );
-int ColorIndex( char c );
+char ColorIndex( char c );
 extern const vector4 g_color_table[Q_COLOR_BITS+1];
 
+#define QCOLOR( c ) ( &g_color_table[ColorIndex((c))] )
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
 
@@ -722,7 +721,7 @@ typedef struct qint64_s {
 	byte	b7;
 } qint64_t;
 
-char * QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+const char * QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, size_t len, const char *s );
@@ -948,9 +947,9 @@ typedef enum soundChannel_e {
 
 #define	MAX_GAMESTATE_CHARS	16000
 typedef struct gameState_s {
-	int			stringOffsets[MAX_CONFIGSTRINGS];
+	size_t		stringOffsets[MAX_CONFIGSTRINGS];
 	char		stringData[MAX_GAMESTATE_CHARS];
-	int			dataCount;
+	size_t		dataCount;
 } gameState_t;
 
 
@@ -1165,7 +1164,6 @@ typedef enum connState_e {
 	CA_LOADING,			// only during cgame initialization, never during main loop
 	CA_PRIMED,			// got gamestate, waiting for first frame
 	CA_ACTIVE,			// game views should be displayed
-	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 } connState_t;
 
 // font support 
@@ -1221,18 +1219,7 @@ typedef enum serverBrowserSource_e {
 	AS_FAVORITES
 } serverBrowserSource_t;
 
-// cinematic states
-typedef enum cinState_e {
-	FMV_IDLE,
-	FMV_PLAY,		// play
-	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
-	FMV_ID_BLT,
-	FMV_ID_IDLE,
-	FMV_LOOPED,
-	FMV_ID_WAIT
-} cinState_t;
-
-typedef enum _flag_status {
+typedef enum flagStatus_e {
 	FLAG_ATBASE = 0,
 	FLAG_TAKEN,			// Flags
 	FLAG_TAKEN_RED,		// Trojan
@@ -1261,9 +1248,7 @@ typedef struct stringToEnum_s {
 
 #define	MAX_EDIT_LINE	256
 typedef struct field_s {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
+	size_t	cursor, scroll, widthInChars;
 	char	buffer[MAX_EDIT_LINE];
 } field_t;
 

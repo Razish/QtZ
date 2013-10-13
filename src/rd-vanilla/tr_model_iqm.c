@@ -93,8 +93,7 @@ static void JointToMatrix( vector4 *rot, vector3 *scale, vector3 *trans, float *
 	mat[10] = scale->z * (1.0f - (xx + yy));
 	mat[11] = trans->z;
 }
-static void Matrix34Invert( float *inMat, float *outMat )
-{
+static void Matrix34Invert( float *inMat, float *outMat ) {
 	vector3 trans;
 	float invSqrLen;
 	vector3 *v;
@@ -620,7 +619,7 @@ qboolean R_LoadIQM( model_t *mod, void *buffer, unsigned int filesize, const cha
 	for( i = 0; i < header->num_joints; i++, joint++ ) {
 		char *name = (char *)header + header->ofs_text +
 			joint->name;
-		int len = strlen( name ) + 1;
+		size_t len = strlen( name ) + 1;
 		memcpy( str, name, len );
 		str += len;
 	}

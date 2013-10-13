@@ -89,10 +89,6 @@ typedef struct refexport_s {
 	void	(*DrawRotatedPic) ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a, qboolean centered, qhandle_t hShader );  // 0 = white
 	//~QtZ
 
-	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
 
 	// if the pointers are not NULL, timing info will be returned
@@ -108,7 +104,7 @@ typedef struct refexport_s {
 	void    (*A3D_RenderGeometry) (void *pVoidA3D, void *pVoidGeom, void *pVoidMat, void *pVoidGeomStatus);
 #endif
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
-	qboolean (*GetEntityToken)( char *buffer, int size );
+	qboolean (*GetEntityToken)( char *buffer, size_t size );
 	qboolean (*inPVS)( const vector3 *p1, const vector3 *p2 );
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
@@ -136,7 +132,7 @@ typedef struct refimport_s {
 #else
 	void	*(*Hunk_Alloc)( size_t size, hunkallocPref_t pref );
 #endif
-	void	*(*Hunk_AllocateTempMemory)( int size );
+	void	*(*Hunk_AllocateTempMemory)( size_t size );
 	void	(*Hunk_FreeTempMemory)( void *block );
 
 	// dynamic memory allocator for things that need to be freed
@@ -154,7 +150,7 @@ typedef struct refimport_s {
 	void	(*Cmd_RemoveCommand)( const char *name );
 
 	int		(*Cmd_Argc)( void );
-	char	*(*Cmd_Argv) (int i);
+	const char *(*Cmd_Argv) (int i);
 
 	void	(*Cmd_ExecuteText) (int exec_when, const char *text);
 
@@ -168,18 +164,13 @@ typedef struct refimport_s {
 	int		(*FS_FileIsInPAK)( const char *name, int *pCheckSum );
 	long		(*FS_ReadFile)( const char *name, void **buf );
 	void	(*FS_FreeFile)( void *buf );
-	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
+	char **	(*FS_ListFiles)( const char *name, const char *extension, size_t *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 	void	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
 	int		(*FS_Write)( const void *buffer, int len, fileHandle_t f );
 	fileHandle_t (*FS_FOpenFileWrite)( const char *qpath );
 	void	(*FS_FCloseFile)( fileHandle_t f );
 	qboolean (*FS_FileExists)( const char *file );
-
-	// cinematic stuff
-	void	(*CIN_UploadCinematic)(int handle);
-	int		(*CIN_PlayCinematic)( const char *arg0, int xpos, int ypos, int width, int height, int bits);
-	cinState_t (*CIN_RunCinematic) (int handle);
 
 	void	(*CL_WriteAVIVideoFrame)( const byte *buffer, int size );
 

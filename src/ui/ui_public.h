@@ -54,17 +54,17 @@ typedef struct uiImport_s {
 	int				(*Milliseconds)					( void );
 
 	// cvar
-	void			(*Cvar_InfoStringBuffer)		( int bit, char *buff, int buffsize );
+	void			(*Cvar_InfoStringBuffer)		( int bit, char *buff, size_t buffsize );
 	cvar_t *		(*Cvar_Get)						( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
 	void			(*Cvar_Reset)					( const char *name );
 	void			(*Cvar_Set)						( const char *name, const char *value );
 	void			(*Cvar_SetValue)				( const char *name, float value );
-	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, int bufsize );
+	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, size_t bufsize );
 	float			(*Cvar_VariableValue)			( const char *name );
 
 	// cmd
 	int				(*Cmd_Argc)						( void );
-	void			(*Cmd_Argv)						( int arg, char *buffer, int bufferLength );
+	void			(*Cmd_Argv)						( int arg, char *buffer, size_t bufferLength );
 	void			(*Cbuf_ExecuteText)				( int exec_when, const char *text );
 
 	// filesystem
@@ -72,7 +72,7 @@ typedef struct uiImport_s {
 	int				(*FS_Read)						( void *buffer, int len, fileHandle_t f );
 	int				(*FS_Write)						( const void *buffer, int len, fileHandle_t f );
 	void			(*FS_Close)						( fileHandle_t f );
-	int				(*FS_GetFileList)				( const char *path, const char *extension, char *listbuf, int bufsize );
+	size_t			(*FS_GetFileList)				( const char *path, const char *extension, char *listbuf, size_t bufsize );
 	int				(*FS_Seek)						( fileHandle_t f, long offset, int origin );
 
 	// sound
@@ -100,27 +100,27 @@ typedef struct uiImport_s {
 	void			(*UpdateScreen)					( void );
 
 	// preprocessor, imported from botlib
-	int				(*PC_AddGlobalDefine)			( char *string );
+	int				(*PC_AddGlobalDefine)			( const char *string );
 	int				(*PC_LoadSourceHandle)			( const char *filename );
 	int				(*PC_FreeSourceHandle)			( int handle );
 	int				(*PC_ReadTokenHandle)			( int handle, pc_token_t *pc_token );
 	int				(*PC_SourceFileAndLine)			( int handle, char *filename, int *line );
 
 	// misc
-	void			(*GetClipboardData)				( char *buf, int buflen );
+	void			(*GetClipboardData)				( char *buf, size_t buflen );
 	void			(*GetGLConfig)					( glconfig_t *config );
 	void			(*GetClientState)				( uiClientState_t *state );
-	int				(*GetConfigString)				( int index, char *buf, int size );
-	int				(*MemoryRemaining)				( void );
+	qboolean		(*GetConfigString)				( int index, char *buf, size_t size );
+	size_t			(*MemoryRemaining)				( void );
 	int				(*RealTime)						( qtime_t *qtime );
 
 	// keys
 	void			(*Key_ClearStates)				( void );
-	void			(*Key_GetBindingBuf)			( int keynum, char *buf, int buflen );
+	void			(*Key_GetBindingBuf)			( int keynum, char *buf, size_t buflen );
 	int				(*Key_GetCatcher)				( void );
 	qboolean		(*Key_GetOverstrikeMode)		( void );
 	qboolean		(*Key_IsDown)					( int keynum );
-	void			(*Key_KeynumToStringBuf)		( int keynum, char *buf, int buflen );
+	void			(*Key_KeynumToStringBuf)		( int keynum, char *buf, size_t buflen );
 	void			(*Key_SetBinding)				( int keynum, const char *binding );
 	void			(*Key_SetCatcher)				( int catcher );
 	void			(*Key_SetOverstrikeMode)		( qboolean state );
@@ -129,12 +129,12 @@ typedef struct uiImport_s {
 	int				(*LAN_AddServer)				( int source, const char *name, const char *address );
 	void			(*LAN_ClearPing)				( int n );
 	int				(*LAN_CompareServers)			( int source, int sortKey, int sortDir, int s1, int s2 );
-	void			(*LAN_GetPing)					( int n, char *buf, int buflen, int *pingtime );
-	void			(*LAN_GetPingInfo)				( int n, char *buf, int buflen );
+	void			(*LAN_GetPing)					( int n, char *buf, size_t buflen, int *pingtime );
+	void			(*LAN_GetPingInfo)				( int n, char *buf, size_t buflen );
 	int				(*LAN_GetPingQueueCount)		( void );
-	void			(*LAN_GetServerAddressString)	( int source, int n, char *buf, int buflen );
+	void			(*LAN_GetServerAddressString)	( int source, int n, char *buf, size_t buflen );
 	int				(*LAN_GetServerCount)			( int source );
-	void			(*LAN_GetServerInfo)			( int source, int n, char *buf, int buflen );
+	void			(*LAN_GetServerInfo)			( int source, int n, char *buf, size_t buflen );
 	int				(*LAN_GetServerPing)			( int source, int n );
 	void			(*LAN_LoadCachedServers)		( void );
 	void			(*LAN_MarkServerVisible)		( int source, int n, qboolean visible );
@@ -142,15 +142,8 @@ typedef struct uiImport_s {
 	void			(*LAN_ResetPings)				( int source );
 	void			(*LAN_SaveServersToCache)		( void );
 	int				(*LAN_ServerIsVisible)			( int source, int n );
-	int				(*LAN_GetServerStatus)			( char *serverAddress, char *serverStatus, int maxLen );
+	int				(*LAN_GetServerStatus)			( char *serverAddress, char *serverStatus, size_t maxLen );
 	qboolean		(*LAN_UpdateVisiblePings)		( int source );
-
-	// cinematic
-	void			(*CIN_DrawCinematic)			( int handle );
-	int				(*CIN_PlayCinematic)			( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	cinState_t		(*CIN_RunCinematic)				( int handle );
-	void			(*CIN_SetExtents)				( int handle, int x, int y, int w, int h );
-	cinState_t		(*CIN_StopCinematic)			( int handle );
 } uiImport_t;
 
 typedef struct uiExport_s {

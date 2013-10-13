@@ -63,11 +63,11 @@ typedef struct server_s {
 
 	// the game virtual machine will update these on init and changes
 	sharedEntity_t	*gentities;
-	int				gentitySize;
+	size_t			gentitySize;
 	int				num_entities;		// current number, <= MAX_GENTITIES
 
 	playerState_t	*gameClients;
-	int				gameClientSize;		// will be > sizeof(playerState_t) due to game private data
+	size_t			gameClientSize;		// will be > sizeof(playerState_t) due to game private data
 
 	int				restartTime;
 	int				time;
@@ -213,7 +213,7 @@ typedef struct serverStatic_s {
 
 #define SERVER_MAXBANS	1024
 // Structure for managing bans
-typedef struct serverBan_t {
+typedef struct serverBan_s {
 	netadr_t ip;
 	// For a CIDR-Notation type suffix
 	int subnet;
@@ -286,7 +286,7 @@ extern leakyBucket_t outboundLeakyBucket;
 qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period );
 qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period );
 
-void SV_FinalMessage (char *message);
+void SV_FinalMessage (const char *message);
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 
@@ -303,11 +303,11 @@ int SV_RateMsec(client_t *client);
 // sv_init.c
 //
 void SV_SetConfigstring( int index, const char *val );
-void SV_GetConfigstring( int index, char *buffer, int bufferSize );
+void SV_GetConfigstring( int index, char *buffer, size_t bufferSize );
 void SV_UpdateConfigstrings( client_t *client );
 
 void SV_SetUserinfo( int index, const char *val );
-void SV_GetUserinfo( int index, char *buffer, int bufferSize );
+void SV_GetUserinfo( int index, char *buffer, size_t bufferSize );
 
 void SV_ChangeMaxClients( void );
 void SV_SpawnServer( char *server, qboolean killBots );
@@ -375,7 +375,7 @@ void		SV_BotInitCvars( void );
 int			SV_BotLibSetup( void );
 int			SV_BotLibShutdown( void );
 int			SV_BotGetSnapshotEntity( int client, int ent );
-int			SV_BotGetConsoleMessage( int client, char *buf, int size );
+int			SV_BotGetConsoleMessage( int client, char *buf, size_t size );
 
 int BotImport_DebugPolygonCreate(int color, int numPoints, vector3 *points);
 void BotImport_DebugPolygonDelete(int id);
@@ -443,7 +443,7 @@ int SV_Netchan_TransmitNextFragment(client_t *client);
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 void SV_Netchan_FreeQueue(client_t *client);
 
-void		SV_Shutdown( char *finalmsg );
+void		SV_Shutdown( const char *finalmsg );
 void		SV_Frame( int msec );
 void		SV_PacketEvent( netadr_t from, msg_t *msg );
 int			SV_FrameMsec( void );

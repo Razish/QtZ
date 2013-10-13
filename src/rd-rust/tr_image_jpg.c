@@ -42,8 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  endif
 #endif
 
-static void R_JPGErrorExit(j_common_ptr cinfo)
-{
+static void R_JPGErrorExit(j_common_ptr cinfo) {
   char buffer[JMSG_LENGTH_MAX];
   
   (*cinfo->err->format_message) (cinfo, buffer);
@@ -54,8 +53,7 @@ static void R_JPGErrorExit(j_common_ptr cinfo)
   ri->Error(ERR_FATAL, "%s", buffer);
 }
 
-static void R_JPGOutputMessage(j_common_ptr cinfo)
-{
+static void R_JPGOutputMessage(j_common_ptr cinfo) {
   char buffer[JMSG_LENGTH_MAX];
   
   /* Create the message */
@@ -65,8 +63,7 @@ static void R_JPGOutputMessage(j_common_ptr cinfo)
   ri->Printf(PRINT_ALL, "%s\n", buffer);
 }
 
-void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *height)
-{
+void R_LoadJPG(const char *filename, unsigned char **pic, int *width, int *height) {
   /* This struct contains the JPEG decompression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
    */
@@ -257,8 +254,7 @@ typedef my_destination_mgr * my_dest_ptr;
  */
 
 static void
-init_destination (j_compress_ptr cinfo)
-{
+init_destination (j_compress_ptr cinfo) {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
 
   dest->pub.next_output_byte = dest->outfile;
@@ -290,8 +286,7 @@ init_destination (j_compress_ptr cinfo)
  */
 
 static boolean
-empty_output_buffer (j_compress_ptr cinfo)
-{
+empty_output_buffer (j_compress_ptr cinfo) {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
   
   jpeg_destroy_compress(cinfo);
@@ -312,8 +307,7 @@ empty_output_buffer (j_compress_ptr cinfo)
  * for error exit.
  */
 
-static void term_destination(j_compress_ptr cinfo)
-{
+static void term_destination(j_compress_ptr cinfo) {
 }
 
 
@@ -324,8 +318,7 @@ static void term_destination(j_compress_ptr cinfo)
  */
 
 static void
-jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
-{
+jpegDest (j_compress_ptr cinfo, byte* outfile, int size) {
   my_dest_ptr dest;
 
   /* The destination object is made permanent so that multiple JPEG images
@@ -370,7 +363,7 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 
   /* Step 2: specify data destination (eg, a file) */
   /* Note: steps 2 and 3 can be done in either order. */
-  jpegDest(&cinfo, buffer, bufSize);
+  jpegDest(&cinfo, buffer, (int)bufSize);
 
   /* Step 3: set parameters for compression */
   cinfo.image_width = image_width; 	/* image width and height, in pixels */
@@ -415,8 +408,7 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
   return outcount;
 }
 
-void RE_SaveJPG(char * filename, int quality, int image_width, int image_height, byte *image_buffer, int padding)
-{
+void RE_SaveJPG(char * filename, int quality, int image_width, int image_height, byte *image_buffer, int padding) {
   byte *out;
   size_t bufSize;
 
@@ -424,7 +416,7 @@ void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
   out = ri->Hunk_AllocateTempMemory(bufSize);
 
   bufSize = RE_SaveJPGToBuffer(out, bufSize, quality, image_width, image_height, image_buffer, padding);
-  ri->FS_WriteFile(filename, out, bufSize);
+  ri->FS_WriteFile(filename, out, (int)bufSize);
 
   ri->Hunk_FreeTempMemory(out);
 }

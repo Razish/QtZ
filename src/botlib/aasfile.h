@@ -130,7 +130,7 @@ typedef struct aas_reachability_s
 	vector3 start;						//start point of inter area movement
 	vector3 end;							//end point of inter area movement
 	int traveltype;					//type of travel required to get to the area
-	unsigned short int traveltime;//travel time of the inter area movement
+	unsigned traveltime;//travel time of the inter area movement
 } aas_reachability_t;
 
 //area settings

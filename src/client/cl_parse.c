@@ -389,8 +389,7 @@ void CL_SystemInfoChanged( void ) {
 	cl_connectedToPureServer = (int)Cvar_VariableValue( "sv_pure" );
 }
 
-static void CL_ParseServerInfo( void )
-{
+static void CL_ParseServerInfo( void ) {
 	const char *serverInfo;
 
 	serverInfo = cl.gameState.stringData
@@ -432,7 +431,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 		}
 		
 		if ( cmd == svc_configstring ) {
-			int		len;
+			size_t	len;
 
 			i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
@@ -499,7 +498,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 void CL_ParseDownload ( msg_t *msg ) {
 	int		size;
 	static unsigned char data[MAX_MSGLEN];
-	uint16_t block;
+	int/*uint16_t*/ block;
 
 	data[0] = '\0';
 
@@ -618,8 +617,7 @@ static qboolean CL_ShouldIgnoreVoipSender( int sender ) {
 }
 
 // Play raw data
-static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags)
-{
+static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags) {
 	if(flags & VOIP_DIRECT)
 	{
 		S_RawSamples(sender + 1, samplecnt, clc.speexSampleRate, 2, 1,
@@ -689,7 +687,7 @@ static void CL_ParseVoip ( msg_t *msg ) {
 	if (generation != clc.voipIncomingGeneration[sender]) {
 		Com_DPrintf("VoIP: new generation %d!\n", generation);
 		speex_bits_reset(&clc.speexDecoderBits[sender]);
-		clc.voipIncomingGeneration[sender] = generation;
+		clc.voipIncomingGeneration[sender] = (byte)generation;
 		seqdiff = 0;
 	} else if (seqdiff < 0) {   // we're ahead of the sequence?!
 		// This shouldn't happen unless the packet is corrupted or something.

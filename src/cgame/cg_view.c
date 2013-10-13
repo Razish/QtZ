@@ -376,7 +376,7 @@ static int CG_CalcFov( void ) {
 	}
 
 	x = cg.refdef.width / tanf( fov_x / 360.0f * M_PI );
-	fov_y = atan2f( cg.refdef.height, x );
+	fov_y = atan2f( (float)cg.refdef.height, x );
 	fov_y = fov_y * 360.0f / M_PI;
 
 	// warp if underwater
@@ -658,7 +658,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				timescale->value = cg_timescaleFadeEnd->value;
 		}
 		if (cg_timescaleFadeSpeed->value) {
-			trap->Cvar_Set("timescale", va("%f", timescale->value));
+			trap->Cvar_Set( "timescale", va( "%f", timescale->value ) );
 		}
 	}
 

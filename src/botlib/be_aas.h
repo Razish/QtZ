@@ -196,9 +196,9 @@ typedef struct aas_altroutegoal_s
 {
 	vector3 origin;
 	int areanum;
-	unsigned short starttraveltime;
-	unsigned short goaltraveltime;
-	unsigned short extratraveltime;
+	int starttraveltime;
+	int goaltraveltime;
+	int extratraveltime;
 } aas_altroutegoal_t;
 
 // route prediction stop events

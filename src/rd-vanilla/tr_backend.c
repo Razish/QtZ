@@ -55,8 +55,7 @@ void GL_Bind( image_t *image ) {
 	}
 }
 
-void GL_SelectTexture( int unit )
-{
+void GL_SelectTexture( int unit ) {
 	if ( glState.currenttmu == unit )
 	{
 		return;
@@ -132,8 +131,7 @@ void GL_Cull( int cullType ) {
 	}
 }
 
-void GL_TexEnv( int env )
-{
+void GL_TexEnv( int env ) {
 	if ( env == glState.texEnv[glState.currenttmu] )
 	{
 		return;
@@ -163,8 +161,7 @@ void GL_TexEnv( int env )
 }
 
 // This routine is responsible for setting the most commonly changed state in Q3.
-void GL_State( unsigned long stateBits )
-{
+void GL_State( unsigned long stateBits ) {
 	unsigned long diff = stateBits ^ glState.glStateBits;
 
 	if ( !diff )
@@ -467,7 +464,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	qboolean		depthRange, oldDepthRange, isCrosshair, wasCrosshair;
 	int				i;
 	drawSurf_t		*drawSurf;
-	int				oldSort;
+	uint32_t		oldSort;
 	float			originalTime;
 
 	// save original time for entity shader offsets
@@ -484,7 +481,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldDepthRange = qfalse;
 	wasCrosshair = qfalse;
 	oldDlighted = qfalse;
-	oldSort = -1;
+	oldSort = 0xFFFFFFFFu;
 	depthRange = qfalse;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
@@ -664,98 +661,6 @@ void	RB_SetGL2D( void ) {
 	// set time for 2D shaders
 	backEnd.refdef.time = ri->Milliseconds();
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
-}
-
-
-// FIXME: not exactly backend
-//	Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
-//	Used for cinematics.
-void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
-	int			i, j;
-	int			start, end;
-
-	if ( !tr.registered ) {
-		return;
-	}
-	R_SyncRenderThread();
-
-	// we definately want to sync every frame for the cinematics
-	qglFinish();
-
-	start = 0;
-	if ( r_speeds->integer ) {
-		start = ri->Milliseconds();
-	}
-
-	// make sure rows and cols are powers of 2
-	for ( i = 0 ; ( 1 << i ) < cols ; i++ ) {
-	}
-	for ( j = 0 ; ( 1 << j ) < rows ; j++ ) {
-	}
-	if ( ( 1 << i ) != cols || ( 1 << j ) != rows) {
-		ri->Error (ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
-	}
-
-	GL_Bind( tr.scratchImage[client] );
-
-	// if the scratchImage isn't in the format we want, specify it as a new texture
-	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
-		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
-		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );	
-	} else {
-		if (dirty) {
-			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
-			// it and don't try and do a texture compression
-			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		}
-	}
-
-	if ( r_speeds->integer ) {
-		end = ri->Milliseconds();
-		ri->Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
-	}
-
-	RB_SetGL2D();
-
-	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
-
-	qglBegin (GL_QUADS);
-	qglTexCoord2f ( 0.5f / cols,  0.5f / rows );
-	qglVertex2f ((float)x, (float)y);
-	qglTexCoord2f ( ( cols - 0.5f ) / cols ,  0.5f / rows );
-	qglVertex2f ((float)(x+w), (float)y);
-	qglTexCoord2f ( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f ((float)(x+w), (float)(y+h));
-	qglTexCoord2f ( 0.5f / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f ((float)x, (float)(y+h));
-	qglEnd();
-}
-
-void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
-
-	GL_Bind( tr.scratchImage[client] );
-
-	// if the scratchImage isn't in the format we want, specify it as a new texture
-	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
-		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
-		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );	
-	} else {
-		if (dirty) {
-			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
-			// it and don't try and do a texture compression
-			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		}
-	}
 }
 
 const void	*RB_SetColor( const void *data ) {
@@ -1008,8 +913,7 @@ void RB_ShowImages( void ) {
 
 }
 
-const void *RB_ColorMask(const void *data)
-{
+const void *RB_ColorMask(const void *data) {
 	const colorMaskCommand_t *cmd = data;
 	
 	qglColorMask(cmd->rgba[0], cmd->rgba[1], cmd->rgba[2], cmd->rgba[3]);
@@ -1017,8 +921,7 @@ const void *RB_ColorMask(const void *data)
 	return (const void *)(cmd + 1);
 }
 
-const void *RB_ClearDepth(const void *data)
-{
+const void *RB_ClearDepth(const void *data) {
 	const clearDepthCommand_t *cmd = data;
 	
 	if(tess.numIndexes)

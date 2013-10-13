@@ -281,8 +281,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, const char *
 	return qfalse;
 }
 
-static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName )
-{
+static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName ) {
 	char filename[MAX_QPATH]={0};
 
 	//lower
@@ -310,8 +309,7 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName )
 	return qtrue;
 }
 
-static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName )
-{
+static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName ) {
 	char filename[MAX_QPATH]={0};
 
 	//legs
@@ -1433,7 +1431,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		color = &cg.forceModel.allyColor;
 
 	if ( cg_brightModels->boolean ) {
-		MAKERGB( ent->shaderRGBA, color->r, color->g, color->b );
+		MAKERGB( ent->shaderRGBA, (byte)color->r, (byte)color->g, (byte)color->b );
 	}
 
 	trap->R_AddRefEntityToScene( ent );
@@ -1454,8 +1452,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 	}
 }
 
-int CG_LightVerts( vector3 *normal, int numVerts, polyVert_t *verts )
-{
+int CG_LightVerts( vector3 *normal, int numVerts, polyVert_t *verts ) {
 	int i, j;
 	float incoming;
 	vector3 ambientLight, lightDir, directedLight;
@@ -1475,19 +1472,19 @@ int CG_LightVerts( vector3 *normal, int numVerts, polyVert_t *verts )
 		if ( j > 255 ) {
 			j = 255;
 		}
-		verts[i].modulate[0] = j;
+		verts[i].modulate[0] = (byte)j;
 
 		j = (int)( ambientLight.g + incoming * directedLight.g );
 		if ( j > 255 ) {
 			j = 255;
 		}
-		verts[i].modulate[1] = j;
+		verts[i].modulate[1] = (byte)j;
 
 		j = (int)( ambientLight.b + incoming * directedLight.b );
 		if ( j > 255 ) {
 			j = 255;
 		}
-		verts[i].modulate[2] = j;
+		verts[i].modulate[2] = (byte)j;
 
 		verts[i].modulate[3] = 255;
 	}

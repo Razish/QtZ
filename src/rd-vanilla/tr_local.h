@@ -279,10 +279,8 @@ typedef struct textureBundle_s {
 	int				numTexMods;
 	texModInfo_t	*texMods;
 
-	int				videoMapHandle;
 	qboolean		isLightmap;
 	qboolean		vertexLightmap;
-	qboolean		isVideoMap;
 } textureBundle_t;
 
 #define NUM_TEXTURE_BUNDLES 2
@@ -507,7 +505,7 @@ typedef enum surfaceType_e {
 } surfaceType_t;
 
 typedef struct drawSurf_s {
-	unsigned			sort;			// bit combination for fast compares
+	uint32_t			sort;			// bit combination for fast compares
 	surfaceType_t		*surface;		// any of surface*_t
 } drawSurf_t;
 
@@ -578,7 +576,7 @@ typedef struct srfSurfaceFace_s {
 	// triangle definitions (no normals at points)
 	int			numPoints;
 	int			numIndices;
-	int			ofsIndices;
+	size_t		ofsIndices;
 	float		points[1][VERTEXSIZE];	// variable sized
 										// there is a variable length list of indices here also
 } srfSurfaceFace_t;
@@ -697,7 +695,7 @@ typedef struct world_s {
 	char		name[MAX_QPATH];		// ie: maps/tim_dm2.bsp
 	char		baseName[MAX_QPATH];	// ie: tim_dm2
 
-	int			dataSize;
+	ptrdiff_t	dataSize;
 
 	int			numShaders;
 	dshader_t	*shaders;
@@ -895,7 +893,6 @@ typedef struct trGlobals_s {
 	const byte				*externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
 
 	image_t					*defaultImage;
-	image_t					*scratchImage[32];
 	image_t					*fogImage;
 	image_t					*dlightImage;	// inverse-quare highlight for projective adding
 	image_t					*flareImage;
@@ -1183,9 +1180,6 @@ void	GL_Cull( int cullType );
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
 
-void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-
 void		RE_BeginFrame( stereoFrame_t stereoFrame );
 void		RE_BeginRegistration( glconfig_t *glconfig );
 void		RE_LoadWorldMap( const char *mapname );
@@ -1194,7 +1188,7 @@ qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
 void		RE_Shutdown( qboolean destroyWindow );
 
-qboolean	R_GetEntityToken( char *buffer, int size );
+qboolean	R_GetEntityToken( char *buffer, size_t size );
 
 model_t		*R_AllocModel( void );
 
@@ -1206,7 +1200,7 @@ image_t		*R_CreateImage( const char *name, const byte *pic, int width, int heigh
 image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrapClampMode );
 
 void		R_SetColorMappings( void );
-void		R_GammaCorrect( byte *buffer, int bufSize );
+void		R_GammaCorrect( byte *buffer, size_t bufSize );
 
 void	R_ImageList_f( void );
 void	R_SkinList_f( void );
@@ -1253,7 +1247,7 @@ void		*GLimp_RendererSleep( void );
 void		GLimp_FrontEndSleep( void );
 void		GLimp_WakeRenderer( void *data );
 
-void		GLimp_LogComment( char *comment );
+void		GLimp_LogComment( const char *comment );
 void		GLimp_Minimize( void );
 
 // NOTE TTimo linux works with float gamma value, not the gamma table

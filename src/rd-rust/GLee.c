@@ -15909,7 +15909,7 @@ void __GLeeExtList_clean(ExtensionList *extList)
 
 void __GLeeExtList_add(ExtensionList *extList, const char * extName)
 {
-	int length=strlen(extName)+1;
+	size_t length=strlen(extName)+1;
 	int i=extList->numNames;
 	int n=i+1;
 	if (i==0)
@@ -15972,8 +15972,8 @@ GLboolean __GLeeGetExtensions(ExtensionList* extList)
 	char emptyString[1] = ""; 
 	char extensionName[1024];
 	int a,b;
-	int totalExtStrLen;
-	int platExtStrLen;
+	size_t totalExtStrLen;
+	size_t platExtStrLen;
 	int addASpace;
 	
 	/* read the platform specific extension string */
@@ -16107,7 +16107,7 @@ GLEE_EXTERN GLint GLeeForceLink(const char * extensionName)
 {
 	int type=0; 
 	int extNum;
-	int len=strlen(extensionName);
+	size_t len=strlen(extensionName);
 	if (len<5) return GLEE_LINK_FAIL;
 	if (!__GLeeInitedLoadFunctions)
 	{

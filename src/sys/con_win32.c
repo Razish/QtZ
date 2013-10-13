@@ -42,7 +42,7 @@ static int qconsole_history_oldest = 0;
 
 // current edit buffer
 static char qconsole_line[ MAX_EDIT_LINE ];
-static int qconsole_linelen = 0;
+static size_t qconsole_linelen = 0;
 static qboolean qconsole_drawinput = qtrue;
 
 static HANDLE qconsole_hout;
@@ -198,14 +198,14 @@ static void CON_Show( void )
 
 	// set curor position
 	cursorPos.Y = binfo.dwCursorPosition.Y;
-	cursorPos.X = qconsole_linelen > binfo.srWindow.Right ? binfo.srWindow.Right : qconsole_linelen;
+	cursorPos.X = qconsole_linelen > binfo.srWindow.Right ? binfo.srWindow.Right : (SHORT)qconsole_linelen;
 
 	SetConsoleCursorPosition( qconsole_hout, cursorPos );
 }
 
 static void CON_Hide( void )
 {
-	int realLen;
+	size_t realLen;
 
 	realLen = qconsole_linelen;
 
@@ -333,7 +333,7 @@ char *CON_Input( void )
 
 			if( key == VK_BACK )
 			{
-				int pos = ( qconsole_linelen > 0 ) ?
+				size_t pos = ( qconsole_linelen > 0 ) ?
 					qconsole_linelen - 1 : 0; 
 
 				qconsole_line[ pos ] = '\0';

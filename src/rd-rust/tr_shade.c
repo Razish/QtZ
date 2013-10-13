@@ -49,7 +49,7 @@ static int		c_vertexes;		// for seeing how long our average strips are
 static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
 	int i;
-	int last[3] = { -1, -1, -1 };
+	glIndex_t last[3] = { 0, 0, 0 };
 	qboolean even;
 
 	c_begins++;
@@ -192,12 +192,6 @@ static qboolean	setArraysOnce;
 
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	int index;
-
-	if ( bundle->isVideoMap ) {
-		ri->CIN_RunCinematic(bundle->videoMapHandle);
-		ri->CIN_UploadCinematic(bundle->videoMapHandle);
-		return;
-	}
 
 	if ( bundle->numImageAnimations <= 1 ) {
 		GL_Bind( bundle->image[0] );
@@ -620,7 +614,7 @@ static void ProjectDlightTexture_scalar( void ) {
 					}
 				}
 			}
-			clipBits[i] = clip;
+			clipBits[i] = (byte)clip;
 			colors[0] = (byte)ri->ftol(floatColor.r * modulate);
 			colors[1] = (byte)ri->ftol(floatColor.g * modulate);
 			colors[2] = (byte)ri->ftol(floatColor.b * modulate);
@@ -710,8 +704,7 @@ static void RB_FogPass( void ) {
 	R_DrawElements( tess.numIndexes, tess.indexes );
 }
 
-static void ComputeColors( shaderStage_t *pStage )
-{
+static void ComputeColors( shaderStage_t *pStage ) {
 	int		i;
 
 	//
@@ -905,7 +898,7 @@ static void ComputeColors( shaderStage_t *pStage )
 		for(i = 0; i < tess.numVertexes; i++)
 		{
 			scale = (int)LUMA(tess.svars.colors[i][0], tess.svars.colors[i][1], tess.svars.colors[i][2]);
- 			tess.svars.colors[i][0] = tess.svars.colors[i][1] = tess.svars.colors[i][2] = scale;
+ 			tess.svars.colors[i][0] = tess.svars.colors[i][1] = tess.svars.colors[i][2] = (byte)scale;
 		}
 	}
 	else if(r_greyscale->value)
@@ -1021,8 +1014,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 	}
 }
 
-static void RB_IterateStagesGeneric( shaderCommands_t *input )
-{
+static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 	int stage = 0;
 	//QtZ: Alpha/RGB refent override
 	qboolean overridealpha = qfalse, overridergb = qfalse, didanyoverride = qfalse;
@@ -1160,8 +1152,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 	}
 }
 
-void RB_StageIteratorGeneric( void )
-{
+void RB_StageIteratorGeneric( void ) {
 	shaderCommands_t *input;
 	shader_t		*shader;
 
@@ -1272,8 +1263,7 @@ void RB_StageIteratorGeneric( void )
 	}
 }
 
-void RB_StageIteratorVertexLitTexture( void )
-{
+void RB_StageIteratorVertexLitTexture( void ) {
 	shaderCommands_t *input;
 	shader_t		*shader;
 

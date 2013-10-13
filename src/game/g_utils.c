@@ -71,7 +71,7 @@ int G_SoundIndex( char *name ) {
 }
 
 // Broadcasts a command to only a specific team
-void G_TeamCommand( team_t team, char *cmd ) {
+void G_TeamCommand( team_t team, const char *cmd ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -86,8 +86,7 @@ void G_TeamCommand( team_t team, char *cmd ) {
 // Searches all active entities for the next one that holds the matching string at fieldofs (use the FOFS() macro) in the structure.
 //	Searches beginning at the entity after from, or the beginning if NULL
 //	NULL will be returned if the end of the list is reached.
-gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
-{
+gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match) {
 	char	*s;
 
 	if (!from)
@@ -112,8 +111,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 #define MAXCHOICES	32
 
 // Selects a random entity from among the targets
-gentity_t *G_PickTarget (char *targetname)
-{
+gentity_t *G_PickTarget (char *targetname) {
 	gentity_t	*ent = NULL;
 	int		num_choices = 0;
 	gentity_t	*choice[MAXCHOICES];
@@ -215,7 +213,7 @@ float vectoyaw( const vector3 *vec ) {
 void G_InitGentity( gentity_t *e ) {
 	e->inuse = qtrue;
 	e->classname = "noclass";
-	e->s.number = e - g_entities;
+	e->s.number = ARRAY_INDEX( g_entities, e );
 	e->r.ownerNum = ENTITYNUM_NONE;
 }
 

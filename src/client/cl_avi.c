@@ -72,22 +72,19 @@ static aviFileData_t afd;
 #define MAX_AVI_BUFFER 2048
 
 static byte buffer[ MAX_AVI_BUFFER ];
-static unsigned int bufIndex;
+static int bufIndex;
 
-static QINLINE void SafeFS_Write( const void *buffer, int len, fileHandle_t f )
-{
+static QINLINE void SafeFS_Write( const void *buffer, int len, fileHandle_t f ) {
   if( FS_Write( buffer, len, f ) < len )
     Com_Error( ERR_DROP, "Failed to write avi file" );
 }
 
-static QINLINE void WRITE_STRING( const char *s )
-{
+static QINLINE void WRITE_STRING( const char *s ) {
   memcpy( &buffer[ bufIndex ], s, strlen( s ) );
-  bufIndex += strlen( s );
+  bufIndex += (int)strlen( s );
 }
 
-static QINLINE void WRITE_4BYTES( int x )
-{
+static QINLINE void WRITE_4BYTES( int x ) {
   buffer[ bufIndex + 0 ] = (byte)( ( x >>  0 ) & 0xFF );
   buffer[ bufIndex + 1 ] = (byte)( ( x >>  8 ) & 0xFF );
   buffer[ bufIndex + 2 ] = (byte)( ( x >> 16 ) & 0xFF );
@@ -95,21 +92,18 @@ static QINLINE void WRITE_4BYTES( int x )
   bufIndex += 4;
 }
 
-static QINLINE void WRITE_2BYTES( int x )
-{
+static QINLINE void WRITE_2BYTES( int x ) {
   buffer[ bufIndex + 0 ] = (byte)( ( x >>  0 ) & 0xFF );
   buffer[ bufIndex + 1 ] = (byte)( ( x >>  8 ) & 0xFF );
   bufIndex += 2;
 }
 
-static QINLINE void WRITE_1BYTES( int x )
-{
+static QINLINE void WRITE_1BYTES( int x ) {
   buffer[ bufIndex ] = (byte)x;
   bufIndex += 1;
 }
 
-static QINLINE void START_CHUNK( const char *s )
-{
+static QINLINE void START_CHUNK( const char *s ) {
   if( afd.chunkStackTop == MAX_RIFF_CHUNKS )
   {
     Com_Error( ERR_DROP, "ERROR: Top of chunkstack breached" );
@@ -121,8 +115,7 @@ static QINLINE void START_CHUNK( const char *s )
   WRITE_4BYTES( 0 );
 }
 
-static QINLINE void END_CHUNK( void )
-{
+static QINLINE void END_CHUNK( void ) {
   int endIndex = bufIndex;
 
   if( afd.chunkStackTop <= 0 )
@@ -138,8 +131,7 @@ static QINLINE void END_CHUNK( void )
   bufIndex = PAD( bufIndex, 2 );
 }
 
-void CL_WriteAVIHeader( void )
-{
+void CL_WriteAVIHeader( void ) {
   bufIndex = 0;
   afd.chunkStackTop = 0;
 
@@ -285,8 +277,7 @@ void CL_WriteAVIHeader( void )
 }
 
 // Creates an AVI file and gets it into a state where writing the actual data can begin
-qboolean CL_OpenAVIForWriting( const char *fileName )
-{
+qboolean CL_OpenAVIForWriting( const char *fileName ) {
   if( afd.fileOpen )
     return qfalse;
 
@@ -385,8 +376,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
   return qtrue;
 }
 
-static qboolean CL_CheckFileSize( int bytesToAdd )
-{
+static qboolean CL_CheckFileSize( int bytesToAdd ) {
   unsigned int newFileSize;
 
   newFileSize =
@@ -411,8 +401,7 @@ static qboolean CL_CheckFileSize( int bytesToAdd )
   return qfalse;
 }
 
-void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size )
-{
+void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size ) {
   int   chunkOffset = afd.fileSize - afd.moviOffset - 8;
   int   chunkSize = 8 + size;
   int   paddingSize = PADLEN(size, 2);
@@ -453,8 +442,7 @@ void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size )
 
 #define PCM_BUFFER_SIZE 44100
 
-void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size )
-{
+void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size ) {
   static byte pcmCaptureBuffer[ PCM_BUFFER_SIZE ] = { 0 };
   static int  bytesInBuffer = 0;
 
@@ -514,8 +502,7 @@ void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size )
   }
 }
 
-void CL_TakeVideoFrame( void )
-{
+void CL_TakeVideoFrame( void ) {
   // AVI file isn't open
   if( !afd.fileOpen )
     return;
@@ -525,8 +512,7 @@ void CL_TakeVideoFrame( void )
 }
 
 // Closes the AVI file and writes an index chunk
-qboolean CL_CloseAVI( void )
-{
+qboolean CL_CloseAVI( void ) {
   int indexRemainder;
   int indexSize = afd.numIndices * 16;
   const char *idxFileName = va( "%s" INDEX_FILE_EXTENSION, afd.fileName );
@@ -592,7 +578,6 @@ qboolean CL_CloseAVI( void )
   return qtrue;
 }
 
-qboolean CL_VideoRecording( void )
-{
+qboolean CL_VideoRecording( void ) {
   return afd.fileOpen;
 }

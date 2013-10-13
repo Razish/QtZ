@@ -480,9 +480,8 @@ static void PM_FlyMove( void ) {
 		wishvel.y = 0;
 		wishvel.z = 0;
 	} else {
-		for (i=0 ; i<3 ; i++) {
+		for (i=0 ; i<3 ; i++)
 			wishvel.data[i] = scale * pml.forward.data[i]*pm->cmd.forwardmove + scale * pml.right.data[i]*pm->cmd.rightmove;
-		}
 
 		wishvel.z += scale * pm->cmd.upmove;
 	}
@@ -1004,8 +1003,7 @@ static void PM_SetWaterLevel( void ) {
 }
 
 // Sets mins, maxs, and pm->ps->viewheight
-static void PM_CheckDuck( void )
-{
+static void PM_CheckDuck( void ) {
 	trace_t	trace;
 
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
@@ -1232,8 +1230,7 @@ const animNumber_t weaponAnimations[WP_NUM_WEAPONS] = {
 	TORSO_STAND,	// WP_DIVERGENCE
 };
 
-static void PM_TorsoAnimation( void )
-{
+static void PM_TorsoAnimation( void ) {
 	if ( pm->ps->weaponstate == WEAPON_READY )
 		PM_ContinueTorsoAnim( weaponAnimations[pm->ps->weapon] );
 }
@@ -1244,8 +1241,7 @@ int PM_GetWeaponChargeTime( void ) {
 }
 
 //Decrease the timers for all our weapons despite not having them out
-void PM_DecreaseWeaponChargeTimes( void )
-{
+void PM_DecreaseWeaponChargeTimes( void ) {
 	weapon_t wp;
 	for ( wp=WP_NONE; wp<WP_NUM_WEAPONS; wp++ )
 	{

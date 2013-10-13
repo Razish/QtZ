@@ -129,7 +129,6 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 #define MAX_FOUNDPLAYER_SERVERS	16
 #define MAX_MODS				64
 #define MAX_DEMOS				2048
-#define MAX_MOVIES				256
 #define MAX_PLAYERMODELS		256
 
 typedef struct characterInfo_s {
@@ -148,7 +147,6 @@ typedef struct mapInfo_s {
 	const char	*opponentName;
 	int			teamMembers;
 	int			typeBits;
-	int			cinematic;
 	int			timeToBeat[GT_NUM_GAMETYPES];
 	qhandle_t	levelShot;
 	qboolean	active;
@@ -169,25 +167,25 @@ typedef struct serverStatus_s {
 	int			numqueriedservers;
 	int			currentping;
 	int			nextpingtime;
-	int			maxservers;
+
 	int			refreshtime;
-	int			numServers;
-	int			sortKey;
-	int			sortDir;
+	int			sortKey, sortDir;
 	int			lastCount;
 	qboolean	refreshActive;
-	int			currentServer;
+
+	size_t		currentServer;
+	qhandle_t	currentServerPreview;
 	int			displayServers[MAX_DISPLAY_SERVERS];
-	int			numDisplayServers;
+	size_t		numDisplayServers;
 	int			numPlayersOnServers;
+	int			numServers, maxservers;
+
 	int			nextDisplayRefresh;
 	int			nextSortTime;
-	qhandle_t	currentServerPreview;
-	int			currentServerCinematic;
+
 	size_t		motdLen;
 	int			motdWidth;
-	float		motdPaintX;
-	int			motdPaintX2;
+	float		motdPaintX, motdPaintX2;
 	int			motdOffset;
 	int			motdTime;
 	char		motd[MAX_CVAR_VALUE_STRING];
@@ -202,7 +200,7 @@ typedef struct pendingServer_s {
 } pendingServer_t;
 
 typedef struct pendingServerStatus_s {
-	int				num;
+	size_t			num;
 	pendingServer_t	server[MAX_SERVERSTATUSREQUESTS];
 } pendingServerStatus_t;
 
@@ -211,7 +209,7 @@ typedef struct serverStatusInfo_s {
 	char	*lines[MAX_SERVERSTATUS_LINES][4];
 	char	text[MAX_SERVERSTATUS_TEXT];
 	char	pings[MAX_CLIENTS*3];
-	int		numLines;
+	size_t	numLines;
 } serverStatusInfo_t;
 
 typedef struct modInfo_s {
@@ -227,39 +225,34 @@ typedef struct uiInfo_s {
 	qboolean				demoAvailable;
 	qboolean				soundHighScore;
 	
-	int						characterCount;
-	int						botIndex;
+	size_t					characterCount;
+	size_t					botIndex;
 	characterInfo_t			characterList[MAX_HEADS];
 
 	int						redBlue;
-	int						playerCount;
-	int						myTeamCount;
-	int						teamIndex;
+	size_t					playerCount;
+	size_t					myTeamCount;
+	size_t					teamIndex;
 	int						playerRefresh;
-	int						playerIndex;
+	size_t					playerIndex;
 	int						playerNumber; 
 	char					playerNames[MAX_CLIENTS][MAX_NETNAME];
 	char					teamNames[MAX_CLIENTS][MAX_TEAMNAME];
 	int						teamClientNums[MAX_CLIENTS];
 
-	int						mapCount;
+	size_t					mapCount;
 	mapInfo_t				mapList[MAX_MAPS];
 
-	int						skillIndex;
+	size_t					skillIndex;
 
 	modInfo_t				modList[MAX_MODS];
-	int						modCount;
-	int						modIndex;
+	size_t					modCount;
+	size_t					modIndex;
 
 	char					demoList[MAX_DEMOS][MAX_QPATH];
-	int						demoCount;
-	int						demoIndex;
+	size_t					demoCount;
+	size_t					demoIndex;
 	int						loadedDemos;
-
-	const char				*movieList[MAX_MOVIES];
-	int						movieCount;
-	int						movieIndex;
-	int						previewMovie;
 
 	serverStatus_t			serverStatus;
 
@@ -273,14 +266,14 @@ typedef struct uiInfo_s {
 	char					findPlayerName[MAX_STRING_CHARS];
 	char					foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
 	char					foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	int						currentFoundPlayerServer;
-	int						numFoundPlayerServers;
+	size_t					currentFoundPlayerServer;
+	size_t					numFoundPlayerServers;
 	int						nextFindPlayerRefresh;
 
 	int						currentCrosshair;
 	sfxHandle_t				newHighScoreSound;
 
-	int						q3HeadCount;
+	size_t					q3HeadCount;
 	char					q3HeadNames[MAX_PLAYERMODELS][64];
 	qhandle_t				q3HeadIcons[MAX_PLAYERMODELS];
 	int						q3SelectedHead;
@@ -297,8 +290,8 @@ void			UI_SetColor( const vector4 *rgba );
 void			UI_AdjustFrom640( float *x, float *y, float *w, float *h );
 char			*UI_Cvar_VariableString( const char *name );
 
-int UI_GetNumBots( void );
+size_t UI_GetNumBots( void );
 void UI_LoadBots( void );
-char *UI_GetBotNameByNumber( int num );
+char *UI_GetBotNameByNumber( size_t num );
 
 extern uiImport_t *trap;

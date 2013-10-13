@@ -109,7 +109,7 @@ char *Cvar_VariableString( const char *name ) {
 	return var->string;
 }
 
-void Cvar_VariableStringBuffer( const char *name, char *buffer, int bufsize ) {
+void Cvar_VariableStringBuffer( const char *name, char *buffer, size_t bufsize ) {
 	cvar_t *var;
 	
 	var = Cvar_FindVar (name);
@@ -121,8 +121,7 @@ void Cvar_VariableStringBuffer( const char *name, char *buffer, int bufsize ) {
 	}
 }
 
-int Cvar_Flags(const char *name)
-{
+int Cvar_Flags(const char *name) {
 	cvar_t *var;
 	
 	if(!(var = Cvar_FindVar(name)))
@@ -136,8 +135,7 @@ int Cvar_Flags(const char *name)
 	}
 }
 
-void Cvar_CommandCompletion(void (*callback)(const char *s))
-{
+void Cvar_CommandCompletion(void (*callback)(const char *s)) {
 	cvar_t		*cvar;
 	
 	for(cvar = cvar_vars; cvar; cvar = cvar->next)
@@ -533,8 +531,7 @@ void Cvar_Set( const char *name, const char *value) {
 	Cvar_Set2 (name, value, qtrue);
 }
 
-void Cvar_SetSafe( const char *name, const char *value )
-{
+void Cvar_SetSafe( const char *name, const char *value ) {
 	int flags = Cvar_Flags( name );
 
 	if((flags != CVAR_NONEXISTENT) && (flags & CVAR_PROTECTED))
@@ -565,8 +562,7 @@ void Cvar_SetValue( const char *name, float value) {
 	Cvar_Set (name, val);
 }
 
-void Cvar_SetValueSafe( const char *name, float value )
-{
+void Cvar_SetValueSafe( const char *name, float value ) {
 	char val[32];
 
 	if( Q_isintegral( value ) )
@@ -580,14 +576,12 @@ void Cvar_Reset( const char *name ) {
 	Cvar_Set2( name, NULL, qfalse );
 }
 
-void Cvar_ForceReset(const char *name)
-{
+void Cvar_ForceReset(const char *name) {
 	Cvar_Set2(name, NULL, qtrue);
 }
 
 // Any testing variables will be reset to the safe values
-void Cvar_SetCheatState( void )
-{
+void Cvar_SetCheatState( void ) {
 	cvar_t	*var;
 
 	// set all default vars to the safe value
@@ -611,7 +605,7 @@ void Cvar_SetCheatState( void )
 // Handles variable inspection and changing from the console
 qboolean Cvar_Command( void ) {
 	cvar_t	*v;
-	char *args = Cmd_Args();
+	const char *args = Cmd_Args();
 
 	// check variables
 	v = Cvar_FindVar (Cmd_Argv(0));
@@ -634,9 +628,8 @@ qboolean Cvar_Command( void ) {
 }
 
 // Prints the contents of a cvar  (preferred over Cvar_Command where cvar names and commands conflict)
-void Cvar_Print_f( void )
-{
-	char *name;
+void Cvar_Print_f( void ) {
+	const char *name;
 	cvar_t *cv;
 	
 	if(Cmd_Argc() != 2)
@@ -695,7 +688,7 @@ void Cvar_Toggle_f( void ) {
 // Allows setting and defining of arbitrary cvars from console, even if they weren't declared in C code.
 void Cvar_Set_f( void ) {
 	int		c;
-	char	*cmd;
+	const char	*cmd;
 	cvar_t	*v;
 
 	c = Cmd_Argc();
@@ -793,7 +786,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 
 	for ( i=0, listPtr=list; i<writeCount; i++, listPtr++ ) {
 		Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", listPtr->name, listPtr->value );
-		FS_Write( buffer, strlen( buffer ), f );
+		FS_Write( buffer, (int)strlen( buffer ), f );
 	}
 
 	Com_DPrintf( "Wrote %i/%i cvars to file\n", writeCount, totalCount );
@@ -805,7 +798,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 void Cvar_List_f( void ) {
 	cvar_t *var;
 	int i;
-	char *match = NULL;
+	const char *match = NULL;
 
 	if ( Cmd_Argc() > 1 )
 		match = Cmd_Argv( 1 );
@@ -855,8 +848,7 @@ void Cvar_ListChanged_f( void ) {
 }
 
 // Unsets a cvar
-cvar_t *Cvar_Unset(cvar_t *cv)
-{
+cvar_t *Cvar_Unset(cvar_t *cv) {
 	cvar_t *next = cv->next;
 
 	if ( cv->name )				Z_Free( cv->name );
@@ -885,8 +877,7 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 }
 
 // Unsets a userdefined cvar
-void Cvar_Unset_f( void )
-{
+void Cvar_Unset_f( void ) {
 	cvar_t *cv;
 	
 	if(Cmd_Argc() != 2)
@@ -943,8 +934,7 @@ char *Cvar_InfoString( int bit ) {
 }
 
 // handles large info strings ( CS_SYSTEMINFO )
-char *Cvar_InfoString_Big(int bit)
-{
+char *Cvar_InfoString_Big(int bit) {
 	static char	info[BIG_INFO_STRING];
 	cvar_t	*var;
 
@@ -958,12 +948,11 @@ char *Cvar_InfoString_Big(int bit)
 	return info;
 }
 
-void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
+void Cvar_InfoStringBuffer( int bit, char* buff, size_t buffsize ) {
 	Q_strncpyz(buff,Cvar_InfoString(bit),buffsize);
 }
 
-void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
-{
+void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral ) {
 	var->validate = qtrue;
 	var->min = min;
 	var->max = max;
@@ -973,8 +962,7 @@ void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
 	Cvar_Set( var->name, var->string );
 }
 
-void Cvar_CompleteCvarName( char *args, int argNum )
-{
+void Cvar_CompleteCvarName( char *args, int argNum ) {
 	if( argNum == 2 ) {
 		// Skip "<cmd> "
 		char *p = Com_SkipTokens( args, 1, " " );

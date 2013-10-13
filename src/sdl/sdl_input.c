@@ -92,8 +92,7 @@ Doing that because I couldn't get to RAWINPUT through SDL_SYSWMEVENT //run
 http://lists.libsdl.org/pipermail/sdl-libsdl.org/2005-February/048704.html
 */
 
-static LONG WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+static LONG_PTR WINAPI RawWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg)
 	{
 	case WM_INPUT:
@@ -198,8 +197,7 @@ qboolean IN_ShutdownRawMouse( void ) {
 
 #endif
 
-static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down )
-{
+static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down ) {
 	if( down )
 		Com_Printf( "+ " );
 	else
@@ -235,8 +233,7 @@ static void IN_PrintKey( const SDL_keysym *keysym, keyNum_t key, qboolean down )
 
 #define MAX_CONSOLE_KEYS 16
 
-static qboolean IN_IsConsoleKey( keyNum_t key, const unsigned char character )
-{
+static qboolean IN_IsConsoleKey( keyNum_t key, const unsigned char character ) {
 	typedef struct consoleKey_s
 	{
 		enum
@@ -471,8 +468,7 @@ static const char *IN_TranslateSDLToQ3Key( SDL_keysym *keysym,
 }
 
 #ifdef MACOS_X_ACCELERATION_HACK
-static io_connect_t IN_GetIOHandle( void ) // mac os x mouse accel hack
-{
+static io_connect_t IN_GetIOHandle( void ) // mac os x mouse accel hack {
 	io_connect_t iohandle = MACH_PORT_NULL;
 	kern_return_t status;
 	io_service_t iohidsystem = MACH_PORT_NULL;
@@ -493,8 +489,7 @@ static io_connect_t IN_GetIOHandle( void ) // mac os x mouse accel hack
 }
 #endif
 
-static void IN_GobbleMotionEvents( void )
-{
+static void IN_GobbleMotionEvents( void ) {
 	SDL_Event dummy[ 1 ];
 
 	// Gobble any mouse motion events
@@ -503,8 +498,7 @@ static void IN_GobbleMotionEvents( void )
 		SDL_EVENTMASK( SDL_MOUSEMOTION ) ) ) { }
 }
 
-static void IN_ActivateMouse( void )
-{
+static void IN_ActivateMouse( void ) {
 	if ( !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
@@ -574,8 +568,7 @@ static void IN_ActivateMouse( void )
 	mouseActive = qtrue;
 }
 
-static void IN_DeactivateMouse( void )
-{
+static void IN_DeactivateMouse( void ) {
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
@@ -611,7 +604,7 @@ static void IN_DeactivateMouse( void )
 
 		// Don't warp the mouse unless the cursor is within the window
 		if( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS )
-			SDL_WarpMouse( cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2 );
+			SDL_WarpMouse( (Uint16)(cls.glconfig.vidWidth / 2), (Uint16)(cls.glconfig.vidHeight / 2) );
 
 		mouseActive = qfalse;
 	}
@@ -652,8 +645,7 @@ struct
 } stick_state;
 
 
-static void IN_InitJoystick( void )
-{
+static void IN_InitJoystick( void ) {
 	int i = 0;
 	int total = 0;
 	char buf[16384] = "";
@@ -717,8 +709,7 @@ static void IN_InitJoystick( void )
 	SDL_JoystickEventState(SDL_QUERY);
 }
 
-static void IN_ShutdownJoystick( void )
-{
+static void IN_ShutdownJoystick( void ) {
 	if (stick)
 	{
 		SDL_JoystickClose(stick);
@@ -728,8 +719,7 @@ static void IN_ShutdownJoystick( void )
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
-static void IN_JoyMove( void )
-{
+static void IN_JoyMove( void ) {
 	qboolean joy_pressed[ARRAY_LEN(joy_keys)];
 	unsigned int axes = 0;
 	unsigned int hats = 0;
@@ -930,8 +920,7 @@ static void IN_JoyMove( void )
 	stick_state.oldaxes = axes;
 }
 
-static void IN_ProcessEvents( void )
-{
+static void IN_ProcessEvents( void ) {
 	SDL_Event e;
 	const char *character = NULL;
 	keyNum_t key = 0;
@@ -1032,8 +1021,7 @@ static void IN_ProcessEvents( void )
 	}
 }
 
-void IN_Frame( void )
-{
+void IN_Frame( void ) {
 	qboolean loading;
 
 	IN_JoyMove( );
@@ -1068,8 +1056,7 @@ void IN_Frame( void )
 	}
 }
 
-void IN_InitKeyLockStates( void )
-{
+void IN_InitKeyLockStates( void ) {
 	unsigned char *keystate = SDL_GetKeyState(NULL);
 
 	keys[K_SCROLLOCK].down = keystate[SDLK_SCROLLOCK];
@@ -1077,8 +1064,7 @@ void IN_InitKeyLockStates( void )
 	keys[K_CAPSLOCK].down = keystate[SDLK_CAPSLOCK];
 }
 
-void IN_Init( void )
-{
+void IN_Init( void ) {
 	int appState;
 
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
@@ -1135,8 +1121,7 @@ void IN_Init( void )
 	Com_DPrintf( "------------------------------------\n" );
 }
 
-void IN_Shutdown( void )
-{
+void IN_Shutdown( void ) {
 	//QtZ: Raw mouse input
 	#ifdef _WIN32
 		IN_ShutdownRawMouse( );
@@ -1146,8 +1131,7 @@ void IN_Shutdown( void )
 	IN_ShutdownJoystick( );
 }
 
-void IN_Restart( void )
-{
+void IN_Restart( void ) {
 	IN_ShutdownJoystick( );
 	IN_Init( );
 }

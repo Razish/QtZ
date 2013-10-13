@@ -13,8 +13,7 @@ static glslShader_t glslShaders[MAX_GLSL_SHADERS];
 
 static const glslProgram_t* lastProgramUsed = NULL;
 
-static void R_EXT_GLSL_OutputInfoLog ( int objectID )
-{
+static void R_EXT_GLSL_OutputInfoLog ( int objectID ) {
     int logLength = 0;
     char* logText = NULL;
     
@@ -34,8 +33,7 @@ static void R_EXT_GLSL_OutputInfoLog ( int objectID )
     }
 }
 
-static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shaderType )
-{
+static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shaderType ) {
     glslShader_t* shader = NULL;
     char* shaderCode = NULL;
 #ifdef FILE_BASED_SHADERS
@@ -109,8 +107,7 @@ static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shade
     return shader;
 }
 
-qboolean R_EXT_GLSL_Init( void )
-{
+qboolean R_EXT_GLSL_Init( void ) {
 	if ( !strstr (glConfig.extensions_string, "GL_ARB_shader_objects") )
 	{
 		Com_Printf (S_COLOR_RED "...GLSL extension NOT loaded. Required OpenGL extensions not available.\n");
@@ -125,16 +122,14 @@ qboolean R_EXT_GLSL_Init( void )
 	return qtrue;
 }
 
-static void R_EXT_GLSL_CleanupVariable ( glslProgramVariable_t* variable )
-{
+static void R_EXT_GLSL_CleanupVariable ( glslProgramVariable_t* variable ) {
     if ( variable && variable->next )
         R_EXT_GLSL_CleanupVariable (variable->next);
     else
         free ((void*)variable);
 }
 
-static glslProgramVariable_t* R_EXT_GLSL_GetUniformLocation ( glslProgram_t* program, const char* name )
-{
+static glslProgramVariable_t* R_EXT_GLSL_GetUniformLocation ( glslProgram_t* program, const char* name ) {
 	glslProgramVariable_t* variable = program->uniforms, *prev = NULL;
 	while ( variable && strcmp (variable->name, name) )
 	{
@@ -164,8 +159,7 @@ static glslProgramVariable_t* R_EXT_GLSL_GetUniformLocation ( glslProgram_t* pro
 }
 
 #if 0
-static glslProgramVariable_t* R_EXT_GLSL_GetAttributeLocation ( glslProgram_t* program, const char* name )
-{
+static glslProgramVariable_t* R_EXT_GLSL_GetAttributeLocation ( glslProgram_t* program, const char* name ) {
     glslProgramVariable_t* variable = program->attributes;
     while ( variable && strcmp (variable->name, name) )
     {
@@ -185,8 +179,7 @@ static glslProgramVariable_t* R_EXT_GLSL_GetAttributeLocation ( glslProgram_t* p
 }
 #endif
 
-void R_EXT_GLSL_Cleanup( void )
-{
+void R_EXT_GLSL_Cleanup( void ) {
     unsigned int i = 0;
     glslProgram_t* program = NULL;
     glslShader_t* shader = NULL;
@@ -231,8 +224,7 @@ void R_EXT_GLSL_Cleanup( void )
 	memset( glslShaders, 0, sizeof( glslShaders ) );
 }
 
-glslProgram_t* R_EXT_GLSL_CreateProgram( void )
-{
+glslProgram_t* R_EXT_GLSL_CreateProgram( void ) {
     glslProgram_t* program = NULL;
     if ( numPrograms >= MAX_GLSL_PROGRAMS )
     {
@@ -258,8 +250,7 @@ glslProgram_t* R_EXT_GLSL_CreateProgram( void )
     return program;
 }
 
-void R_EXT_GLSL_AttachShader ( glslProgram_t* program, glslShader_t* shader )
-{
+void R_EXT_GLSL_AttachShader ( glslProgram_t* program, glslShader_t* shader ) {
     if ( shader == NULL )
     {
         return;
@@ -285,18 +276,15 @@ void R_EXT_GLSL_AttachShader ( glslProgram_t* program, glslShader_t* shader )
     }
 }
 
-glslShader_t* R_EXT_GLSL_CreateVertexShader ( const char* shaderPath )
-{
+glslShader_t* R_EXT_GLSL_CreateVertexShader ( const char* shaderPath ) {
     return R_EXT_GLSL_CreateShader (shaderPath, GL_VERTEX_SHADER_ARB);
 }
 
-glslShader_t* R_EXT_GLSL_CreateFragmentShader ( const char* shaderPath )
-{
+glslShader_t* R_EXT_GLSL_CreateFragmentShader ( const char* shaderPath ) {
     return R_EXT_GLSL_CreateShader (shaderPath, GL_FRAGMENT_SHADER_ARB);
 }
 
-void R_EXT_GLSL_LinkProgram ( const glslProgram_t* program )
-{
+void R_EXT_GLSL_LinkProgram ( const glslProgram_t* program ) {
     int statusCode = 0;
 
     glLinkProgramARB (program->id);
@@ -309,8 +297,7 @@ void R_EXT_GLSL_LinkProgram ( const glslProgram_t* program )
     }
 }
 
-void R_EXT_GLSL_UseProgram ( const glslProgram_t* program )
-{
+void R_EXT_GLSL_UseProgram ( const glslProgram_t* program ) {
     if ( lastProgramUsed != program )
     {
         int id = ( program != NULL ) ? program->id : 0;
@@ -320,32 +307,27 @@ void R_EXT_GLSL_UseProgram ( const glslProgram_t* program )
     }
 }
 
-void R_EXT_GLSL_SetUniform1i ( glslProgram_t* program, const char* name, int i )
-{
+void R_EXT_GLSL_SetUniform1i ( glslProgram_t* program, const char* name, int i ) {
     glslProgramVariable_t* variable = R_EXT_GLSL_GetUniformLocation (program, name);
     glUniform1iARB (variable->location, i);
 }
 
-void R_EXT_GLSL_SetUniform1f ( glslProgram_t* program, const char* name, float f )
-{
+void R_EXT_GLSL_SetUniform1f ( glslProgram_t* program, const char* name, float f ) {
     glslProgramVariable_t* variable = R_EXT_GLSL_GetUniformLocation (program, name);
     glUniform1fARB (variable->location, f);
 }
 
-void R_EXT_GLSL_SetUniform2f ( glslProgram_t* program, const char* name, float f1, float f2 )
-{
+void R_EXT_GLSL_SetUniform2f ( glslProgram_t* program, const char* name, float f1, float f2 ) {
     glslProgramVariable_t* variable = R_EXT_GLSL_GetUniformLocation (program, name);
     glUniform2fARB (variable->location, f1, f2);
 }
 
-void R_EXT_GLSL_SetUniform3f ( glslProgram_t* program, const char* name, float f1, float f2, float f3 )
-{
+void R_EXT_GLSL_SetUniform3f ( glslProgram_t* program, const char* name, float f1, float f2, float f3 ) {
     glslProgramVariable_t* variable = R_EXT_GLSL_GetUniformLocation (program, name);
     glUniform3fARB (variable->location, f1, f2, f3);
 }
 
-void R_EXT_GLSL_SetUniform4f ( glslProgram_t* program, const char* name, float f1, float f2, float f3, float f4 )
-{
+void R_EXT_GLSL_SetUniform4f ( glslProgram_t* program, const char* name, float f1, float f2, float f3, float f4 ) {
     glslProgramVariable_t* variable = R_EXT_GLSL_GetUniformLocation (program, name);
     glUniform4fARB (variable->location, f1, f2, f3, f4);
 }

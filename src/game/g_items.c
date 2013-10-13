@@ -105,7 +105,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 }
 
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
-	other->client->ps.stats[STAT_PERSISTENT_POWERUP] = ent->item-bg_itemlist;
+	other->client->ps.stats[STAT_PERSISTENT_POWERUP] = ARRAY_INDEX( bg_itemlist, ent->item );
 	other->client->persistentPowerup = ent;
 
 	switch( ent->item->giTag ) {
@@ -122,22 +122,20 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
-	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
+	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ARRAY_INDEX( bg_itemlist, ent->item );
 
 	return g_holdableRespawnTime->integer;
 }
 
 
-void Add_Ammo (gentity_t *ent, int weapon, int count)
-{
+void Add_Ammo (gentity_t *ent, int weapon, int count) {
 	ent->client->ps.ammo[weapon] += count;
 	if ( ent->client->ps.ammo[weapon] > weaponData[weapon].ammoMax ) {
 		ent->client->ps.ammo[weapon] = weaponData[weapon].ammoMax;
 	}
 }
 
-int Pickup_Ammo (gentity_t *ent, gentity_t *other)
-{
+int Pickup_Ammo (gentity_t *ent, gentity_t *other) {
 	Add_Ammo( other, ent->item->giTag, ent->count ? ent->count : ent->item->quantity );
 
 	return g_ammoRespawnTime->integer;
@@ -370,7 +368,7 @@ gentity_t *LaunchItem( const gitem_t *item, vector3 *origin, vector3 *velocity )
 	dropped = G_Spawn();
 
 	dropped->s.eType = ET_ITEM;
-	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
+	dropped->s.modelindex = ARRAY_INDEX( bg_itemlist, item ); // store item number in modelindex
 	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
 
 	dropped->classname = item->classname;
@@ -434,7 +432,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	VectorCopy( &maxs, &ent->r.maxs );
 
 	ent->s.eType = ET_ITEM;
-	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
+	ent->s.modelindex = ARRAY_INDEX( bg_itemlist, ent->item ); // store item number in modelindex
 	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
 
 	ent->r.contents = CONTENTS_TRIGGER;

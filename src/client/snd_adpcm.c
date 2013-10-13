@@ -138,17 +138,17 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *stat
 		if ( bufferstep ) {
 			outputbuffer = (delta << 4) & 0xf0;
 		} else {
-			*outp++ = (delta & 0x0f) | outputbuffer;
+			*outp++ = (char)((delta & 0x0f) | outputbuffer);
 		}
 		bufferstep = !bufferstep;
     }
 
     /* Output last step, if needed */
     if ( !bufferstep )
-      *outp++ = outputbuffer;
+      *outp++ = (char)outputbuffer;
     
-    state->sample = valpred;
-    state->index = index;
+    state->sample = (short)valpred;
+    state->index = (char)index;
 }
 
 
@@ -218,12 +218,12 @@ void S_AdpcmEncode( short indata[], char outdata[], int len, adpcm_state_t *stat
 		step = stepsizeTable[index];
 
 		/* Step 7 - Output value */
-		outdata[outp] = valpred;
+		outdata[outp] = (short)valpred;
 		outp++;
     }
 
-    state->sample = valpred;
-    state->index = index;
+    state->sample = (short)valpred;
+    state->index = (char)index;
 }
 
 // Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format

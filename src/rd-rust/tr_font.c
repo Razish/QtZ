@@ -151,9 +151,9 @@ void WriteTGA (char *filename, byte *data, int width, int height) {
 	memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = width&255;
-	buffer[13] = width>>8;
+	buffer[13] = (byte)(width>>8);
 	buffer[14] = height&255;
-	buffer[15] = height>>8;
+	buffer[15] = (byte)(height>>8);
 	buffer[16] = 32;	// pixel size
 
 	// swap rgb to bgr

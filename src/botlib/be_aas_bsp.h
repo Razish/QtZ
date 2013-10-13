@@ -65,7 +65,7 @@ void AAS_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *mins, ve
 //handle to the next bsp entity
 int AAS_NextBSPEntity(int ent);
 //return the value of the BSP epair key
-int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size);
+int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, size_t size);
 //get a vector for the BSP epair key
 int AAS_VectorForBSPEpairKey(int ent, char *key, vector3 *v);
 //get a float for the BSP epair key

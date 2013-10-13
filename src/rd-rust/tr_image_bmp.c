@@ -41,8 +41,7 @@ typedef struct BMPHeader_s {
 	unsigned char palette[256][4];
 } BMPHeader_t;
 
-void R_LoadBMP( const char *name, byte **pic, int *width, int *height )
-{
+void R_LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 	int		columns, rows;
 	unsigned	numPixels;
 	byte	*pixbuf;
@@ -132,7 +131,7 @@ void R_LoadBMP( const char *name, byte **pic, int *width, int *height )
 	{
 		ri->Error( ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)", name );
 	}
-	if ( bmpHeader.fileSize != length )
+	if ( bmpHeader.fileSize != (unsigned)length )
 	{
 		ri->Error( ERR_DROP, "LoadBMP: header size does not match file size (%u vs. %u) (%s)", bmpHeader.fileSize, length, name );
 	}
@@ -163,8 +162,8 @@ void R_LoadBMP( const char *name, byte **pic, int *width, int *height )
 		rows = -rows;
 	numPixels = columns * rows;
 
-	if(columns <= 0 || !rows || numPixels > 0x1FFFFFFF // 4*1FFFFFFF == 0x7FFFFFFC < 0x7FFFFFFF
-	    || ((numPixels * 4) / columns) / 4 != rows)
+	if(columns <= 0 || !rows || numPixels > 0x1FFFFFFFu // 4*1FFFFFFF == 0x7FFFFFFC < 0x7FFFFFFF
+	    || ((numPixels * 4) / columns) / 4 != (unsigned)rows)
 	{
 	  ri->Error (ERR_DROP, "LoadBMP: %s has an invalid image size", name);
 	}
@@ -204,8 +203,8 @@ void R_LoadBMP( const char *name, byte **pic, int *width, int *height )
 			case 16:
 				shortPixel = * ( unsigned short * ) pixbuf;
 				pixbuf += 2;
-				*pixbuf++ = ( shortPixel & ( 31 << 10 ) ) >> 7;
-				*pixbuf++ = ( shortPixel & ( 31 << 5 ) ) >> 2;
+				*pixbuf++ = (byte)(( shortPixel & ( 31 << 10 ) ) >> 7);
+				*pixbuf++ = (byte)(( shortPixel & ( 31 << 5 ) ) >> 2);
 				*pixbuf++ = ( shortPixel & ( 31 ) ) << 3;
 				*pixbuf++ = 0xff;
 				break;

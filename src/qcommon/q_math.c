@@ -128,8 +128,7 @@ int DirToByte( vector3 *dir ) {
 
 	bestd = 0;
 	best = 0;
-	for (i=0 ; i<NUMVERTEXNORMALS ; i++)
-	{
+	for ( i=0; i<NUMVERTEXNORMALS; i++ ) {
 		d = DotProduct (dir, &bytedirs[i]);
 		if (d > bestd)
 		{
@@ -343,8 +342,7 @@ void AxisCopy( const matrix3 in, matrix3 out ) {
 	VectorCopy( &in[2], &out[2] );
 }
 
-void ProjectPointOnPlane( vector3 *dst, const vector3 *p, const vector3 *normal )
-{
+void ProjectPointOnPlane( vector3 *dst, const vector3 *p, const vector3 *normal ) {
 	float d;
 	vector3 n;
 	float inv_denom;
@@ -388,8 +386,7 @@ void VectorRotate( const vector3 *in, matrix3 matrix, vector3 *out ) {
 }
 
 #ifndef idppc
-float Q_rsqrt( float number )
-{
+float Q_rsqrt( float number ) {
 	floatint_t t;
 	float x2, y;
 	const float threehalfs = 1.5F;
@@ -484,8 +481,7 @@ void SetPlaneSignbits (cplane_t *out) {
 }
 
 // Returns 1, 2, or 1 + 2
-int BoxOnPlaneSide(vector3 *emins, vector3 *emaxs, struct cplane_s *p)
-{
+int BoxOnPlaneSide(vector3 *emins, vector3 *emaxs, struct cplane_s *p) {
 	float	dist[2];
 	int		sides, b, i;
 
@@ -503,8 +499,7 @@ int BoxOnPlaneSide(vector3 *emins, vector3 *emaxs, struct cplane_s *p)
 	dist[0] = dist[1] = 0;
 	if (p->signbits < 8) // >= 8: default case is original code (dist[0]=dist[1]=0)
 	{
-		for (i=0 ; i<3 ; i++)
-		{
+		for ( i=0; i<3; i++ ) {
 			b = (p->signbits >> i) & 1;
 			dist[ b] += p->normal.data[i]*emaxs->data[i];
 			dist[!b] += p->normal.data[i]*emins->data[i];
@@ -563,8 +558,7 @@ void AddPointToBounds( const vector3 *v, vector3 *mins, vector3 *maxs ) {
 	if ( v->z > maxs->z )	maxs->z = v->z;
 }
 
-qboolean BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 )
-{
+qboolean BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 ) {
 	if ( maxs->x < mins2->x || maxs->y < mins2->y || maxs->z < mins2->z ||
 		 mins->x > maxs2->x || mins->y > maxs2->y || mins->z > maxs2->z )
 		return qfalse;
@@ -572,8 +566,7 @@ qboolean BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector
 	return qtrue;
 }
 
-qboolean BoundsIntersectSphere( const vector3 *mins, const vector3 *maxs, const vector3 *origin, number radius )
-{
+qboolean BoundsIntersectSphere( const vector3 *mins, const vector3 *maxs, const vector3 *origin, number radius ) {
 	if ( origin->x - radius > maxs->x ||
 		 origin->x + radius < mins->x ||
 		 origin->y - radius > maxs->y ||
@@ -585,8 +578,7 @@ qboolean BoundsIntersectSphere( const vector3 *mins, const vector3 *maxs, const 
 	return qtrue;
 }
 
-qboolean BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *origin )
-{
+qboolean BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *origin ) {
 	if ( origin->x > maxs->x ||
 		 origin->x < mins->x ||
 		 origin->y > maxs->y ||
@@ -784,8 +776,7 @@ number DistanceSquared( const vector3 *p1, const vector3 *p2 ) {
 
 // fast vector normalize routine that does not check to make sure
 // that length != 0, nor does it return length, uses rsqrt approximation
-void VectorNormalizeFast( vector3 *vec )
-{
+void VectorNormalizeFast( vector3 *vec ) {
 	float ilength;
 
 	ilength = Q_rsqrt( DotProduct( vec, vec ) );
@@ -1051,8 +1042,7 @@ void AngleVectors( const vector3 *angles, vector3 *forward, vector3 *right, vect
 }
 
 // assumes "src" is normalized
-void PerpendicularVector( vector3 *dst, const vector3 *src )
-{
+void PerpendicularVector( vector3 *dst, const vector3 *src ) {
 	int	pos;
 	int i;
 	float minelem = 1.0F;
@@ -1084,8 +1074,7 @@ void PerpendicularVector( vector3 *dst, const vector3 *src )
 }
 
 // Don't pass doubles to this
-int Q_isnan( float x )
-{
+int Q_isnan( float x ) {
 	floatint_t fi;
 
 	fi.f = x;
@@ -1120,15 +1109,13 @@ float Q_acos( float c ) {
 
 static uint32_t holdrand = 0x89abcdef;
 
-void Rand_Init(int seed)
-{
+void Rand_Init(int seed) {
 	holdrand = seed;
 }
 
 // Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
 
-float flrand(float min, float max)
-{
+float flrand(float min, float max) {
 	float	result;
 
 	holdrand = (holdrand * 214013L) + 2531011L;
@@ -1137,15 +1124,13 @@ float flrand(float min, float max)
 
 	return(result);
 }
-float Q_flrand(float min, float max)
-{
+float Q_flrand(float min, float max) {
 	return flrand(min,max);
 }
 
 // Returns an integer min <= x <= max (ie inclusive)
 
-int irand(int min, int max)
-{
+int irand(int min, int max) {
 	int		result;
 
 	assert((max - min) < QRAND_MAX);
@@ -1157,21 +1142,18 @@ int irand(int min, int max)
 	return(result);
 }
 
-int Q_irand(int value1, int value2)
-{
+int Q_irand(int value1, int value2) {
 	return irand(value1, value2);
 }
 
-float Q_powf ( float x, int y )
-{
+float Q_powf ( float x, int y ) {
 	float r = x;
 	for ( y--; y>0; y-- )
 		r = r * r;
 	return r;
 }
 
-void HSL2RGB( float h, float s, float l, float *r, float *g, float *b )
-{
+void HSL2RGB( float h, float s, float l, float *r, float *g, float *b ) {
 	double tr, tg, tb;
 	double v;
 
@@ -1233,8 +1215,7 @@ void HSL2RGB( float h, float s, float l, float *r, float *g, float *b )
 	*b = (float)tb;
 }
 
-void HSV2RGB( float h, float s, float v, float *r, float *g, float *b )
-{
+void HSV2RGB( float h, float s, float v, float *r, float *g, float *b ) {
 	int i;
 	float f;
 	float p, q, t;

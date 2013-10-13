@@ -1165,7 +1165,7 @@ void BotMatch_WhatIsMyCommand(bot_state_t *bs, bot_match_t *match) {
 	bs->forceorders = qtrue;
 }
 
-float BotNearestVisibleItem(bot_state_t *bs, char *itemname, bot_goal_t *goal) {
+float BotNearestVisibleItem(bot_state_t *bs, const char *itemname, bot_goal_t *goal) {
 	int i;
 	char name[64];
 	bot_goal_t tmpgoal;
@@ -1199,9 +1199,9 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 	int i, bestitem, redtt, bluett, client;
 	bot_goal_t goal;
 	char netname[MAX_MESSAGE_SIZE];
-	char **nearbyitems = NULL;
+	const char **nearbyitems = NULL;
 
-	nearbyitems = (char **)malloc( bg_numItems * sizeof(char *) );
+	nearbyitems = (const char **)malloc( bg_numItems * sizeof(const char *) );
 	for ( i=0; i<bg_numItems; i++ )
 		nearbyitems[i] = bg_itemlist[i].pickup_name;
 

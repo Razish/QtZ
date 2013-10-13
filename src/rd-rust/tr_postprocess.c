@@ -10,8 +10,7 @@ static const float colourWhite[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 //
 // ================
 
-static framebuffer_t *R_EXT_CreateFBO( unsigned int width, unsigned int height, internalFormat_t colorbits, internalFormat_t depthbits )
-{//Helper function to create an FBO
+static framebuffer_t *R_EXT_CreateFBO( unsigned int width, unsigned int height, internalFormat_t colorbits, internalFormat_t depthbits ) {//Helper function to create an FBO
 	framebuffer_t *fbo = R_EXT_CreateFramebuffer();
 	R_EXT_BindFramebuffer( fbo );
 
@@ -27,8 +26,7 @@ static framebuffer_t *R_EXT_CreateFBO( unsigned int width, unsigned int height, 
 	return fbo;
 }
 
-static glslProgram_t *R_EXT_CreateShader( const char *source )
-{//Helper function to create a GLSL ##FRAGMENT## shader
+static glslProgram_t *R_EXT_CreateShader( const char *source ) {//Helper function to create a GLSL ##FRAGMENT## shader
 	glslProgram_t *shader = R_EXT_GLSL_CreateProgram();
 
 	R_EXT_GLSL_AttachShader( shader, R_EXT_GLSL_CreateFragmentShader( source ) );
@@ -39,8 +37,7 @@ static glslProgram_t *R_EXT_CreateShader( const char *source )
 }
 
 //Uses a static buffer, do NOT nest calls
-static const char *ShaderSource( const char *path )
-{
+static const char *ShaderSource( const char *path ) {
 	const char *contents = NULL;
 	static char buf[1024*64] = {0};
 
@@ -67,8 +64,7 @@ static const char *ShaderSource( const char *path )
 // FBO/Shader initialisation
 //
 
-static void CreateFramebuffers( void )
-{
+static void CreateFramebuffers( void ) {
 	float	w = (float)glConfig.vidWidth, h = (float)glConfig.vidHeight;
 	float	size = LUMINANCE_FBO_SIZE;
 	int i;
@@ -111,8 +107,7 @@ static void CreateFramebuffers( void )
 	tr.framebuffers.final					= R_EXT_CreateFBO( (int)w, (int)h, IF_RGBA8, IF_NONE );
 }
 
-static void LoadShaders( void )
-{
+static void LoadShaders( void ) {
 	// Dynamic glow
 	tr.glsl.glow = R_EXT_CreateShader( ShaderSource( "shaders/post/glow.glsl" ) );
 
@@ -153,8 +148,7 @@ static void LoadShaders( void )
 	R_EXT_GLSL_SetUniform1i( tr.glsl.final, "SceneTex", 0 );
 }
 
-void R_EXT_Init( void )
-{
+void R_EXT_Init( void ) {
 	ri->Printf( PRINT_ALL, "----------------------------\n" );
 	Com_Printf( "Loading visual extensions...\n" );
 
@@ -176,8 +170,7 @@ void R_EXT_Init( void )
 // Shutdown
 //
 
-void R_EXT_Cleanup( void )
-{
+void R_EXT_Cleanup( void ) {
 //	glColor4fv( colourWhite ); //HACK: Sometimes scopes change the colour.
 	R_SyncRenderThread();
 
@@ -203,8 +196,7 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 	if ( h )	*h *= yscale;
 }
 
-void DrawQuad( float x, float y, float width, float height )
-{
+void DrawQuad( float x, float y, float width, float height ) {
 	float _x=x, _y=y, _width=width, _height=height;
 	SCR_AdjustFrom640( &_x, &_y, &_width, &_height );
 	glBegin( GL_QUADS );
@@ -228,8 +220,7 @@ void DrawQuad( float x, float y, float width, float height )
 static float adaptedFrameLuminance	= 0.0f;
 static float adaptedMaxLuminance	= 1.0f;
 static float lastFrameTime			= 0.0f;
-static void CalculateLightAdaptation( void )
-{
+static void CalculateLightAdaptation( void ) {
 	float	time = ri->Milliseconds() / 1000.0f;
 	float	dt;
 	vector4	currentFrameLuminance = { 0.0f };
@@ -254,8 +245,7 @@ static QINLINE void ResizeTarget( int w, int h ) {
 	glScissor( 0, 0, w, h );
 }
 
-void RB_PostProcess( void )
-{
+void RB_PostProcess( void ) {
 	int i;
 	float w = (float)glConfig.vidWidth, h = (float)glConfig.vidHeight;
 	framebuffer_t *lastFullscreenFBO = tr.framebuffers.scene;
@@ -332,7 +322,7 @@ void RB_PostProcess( void )
 		{// downscale
 			R_EXT_BindFramebuffer( tr.framebuffers.glowDownscale[i] );
 			GL_Bind( lastFBO->colorTextures[0]->q3image );
-			ResizeTarget( floorf( tr.postprocessing.glowSize/size ), floorf( tr.postprocessing.glowSize/size ) );
+			ResizeTarget( (int)floorf( tr.postprocessing.glowSize/size ), (int)floorf( tr.postprocessing.glowSize/size ) );
 			DrawFullscreenQuad();
 			lastFBO = tr.framebuffers.glowDownscale[i];
 		}
@@ -348,7 +338,7 @@ void RB_PostProcess( void )
 			if ( !(i & 1) )	R_EXT_GLSL_SetUniform1f( shader, "PixelWidth", 1.0f/floorf(tr.postprocessing.glowSize/size) );
 			else			R_EXT_GLSL_SetUniform1f( shader, "PixelHeight", 1.0f/floorf(tr.postprocessing.glowSize/size) );
 			GL_Bind( lastFBO->colorTextures[0]->q3image );
-			if ( !(i & 1) ) ResizeTarget( floorf( tr.postprocessing.glowSize/size ), floorf( tr.postprocessing.glowSize/size ) );
+			if ( !(i & 1) ) ResizeTarget( (int)floorf( tr.postprocessing.glowSize/size ), (int)floorf( tr.postprocessing.glowSize/size ) );
 			DrawFullscreenQuad();
 			lastFBO = tr.framebuffers.glowBlur[i];
 		}
@@ -358,7 +348,7 @@ void RB_PostProcess( void )
 		{// upscale
 			R_EXT_BindFramebuffer( tr.framebuffers.glowDownscale[i] );
 			GL_Bind( lastFBO->colorTextures[0]->q3image );
-			ResizeTarget( floorf( tr.postprocessing.glowSize/size ), floorf( tr.postprocessing.glowSize/size ) );
+			ResizeTarget( (int)floorf( tr.postprocessing.glowSize/size ), (int)floorf( tr.postprocessing.glowSize/size ) );
 			DrawFullscreenQuad();
 			lastFBO = tr.framebuffers.glowDownscale[i];
 		}
@@ -366,7 +356,7 @@ void RB_PostProcess( void )
 		//finally upscale into the glow fbo (full screen size)
 		R_EXT_BindFramebuffer( tr.framebuffers.glow );
 		GL_Bind( lastFBO->colorTextures[0]->q3image );
-		ResizeTarget( w, h );
+		ResizeTarget( (int)w, (int)h );
 		DrawFullscreenQuad();
 		lastFBO = tr.framebuffers.glow;
 		qglPopAttrib();
@@ -527,8 +517,8 @@ void RB_PostProcess( void )
 
 		R_EXT_BindFramebuffer( tr.framebuffers.final );
 		R_EXT_GLSL_UseProgram( tr.glsl.final );
-		R_EXT_GLSL_SetUniform1f( tr.glsl.final, "PixelWidth", 1.0f/floorf(glConfig.vidWidth) );
-		R_EXT_GLSL_SetUniform1f( tr.glsl.final, "PixelHeight", 1.0f/floorf(glConfig.vidHeight) );
+		R_EXT_GLSL_SetUniform1f( tr.glsl.final, "PixelWidth", 1.0f/floorf((float)glConfig.vidWidth) );
+		R_EXT_GLSL_SetUniform1f( tr.glsl.final, "PixelHeight", 1.0f/floorf((float)glConfig.vidHeight) );
 		R_EXT_GLSL_SetUniform4f( tr.glsl.final, "ColourGrading", tr.postprocessing.grading.r, tr.postprocessing.grading.g, tr.postprocessing.grading.b, tr.postprocessing.grading.a );
 		if ( sscanf( r_postprocess_userVec1->string, "%f %f %f %f", &userVec1.x, &userVec1.y, &userVec1.z, &userVec1.w ) == 4 )
 			R_EXT_GLSL_SetUniform4f( tr.glsl.final, "UserVec1", userVec1.x, userVec1.y, userVec1.z, userVec1.w );

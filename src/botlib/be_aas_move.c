@@ -53,8 +53,7 @@ aas_settings_t aassettings;
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_DropToFloor(vector3 *origin, vector3 *mins, vector3 *maxs)
-{
+int AAS_DropToFloor(vector3 *origin, vector3 *mins, vector3 *maxs) {
 	vector3 end;
 	bsp_trace_t trace;
 
@@ -71,8 +70,7 @@ int AAS_DropToFloor(vector3 *origin, vector3 *mins, vector3 *maxs)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitSettings( void )
-{
+void AAS_InitSettings( void ) {
 	aassettings.phys_gravitydirection.x		= 0;
 	aassettings.phys_gravitydirection.y		= 0;
 	aassettings.phys_gravitydirection.z		= -1;
@@ -120,8 +118,7 @@ void AAS_InitSettings( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AgainstLadder(vector3 *origin)
-{
+int AAS_AgainstLadder(vector3 *origin) {
 	int areanum, i, facenum, side;
 	vector3 org;
 	aas_plane_t *plane;
@@ -182,8 +179,7 @@ int AAS_AgainstLadder(vector3 *origin)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_OnGround(vector3 *origin, int presencetype, int passent)
-{
+int AAS_OnGround(vector3 *origin, int presencetype, int passent) {
 	aas_trace_t trace;
 	vector3 end, up = {0, 0, 1};
 	aas_plane_t *plane;
@@ -212,8 +208,7 @@ int AAS_OnGround(vector3 *origin, int presencetype, int passent)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Swimming(vector3 *origin)
-{
+int AAS_Swimming(vector3 *origin) {
 	vector3 testorg;
 
 	VectorCopy(origin, &testorg);
@@ -232,8 +227,7 @@ static vector3 MOVEDIR_UP	= {0,  0,  1};
 static vector3 VEC_DOWN		= {0, -2,  0};
 static vector3 MOVEDIR_DOWN	= {0,  0, -1};
 
-void AAS_SetMovedir(vector3 *angles, vector3 *movedir)
-{
+void AAS_SetMovedir(vector3 *angles, vector3 *movedir) {
 	if (VectorCompare(angles, &VEC_UP))
 	{
 		VectorCopy(&MOVEDIR_UP, movedir);
@@ -253,8 +247,7 @@ void AAS_SetMovedir(vector3 *angles, vector3 *movedir)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_JumpReachRunStart(aas_reachability_t *reach, vector3 *runstart)
-{
+void AAS_JumpReachRunStart(aas_reachability_t *reach, vector3 *runstart) {
 	vector3 hordir, start, cmdmove;
 	aas_clientmove_t move;
 
@@ -287,8 +280,7 @@ void AAS_JumpReachRunStart(aas_reachability_t *reach, vector3 *runstart)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float AAS_WeaponJumpZVelocity(vector3 *origin, float radiusdamage)
-{
+float AAS_WeaponJumpZVelocity(vector3 *origin, float radiusdamage) {
 	vector3 kvel, v, start, end, forward, right, viewangles, dir;
 	float	mass, knockback, points;
 	vector3 rocketoffset = {8, 8, -8};
@@ -338,8 +330,7 @@ float AAS_WeaponJumpZVelocity(vector3 *origin, float radiusdamage)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float AAS_RocketJumpZVelocity(vector3 *origin)
-{
+float AAS_RocketJumpZVelocity(vector3 *origin) {
 	//rocket radius damage is 120 (p_weapon.c: Weapon_RocketLauncher_Fire)
 	return AAS_WeaponJumpZVelocity(origin, 120);
 } //end of the function AAS_RocketJumpZVelocity
@@ -349,8 +340,7 @@ float AAS_RocketJumpZVelocity(vector3 *origin)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float AAS_BFGJumpZVelocity(vector3 *origin)
-{
+float AAS_BFGJumpZVelocity(vector3 *origin) {
 	//bfg radius damage is 1000 (p_weapon.c: weapon_bfg_fire)
 	return AAS_WeaponJumpZVelocity(origin, 120);
 } //end of the function AAS_BFGJumpZVelocity
@@ -361,8 +351,7 @@ float AAS_BFGJumpZVelocity(vector3 *origin)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_Accelerate(vector3 *velocity, float frametime, vector3 *wishdir, float wishspeed, float accel)
-{
+void AAS_Accelerate(vector3 *velocity, float frametime, vector3 *wishdir, float wishspeed, float accel) {
 	// q2 style
 	int			i;
 	float		addspeed, accelspeed, currentspeed;
@@ -388,8 +377,7 @@ void AAS_Accelerate(vector3 *velocity, float frametime, vector3 *wishdir, float 
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ApplyFriction(vector3 *vel, float friction, float stopspeed, float frametime)
-{
+void AAS_ApplyFriction(vector3 *vel, float friction, float stopspeed, float frametime) {
 	float speed, control, newspeed;
 
 	//horizontal speed
@@ -410,8 +398,7 @@ void AAS_ApplyFriction(vector3 *vel, float friction, float stopspeed, float fram
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_ClipToBBox(aas_trace_t *trace, vector3 *start, vector3 *end, int presencetype, vector3 *mins, vector3 *maxs)
-{
+int AAS_ClipToBBox(aas_trace_t *trace, vector3 *start, vector3 *end, int presencetype, vector3 *mins, vector3 *maxs) {
 	int i, side;
 	float front, back, frac, planedist;
 	vector3 bboxmins, bboxmaxs, absmins, absmaxs, dir, mid;
@@ -1016,8 +1003,7 @@ int AAS_ClientMovementHitBBox(struct aas_clientmove_s *move,
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir)
-{
+void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir) {
 	vector3 velocity, cmdmove;
 	aas_clientmove_t move;
 
@@ -1045,8 +1031,7 @@ void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir)
 // Returns:				qfalse if too high or too far from start to end
 // Changes Globals:		-
 //===========================================================================
-int AAS_HorizontalVelocityForJump(float zvel, vector3 *start, vector3 *end, float *velocity)
-{
+int AAS_HorizontalVelocityForJump(float zvel, vector3 *start, vector3 *end, float *velocity) {
 	float phys_gravity, phys_maxvelocity;
 	float maxjump, height2fall, t, top;
 	vector3 dir;

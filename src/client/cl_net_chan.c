@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "client.h"
 
-qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan)
-{
+qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan) {
 	if(chan->unsentFragments)
 	{
 		Netchan_TransmitNextFragment(chan);

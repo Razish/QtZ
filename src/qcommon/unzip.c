@@ -1575,7 +1575,7 @@ extern uLong ZEXPORT unzGetOffset (file)
     unz_t* s;
 
     if (file==NULL)
-          return UNZ_PARAMERROR;
+          return (uLong)UNZ_PARAMERROR;
     s=(unz_t*)file;
     if (!s->current_file_ok)
       return 0;

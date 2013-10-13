@@ -51,8 +51,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SwapAASData( void )
-{
+void AAS_SwapAASData( void ) {
 	int i, j;
 	//bounding boxes
 	for (i = 0; i < aasworld.numbboxes; i++)
@@ -180,8 +179,7 @@ void AAS_SwapAASData( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DumpAASData( void )
-{
+void AAS_DumpAASData( void ) {
 	aasworld.numbboxes = 0;
 	if (aasworld.bboxes) FreeMemory(aasworld.bboxes);
 	aasworld.bboxes = NULL;
@@ -237,8 +235,7 @@ void AAS_DumpAASData( void )
 // Changes Globals:		-
 //===========================================================================
 #ifdef AASFILEDEBUG
-void AAS_FileInfo( void )
-{
+void AAS_FileInfo( void ) {
 	int i, n, optimized;
 
 	botimport.Print(PRT_MESSAGE, "version = %d\n", AASVERSION);
@@ -287,8 +284,7 @@ void AAS_FileInfo( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, int size)
-{
+char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, size_t size) {
 	char *buf;
 	//
 	if (!length)
@@ -324,9 +320,8 @@ char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, 
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DData(unsigned char *data, int size)
-{
-	int i;
+void AAS_DData(unsigned char *data, size_t size) {
+	size_t i;
 
 	for (i = 0; i < size; i++)
 	{
@@ -340,8 +335,7 @@ void AAS_DData(unsigned char *data, int size)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadAASFile(char *filename)
-{
+int AAS_LoadAASFile(char *filename) {
 	fileHandle_t fp;
 	aas_header_t header;
 	int offset, length, lastoffset;
@@ -495,8 +489,7 @@ int AAS_LoadAASFile(char *filename)
 //===========================================================================
 static int AAS_WriteAASLump_offset;
 
-int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, int length)
-{
+int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, int length) {
 	aas_lump_t *lump;
 
 	lump = &h->lumps[lumpnum];
@@ -520,8 +513,7 @@ int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, 
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_WriteAASFile(char *filename)
-{
+qboolean AAS_WriteAASFile(char *filename) {
 	aas_header_t header;
 	fileHandle_t fp;
 

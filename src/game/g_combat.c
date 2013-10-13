@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-int G_GetHitLocation(gentity_t *target, vector3 *ppoint)
-{
+int G_GetHitLocation(gentity_t *target, vector3 *ppoint) {
 	vector3	point, point_dir;
 	vector3	forward, right, up;
 	vector3	tangles, tcenter;
@@ -782,14 +781,15 @@ void G_Damage( gentity_t *real_targ, gentity_t *real_inflictor, gentity_t *real_
 	take -= asave;
 
 	if ( g_debugDamage->integer ) {
-		char *tmp = va( "^3G_Damage(): ^7Hit ^5%2i ^7(^1%3i^7/^2%3i^7) for %3i (^1%3i^7/^2%3i^7)",
+		const char *tmp = va(
+			S_COLOR_YELLOW"G_Damage(): "S_COLOR_WHITE"Hit "S_COLOR_CYAN"%2i "S_COLOR_WHITE
+			"("S_COLOR_RED"%3i"S_COLOR_WHITE"/"S_COLOR_GREEN"%3i"S_COLOR_WHITE")"
+			"for %3i ("S_COLOR_RED"%3i"S_COLOR_WHITE"/"S_COLOR_GREEN"%3i"S_COLOR_WHITE")",
 			targ->s.number,
-			targ->health,
-			targ->client ? targ->client->ps.stats[STAT_ARMOR] : 0,
+			targ->health, targ->client ? targ->client->ps.stats[STAT_ARMOR] : 0,
 			damage,
-			take,
-			asave );
-		trap->SV_GameSendServerCommand( attacker-g_entities, va( "chat \"%s\"", tmp ) );
+			take, asave );
+		trap->SV_GameSendServerCommand( ARRAY_INDEX( g_entities, attacker ), va( "chat \"%s\"", tmp ) );
 		trap->Print( tmp );
 	}
 
@@ -895,8 +895,7 @@ qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	return qfalse;
 }
 
-qboolean G_RadiusDamage( vector3 *origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod )
-{
+qboolean G_RadiusDamage( vector3 *origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod ) {
 	float		points, dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];

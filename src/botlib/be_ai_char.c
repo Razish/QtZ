@@ -82,8 +82,7 @@ bot_character_t *botcharacters[MAX_CLIENTS + 1];
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-bot_character_t *BotCharacterFromHandle(int handle)
-{
+bot_character_t *BotCharacterFromHandle(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
 		botimport.Print(PRT_FATAL, "character handle %d out of range\n", handle);
@@ -102,8 +101,7 @@ bot_character_t *BotCharacterFromHandle(int handle)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotDumpCharacter(bot_character_t *ch)
-{
+void BotDumpCharacter(bot_character_t *ch) {
 	int i;
 
 	Log_Write("%s\n", ch->filename);
@@ -126,8 +124,7 @@ void BotDumpCharacter(bot_character_t *ch)
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-void BotFreeCharacterStrings(bot_character_t *ch)
-{
+void BotFreeCharacterStrings(bot_character_t *ch) {
 	int i;
 
 	for (i = 0; i < MAX_CHARACTERISTICS; i++)
@@ -144,8 +141,7 @@ void BotFreeCharacterStrings(bot_character_t *ch)
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-void BotFreeCharacter2(int handle)
-{
+void BotFreeCharacter2(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
 		botimport.Print(PRT_FATAL, "character handle %d out of range\n", handle);
@@ -166,8 +162,7 @@ void BotFreeCharacter2(int handle)
 // Returns:				-
 // Changes Globals:		-
 //========================================================================
-void BotFreeCharacter(int handle)
-{
+void BotFreeCharacter(int handle) {
 	if (!LibVarGetValue("bot_reloadcharacters")) return;
 	BotFreeCharacter2(handle);
 } //end of the function BotFreeCharacter
@@ -177,8 +172,7 @@ void BotFreeCharacter(int handle)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch)
-{
+void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch) {
 	int i;
 
 	for (i = 0; i < MAX_CHARACTERISTICS; i++)
@@ -209,8 +203,7 @@ void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
-{
+bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill) {
 	int indent, index, foundcharacter;
 	bot_character_t *ch;
 	source_t *source;
@@ -359,8 +352,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotFindCachedCharacter(char *charfile, float skill)
-{
+int BotFindCachedCharacter(char *charfile, float skill) {
 	int handle;
 
 	for (handle = 1; handle <= MAX_CLIENTS; handle++)
@@ -380,8 +372,7 @@ int BotFindCachedCharacter(char *charfile, float skill)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadCachedCharacter(char *charfile, float skill, int reload)
-{
+int BotLoadCachedCharacter(char *charfile, float skill, int reload) {
 	int handle, cachedhandle, intskill;
 	bot_character_t *ch = NULL;
 #ifdef DEBUG
@@ -493,8 +484,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadCharacterSkill(char *charfile, float skill)
-{
+int BotLoadCharacterSkill(char *charfile, float skill) {
 	int ch, defaultch;
 
 	defaultch = BotLoadCachedCharacter(DEFAULT_CHARACTER, skill, qfalse);
@@ -513,8 +503,7 @@ int BotLoadCharacterSkill(char *charfile, float skill)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotInterpolateCharacters(int handle1, int handle2, float desiredskill)
-{
+int BotInterpolateCharacters(int handle1, int handle2, float desiredskill) {
 	bot_character_t *ch1, *ch2, *out;
 	int i, handle;
 	float scale;
@@ -565,8 +554,7 @@ int BotInterpolateCharacters(int handle1, int handle2, float desiredskill)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadCharacter(char *charfile, float skill)
-{
+int BotLoadCharacter(char *charfile, float skill) {
 	int firstskill, secondskill, handle;
 
 	//make sure the skill is in the valid range
@@ -614,8 +602,7 @@ int BotLoadCharacter(char *charfile, float skill)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int CheckCharacteristicIndex(int character, int index)
-{
+int CheckCharacteristicIndex(int character, int index) {
 	bot_character_t *ch;
 
 	ch = BotCharacterFromHandle(character);
@@ -638,8 +625,7 @@ int CheckCharacteristicIndex(int character, int index)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float Characteristic_Float(int character, int index)
-{
+float Characteristic_Float(int character, int index) {
 	bot_character_t *ch;
 
 	ch = BotCharacterFromHandle(character);
@@ -670,8 +656,7 @@ float Characteristic_Float(int character, int index)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float Characteristic_BFloat(int character, int index, float min, float max)
-{
+float Characteristic_BFloat(int character, int index, float min, float max) {
 	float value;
 	bot_character_t *ch;
 
@@ -693,8 +678,7 @@ float Characteristic_BFloat(int character, int index, float min, float max)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int Characteristic_Integer(int character, int index)
-{
+int Characteristic_Integer(int character, int index) {
 	bot_character_t *ch;
 
 	ch = BotCharacterFromHandle(character);
@@ -724,8 +708,7 @@ int Characteristic_Integer(int character, int index)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int Characteristic_BInteger(int character, int index, int min, int max)
-{
+int Characteristic_BInteger(int character, int index, int min, int max) {
 	int value;
 	bot_character_t *ch;
 
@@ -747,8 +730,7 @@ int Characteristic_BInteger(int character, int index, int min, int max)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void Characteristic_String(int character, int index, char *buf, int size)
-{
+void Characteristic_String(int character, int index, char *buf, size_t size) {
 	bot_character_t *ch;
 
 	ch = BotCharacterFromHandle(character);
@@ -775,8 +757,7 @@ void Characteristic_String(int character, int index, char *buf, int size)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownCharacters( void )
-{
+void BotShutdownCharacters( void ) {
 	int handle;
 
 	for (handle = 1; handle <= MAX_CLIENTS; handle++)

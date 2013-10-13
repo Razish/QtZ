@@ -348,7 +348,7 @@ static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 			return;
 		}
 
-		ap->list[ap->count] = check - sv.svEntities;
+		ap->list[ap->count] = ARRAY_INDEX( sv.svEntities, check );
 		ap->count++;
 	}
 	

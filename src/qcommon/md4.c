@@ -53,8 +53,7 @@ static struct mdfour *m;
 #define ROUND3(a,b,c,d,k,s) a = lshift(a + H(b,c,d) + X[k] + 0x6ED9EBA1,s)
 
 /* this applies md4 to 64 byte chunks */
-static void mdfour64(uint32_t *M)
-{
+static void mdfour64(uint32_t *M) {
 	int j;
 	uint32_t AA, BB, CC, DD;
 	uint32_t X[16];
@@ -101,8 +100,7 @@ static void mdfour64(uint32_t *M)
 	m->A = A; m->B = B; m->C = C; m->D = D;
 }
 
-static void copy64(uint32_t *M, byte *in)
-{
+static void copy64(uint32_t *M, byte *in) {
 	int i;
 
 	for (i=0;i<16;i++)
@@ -110,16 +108,14 @@ static void copy64(uint32_t *M, byte *in)
 			(in[i*4+1]<<8) | (in[i*4+0]<<0);
 }
 
-static void copy4(byte *out,uint32_t x)
-{
+static void copy4(byte *out,uint32_t x) {
 	out[0] = x&0xFF;
 	out[1] = (x>>8)&0xFF;
 	out[2] = (x>>16)&0xFF;
 	out[3] = (x>>24)&0xFF;
 }
 
-void mdfour_begin(struct mdfour *md)
-{
+void mdfour_begin(struct mdfour *md) {
 	md->A = 0x67452301;
 	md->B = 0xefcdab89;
 	md->C = 0x98badcfe;
@@ -128,8 +124,7 @@ void mdfour_begin(struct mdfour *md)
 }
 
 
-static void mdfour_tail(byte *in, int n)
-{
+static void mdfour_tail(byte *in, int n) {
 	byte buf[128];
 	uint32_t M[16];
 	uint32_t b;
@@ -155,8 +150,7 @@ static void mdfour_tail(byte *in, int n)
 	}
 }
 
-static void mdfour_update(struct mdfour *md, byte *in, int n)
-{
+static void mdfour_update(struct mdfour *md, byte *in, int n) {
 	uint32_t M[16];
 
 	m = md;
@@ -175,8 +169,7 @@ static void mdfour_update(struct mdfour *md, byte *in, int n)
 }
 
 
-static void mdfour_result(struct mdfour *md, byte *out)
-{
+static void mdfour_result(struct mdfour *md, byte *out) {
 	m = md;
 
 	copy4(out, m->A);
@@ -185,16 +178,14 @@ static void mdfour_result(struct mdfour *md, byte *out)
 	copy4(out+12, m->D);
 }
 
-static void mdfour(byte *out, byte *in, int n)
-{
+static void mdfour(byte *out, byte *in, int n) {
 	struct mdfour md;
 	mdfour_begin(&md);
 	mdfour_update(&md, in, n);
 	mdfour_result(&md, out);
 }
 
-unsigned Com_BlockChecksum (const void *buffer, int length)
-{
+unsigned Com_BlockChecksum (const void *buffer, int length) {
 	int				digest[4];
 	unsigned	val;
 

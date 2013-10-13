@@ -41,8 +41,7 @@ float RandFloat(float min, float max) {
 	return ((randActual * (max - min)) / randMax) + min;
 }
 
-void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vector3 *forward ) 
-{
+void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vector3 *forward )  {
 	vector3	bounce_dir;
 	int		i;
 	float	speed;
@@ -168,8 +167,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 		G_BounceMissile_JA( ent, trace );
 }
 //QtZ: From Jedi Academy
-gentity_t *CreateMissile( vector3 *org, vector3 *dir, float vel, int life, gentity_t *owner)
-{
+gentity_t *CreateMissile( vector3 *org, vector3 *dir, float vel, int life, gentity_t *owner) {
 	gentity_t *missile = G_Spawn();
 	
 	missile->nextthink = level.time + life;

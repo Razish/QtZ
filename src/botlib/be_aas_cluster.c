@@ -61,8 +61,7 @@ int nofaceflood = qtrue;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveClusterAreas( void )
-{
+void AAS_RemoveClusterAreas( void ) {
 	int i;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -76,8 +75,7 @@ void AAS_RemoveClusterAreas( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ClearCluster(int clusternum)
-{
+void AAS_ClearCluster(int clusternum) {
 	int i;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -94,8 +92,7 @@ void AAS_ClearCluster(int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemovePortalsClusterReference(int clusternum)
-{
+void AAS_RemovePortalsClusterReference(int clusternum) {
 	int portalnum;
 
 	for (portalnum = 1; portalnum < aasworld.numportals; portalnum++)
@@ -116,8 +113,7 @@ void AAS_RemovePortalsClusterReference(int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_UpdatePortal(int areanum, int clusternum)
-{
+int AAS_UpdatePortal(int areanum, int clusternum) {
 	int portalnum;
 	aas_portal_t *portal;
 	aas_cluster_t *cluster;
@@ -175,8 +171,7 @@ int AAS_UpdatePortal(int areanum, int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FloodClusterAreas_r(int areanum, int clusternum)
-{
+int AAS_FloodClusterAreas_r(int areanum, int clusternum) {
 	aas_area_t *area;
 	aas_face_t *face;
 	int facenum, i;
@@ -248,8 +243,7 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FloodClusterAreasUsingReachabilities(int clusternum)
-{
+int AAS_FloodClusterAreasUsingReachabilities(int clusternum) {
 	int i, j, areanum;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -286,8 +280,7 @@ int AAS_FloodClusterAreasUsingReachabilities(int clusternum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_NumberClusterPortals(int clusternum)
-{
+void AAS_NumberClusterPortals(int clusternum) {
 	int i, portalnum;
 	aas_cluster_t *cluster;
 	aas_portal_t *portal;
@@ -313,8 +306,7 @@ void AAS_NumberClusterPortals(int clusternum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_NumberClusterAreas(int clusternum)
-{
+void AAS_NumberClusterAreas(int clusternum) {
 	int i, portalnum;
 	aas_cluster_t *cluster;
 	aas_portal_t *portal;
@@ -387,8 +379,7 @@ void AAS_NumberClusterAreas(int clusternum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FindClusters( void )
-{
+int AAS_FindClusters( void ) {
 	int i;
 	aas_cluster_t *cluster;
 
@@ -437,8 +428,7 @@ int AAS_FindClusters( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CreatePortals( void )
-{
+void AAS_CreatePortals( void ) {
 	int i;
 	aas_portal_t *portal;
 
@@ -467,8 +457,7 @@ void AAS_CreatePortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_MapContainsTeleporters( void )
-{
+int AAS_MapContainsTeleporters( void ) {
 	bsp_entity_t *entities, *ent;
 	char *classname;
 
@@ -491,8 +480,7 @@ int AAS_MapContainsTeleporters( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side2)
-{
+int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side2) {
 	int i, j, edgenum;
 	aas_plane_t *plane1, *plane2;
 	aas_edge_t *edge;
@@ -531,8 +519,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_CanMergeAreas(int *areanums, int numareas)
-{
+qboolean AAS_CanMergeAreas(int *areanums, int numareas) {
 	int i, j, s, face1num, face2num, side1, side2, fn1, fn2;
 	aas_face_t *face1, *face2;
 	aas_area_t *area1, *area2;
@@ -585,8 +572,7 @@ qboolean AAS_CanMergeAreas(int *areanums, int numareas)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int side2, int planenum)
-{
+qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int side2, int planenum) {
 	int i;
 	vector3 edgevec1, edgevec2, normal1, normal2;
 	float dist1, dist2;
@@ -619,8 +605,7 @@ qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
-{
+qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum) {
 	int i, j, s, edgenum1, edgenum2, side1, side2, en1, en2, ens;
 	aas_face_t *face1, *face2, *otherface;
 	aas_edge_t *edge1, *edge2;
@@ -685,8 +670,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ConnectedAreas_r(int *areanums, int numareas, int *connectedareas, int curarea)
-{
+void AAS_ConnectedAreas_r(int *areanums, int numareas, int *connectedareas, int curarea) {
 	int i, j, otherareanum, facenum;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -721,8 +705,7 @@ void AAS_ConnectedAreas_r(int *areanums, int numareas, int *connectedareas, int 
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_ConnectedAreas(int *areanums, int numareas)
-{
+qboolean AAS_ConnectedAreas(int *areanums, int numareas) {
 	int connectedareas[MAX_PORTALAREAS], i;
 
 	memset(connectedareas, 0, sizeof(connectedareas));
@@ -742,8 +725,7 @@ qboolean AAS_ConnectedAreas(int *areanums, int numareas)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int curareanum)
-{
+int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int curareanum) {
 	int i, j, presencetype, otherpresencetype, otherareanum, facenum;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -791,8 +773,7 @@ int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_CheckAreaForPossiblePortals(int areanum)
-{
+int AAS_CheckAreaForPossiblePortals(int areanum) {
 	int i, j, k, fen, ben, frontedgenum, backedgenum, facenum;
 	int areanums[MAX_PORTALAREAS], numareas, otherareanum;
 	int numareafrontfaces[MAX_PORTALAREAS], numareabackfaces[MAX_PORTALAREAS];
@@ -918,8 +899,7 @@ int AAS_CheckAreaForPossiblePortals(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FindPossiblePortals( void )
-{
+void AAS_FindPossiblePortals( void ) {
 	int i, numpossibleportals;
 
 	numpossibleportals = 0;
@@ -935,8 +915,7 @@ void AAS_FindPossiblePortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveAllPortals( void )
-{
+void AAS_RemoveAllPortals( void ) {
 	int i;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -952,8 +931,7 @@ void AAS_RemoveAllPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FloodCluster_r(int areanum, int clusternum)
-{
+void AAS_FloodCluster_r(int areanum, int clusternum) {
 	int i, otherareanum;
 	aas_face_t *face;
 	aas_area_t *area;
@@ -1004,8 +982,7 @@ void AAS_FloodCluster_r(int areanum, int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveTeleporterPortals( void )
-{
+void AAS_RemoveTeleporterPortals( void ) {
 	int i, j, areanum;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -1028,8 +1005,7 @@ void AAS_RemoveTeleporterPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FloodClusterReachabilities(int clusternum)
-{
+void AAS_FloodClusterReachabilities(int clusternum) {
 	int i, j, areanum;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -1062,8 +1038,7 @@ void AAS_FloodClusterReachabilities(int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_RemoveNotClusterClosingPortals( void )
-{
+void AAS_RemoveNotClusterClosingPortals( void ) {
 	int i, j, k, facenum, otherareanum, nonclosingportals;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -1136,8 +1111,7 @@ void AAS_RemoveNotClusterClosingPortals( void )
 // Changes Globals:		-
 //===========================================================================
 
-void AAS_RemoveNotClusterClosingPortals( void )
-{
+void AAS_RemoveNotClusterClosingPortals( void ) {
 	int i, j, facenum, otherareanum, nonclosingportals, numseperatedclusters;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -1210,8 +1184,7 @@ void AAS_RemoveNotClusterClosingPortals( void )
 // Changes Globals:		-
 //===========================================================================
 
-void AAS_AddTeleporterPortals( void )
-{
+void AAS_AddTeleporterPortals( void ) {
 	int j, area2num, facenum, otherareanum;
 	char *target, *targetname, *classname;
 	bsp_entity_t *entities, *ent, *dest;
@@ -1347,8 +1320,7 @@ void AAS_AddTeleporterPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_AddTeleporterPortals( void )
-{
+void AAS_AddTeleporterPortals( void ) {
 	int i, j, areanum;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -1370,8 +1342,7 @@ void AAS_AddTeleporterPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_TestPortals( void )
-{
+int AAS_TestPortals( void ) {
 	int i;
 	aas_portal_t *portal;
 
@@ -1399,8 +1370,7 @@ int AAS_TestPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CountForcedClusterPortals( void )
-{
+void AAS_CountForcedClusterPortals( void ) {
 	int num, i;
 
 	num = 0;
@@ -1420,8 +1390,7 @@ void AAS_CountForcedClusterPortals( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_CreateViewPortals( void )
-{
+void AAS_CreateViewPortals( void ) {
 	int i;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -1438,8 +1407,7 @@ void AAS_CreateViewPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_SetViewPortalsAsClusterPortals( void )
-{
+void AAS_SetViewPortalsAsClusterPortals( void ) {
 	int i;
 
 	for (i = 1; i < aasworld.numareas; i++)
@@ -1456,8 +1424,7 @@ void AAS_SetViewPortalsAsClusterPortals( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitClustering( void )
-{
+void AAS_InitClustering( void ) {
 	int i, removedPortalAreas;
 	int n, total, numreachabilityareas;
 

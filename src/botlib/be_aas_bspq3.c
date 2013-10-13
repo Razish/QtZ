@@ -76,7 +76,7 @@ typedef struct bsp_s
 	//true when bsp file is loaded
 	int loaded;
 	//entity data
-	int entdatasize;
+	size_t entdatasize;
 	char *dentdata;
 	//bsp entities
 	int numentities;
@@ -123,8 +123,7 @@ cname_t contentnames[] =
 	{0, 0}
 };
 
-void PrintContents(int contents)
-{
+void PrintContents(int contents) {
 	int i;
 
 	for (i = 0; contentnames[i].value; i++)
@@ -144,8 +143,7 @@ void PrintContents(int contents)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bsp_trace_t AAS_Trace(vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask)
-{
+bsp_trace_t AAS_Trace(vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end, int passent, int contentmask) {
 	bsp_trace_t bsptrace;
 	botimport.Trace(&bsptrace, start, mins, maxs, end, passent, contentmask);
 	return bsptrace;
@@ -157,8 +155,7 @@ bsp_trace_t AAS_Trace(vector3 *start, vector3 *mins, vector3 *maxs, vector3 *end
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointContents(vector3 *point)
-{
+int AAS_PointContents(vector3 *point) {
 	return botimport.PointContents(point);
 } //end of the function AAS_PointContents
 //===========================================================================
@@ -167,8 +164,7 @@ int AAS_PointContents(vector3 *point)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_EntityCollision(int entnum, vector3 *start, vector3 *boxmins, vector3 *boxmaxs, vector3 *end, int contentmask, bsp_trace_t *trace)
-{
+qboolean AAS_EntityCollision(int entnum, vector3 *start, vector3 *boxmins, vector3 *boxmaxs, vector3 *end, int contentmask, bsp_trace_t *trace) {
 	bsp_trace_t enttrace;
 
 	botimport.EntityTrace(&enttrace, start, boxmins, boxmaxs, end, entnum, contentmask);
@@ -186,8 +182,7 @@ qboolean AAS_EntityCollision(int entnum, vector3 *start, vector3 *boxmins, vecto
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPVS(vector3 *p1, vector3 *p2)
-{
+qboolean AAS_inPVS(vector3 *p1, vector3 *p2) {
 	return botimport.inPVS(p1, p2);
 } //end of the function AAS_InPVS
 //===========================================================================
@@ -197,8 +192,7 @@ qboolean AAS_inPVS(vector3 *p1, vector3 *p2)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPHS(vector3 *p1, vector3 *p2)
-{
+qboolean AAS_inPHS(vector3 *p1, vector3 *p2) {
 	return qtrue;
 } //end of the function AAS_inPHS
 //===========================================================================
@@ -207,8 +201,7 @@ qboolean AAS_inPHS(vector3 *p1, vector3 *p2)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *mins, vector3 *maxs, vector3 *origin)
-{
+void AAS_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *mins, vector3 *maxs, vector3 *origin) {
 	botimport.BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, origin);
 } //end of the function AAS_BSPModelMinsMaxs
 //===========================================================================
@@ -218,8 +211,7 @@ void AAS_BSPModelMinsMaxsOrigin(int modelnum, vector3 *angles, vector3 *mins, ve
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves)
-{
+void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves) {
 } //end of the function AAS_UnlinkFromBSPLeaves
 //===========================================================================
 //
@@ -227,8 +219,7 @@ void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bsp_link_t *AAS_BSPLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum, int modelnum)
-{
+bsp_link_t *AAS_BSPLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum, int modelnum) {
 	return NULL;
 } //end of the function AAS_BSPLinkEntity
 //===========================================================================
@@ -237,8 +228,7 @@ bsp_link_t *AAS_BSPLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum, in
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BoxEntities(vector3 *absmins, vector3 *absmaxs, int *list, int maxcount)
-{
+int AAS_BoxEntities(vector3 *absmins, vector3 *absmaxs, int *list, int maxcount) {
 	return 0;
 } //end of the function AAS_BoxEntities
 //===========================================================================
@@ -247,8 +237,7 @@ int AAS_BoxEntities(vector3 *absmins, vector3 *absmaxs, int *list, int maxcount)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NextBSPEntity(int ent)
-{
+int AAS_NextBSPEntity(int ent) {
 	ent++;
 	if (ent >= 1 && ent < bspworld.numentities) return ent;
 	return 0;
@@ -259,8 +248,7 @@ int AAS_NextBSPEntity(int ent)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BSPEntityInRange(int ent)
-{
+int AAS_BSPEntityInRange(int ent) {
 	if (ent <= 0 || ent >= bspworld.numentities)
 	{
 		botimport.Print(PRT_MESSAGE, "bsp entity out of range\n");
@@ -274,8 +262,7 @@ int AAS_BSPEntityInRange(int ent)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size)
-{
+int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, size_t size) {
 	bsp_epair_t *epair;
 
 	value[0] = '\0';
@@ -297,8 +284,7 @@ int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_VectorForBSPEpairKey(int ent, char *key, vector3 *v)
-{
+int AAS_VectorForBSPEpairKey(int ent, char *key, vector3 *v) {
 	char buf[MAX_EPAIRKEY];
 	double v1, v2, v3;
 
@@ -318,8 +304,7 @@ int AAS_VectorForBSPEpairKey(int ent, char *key, vector3 *v)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
-{
+int AAS_FloatForBSPEpairKey(int ent, char *key, float *value) {
 	char buf[MAX_EPAIRKEY];
 	
 	*value = 0;
@@ -333,8 +318,7 @@ int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_IntForBSPEpairKey(int ent, char *key, int *value)
-{
+int AAS_IntForBSPEpairKey(int ent, char *key, int *value) {
 	char buf[MAX_EPAIRKEY];
 	
 	*value = 0;
@@ -348,8 +332,7 @@ int AAS_IntForBSPEpairKey(int ent, char *key, int *value)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FreeBSPEntities( void )
-{
+void AAS_FreeBSPEntities( void ) {
 	int i;
 	bsp_entity_t *ent;
 	bsp_epair_t *epair, *nextepair;
@@ -374,8 +357,7 @@ void AAS_FreeBSPEntities( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ParseBSPEntities( void )
-{
+void AAS_ParseBSPEntities( void ) {
 	script_t *script;
 	token_t token;
 	bsp_entity_t *ent;
@@ -445,8 +427,7 @@ void AAS_ParseBSPEntities( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BSPTraceLight(vector3 *start, vector3 *end, vector3 *endpos, int *red, int *green, int *blue)
-{
+int AAS_BSPTraceLight(vector3 *start, vector3 *end, vector3 *endpos, int *red, int *green, int *blue) {
 	return 0;
 } //end of the function AAS_BSPTraceLight
 //===========================================================================
@@ -455,8 +436,7 @@ int AAS_BSPTraceLight(vector3 *start, vector3 *end, vector3 *endpos, int *red, i
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DumpBSPData( void )
-{
+void AAS_DumpBSPData( void ) {
 	AAS_FreeBSPEntities();
 
 	if (bspworld.dentdata) FreeMemory(bspworld.dentdata);
@@ -473,8 +453,7 @@ void AAS_DumpBSPData( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadBSPFile( void )
-{
+int AAS_LoadBSPFile( void ) {
 	AAS_DumpBSPData();
 	bspworld.entdatasize = strlen(botimport.BSPEntityData()) + 1;
 	bspworld.dentdata = (char *) GetClearedHunkMemory(bspworld.entdatasize);

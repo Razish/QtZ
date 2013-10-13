@@ -65,13 +65,13 @@ qboolean EntityIsShooting(aas_entityinfo_t *entinfo);
 //returns true if this entity has the kamikaze
 qboolean EntityHasKamikaze(aas_entityinfo_t *entinfo);
 // set a user info key/value pair
-void BotSetUserInfo(bot_state_t *bs, char *key, char *value);
+void BotSetUserInfo(bot_state_t *bs, char *key, const char *value);
 //returns the name of the client
-char *ClientName(int client, char *name, int size);
+char *ClientName(int client, char *name, size_t size);
 //returns a simplified client name
-char *EasyClientName(int client, char *name, int size);
+char *EasyClientName(int client, char *name, size_t size);
 //returns the skin used by the client
-char *ClientSkin(int client, char *skin, int size);
+char *ClientSkin(int client, char *skin, size_t size);
 // returns the appropriate synonym context for the current game type and situation
 int BotSynonymContext(bot_state_t *bs);
 // set last ordered task

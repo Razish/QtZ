@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static client_t *SV_GetPlayerByHandle( void ) {
 	client_t	*cl;
 	int			i;
-	char		*s;
+	const char	*s;
 	char		cleanName[64];
 
 	// make sure server is running
@@ -95,7 +95,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	client_t	*cl;
 	int			i;
 	int			idnum;
-	char		*s;
+	const char	*s;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -131,8 +131,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 // Restart the server on a different map
 static void SV_Map_f( void ) {
-	char		*cmd;
-	char		*map;
+	const char	*cmd, *map;
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
@@ -442,8 +441,7 @@ static void SV_KickNum_f( void ) {
 }
 
 // Load saved bans from file.
-static void SV_RehashBans_f( void )
-{
+static void SV_RehashBans_f( void ) {
 	int index, filelen;
 	fileHandle_t readfrom;
 	char *textbuf, *curpos, *maskpos, *newlinepos, *endpos;
@@ -523,8 +521,7 @@ static void SV_RehashBans_f( void )
 }
 
 // Save bans to file.
-static void SV_WriteBans( void )
-{
+static void SV_WriteBans( void ) {
 	int index;
 	fileHandle_t writeto;
 	char filepath[MAX_QPATH];
@@ -545,7 +542,7 @@ static void SV_WriteBans( void )
 			
 			Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n",
 				    curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
-			FS_Write(writebuf, strlen(writebuf), writeto);
+			FS_Write(writebuf, (int)strlen(writebuf), writeto);
 		}
 
 		FS_FCloseFile(writeto);
@@ -553,8 +550,7 @@ static void SV_WriteBans( void )
 }
 
 // Remove a ban or an exception from the list.
-static qboolean SV_DelBanEntryFromList(int index)
-{
+static qboolean SV_DelBanEntryFromList(int index) {
 	if(index == serverBansCount - 1)
 		serverBansCount--;
 	else if(index < ARRAY_LEN(serverBans) - 1)
@@ -569,8 +565,7 @@ static qboolean SV_DelBanEntryFromList(int index)
 }
 
 // Parse a CIDR notation type string and return a netadr_t and suffix by reference
-static qboolean SV_ParseCIDRNotation(netadr_t *dest, int *mask, char *adrstr)
-{
+static qboolean SV_ParseCIDRNotation(netadr_t *dest, int *mask, char *adrstr) {
 	char *suffix;
 	
 	suffix = strchr(adrstr, '/');
@@ -607,9 +602,8 @@ static qboolean SV_ParseCIDRNotation(netadr_t *dest, int *mask, char *adrstr)
 }
 
 // Ban a user from being able to play on this server based on his ip address.
-static void SV_AddBanToList(qboolean isexception)
-{
-	char *banstring;
+static void SV_AddBanToList(qboolean isexception) {
+	char banstring[NET_ADDRSTRMAXLEN];
 	char addy2[NET_ADDRSTRMAXLEN];
 	netadr_t ip;
 	int index, argc, mask;
@@ -635,7 +629,7 @@ static void SV_AddBanToList(qboolean isexception)
 		return;
 	}
 
-	banstring = Cmd_Argv(1);
+	Q_strncpyz( banstring, Cmd_Argv( 1 ), sizeof( banstring ) );
 	
 	if(strchr(banstring, '.') || strchr(banstring, ':'))
 	{
@@ -744,11 +738,10 @@ static void SV_AddBanToList(qboolean isexception)
 }
 
 // Remove a ban or an exception from the list.
-static void SV_DelBanFromList(qboolean isexception)
-{
+static void SV_DelBanFromList(qboolean isexception) {
 	int index, count = 0, todel, mask;
 	netadr_t ip;
-	char *banstring;
+	char banstring[NET_ADDRSTRMAXLEN];
 	
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -762,7 +755,7 @@ static void SV_DelBanFromList(qboolean isexception)
 		return;
 	}
 
-	banstring = Cmd_Argv(1);
+	Q_strncpyz( banstring, Cmd_Argv( 1 ), sizeof( banstring ) );
 	
 	if(strchr(banstring, '.') || strchr(banstring, ':'))
 	{
@@ -828,8 +821,7 @@ static void SV_DelBanFromList(qboolean isexception)
 }
 
 // List all bans and exceptions on console
-static void SV_ListBans_f( void )
-{
+static void SV_ListBans_f( void ) {
 	int index, count;
 	serverBan_t *ban;
 
@@ -866,8 +858,7 @@ static void SV_ListBans_f( void )
 }
 
 // Delete all bans and exceptions.
-static void SV_FlushBans_f( void )
-{
+static void SV_FlushBans_f( void ) {
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
@@ -882,32 +873,29 @@ static void SV_FlushBans_f( void )
 	Com_Printf("All bans and exceptions have been deleted.\n");
 }
 
-static void SV_BanAddr_f( void )
-{
+static void SV_BanAddr_f( void ) {
 	SV_AddBanToList(qfalse);
 }
 
-static void SV_ExceptAddr_f( void )
-{
+static void SV_ExceptAddr_f( void ) {
 	SV_AddBanToList(qtrue);
 }
 
-static void SV_BanDel_f( void )
-{
+static void SV_BanDel_f( void ) {
 	SV_DelBanFromList(qfalse);
 }
 
-static void SV_ExceptDel_f( void )
-{
+static void SV_ExceptDel_f( void ) {
 	SV_DelBanFromList(qtrue);
 }
 
 static void SV_Status_f( void ) {
-	int			i, j, l;
-	client_t	*cl;
+	int				i, j;
+	size_t			l;
+	client_t		*cl;
 	playerState_t	*ps;
 	const char		*s;
-	int			ping;
+	int				ping;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -974,8 +962,8 @@ static void SV_Status_f( void ) {
 }
 
 static void SV_ConSay_f( void ) {
-	char	*p;
-	char	text[1024];
+	const char *p;
+	char text[1024];
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -987,22 +975,22 @@ static void SV_ConSay_f( void ) {
 		return;
 	}
 
-	strcpy (text, "console: ");
+	strcpy( text, "console: " );
 	p = Cmd_Args();
 
 	if ( *p == '"' ) {
-		p++;
-		p[strlen(p)-1] = 0;
+		Q_strcat( text, sizeof( text ), p+1 );
+		text[strlen(text)-1] = '\0';
 	}
-
-	strcat(text, p);
+	else
+		Q_strcat( text, sizeof( text ), p );
 
 	SV_SendServerCommand(NULL, "chat \"%s\"", text);
 }
 
 static void SV_ConTell_f( void ) {
-	char	*p;
-	char	text[1024];
+	const char	*p;
+	char		text[1024];
 	client_t	*cl;
 
 	// make sure server is running
@@ -1025,11 +1013,11 @@ static void SV_ConTell_f( void ) {
 	p = Cmd_ArgsFrom(2);
 
 	if ( *p == '"' ) {
-		p++;
-		p[strlen(p)-1] = 0;
+		Q_strcat( text, sizeof( text ), p+1 );
+		text[strlen(text)-1] = '\0';
 	}
-
-	strcat(text, p);
+	else
+		Q_strcat( text, sizeof( text ), p );
 
 	SV_SendServerCommand(cl, "chat \"%s\"", text);
 }

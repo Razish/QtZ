@@ -90,8 +90,7 @@ unsigned short crctable[257] =
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void CRC_Init(unsigned short *crcvalue)
-{
+void CRC_Init(unsigned short *crcvalue) {
 	*crcvalue = CRC_INIT_VALUE;
 } //end of the function CRC_Init
 //===========================================================================
@@ -100,8 +99,7 @@ void CRC_Init(unsigned short *crcvalue)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void CRC_ProcessByte(unsigned short *crcvalue, byte data)
-{
+void CRC_ProcessByte(unsigned short *crcvalue, byte data) {
 	*crcvalue = (*crcvalue << 8) ^ crctable[(*crcvalue >> 8) ^ data];
 } //end of the function CRC_ProcessByte
 //===========================================================================
@@ -110,8 +108,7 @@ void CRC_ProcessByte(unsigned short *crcvalue, byte data)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-unsigned short CRC_Value(unsigned short crcvalue)
-{
+unsigned short CRC_Value(unsigned short crcvalue) {
 	return crcvalue ^ CRC_XOR_VALUE;
 } //end of the function CRC_Value
 //===========================================================================
@@ -120,8 +117,7 @@ unsigned short CRC_Value(unsigned short crcvalue)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-unsigned short CRC_ProcessString(unsigned char *data, int length)
-{
+unsigned short CRC_ProcessString(unsigned char *data, int length) {
 	unsigned short crcvalue;
 	int i, ind;
 
@@ -141,8 +137,7 @@ unsigned short CRC_ProcessString(unsigned char *data, int length)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void CRC_ContinueProcessString(unsigned short *crc, char *data, int length)
-{
+void CRC_ContinueProcessString(unsigned short *crc, char *data, int length) {
 	int i;
 
 	for (i = 0; i < length; i++)

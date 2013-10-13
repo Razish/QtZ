@@ -354,10 +354,9 @@ void BotTeamplayReport( void ) {
 }
 
 void BotSetInfoConfigString(bot_state_t *bs) {
-	char goalname[MAX_MESSAGE_SIZE];
-	char netname[MAX_MESSAGE_SIZE];
-	char action[MAX_MESSAGE_SIZE];
-	char carrying[32], *cs;
+	char goalname[MAX_MESSAGE_SIZE], netname[MAX_MESSAGE_SIZE], action[MAX_MESSAGE_SIZE];
+	char carrying[32];
+	const char *cs;
 	bot_goal_t goal;
 	//
 	ClientName(bs->client, netname, sizeof(netname));
@@ -690,7 +689,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, ivector3 *delta_ang
 	if (bi->actionflags & ACTION_FOLLOWME)		ucmd->buttons |= BUTTON_FOLLOWME;
 #endif
 	//
-	ucmd->weapon = bi->weapon;
+	ucmd->weapon = (byte)bi->weapon;
 	//set the view angles
 	//NOTE: the ucmd->angles are the angles WITHOUT the delta angles
 	ucmd->angles[0] = ANGLE2SHORT(bi->viewangles.pitch);
@@ -698,7 +697,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, ivector3 *delta_ang
 	ucmd->angles[2] = ANGLE2SHORT(bi->viewangles.roll);
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
-		temp = ucmd->angles[j] - delta_angles->data[j];
+		temp = (short)((int)ucmd->angles[j] - delta_angles->data[j]);
 		/*NOTE: disabled because temp should be mod first
 		if ( j == PITCH ) {
 			// don't let the player look up or down more than 90 degrees

@@ -420,7 +420,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	}
 
 	// grab the current playerState_t
-	ps = SV_GameClientNum( client - svs.clients );
+	ps = SV_GameClientNum( ARRAY_INDEX( svs.clients, client ) );
 	frame->ps = *ps;
 
 	// never send client's own entity, because it can
@@ -472,8 +472,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 #ifdef USE_VOIP
 // Check to see if there is any VoIP queued for a client, and send if there is.
-static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
-{
+static void SV_WriteVoipToClient(client_t *cl, msg_t *msg) {
 	int totalbytes = 0;
 	int i;
 	voipServerPacket_t *packet;
@@ -512,8 +511,7 @@ static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 #endif
 
 // Called by SV_SendClientSnapshot and SV_SendClientGameState
-void SV_SendMessageToClient(msg_t *msg, client_t *client)
-{
+void SV_SendMessageToClient(msg_t *msg, client_t *client) {
 	// record information about the message
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
@@ -565,8 +563,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
-void SV_SendClientMessages( void )
-{
+void SV_SendClientMessages( void ) {
 	int		i;
 	client_t	*c;
 

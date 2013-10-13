@@ -94,7 +94,7 @@ void GLimp_Minimize( void )
 }
 
 
-void GLimp_LogComment( char *comment )
+void GLimp_LogComment( const char *comment )
 {
 }
 
@@ -134,7 +134,7 @@ static void GLimp_DetectAvailableModes( void )
 		return;
 	}
 
-	if( modes == (SDL_Rect **)-1 )
+	if( modes == ((SDL_Rect **)-1) )
 	{
 		ri->Printf( PRINT_ALL, "Display supports any resolution\n" );
 		return; // can set any resolution
@@ -538,8 +538,8 @@ static void GLimp_InitExtensions( void )
 	if ( GLimp_HaveExtension( "GL_EXT_compiled_vertex_array" ) ) {
 		if ( r_ext_compiled_vertex_array->value ) {
 			ri->Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
-			qglLockArraysEXT = ( void ( APIENTRY * )( GLint, GLint ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
-			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
+			qglLockArraysEXT = SDL_GL_GetProcAddress( "glLockArraysEXT" );
+			qglUnlockArraysEXT = SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
 			if (!qglLockArraysEXT || !qglUnlockArraysEXT)
 				ri->Error (ERR_FATAL, "bad getprocaddress");
 		}

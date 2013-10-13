@@ -213,8 +213,7 @@ struct BufferedFile
  *  Read a file into a buffer.
  */
 
-static struct BufferedFile *ReadBufferedFile(const char *name)
-{
+static struct BufferedFile *ReadBufferedFile(const char *name) {
 	struct BufferedFile *BF;
 	union {
 		byte *b;
@@ -281,8 +280,7 @@ static struct BufferedFile *ReadBufferedFile(const char *name)
  *  Close a buffered file.
  */
 
-static void CloseBufferedFile(struct BufferedFile *BF)
-{
+static void CloseBufferedFile(struct BufferedFile *BF) {
 	if(BF)
 	{
 		if(BF->Buffer)
@@ -298,8 +296,7 @@ static void CloseBufferedFile(struct BufferedFile *BF)
  *  Get a pointer to the requested bytes.
  */
 
-static void *BufferedFileRead(struct BufferedFile *BF, unsigned Length)
-{
+static void *BufferedFileRead(struct BufferedFile *BF, unsigned Length) {
 	void *RetVal;
 
 	/*
@@ -340,8 +337,7 @@ static void *BufferedFileRead(struct BufferedFile *BF, unsigned Length)
  *  Rewind the buffer.
  */
 
-static qboolean BufferedFileRewind(struct BufferedFile *BF, unsigned Offset)
-{
+static qboolean BufferedFileRewind(struct BufferedFile *BF, unsigned Offset) {
 	unsigned BytesRead; 
 
 	/*
@@ -369,7 +365,7 @@ static qboolean BufferedFileRewind(struct BufferedFile *BF, unsigned Offset)
 	 *  How many bytes do we have already read?
 	 */
 
-	BytesRead = BF->Ptr - BF->Buffer;
+	BytesRead = ARRAY_INDEX( BF->Buffer, BF->Ptr );
 
 	/*
 	 *  We can only rewind to the beginning of the BufferedFile.
@@ -394,8 +390,7 @@ static qboolean BufferedFileRewind(struct BufferedFile *BF, unsigned Offset)
  *  Skip some bytes.
  */
 
-static qboolean BufferedFileSkip(struct BufferedFile *BF, unsigned Offset)
-{
+static qboolean BufferedFileSkip(struct BufferedFile *BF, unsigned Offset) {
 	/*
 	 *  input verification
 	 */
@@ -428,8 +423,7 @@ static qboolean BufferedFileSkip(struct BufferedFile *BF, unsigned Offset)
  *  Find a chunk
  */
 
-static qboolean FindChunk(struct BufferedFile *BF, uint32_t ChunkType)
-{
+static qboolean FindChunk(struct BufferedFile *BF, uint32_t ChunkType) {
 	struct PNG_ChunkHeader *CH;
 
 	uint32_t Length;
@@ -505,8 +499,7 @@ static qboolean FindChunk(struct BufferedFile *BF, uint32_t ChunkType)
  *  Decompress all IDATs
  */
 
-static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
-{
+static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer) {
 	uint8_t  *DecompressedData;
 	uint32_t  DecompressedDataLength;
 
@@ -533,7 +526,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 
 	if(!(BF && Buffer))
 	{
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	/*
@@ -555,7 +548,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 
 	if(!FindChunk(BF, PNG_ChunkType_IDAT))
 	{
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	/*
@@ -578,7 +571,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 
 			BufferedFileRewind(BF, BytesToRewind);
 
-			return(-1);
+			return 0xffffffffu;
 		}
 
 		/*
@@ -615,7 +608,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 			{
 				BufferedFileRewind(BF, BytesToRewind);
 
-				return(-1);
+				return 0xffffffffu;
 			}
 
 			BytesToRewind += Length + PNG_ChunkCRC_Size;
@@ -628,7 +621,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	CompressedData = ri->Malloc(CompressedDataLength);
 	if(!CompressedData)
 	{
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	CompressedDataPtr = CompressedData;
@@ -648,7 +641,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 		{
 			ri->Free(CompressedData); 
 
-			return(-1);
+			return 0xffffffffu;
 		}
 
 		/*
@@ -682,14 +675,14 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 			{
 				ri->Free(CompressedData); 
 
-				return(-1);
+				return 0xffffffffu;
 			}
 
 			if(!BufferedFileSkip(BF, PNG_ChunkCRC_Size))
 			{
 				ri->Free(CompressedData); 
 
-				return(-1);
+				return 0xffffffffu;
 			}
 
 			memcpy(CompressedDataPtr, OrigCompressedData, Length);
@@ -720,7 +713,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	{
 		ri->Free(CompressedData);
 
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	/*
@@ -732,7 +725,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	{
 		ri->Free(CompressedData);
 
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	/*
@@ -763,7 +756,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
 	{
 		ri->Free(DecompressedData);
 
-		return(-1);
+		return 0xffffffffu;
 	}
 
 	/*
@@ -780,8 +773,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
  *  the Paeth predictor
  */
 
-static uint8_t PredictPaeth(uint8_t a, uint8_t b, uint8_t c)
-{
+static uint8_t PredictPaeth(uint8_t a, uint8_t b, uint8_t c) {
 	/*
 	 *  a == Left
 	 *  b == Up
@@ -1902,8 +1894,7 @@ static qboolean DecodeImageInterlaced(struct PNG_Chunk_IHDR *IHDR,
  *  The PNG loader
  */
 
-void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
-{
+void R_LoadPNG(const char *name, byte **pic, int *width, int *height) {
 	struct BufferedFile *ThePNG;
 	byte *OutBuffer;
 	uint8_t *Signature;
@@ -2366,7 +2357,7 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 	 *  Rewind to the start of the file.
 	 */
 
-	if(!BufferedFileRewind(ThePNG, -1))
+	if(!BufferedFileRewind(ThePNG, 0xffffffffu))
 	{
 		CloseBufferedFile(ThePNG);
 
@@ -2491,8 +2482,8 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
 void user_read_data( png_structp png_ptr, png_bytep data, png_size_t length ) {
 }
 void user_write_data( png_structp png_ptr, png_bytep data, png_size_t length ) {
-	fileHandle_t fp = (fileHandle_t)png_get_io_ptr( png_ptr );
-	ri->FS_Write( data, length, fp );
+	fileHandle_t fp = *(fileHandle_t*)png_get_io_ptr( png_ptr );
+	ri->FS_Write( data, (int)length, fp );
 }
 void user_flush_data( png_structp png_ptr ) {
 	//TODO: ri->FS_Flush?
@@ -2544,8 +2535,8 @@ int RE_SavePNG( char *filename, byte *buf, size_t width, size_t height, int byte
 
 	png_set_IHDR (png_ptr,
 		info_ptr,
-		width,
-		height,
+		(uint32_t)width,
+		(uint32_t)height,
 		depth,
 		PNG_COLOR_TYPE_RGB,
 		PNG_INTERLACE_NONE,
@@ -2569,7 +2560,7 @@ int RE_SavePNG( char *filename, byte *buf, size_t width, size_t height, int byte
 	/* Write the image data to "fp". */
 
 //	png_init_io (png_ptr, fp);
-	png_set_write_fn( png_ptr, (png_voidp)fp, user_write_data, user_flush_data );
+	png_set_write_fn( png_ptr, (png_voidp)&fp, user_write_data, user_flush_data );
 	png_set_rows (png_ptr, info_ptr, row_pointers);
 	png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 

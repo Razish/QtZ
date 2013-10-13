@@ -50,43 +50,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
-void Sys_SetBinaryPath(const char *path)
-{
+void Sys_SetBinaryPath(const char *path) {
 	Q_strncpyz(binaryPath, path, sizeof(binaryPath));
 }
 
-char *Sys_BinaryPath( void )
-{
+char *Sys_BinaryPath( void ) {
 	return binaryPath;
 }
 
-void Sys_SetDefaultInstallPath(const char *path)
-{
+void Sys_SetDefaultInstallPath(const char *path) {
 	Q_strncpyz(installPath, path, sizeof(installPath));
 }
 
-char *Sys_DefaultInstallPath( void )
-{
+char *Sys_DefaultInstallPath( void ) {
 	if (*installPath)
 		return installPath;
 	else
 		return Sys_Cwd();
 }
 
-char *Sys_DefaultAppPath( void )
-{
+char *Sys_DefaultAppPath( void ) {
 	return Sys_BinaryPath();
 }
 
 // Restart the input subsystem
-void Sys_In_Restart_f( void )
-{
+void Sys_In_Restart_f( void ) {
 	IN_Restart( );
 }
 
 // Handle new console input
-char *Sys_ConsoleInput( void )
-{
+char *Sys_ConsoleInput( void ) {
 	return CON_Input( );
 }
 
@@ -96,8 +89,7 @@ char *Sys_ConsoleInput( void )
 #	define PID_FILENAME PRODUCT_NAME ".pid"
 #endif
 
-static char *Sys_PIDFileName( void )
-{
+static const char *Sys_PIDFileName( void ) {
 	const char *homePath = Sys_DefaultHomePath( );
 
 	if( *homePath != '\0' )
@@ -107,11 +99,10 @@ static char *Sys_PIDFileName( void )
 }
 
 // Return qtrue if there is an existing stale PID file
-qboolean Sys_WritePIDFile( void )
-{
-	char      *pidFile = Sys_PIDFileName( );
-	FILE      *f;
-	qboolean  stale = qfalse;
+qboolean Sys_WritePIDFile( void ) {
+	const char	*pidFile = Sys_PIDFileName( );
+	FILE		*f;
+	qboolean	stale = qfalse;
 
 	if( pidFile == NULL )
 		return qfalse;
@@ -120,7 +111,7 @@ qboolean Sys_WritePIDFile( void )
 	if( ( f = fopen( pidFile, "r" ) ) != NULL )
 	{
 		char  pidBuffer[ 64 ] = { 0 };
-		unsigned int pid;
+		size_t pid;
 
 		pid = fread( pidBuffer, sizeof( char ), sizeof( pidBuffer ) - 1, f );
 		fclose( f );
@@ -128,7 +119,7 @@ qboolean Sys_WritePIDFile( void )
 		if(pid > 0)
 		{
 			pid = atoi( pidBuffer );
-			if( !Sys_PIDIsRunning( pid ) )
+			if( !Sys_PIDIsRunning( (unsigned int)pid ) )
 				stale = qtrue;
 		}
 		else
@@ -147,8 +138,7 @@ qboolean Sys_WritePIDFile( void )
 }
 
 // Single exit point (regular exit or in case of error)
-static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
-{
+static __attribute__ ((noreturn)) void Sys_Exit( int exitCode ) {
 	CON_Shutdown( );
 
 #ifndef DEDICATED
@@ -158,7 +148,7 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 	if( exitCode < 2 )
 	{
 		// Normal exit
-		char *pidFile = Sys_PIDFileName( );
+		const char *pidFile = Sys_PIDFileName( );
 
 		if( pidFile != NULL )
 			remove( pidFile );
@@ -169,13 +159,11 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 	exit( exitCode );
 }
 
-void Sys_Quit( void )
-{
+void Sys_Quit( void ) {
 	Sys_Exit( 0 );
 }
 
-cpuFeatures_t Sys_GetProcessorFeatures( void )
-{
+cpuFeatures_t Sys_GetProcessorFeatures( void ) {
 	cpuFeatures_t features = 0;
 
 #ifndef DEDICATED
@@ -192,16 +180,14 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 	return features;
 }
 
-void Sys_Init( void )
-{
+void Sys_Init( void ) {
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f, NULL );
 	Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
 	Cvar_Set( "username", Sys_GetCurrentUser( ) );
 }
 
 // Transform Q3 colour codes to ANSI escape sequences
-void Sys_AnsiColorPrint( const char *msg )
-{
+void Sys_AnsiColorPrint( const char *msg ) {
 	static char buffer[ MAXPRINTMSG ];
 	int         length = 0;
 	static int  q3ToAnsi[ 8 ] =
@@ -262,14 +248,12 @@ void Sys_AnsiColorPrint( const char *msg )
 	}
 }
 
-void Sys_Print( const char *msg )
-{
+void Sys_Print( const char *msg ) {
 	CON_LogWrite( msg );
 	CON_Print( msg );
 }
 
-void Sys_Error( const char *error, ... )
-{
+void Sys_Error( const char *error, ... ) {
 	va_list argptr;
 	char    string[1024];
 
@@ -283,8 +267,7 @@ void Sys_Error( const char *error, ... )
 }
 
 #if 0
-static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ... )
-{
+static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ... ) {
 	va_list argptr;
 	char    string[1024];
 
@@ -297,8 +280,7 @@ static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ...
 #endif
 
 // returns -1 if not present
-int Sys_FileTime( char *path )
-{
+int Sys_FileTime( char *path ) {
 	struct stat buf;
 
 	if (stat (path,&buf) == -1)
@@ -307,8 +289,7 @@ int Sys_FileTime( char *path )
 	return (int)buf.st_mtime;
 }
 
-void Sys_UnloadDll( void *dllHandle )
-{
+void Sys_UnloadDll( void *dllHandle ) {
 	if( !dllHandle )
 	{
 		Com_Printf("Sys_UnloadDll(NULL)\n");
@@ -319,8 +300,7 @@ void Sys_UnloadDll( void *dllHandle )
 }
 
 // First try to load library name from system library path, from executable path, then fs_basepath.
-void *Sys_LoadDll(const char *name, qboolean useSystemLib)
-{
+void *Sys_LoadDll(const char *name, qboolean useSystemLib) {
 	void *dllhandle;
 	
 	if(useSystemLib)
@@ -361,8 +341,7 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 	return dllhandle;
 }
 
-void Sys_ParseArgs( int argc, char **argv )
-{
+void Sys_ParseArgs( int argc, char **argv ) {
 	if( argc == 2 )
 	{
 		if( !strcmp( argv[1], "--version" ) ||
@@ -387,8 +366,7 @@ void Sys_ParseArgs( int argc, char **argv )
 #	endif
 #endif
 
-void Sys_SigHandler( int signal )
-{
+void Sys_SigHandler( int signal ) {
 	static qboolean signalcaught = qfalse;
 
 	if( signalcaught )
@@ -411,8 +389,7 @@ void Sys_SigHandler( int signal )
 		Sys_Exit( 2 );
 }
 
-int main( int argc, char **argv )
-{
+int main( int argc, char **argv ) {
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
 

@@ -134,8 +134,7 @@ static weaponconfig_t *weaponconfig;
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-int BotValidWeaponNumber(int weaponnum)
-{
+int BotValidWeaponNumber(int weaponnum) {
 	if (weaponnum <= 0 || weaponnum > weaponconfig->numweapons)
 	{
 		botimport.Print(PRT_ERROR, "weapon number out of range\n");
@@ -149,8 +148,7 @@ int BotValidWeaponNumber(int weaponnum)
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-bot_weaponstate_t *BotWeaponStateFromHandle(int handle)
-{
+bot_weaponstate_t *BotWeaponStateFromHandle(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
 		botimport.Print(PRT_FATAL, "weapon state handle %d out of range\n", handle);
@@ -170,8 +168,7 @@ bot_weaponstate_t *BotWeaponStateFromHandle(int handle)
 // Changes Globals:		-
 //===========================================================================
 #ifdef DEBUG_AI_WEAP
-void DumpWeaponConfig(weaponconfig_t *wc)
-{
+void DumpWeaponConfig(weaponconfig_t *wc) {
 	FILE *fp;
 	int i;
 
@@ -195,8 +192,7 @@ void DumpWeaponConfig(weaponconfig_t *wc)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-weaponconfig_t *LoadWeaponConfig(char *filename)
-{
+weaponconfig_t *LoadWeaponConfig(char *filename) {
 	int max_weaponinfo, max_projectileinfo;
 	token_t token;
 	char path[MAX_PATH];
@@ -327,8 +323,7 @@ weaponconfig_t *LoadWeaponConfig(char *filename)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int *WeaponWeightIndex(weightconfig_t *wwc, weaponconfig_t *wc)
-{
+int *WeaponWeightIndex(weightconfig_t *wwc, weaponconfig_t *wc) {
 	int *index, i;
 
 	//initialize item weight index
@@ -346,8 +341,7 @@ int *WeaponWeightIndex(weightconfig_t *wwc, weaponconfig_t *wc)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotFreeWeaponWeights(int weaponstate)
-{
+void BotFreeWeaponWeights(int weaponstate) {
 	bot_weaponstate_t *ws;
 
 	ws = BotWeaponStateFromHandle(weaponstate);
@@ -361,8 +355,7 @@ void BotFreeWeaponWeights(int weaponstate)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadWeaponWeights(int weaponstate, char *filename)
-{
+int BotLoadWeaponWeights(int weaponstate, char *filename) {
 	bot_weaponstate_t *ws;
 
 	ws = BotWeaponStateFromHandle(weaponstate);
@@ -385,8 +378,7 @@ int BotLoadWeaponWeights(int weaponstate, char *filename)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotGetWeaponInfo(int weaponstate, int weapon, weaponinfo_t *weaponinfo)
-{
+void BotGetWeaponInfo(int weaponstate, int weapon, weaponinfo_t *weaponinfo) {
 	bot_weaponstate_t *ws;
 
 	if (!BotValidWeaponNumber(weapon)) return;
@@ -401,8 +393,7 @@ void BotGetWeaponInfo(int weaponstate, int weapon, weaponinfo_t *weaponinfo)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotChooseBestFightWeapon(int weaponstate, int *inventory)
-{
+int BotChooseBestFightWeapon(int weaponstate, int *inventory) {
 	int i, index, bestweapon;
 	float weight, bestweight;
 	weaponconfig_t *wc;
@@ -438,8 +429,7 @@ int BotChooseBestFightWeapon(int weaponstate, int *inventory)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotResetWeaponState(int weaponstate)
-{
+void BotResetWeaponState(int weaponstate) {
 	struct weightconfig_s *weaponweightconfig;
 	int *weaponweightindex;
 	bot_weaponstate_t *ws;
@@ -459,8 +449,7 @@ void BotResetWeaponState(int weaponstate)
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-int BotAllocWeaponState( void )
-{
+int BotAllocWeaponState( void ) {
 	int i;
 
 	for (i = 1; i <= MAX_CLIENTS; i++)
@@ -479,8 +468,7 @@ int BotAllocWeaponState( void )
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
-void BotFreeWeaponState(int handle)
-{
+void BotFreeWeaponState(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
 		botimport.Print(PRT_FATAL, "weapon state handle %d out of range\n", handle);
@@ -501,8 +489,7 @@ void BotFreeWeaponState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupWeaponAI( void )
-{
+int BotSetupWeaponAI( void ) {
 	char *file;
 
 	file = LibVarString("weaponconfig", "weapons.c");
@@ -525,8 +512,7 @@ int BotSetupWeaponAI( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownWeaponAI( void )
-{
+void BotShutdownWeaponAI( void ) {
 	int i;
 
 	if (weaponconfig) FreeMemory(weaponconfig);

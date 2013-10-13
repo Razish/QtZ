@@ -26,21 +26,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdio.h>
 
-void CON_Shutdown( void )
-{
+void CON_Shutdown( void ) {
 }
 
-void CON_Init( void )
-{
+void CON_Init( void ) {
 }
 
-char *CON_Input( void )
-{
+char *CON_Input( void ) {
 	return NULL;
 }
 
-void CON_Print( const char *msg )
-{
+void CON_Print( const char *msg ) {
 	if( com_ansiColor && com_ansiColor->integer )
 		Sys_AnsiColorPrint( msg );
 	else

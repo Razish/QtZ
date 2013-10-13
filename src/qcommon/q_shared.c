@@ -71,7 +71,7 @@ qboolean Q_IsColorString( const char *p ) {
 	return qfalse;
 }
 
-int ColorIndex( char c ) {
+char ColorIndex( char c ) {
 	int lowc = tolower(c);
 
 	if ( c >= '0' && c <= '9' )
@@ -134,8 +134,7 @@ int Q_bumpi( int min, int value ) {
 	return (value < min) ? min : value;
 }
 
-char *COM_SkipPath (char *pathname)
-{
+char *COM_SkipPath (char *pathname) {
 	char	*last;
 	
 	last = pathname;
@@ -148,8 +147,7 @@ char *COM_SkipPath (char *pathname)
 	return last;
 }
 
-const char *COM_GetExtension( const char *name )
-{
+const char *COM_GetExtension( const char *name ) {
 	const char *dot = strrchr(name, '.'), *slash;
 	if (dot && (!(slash = strrchr(name, '/')) || slash < dot))
 		return dot + 1;
@@ -157,8 +155,7 @@ const char *COM_GetExtension( const char *name )
 		return "";
 }
 
-void COM_StripExtension( const char *in, char *out, size_t destsize )
-{
+void COM_StripExtension( const char *in, char *out, size_t destsize ) {
 	const char *dot = strrchr(in, '.'), *slash;
 	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
 		Q_strncpyz(out, in, (destsize < dot-in+1 ? destsize : dot-in+1));
@@ -167,8 +164,7 @@ void COM_StripExtension( const char *in, char *out, size_t destsize )
 }
 
 // string compare the end of the strings and return qtrue if strings match
-qboolean COM_CompareExtension(const char *in, const char *ext)
-{
+qboolean COM_CompareExtension(const char *in, const char *ext) {
 	size_t inlen, extlen;
 	
 	inlen = strlen(in);
@@ -186,8 +182,7 @@ qboolean COM_CompareExtension(const char *in, const char *ext)
 }
 
 // if path doesn't have an extension, then append the specified one (which should include the .)
-void COM_DefaultExtension( char *path, size_t maxSize, const char *extension )
-{
+void COM_DefaultExtension( char *path, size_t maxSize, const char *extension ) {
 	const char *dot = strrchr(path, '.'), *slash;
 	if (dot && (!(slash = strrchr(path, '/')) || slash < dot))
 		return;
@@ -203,16 +198,14 @@ QINLINE int PlaneTypeForNormal( vector3 *normal ) {
 	else							return PLANE_NON_AXIAL;
 }
 
-void CopyShortSwap(void *dest, void *src)
-{
+void CopyShortSwap(void *dest, void *src) {
 	byte *to = dest, *from = src;
 
 	to[0] = from[1];
 	to[1] = from[0];
 }
 
-void CopyLongSwap(void *dest, void *src)
-{
+void CopyLongSwap(void *dest, void *src) {
 	byte *to = dest, *from = src;
 
 	to[0] = from[3];
@@ -221,8 +214,7 @@ void CopyLongSwap(void *dest, void *src)
 	to[3] = from[0];
 }
 
-short   ShortSwap (short l)
-{
+short   ShortSwap (short l) {
 	byte    b1,b2;
 
 	b1 = l&255;
@@ -231,13 +223,11 @@ short   ShortSwap (short l)
 	return (b1<<8) + b2;
 }
 
-short	ShortNoSwap (short l)
-{
+short	ShortNoSwap (short l) {
 	return l;
 }
 
-int    LongSwap (int l)
-{
+int    LongSwap (int l) {
 	byte    b1,b2,b3,b4;
 
 	b1 = l&255;
@@ -248,13 +238,11 @@ int    LongSwap (int l)
 	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
 }
 
-int	LongNoSwap (int l)
-{
+int	LongNoSwap (int l) {
 	return l;
 }
 
-qint64_t Long64Swap (qint64_t ll)
-{
+qint64_t Long64Swap (qint64_t ll) {
 	qint64_t	result;
 
 	result.b0 = ll.b7;
@@ -269,8 +257,7 @@ qint64_t Long64Swap (qint64_t ll)
 	return result;
 }
 
-qint64_t Long64NoSwap (qint64_t ll)
-{
+qint64_t Long64NoSwap (qint64_t ll) {
 	return ll;
 }
 
@@ -283,8 +270,7 @@ float FloatSwap (const float *f) {
 	return out.f;
 }
 
-float FloatNoSwap (const float *f)
-{
+float FloatNoSwap (const float *f) {
 	return *f;
 }
 
@@ -299,27 +285,23 @@ static	char	com_parsename[MAX_TOKEN_CHARS];
 static	int		com_lines;
 static	int		com_tokenline;
 
-void COM_BeginParseSession( const char *name )
-{
+void COM_BeginParseSession( const char *name ) {
 	com_lines = 1;
 	com_tokenline = 0;
 	Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
 }
 
-int COM_GetCurrentParseLine( void )
-{
+int COM_GetCurrentParseLine( void ) {
 	if ( com_tokenline )
 		return com_tokenline;
 	return com_lines;
 }
 
-char *COM_Parse( char **data_p )
-{
+char *COM_Parse( char **data_p ) {
 	return COM_ParseExt( data_p, qtrue );
 }
 
-void COM_ParseError( char *format, ... )
-{
+void COM_ParseError( char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
 
@@ -330,8 +312,7 @@ void COM_ParseError( char *format, ... )
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
-void COM_ParseWarning( char *format, ... )
-{
+void COM_ParseWarning( char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
 
@@ -433,8 +414,7 @@ ptrdiff_t COM_Compress( char *data_p ) {
 	return out - data_p;
 }
 
-char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
-{
+char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks ) {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
 	const char *data;
@@ -541,8 +521,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	return com_token;
 }
 
-qboolean COM_ParseString( const char **data, const char **s ) 
-{
+qboolean COM_ParseString( const char **data, const char **s )  {
 //	*s = COM_ParseExt( data, qtrue );
 	*s = COM_ParseExt( data, qfalse );
 	if ( s[0] == 0 ) 
@@ -553,8 +532,7 @@ qboolean COM_ParseString( const char **data, const char **s )
 	return qfalse;
 }
 
-qboolean COM_ParseInt( const char **data, int *i ) 
-{
+qboolean COM_ParseInt( const char **data, int *i )  {
 	const char	*token;
 
 	token = COM_ParseExt( data, qfalse );
@@ -568,8 +546,7 @@ qboolean COM_ParseInt( const char **data, int *i )
 	return qfalse;
 }
 
-qboolean COM_ParseFloat( const char **data, float *f ) 
-{
+qboolean COM_ParseFloat( const char **data, float *f )  {
 	const char	*token;
 
 	token = COM_ParseExt( data, qfalse );
@@ -583,13 +560,11 @@ qboolean COM_ParseFloat( const char **data, float *f )
 	return qfalse;
 }
 
-qboolean COM_ParseVec4( const char **buffer, vector4 *c) 
-{
+qboolean COM_ParseVec4( const char **buffer, vector4 *c)  {
 	int i;
 	float f;
 
-	for (i = 0; i < 4; i++) 
-	{
+	for ( i=0; i<4; i++ ) {
 		if (COM_ParseFloat(buffer, &f)) 
 		{
 			return qtrue;
@@ -720,36 +695,31 @@ int Com_HexStrToInt( const char *str ) {
 
 */
 
-int Q_isprint( int c )
-{
+int Q_isprint( int c ) {
 	if ( c >= 0x20 && c <= 0x7E )
 		return ( 1 );
 	return ( 0 );
 }
 
-int Q_islower( int c )
-{
+int Q_islower( int c ) {
 	if (c >= 'a' && c <= 'z')
 		return ( 1 );
 	return ( 0 );
 }
 
-int Q_isupper( int c )
-{
+int Q_isupper( int c ) {
 	if (c >= 'A' && c <= 'Z')
 		return ( 1 );
 	return ( 0 );
 }
 
-int Q_isalpha( int c )
-{
+int Q_isalpha( int c ) {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 		return ( 1 );
 	return ( 0 );
 }
 
-qboolean Q_isanumber( const char *s )
-{
+qboolean Q_isanumber( const char *s ) {
 	char *p;
 	double UNUSED_VAR d;
 
@@ -761,16 +731,14 @@ qboolean Q_isanumber( const char *s )
 	return *p == '\0';
 }
 
-qboolean Q_isintegral( float f )
-{
+qboolean Q_isintegral( float f ) {
 	return (int)f == f;
 }
 
 #ifdef _MSC_VER
 // Special wrapper function for Microsoft's broken _vsnprintf() function.
 //	MinGW comes with its own snprintf() which is not broken.
-size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{
+size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
 	int retval;
 	
 	retval = _vsnprintf(str, size, format, ap);
@@ -1030,8 +998,7 @@ Q_strchrs
 					 otherwise NULL
 */
 
-const char *Q_strchrs( const char *string, const char *search )
-{
+const char *Q_strchrs( const char *string, const char *search ) {
 	const char *p, *s;
 
 	for ( p=string; *p != '\0'; p++ ) {
@@ -1077,21 +1044,18 @@ void Q_strrev( char *string ) {
 	s = string + len-1;
 }
 
-int Q_CountChar(const char *string, char tocount)
-{
+int Q_CountChar(const char *string, char tocount) {
 	int count;
 	
-	for(count = 0; *string; string++)
-	{
-		if(*string == tocount)
+	for ( count=0; *string; string++ ) {
+		if ( *string == tocount )
 			count++;
 	}
 	
 	return count;
 }
 
-size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...)
-{
+size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...) {
 	size_t len;
 	va_list		argptr;
 
@@ -1109,7 +1073,7 @@ size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...)
 #define VARARGS_MASK		(VARARGS_BUFFERS-1)
 
 // does a varargs printf into a temp buffer, so I don't need to have varargs versions of all text functions.
-char *va( char *format, ... ) {
+const char *va( char *format, ... ) {
 	static char buf[VARARGS_BUFFERS][32000]; // in case va is called by nested functions
 	static int	index = 0;
 	va_list		argptr;
@@ -1417,8 +1381,7 @@ static qboolean Com_CharIsOneOfCharset( char c, char *set ) {
 	return qfalse;
 }
 
-char *Com_SkipCharset( char *s, char *sep )
-{
+char *Com_SkipCharset( char *s, char *sep ) {
 	char	*p = s;
 
 	while( p )
@@ -1432,8 +1395,7 @@ char *Com_SkipCharset( char *s, char *sep )
 	return p;
 }
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep )
-{
+char *Com_SkipTokens( char *s, int numTokens, char *sep ) {
 	int		sepCount = 0;
 	char	*p = s;
 

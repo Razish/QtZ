@@ -40,8 +40,7 @@ static short FGetLittleShort( fileHandle_t f ) {
 	return LittleShort( v);
 }
 
-static int S_ReadChunkInfo(fileHandle_t f, char *name)
-{
+static int S_ReadChunkInfo(fileHandle_t f, char *name) {
 	int len, r;
 
 	name[4] = 0;
@@ -97,8 +96,7 @@ static void S_ByteSwapRawSamples( int samples, int width, int s_channels, const 
 	}
 }
 
-static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
-{
+static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info) {
 	char dump[16];
 	int bits;
 	int fmtlen = 0;
@@ -159,8 +157,7 @@ snd_codec_t wav_codec =
 	NULL
 };
 
-void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
-{
+void *S_WAV_CodecLoad(const char *filename, snd_info_t *info) {
 	fileHandle_t file;
 	void *buffer;
 
@@ -199,8 +196,7 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	return buffer;
 }
 
-snd_stream_t *S_WAV_CodecOpenStream(const char *filename)
-{
+snd_stream_t *S_WAV_CodecOpenStream(const char *filename) {
 	snd_stream_t *rv;
 
 	// Open
@@ -218,13 +214,11 @@ snd_stream_t *S_WAV_CodecOpenStream(const char *filename)
 	return rv;
 }
 
-void S_WAV_CodecCloseStream(snd_stream_t *stream)
-{
+void S_WAV_CodecCloseStream(snd_stream_t *stream) {
 	S_CodecUtilClose(&stream);
 }
 
-int S_WAV_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
-{
+int S_WAV_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer) {
 	int remaining = stream->info.size - stream->pos;
 	int samples;
 

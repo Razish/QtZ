@@ -297,12 +297,8 @@ keyname_t keynames[] =
 // Handles horizontal scrolling and cursor blinking
 //	x, y, and width are in pixels
 void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape, vector4 *color ) {
-	int		len;
-	int		drawLen;
-	int		prestep;
-	int		cursorChar;
-	char	str[MAX_STRING_CHARS];
-	int		i;
+	size_t	len, i, drawLen, prestep;
+	char	cursorChar, str[MAX_STRING_CHARS];
 
 	drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
 	len = strlen( edit->buffer );
@@ -361,29 +357,27 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		i = drawLen - strlen( str );
 
 		if ( size == SMALLCHAR_WIDTH ) {
-			SCR_DrawSmallChar( x + ( edit->cursor - prestep - i ) * size, y, cursorChar );
+			SCR_DrawSmallChar( x + (int)( edit->cursor - prestep - i ) * size, y, cursorChar );
 		} else {
 			str[0] = cursorChar;
 			str[1] = 0;
-			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, qfalse );
+			SCR_DrawBigString( x + (int)( edit->cursor - prestep - i ) * size, y, str, 1.0, qfalse );
 
 		}
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color ) 
-{
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color )  {
 	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color ) 
-{
+void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape, vector4 *color )  {
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape, color );
 }
 
 void Field_Paste( field_t *edit ) {
 	char	*cbd;
-	int		pasteLen, i;
+	size_t	pasteLen, i;
 
 	cbd = Sys_GetClipboardData();
 
@@ -403,7 +397,7 @@ void Field_Paste( field_t *edit ) {
 // Performs the basic line editing functions for the console, in-game talk, and menu fields
 //	Key events are used for non-printable characters, others are gotten from char events.
 void Field_KeyDownEvent( field_t *edit, int key ) {
-	int		len;
+	size_t	len;
 
 	// shift-insert is paste
 	if ( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keys[K_SHIFT].down ) {
@@ -505,8 +499,8 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 	}
 }
 
-void Field_CharEvent( field_t *edit, int ch ) {
-	int		len;
+void Field_CharEvent( field_t *edit, char ch ) {
+	size_t	len;
 
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
 		Field_Paste( edit );
@@ -746,7 +740,7 @@ qboolean Key_IsDown( int keynum ) {
 // Returns a key number to be used to index keys[] by looking at the given string.
 //	Single ascii characters return themselves, while the K_* names are matched up.
 //	0x11 will be interpreted as raw hex, which will allow new controlers to be configured even if they don't have defined names.
-int Key_StringToKeynum( char *str ) {
+int Key_StringToKeynum( const char *str ) {
 	keyname_t	*kn;
 	
 	if ( !str || !str[0] ) {
@@ -790,7 +784,7 @@ char *Key_KeynumToString( int keynum ) {
 
 	// check for printable ascii (don't use quote)
 	if ( keynum > 32 && keynum < 127 && keynum != '"' && keynum != ';' ) {
-		tinystr[0] = keynum;
+		tinystr[0] = (char)keynum;
 		tinystr[1] = 0;
 		return tinystr;
 	}
@@ -808,8 +802,8 @@ char *Key_KeynumToString( int keynum ) {
 
 	tinystr[0] = '0';
 	tinystr[1] = 'x';
-	tinystr[2] = i > 9 ? i - 10 + 'a' : i + '0';
-	tinystr[3] = j > 9 ? j - 10 + 'a' : j + '0';
+	tinystr[2] = (char)(i > 9 ? i - 10 + 'a' : i + '0');
+	tinystr[3] = (char)(j > 9 ? j - 10 + 'a' : j + '0');
 	tinystr[4] = 0;
 
 	return tinystr;
@@ -854,8 +848,7 @@ int Key_GetKey(const char *binding) {
   return -1;
 }
 
-void Key_Unbind_f( void )
-{
+void Key_Unbind_f( void ) {
 	int		b;
 
 	if (Cmd_Argc() != 2)
@@ -874,8 +867,7 @@ void Key_Unbind_f( void )
 	Key_SetBinding (b, "");
 }
 
-void Key_Unbindall_f( void )
-{
+void Key_Unbindall_f( void ) {
 	int		i;
 	
 	for (i=0 ; i < MAX_KEYS; i++)
@@ -951,8 +943,7 @@ void Key_KeynameCompletion( void(*callback)(const char *s) ) {
 		callback( keynames[ i ].name );
 }
 
-static void Key_CompleteUnbind( char *args, int argNum )
-{
+static void Key_CompleteUnbind( char *args, int argNum ) {
 	if( argNum == 2 )
 	{
 		// Skip "unbind "
@@ -963,8 +954,7 @@ static void Key_CompleteUnbind( char *args, int argNum )
 	}
 }
 
-static void Key_CompleteBind( char *args, int argNum )
-{
+static void Key_CompleteBind( char *args, int argNum ) {
 	char *p;
 
 	if( argNum == 2 )
@@ -994,8 +984,7 @@ void CL_InitKeyCommands( void ) {
 }
 
 // Execute the commands in the bind string
-void CL_ParseBinding( int key, qboolean down, unsigned time )
-{
+void CL_ParseBinding( int key, qboolean down, unsigned time ) {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 
 	if( !keys[key].binding || !keys[key].binding[0] )
@@ -1032,8 +1021,7 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 }
 
 // Called by CL_KeyEvent to handle a keypress
-void CL_KeyDownEvent( int key, unsigned time )
-{
+void CL_KeyDownEvent( int key, unsigned time ) {
 	keys[key].down = qtrue;
 	keys[key].repeats++;
 	if( keys[key].repeats == 1 && key != K_SCROLLOCK && key != K_KP_NUMLOCK && key != K_CAPSLOCK )
@@ -1055,8 +1043,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 
 
 	// keys can still be used for bound actions
-	if ( ( key < 128 || key == K_MOUSE1 ) &&
-		( clc.demoplaying || clc.state == CA_CINEMATIC ) && Key_GetCatcher( ) == 0 ) {
+	if ( ( key < 128 || key == K_MOUSE1 ) && clc.demoplaying && Key_GetCatcher() == 0 ) {
 
 		if (Cvar_VariableValue ("com_cameraMode") == 0) {
 			Cvar_Set ("nextdemo","");
@@ -1109,8 +1096,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 }
 
 // Called by CL_KeyEvent to handle a keyrelease
-void CL_KeyUpEvent( int key, unsigned time )
-{
+void CL_KeyUpEvent( int key, unsigned time ) {
 	keys[key].repeats = 0;
 	keys[key].down = qfalse;
 	if (key != K_SCROLLOCK && key != K_KP_NUMLOCK && key != K_CAPSLOCK)
@@ -1157,14 +1143,13 @@ void CL_CharEvent( int key ) {
 	}
 
 	// distribute the key down event to the appropriate handler
-		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )	Field_CharEvent( &g_consoleField, key );
+		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )	Field_CharEvent( &g_consoleField, (char)key );
 	else if ( Key_GetCatcher() & KEYCATCH_UI )		ui->KeyEvent( key|K_CHAR_FLAG, qtrue );
 	else if ( Key_GetCatcher() & KEYCATCH_CGAME )	cgame->KeyEvent( key|K_CHAR_FLAG, qtrue );
-	else if ( clc.state == CA_DISCONNECTED )		Field_CharEvent( &g_consoleField, key );
+	else if ( clc.state == CA_DISCONNECTED )		Field_CharEvent( &g_consoleField, (char)key );
 }
 
-void Key_ClearStates( void )
-{
+void Key_ClearStates( void ) {
 	int		i;
 
 	anykeydown = 0;
@@ -1199,12 +1184,11 @@ void Key_SetCatcher( int catcher ) {
 // This must not exceed MAX_CMD_LINE
 #define			MAX_CONSOLE_SAVE_BUFFER	1024
 #define			CONSOLE_HISTORY_FILE    PRODUCT_NAME"history"
-static char	consoleSaveBuffer[ MAX_CONSOLE_SAVE_BUFFER ];
-static int	consoleSaveBufferSize = 0;
+static char		consoleSaveBuffer[ MAX_CONSOLE_SAVE_BUFFER ];
+static size_t	consoleSaveBufferSize = 0;
 
 // Load the console history from cl_consoleHistory
-void CL_LoadConsoleHistory( void )
-{
+void CL_LoadConsoleHistory( void ) {
 	char					*token, *text_p;
 	int						i, numChars, numLines = 0;
 	fileHandle_t	f;
@@ -1217,7 +1201,7 @@ void CL_LoadConsoleHistory( void )
 	}
 
 	if( consoleSaveBufferSize <= MAX_CONSOLE_SAVE_BUFFER &&
-			FS_Read( consoleSaveBuffer, consoleSaveBufferSize, f ) == consoleSaveBufferSize )
+			FS_Read( consoleSaveBuffer, (int)consoleSaveBufferSize, f ) == (int)consoleSaveBufferSize )
 	{
 		text_p = consoleSaveBuffer;
 
@@ -1265,10 +1249,8 @@ void CL_LoadConsoleHistory( void )
 }
 
 // Save the console history into the cvar cl_consoleHistory so that it persists across invocations of q3
-void CL_SaveConsoleHistory( void )
-{
-	int						i;
-	int						lineLength, saveBufferLength, additionalLength;
+void CL_SaveConsoleHistory( void ) {
+	size_t			i, lineLength, saveBufferLength, additionalLength;
 	fileHandle_t	f;
 
 	consoleSaveBuffer[ 0 ] = '\0';
@@ -1309,7 +1291,7 @@ void CL_SaveConsoleHistory( void )
 		return;
 	}
 
-	if( FS_Write( consoleSaveBuffer, consoleSaveBufferSize, f ) < consoleSaveBufferSize )
+	if( FS_Write( consoleSaveBuffer, (int)consoleSaveBufferSize, f ) < (int)consoleSaveBufferSize )
 		Com_Printf( "Couldn't write %s.\n", CONSOLE_HISTORY_FILE );
 
 	FS_FCloseFile( f );

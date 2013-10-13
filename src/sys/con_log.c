@@ -24,30 +24,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
 
-#define MAX_LOG 32768
+#define MAX_LOG 32768u
 
 static char          consoleLog[ MAX_LOG ];
-static unsigned int  writePos = 0;
-static unsigned int  readPos = 0;
+static size_t  writePos = 0;
+static size_t  readPos = 0;
 
-unsigned int CON_LogSize( void )
-{
+size_t CON_LogSize( void ) {
 	if( readPos <= writePos )
 		return writePos - readPos;
 	else
 		return writePos + MAX_LOG - readPos;
 }
 
-static unsigned int CON_LogFree( void )
-{
+static size_t CON_LogFree( void ) {
 	return MAX_LOG - CON_LogSize( ) - 1;
 }
 
-unsigned int CON_LogWrite( const char *in )
-{
-	unsigned int length = strlen( in );
-	unsigned int firstChunk;
-	unsigned int secondChunk;
+size_t CON_LogWrite( const char *in ) {
+	size_t length = strlen( in );
+	size_t firstChunk, secondChunk;
 
 	while( CON_LogFree( ) < length && CON_LogSize( ) > 0 )
 	{
@@ -81,10 +77,8 @@ unsigned int CON_LogWrite( const char *in )
 	return length;
 }
 
-unsigned int CON_LogRead( char *out, unsigned int outSize )
-{
-	unsigned int firstChunk;
-	unsigned int secondChunk;
+size_t CON_LogRead( char *out, size_t outSize ) {
+	size_t firstChunk, secondChunk;
 
 	if( CON_LogSize( ) < outSize )
 		outSize = CON_LogSize( );

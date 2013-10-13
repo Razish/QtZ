@@ -34,8 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 botlib_export_t	*botlib_export;
 void *botlibLib;
 
-static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...)
-{
+static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...) {
 	char str[2048];
 	va_list ap;
 
@@ -121,7 +120,7 @@ static void BotImport_DebugLineDelete(int line) {
 static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int color) {
 }
 
-static void BotClientCommand( int client, char *command ) {
+static void BotClientCommand( int client, const char *command ) {
 	const char *arg = NULL;
 	client_t *cl = &svs.clients[client];
 	

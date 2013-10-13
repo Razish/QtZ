@@ -131,7 +131,7 @@ typedef struct aas_routingcache_s
 {
 	byte type;									//portal or area cache
 	float time;									//last time accessed or updated
-	int size;									//size of the routing cache
+	size_t size;									//size of the routing cache
 	int cluster;								//cluster the cache is for
 	int areanum;								//area the cache is created for
 	vector3 origin;								//origin within the area
@@ -140,7 +140,7 @@ typedef struct aas_routingcache_s
 	struct aas_routingcache_s *prev, *next;
 	struct aas_routingcache_s *time_prev, *time_next;
 	unsigned char *reachabilities;				//reachabilities used for routing
-	unsigned short int traveltimes[1];			//travel time for every area (variable sized)
+	unsigned int traveltimes[1];			//travel time for every area (variable sized)
 } aas_routingcache_t;
 
 //fields for the routing algorithm
@@ -149,8 +149,8 @@ typedef struct aas_routingupdate_s
 	int cluster;
 	int areanum;								//area number of the update
 	vector3 start;								//start point the area was entered
-	unsigned short int tmptraveltime;			//temporary travel time
-	unsigned short int *areatraveltimes;		//travel times within the area
+	unsigned int tmptraveltime;			//temporary travel time
+	unsigned int *areatraveltimes;		//travel times within the area
 	qboolean inlist;							//true if the update is in the list
 	struct aas_routingupdate_s *next;
 	struct aas_routingupdate_s *prev;
@@ -255,7 +255,7 @@ typedef struct aas_s
 	//reversed reachability links
 	aas_reversedreachability_t *reversedreachability;
 	//travel times within the areas
-	unsigned short ***areatraveltimes;
+	unsigned int ***areatraveltimes;
 	//array of size numclusters with cluster cache
 	aas_routingcache_t ***clusterareacache;
 	aas_routingcache_t **portalcache;

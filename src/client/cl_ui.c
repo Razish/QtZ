@@ -195,7 +195,7 @@ static int LAN_GetServerCount( int source ) {
 	return 0;
 }
 
-static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
+static void LAN_GetServerAddressString( int source, int n, char *buf, size_t buflen ) {
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -220,7 +220,7 @@ static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen
 	buf[0] = '\0';
 }
 
-static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
+static void LAN_GetServerInfo( int source, int n, char *buf, size_t buflen ) {
 	char info[MAX_STRING_CHARS];
 	serverInfo_t *server = NULL;
 	info[0] = '\0';
@@ -385,11 +385,11 @@ static void LAN_ClearPing( int n ) {
 	CL_ClearPing( n );
 }
 
-static void LAN_GetPing( int n, char *buf, int buflen, int *pingtime ) {
+static void LAN_GetPing( int n, char *buf, size_t buflen, int *pingtime ) {
 	CL_GetPing( n, buf, buflen, pingtime );
 }
 
-static void LAN_GetPingInfo( int n, char *buf, int buflen ) {
+static void LAN_GetPingInfo( int n, char *buf, size_t buflen ) {
 	CL_GetPingInfo( n, buf, buflen );
 }
 
@@ -464,7 +464,7 @@ qboolean LAN_UpdateVisiblePings(int source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 
-int LAN_GetServerStatus( char *serverAddress, char *serverStatus, int maxLen ) {
+int LAN_GetServerStatus( char *serverAddress, char *serverStatus, size_t maxLen ) {
 	return CL_ServerStatus( serverAddress, serverStatus, maxLen );
 }
 
@@ -472,7 +472,7 @@ static void CL_GetGlconfig( glconfig_t *config ) {
 	*config = cls.glconfig;
 }
 
-static void CL_GetClipboardData( char *buf, int buflen ) {
+static void CL_GetClipboardData( char *buf, size_t buflen ) {
 	char	*cbd;
 
 	cbd = Sys_GetClipboardData();
@@ -487,11 +487,11 @@ static void CL_GetClipboardData( char *buf, int buflen ) {
 	Z_Free( cbd );
 }
 
-static void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+static void Key_KeynumToStringBuf( int keynum, char *buf, size_t buflen ) {
 	Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
 }
 
-static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+static void Key_GetBindingBuf( int keynum, char *buf, size_t buflen ) {
 	char	*value;
 
 	value = Key_GetBinding( keynum );
@@ -503,9 +503,8 @@ static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 	}
 }
 
-static int GetConfigString(int index, char *buf, int size)
-{
-	int		offset;
+static qboolean GetConfigString(int index, char *buf, size_t size) {
+	size_t		offset;
 
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
 		return qfalse;
@@ -635,11 +634,6 @@ void CL_InitUI( void ) {
 	uiTrap.LAN_ServerIsVisible			= LAN_ServerIsVisible;
 	uiTrap.LAN_GetServerStatus			= LAN_GetServerStatus;
 	uiTrap.LAN_UpdateVisiblePings		= LAN_UpdateVisiblePings;
-	uiTrap.CIN_DrawCinematic			= CIN_DrawCinematic;
-	uiTrap.CIN_PlayCinematic			= CIN_PlayCinematic;
-	uiTrap.CIN_RunCinematic				= CIN_RunCinematic;
-	uiTrap.CIN_SetExtents				= CIN_SetExtents;
-	uiTrap.CIN_StopCinematic			= CIN_StopCinematic;
 
 	// init the ui module and grab the exports
 	if ( !(ui = GetModuleAPI( UI_API_VERSION, &uiTrap )) ) {

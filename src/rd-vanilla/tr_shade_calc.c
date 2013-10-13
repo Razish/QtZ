@@ -29,8 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ ri->ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
-static float *TableForFunc( genFunc_t func ) 
-{
+static float *TableForFunc( genFunc_t func )  {
 	switch ( func )
 	{
 	case GF_SIN:
@@ -53,8 +52,7 @@ static float *TableForFunc( genFunc_t func )
 }
 
 // Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
-static float EvalWaveForm( const waveForm_t *wf ) 
-{
+static float EvalWaveForm( const waveForm_t *wf )  {
 	float	*table;
 
 	table = TableForFunc( wf->func );
@@ -62,8 +60,7 @@ static float EvalWaveForm( const waveForm_t *wf )
 	return WAVEVALUE( table, wf->base, wf->amplitude, wf->phase, wf->frequency );
 }
 
-static float EvalWaveFormClamped( const waveForm_t *wf )
-{
+static float EvalWaveFormClamped( const waveForm_t *wf ) {
 	float glow  = EvalWaveForm( wf );
 
 	if ( glow < 0 )
@@ -79,8 +76,7 @@ static float EvalWaveFormClamped( const waveForm_t *wf )
 	return glow;
 }
 
-void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st )
-{
+void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st ) {
 	float p;
 	texModInfo_t tmi;
 
@@ -103,8 +99,7 @@ void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st )
 
 */
 
-void RB_CalcDeformVertexes( deformStage_t *ds )
-{
+void RB_CalcDeformVertexes( deformStage_t *ds ) {
 	int i;
 	vector3	offset;
 	float	scale;
@@ -222,13 +217,11 @@ void RB_CalcMoveVertexes( deformStage_t *ds ) {
 
 // Change a polygon into a bunch of text polygons
 void DeformText( const char *text ) {
-	int		i;
-	vector3	origin, width, height;
-	int		len;
-	int		ch;
+	int		i, ch;
+	vector3	origin, mid, width, height;
+	size_t	len;
 	byte	color[4];
 	float	bottom, top;
-	vector3	mid;
 
 	height.x = 0;
 	height.y = 0;
@@ -452,8 +445,8 @@ static void Autosprite2Deform( void ) {
 			// we need to see which direction this edge
 			// is used to determine direction of projection
 			for ( k = 0 ; k < 5 ; k++ ) {
-				if ( tess.indexes[ indexes + k ] == i + edgeVerts[nums[j]][0]
-					&& tess.indexes[ indexes + k + 1 ] == i + edgeVerts[nums[j]][1] ) {
+				if ( tess.indexes[indexes + k  ] == (glIndex_t)(i + edgeVerts[nums[j]][0]) &&
+					 tess.indexes[indexes + k+1] == (glIndex_t)(i + edgeVerts[nums[j]][1]) ) {
 					break;
 				}
 			}
@@ -520,8 +513,7 @@ void RB_DeformTessGeometry( void ) {
 
 */
 
-void RB_CalcColorFromEntity( unsigned char *dstColors )
-{
+void RB_CalcColorFromEntity( unsigned char *dstColors ) {
 	int	i;
 	int *pColors = ( int * ) dstColors;
 	int c;
@@ -537,8 +529,7 @@ void RB_CalcColorFromEntity( unsigned char *dstColors )
 	}
 }
 
-void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
-{
+void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors ) {
 	int	i;
 	int *pColors = ( int * ) dstColors;
 	unsigned char invModulate[4];
@@ -560,8 +551,7 @@ void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
 	}
 }
 
-void RB_CalcAlphaFromEntity( unsigned char *dstColors )
-{
+void RB_CalcAlphaFromEntity( unsigned char *dstColors ) {
 	int	i;
 
 	if ( !backEnd.currentEntity )
@@ -575,8 +565,7 @@ void RB_CalcAlphaFromEntity( unsigned char *dstColors )
 	}
 }
 
-void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors )
-{
+void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors ) {
 	int	i;
 
 	if ( !backEnd.currentEntity )
@@ -590,8 +579,7 @@ void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors )
 	}
 }
 
-void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
-{
+void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors ) {
 	int i;
 	int v;
 	float glow;
@@ -613,7 +601,7 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	}
 
 	v = ri->ftol(255 * glow);
-	color[0] = color[1] = color[2] = v;
+	color[0] = color[1] = color[2] = (byte)v;
 	color[3] = 255;
 	v = *(int *)color;
 	
@@ -622,8 +610,7 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	}
 }
 
-void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors )
-{
+void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors ) {
 	int i;
 	int v;
 	float glow;
@@ -634,7 +621,7 @@ void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors )
 
 	for ( i = 0; i < tess.numVertexes; i++, dstColors += 4 )
 	{
-		dstColors[3] = v;
+		dstColors[3] = (unsigned char)v;
 	}
 }
 
@@ -774,8 +761,7 @@ void RB_CalcFogTexCoords( float *st ) {
 	}
 }
 
-void RB_CalcEnvironmentTexCoords( float *st ) 
-{
+void RB_CalcEnvironmentTexCoords( float *st )  {
 	int			i;
 	vector3		*v, *normal;
 	vector3		viewer, reflected;
@@ -800,8 +786,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 	}
 }
 
-void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
-{
+void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st ) {
 	int i;
 	float now;
 
@@ -817,8 +802,7 @@ void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
 	}
 }
 
-void RB_CalcScaleTexCoords( const float scale[2], float *st )
-{
+void RB_CalcScaleTexCoords( const float scale[2], float *st ) {
 	int i;
 
 	for ( i = 0; i < tess.numVertexes; i++, st += 2 )
@@ -828,8 +812,7 @@ void RB_CalcScaleTexCoords( const float scale[2], float *st )
 	}
 }
 
-void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st )
-{
+void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st ) {
 	int i;
 	float timeScale = tess.shaderTime;
 	float adjustedScrollS, adjustedScrollT;
@@ -849,8 +832,7 @@ void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st )
 	}
 }
 
-void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  )
-{
+void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  ) {
 	int i;
 
 	for ( i = 0; i < tess.numVertexes; i++, st += 2 )
@@ -863,8 +845,7 @@ void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  )
 	}
 }
 
-void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
-{
+void RB_CalcRotateTexCoords( float degsPerSecond, float *st ) {
 	float timeScale = tess.shaderTime;
 	float degs;
 	int index;
@@ -940,14 +921,13 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 			}
 		}
 
-		*alphas = b;
+		*alphas = (unsigned char)b;
 	}
 }
 
 #if defined(idppc_altivec)
 // The basic vertex lighting calc
-static void RB_CalcDiffuseColor_altivec( unsigned char *colors )
-{
+static void RB_CalcDiffuseColor_altivec( unsigned char *colors ) {
 	int				i;
 	float			*v, *normal;
 	trRefEntity_t	*ent;
@@ -1016,8 +996,7 @@ static void RB_CalcDiffuseColor_altivec( unsigned char *colors )
 }
 #endif
 
-static void RB_CalcDiffuseColor_scalar( unsigned char *colors )
-{
+static void RB_CalcDiffuseColor_scalar( unsigned char *colors ) {
 	int				i, j;
 	vector3			*v, *normal;
 	float			incoming;
@@ -1045,22 +1024,21 @@ static void RB_CalcDiffuseColor_scalar( unsigned char *colors )
 
 		j = ri->ftol(ambientLight.r + incoming * directedLight.r);
 		if ( j > 255 ) j = 255;
-		colors[i*4+0] = j;
+		colors[i*4+0] = (unsigned char)j;
 
 		j = ri->ftol(ambientLight.g + incoming * directedLight.g);
 		if ( j > 255 ) j = 255;
-		colors[i*4+1] = j;
+		colors[i*4+1] = (unsigned char)j;
 
 		j = ri->ftol(ambientLight.b + incoming * directedLight.b);
 		if ( j > 255 ) j = 255;
-		colors[i*4+2] = j;
+		colors[i*4+2] = (unsigned char)j;
 
 		colors[i*4+3] = 255;
 	}
 }
 
-void RB_CalcDiffuseColor( unsigned char *colors )
-{
+void RB_CalcDiffuseColor( unsigned char *colors ) {
 #if defined(idppc_altivec)
 	if (com_altivec->integer) {
 		// must be in a seperate function or G3 systems will crash.

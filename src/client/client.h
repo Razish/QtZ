@@ -442,14 +442,14 @@ void CL_StopRecord_f( void );
 void CL_InitDownloads( void );
 void CL_NextDownload( void );
 
-void CL_GetPing( int n, char *buf, int buflen, int *pingtime );
-void CL_GetPingInfo( int n, char *buf, int buflen );
+void CL_GetPing( int n, char *buf, size_t buflen, int *pingtime );
+void CL_GetPingInfo( int n, char *buf, size_t buflen );
 void CL_ClearPing( int n );
 int CL_GetPingQueueCount( void );
 
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
-int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
+int CL_ServerStatus( char *serverAddress, char *serverStatusString, size_t maxLen );
 
 qboolean CL_CheckPaused( void );
 
@@ -476,7 +476,7 @@ void IN_CenterView( void );
 void CL_VerifyCode( void );
 
 float CL_KeyState (kbutton_t *key);
-int Key_StringToKeynum( char *str );
+int Key_StringToKeynum( const char *str );
 char *Key_KeynumToString (int keynum);
 
 //
@@ -554,24 +554,6 @@ void	SCR_DrawBigStringColor( int x, int y, const char *s, vector4 *color, qboole
 void	SCR_DrawSmallStringExt( int x, int y, const char *string, vector4 *setColor, qboolean forceColor, qboolean noColorEscape );
 void	SCR_DrawSmallChar( int x, int y, int ch );
 void	SCR_DrawSmallChar2( int x, int y, int ch, float scale );
-
-
-//
-// cl_cin.c
-//
-
-void CL_PlayCinematic_f( void );
-void SCR_DrawCinematic( void );
-void SCR_RunCinematic( void );
-void SCR_StopCinematic( void );
-int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
-cinState_t CIN_StopCinematic(int handle);
-cinState_t CIN_RunCinematic (int handle);
-void CIN_DrawCinematic (int handle);
-void CIN_SetExtents (int handle, int x, int y, int w, int h);
-void CIN_SetLooping (int handle, qboolean loop);
-void CIN_UploadCinematic(int handle);
-void CIN_CloseAllVideos( void );
 
 //
 // cl_cgame.c

@@ -148,11 +148,11 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 }
 
 void CL_ConfigstringModified( void ) {
-	char		*old, *s;
+	char		*old;
+	const char	*s, *dup;
 	int			i, index;
-	char		*dup;
 	gameState_t	oldGs;
-	int			len;
+	size_t		len;
 
 	index = atoi( Cmd_Argv(1) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
@@ -206,8 +206,7 @@ void CL_ConfigstringModified( void ) {
 
 // Set up argc/argv for the given command
 qboolean CL_GetServerCommand( int serverCommandNumber ) {
-	char	*s;
-	char	*cmd;
+	const char *s, *cmd;
 	static char bigConfigString[BIG_INFO_STRING];
 	int argc;
 
@@ -432,11 +431,6 @@ void CL_InitCGame( void ) {
 	cgameTrap.PC_FreeSourceHandle			= botlib_export->PC_FreeSourceHandle;
 	cgameTrap.PC_ReadTokenHandle			= botlib_export->PC_ReadTokenHandle;
 	cgameTrap.PC_SourceFileAndLine			= botlib_export->PC_SourceFileAndLine;
-	cgameTrap.CIN_PlayCinematic				= CIN_PlayCinematic;
-	cgameTrap.CIN_StopCinematic				= CIN_StopCinematic;
-	cgameTrap.CIN_RunCinematic				= CIN_RunCinematic;
-	cgameTrap.CIN_DrawCinematic				= CIN_DrawCinematic;
-	cgameTrap.CIN_SetExtents				= CIN_SetExtents;
 
 	// init the cgame module and grab the exports
 	if ( !(cgame = GetModuleAPI( CGAME_API_VERSION, &cgameTrap )) ) {
@@ -732,7 +726,7 @@ void CL_SetCGameTime( void ) {
 				frameDuration = UCHAR_MAX;
 
 			clc.timeDemoDurations[ ( clc.timeDemoFrames - 1 ) %
-				MAX_TIMEDEMO_DURATIONS ] = frameDuration;
+				MAX_TIMEDEMO_DURATIONS ] = (unsigned char)frameDuration;
 		}
 
 		clc.timeDemoFrames++;

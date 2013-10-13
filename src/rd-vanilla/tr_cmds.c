@@ -224,8 +224,7 @@ void RE_RotatedPic( float x, float y, float w, float h,
 #define MODE_GREEN_MAGENTA 4
 #define MODE_MAX	MODE_GREEN_MAGENTA
 
-void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
-{
+void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode) {
 	rgba[0] = rgba[1] = rgba[2] = rgba[3] = GL_TRUE;
 	
 	if(colormode > MODE_MAX)

@@ -198,8 +198,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 // Send a message to the masters every few minutes to let it know we are alive, and log information.
 //	We will also have a heartbeat sent when a server changes from empty to non-empty, and full to non-full,
 //	but not on every player enter or exit.
-void SV_MasterHeartbeat(const char *message)
-{
+void SV_MasterHeartbeat(const char *message) {
 	static netadr_t	adr[MAX_MASTER_SERVERS][2]; // [2] for v4 and v6 address for the same address string.
 	int			i;
 	int			res;
@@ -429,7 +428,7 @@ qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
 			bucket->burst = 0;
 			bucket->lastTime = now;
 		} else {
-			bucket->burst -= expired;
+			bucket->burst -= (signed char)expired;
 			bucket->lastTime = now - expiredRemainder;
 		}
 
@@ -453,14 +452,13 @@ qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
 // Responds with all the info that qplug or qspy can see about the server and all connected players.
 //	Used for getting detailed information after the simple info query.
 static void SVC_Status( netadr_t from ) {
-	char	player[1024];
-	char	status[MAX_MSGLEN];
-	int		i;
-	client_t	*cl;
+	char			player[1024];
+	char			status[MAX_MSGLEN];
+	int				i;
+	client_t		*cl;
 	playerState_t	*ps;
-	int		statusLength;
-	int		playerLength;
-	char	infostring[MAX_INFO_STRING];
+	size_t			statusLength, playerLength;
+	char			infostring[MAX_INFO_STRING];
 
 	// Prevent using getstatus as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
@@ -600,7 +598,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	// (OOB messages are the bottleneck here)
 #define SV_OUTPUTBUF_LENGTH (1024 - 16)
 	char		sv_outputbuf[SV_OUTPUTBUF_LENGTH];
-	char *cmd_aux;
+	const char	*cmd_aux;
 
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
@@ -662,7 +660,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 //	Clients that are in the game can still send connectionless packets.
 static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
-	char	*c;
+	const char	*c;
 
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );		// skip the -1 marker
@@ -1020,8 +1018,7 @@ void SV_Frame( int msec ) {
 #define UDPIP6_HEADER_SIZE 48
 
 // Return the number of msec until another message can be sent to a client based on its rate settings
-int SV_RateMsec(client_t *client)
-{
+int SV_RateMsec(client_t *client) {
 	int rate, rateMsec;
 	int messageSize;
 	
@@ -1060,8 +1057,7 @@ int SV_RateMsec(client_t *client)
 
 // Send download messages and queued packets in the time that we're idle, i.e. not computing a server frame or sending client snapshots.
 //	Return the time in msec until we expect to be called next
-int SV_SendQueuedPackets( void )
-{
+int SV_SendQueuedPackets( void ) {
 	int numBlocks;
 	int dlStart, deltaT, delayT;
 	static int dlNextRound = 0;

@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_HEALTH			100
 #define MAX_ARMOR			100
 #define	GIB_HEALTH			-40
-#define	ARMOR_PROTECTION	0.66
+#define	ARMOR_PROTECTION	0.66f
 
 #define	MAX_ITEMS			256
 
@@ -537,12 +537,12 @@ typedef enum itemType_e {
 #define MAX_ITEM_MODELS 2
 
 typedef struct gitem_s {
-	char		*classname;	// spawning name
-	char		*pickup_sound;
-	char		*world_model[MAX_ITEM_MODELS];
+	const char	*classname;		// spawning name
+	const char	*pickup_sound;
+	const char	*world_model[MAX_ITEM_MODELS];
 
-	char		*icon;
-	char		*pickup_name;	// for printing on pickup
+	const char	*icon;
+	const char	*pickup_name;	// for printing on pickup
 
 	int			quantity;		// for ammo how much, or duration of powerup
 	int			respawn;		// how long until this item spawns again after pickup
@@ -550,8 +550,8 @@ typedef struct gitem_s {
 
 	int			giTag;
 
-	char		*precaches;		// string of all models and images this item will use
-	char		*sounds;		// string of all sounds this item will use
+	const char	*precaches;		// string of all models and images this item will use
+	const char	*sounds;		// string of all sounds this item will use
 } gitem_t;
 
 // included in both the game dll and the client

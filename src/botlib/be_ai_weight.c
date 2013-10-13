@@ -56,8 +56,7 @@ weightconfig_t	*weightFileList[MAX_WEIGHT_FILES];
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int ReadValue(source_t *source, float *value)
-{
+int ReadValue(source_t *source, float *value) {
 	token_t token;
 
 	if (!PC_ExpectAnyToken(source, &token)) return qfalse;
@@ -87,8 +86,7 @@ int ReadValue(source_t *source, float *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int ReadFuzzyWeight(source_t *source, fuzzyseperator_t *fs)
-{
+int ReadFuzzyWeight(source_t *source, fuzzyseperator_t *fs) {
 	if (PC_CheckTokenString(source, "balance"))
 	{
 		fs->type = WT_BALANCE;
@@ -116,8 +114,7 @@ int ReadFuzzyWeight(source_t *source, fuzzyseperator_t *fs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void FreeFuzzySeperators_r(fuzzyseperator_t *fs)
-{
+void FreeFuzzySeperators_r(fuzzyseperator_t *fs) {
 	if (!fs) return;
 	if (fs->child) FreeFuzzySeperators_r(fs->child);
 	if (fs->next) FreeFuzzySeperators_r(fs->next);
@@ -129,8 +126,7 @@ void FreeFuzzySeperators_r(fuzzyseperator_t *fs)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void FreeWeightConfig2(weightconfig_t *config)
-{
+void FreeWeightConfig2(weightconfig_t *config) {
 	int i;
 
 	for (i = 0; i < config->numweights; i++)
@@ -146,8 +142,7 @@ void FreeWeightConfig2(weightconfig_t *config)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void FreeWeightConfig(weightconfig_t *config)
-{
+void FreeWeightConfig(weightconfig_t *config) {
 	if (!LibVarGetValue("bot_reloadcharacters")) return;
 	FreeWeightConfig2(config);
 } //end of the function FreeWeightConfig
@@ -157,8 +152,7 @@ void FreeWeightConfig(weightconfig_t *config)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
-{
+fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source) {
 	int newindent, index, def, founddefault;
 	token_t token;
 	fuzzyseperator_t *fs, *lastfs, *firstfs;
@@ -283,8 +277,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-weightconfig_t *ReadWeightConfig(char *filename)
-{
+weightconfig_t *ReadWeightConfig(char *filename) {
 	int newindent, avail = 0, n;
 	token_t token;
 	source_t *source;
@@ -449,8 +442,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean WriteFuzzyWeight(FILE *fp, fuzzyseperator_t *fs)
-{
+qboolean WriteFuzzyWeight(FILE *fp, fuzzyseperator_t *fs) {
 	if (fs->type == WT_BALANCE)
 	{
 		if (fprintf(fp, " return balance(") < 0) return qfalse;
@@ -475,8 +467,7 @@ qboolean WriteFuzzyWeight(FILE *fp, fuzzyseperator_t *fs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean WriteFuzzySeperators_r(FILE *fp, fuzzyseperator_t *fs, int indent)
-{
+qboolean WriteFuzzySeperators_r(FILE *fp, fuzzyseperator_t *fs, int indent) {
 	if (!WriteIndent(fp, indent)) return qfalse;
 	if (fprintf(fp, "switch(%d)\n", fs->index) < 0) return qfalse;
 	if (!WriteIndent(fp, indent)) return qfalse;
@@ -526,8 +517,7 @@ qboolean WriteFuzzySeperators_r(FILE *fp, fuzzyseperator_t *fs, int indent)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean WriteWeightConfig(char *filename, weightconfig_t *config)
-{
+qboolean WriteWeightConfig(char *filename, weightconfig_t *config) {
 	int i;
 	FILE *fp;
 	weight_t *ifw;
@@ -561,8 +551,7 @@ qboolean WriteWeightConfig(char *filename, weightconfig_t *config)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int FindFuzzyWeight(weightconfig_t *wc, char *name)
-{
+int FindFuzzyWeight(weightconfig_t *wc, char *name) {
 	int i;
 
 	for (i = 0; i < wc->numweights; i++)
@@ -580,8 +569,7 @@ int FindFuzzyWeight(weightconfig_t *wc, char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs)
-{
+float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs) {
 	float scale, w1, w2;
 
 	if (inventory[fs->index] < fs->value)
@@ -617,8 +605,7 @@ float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
-{
+float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs) {
 	float scale, w1, w2;
 
 	if (inventory[fs->index] < fs->value)
@@ -654,8 +641,7 @@ float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float FuzzyWeight(int *inventory, weightconfig_t *wc, int weightnum)
-{
+float FuzzyWeight(int *inventory, weightconfig_t *wc, int weightnum) {
 #ifdef EVALUATERECURSIVELY
 	return FuzzyWeight_r(inventory, wc->weights[weightnum].firstseperator);
 #else
@@ -685,8 +671,7 @@ float FuzzyWeight(int *inventory, weightconfig_t *wc, int weightnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float FuzzyWeightUndecided(int *inventory, weightconfig_t *wc, int weightnum)
-{
+float FuzzyWeightUndecided(int *inventory, weightconfig_t *wc, int weightnum) {
 #ifdef EVALUATERECURSIVELY
 	return FuzzyWeightUndecided_r(inventory, wc->weights[weightnum].firstseperator);
 #else
@@ -716,8 +701,7 @@ float FuzzyWeightUndecided(int *inventory, weightconfig_t *wc, int weightnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EvolveFuzzySeperator_r(fuzzyseperator_t *fs)
-{
+void EvolveFuzzySeperator_r(fuzzyseperator_t *fs) {
 	if (fs->child)
 	{
 		EvolveFuzzySeperator_r(fs->child);
@@ -739,8 +723,7 @@ void EvolveFuzzySeperator_r(fuzzyseperator_t *fs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EvolveWeightConfig(weightconfig_t *config)
-{
+void EvolveWeightConfig(weightconfig_t *config) {
 	int i;
 
 	for (i = 0; i < config->numweights; i++)
@@ -754,8 +737,7 @@ void EvolveWeightConfig(weightconfig_t *config)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale)
-{
+void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale) {
 	if (fs->child)
 	{
 		ScaleFuzzySeperator_r(fs->child, scale);
@@ -776,8 +758,7 @@ void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void ScaleWeight(weightconfig_t *config, char *name, float scale)
-{
+void ScaleWeight(weightconfig_t *config, char *name, float scale) {
 	int i;
 
 	if (scale < 0) scale = 0;
@@ -797,8 +778,7 @@ void ScaleWeight(weightconfig_t *config, char *name, float scale)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void ScaleFuzzySeperatorBalanceRange_r(fuzzyseperator_t *fs, float scale)
-{
+void ScaleFuzzySeperatorBalanceRange_r(fuzzyseperator_t *fs, float scale) {
 	if (fs->child)
 	{
 		ScaleFuzzySeperatorBalanceRange_r(fs->child, scale);
@@ -822,8 +802,7 @@ void ScaleFuzzySeperatorBalanceRange_r(fuzzyseperator_t *fs, float scale)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void ScaleFuzzyBalanceRange(weightconfig_t *config, float scale)
-{
+void ScaleFuzzyBalanceRange(weightconfig_t *config, float scale) {
 	int i;
 
 	if (scale < 0) scale = 0;
@@ -910,8 +889,7 @@ void InterbreedWeightConfigs(weightconfig_t *config1, weightconfig_t *config2,
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotShutdownWeights( void )
-{
+void BotShutdownWeights( void ) {
 	int i;
 
 	for( i = 0; i < MAX_WEIGHT_FILES; i++ )

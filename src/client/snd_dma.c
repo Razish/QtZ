@@ -112,29 +112,24 @@ void S_Base_SoundInfo( void ) {
 
 
 #ifdef USE_VOIP
-static void S_Base_StartCapture( void )
-{
+static void S_Base_StartCapture( void ) {
 	// !!! FIXME: write me.
 }
 
-static int S_Base_AvailableCaptureSamples( void )
-{
+static int S_Base_AvailableCaptureSamples( void ) {
 	// !!! FIXME: write me.
 	return 0;
 }
 
-static void S_Base_Capture( int samples, byte *data )
-{
+static void S_Base_Capture( int samples, byte *data ) {
 	// !!! FIXME: write me.
 }
 
-static void S_Base_StopCapture( void )
-{
+static void S_Base_StopCapture( void ) {
 	// !!! FIXME: write me.
 }
 
-static void S_Base_MasterGain( float val )
-{
+static void S_Base_MasterGain( float val ) {
 	// !!! FIXME: write me.
 }
 #endif
@@ -211,7 +206,7 @@ static long S_HashSFXName(const char *name) {
 	hash = 0;
 	i = 0;
 	while (name[i] != '\0') {
-		letter = tolower(name[i]);
+		letter = (char)tolower(name[i]);
 		if (letter =='.') break;				// don't include extension
 		if (letter =='\\') letter = '/';		// damn path names
 		hash+=(long)(letter)*(i+119);
@@ -287,7 +282,7 @@ void S_DefaultSound( sfx_t *sfx ) {
 
 
 	for ( i = 0 ; i < sfx->soundLength ; i++ ) {
-		sfx->soundData->sndChunk[i] = i;
+		sfx->soundData->sndChunk[i] = (short)i;
 	}
 }
 
@@ -317,7 +312,7 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 			return 0;
 		}
-		return sfx - s_knownSfx;
+		return ARRAY_INDEX( s_knownSfx, sfx );
 	}
 
 	sfx->inMemory = qfalse;
@@ -330,7 +325,7 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 		return 0;
 	}
 
-	return sfx - s_knownSfx;
+	return ARRAY_INDEX( s_knownSfx, sfx );
 }
 
 void S_Base_BeginRegistration( void ) {
@@ -359,8 +354,7 @@ void S_memoryLoad(sfx_t	*sfx) {
 }
 
 // Used for spatializing s_channels
-void S_SpatializeOrigin (vector3 *origin, int master_vol, int *left_vol, int *right_vol)
-{
+void S_SpatializeOrigin (vector3 *origin, int master_vol, int *left_vol, int *right_vol) {
     number		dot;
     number		dist;
     number		lscale, rscale, scale;
@@ -414,8 +408,7 @@ void S_SpatializeOrigin (vector3 *origin, int master_vol, int *left_vol, int *ri
 // Start a sound effect
 
 // Also see S_AL_HearingThroughEntity
-static qboolean S_Base_HearingThroughEntity( int entityNum, vector3 *origin )
-{
+static qboolean S_Base_HearingThroughEntity( int entityNum, vector3 *origin ) {
 	float	distanceSq;
 	vector3	sorigin;
 
@@ -832,8 +825,7 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, const byte *d
 }
 
 // Music streaming
-void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_channels, const byte *data, float volume, int entityNum)
-{
+void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_channels, const byte *data, float volume, int entityNum) {
 	int		i;
 	int		src, dst;
 	float	scale;
@@ -1060,8 +1052,7 @@ void S_Base_Update( void ) {
 	S_Update_();
 }
 
-void S_GetSoundtime( void )
-{
+void S_GetSoundtime( void ) {
 	int		samplepos;
 	static	int		buffers;
 	static	int		oldsamplepos;

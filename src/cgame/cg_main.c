@@ -218,8 +218,8 @@ const char *CG_Cvar_VariableString( const char *name ) {
 static void CG_RegisterItemSounds( int itemNum ) {
 	const gitem_t	*item;
 	char			data[MAX_QPATH];
-	char			*s, *start;
-	int				len;
+	const char		*start, *s;
+	size_t			len;
 
 	item = &bg_itemlist[ itemNum ];
 
@@ -638,18 +638,6 @@ static void CG_RegisterGraphics( void ) {
 	//trap->R_RegisterModel( "models/players/heads/"DEFAULT_MODEL"/"DEFAULT_MODEL".md3" );
 
 	CG_ClearParticles();
-/*
-	for (i=1; i<MAX_PARTICLES_AREAS; i++)
-	{
-		{
-			int rval;
-
-			rval = CG_NewParticleArea ( CS_PARTICLES + i);
-			if (!rval)
-				break;
-		}
-	}
-*/
 
 	cgs.media.brightModel				= trap->R_RegisterShader( "brightModel" );
 
@@ -662,7 +650,7 @@ static void CG_RegisterGraphics( void ) {
 }
 
 void CG_BuildSpectatorString( void ) {
-	int i;
+	size_t i;
 	cg.spectatorList[0] = 0;
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
@@ -1036,8 +1024,8 @@ static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 }
 
 
-static int CG_FeederCount(float feederID) {
-	int i, count;
+static size_t CG_FeederCount(float feederID) {
+	size_t i, count;
 	count = 0;
 	if (feederID == FEEDER_REDTEAM_LIST) {
 		for (i = 0; i < cg.numScores; i++) {
@@ -1111,7 +1099,7 @@ static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex
 	return &cgs.clientinfo[ cg.scores[index].client ];
 }
 
-static const char *CG_FeederItemText(float feederID, int index, int column, qhandle_t *handle) {
+static const char *CG_FeederItemText(float feederID, size_t index, size_t column, qhandle_t *handle) {
 	const gitem_t *item;
 	int scoreIndex = 0;
 	clientInfo_t *info = NULL;
@@ -1126,7 +1114,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 		team = TEAM_BLUE;
 	}
 
-	info = CG_InfoFromScoreIndex(index, team, &scoreIndex);
+	info = CG_InfoFromScoreIndex((int)index, team, &scoreIndex);
 	sp = &cg.scores[scoreIndex];
 
 	if (info && info->infoValid) {
@@ -1177,11 +1165,11 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 	return "";
 }
 
-static qhandle_t CG_FeederItemImage(float feederID, int index) {
+static qhandle_t CG_FeederItemImage(float feederID, size_t index) {
 	return 0;
 }
 
-static void CG_FeederSelection(float feederID, int index) {
+static void CG_FeederSelection(float feederID, size_t index) {
 	if ( cgs.gametype >= GT_TEAMBLOOD ) {
 		int i, count;
 		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
@@ -1207,7 +1195,7 @@ static float CG_Cvar_Get( const char *cvar ) {
 	return (float)atof( buff );
 }
 
-void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const char *text, int cursorPos, char cursor, int limit, int style) {
+void CG_Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const char *text, size_t cursorPos, char cursor, int limit, int style) {
 	CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
 }
 
@@ -1230,23 +1218,6 @@ static float CG_OwnerDrawWidth(int ownerDraw, float scale) {
 		break;
 	}
 	return 0.0f;
-}
-
-static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return trap->CIN_PlayCinematic(name, (int)x, (int)y, (int)w, (int)h, CIN_loop);
-}
-
-static void CG_StopCinematic(int handle) {
-	trap->CIN_StopCinematic(handle);
-}
-
-static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
-	trap->CIN_SetExtents(handle, (int)x, (int)y, (int)w, (int)h);
-	trap->CIN_DrawCinematic(handle);
-}
-
-static void CG_RunCinematicFrame(int handle) {
-	trap->CIN_RunCinematic(handle);
 }
 
 void CG_LoadHudMenu( void ) {
@@ -1299,10 +1270,6 @@ void CG_LoadHudMenu( void ) {
 	cgDC.registerSound = trap->S_RegisterSound;
 	cgDC.startBackgroundTrack = trap->S_StartBackgroundTrack;
 	cgDC.stopBackgroundTrack = trap->S_StopBackgroundTrack;
-	cgDC.playCinematic = &CG_PlayCinematic;
-	cgDC.stopCinematic = &CG_StopCinematic;
-	cgDC.drawCinematic = &CG_DrawCinematic;
-	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 	
 	Init_Display(&cgDC);
 

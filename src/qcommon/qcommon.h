@@ -358,12 +358,12 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 
 int		Cmd_Argc( void );
-char	*Cmd_Argv (int arg);
-void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
-char	*Cmd_Args( void );
-char	*Cmd_ArgsFrom( int arg );
-void	Cmd_ArgsBuffer( char *buffer, int bufferLength );
-char	*Cmd_Cmd( void );
+const char *Cmd_Argv (int arg);
+void	Cmd_ArgvBuffer( int arg, char *buffer, size_t bufferLength );
+const char	*Cmd_Args( void );
+const char	*Cmd_ArgsFrom( int arg );
+void	Cmd_ArgsBuffer( char *buffer, size_t bufferLength );
+const char	*Cmd_Cmd( void );
 void	Cmd_Args_Sanitize( void );
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv() will return an empty string, not a NULL
@@ -431,7 +431,7 @@ int		Cvar_VariableIntegerValue( const char *name );
 // returns 0 if not defined or non numeric
 
 char	*Cvar_VariableString( const char *name );
-void	Cvar_VariableStringBuffer( const char *name, char *buffer, int bufsize );
+void	Cvar_VariableStringBuffer( const char *name, char *buffer, size_t bufsize );
 // returns an empty string if not defined
 
 int	Cvar_Flags(const char *name);
@@ -461,7 +461,7 @@ char	*Cvar_InfoString( int bit );
 char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
-void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
+void	Cvar_InfoStringBuffer( int bit, char *buff, size_t buffsize );
 void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
 void	Cvar_Restart( void );
@@ -508,7 +508,7 @@ void	FS_Restart( int checksumFeed );
 
 void FS_AddGameDirectory( const char *path, const char *dir );
 
-char	**FS_ListFiles( const char *directory, const char *extension, int *numfiles );
+char	**FS_ListFiles( const char *directory, const char *extension, size_t *numfiles );
 // directory should not have either a leading or trailing /
 // if extension is "/", only subdirectories will be returned
 // the returned files will not include any directories or /
@@ -524,8 +524,8 @@ qboolean FS_CompareZipChecksum(const char *zipfile);
 
 int		FS_LoadStack( void );
 
-int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-int		FS_GetModList(  char *listbuf, int bufsize );
+size_t	FS_GetFileList(  const char *path, const char *extension, char *listbuf, size_t bufsize );
+size_t	FS_GetModList(  char *listbuf, size_t bufsize );
 
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 fileHandle_t	FS_FOpenFileAppend( const char *filename );
@@ -688,7 +688,7 @@ sysEvent_t	Com_GetSystemEvent( void );
 char		*CopyString( const char *in );
 void		Info_Print( const char *s );
 
-void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
+void		Com_BeginRedirect (char *buffer, size_t buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
@@ -698,9 +698,9 @@ void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
-char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
-int			Com_Filter(char *filter, char *name, int casesensitive);
-int			Com_FilterPath(char *filter, char *name, int casesensitive);
+char		*Com_MD5File(const char *filename, int length, const char *prefix, size_t prefix_len);
+int			Com_Filter(const char *filter, char *name, int casesensitive);
+int			Com_FilterPath(const char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
 qboolean	Com_SafeMode( void );
 void		Com_RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
@@ -799,7 +799,7 @@ void *S_Malloc( size_t size );			// NOT 0 filled memory only for small allocatio
 #endif
 void Z_Free( void *ptr );
 void Z_FreeTags( int tag );
-int Z_AvailableMemory( void );
+size_t Z_AvailableMemory( void );
 void Z_LogHeap( void );
 
 void Hunk_Clear( void );
@@ -807,9 +807,9 @@ void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
 qboolean Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
-void *Hunk_AllocateTempMemory( int size );
+void *Hunk_AllocateTempMemory( size_t size );
 void Hunk_FreeTempMemory( void *buf );
-int	Hunk_MemoryRemaining( void );
+size_t Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
 
 void Com_TouchMemory( void );
@@ -835,7 +835,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu, const char *reason );
-void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
 
@@ -895,7 +895,7 @@ void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 //
 
 void		SV_Init( void );
-void		SV_Shutdown( char *finalmsg );
+void		SV_Shutdown( const char *finalmsg );
 void		SV_Frame( int msec );
 void		SV_PacketEvent( netadr_t from, msg_t *msg );
 int			SV_FrameMsec( void );
@@ -934,7 +934,7 @@ void	Sys_Print( const char *msg );
 // any game related timing information should come from event timestamps
 int		Sys_Milliseconds( void );
 
-qboolean Sys_RandomBytes( byte *string, int len );
+qboolean Sys_RandomBytes( byte *string, size_t len );
 
 // the system console is shown when a dedicated server is running
 void	Sys_DisplaySystemConsole( qboolean show );
@@ -968,7 +968,7 @@ const char *Sys_Dirname( char *path );
 const char *Sys_Basename( char *path );
 char *Sys_ConsoleInput( void );
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void	Sys_FreeFileList( char **list );
 void	Sys_Sleep(int msec);
 

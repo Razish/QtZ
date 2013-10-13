@@ -1,8 +1,7 @@
 #include "q_shared.h"
 #include "linkedlist.h"
 
-linkedList_t *LinkedList_PushObject( linkedList_t **root, void *data )
-{
+linkedList_t *LinkedList_PushObject( linkedList_t **root, void *data ) {
 	if ( *root == NULL )
 	{//No root object
 		linkedList_t *newNode = (linkedList_t *)malloc( sizeof( linkedList_t ) );
@@ -29,8 +28,7 @@ linkedList_t *LinkedList_PushObject( linkedList_t **root, void *data )
 	}
 }
 
-void LinkedList_RemoveObject( linkedList_t **root, linkedList_t *node )
-{
+void LinkedList_RemoveObject( linkedList_t **root, linkedList_t *node ) {
 	linkedList_t *currNode = *root;
 
 	if ( node == *root )
@@ -53,7 +51,6 @@ void LinkedList_RemoveObject( linkedList_t **root, linkedList_t *node )
 }
 
 // for ( node=root; node; node=Traverse( node ) )
-linkedList_t *LinkedList_Traverse( linkedList_t *node )
-{
+linkedList_t *LinkedList_Traverse( linkedList_t *node ) {
 	return node ? node->next : NULL;
 }

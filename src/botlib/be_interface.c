@@ -74,8 +74,7 @@ int botlibsetup = qfalse;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Sys_MilliSeconds( void )
-{
+int Sys_MilliSeconds( void ) {
 	return clock() * 1000 / CLOCKS_PER_SEC;
 } //end of the function Sys_MilliSeconds
 //===========================================================================
@@ -84,8 +83,7 @@ int Sys_MilliSeconds( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean ValidClientNumber(int num, char *str)
-{
+qboolean ValidClientNumber(int num, char *str) {
 	if (num < 0 || num > botlibglobals.maxclients)
 	{
 		//weird: the disabled stuff results in a crash
@@ -101,8 +99,7 @@ qboolean ValidClientNumber(int num, char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean ValidEntityNumber(int num, char *str)
-{
+qboolean ValidEntityNumber(int num, char *str) {
 	if (num < 0 || num > botlibglobals.maxentities)
 	{
 		botimport.Print(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n",
@@ -117,8 +114,7 @@ qboolean ValidEntityNumber(int num, char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean BotLibSetup(char *str)
-{
+qboolean BotLibSetup(char *str) {
 	if (!botlibglobals.botlibsetup)
 	{
 		botimport.Print(PRT_ERROR, "%s: bot library used before being setup\n", str);
@@ -133,8 +129,7 @@ qboolean BotLibSetup(char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibSetup( void )
-{
+int Export_BotLibSetup( void ) {
 	int		errnum;
 	
 	botDeveloper = (int)LibVarGetValue("bot_developer");
@@ -195,8 +190,7 @@ int Export_BotLibSetup( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibShutdown( void )
-{
+int Export_BotLibShutdown( void ) {
 	if (!BotLibSetup("BotLibShutdown")) return BLERR_LIBRARYNOTSETUP;
 #ifndef DEMO
 	//DumpFileCRCs();
@@ -238,8 +232,7 @@ int Export_BotLibShutdown( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarSet(char *name, char *value)
-{
+int Export_BotLibVarSet(char *name, char *value) {
 	LibVarSet(name, value);
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarSet
@@ -249,8 +242,7 @@ int Export_BotLibVarSet(char *name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarGet(char *name, char *value, int size)
-{
+int Export_BotLibVarGet(char *name, char *value, size_t size) {
 	char *varvalue;
 
 	varvalue = LibVarGetString(name);
@@ -264,8 +256,7 @@ int Export_BotLibVarGet(char *name, char *value, int size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibStartFrame(float time)
-{
+int Export_BotLibStartFrame(float time) {
 	if (!BotLibSetup("BotStartFrame")) return BLERR_LIBRARYNOTSETUP;
 	return AAS_StartFrame(time);
 } //end of the function Export_BotLibStartFrame
@@ -275,8 +266,7 @@ int Export_BotLibStartFrame(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibLoadMap(const char *mapname)
-{
+int Export_BotLibLoadMap(const char *mapname) {
 #ifdef DEBUG
 	int starttime = Sys_MilliSeconds();
 #endif
@@ -305,8 +295,7 @@ int Export_BotLibLoadMap(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state)
-{
+int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state) {
 	if (!BotLibSetup("BotUpdateEntity")) return BLERR_LIBRARYNOTSETUP;
 	if (!ValidEntityNumber(ent, "BotUpdateEntity")) return BLERR_INVALIDENTITYNUMBER;
 
@@ -338,8 +327,7 @@ float BotGapDistance(vector3 *origin, vector3 *hordir, int entnum);
 
 void AAS_FloodAreas(vector3 *origin);
 
-int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3)
-{
+int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3) {
 
 //	return AAS_PointLight(parm2, NULL, NULL, NULL);
 

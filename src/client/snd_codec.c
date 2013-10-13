@@ -27,8 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static snd_codec_t *codecs;
 
 // Opens/loads a sound, tries codec based on the sound's file extension then tries all supported codecs.
-static void *S_CodecGetSound(const char *filename, snd_info_t *info)
-{
+static void *S_CodecGetSound(const char *filename, snd_info_t *info) {
 	snd_codec_t *codec;
 	snd_codec_t *orgCodec = NULL;
 	qboolean	orgNameFailed = qfalse;
@@ -108,8 +107,7 @@ static void *S_CodecGetSound(const char *filename, snd_info_t *info)
 	return NULL;
 }
 
-void S_CodecInit( void )
-{
+void S_CodecInit( void ) {
 	codecs = NULL;
 
 #ifdef USE_CODEC_VORBIS
@@ -120,41 +118,34 @@ void S_CodecInit( void )
 	S_CodecRegister(&wav_codec);
 }
 
-void S_CodecShutdown( void )
-{
+void S_CodecShutdown( void ) {
 	codecs = NULL;
 }
 
-void S_CodecRegister(snd_codec_t *codec)
-{
+void S_CodecRegister(snd_codec_t *codec) {
 	codec->next = codecs;
 	codecs = codec;
 }
 
-void *S_CodecLoad(const char *filename, snd_info_t *info)
-{
+void *S_CodecLoad(const char *filename, snd_info_t *info) {
 	return S_CodecGetSound(filename, info);
 }
 
-snd_stream_t *S_CodecOpenStream(const char *filename)
-{
+snd_stream_t *S_CodecOpenStream(const char *filename) {
 	return S_CodecGetSound(filename, NULL);
 }
 
-void S_CodecCloseStream(snd_stream_t *stream)
-{
+void S_CodecCloseStream(snd_stream_t *stream) {
 	stream->codec->close(stream);
 }
 
-int S_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
-{
+int S_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer) {
 	return stream->codec->read(stream, bytes, buffer);
 }
 
 // Util functions (used by codecs)
 
-snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
-{
+snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec) {
 	snd_stream_t *stream;
 	fileHandle_t hnd;
 	int length;
@@ -182,8 +173,7 @@ snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
 	return stream;
 }
 
-void S_CodecUtilClose(snd_stream_t **stream)
-{
+void S_CodecUtilClose(snd_stream_t **stream) {
 	FS_FCloseFile((*stream)->file);
 	Z_Free(*stream);
 	*stream = NULL;

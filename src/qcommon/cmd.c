@@ -30,8 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef struct cmd_s {
 	byte	*data;
-	int		maxsize;
-	int		cursize;
+	size_t	maxsize, cursize;
 } cmd_t;
 
 int			cmd_wait;
@@ -58,8 +57,7 @@ void Cmd_Wait_f( void ) {
 
 */
 
-void Cbuf_Init( void )
-{
+void Cbuf_Init( void ) {
 	cmd_text.data = cmd_text_buf;
 	cmd_text.maxsize = MAX_CMD_BUFFER;
 	cmd_text.cursize = 0;
@@ -84,8 +82,7 @@ void Cbuf_AddText( const char *text ) {
 // Adds command text immediately after the current command
 //	Adds a \n to the text
 void Cbuf_InsertText( const char *text ) {
-	size_t	len;
-	int		i;
+	size_t	len, i;
 
 	len = strlen( text ) + 1;
 	if ( len + cmd_text.cursize > cmd_text.maxsize ) {
@@ -94,8 +91,10 @@ void Cbuf_InsertText( const char *text ) {
 	}
 
 	// move the existing command text
-	for ( i = cmd_text.cursize - 1 ; i >= 0 ; i-- ) {
-		cmd_text.data[ i + len ] = cmd_text.data[ i ];
+	if ( cmd_text.cursize > 0U ) {
+		for ( i = cmd_text.cursize-1; i > 0; i-- ) {
+			cmd_text.data[ i + len ] = cmd_text.data[ i ];
+		}
 	}
 
 	// copy the new text in
@@ -107,8 +106,7 @@ void Cbuf_InsertText( const char *text ) {
 	cmd_text.cursize += len;
 }
 
-void Cbuf_ExecuteText (int exec_when, const char *text)
-{
+void Cbuf_ExecuteText (int exec_when, const char *text) {
 	switch (exec_when)
 	{
 	case EXEC_NOW:
@@ -131,8 +129,7 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	}
 }
 
-void Cbuf_Execute( void )
-{
+void Cbuf_Execute( void ) {
 	int		i;
 	char	*text;
 	char	line[MAX_CMD_LINE];
@@ -262,8 +259,7 @@ void Cmd_Vstr_f( void ) {
 }
 
 // Just prints the rest of the line to the console
-void Cmd_Echo_f( void )
-{
+void Cmd_Echo_f( void ) {
 	Com_Printf ("%s\n", Cmd_Args());
 }
 
@@ -294,7 +290,7 @@ int		Cmd_Argc( void ) {
 	return cmd_argc;
 }
 
-char	*Cmd_Argv( int arg ) {
+const char *Cmd_Argv( int arg ) {
 	if ( arg >= cmd_argc )
 		return "";
 
@@ -302,12 +298,12 @@ char	*Cmd_Argv( int arg ) {
 }
 
 // The interpreted versions use this because they can't have pointers returned to them
-void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength ) {
+void	Cmd_ArgvBuffer( int arg, char *buffer, size_t bufferLength ) {
 	Q_strncpyz( buffer, Cmd_Argv( arg ), bufferLength );
 }
 
 // Returns a single string containing argv(1) to argv(argc()-1)
-char	*Cmd_Args( void ) {
+const char	*Cmd_Args( void ) {
 	static	char		cmd_args[MAX_STRING_CHARS];
 	int		i;
 
@@ -323,7 +319,7 @@ char	*Cmd_Args( void ) {
 }
 
 // Returns a single string containing argv(arg) to argv(argc()-1)
-char *Cmd_ArgsFrom( int arg ) {
+const char *Cmd_ArgsFrom( int arg ) {
 	static	char		cmd_args[BIG_INFO_STRING];
 	int		i;
 
@@ -341,14 +337,13 @@ char *Cmd_ArgsFrom( int arg ) {
 }
 
 // The interpreted versions use this because they can't have pointers returned to them
-void	Cmd_ArgsBuffer( char *buffer, int bufferLength ) {
+void	Cmd_ArgsBuffer( char *buffer, size_t bufferLength ) {
 	Q_strncpyz( buffer, Cmd_Args(), bufferLength );
 }
 
 // Retrieve the unmodified command string
 //	For rcon use when you want to transmit without altering quoting
-char *Cmd_Cmd( void )
-{
+const char *Cmd_Cmd( void ) {
 	return cmd_cmd;
 }
 
@@ -359,8 +354,7 @@ char *Cmd_Cmd( void )
    https://bugzilla.icculus.org/show_bug.cgi?id=4769
 */
 
-void Cmd_Args_Sanitize( void )
-{
+void Cmd_Args_Sanitize( void ) {
 	int i;
 
 	for(i = 1; i < cmd_argc; i++)
@@ -493,8 +487,7 @@ void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
 	Cmd_TokenizeString2( text_in, qtrue );
 }
 
-cmd_function_t *Cmd_FindCommand( const char *cmd_name )
-{
+cmd_function_t *Cmd_FindCommand( const char *cmd_name ) {
 	cmd_function_t *cmd;
 	for( cmd = cmd_functions; cmd; cmd = cmd->next )
 		if( !Q_stricmp( cmd_name, cmd->name ) )
@@ -545,8 +538,7 @@ void	Cmd_RemoveCommand( const char *cmd_name ) {
 }
 
 // Only remove commands with no associated function
-void Cmd_RemoveCommandSafe( const char *cmd_name )
-{
+void Cmd_RemoveCommandSafe( const char *cmd_name ) {
 	cmd_function_t *cmd = Cmd_FindCommand( cmd_name );
 
 	if( !cmd )
@@ -631,11 +623,10 @@ void	Cmd_ExecuteString( const char *text ) {
 	CL_ForwardCommandToServer ( text );
 }
 
-void Cmd_List_f( void )
-{
+void Cmd_List_f( void ) {
 	cmd_function_t	*cmd;
 	int				i;
-	char			*match;
+	const char		*match;
 
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );

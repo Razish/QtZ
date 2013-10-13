@@ -48,8 +48,7 @@ typedef struct MD5Context {
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
  */
-static void MD5Init(struct MD5Context *ctx)
-{
+static void MD5Init(struct MD5Context *ctx) {
     ctx->buf[0] = 0x67452301;
     ctx->buf[1] = 0xefcdab89;
     ctx->buf[2] = 0x98badcfe;
@@ -163,9 +162,7 @@ static void MD5Transform(uint32_t buf[4],
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static void MD5Update(struct MD5Context *ctx, unsigned char const *buf,
-	unsigned len)
-{
+static void MD5Update(struct MD5Context *ctx, unsigned char const *buf, size_t len) {
     uint32_t t;
 
     /* Update bitcount */
@@ -173,7 +170,7 @@ static void MD5Update(struct MD5Context *ctx, unsigned char const *buf,
     t = ctx->bits[0];
     if ((ctx->bits[0] = t + ((uint32_t) len << 3)) < t)
 	ctx->bits[1]++;		/* Carry from low to high */
-    ctx->bits[1] += len >> 29;
+    ctx->bits[1] += (uint32_t)(len >> 29);
 
     t = (t >> 3) & 0x3f;	/* Bytes already in shsInfo->data */
 
@@ -213,8 +210,7 @@ static void MD5Update(struct MD5Context *ctx, unsigned char const *buf,
  * Final wrapup - pad to 64-byte boundary with the bit pattern 
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
-static void MD5Final(struct MD5Context *ctx, unsigned char *digest)
-{
+static void MD5Final(struct MD5Context *ctx, unsigned char *digest) {
     unsigned count;
     unsigned char *p;
 
@@ -257,8 +253,7 @@ static void MD5Final(struct MD5Context *ctx, unsigned char *digest)
 }
 
 
-char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_len )
-{
+char *Com_MD5File( const char *fn, int length, const char *prefix, size_t prefix_len ) {
 	static char final[33] = {""};
 	unsigned char digest[16] = {""}; 
 	fileHandle_t f;

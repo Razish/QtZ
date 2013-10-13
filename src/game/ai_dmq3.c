@@ -105,7 +105,7 @@ int red_numaltroutegoals;
 aas_altroutegoal_t blue_altroutegoals[MAX_ALTROUTEGOALS];
 int blue_numaltroutegoals;
 
-void BotSetUserInfo(bot_state_t *bs, char *key, char *value) {
+void BotSetUserInfo(bot_state_t *bs, char *key, const char *value) {
 	char userinfo[MAX_INFO_STRING];
 
 	trap->SV_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
@@ -831,7 +831,7 @@ int BotPointAreaNum(vector3 *origin) {
 	return 0;
 }
 
-char *ClientName(int client, char *name, int size) {
+char *ClientName(int client, char *name, size_t size) {
 	char buf[MAX_INFO_STRING];
 
 	if (client < 0 || client >= MAX_CLIENTS) {
@@ -845,7 +845,7 @@ char *ClientName(int client, char *name, int size) {
 	return name;
 }
 
-char *ClientSkin(int client, char *skin, int size) {
+char *ClientSkin(int client, char *skin, size_t size) {
 	char buf[MAX_INFO_STRING];
 
 	if (client < 0 || client >= MAX_CLIENTS) {
@@ -903,7 +903,7 @@ char *stristr(char *str, char *charset) {
 	return NULL;
 }
 
-char *EasyClientName(int client, char *buf, int size) {
+char *EasyClientName(int client, char *buf, size_t size) {
 	int i;
 	char *str1, *str2, *ptr, c;
 	char name[128];
@@ -1085,8 +1085,7 @@ void BotUpdateBattleInventory(bot_state_t *bs, int enemy) {
 	//FIXME: add num visible enemies and num visible team mates to the inventory
 }
 
-void BotBattleUseItems(bot_state_t *bs)
-{
+void BotBattleUseItems(bot_state_t *bs) {
 	if ( bs->inventory[INVENTORY_HEALTH] < 60 )
 	{
 		if ( bs->inventory[INVENTORY_MEDKIT] > 0 )
@@ -1623,8 +1622,7 @@ int BotSameTeam(bot_state_t *bs, int entnum) {
 	return qfalse;
 }
 
-qboolean InFieldOfVision(vector3 *viewangles, float fov, vector3 *angles)
-{
+qboolean InFieldOfVision(vector3 *viewangles, float fov, vector3 *angles) {
 	int i;
 	float diff, angle;
 

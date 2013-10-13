@@ -117,8 +117,6 @@ typedef struct windowDef_s {
 	rectDef_t rectClient;           // screen coord rectangle
 	const char *name;               //
 	const char *group;              // if it belongs to a group
-	const char *cinematicName;		  // cinematic name
-	int cinematic;								  // cinematic handle
 	int style;                      //
 	int border;                     //
 	int ownerDraw;									// ownerDraw style
@@ -161,27 +159,27 @@ typedef struct columnInfo_s {
 } columnInfo_t;
 
 typedef struct listBoxDef_s {
-	int startPos;
-	int endPos;
-	int drawPadding;
-	int cursorPos;
-	float elementWidth;
-	float elementHeight;
-	int elementStyle;
-	int numColumns;
-	columnInfo_t columnInfo[MAX_LB_COLUMNS];
-	const char *doubleClick;
-	qboolean notselectable;
+	size_t			startPos;
+	size_t			endPos;
+	int				drawPadding;
+	size_t			cursorPos;
+	float			elementWidth;
+	float			elementHeight;
+	int				elementStyle;
+	int				numColumns;
+	columnInfo_t	columnInfo[MAX_LB_COLUMNS];
+	const char		*doubleClick;
+	qboolean		notselectable;
 } listBoxDef_t;
 
 typedef struct editFieldDef_s {
-	float minVal;                  //	edit field limits
-	float maxVal;                  //
-	float defVal;                  //
-	float range;									 // 
-	int maxChars;                  // for edit fields
-	int maxPaintChars;             // for edit fields
-	int paintOffset;							 // 
+	float	minVal;			//	edit field limits
+	float	maxVal;			// 
+	float	defVal;			// 
+	float	range;			// 
+	int		maxChars;		// for edit fields
+	int		maxPaintChars;	// for edit fields
+	size_t	paintOffset;	// 
 } editFieldDef_t;
 
 #define MAX_MULTI_CVARS 32
@@ -254,7 +252,7 @@ typedef struct itemDef_s {
 	int numColors;								 // number of color ranges
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];
 	float special;								 // used for feeder id's etc.. diff per type
-	int cursorPos;                 // cursor position in characters
+	size_t cursorPos;                 // cursor position in characters
 	void *typeData;								 // type specific data ptr's	
 
 	const char	*descText;					//	Description text
@@ -283,10 +281,9 @@ typedef struct menuDef_s {
 
 	vector4 focusColor;								// focus color for items
 	vector4 disableColor;							// focus color for items
-	itemDef_t *items[MAX_MENUITEMS];	// items this menu contains   
+	itemDef_t *items[MAX_MENUITEMS];	// items this menu contains
 
-	int			descX;						// X position of description
-	int			descY;						// X position of description
+	float		descX, descY;				// position of description
 	vector4		descColor;					// description text color for items
 	int			descAlignment;				// Description of alignment
 	float		descScale;					// Description scale
@@ -361,20 +358,20 @@ typedef struct displayContextDef_s {
 	void			(*runScript)			( char **p );
 	qboolean		(*deferScript)			( char **p );
 	void			(*getTeamColor)			( vector4 *color );
-	void			(*getCVarString)		( const char *cvar, char *buffer, int bufsize );
+	void			(*getCVarString)		( const char *cvar, char *buffer, size_t bufsize );
 	float			(*getCVarValue)			( const char *cvar );
 	void			(*setCVar)				( const char *cvar, const char *value );
-	void			(*drawTextWithCursor)	( float x, float y, float scale, vector4 *color, const char *text, int cursorPos, char cursor, int limit, int style );
+	void			(*drawTextWithCursor)	( float x, float y, float scale, vector4 *color, const char *text, size_t cursorPos, char cursor, int limit, int style );
 	void			(*setOverstrikeMode)	( qboolean b );
 	qboolean		(*getOverstrikeMode)	( void );
 	void			(*startLocalSound)		( sfxHandle_t sfx, int channelNum );
 	qboolean		(*ownerDrawHandleKey)	( int ownerDraw, int flags, float *special, int key );
-	int				(*feederCount)			( float feederID );
-	const char *	(*feederItemText)		( float feederID, int index, int column, qhandle_t *handle );
-	qhandle_t		(*feederItemImage)		( float feederID, int index );
-	void			(*feederSelection)		( float feederID, int index );
-	void			(*keynumToStringBuf)	( int keynum, char *buf, int buflen );
-	void			(*getBindingBuf)		( int keynum, char *buf, int buflen );
+	size_t			(*feederCount)			( float feederID );
+	const char *	(*feederItemText)		( float feederID, size_t index, size_t column, qhandle_t *handle );
+	qhandle_t		(*feederItemImage)		( float feederID, size_t index );
+	void			(*feederSelection)		( float feederID, size_t index );
+	void			(*keynumToStringBuf)	( int keynum, char *buf, size_t buflen );
+	void			(*getBindingBuf)		( int keynum, char *buf, size_t buflen );
 	void			(*setBinding)			( int keynum, const char *binding );
 	void			(*executeText)			( int exec_when, const char *text );	
 	void			(*Error)				( int level, const char *error, ... ) __attribute__( (noreturn, format(printf, 2, 3)) );
@@ -384,10 +381,6 @@ typedef struct displayContextDef_s {
 	sfxHandle_t		(*registerSound)		( const char *name, qboolean compressed );
 	void			(*startBackgroundTrack)	( const char *intro, const char *loop );
 	void			(*stopBackgroundTrack)	( void );
-	int				(*playCinematic)		( const char *name, float x, float y, float w, float h );
-	void			(*stopCinematic)		( int handle );
-	void			(*drawCinematic)		( int handle, float x, float y, float w, float h );
-	void			(*runCinematicFrame)	( int handle );
 
 	float			yscale, xscale;
 	float			bias;
@@ -448,7 +441,7 @@ void					Menus_ShowByName			( const char *p );
 void					Menus_CloseByName			( const char *p );
 void					Menus_CloseAll				( void );
 void					Menu_Paint					( menuDef_t *menu, qboolean forcePaint );
-void					Menu_SetFeederSelection		( menuDef_t *menu, int feeder, int index, const char *name );
+void					Menu_SetFeederSelection		( menuDef_t *menu, size_t feeder, size_t index, const char *name );
 
 void					LerpColor					( vector4 *a, vector4 *b, vector4 *c, float t );
 

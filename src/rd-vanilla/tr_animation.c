@@ -64,7 +64,7 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 	md4Header_t		*header;
 	md4Frame_t		*frame;
 	md4Frame_t		*oldFrame;
-	int				frameSize;
+	size_t			frameSize;
 
 
 	if (  backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame ) {
@@ -76,7 +76,7 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 	}
 	header = (md4Header_t *)((byte *)surface + surface->ofsHeader);
 
-	frameSize = (size_t)( &((md4Frame_t *)0)->bones[ header->numBones ] );
+	frameSize = offsetof( md4Frame_t, bones[header->numBones] );
 
 	frame = (md4Frame_t *)((byte *)header + header->ofsFrames + 
 			backEnd.currentEntity->e.frame * frameSize );
@@ -408,8 +408,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	}
 }
 
-void RB_MDRSurfaceAnim( md4Surface_t *surface )
-{
+void RB_MDRSurfaceAnim( md4Surface_t *surface ) {
 	int				i, j, k;
 	float			frontlerp, backlerp;
 	int				*triangles;
@@ -565,8 +564,7 @@ void RB_MDRSurfaceAnim( md4Surface_t *surface )
 #define MC_POS_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8))/8))
 #define MC_SHIFT_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8)%8)))
 
-void MC_UnCompress(float mat[3][4],const unsigned char * comp)
-{
+void MC_UnCompress(float mat[3][4],const unsigned char * comp) {
 	int val;
 
 	val=(int)((unsigned short *)(comp))[0];

@@ -49,8 +49,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef struct midrangearea_s
 {
 	int valid;
-	unsigned short starttime;
-	unsigned short goaltime;
+	int starttime;
+	int goaltime;
 } midrangearea_t;
 
 midrangearea_t *midrangeareas;
@@ -63,8 +63,7 @@ int numclusterareas;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_AltRoutingFloodCluster_r(int areanum)
-{
+void AAS_AltRoutingFloodCluster_r(int areanum) {
 	int i, otherareanum;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -213,8 +212,7 @@ int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, i
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAlternativeRouting( void )
-{
+void AAS_InitAlternativeRouting( void ) {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);
 	midrangeareas = (midrangearea_t *) GetMemory(aasworld.numareas * sizeof(midrangearea_t));
@@ -228,8 +226,7 @@ void AAS_InitAlternativeRouting( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShutdownAlternativeRouting( void )
-{
+void AAS_ShutdownAlternativeRouting( void ) {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);
 	midrangeareas = NULL;

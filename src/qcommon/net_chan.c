@@ -71,8 +71,7 @@ void Netchan_Init( int port ) {
 }
 
 // called to open a channel to a remote system
-void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat)
-{
+void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat) {
 	memset (chan, 0, sizeof(*chan));
 	
 	chan->sock = sock;
@@ -383,8 +382,7 @@ typedef struct loopback_s {
 loopback_t	loopbacks[2];
 
 
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
-{
+qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message) {
 	int		i;
 	loopback_t	*loop;
 
@@ -408,8 +406,7 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 }
 
 
-void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
-{
+void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to) {
 	int		i;
 	loopback_t	*loop;
 
@@ -461,8 +458,7 @@ static void NET_QueuePacket( int length, const void *data, netadr_t to,
 	}
 }
 
-void NET_FlushPacketQueue( void )
-{
+void NET_FlushPacketQueue( void ) {
 	packetQueue_t *last;
 	int now;
 
@@ -525,7 +521,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 	va_end( argptr );
 
 	// send the datagram
-	NET_SendPacket( sock, strlen( string ), string, adr );
+	NET_SendPacket( sock, (int)strlen( string ), string, adr );
 }
 
 // Sends a data message in an out-of-band datagram (only used for "connect")
@@ -553,8 +549,7 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 
 // Traps "localhost" for loopback, passes everything else to system
 //	return 0 on address not found, 1 on address found with port, 2 on address found without port.
-int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family )
-{
+int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family ) {
 	char	base[MAX_STRING_CHARS], *search;
 	char	*port = NULL;
 

@@ -339,7 +339,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
 	body->s.powerups = 0;	// clear powerups
 	body->s.loopSound = 0;	// clear lava burning
-	body->s.number = body - g_entities;
+	body->s.number = ARRAY_INDEX( g_entities, body );
 	body->timestamp = level.time;
 	body->physicsObject = qtrue;
 	body->physicsBounce = 0;		// don't bounce
@@ -456,8 +456,7 @@ team_t PickTeam( int ignoreClientNum ) {
 	return TEAM_BLUE;
 }
 
-static void ClientCleanName(const char *in, char *out, int outSize)
-{
+static void ClientCleanName(const char *in, char *out, size_t outSize) {
 	int outpos = 0, colorlessLen = 0, spaces = 0;
 
 	// discard leading spaces
@@ -737,7 +736,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
-	index = ent - g_entities;
+	index = ARRAY_INDEX( g_entities, ent );
 	client = ent->client;
 
 	VectorClear(&spawn_origin);
@@ -854,7 +853,7 @@ void ClientSpawn(gentity_t *ent) {
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
-	trap->SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	trap->SV_GetUsercmd( ARRAY_INDEX( level.clients, client ), &ent->client->pers.cmd );
 	SetClientViewAngle( ent, &spawn_angles );
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -902,7 +901,7 @@ void ClientSpawn(gentity_t *ent) {
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
-	ClientThink( ent-g_entities );
+	ClientThink( ARRAY_INDEX( g_entities, ent ) );
 
 	// run the presend to set anything else
 	if ( ent->client->sess.spectatorState != SPECTATOR_FOLLOW )

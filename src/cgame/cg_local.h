@@ -549,22 +549,22 @@ typedef struct cg_s {
 
 	// scoreboard
 	int			scoresRequestTime;
-	int			numScores;
-	int			selectedScore;
+	size_t		numScores;
+	size_t		selectedScore;
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 	char		killerName[MAX_NETNAME];
-	char			spectatorList[MAX_STRING_CHARS];		// list of names
-	int				spectatorLen;												// length of list
-	float			spectatorWidth;											// width in device units
-	int				spectatorTime;											// next time to offset
-	int				spectatorPaintX;										// current paint x
-	int				spectatorPaintX2;										// current paint x
-	int				spectatorOffset;										// current offset from start
-	int				spectatorPaintLen; 									// current offset from start
+	char		spectatorList[MAX_STRING_CHARS];	// list of names
+	size_t		spectatorLen;						// length of list
+	float		spectatorWidth;						// width in device units
+	int			spectatorTime;						// next time to offset
+	float		spectatorPaintX;					// current paint x
+	float		spectatorPaintX2;					// current paint x
+	int			spectatorOffset;					// current offset from start
+	int			spectatorPaintLen; 					// current offset from start
 
 	// centerprinting
 	int			centerPrintTime;
@@ -1254,7 +1254,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 //
 // cg_teambinds.c
 //
-void CG_HandleTeamBinds( char *buf, int bufsize );
+void CG_HandleTeamBinds( char *buf, size_t bufsize );
 
 //
 // cg_chatbox.c
@@ -1270,7 +1270,7 @@ void CG_ChatboxClear( void );
 void CG_ChatboxEscape( void );
 void CG_MessageModeAll( void );
 void CG_MessageModeTeam( void );
-void CG_ChatboxChar( int key );
+void CG_ChatboxChar( char key );
 qboolean CG_ChatboxActive( void );
 
 //

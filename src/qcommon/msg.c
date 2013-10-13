@@ -82,8 +82,7 @@ void MSG_BeginReadingOOB( msg_t *msg ) {
 	msg->oob = qtrue;
 }
 
-void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
-{
+void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src) {
 	if (length<src->cursize) {
 		Com_Error( ERR_DROP, "MSG_Copy: can't copy into a smaller msg_t buffer");
 	}
@@ -139,13 +138,13 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	if (msg->oob) {
 		if(bits==8)
 		{
-			msg->data[msg->cursize] = value;
+			msg->data[msg->cursize] = (byte)value;
 			msg->cursize += 1;
 			msg->bit += 8;
 		}
 		else if(bits==16)
 		{
-			short temp = value;
+			short temp = (short)value;
 			
 			CopyLittleShort(&msg->data[msg->cursize], &temp);
 			msg->cursize += 2;
@@ -304,7 +303,7 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 	if ( !s ) {
 		MSG_WriteData (sb, "", 1);
 	} else {
-		int		l,i;
+		size_t	l, i;
 		char	string[MAX_STRING_CHARS];
 
 		l = strlen( s );
@@ -322,7 +321,7 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 			}
 		}
 
-		MSG_WriteData (sb, string, l+1);
+		MSG_WriteData (sb, string, (int)l+1);
 	}
 }
 
@@ -330,7 +329,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 	if ( !s ) {
 		MSG_WriteData (sb, "", 1);
 	} else {
-		int		l,i;
+		size_t	l,i;
 		char	string[BIG_INFO_STRING];
 
 		l = strlen( s );
@@ -348,7 +347,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 			}
 		}
 
-		MSG_WriteData (sb, string, l+1);
+		MSG_WriteData (sb, string, (int)l+1);
 	}
 }
 
@@ -449,7 +448,7 @@ char *MSG_ReadString( msg_t *msg ) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string)-1);
 	
@@ -477,7 +476,7 @@ char *MSG_ReadBigString( msg_t *msg ) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string)-1);
 	
@@ -505,7 +504,7 @@ char *MSG_ReadStringLine( msg_t *msg ) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string)-1);
 	
@@ -522,7 +521,7 @@ void MSG_ReadData( msg_t *msg, void *data, int len ) {
 	int		i;
 
 	for (i=0 ; i<len ; i++) {
-		((byte *)data)[i] = MSG_ReadByte (msg);
+		((byte *)data)[i] = (byte)MSG_ReadByte (msg);
 	}
 }
 
@@ -685,20 +684,20 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	} else {
 		to->serverTime = MSG_ReadBits( msg, 32 );
 	}
-	to->angles[0] = MSG_ReadDelta( msg, from->angles[0], 16);
-	to->angles[1] = MSG_ReadDelta( msg, from->angles[1], 16);
-	to->angles[2] = MSG_ReadDelta( msg, from->angles[2], 16);
-	to->forwardmove = MSG_ReadDelta( msg, from->forwardmove, 8);
+	to->angles[0] = (short)MSG_ReadDelta( msg, from->angles[0], 16);
+	to->angles[1] = (short)MSG_ReadDelta( msg, from->angles[1], 16);
+	to->angles[2] = (short)MSG_ReadDelta( msg, from->angles[2], 16);
+	to->forwardmove = (signed char)MSG_ReadDelta( msg, from->forwardmove, 8);
 	if( to->forwardmove == -128 )
 		to->forwardmove = -127;
-	to->rightmove = MSG_ReadDelta( msg, from->rightmove, 8);
+	to->rightmove = (signed char)MSG_ReadDelta( msg, from->rightmove, 8);
 	if( to->rightmove == -128 )
 		to->rightmove = -127;
-	to->upmove = MSG_ReadDelta( msg, from->upmove, 8);
+	to->upmove = (signed char)MSG_ReadDelta( msg, from->upmove, 8);
 	if( to->upmove == -128 )
 		to->upmove = -127;
-	to->buttons = MSG_ReadDelta( msg, from->buttons, 8);
-	to->weapon = MSG_ReadDelta( msg, from->weapon, 8);
+	to->buttons = (byte)MSG_ReadDelta( msg, from->buttons, 8);
+	to->weapon = (byte)MSG_ReadDelta( msg, from->weapon, 8);
 }
 
 void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to ) {
@@ -741,20 +740,20 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 	}
 	if ( MSG_ReadBits( msg, 1 ) ) {
 		key ^= to->serverTime;
-		to->angles[0] = MSG_ReadDeltaKey( msg, key, from->angles[0], 16);
-		to->angles[1] = MSG_ReadDeltaKey( msg, key, from->angles[1], 16);
-		to->angles[2] = MSG_ReadDeltaKey( msg, key, from->angles[2], 16);
-		to->forwardmove = MSG_ReadDeltaKey( msg, key, from->forwardmove, 8);
+		to->angles[0] = (short)MSG_ReadDeltaKey( msg, key, from->angles[0], 16);
+		to->angles[1] = (short)MSG_ReadDeltaKey( msg, key, from->angles[1], 16);
+		to->angles[2] = (short)MSG_ReadDeltaKey( msg, key, from->angles[2], 16);
+		to->forwardmove = (signed char)MSG_ReadDeltaKey( msg, key, from->forwardmove, 8);
 		if( to->forwardmove == -128 )
 			to->forwardmove = -127;
-		to->rightmove = MSG_ReadDeltaKey( msg, key, from->rightmove, 8);
+		to->rightmove = (signed char)MSG_ReadDeltaKey( msg, key, from->rightmove, 8);
 		if( to->rightmove == -128 )
 			to->rightmove = -127;
-		to->upmove = MSG_ReadDeltaKey( msg, key, from->upmove, 8);
+		to->upmove = (signed char)MSG_ReadDeltaKey( msg, key, from->upmove, 8);
 		if( to->upmove == -128 )
 			to->upmove = -127;
-		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 8);
-		to->weapon = MSG_ReadDeltaKey( msg, key, from->weapon, 8);
+		to->buttons = (byte)MSG_ReadDeltaKey( msg, key, from->buttons, 8);
+		to->weapon = (byte)MSG_ReadDeltaKey( msg, key, from->weapon, 8);
 	} else {
 		to->angles[0] = from->angles[0];
 		to->angles[1] = from->angles[1];
@@ -785,12 +784,12 @@ void MSG_ReportChangeVectors_f( void ) {
 
 typedef struct netField_s {
 	char	*name;
-	int		offset;
+	size_t	offset;
 	int		bits;		// 0 = float
 } netField_t;
 
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,(size_t)&((entityState_t*)0)->x
+#define	NETF(x) #x,offsetof(entityState_t, x)
 
 netField_t	entityStateFields[] = 
 {
@@ -1090,7 +1089,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,(size_t)&((playerState_t*)0)->x
+#define	PSF(x) #x,offsetof(playerState_t, x)
 
 netField_t	playerStateFields[] = 
 {

@@ -38,10 +38,11 @@ int	numSortedTeamPlayers;
 extern float zoomFov; //this has to be global client-side
 
 float CG_Text_Width(const char *text, float scale, int limit) {
-	int count,len;
-	float out;
+	int count;
+	size_t len;
+	float out, useScale;
 	glyphInfo_t *glyph;
-	float useScale;
+
 	// FIXME: see ui_main.c, same problem
 	//	const unsigned char *s = text;
 	const char *s = text;
@@ -75,10 +76,10 @@ float CG_Text_Width(const char *text, float scale, int limit) {
 }
 
 float CG_Text_Height(const char *text, float scale, int limit) {
-	int len, count;
-	float max;
+	size_t len;
+	int count;
+	float max, useScale;
 	glyphInfo_t *glyph;
-	float useScale;
 	// TTimo: FIXME
 	//	const unsigned char *s = text;
 	const char *s = text;
@@ -122,11 +123,13 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 }
 
 void CG_Text_Paint(float x, float y, float scale, const vector4 *color, const char *text, float adjust, int limit, int style) {
-	int len, count;
+	size_t len;
+	int count;
 	vector4 newColor;
 	glyphInfo_t *glyph;
 	float useScale;
 	fontInfo_t *font = &cgDC.Assets.textFont;
+
 	if (scale <= ui_smallFont->value) {
 		font = &cgDC.Assets.smallFont;
 	} else if (scale > ui_bigFont->value) {
@@ -329,8 +332,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 	}
 }
 
-void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
-{
+void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team ) {
 	vector4		hcolor;
 
 	hcolor.a = alpha;
@@ -693,8 +695,7 @@ static void CG_DrawCenterString( void ) {
 */
 
 
-static void CG_DrawCrosshair( void )
-{
+static void CG_DrawCrosshair( void ) {
 	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize->value, h = cg_crosshairSize->value, f = 0.0f;
 	int			i = 0;
 	vector4	finalColour = { 1.0 };
@@ -777,8 +778,7 @@ static void CG_DrawCrosshair( void )
 //		w, h, 0, 0, 1, 1, hShader );
 }
 
-static void CG_DrawCrosshair3D( void )
-{
+static void CG_DrawCrosshair3D( void ) {
 	float		w;
 	qhandle_t	hShader;
 	float		f;
@@ -908,8 +908,8 @@ static void CG_DrawSpectator( void ) {
 }
 
 static void CG_DrawVote( void ) {
-	char	*s;
-	int		sec;
+	const char *s;
+	int sec;
 
 	if ( !cgs.voteTime ) {
 		return;
@@ -956,7 +956,7 @@ static qboolean CG_DrawFollow( void ) {
 
 static void CG_DrawAmmoWarning( void ) {
 	const char *s = "LOW AMMO WARNING";
-	int w;
+	float w;
 
 	if ( cg_drawAmmoWarning->integer == 0 )
 		return;
@@ -1072,8 +1072,7 @@ void CG_DrawDebugInfo( void ) {
 //	CG_Text_Paint( 32.0f, 128.0f, 0.25f, &g_color_table[ColorIndex(COLOR_WHITE)], va( "movement dir: %d", cg.predictedPlayerState.movementDir ), 0.0f, -1, 0 );
 }
 
-static void CG_Draw2D(stereoFrame_t stereoFrame)
-{
+static void CG_Draw2D(stereoFrame_t stereoFrame) {
 	if ( !cg_draw2D->boolean )
 		return;
 

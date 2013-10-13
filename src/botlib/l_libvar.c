@@ -42,8 +42,7 @@ libvar_t *libvarlist = NULL;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float LibVarStringValue(char *string)
-{
+float LibVarStringValue(char *string) {
 	int dotfound = 0;
 	float value = 0;
 
@@ -80,8 +79,7 @@ float LibVarStringValue(char *string)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-libvar_t *LibVarAlloc(char *name)
-{
+libvar_t *LibVarAlloc(char *name) {
 	libvar_t *v;
 
 	v = (libvar_t *) GetMemory(sizeof(libvar_t));
@@ -99,8 +97,7 @@ libvar_t *LibVarAlloc(char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void LibVarDeAlloc(libvar_t *v)
-{
+void LibVarDeAlloc(libvar_t *v) {
 	if (v->string) FreeMemory(v->string);
 	FreeMemory(v->name);
 	FreeMemory(v);
@@ -111,8 +108,7 @@ void LibVarDeAlloc(libvar_t *v)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void LibVarDeAllocAll( void )
-{
+void LibVarDeAllocAll( void ) {
 	libvar_t *v;
 
 	for (v = libvarlist; v; v = libvarlist)
@@ -128,8 +124,7 @@ void LibVarDeAllocAll( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-libvar_t *LibVarGet(char *name)
-{
+libvar_t *LibVarGet(char *name) {
 	libvar_t *v;
 
 	for (v = libvarlist; v; v = v->next)
@@ -147,8 +142,7 @@ libvar_t *LibVarGet(char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-char *LibVarGetString(char *name)
-{
+char *LibVarGetString(char *name) {
 	libvar_t *v;
 
 	v = LibVarGet(name);
@@ -167,8 +161,7 @@ char *LibVarGetString(char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float LibVarGetValue(char *name)
-{
+float LibVarGetValue(char *name) {
 	libvar_t *v;
 
 	v = LibVarGet(name);
@@ -187,8 +180,7 @@ float LibVarGetValue(char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-libvar_t *LibVar(char *name, char *value)
-{
+libvar_t *LibVar(char *name, char *value) {
 	libvar_t *v;
 	v = LibVarGet(name);
 	if (v) return v;
@@ -210,8 +202,7 @@ libvar_t *LibVar(char *name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-char *LibVarString(char *name, char *value)
-{
+char *LibVarString(char *name, char *value) {
 	libvar_t *v;
 
 	v = LibVar(name, value);
@@ -223,8 +214,7 @@ char *LibVarString(char *name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float LibVarValue(char *name, char *value)
-{
+float LibVarValue(char *name, char *value) {
 	libvar_t *v;
 
 	v = LibVar(name, value);
@@ -236,8 +226,7 @@ float LibVarValue(char *name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void LibVarSet(char *name, char *value)
-{
+void LibVarSet(char *name, char *value) {
 	libvar_t *v;
 
 	v = LibVarGet(name);
@@ -263,8 +252,7 @@ void LibVarSet(char *name, char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean LibVarChanged(char *name)
-{
+qboolean LibVarChanged(char *name) {
 	libvar_t *v;
 
 	v = LibVarGet(name);
@@ -283,8 +271,7 @@ qboolean LibVarChanged(char *name)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void LibVarSetNotModified(char *name)
-{
+void LibVarSetNotModified(char *name) {
 	libvar_t *v;
 
 	v = LibVarGet(name);

@@ -235,8 +235,7 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	tess.numVertexes += srf->numVerts;
 }
 
-static void RB_SurfaceBeam( void )
-{
+static void RB_SurfaceBeam( void ) {
 #define NUM_BEAM_SEGS 6
 	refEntity_t *e;
 	int	i;
@@ -287,8 +286,7 @@ static void RB_SurfaceBeam( void )
 	qglEnd();
 }
 
-static void DoRailCore( const vector3 *start, const vector3 *end, const vector3 *up, float len, float spanWidth )
-{
+static void DoRailCore( const vector3 *start, const vector3 *end, const vector3 *up, float len, float spanWidth ) {
 	float		spanWidth2;
 	int			vbase;
 	float		t = len / 256.0f;
@@ -404,8 +402,7 @@ static void RB_SurfaceLightningBolt( void ) {
 
 // The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
 //	This means that we don't have to worry about zero length or enormously long vectors.
-static void VectorArrayNormalize(vector3 *normals, unsigned int count)
-{
+static void VectorArrayNormalize(vector3 *normals, unsigned int count) {
 //    assert(count);
         
 #ifdef idppc
@@ -455,8 +452,7 @@ static void VectorArrayNormalize(vector3 *normals, unsigned int count)
 }
 
 #ifdef idppc_altivec
-static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
-{
+static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp) {
 	short	*oldXyz, *newXyz, *oldNormals, *newNormals;
 	float	*outXyz, *outNormal;
 	float	oldXyzScale QALIGN(16);
@@ -584,8 +580,7 @@ static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
 }
 #endif
 
-static void LerpMeshVertexes_scalar(md3Surface_t *surf, float backlerp)
-{
+static void LerpMeshVertexes_scalar(md3Surface_t *surf, float backlerp) {
 	short	*oldXyz, *newXyz, *oldNormals, *newNormals;
 	vector3	*outXyz, *outNormal;
 	float	oldXyzScale, newXyzScale;
@@ -680,8 +675,7 @@ static void LerpMeshVertexes_scalar(md3Surface_t *surf, float backlerp)
    	}
 }
 
-static void LerpMeshVertexes(md3Surface_t *surf, float backlerp)
-{
+static void LerpMeshVertexes(md3Surface_t *surf, float backlerp) {
 #ifdef idppc_altivec
 	if (com_altivec->integer) {
 		// must be in a seperate function or G3 systems will crash.
@@ -1011,8 +1005,7 @@ static void RB_SurfaceBad( surfaceType_t *surfType ) {
 	ri->Printf( PRINT_ALL, "Bad surface tesselated.\n" );
 }
 
-static void RB_SurfaceFlare(srfFlare_t *surf)
-{
+static void RB_SurfaceFlare(srfFlare_t *surf) {
 	if (r_flares->integer)
 		RB_AddFlare(surf, tess.fogNum, &surf->origin, &surf->color, &surf->normal);
 }

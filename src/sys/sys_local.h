@@ -40,9 +40,9 @@ void CON_Init( void );
 char *CON_Input( void );
 void CON_Print( const char *message );
 
-unsigned int CON_LogSize( void );
-unsigned int CON_LogWrite( const char *in );
-unsigned int CON_LogRead( char *out, unsigned int outSize );
+size_t CON_LogSize( void );
+size_t CON_LogWrite( const char *in );
+size_t CON_LogRead( char *out, size_t outSize );
 
 #ifdef MACOS_X
 char *Sys_StripAppBundle( char *pwd );

@@ -67,7 +67,7 @@ void IN_MLookUp( void ) {
 
 void IN_KeyDown( kbutton_t *b ) {
 	int		k;
-	char	*c;
+	const char	*c;
 	
 	c = Cmd_Argv(1);
 	if ( c[0] ) {
@@ -103,7 +103,7 @@ void IN_KeyDown( kbutton_t *b ) {
 
 void IN_KeyUp( kbutton_t *b ) {
 	int		k;
-	char	*c;
+	const char	*c;
 	unsigned	uptime;
 
 	c = Cmd_Argv(1);
@@ -303,8 +303,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	cmd->upmove = ClampChar( cmd->upmove + (int) (j_up->value * cl.joystickAxis[j_up_axis->integer]) );
 }
 
-void CL_MouseMove(usercmd_t *cmd)
-{
+void CL_MouseMove(usercmd_t *cmd) {
 	float mx, my;
 
 	// allow mouse smoothing
@@ -418,7 +417,7 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	int		i;
 
 	// copy the state that the cgame is currently sending
-	cmd->weapon = cl.cgameUserCmdValue;
+	cmd->weapon = (byte)cl.cgameUserCmdValue;
 
 	// send the current server time so the amount of movement
 	// can be determined without allowing cheating
@@ -497,7 +496,7 @@ qboolean CL_ReadyToSendPacket( void ) {
 	int		delta;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || clc.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying ) {
 		return qfalse;
 	}
 
@@ -564,7 +563,7 @@ void CL_WritePacket( void ) {
 	int			count, key;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || clc.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying ) {
 		return;
 	}
 
@@ -839,8 +838,7 @@ void CL_InitInput( void ) {
 	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0, "Show graph for mouse movement", NULL );
 }
 
-void CL_ShutdownInput( void )
-{
+void CL_ShutdownInput( void ) {
 	Cmd_RemoveCommand( "centerview" );
 
 	RemoveButton( "+moveup" );

@@ -105,7 +105,7 @@ struct gentity_s {
 
 	// house-keeping
 	qboolean			inuse;
-	char				*classname;
+	const char			*classname;
 	qboolean			neverFree;	// if true, FreeEntity will only unlink. bodyque uses this
 	int					freetime;	// level.time when the object was freed
 	int					eventTime;	// events will be cleared EVENT_VALID_MSEC after set
@@ -405,7 +405,7 @@ typedef struct level_locals_s {
 	qboolean			spawning;				// the G_Spawn*() functions are valid
 	int					numSpawnVars;
 	char				*spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
-	int					numSpawnVarChars;
+	size_t				numSpawnVarChars;
 	char				spawnVarChars[MAX_SPAWN_VARS_CHARS];
 
 	// intermission state
@@ -494,7 +494,7 @@ void SaveRegisteredItems( void );
 //
 int G_ModelIndex( char *name );
 int		G_SoundIndex( char *name );
-void	G_TeamCommand( team_t team, char *cmd );
+void	G_TeamCommand( team_t team, const char *cmd );
 void	G_KillBox (gentity_t *ent);
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t *G_PickTarget (char *targetname);
@@ -643,7 +643,7 @@ void Team_CheckDroppedItem( gentity_t *dropped );
 //
 // g_mem.c
 //
-void *G_Alloc( int size );
+void *G_Alloc( size_t size );
 void G_InitMemory( void );
 void Svcmd_GameMem_f( void );
 

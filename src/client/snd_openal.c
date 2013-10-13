@@ -51,8 +51,7 @@ static qboolean enumeration_all_ext = qfalse;
 static qboolean capture_ext = qfalse;
 #endif
 
-static ALuint S_AL_Format(int width, int channels)
-{
+static ALuint S_AL_Format(int width, int channels) {
 	ALuint format = AL_FORMAT_MONO16;
 
 	// Work out format
@@ -74,8 +73,7 @@ static ALuint S_AL_Format(int width, int channels)
 	return format;
 }
 
-static const char *S_AL_ErrorMsg(ALenum error)
-{
+static const char *S_AL_ErrorMsg(ALenum error) {
 	switch(error)
 	{
 		case AL_NO_ERROR:
@@ -95,8 +93,7 @@ static const char *S_AL_ErrorMsg(ALenum error)
 	}
 }
 
-static void S_AL_ClearError( qboolean quiet )
-{
+static void S_AL_ClearError( qboolean quiet ) {
 	int error = qalGetError();
 
 	if( quiet )
@@ -135,8 +132,7 @@ static sfxHandle_t numSfx = 0;
 static sfxHandle_t default_sfx;
 
 // Find a free handle
-static sfxHandle_t S_AL_BufferFindFree( void )
-{
+static sfxHandle_t S_AL_BufferFindFree( void ) {
 	int i;
 
 	for(i = 0; i < MAX_SFX; i++)
@@ -156,8 +152,7 @@ static sfxHandle_t S_AL_BufferFindFree( void )
 }
 
 // Find a sound effect if loaded, set up a handle otherwise
-static sfxHandle_t S_AL_BufferFind(const char *filename)
-{
+static sfxHandle_t S_AL_BufferFind(const char *filename) {
 	// Look it up in the table
 	sfxHandle_t sfx = -1;
 	int i;
@@ -203,8 +198,7 @@ static sfxHandle_t S_AL_BufferFind(const char *filename)
 	return sfx;
 }
 
-static void S_AL_BufferUseDefault(sfxHandle_t sfx)
-{
+static void S_AL_BufferUseDefault(sfxHandle_t sfx) {
 	if(sfx == default_sfx)
 		Com_Error(ERR_FATAL, "Can't load default sound effect %s", knownSfx[sfx].filename);
 
@@ -213,8 +207,7 @@ static void S_AL_BufferUseDefault(sfxHandle_t sfx)
 	knownSfx[sfx].buffer = knownSfx[default_sfx].buffer;
 }
 
-static void S_AL_BufferUnload(sfxHandle_t sfx)
-{
+static void S_AL_BufferUnload(sfxHandle_t sfx) {
 	if(knownSfx[sfx].filename[0] == '\0')
 		return;
 
@@ -231,8 +224,7 @@ static void S_AL_BufferUnload(sfxHandle_t sfx)
 	knownSfx[sfx].inMemory = qfalse;
 }
 
-static qboolean S_AL_BufferEvict( void )
-{
+static qboolean S_AL_BufferEvict( void ) {
 	int	i, oldestBuffer = -1;
 	int	oldestTime = Sys_Milliseconds( );
 
@@ -260,8 +252,7 @@ static qboolean S_AL_BufferEvict( void )
 		return qfalse;
 }
 
-static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
-{
+static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache) {
 	ALenum error;
 	ALuint format;
 
@@ -360,8 +351,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 	curSfx->inMemory = qtrue;
 }
 
-static void S_AL_BufferUse(sfxHandle_t sfx)
-{
+static void S_AL_BufferUse(sfxHandle_t sfx) {
 	if(knownSfx[sfx].filename[0] == '\0')
 		return;
 
@@ -370,8 +360,7 @@ static void S_AL_BufferUse(sfxHandle_t sfx)
 	knownSfx[sfx].lastUsedTime = Sys_Milliseconds();
 }
 
-static qboolean S_AL_BufferInit( void )
-{
+static qboolean S_AL_BufferInit( void ) {
 	if(alBuffersInitialised)
 		return qtrue;
 
@@ -392,8 +381,7 @@ static qboolean S_AL_BufferInit( void )
 	return qtrue;
 }
 
-static void S_AL_BufferShutdown( void )
-{
+static void S_AL_BufferShutdown( void ) {
 	int i;
 
 	if(!alBuffersInitialised)
@@ -413,8 +401,7 @@ static void S_AL_BufferShutdown( void )
 	alBuffersInitialised = qfalse;
 }
 
-static sfxHandle_t S_AL_RegisterSound( const char *sample, qboolean compressed )
-{
+static sfxHandle_t S_AL_RegisterSound( const char *sample, qboolean compressed ) {
 	sfxHandle_t sfx = S_AL_BufferFind(sample);
 
 	if((!knownSfx[sfx].inMemory) && (!knownSfx[sfx].isDefault))
@@ -429,8 +416,7 @@ static sfxHandle_t S_AL_RegisterSound( const char *sample, qboolean compressed )
 }
 
 // Return's a sfx's buffer
-static ALuint S_AL_BufferGet(sfxHandle_t sfx)
-{
+static ALuint S_AL_BufferGet(sfxHandle_t sfx) {
 	return knownSfx[sfx].buffer;
 }
 
@@ -488,8 +474,7 @@ typedef struct sentity_s {
 static sentity_t entityList[MAX_GENTITIES];
 
 #define S_AL_SanitiseVector(v) _S_AL_SanitiseVector(v,__LINE__)
-static void _S_AL_SanitiseVector( vector3 *v, int line )
-{
+static void _S_AL_SanitiseVector( vector3 *v, int line ) {
 	if( Q_isnan( v->x ) || Q_isnan( v->y ) || Q_isnan( v->z ) ) {
 		Com_DPrintf( S_COLOR_YELLOW "WARNING: vector with one or more NaN components being passed to OpenAL at %s:%d -- zeroing\n", __FILE__, line );
 		VectorClear( v );
@@ -497,8 +482,7 @@ static void _S_AL_SanitiseVector( vector3 *v, int line )
 }
 
 // Set gain to 0 if muted, otherwise set it to given value.
-static void S_AL_Gain(ALuint source, float gainval)
-{
+static void S_AL_Gain(ALuint source, float gainval) {
 	if(s_muted->integer)
 		qalSourcef(source, AL_GAIN, 0.0f);
 	else
@@ -506,8 +490,7 @@ static void S_AL_Gain(ALuint source, float gainval)
 }
 
 // Adapt the gain if necessary to get a quicker fadeout when the source is too far away.
-static void S_AL_ScaleGain(src_t *chksrc, vector3 *origin)
-{
+static void S_AL_ScaleGain(src_t *chksrc, vector3 *origin) {
 	float distance;
 	
 	if(!chksrc->local)
@@ -540,8 +523,7 @@ static void S_AL_ScaleGain(src_t *chksrc, vector3 *origin)
 }
 
 // Also see S_Base_HearingThroughEntity
-static qboolean S_AL_HearingThroughEntity( int entityNum )
-{
+static qboolean S_AL_HearingThroughEntity( int entityNum ) {
 	float	distanceSq;
 
 	if( lastListenerNumber == entityNum )
@@ -565,8 +547,7 @@ static qboolean S_AL_HearingThroughEntity( int entityNum )
 		return qfalse; //not the player
 }
 
-static qboolean S_AL_SrcInit( void )
-{
+static qboolean S_AL_SrcInit( void ) {
 	int i;
 	int limit;
 
@@ -598,8 +579,7 @@ static qboolean S_AL_SrcInit( void )
 	return qtrue;
 }
 
-static void S_AL_SrcShutdown( void )
-{
+static void S_AL_SrcShutdown( void ) {
 	int i;
 	src_t *curSource;
 
@@ -676,8 +656,7 @@ static void S_AL_SrcSetup(srcHandle_t src, sfxHandle_t sfx, alSrcPriority_t prio
 }
 
 // Remove given source as loop master if it is the master and hand off master status to another source in this case.
-static void S_AL_SaveLoopPos(src_t *dest, ALuint alSource)
-{
+static void S_AL_SaveLoopPos(src_t *dest, ALuint alSource) {
 	int error;
 	
 	S_AL_ClearError(qfalse);
@@ -700,8 +679,7 @@ static void S_AL_SaveLoopPos(src_t *dest, ALuint alSource)
 }
 
 // Remove given source as loop master if it is the master and hand off master status to another source in this case.
-static void S_AL_NewLoopMaster(src_t *rmSource, qboolean iskilled)
-{
+static void S_AL_NewLoopMaster(src_t *rmSource, qboolean iskilled) {
 	int index;
 	src_t *curSource = NULL;
 	alSfx_t *curSfx;
@@ -786,8 +764,7 @@ static void S_AL_NewLoopMaster(src_t *rmSource, qboolean iskilled)
 		curSfx->masterLoopSrc = -1;
 }
 
-static void S_AL_SrcKill(srcHandle_t src)
-{
+static void S_AL_SrcKill(srcHandle_t src) {
 	src_t *curSource = &srcList[src];
 	
 	// I'm not touching it. Unlock it first.
@@ -837,8 +814,7 @@ static void S_AL_SrcKill(srcHandle_t src)
 	curSource->local = qfalse;
 }
 
-static srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int channel )
-{
+static srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int channel ) {
 	int i;
 	int empty = -1;
 	int weakest = -1;
@@ -926,8 +902,7 @@ static srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int chan
 // Finds an active source with matching entity and channel numbers
 //	Returns -1 if there isn't one
 #if 0
-static srcHandle_t S_AL_SrcFind(int entnum, int channel)
-{
+static srcHandle_t S_AL_SrcFind(int entnum, int channel) {
 	int i;
 	for(i = 0; i < srcCount; i++)
 	{
@@ -941,19 +916,16 @@ static srcHandle_t S_AL_SrcFind(int entnum, int channel)
 #endif
 
 // Locked sources will not be automatically reallocated or managed
-static void S_AL_SrcLock(srcHandle_t src)
-{
+static void S_AL_SrcLock(srcHandle_t src) {
 	srcList[src].isLocked = qtrue;
 }
 
 // Once unlocked, the source may be reallocated again
-static void S_AL_SrcUnlock(srcHandle_t src)
-{
+static void S_AL_SrcUnlock(srcHandle_t src) {
 	srcList[src].isLocked = qfalse;
 }
 
-static void S_AL_UpdateEntityPosition( int entityNum, const vector3 *origin )
-{
+static void S_AL_UpdateEntityPosition( int entityNum, const vector3 *origin ) {
 	vector3 sanOrigin;
 
 	VectorCopy( origin, &sanOrigin );
@@ -965,8 +937,7 @@ static void S_AL_UpdateEntityPosition( int entityNum, const vector3 *origin )
 
 // Check whether input values from mods are out of range.
 //	Necessary for i.g. Western Quake3 mod which is buggy.
-static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx)
-{
+static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx) {
 	if (entityNum < 0 || entityNum >= MAX_GENTITIES)
 		Com_Error(ERR_DROP, "ERROR: S_AL_CheckInput: bad entitynum %i", entityNum);
 
@@ -980,8 +951,7 @@ static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx)
 }
 
 // Play a local (non-spatialized) sound effect
-static void S_AL_StartLocalSound(sfxHandle_t sfx, int channel)
-{
+static void S_AL_StartLocalSound(sfxHandle_t sfx, int channel) {
 	srcHandle_t src;
 	
 	if(S_AL_CheckInput(0, sfx))
@@ -1002,8 +972,7 @@ static void S_AL_StartLocalSound(sfxHandle_t sfx, int channel)
 }
 
 // Play a one-shot sound effect
-static void S_AL_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx )
-{
+static void S_AL_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx ) {
 	vector3 sorigin;
 	srcHandle_t src;
 	src_t *curSource;
@@ -1059,8 +1028,7 @@ static void S_AL_StartSound( vector3 *origin, int entnum, int entchannel, sfxHan
 	qalSourcePlay(curSource->alSource);
 }
 
-static void S_AL_ClearLoopingSounds( qboolean killall )
-{
+static void S_AL_ClearLoopingSounds( qboolean killall ) {
 	int i;
 	for(i = 0; i < srcCount; i++)
 	{
@@ -1069,8 +1037,7 @@ static void S_AL_ClearLoopingSounds( qboolean killall )
 	}
 }
 
-static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vector3 *origin, const vector3 *velocity, int entityNum )
-{
+static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vector3 *origin, const vector3 *velocity, int entityNum ) {
 	int				src;
 	sentity_t	*sent = &entityList[ entityNum ];
 	src_t		*curSource;
@@ -1155,25 +1122,21 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vecto
 	}
 }
 
-static void S_AL_AddLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx)
-{
+static void S_AL_AddLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx) {
 	S_AL_SrcLoop(SRCPRI_ENTITY, sfx, origin, velocity, entityNum);
 }
 
-static void S_AL_AddRealLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx)
-{
+static void S_AL_AddRealLoopingSound(int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx) {
 	S_AL_SrcLoop(SRCPRI_AMBIENT, sfx, origin, velocity, entityNum);
 }
 
-static void S_AL_StopLoopingSound(int entityNum )
-{
+static void S_AL_StopLoopingSound(int entityNum ) {
 	if(entityList[entityNum].srcAllocated)
 		S_AL_SrcKill(entityList[entityNum].srcIndex);
 }
 
 // Update state (move things around, manage sources, and so on)
-static void S_AL_SrcUpdate( void )
-{
+static void S_AL_SrcUpdate( void ) {
 	int i;
 	int entityNum;
 	ALint state;
@@ -1365,15 +1328,13 @@ static void S_AL_SrcUpdate( void )
 	}
 }
 
-static void S_AL_SrcShutup( void )
-{
+static void S_AL_SrcShutup( void ) {
 	int i;
 	for(i = 0; i < srcCount; i++)
 		S_AL_SrcKill(i);
 }
 
-static ALuint S_AL_SrcGet(srcHandle_t src)
-{
+static ALuint S_AL_SrcGet(srcHandle_t src) {
 	return srcList[src].alSource;
 }
 
@@ -1381,8 +1342,7 @@ static srcHandle_t streamSourceHandles[MAX_RAW_STREAMS];
 static qboolean streamPlaying[MAX_RAW_STREAMS];
 static ALuint streamSources[MAX_RAW_STREAMS];
 
-static void S_AL_AllocateStreamChannel(int stream, int entityNum)
-{
+static void S_AL_AllocateStreamChannel(int stream, int entityNum) {
         srcHandle_t cursrc;
         ALuint alsrc;
         
@@ -1434,8 +1394,7 @@ static void S_AL_AllocateStreamChannel(int stream, int entityNum)
        	streamSources[stream] = alsrc;
 }
 
-static void S_AL_FreeStreamChannel( int stream )
-{
+static void S_AL_FreeStreamChannel( int stream ) {
 	if ((stream < 0) || (stream >= MAX_RAW_STREAMS))
 		return;
 
@@ -1446,8 +1405,7 @@ static void S_AL_FreeStreamChannel( int stream )
 	streamSourceHandles[stream] = -1;
 }
 
-static void S_AL_RawSamples(int stream, int samples, int rate, int width, int channels, const byte *data, float volume, int entityNum)
-{
+static void S_AL_RawSamples(int stream, int samples, int rate, int width, int channels, const byte *data, float volume, int entityNum) {
 	ALuint buffer;
 	ALuint format;
 
@@ -1483,8 +1441,7 @@ static void S_AL_RawSamples(int stream, int samples, int rate, int width, int ch
         }
 }
 
-static void S_AL_StreamUpdate( int stream )
-{
+static void S_AL_StreamUpdate( int stream ) {
 	int		numBuffers;
 	ALint	state;
 
@@ -1523,8 +1480,7 @@ static void S_AL_StreamUpdate( int stream )
 	}
 }
 
-static void S_AL_StreamDie( int stream )
-{
+static void S_AL_StreamDie( int stream ) {
 	int		numBuffers;
 
 	if ((stream < 0) || (stream >= MAX_RAW_STREAMS))
@@ -1563,8 +1519,7 @@ static char s_backgroundLoop[MAX_QPATH];
 
 static byte decode_buffer[MUSIC_BUFFER_SIZE];
 
-static void S_AL_MusicSourceGet( void )
-{
+static void S_AL_MusicSourceGet( void ) {
 	// Allocate a musicSource at high priority
 	musicSourceHandle = S_AL_SrcAlloc(SRCPRI_STREAM, -2, 0);
 	if(musicSourceHandle == -1)
@@ -1586,16 +1541,14 @@ static void S_AL_MusicSourceGet( void )
 	qalSourcei (musicSource, AL_SOURCE_RELATIVE, AL_TRUE      );
 }
 
-static void S_AL_MusicSourceFree( void )
-{
+static void S_AL_MusicSourceFree( void ) {
 	// Release the output musicSource
 	S_AL_SrcUnlock(musicSourceHandle);
 	musicSource = 0;
 	musicSourceHandle = -1;
 }
 
-static void S_AL_CloseMusicFiles( void )
-{
+static void S_AL_CloseMusicFiles( void ) {
 	if(intro_stream)
 	{
 		S_CodecCloseStream(intro_stream);
@@ -1609,8 +1562,7 @@ static void S_AL_CloseMusicFiles( void )
 	}
 }
 
-static void S_AL_StopBackgroundTrack( void )
-{
+static void S_AL_StopBackgroundTrack( void ) {
 	if(!musicPlaying)
 		return;
 
@@ -1632,8 +1584,7 @@ static void S_AL_StopBackgroundTrack( void )
 	musicPlaying = qfalse;
 }
 
-static void S_AL_MusicProcess(ALuint b)
-{
+static void S_AL_MusicProcess(ALuint b) {
 	ALenum error;
 	int l;
 	ALuint format;
@@ -1695,8 +1646,7 @@ static void S_AL_MusicProcess(ALuint b)
 	}
 }
 
-static void S_AL_StartBackgroundTrack( const char *intro, const char *loop )
-{
+static void S_AL_StartBackgroundTrack( const char *intro, const char *loop ) {
 	int i;
 	qboolean issame;
 
@@ -1761,8 +1711,7 @@ static void S_AL_StartBackgroundTrack( const char *intro, const char *loop )
 	musicPlaying = qtrue;
 }
 
-static void S_AL_MusicUpdate( void )
-{
+static void S_AL_MusicUpdate( void ) {
 	int		numBuffers;
 	ALint	state;
 
@@ -1811,8 +1760,7 @@ static cvar_t *s_alCapture;
 #define ALDRIVER_DEFAULT "libopenal.so.1"
 #endif
 
-static void S_AL_StopAllSounds( void )
-{
+static void S_AL_StopAllSounds( void ) {
 	int i;
 	S_AL_SrcShutup();
 	S_AL_StopBackgroundTrack();
@@ -1820,8 +1768,7 @@ static void S_AL_StopAllSounds( void )
 		S_AL_StreamDie(i);
 }
 
-static void S_AL_Respatialize( int entityNum, const vector3 *origin, matrix3 axis, int inwater )
-{
+static void S_AL_Respatialize( int entityNum, const vector3 *origin, matrix3 axis, int inwater ) {
 	float		orientation[6];
 	vector3	sorigin;
 
@@ -1844,8 +1791,7 @@ static void S_AL_Respatialize( int entityNum, const vector3 *origin, matrix3 axi
 	qalListenerfv(AL_ORIENTATION, orientation);
 }
 
-static void S_AL_Update( void )
-{
+static void S_AL_Update( void ) {
 	int i;
 
 	if(s_muted->modified)
@@ -1898,34 +1844,28 @@ static void S_AL_Update( void )
 	s_alRolloff->modified = qfalse;
 }
 
-static void S_AL_DisableSounds( void )
-{
+static void S_AL_DisableSounds( void ) {
 	S_AL_StopAllSounds();
 }
 
-static void S_AL_BeginRegistration( void )
-{
+static void S_AL_BeginRegistration( void ) {
 	if(!numSfx)
 		S_AL_BufferInit();
 }
 
-static void S_AL_ClearSoundBuffer( void )
-{
+static void S_AL_ClearSoundBuffer( void ) {
 }
 
-static void S_AL_SoundList( void )
-{
+static void S_AL_SoundList( void ) {
 }
 
 #ifdef USE_VOIP
-static void S_AL_StartCapture( void )
-{
+static void S_AL_StartCapture( void ) {
 	if (alCaptureDevice != NULL)
 		qalcCaptureStart(alCaptureDevice);
 }
 
-static int S_AL_AvailableCaptureSamples( void )
-{
+static int S_AL_AvailableCaptureSamples( void ) {
 	int retval = 0;
 	if (alCaptureDevice != NULL)
 	{
@@ -1936,26 +1876,22 @@ static int S_AL_AvailableCaptureSamples( void )
 	return retval;
 }
 
-static void S_AL_Capture( int samples, byte *data )
-{
+static void S_AL_Capture( int samples, byte *data ) {
 	if (alCaptureDevice != NULL)
 		qalcCaptureSamples(alCaptureDevice, data, samples);
 }
 
-void S_AL_StopCapture( void )
-{
+void S_AL_StopCapture( void ) {
 	if (alCaptureDevice != NULL)
 		qalcCaptureStop(alCaptureDevice);
 }
 
-void S_AL_MasterGain( float gain )
-{
+void S_AL_MasterGain( float gain ) {
 	qalListenerf(AL_GAIN, gain);
 }
 #endif
 
-static void S_AL_SoundInfo( void )
-{
+static void S_AL_SoundInfo( void ) {
 	Com_Printf( "OpenAL info:\n" );
 	Com_Printf( "  Vendor:         %s\n", qalGetString( AL_VENDOR ) );
 	Com_Printf( "  Version:        %s\n", qalGetString( AL_VERSION ) );
@@ -1980,8 +1916,7 @@ static void S_AL_SoundInfo( void )
 #endif
 }
 
-static void S_AL_Shutdown( void )
-{
+static void S_AL_Shutdown( void ) {
 	// Shut down everything
 	int i;
 	for (i = 0; i < MAX_RAW_STREAMS; i++)
@@ -2013,8 +1948,7 @@ static void S_AL_Shutdown( void )
 
 #endif
 
-qboolean S_AL_Init( soundInterface_t *si )
-{
+qboolean S_AL_Init( soundInterface_t *si ) {
 #ifdef USE_OPENAL
 	const char* device = NULL;
 	const char* inputdevice = NULL;
@@ -2071,7 +2005,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 #ifdef _WIN32
 		const char *defaultdevice;
 #endif
-		int curlen;
+		size_t curlen;
 
 		// get all available devices + the default device name.
 		if(enumeration_all_ext)
@@ -2187,7 +2121,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 			char inputdevicenames[16384] = "";
 			const char *inputdevicelist;
 			const char *defaultinputdevice;
-			int curlen;
+			size_t curlen;
 
 			capture_ext = qtrue;
 

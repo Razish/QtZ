@@ -39,13 +39,11 @@ void	Huff_putBit( int bit, byte *fout, int *offset) {
 	*offset = bloc;
 }
 
-int		Huff_getBloc( void )
-{
+int		Huff_getBloc( void ) {
 	return bloc;
 }
 
-void	Huff_setBloc(int _bloc)
-{
+void	Huff_setBloc(int _bloc) {
 	bloc = _bloc;
 }
 
@@ -375,7 +373,7 @@ void Huff_Decompress(msg_t *mbuf, int offset) {
 			}
 		}
     
-		seq[j] = ch;									/* Write symbol */
+		seq[j] = (byte)ch;									/* Write symbol */
 
 		Huff_addRef(&huff, (byte)ch);								/* Increment node */
 	}
@@ -407,7 +405,7 @@ void Huff_Compress(msg_t *mbuf, int offset) {
 	huff.tree->parent = huff.tree->left = huff.tree->right = NULL;
 	huff.loc[NYT] = huff.tree;
 
-	seq[0] = (size>>8);
+	seq[0] = (byte)(size>>8);
 	seq[1] = size&0xff;
 
 	bloc = 16;

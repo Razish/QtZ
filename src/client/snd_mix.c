@@ -36,8 +36,7 @@ short*   snd_out;
 
 #ifndef id386 // if configured not to use asm
 
-void S_WriteLinearBlastStereo16( void )
-{
+void S_WriteLinearBlastStereo16( void ) {
 	int		i;
 	int		val;
 
@@ -49,7 +48,7 @@ void S_WriteLinearBlastStereo16( void )
 		else if (val < -32768)
 			snd_out[i] = -32768;
 		else
-			snd_out[i] = val;
+			snd_out[i] = (short)val;
 
 		val = snd_p[i+1]>>8;
 		if (val > 0x7fff)
@@ -57,7 +56,7 @@ void S_WriteLinearBlastStereo16( void )
 		else if (val < -32768)
 			snd_out[i+1] = -32768;
 		else
-			snd_out[i+1] = val;
+			snd_out[i+1] = (short)val;
 	}
 }
 #elif defined(__GNUC__)
@@ -65,8 +64,7 @@ void S_WriteLinearBlastStereo16( void )
 void S_WriteLinearBlastStereo16( void );
 #else
 
-__declspec( naked ) void S_WriteLinearBlastStereo16( void )
-{
+__declspec( naked ) void S_WriteLinearBlastStereo16( void ) {
 	__asm {
 		push edi
 		push ebx
@@ -115,8 +113,7 @@ LClampDone2:
 
 #endif
 
-void S_TransferStereo16 (unsigned long *pbuf, int endtime)
-{
+void S_TransferStereo16 (unsigned long *pbuf, int endtime) {
 	int		lpos;
 	int		ls_paintedtime;
 
@@ -147,8 +144,7 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 	}
 }
 
-void S_TransferPaintBuffer(int endtime)
-{
+void S_TransferPaintBuffer(int endtime) {
 	int 	out_idx;
 	int 	count;
 	int 	out_mask;
@@ -194,7 +190,7 @@ void S_TransferPaintBuffer(int endtime)
 					val = 0x7fff;
 				else if (val < -32768)
 					val = -32768;
-				out[out_idx] = val;
+				out[out_idx] = (short)val;
 				out_idx = (out_idx + 1) & out_mask;
 			}
 		}
@@ -209,7 +205,7 @@ void S_TransferPaintBuffer(int endtime)
 					val = 0x7fff;
 				else if (val < -32768)
 					val = -32768;
-				out[out_idx] = (val>>8) + 128;
+				out[out_idx] = (unsigned char)((val>>8) + 128);
 				out_idx = (out_idx + 1) & out_mask;
 			}
 		}

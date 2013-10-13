@@ -51,7 +51,7 @@ typedef struct memoryblock_s
 {
 	unsigned long int id;
 	void *ptr;
-	int size;
+	size_t size;
 #ifdef MEMDEBUG
 	char *label;
 	char *file;
@@ -68,8 +68,7 @@ memoryblock_t *memory;
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void LinkMemoryBlock(memoryblock_t *block)
-{
+void LinkMemoryBlock(memoryblock_t *block) {
 	block->prev = NULL;
 	block->next = memory;
 	if (memory) memory->prev = block;
@@ -81,8 +80,7 @@ void LinkMemoryBlock(memoryblock_t *block)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void UnlinkMemoryBlock(memoryblock_t *block)
-{
+void UnlinkMemoryBlock(memoryblock_t *block) {
 	if (block->prev) block->prev->next = block->next;
 	else memory = block->next;
 	if (block->next) block->next->prev = block->prev;
@@ -197,8 +195,7 @@ void *GetClearedHunkMemory(size_t size)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-memoryblock_t *BlockFromPointer(void *ptr, char *str)
-{
+memoryblock_t *BlockFromPointer(void *ptr, char *str) {
 	memoryblock_t *block;
 
 	if (!ptr)
@@ -229,8 +226,7 @@ memoryblock_t *BlockFromPointer(void *ptr, char *str)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void FreeMemory(void *ptr)
-{
+void FreeMemory(void *ptr) {
 	memoryblock_t *block;
 
 	block = BlockFromPointer(ptr, "FreeMemory");
@@ -251,8 +247,7 @@ void FreeMemory(void *ptr)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AvailableMemory( void )
-{
+size_t AvailableMemory( void ) {
 	return botimport.AvailableMemory();
 } //end of the function AvailableMemory
 //===========================================================================
@@ -261,8 +256,7 @@ int AvailableMemory( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int MemoryByteSize(void *ptr)
-{
+int MemoryByteSize(void *ptr) {
 	memoryblock_t *block;
 
 	block = BlockFromPointer(ptr, "MemoryByteSize");
@@ -275,8 +269,7 @@ int MemoryByteSize(void *ptr)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void PrintUsedMemorySize( void )
-{
+void PrintUsedMemorySize( void ) {
 	botimport.Print(PRT_MESSAGE, "total allocated memory: %d KB\n", allocatedmemory >> 10);
 	botimport.Print(PRT_MESSAGE, "total botlib memory: %d KB\n", totalmemorysize >> 10);
 	botimport.Print(PRT_MESSAGE, "total memory blocks: %d\n", numblocks);
@@ -287,8 +280,7 @@ void PrintUsedMemorySize( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void PrintMemoryLabels( void )
-{
+void PrintMemoryLabels( void ) {
 	memoryblock_t *block;
 	int i;
 
@@ -317,8 +309,7 @@ void PrintMemoryLabels( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void DumpMemory( void )
-{
+void DumpMemory( void ) {
 	memoryblock_t *block;
 
 	for (block = memory; block; block = memory)
@@ -421,8 +412,7 @@ void *GetClearedHunkMemory(size_t size)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void FreeMemory(void *ptr)
-{
+void FreeMemory(void *ptr) {
 	unsigned long *memid;
 
 	memid = (unsigned long *) ((char *) ptr - sizeof(unsigned long));
@@ -438,8 +428,7 @@ void FreeMemory(void *ptr)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AvailableMemory( void )
-{
+size_t AvailableMemory( void ) {
 	return botimport.AvailableMemory();
 } //end of the function AvailableMemory
 //===========================================================================
@@ -448,8 +437,7 @@ int AvailableMemory( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void PrintUsedMemorySize( void )
-{
+void PrintUsedMemorySize( void ) {
 } //end of the function PrintUsedMemorySize
 //===========================================================================
 //
@@ -457,8 +445,7 @@ void PrintUsedMemorySize( void )
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void PrintMemoryLabels( void )
-{
+void PrintMemoryLabels( void ) {
 } //end of the function PrintMemoryLabels
 
 #endif

@@ -31,8 +31,8 @@ int		gl_filter_max = GL_LINEAR;
 #define FILE_HASH_SIZE		1024
 static	image_t*		hashTable[FILE_HASH_SIZE];
 
-void R_GammaCorrect( byte *buffer, int bufSize ) {
-	int i;
+void R_GammaCorrect( byte *buffer, size_t bufSize ) {
+	size_t i;
 
 	for ( i = 0; i < bufSize; i++ ) {
 		buffer[i] = s_gammatable[buffer[i]];
@@ -61,7 +61,7 @@ static long generateHashValue( const char *fname ) {
 	hash = 0;
 	i = 0;
 	while (fname[i] != '\0') {
-		letter = tolower(fname[i]);
+		letter = (char)tolower(fname[i]);
 		if (letter =='.') break;				// don't include extension
 		if (letter =='\\') letter = '/';		// damn path names
 		hash+=(long)(letter)*(i+119);
@@ -227,8 +227,7 @@ static void ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *
 }
 
 // Scale up the pixel values in a texture to increase the lighting range
-void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
-{
+void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma ) {
 	if ( only_gamma )
 	{
 		if ( !glConfig.deviceSupportsGamma )
@@ -319,7 +318,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
 					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
 					1 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k];
-				outpix[k] = total / 36;
+				outpix[k] = (byte)(total / 36);
 			}
 		}
 	}
@@ -381,9 +380,9 @@ static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
 	premult[2] = blend[2] * blend[3];
 
 	for ( i = 0 ; i < pixelCount ; i++, data+=4 ) {
-		data[0] = ( data[0] * inverseAlpha + premult[0] ) >> 9;
-		data[1] = ( data[1] * inverseAlpha + premult[1] ) >> 9;
-		data[2] = ( data[2] * inverseAlpha + premult[2] ) >> 9;
+		data[0] = (byte)(( data[0] * inverseAlpha + premult[0] ) >> 9);
+		data[1] = (byte)(( data[1] * inverseAlpha + premult[1] ) >> 9);
+		data[2] = (byte)(( data[2] * inverseAlpha + premult[2] ) >> 9);
 	}
 }
 
@@ -407,8 +406,7 @@ byte	mipBlendColors[16][4] = {
 };
 
 extern qboolean charSet;
-static void Upload32( unsigned *data, int width, int height, qboolean mipmap, qboolean picmip, qboolean lightMap, int *format, int *pUploadWidth, int *pUploadHeight, qboolean noTC )
-{
+static void Upload32( unsigned *data, int width, int height, qboolean mipmap, qboolean picmip, qboolean lightMap, int *format, int *pUploadWidth, int *pUploadHeight, qboolean noTC ) {
 	int			samples;
 	unsigned	*scaledBuffer = NULL;
 	unsigned	*resampledBuffer = NULL;
@@ -817,14 +815,13 @@ static imageExtToLoaderMap_t imageLoaders[ ] =
 static int numImageLoaders = ARRAY_LEN( imageLoaders );
 
 // Loads any of the supported image types into a cannonical 32 bit format.
-void R_LoadImage( const char *name, byte **pic, int *width, int *height )
-{
+void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
 	qboolean orgNameFailed = qfalse;
 	int orgLoader = -1;
 	int i;
 	char localName[ MAX_QPATH ];
 	const char *ext;
-	char *altName;
+	const char *altName;
 
 	*pic = NULL;
 	*width = 0;
@@ -943,7 +940,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 #define	DLIGHT_SIZE	16
 static void R_CreateDlightImage( void ) {
 	int width=DLIGHT_SIZE, height=DLIGHT_SIZE;
-	char *buf = NULL;
+	byte *buf = NULL;
 
 	R_LoadImage( "gfx/2d/dlight", &buf, &width, &height );
 
@@ -971,7 +968,7 @@ static void R_CreateDlightImage( void ) {
 				if ( b > 255 )		b = 255;
 				else if ( b < 75 )	b = 0;
 
-				data[y][x][0] = data[y][x][1] = data[y][x][2] = b;
+				data[y][x][0] = data[y][x][1] = data[y][x][2] = (byte)b;
 				data[y][x][3] = 255;
 			}
 		}
@@ -1120,20 +1117,12 @@ void R_CreateBuiltinImages( void ) {
 	// for default lightmaps, etc
 	for (x=0 ; x<DEFAULT_SIZE ; x++) {
 		for (y=0 ; y<DEFAULT_SIZE ; y++) {
-			data[y][x][0] = 
-			data[y][x][1] = 
-			data[y][x][2] = tr.identityLightByte;
+			data[y][x][0] = data[y][x][1] = data[y][x][2] = (byte)tr.identityLightByte;
 			data[y][x][3] = 255;			
 		}
 	}
 
 	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
-
-
-	for(x=0;x<32;x++) {
-		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP_TO_EDGE );
-	}
 
 	R_CreateDlightImage();
 	R_CreateFogImage();
@@ -1202,7 +1191,7 @@ void R_SetColorMappings( void ) {
 		if (inf > 255) {
 			inf = 255;
 		}
-		s_gammatable[i] = inf;
+		s_gammatable[i] = (unsigned char)inf;
 	}
 
 	for (i=0 ; i<256 ; i++) {
@@ -1210,7 +1199,7 @@ void R_SetColorMappings( void ) {
 		if (j > 255) {
 			j = 255;
 		}
-		s_intensitytable[i] = j;
+		s_intensitytable[i] = (byte)j;
 	}
 
 	if ( glConfig.deviceSupportsGamma )
@@ -1324,7 +1313,7 @@ static char *CommaParse( char **data_p ) {
 			}
 			if (len < MAX_TOKEN_CHARS)
 			{
-				com_token[len] = c;
+				com_token[len] = (char)c;
 				len++;
 			}
 		}
@@ -1335,7 +1324,7 @@ static char *CommaParse( char **data_p ) {
 	{
 		if (len < MAX_TOKEN_CHARS)
 		{
-			com_token[len] = c;
+			com_token[len] = (char)c;
 			len++;
 		}
 		data++;

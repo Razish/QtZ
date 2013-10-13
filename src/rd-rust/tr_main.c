@@ -100,8 +100,7 @@ int R_CullLocalBox (vector3 bounds[2]) {
 	return CULL_CLIP;		// partially clipped
 }
 
-int R_CullLocalPointAndRadius( vector3 *pt, float radius )
-{
+int R_CullLocalPointAndRadius( vector3 *pt, float radius ) {
 	vector3 transformed;
 
 	R_LocalPointToWorld( pt, &transformed );
@@ -109,8 +108,7 @@ int R_CullLocalPointAndRadius( vector3 *pt, float radius )
 	return R_CullPointAndRadius( &transformed, radius );
 }
 
-int R_CullPointAndRadius( vector3 *pt, float radius )
-{
+int R_CullPointAndRadius( vector3 *pt, float radius ) {
 	int		i;
 	float	dist;
 	cplane_t	*frust;
@@ -272,8 +270,7 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 }
 
 // Sets up the modelview matrix for a given viewParm
-void R_RotateForViewer( void ) 
-{
+void R_RotateForViewer( void )  {
 	float	viewerMatrix[16];
 	vector3	origin;
 
@@ -314,8 +311,7 @@ void R_RotateForViewer( void )
 
 }
 
-static void R_SetFarClip( void )
-{
+static void R_SetFarClip( void ) {
 	float	farthestCornerDistance = 0;
 	int		i;
 
@@ -354,8 +350,7 @@ static void R_SetFarClip( void )
 }
 
 // Set up the culling frustum planes for the current view using the results we got from computing the first two rows of the projection matrix.
-void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, float zProj, float stereoSep)
-{
+void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, float zProj, float stereoSep) {
 	vector3 ofsorigin;
 	float oppleg, adjleg, length;
 	int i;
@@ -409,8 +404,7 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 	}
 }
 
-void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
-{
+void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum) {
 	float	xmin, xmax, ymin, ymax;
 	float	width, height, stereoSep = r_stereoSeparation->value;
 
@@ -459,8 +453,7 @@ void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
 }
 
 // Sets the z-component transformation part in the projection matrix
-void R_SetupProjectionZ(viewParms_t *dest)
-{
+void R_SetupProjectionZ(viewParms_t *dest) {
 	float zNear, zFar, depth;
 	
 	zNear	= r_znear->value;
@@ -657,8 +650,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	return qfalse;
 }
 
-static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
-{
+static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 	int			i;
 	cplane_t	originalPlane, plane;
 	trRefEntity_t	*e;
@@ -878,8 +870,7 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 
 */
 
-static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *dest )
-{
+static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *dest ) {
   int           count[ 256 ] = { 0 };
   int           index[ 256 ];
   int           i;
@@ -902,8 +893,7 @@ static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t 
 }
 
 // Radix sort with 4 byte size buckets
-static void R_RadixSort( drawSurf_t *source, int size )
-{
+static void R_RadixSort( drawSurf_t *source, int size ) {
   static drawSurf_t scratch[ MAX_DRAWSURFS ];
 #ifdef Q3_LITTLE_ENDIAN
   R_Radix( 0, size, source, scratch );

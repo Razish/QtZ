@@ -152,8 +152,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 }
 
 // small chars are drawn at native screen resolution
-void SCR_DrawSmallChar2( int x, int y, int ch, float scale )
-{
+void SCR_DrawSmallChar2( int x, int y, int ch, float scale ) {
 	int row, col;
 	float frow, fcol;
 	float size = 1/16.0f;
@@ -299,7 +298,7 @@ void SCR_DrawDemoRecording( void ) {
 	pos = FS_FTell( clc.demofile );
 	sprintf( string, "RECORDING %s: %ik", clc.demoName, pos / 1024 );
 
-	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - strlen( string ) * 4, 20, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
+	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - (int)strlen( string ) * 4, 20, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
 }
 
 
@@ -333,7 +332,7 @@ void SCR_DrawVoipMeter( void ) {
 	buffer[i] = '\0';
 
 	sprintf( string, "VoIP: [%s]", buffer );
-	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - strlen( string ) * 4, 10, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
+	SCR_DrawStringExt( ((int)SCREEN_WIDTH/2) - (int)strlen( string ) * 4, 10, 8, string, &g_color_table[ColorIndex(COLOR_WHITE)], qtrue, qfalse );
 }
 #endif
 
@@ -346,14 +345,12 @@ void SCR_DrawVoipMeter( void ) {
 static	int			current;
 static	float		values[1024];
 
-void SCR_DebugGraph (float value)
-{
+void SCR_DebugGraph (float value) {
 	values[current] = value;
 	current = (current + 1) % ARRAY_LEN(values);
 }
 
-void SCR_DrawDebugGraph( void )
-{
+void SCR_DrawDebugGraph( void ) {
 	int		a, x, y, w, i, h;
 	float	v;
 
@@ -400,7 +397,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
-	if ( uiFullscreen || (clc.state != CA_ACTIVE && clc.state != CA_CINEMATIC) ) {
+	if ( uiFullscreen || clc.state != CA_ACTIVE ) {
 		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
 			re->SetColor( &g_color_table[ColorIndex(COLOR_BLACK)] );
 			re->DrawStretchPic( 0, 0, (float)cls.glconfig.vidWidth, (float)cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
@@ -414,9 +411,6 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		switch( clc.state ) {
 		default:
 			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad clc.state" );
-			break;
-		case CA_CINEMATIC:
-			SCR_DrawCinematic();
 			break;
 		case CA_DISCONNECTED:
 			// force menu up

@@ -111,8 +111,7 @@ static void *OpenALLib = NULL;
 
 static qboolean alinit_fail = qfalse;
 
-static void *GPA(char *str)
-{
+static void *GPA(char *str) {
 	void *rv;
 
 	rv = Sys_LoadFunction(OpenALLib, str);
@@ -129,8 +128,7 @@ static void *GPA(char *str)
 	}
 }
 
-qboolean QAL_Init(const char *libname)
-{
+qboolean QAL_Init(const char *libname) {
 	if(OpenALLib)
 		return qtrue;
 
@@ -225,8 +223,7 @@ qboolean QAL_Init(const char *libname)
 	return qtrue;
 }
 
-void QAL_Shutdown( void )
-{
+void QAL_Shutdown( void ) {
 	if(OpenALLib)
 	{
 		Sys_UnloadLibrary(OpenALLib);
@@ -310,12 +307,10 @@ void QAL_Shutdown( void )
 	qalcCaptureSamples = NULL;
 }
 #else
-qboolean QAL_Init(const char *libname)
-{
+qboolean QAL_Init(const char *libname) {
 	return qtrue;
 }
-void QAL_Shutdown( void )
-{
+void QAL_Shutdown( void ) {
 }
 #endif
 #endif

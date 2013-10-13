@@ -51,7 +51,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	if ( !item->classname )
 		trap->Error( ERR_DROP, "Couldn't find weapon %i", weaponNum );
 
-	CG_RegisterItemVisuals( item - bg_itemlist );
+	CG_RegisterItemVisuals( ARRAY_INDEX( bg_itemlist, item ) );
 
 	// load cmodel before model so filecache works
 	weaponInfo->weaponModel = trap->R_RegisterModel( item->world_model[0] );
@@ -488,7 +488,7 @@ void CG_DrawWeaponSelect( void ) {
 	int		bits;
 	int		count;
 	float	x, y, w;
-	char	*name;
+	const char	*name;
 	vector4	*color;
 
 	// don't display if dead
@@ -616,8 +616,7 @@ void CG_PrevWeapon_f( void ) {
 		cg.weaponSelect = original;
 }
 
-weapon_t CG_WeaponForString( const char *weaponName )
-{
+weapon_t CG_WeaponForString( const char *weaponName ) {
 	weapon_t wp = WP_NONE;
 	for ( wp=WP_NONE; wp<WP_NUM_WEAPONS; wp++ )
 	{
@@ -678,8 +677,7 @@ void CG_OutOfAmmoChange( void ) {
 */
 
 //QtZ: equivalent to g_weapon
-void CalcMuzzlePoint( centity_t *cent, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint ) 
-{
+void CalcMuzzlePoint( centity_t *cent, vector3 *forward, vector3 *right, vector3 *up, vector3 *muzzlePoint )  {
 	int weapontype;
 	vector3 muzzleOffPoint;
 

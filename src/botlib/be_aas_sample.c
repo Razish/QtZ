@@ -70,8 +70,7 @@ int numaaslinks;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_PresenceTypeBoundingBox(int presencetype, vector3 *mins, vector3 *maxs)
-{
+void AAS_PresenceTypeBoundingBox(int presencetype, vector3 *mins, vector3 *maxs) {
 	int index;
 	//bounding box size for each presence type
 	vector3 boxmins[NUM_PRESENCE_TYPES] = { {0, 0, 0}, {MINS_X, MINS_Y, MINS_Z}, {MINS_X, MINS_Y, MINS_Z} };
@@ -92,8 +91,7 @@ void AAS_PresenceTypeBoundingBox(int presencetype, vector3 *mins, vector3 *maxs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAASLinkHeap( void )
-{
+void AAS_InitAASLinkHeap( void ) {
 	int i, max_aaslinks;
 
 	max_aaslinks = aasworld.linkheapsize;
@@ -130,8 +128,7 @@ void AAS_InitAASLinkHeap( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FreeAASLinkHeap( void )
-{
+void AAS_FreeAASLinkHeap( void ) {
 	if (aasworld.linkheap) FreeMemory(aasworld.linkheap);
 	aasworld.linkheap = NULL;
 	aasworld.linkheapsize = 0;
@@ -142,8 +139,7 @@ void AAS_FreeAASLinkHeap( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_link_t *AAS_AllocAASLink( void )
-{
+aas_link_t *AAS_AllocAASLink( void ) {
 	aas_link_t *link;
 
 	link = aasworld.freelinks;
@@ -168,8 +164,7 @@ aas_link_t *AAS_AllocAASLink( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DeAllocAASLink(aas_link_t *link)
-{
+void AAS_DeAllocAASLink(aas_link_t *link) {
 	if (aasworld.freelinks) aasworld.freelinks->prev_ent = link;
 	link->prev_ent = NULL;
 	link->next_ent = aasworld.freelinks;
@@ -184,8 +179,7 @@ void AAS_DeAllocAASLink(aas_link_t *link)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InitAASLinkedEntities( void )
-{
+void AAS_InitAASLinkedEntities( void ) {
 	if (!aasworld.loaded) return;
 	if (aasworld.arealinkedentities) FreeMemory(aasworld.arealinkedentities);
 	aasworld.arealinkedentities = (aas_link_t **) GetClearedHunkMemory(
@@ -197,8 +191,7 @@ void AAS_InitAASLinkedEntities( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FreeAASLinkedEntities( void )
-{
+void AAS_FreeAASLinkedEntities( void ) {
 	if (aasworld.arealinkedentities) FreeMemory(aasworld.arealinkedentities);
 	aasworld.arealinkedentities = NULL;
 } //end of the function AAS_InitAASLinkedEntities
@@ -209,8 +202,7 @@ void AAS_FreeAASLinkedEntities( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointAreaNum(vector3 *point)
-{
+int AAS_PointAreaNum(vector3 *point) {
 	int nodenum;
 	number	dist;
 	aas_node_t *node;
@@ -262,8 +254,7 @@ int AAS_PointAreaNum(vector3 *point)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointReachabilityAreaIndex( vector3 *origin )
-{
+int AAS_PointReachabilityAreaIndex( vector3 *origin ) {
 	int areanum, cluster, i, index;
 
 	if (!aasworld.initialized)
@@ -304,8 +295,7 @@ int AAS_PointReachabilityAreaIndex( vector3 *origin )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaCluster(int areanum)
-{
+int AAS_AreaCluster(int areanum) {
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
 		botimport.Print(PRT_ERROR, "AAS_AreaCluster: invalid area number\n");
@@ -320,8 +310,7 @@ int AAS_AreaCluster(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaPresenceType(int areanum)
-{
+int AAS_AreaPresenceType(int areanum) {
 	if (!aasworld.loaded) return 0;
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
@@ -337,8 +326,7 @@ int AAS_AreaPresenceType(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointPresenceType(vector3 *point)
-{
+int AAS_PointPresenceType(vector3 *point) {
 	int areanum;
 
 	if (!aasworld.loaded) return 0;
@@ -362,8 +350,7 @@ int AAS_PointPresenceType(vector3 *point)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-number AAS_BoxOriginDistanceFromPlane(vector3 *normal, vector3 *mins, vector3 *maxs, int side)
-{
+number AAS_BoxOriginDistanceFromPlane(vector3 *normal, vector3 *mins, vector3 *maxs, int side) {
 	vector3 v1, v2;
 	int i;
 
@@ -400,8 +387,7 @@ number AAS_BoxOriginDistanceFromPlane(vector3 *normal, vector3 *mins, vector3 *m
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_AreaEntityCollision(int areanum, vector3 *start, vector3 *end, int presencetype, int passent, aas_trace_t *trace)
-{
+qboolean AAS_AreaEntityCollision(int areanum, vector3 *start, vector3 *end, int presencetype, int passent, aas_trace_t *trace) {
 	int collision;
 	vector3 boxmins, boxmaxs;
 	aas_link_t *link;
@@ -442,8 +428,7 @@ qboolean AAS_AreaEntityCollision(int areanum, vector3 *start, vector3 *end, int 
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_trace_t AAS_TraceClientBBox(vector3 *start, vector3 *end, int presencetype, int passent)
-{
+aas_trace_t AAS_TraceClientBBox(vector3 *start, vector3 *end, int presencetype, int passent) {
 	int side, nodenum, tmpplanenum;
 	float front, back, frac;
 	vector3 cur_start, cur_end, cur_mid, v1, v2;
@@ -712,8 +697,7 @@ aas_trace_t AAS_TraceClientBBox(vector3 *start, vector3 *end, int presencetype, 
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_TraceAreas(vector3 *start, vector3 *end, int *areas, vector3 *points, int maxareas)
-{
+int AAS_TraceAreas(vector3 *start, vector3 *end, int *areas, vector3 *points, int maxareas) {
 	int side, nodenum, tmpplanenum;
 	int numareas;
 	float front, back, frac;
@@ -910,8 +894,7 @@ void AAS_OrthogonalToVectors( const vector3 *v1, const vector3 *v2, vector3 *res
 // Returns:					qtrue if the point is within the face boundaries
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_InsideFace(aas_face_t *face, vector3 *pnormal, vector3 *point, float epsilon)
-{
+qboolean AAS_InsideFace(aas_face_t *face, vector3 *pnormal, vector3 *point, float epsilon) {
 	int i, firstvertex, edgenum;
 	vector3 v0;
 	vector3 edgevec, pointvec, sepnormal;
@@ -962,8 +945,7 @@ qboolean AAS_InsideFace(aas_face_t *face, vector3 *pnormal, vector3 *point, floa
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_PointInsideFace(int facenum, vector3 *point, float epsilon)
-{
+qboolean AAS_PointInsideFace(int facenum, vector3 *point, float epsilon) {
 	int i, firstvertex, edgenum;
 	vector3 *v1, *v2;
 	vector3 edgevec, pointvec, sepnormal;
@@ -1002,8 +984,7 @@ qboolean AAS_PointInsideFace(int facenum, vector3 *point, float epsilon)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_face_t *AAS_AreaGroundFace(int areanum, vector3 *point)
-{
+aas_face_t *AAS_AreaGroundFace(int areanum, vector3 *point) {
 	int i, facenum;
 	vector3 up = {0, 0, 1};
 	vector3 normal;
@@ -1036,8 +1017,7 @@ aas_face_t *AAS_AreaGroundFace(int areanum, vector3 *point)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_FacePlane(int facenum, vector3 *normal, float *dist)
-{
+void AAS_FacePlane(int facenum, vector3 *normal, float *dist) {
 	aas_plane_t *plane;
 
 	plane = &aasworld.planes[aasworld.faces[facenum].planenum];
@@ -1051,8 +1031,7 @@ void AAS_FacePlane(int facenum, vector3 *normal, float *dist)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_face_t *AAS_TraceEndFace(aas_trace_t *trace)
-{
+aas_face_t *AAS_TraceEndFace(aas_trace_t *trace) {
 	int i, facenum;
 	aas_area_t *area;
 	aas_face_t *face, *firstface = NULL;
@@ -1110,8 +1089,7 @@ aas_face_t *AAS_TraceEndFace(aas_trace_t *trace)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BoxOnPlaneSide2(vector3 *absmins, vector3 *absmaxs, aas_plane_t *p)
-{
+int AAS_BoxOnPlaneSide2(vector3 *absmins, vector3 *absmaxs, aas_plane_t *p) {
 	int i, sides;
 	float dist1, dist2;
 	vector3 corners[2];
@@ -1143,8 +1121,7 @@ int AAS_BoxOnPlaneSide2(vector3 *absmins, vector3 *absmaxs, aas_plane_t *p)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BoxOnPlaneSide( vector3 *absmins, vector3 *absmaxs, aas_plane_t *p )
-{
+int AAS_BoxOnPlaneSide( vector3 *absmins, vector3 *absmaxs, aas_plane_t *p ) {
 	if ( p->type < 3)
 	{
 		if ( p->dist <= absmins->data[p->type] )
@@ -1166,8 +1143,7 @@ int AAS_BoxOnPlaneSide( vector3 *absmins, vector3 *absmaxs, aas_plane_t *p )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_UnlinkFromAreas(aas_link_t *areas)
-{
+void AAS_UnlinkFromAreas(aas_link_t *areas) {
 	aas_link_t *link, *nextlink;
 
 	for (link = areas; link; link = nextlink)
@@ -1196,8 +1172,7 @@ typedef struct aas_linkstack_s {
 	int nodenum;		//node found after splitting
 } aas_linkstack_t;
 
-aas_link_t *AAS_AASLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum)
-{
+aas_link_t *AAS_AASLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum) {
 	int side, nodenum;
 	aas_linkstack_t linkstack[128];
 	aas_linkstack_t *lstack_p;
@@ -1296,8 +1271,7 @@ aas_link_t *AAS_AASLinkEntity(vector3 *absmins, vector3 *absmaxs, int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_link_t *AAS_LinkEntityClientBBox(vector3 *absmins, vector3 *absmaxs, int entnum, int presencetype)
-{
+aas_link_t *AAS_LinkEntityClientBBox(vector3 *absmins, vector3 *absmaxs, int entnum, int presencetype) {
 	vector3 mins, maxs;
 	vector3 newabsmins, newabsmaxs;
 
@@ -1313,8 +1287,7 @@ aas_link_t *AAS_LinkEntityClientBBox(vector3 *absmins, vector3 *absmaxs, int ent
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BBoxAreas(vector3 *absmins, vector3 *absmaxs, int *areas, int maxareas)
-{
+int AAS_BBoxAreas(vector3 *absmins, vector3 *absmaxs, int *areas, int maxareas) {
 	aas_link_t *linkedareas, *link;
 	int num;
 
@@ -1336,8 +1309,7 @@ int AAS_BBoxAreas(vector3 *absmins, vector3 *absmaxs, int *areas, int maxareas)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaInfo( int areanum, aas_areainfo_t *info )
-{
+int AAS_AreaInfo( int areanum, aas_areainfo_t *info ) {
 	aas_areasettings_t *settings;
 	if (!info)
 		return 0;
@@ -1362,8 +1334,7 @@ int AAS_AreaInfo( int areanum, aas_areainfo_t *info )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_plane_t *AAS_PlaneFromNum(int planenum)
-{
+aas_plane_t *AAS_PlaneFromNum(int planenum) {
 	if (!aasworld.loaded) return NULL;
 
 	return &aasworld.planes[planenum];

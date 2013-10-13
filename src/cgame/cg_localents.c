@@ -187,7 +187,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	if (le->forceAlpha)
 	{
 		le->refEntity.renderfx |= RF_FORCE_ENT_ALPHA;
-		le->refEntity.shaderRGBA[3] = le->forceAlpha;
+		le->refEntity.shaderRGBA[3] = (byte)le->forceAlpha;
 	}
 
 	if ( le->pos.trType == TR_STATIONARY ) {
@@ -287,8 +287,7 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( re );
 }
 
-static void CG_AddFadeScaleModel( localEntity_t *le )
-{
+static void CG_AddFadeScaleModel( localEntity_t *le ) {
 	refEntity_t	*ent = &le->refEntity;
 
 	float frac = ( cg.time - le->startTime )/((float)( le->endTime - le->startTime ));
@@ -591,8 +590,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 }
 
 // for beams and the like.
-void CG_AddLine( localEntity_t *le )
-{
+void CG_AddLine( localEntity_t *le ) {
 	refEntity_t	*re;
 
 	re = &le->refEntity;

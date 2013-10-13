@@ -377,8 +377,7 @@ qboolean	CM_AreasConnected( int area1, int area2 ) {
 //	Returns the number of bytes needed to hold all the bits.
 //	The bits are OR'd in, so you can CM_WriteAreaBits from multiple viewpoints and get the union of all visible areas.
 //	This is used to cull non-visible entities from snapshots
-int CM_WriteAreaBits (byte *buffer, int area)
-{
+int CM_WriteAreaBits (byte *buffer, int area) {
 	int		i;
 	int		floodnum;
 	int		bytes;
@@ -406,8 +405,7 @@ int CM_WriteAreaBits (byte *buffer, int area)
 	return bytes;
 }
 
-qboolean CM_BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 )
-{
+qboolean CM_BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vector3 *mins2, const vector3 *maxs2 ) {
 	if (maxs->x < mins2->x - SURFACE_CLIP_EPSILON ||
 		maxs->y < mins2->y - SURFACE_CLIP_EPSILON ||
 		maxs->z < mins2->z - SURFACE_CLIP_EPSILON ||
@@ -421,8 +419,7 @@ qboolean CM_BoundsIntersect( const vector3 *mins, const vector3 *maxs, const vec
 	return qtrue;
 }
 
-qboolean CM_BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *point )
-{
+qboolean CM_BoundsIntersectPoint( const vector3 *mins, const vector3 *maxs, const vector3 *point ) {
 	if (maxs->x < point->x - SURFACE_CLIP_EPSILON ||
 		maxs->y < point->y - SURFACE_CLIP_EPSILON ||
 		maxs->z < point->z - SURFACE_CLIP_EPSILON ||

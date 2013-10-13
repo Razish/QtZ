@@ -35,27 +35,15 @@ gameExport_t *game = NULL;
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
 int	SV_NumForGentity( sharedEntity_t *ent ) {
-	int		num;
-
-	num = ( (byte *)ent - (byte *)sv.gentities ) / sv.gentitySize;
-
-	return num;
+	return (int)(((byte *)ent - (byte *)sv.gentities) / sv.gentitySize);
 }
 
 sharedEntity_t *SV_GentityNum( int num ) {
-	sharedEntity_t *ent;
-
-	ent = (sharedEntity_t *)((byte *)sv.gentities + sv.gentitySize*(num));
-
-	return ent;
+	return (sharedEntity_t *)((byte *)sv.gentities + sv.gentitySize*num);
 }
 
 playerState_t *SV_GameClientNum( int num ) {
-	playerState_t	*ps;
-
-	ps = (playerState_t *)((byte *)sv.gameClients + sv.gameClientSize*(num));
-
-	return ps;
+	return (playerState_t *)((byte *)sv.gameClients + sv.gameClientSize*num);
 }
 
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
@@ -66,29 +54,24 @@ svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 }
 
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
-	int		num;
-
-	num = svEnt - sv.svEntities;
-	return SV_GentityNum( num );
+	return SV_GentityNum( ARRAY_INDEX( sv.svEntities, svEnt ) );
 }
 
 // Sends a command string to a client
 void SV_GameSendServerCommand( int clientNum, const char *text ) {
-	if ( clientNum == -1 ) {
+	if ( clientNum == -1 )
 		SV_SendServerCommand( NULL, "%s", text );
-	} else {
-		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+	else {
+		if ( clientNum < 0 || clientNum >= sv_maxclients->integer )
 			return;
-		}
-		SV_SendServerCommand( svs.clients + clientNum, "%s", text );	
+		SV_SendServerCommand( svs.clients+clientNum, "%s", text );	
 	}
 }
 
 // Disconnects the client with a message
 void SV_GameDropClient( int clientNum, const char *reason ) {
-	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+	if ( clientNum < 0 || clientNum >= sv_maxclients->integer )
 		return;
-	}
 	SV_DropClient( svs.clients + clientNum, reason );	
 }
 
@@ -97,13 +80,11 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	clipHandle_t	h;
 	vector3			mins, maxs;
 
-	if (!name) {
+	if (!name)
 		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
-	}
 
-	if (name[0] != '*') {
+	if (name[0] != '*')
 		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
-	}
 
 
 	ent->s.modelindex = atoi( name + 1 );
@@ -120,8 +101,7 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 }
 
 // Also checks portalareas so that doors block sight
-qboolean SV_InPVS (const vector3 *p1, const vector3 *p2)
-{
+qboolean SV_InPVS (const vector3 *p1, const vector3 *p2) {
 	int		leafnum;
 	int		cluster;
 	int		area1, area2;
@@ -144,8 +124,7 @@ qboolean SV_InPVS (const vector3 *p1, const vector3 *p2)
 
 // Does NOT check portalareas
 // currently unused...
-static qboolean SV_InPVSIgnorePortals( const vector3 *p1, const vector3 *p2)
-{
+static qboolean SV_InPVSIgnorePortals( const vector3 *p1, const vector3 *p2) {
 	int		leafnum;
 	int		cluster;
 	byte	*mask;
@@ -188,13 +167,13 @@ qboolean	SV_EntityContact( vector3 *mins, vector3 *maxs, const sharedEntity_t *g
 	return trace.startsolid;
 }
 
-void SV_GetServerinfo( char *buffer, int bufferSize ) {
+void SV_GetServerinfo( char *buffer, size_t bufferSize ) {
 	if ( bufferSize < 1 )
 		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
-void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient ) {
+void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, size_t sizeofGEntity_t, playerState_t *clients, size_t sizeofGameClient ) {
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
 	sv.num_entities = numGEntities;
@@ -210,7 +189,7 @@ void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }
 
-static qboolean SV_GetEntityToken( char *buffer, int bufferSize ) {
+static qboolean SV_GetEntityToken( char *buffer, size_t bufferSize ) {
 	const char	*s;
 
 	s = COM_Parse( &sv.entityParsePoint );

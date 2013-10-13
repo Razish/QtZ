@@ -59,7 +59,7 @@ typedef struct fielddef_s
 //structure definition
 typedef struct structdef_s
 {
-	int size;
+	size_t size;
 	fielddef_t *fields;
 } structdef_t;
 

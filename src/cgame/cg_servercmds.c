@@ -109,7 +109,7 @@ void CG_ParseServerinfo( void ) {
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "sv_gametype" ) );
-	trap->Cvar_Set("sv_gametype", va("%i", cgs.gametype));
+	trap->Cvar_Set( "sv_gametype", va( "%i", cgs.gametype ) );
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 
@@ -246,7 +246,7 @@ static void CG_ConfigStringModified( void ) {
 static void CG_AddToTeamChat( const char *str ) {
 	int len;
 	char *p, *ls;
-	int lastcolor;
+	char lastcolor;
 	int chatHeight = TEAMCHAT_HEIGHT;
 
 	if (chatHeight <= 0 || cg_teamChatTime->integer <= 0) {
@@ -445,7 +445,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 }
 
 void CG_LoadVoiceChats( void ) {
-	int size;
+	size_t size;
 
 	size = trap->MemoryRemaining();
 	CG_ParseVoiceChats( "scripts/female1.voice", &voiceChatLists[0], MAX_VOICECHATS );

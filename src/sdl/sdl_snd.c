@@ -44,8 +44,7 @@ cvar_t *s_sdlMixSamps;
 static int dmapos = 0;
 static int dmasize = 0;
 
-static void SNDDMA_AudioCallback(void *userdata, Uint8 *stream, int len)
-{
+static void SNDDMA_AudioCallback(void *userdata, Uint8 *stream, int len) {
 	int pos = (dmapos * (dma.samplebits/8));
 	if (pos >= dmasize)
 		dmapos = pos = 0;
@@ -96,8 +95,7 @@ static struct
 
 static int formatToStringTableSize = ARRAY_LEN( formatToStringTable );
 
-static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec)
-{
+static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec) {
 	int		i;
 	char	*fmt = NULL;
 
@@ -120,8 +118,7 @@ static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec)
 	Com_Printf( "  Channels: %d\n", (int) spec->channels );
 }
 
-qboolean SNDDMA_Init( void )
-{
+qboolean SNDDMA_Init( void ) {
 	char drivername[128];
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
@@ -183,7 +180,7 @@ qboolean SNDDMA_Init( void )
 			desired.samples = 2048;  // (*shrug*)
 	}
 
-	desired.channels = (int) s_sdlChannels->value;
+	desired.channels = (Uint8) s_sdlChannels->value;
 	desired.callback = SNDDMA_AudioCallback;
 
 	if (SDL_OpenAudio(&desired, &obtained) == -1)
@@ -232,13 +229,11 @@ qboolean SNDDMA_Init( void )
 	return qtrue;
 }
 
-int SNDDMA_GetDMAPos( void )
-{
+int SNDDMA_GetDMAPos( void ) {
 	return dmapos;
 }
 
-void SNDDMA_Shutdown( void )
-{
+void SNDDMA_Shutdown( void ) {
 	Com_Printf("Closing SDL audio device...\n");
 	SDL_PauseAudio(1);
 	SDL_CloseAudio();
@@ -251,12 +246,10 @@ void SNDDMA_Shutdown( void )
 }
 
 // Send sound to device if buffer isn't really the dma buffer
-void SNDDMA_Submit( void )
-{
+void SNDDMA_Submit( void ) {
 	SDL_UnlockAudio();
 }
 
-void SNDDMA_BeginPainting( void )
-{
+void SNDDMA_BeginPainting( void ) {
 	SDL_LockAudio();
 }

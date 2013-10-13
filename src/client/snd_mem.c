@@ -98,8 +98,7 @@ void SND_setup( void ) {
 	Com_Printf("Sound memory manager started\n");
 }
 
-void SND_shutdown( void )
-{
+void SND_shutdown( void ) {
 		free(sfxScratchBuffer);
 		free(buffer);
 }
@@ -144,7 +143,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 			chunk = newchunk;
 		}
 
-		chunk->sndChunk[part] = sample;
+		chunk->sndChunk[part] = (short)sample;
 	}
 }
 
@@ -172,14 +171,13 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 		} else {
 			sample = (int)( (unsigned char)(data[srcsample]) - 128) << 8;
 		}
-		sfx[i] = sample;
+		sfx[i] = (short)sample;
 	}
 	return outcount;
 }
 
 // The filename may be different than sfx->name in the case of a forced fallback of a player specific sound
-qboolean S_LoadSound( sfx_t *sfx )
-{
+qboolean S_LoadSound( sfx_t *sfx ) {
 	byte	*data;
 	short	*samples;
 	snd_info_t	info;

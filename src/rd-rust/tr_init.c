@@ -205,8 +205,7 @@ cvar_t *r_environmentMapping;
 // This function is responsible for initializing a valid OpenGL subsystem. This is done by calling GLimp_Init
 //	(which gives us a working OGL subsystem) then setting variables, checking GL constants, and reporting
 //	the gfx system config to the user.
-static void InitOpenGL( void )
-{
+static void InitOpenGL( void ) {
 	char renderer_buffer[1024];
 
 	//
@@ -303,8 +302,7 @@ void GL_CheckErrors( void ) {
 //	Stores the length of padding after a line of pixels to address padlen
 //	Return value must be freed with ri->Hunk_FreeTempMemory()
 
-byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *padlen)
-{
+byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *padlen) {
 	byte *buffer, *bufstart;
 	int padwidth, linelen;
 	GLint packAlign;
@@ -341,9 +339,9 @@ void R_TakeScreenshotTGA( int x, int y, int width, int height, char *fileName ) 
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
+	buffer[13] = (byte)(width >> 8);
 	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
+	buffer[15] = (byte)(height >> 8);
 	buffer[16] = 24;	// pixel size
 
 	// swap rgb to bgr and remove padding from line endings
@@ -375,7 +373,7 @@ void R_TakeScreenshotTGA( int x, int y, int width, int height, char *fileName ) 
 	if ( glConfig.deviceSupportsGamma )
 		R_GammaCorrect( allbuf + offset, memcount );
 
-	ri->FS_WriteFile( fileName, buffer, memcount + 18 );
+	ri->FS_WriteFile( fileName, buffer, (int)(memcount + 18) );
 
 	ri->Hunk_FreeTempMemory( allbuf );
 }
@@ -509,13 +507,12 @@ const void *RB_PostProcessCmd( const void *data ) {
 }
 //~QtZ
 
-const void *RB_TakeVideoFrameCmd( const void *data )
-{
+const void *RB_TakeVideoFrameCmd( const void *data ) {
 	const videoFrameCommand_t	*cmd;
-	byte				*cBuf;
-	size_t				memcount, linelen;
-	int				padwidth, avipadwidth, padlen, avipadlen;
-	GLint packAlign;
+	byte						*cBuf;
+	size_t						memcount, linelen;
+	size_t						padwidth, avipadwidth, padlen, avipadlen;
+	GLint						packAlign;
 	
 	cmd = (const videoFrameCommand_t *)data;
 	
@@ -545,8 +542,8 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	{
 		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
 			r_aviMotionJpegQuality->integer,
-			cmd->width, cmd->height, cBuf, padlen);
-		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
+			cmd->width, cmd->height, cBuf, (int)padlen);
+		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, (int)memcount);
 	}
 	else
 	{
@@ -575,14 +572,13 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 			srcptr += padlen;
 		}
 		
-		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
+		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, (int)avipadwidth * cmd->height);
 	}
 
 	return (const void *)(cmd + 1);	
 }
 
-void GL_SetDefaultState( void )
-{
+void GL_SetDefaultState( void ) {
 	qglClearDepth( 1.0f );
 
 	qglCullFace(GL_FRONT);
@@ -627,10 +623,10 @@ void GL_SetDefaultState( void )
 void R_PrintLongString(const char *string) {
 	char buffer[1024];
 	const char *p;
-	int size = strlen(string);
+	size_t size = strlen(string);
 
 	p = string;
-	while(size > 0)
+	while(p < &string[size])
 	{
 		Q_strncpyz(buffer, p, sizeof (buffer) );
 		ri->Printf( PRINT_ALL, "%s", buffer );
@@ -699,8 +695,7 @@ void GfxInfo_f( void ) {
 		ri->Printf( PRINT_ALL, "Forcing glFinish\n" );
 }
 
-void R_Register( void ) 
-{
+void R_Register( void )  {
 	com_altivec							= ri->Cvar_Get( "com_altivec",						"1",								CVAR_ARCHIVE,				NULL, NULL );
 
 	// latched and archived variables
@@ -1033,8 +1028,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	//QtZ: Added from JA/EF
 	re.DrawRotatedPic = RE_RotatedPic;
 	//~QtZ
-	re.DrawStretchRaw = RE_StretchRaw;
-	re.UploadCinematic = RE_UploadCinematic;
 
 	re.RegisterFont = RE_RegisterFont;
 	re.GetEntityToken = R_GetEntityToken;

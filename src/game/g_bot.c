@@ -174,8 +174,7 @@ qboolean G_DoesMapSupportGametype( const char *mapname, int gametype ) {
 	return qfalse;
 }
 
-const char *G_RefreshNextMap( int gametype )
-{
+const char *G_RefreshNextMap( int gametype ) {
 	int			typeBits = 0;
 	int			thisLevel = 0;
 	int			desiredMap = 0;
@@ -237,7 +236,9 @@ const char *G_RefreshNextMap( int gametype )
 
 void G_LoadArenas( void ) {
 	char	filelist[MAPSBUFSIZE], filename[MAX_QPATH], *fileptr;
-	int		i, n, len, numFiles;
+	int		i, n;
+	size_t	numFiles;
+	size_t	len;
 
 	level.arenas.num = 0;
 
@@ -800,12 +801,10 @@ static void G_LoadBotsFromFile( char *filename ) {
 
 static void G_LoadBots( void ) {
 	cvar_t	*botsFile;
-	int			numdirs;
-	char		filename[128];
-	char		dirlist[1024];
-	char*		dirptr;
-	int			i;
-	int			dirlen;
+	char	filename[128], dirlist[1024], *dirptr;
+	int		i;
+	size_t	numdirs;
+	size_t	dirlen;
 
 	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		return;

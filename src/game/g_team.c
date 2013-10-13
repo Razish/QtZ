@@ -105,7 +105,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	while ((p = strchr(msg, '"')) != NULL)
 		*p = '\'';
 
-	trap->SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
+	trap->SV_GameSendServerCommand ( ( (ent == NULL) ? -1 : ARRAY_INDEX( g_entities, ent ) ), va("print \"%s\"", msg ));
 }
 
 // used for gametype > GT_TEAMBLOOD
@@ -243,8 +243,7 @@ void Team_ForceGesture(int team) {
 
 // Calculate the bonuses for flag defense, flag carrier defense, etc.
 //	Note that bonuses are not cumulative. You get one, they are in importance order.
-void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker)
-{
+void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker) {
 	int i;
 	gentity_t *ent;
 	int flag_pw, enemy_flag_pw;
@@ -413,8 +412,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 // Check to see if attacker hurt the flag carrier.
 //	Needed when handing out bonuses for assistance to flag carrier defense.
-void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
-{
+void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker) {
 	int flag_pw;
 
 	if (!targ->client || !attacker->client)
@@ -766,8 +764,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 }
 
 // Report a location for the player. Uses placed nearby target_location entities
-gentity_t *Team_GetLocation(gentity_t *ent)
-{
+gentity_t *Team_GetLocation(gentity_t *ent) {
 	gentity_t		*eloc, *best;
 	float			bestlen, len;
 	vector3			origin;
@@ -870,15 +867,12 @@ static int QDECL SortClients( const void *a, const void *b ) {
 
 // Format: clientNum location health armor weapon powerups
 void TeamplayInfoMessage( gentity_t *ent ) {
-	char		entry[1024];
-	char		string[8192];
-	int			stringlength;
-	int			i, j;
+	char		entry[1024], string[8192];
+	int			i;
+	size_t		stringlength, j;
 	gentity_t	*player;
-	int			cnt;
-	int			h, a;
+	int			cnt, h, a, team;
 	int			clients[TEAM_MAXOVERLAY];
-	int			team;
 
 	//QTZTODO: delta teamoverlay updates
 
@@ -937,7 +931,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		}
 	}
 
-	trap->SV_GameSendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
+	trap->SV_GameSendServerCommand( ARRAY_INDEX( g_entities, ent ), va("tinfo %i %s", cnt, string) );
 }
 
 void CheckTeamStatus( void ) {

@@ -82,7 +82,7 @@ void CG_ChatboxOutgoing( void ) {
 // This function is called recursively when a logical message has to be split into multiple lines
 void CG_ChatboxAdd( const char *message, qboolean multiLine ) {
 	chatEntry_t *chat = &chatbox.chatBuffer[MAX_CHATBOX_ENTRIES-1];
-	int strLength = 0;
+	size_t strLength = 0;
 	int i = 0;
 	float accumLength = 0.0f;
 
@@ -211,12 +211,10 @@ void CG_ChatboxScroll( int direction ) {
 
 void CG_ChatboxTabComplete( void ) {
 	if ( cg_chatboxCompletion->integer ) {
-		int i=0;
-		int match = -1;
+		int i=0, match = -1, numMatches = 0;
 		char currWord[MAX_INFO_STRING] = { 0 };
-		char *p = &chatField.buffer[0];//[chatField->cursor];
 		char matches[MAX_CLIENTS][MAX_NETNAME] = { {0} }; // because cgs.clientinfo[i].name uses MAX_QPATH...wtf...
-		int numMatches = 0;
+		char *p = &chatField.buffer[0];//[chatField->cursor];
 
 		p = &chatField.buffer[chatField.cursor];
 		//find current word
@@ -246,10 +244,10 @@ void CG_ChatboxTabComplete( void ) {
 		}
 
 		if ( numMatches == 1 ) {
-			int oldCursor = chatField.cursor;
-			int delta = &chatField.buffer[oldCursor] - p;
-			char *str = va( "%s ^2", cgs.clientinfo[match].name );
-			int drawLen, len;
+			size_t oldCursor = chatField.cursor;
+			ptrdiff_t delta = &chatField.buffer[oldCursor] - p;
+			const char *str = va( "%s ^2", cgs.clientinfo[match].name );
+			size_t drawLen, len;
 
 			Q_strncpyz( p, str, sizeof( chatField.buffer ) - (p - &chatField.buffer[0]) );
 			chatField.cursor = oldCursor - delta + strlen( str );
@@ -259,7 +257,7 @@ void CG_ChatboxTabComplete( void ) {
 			len = strlen( chatField.buffer );
 			if ( chatField.scroll + drawLen > len )
 			{
-				chatField.scroll = len - drawLen;
+				chatField.scroll = (int)(len - drawLen);
 				if ( chatField.scroll < 0 )
 					chatField.scroll = 0;
 			}
@@ -336,7 +334,7 @@ void CG_MessageModeTeam( void ) {
 	trap->Key_SetCatcher( trap->Key_GetCatcher() ^ KEYCATCH_CGAME );
 }
 
-void CG_ChatboxChar( int key ) {
+void CG_ChatboxChar( char key ) {
 	trap->Field_CharEvent( &chatField, key );
 }
 

@@ -298,8 +298,7 @@ void AddTournamentPlayer( void ) {
 }
 
 // Add client to end of tournament queue
-void AddTournamentQueue(gclient_t *client)
-{
+void AddTournamentQueue(gclient_t *client) {
 	int index;
 	gclient_t *curclient;
 	
@@ -687,7 +686,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 		return;
 	}
 
-	trap->FS_Write( string, strlen( string ), level.logFile );
+	trap->FS_Write( string, (int)strlen( string ), level.logFile );
 }
 
 // Append information about this game to the log file
@@ -1142,7 +1141,7 @@ void G_RunThink (gentity_t *ent) {
 
 	//OSP: pause
 	//	If paused, push nextthink
-	if ( level.pause.state != PAUSE_NONE && ent-g_entities >= sv_maxclients->integer && ent->nextthink > level.time )
+	if ( level.pause.state != PAUSE_NONE && ARRAY_INDEX( g_entities, ent ) >= sv_maxclients->integer && ent->nextthink > level.time )
 		ent->nextthink += level.time - level.previousTime;
 
 	thinktime = ent->nextthink;
@@ -1313,8 +1312,7 @@ void G_RunFrame( int levelTime ) {
 }
 
 gameImport_t *trap = NULL;
-Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import )
-{
+Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import ) {
 	static gameExport_t ge = {0};
 	
 	assert( import );

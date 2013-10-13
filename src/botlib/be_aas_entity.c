@@ -60,8 +60,7 @@ enum {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
-{
+int AAS_UpdateEntity(int entnum, bot_entitystate_t *state) {
 	int relink;
 	aas_entity_t *ent;
 	vector3 absmins, absmaxs;
@@ -168,8 +167,7 @@ int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_EntityInfo(int entnum, aas_entityinfo_t *info)
-{
+void AAS_EntityInfo(int entnum, aas_entityinfo_t *info) {
 	if (!aasworld.initialized)
 	{
 		botimport.Print(PRT_FATAL, "AAS_EntityInfo: aasworld not initialized\n");
@@ -192,8 +190,7 @@ void AAS_EntityInfo(int entnum, aas_entityinfo_t *info)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_EntityOrigin(int entnum, vector3 *origin)
-{
+void AAS_EntityOrigin(int entnum, vector3 *origin) {
 	if (entnum < 0 || entnum >= aasworld.maxentities)
 	{
 		botimport.Print(PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum);
@@ -209,8 +206,7 @@ void AAS_EntityOrigin(int entnum, vector3 *origin)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_EntityModelindex(int entnum)
-{
+int AAS_EntityModelindex(int entnum) {
 	if (entnum < 0 || entnum >= aasworld.maxentities)
 	{
 		botimport.Print(PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum);
@@ -224,8 +220,7 @@ int AAS_EntityModelindex(int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_EntityType(int entnum)
-{
+int AAS_EntityType(int entnum) {
 	if (!aasworld.initialized) return 0;
 
 	if (entnum < 0 || entnum >= aasworld.maxentities)
@@ -241,8 +236,7 @@ int AAS_EntityType(int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_EntityModelNum(int entnum)
-{
+int AAS_EntityModelNum(int entnum) {
 	if (!aasworld.initialized) return 0;
 
 	if (entnum < 0 || entnum >= aasworld.maxentities)
@@ -258,8 +252,7 @@ int AAS_EntityModelNum(int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_OriginOfMoverWithModelNum(int modelnum, vector3 *origin)
-{
+int AAS_OriginOfMoverWithModelNum(int modelnum, vector3 *origin) {
 	int i;
 	aas_entity_t *ent;
 
@@ -283,8 +276,7 @@ int AAS_OriginOfMoverWithModelNum(int modelnum, vector3 *origin)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_EntitySize(int entnum, vector3 *mins, vector3 *maxs)
-{
+void AAS_EntitySize(int entnum, vector3 *mins, vector3 *maxs) {
 	aas_entity_t *ent;
 
 	if (!aasworld.initialized) return;
@@ -305,8 +297,7 @@ void AAS_EntitySize(int entnum, vector3 *mins, vector3 *maxs)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata)
-{
+void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata) {
 	aas_entity_t *ent;
 
 	ent = &aasworld.entities[entnum];
@@ -323,8 +314,7 @@ void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ResetEntityLinks( void )
-{
+void AAS_ResetEntityLinks( void ) {
 	int i;
 	for (i = 0; i < aasworld.maxentities; i++)
 	{
@@ -338,8 +328,7 @@ void AAS_ResetEntityLinks( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_InvalidateEntities( void )
-{
+void AAS_InvalidateEntities( void ) {
 	int i;
 	for (i = 0; i < aasworld.maxentities; i++)
 	{
@@ -353,8 +342,7 @@ void AAS_InvalidateEntities( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_UnlinkInvalidEntities( void )
-{
+void AAS_UnlinkInvalidEntities( void ) {
 	int i;
 	aas_entity_t *ent;
 
@@ -376,8 +364,7 @@ void AAS_UnlinkInvalidEntities( void )
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NearestEntity(vector3 *origin, int modelindex)
-{
+int AAS_NearestEntity(vector3 *origin, int modelindex) {
 	int i, bestentnum;
 	float dist, bestdist;
 	aas_entity_t *ent;
@@ -411,8 +398,7 @@ int AAS_NearestEntity(vector3 *origin, int modelindex)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_BestReachableEntityArea(int entnum)
-{
+int AAS_BestReachableEntityArea(int entnum) {
 	aas_entity_t *ent;
 
 	ent = &aasworld.entities[entnum];
@@ -424,8 +410,7 @@ int AAS_BestReachableEntityArea(int entnum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NextEntity(int entnum)
-{
+int AAS_NextEntity(int entnum) {
 	if (!aasworld.loaded) return 0;
 
 	if (entnum < 0) entnum = -1;

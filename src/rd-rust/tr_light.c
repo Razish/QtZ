@@ -330,8 +330,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	ent->lightDir.z = DotProduct( &lightDir, &ent->e.axis[2] );
 }
 
-int R_LightForPoint( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir )
-{
+int R_LightForPoint( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir ) {
 	trRefEntity_t ent;
 	
 	if ( tr.world->lightGridData == NULL )

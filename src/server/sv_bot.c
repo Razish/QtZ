@@ -117,8 +117,7 @@ void SV_BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, vector3 
 	}
 }
 
-static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...)
-{
+static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int type, char *fmt, ...) {
 	char str[2048];
 	va_list ap;
 
@@ -280,8 +279,7 @@ static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3
 	memcpy(poly->points, points, numPoints * sizeof(vector3));
 }
 
-void BotImport_DebugPolygonDelete(int id)
-{
+void BotImport_DebugPolygonDelete(int id) {
 	if (!debugpolygons) return;
 	debugpolygons[id].inuse = qfalse;
 }
@@ -323,7 +321,7 @@ static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int 
 	BotImport_DebugPolygonShow(line, color, 4, points);
 }
 
-static void BotClientCommand( int client, char *command ) {
+static void BotClientCommand( int client, const char *command ) {
 	SV_ExecuteClientCommand( &svs.clients[client], command, qfalse );
 }
 
@@ -454,8 +452,7 @@ void SV_BotInitBotLib( void ) {
 //  * * * BOT AI CODE IS BELOW THIS POINT * * *
 //
 
-int SV_BotGetConsoleMessage( int client, char *buf, int size )
-{
+int SV_BotGetConsoleMessage( int client, char *buf, size_t size ) {
 	client_t	*cl;
 	int			index;
 

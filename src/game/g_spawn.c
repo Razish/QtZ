@@ -262,11 +262,11 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 // Builds a copy of the string, translating \n to real linefeeds so message texts can be multi-line
 char *G_NewString( const char *string ) {
 	char	*newb, *new_p;
-	int		i,l;
+	size_t	i,l;
 	
 	l = strlen(string) + 1;
 
-	newb = G_Alloc( l );
+	newb = (char *)G_Alloc( l );
 
 	new_p = newb;
 
@@ -408,7 +408,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 }
 
 char *G_AddSpawnVarToken( const char *string ) {
-	int		l;
+	size_t	l;
 	char	*dest;
 
 	l = strlen( string );

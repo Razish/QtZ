@@ -98,11 +98,11 @@ typedef struct gameImport_s {
 	cvar_t *		(*Cvar_Get)						( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
 	void			(*Cvar_Set)						( const char *name, const char *value );
 	int				(*Cvar_VariableIntegerValue)	( const char *name );
-	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, int bufsize );
+	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, size_t bufsize );
 
 	// command
 	int				(*Cmd_Argc)						( void );
-	void			(*Cmd_Argv)						( int arg, char *buffer, int bufferLength );
+	void			(*Cmd_Argv)						( int arg, char *buffer, size_t bufferLength );
 	void			(*Cbuf_ExecuteText)				( int exec_when, const char *text );
 
 	// filesystem
@@ -110,18 +110,18 @@ typedef struct gameImport_s {
 	int				(*FS_Read)						( void *buffer, int len, fileHandle_t f );
 	int				(*FS_Write)						( const void *buffer, int len, fileHandle_t f );
 	void			(*FS_Close)						( fileHandle_t f );
-	int				(*FS_GetFileList)				( const char *path, const char *extension, char *listbuf, int bufsize );
+	size_t			(*FS_GetFileList)				( const char *path, const char *extension, char *listbuf, size_t bufsize );
 	int				(*FS_Seek)						( fileHandle_t f, long offset, int origin );
 
 	// server
-	void			(*SV_LocateGameData)			( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient );
+	void			(*SV_LocateGameData)			( sharedEntity_t *gEnts, int numGEntities, size_t sizeofGEntity_t, playerState_t *clients, size_t sizeofGameClient );
 	void			(*SV_GameDropClient)			( int clientNum, const char *reason );
 	void			(*SV_GameSendServerCommand)		( int clientNum, const char *text );
 	void			(*SV_SetConfigstring)			( int index, const char *val );
-	void			(*SV_GetConfigstring)			( int index, char *buffer, int bufferSize );
-	void			(*SV_GetUserinfo)				( int index, char *buffer, int bufferSize );
+	void			(*SV_GetConfigstring)			( int index, char *buffer, size_t bufferSize );
+	void			(*SV_GetUserinfo)				( int index, char *buffer, size_t bufferSize );
 	void			(*SV_SetUserinfo)				( int index, const char *val );
-	void			(*SV_GetServerinfo)				( char *buffer, int bufferSize );
+	void			(*SV_GetServerinfo)				( char *buffer, size_t bufferSize );
 	void			(*SV_SetBrushModel)				( sharedEntity_t *ent, const char *name );
 	void			(*SV_Trace)						( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentmask );
 	qboolean		(*SV_EntityContact)				( vector3 *mins, vector3 *maxs, const sharedEntity_t *gEnt, int capsule );
@@ -136,7 +136,7 @@ typedef struct gameImport_s {
 	int				(*SV_BotAllocateClient)			( void );
 	void			(*SV_BotFreeClient)				( int clientNum );
 	void			(*SV_GetUsercmd)				( int clientNum, usercmd_t *cmd );
-	qboolean		(*SV_GetEntityToken)			( char *buffer, int bufferSize );
+	qboolean		(*SV_GetEntityToken)			( char *buffer, size_t bufferSize );
 
 	int				(*DebugPolygonCreate)			( int color, int numPoints, vector3 *points );
 	void			(*DebugPolygonDelete)			( int id );
@@ -145,8 +145,8 @@ typedef struct gameImport_s {
 	int				(*SV_BotLibSetup)				( void );
 	int				(*SV_BotLibShutdown)			( void );
 	int				(*BotLibVarSet)					( char *name, char *value );
-	int				(*BotLibVarGet)					( char *name, char *value, int size );
-	int				(*PC_AddGlobalDefine)			( char *string );
+	int				(*BotLibVarGet)					( char *name, char *value, size_t size );
+	int				(*PC_AddGlobalDefine)			( const char *string );
 	int				(*PC_LoadSourceHandle)			( const char *filename );
 	int				(*PC_FreeSourceHandle)			( int handle );
 	int				(*PC_ReadTokenHandle)			( int handle, pc_token_t *pc_token );
@@ -158,7 +158,7 @@ typedef struct gameImport_s {
 	int				(*BotLibTest)					( int parm0, char *parm1, vector3 *parm2, vector3 *parm3 );
 
 	int				(*SV_BotGetSnapshotEntity)		( int client, int sequence );
-	int				(*SV_BotGetConsoleMessage)		( int client, char *buf, int size );
+	int				(*SV_BotGetConsoleMessage)		( int client, char *buf, size_t size );
 	void			(*SV_ClientThink)				( int clientNum, usercmd_t *cmd );
 
 	aas_export_t	*aas;	// area awareness system

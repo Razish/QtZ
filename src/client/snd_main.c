@@ -36,8 +36,7 @@ cvar_t *s_muteWhenUnfocused;
 
 static soundInterface_t si;
 
-static qboolean S_ValidSoundInterface( soundInterface_t *si )
-{
+static qboolean S_ValidSoundInterface( soundInterface_t *si ) {
 	if( !si->Shutdown ) return qfalse;
 	if( !si->StartSound ) return qfalse;
 	if( !si->StartLocalSound ) return qfalse;
@@ -70,29 +69,25 @@ static qboolean S_ValidSoundInterface( soundInterface_t *si )
 	return qtrue;
 }
 
-void S_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx )
-{
+void S_StartSound( vector3 *origin, int entnum, int entchannel, sfxHandle_t sfx ) {
 	if( si.StartSound ) {
 		si.StartSound( origin, entnum, entchannel, sfx );
 	}
 }
 
-void S_StartLocalSound( sfxHandle_t sfx, int channelNum )
-{
+void S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
 	if( si.StartLocalSound ) {
 		si.StartLocalSound( sfx, channelNum );
 	}
 }
 
-void S_StartBackgroundTrack( const char *intro, const char *loop )
-{
+void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	if( si.StartBackgroundTrack ) {
 		si.StartBackgroundTrack( intro, loop );
 	}
 }
 
-void S_StopBackgroundTrack( void )
-{
+void S_StopBackgroundTrack( void ) {
 	if( si.StopBackgroundTrack ) {
 		si.StopBackgroundTrack( );
 	}
@@ -105,57 +100,49 @@ void S_RawSamples (int stream, int samples, int rate, int width, int channels,
 		si.RawSamples(stream, samples, rate, width, channels, data, volume, entityNum);
 }
 
-void S_StopAllSounds( void )
-{
+void S_StopAllSounds( void ) {
 	if( si.StopAllSounds ) {
 		si.StopAllSounds( );
 	}
 }
 
-void S_ClearLoopingSounds( qboolean killall )
-{
+void S_ClearLoopingSounds( qboolean killall ) {
 	if( si.ClearLoopingSounds ) {
 		si.ClearLoopingSounds( killall );
 	}
 }
 
-void S_AddLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx )
-{
+void S_AddLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx ) {
 	if( si.AddLoopingSound ) {
 		si.AddLoopingSound( entityNum, origin, velocity, sfx );
 	}
 }
 
-void S_AddRealLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx )
-{
+void S_AddRealLoopingSound( int entityNum, const vector3 *origin, const vector3 *velocity, sfxHandle_t sfx ) {
 	if( si.AddRealLoopingSound ) {
 		si.AddRealLoopingSound( entityNum, origin, velocity, sfx );
 	}
 }
 
-void S_StopLoopingSound( int entityNum )
-{
+void S_StopLoopingSound( int entityNum ) {
 	if( si.StopLoopingSound ) {
 		si.StopLoopingSound( entityNum );
 	}
 }
 
-void S_Respatialize( int entityNum, const vector3 *origin, matrix3 axis, int inwater )
-{
+void S_Respatialize( int entityNum, const vector3 *origin, matrix3 axis, int inwater ) {
 	if( si.Respatialize ) {
 		si.Respatialize( entityNum, origin, axis, inwater );
 	}
 }
 
-void S_UpdateEntityPosition( int entityNum, const vector3 *origin )
-{
+void S_UpdateEntityPosition( int entityNum, const vector3 *origin ) {
 	if( si.UpdateEntityPosition ) {
 		si.UpdateEntityPosition( entityNum, origin );
 	}
 }
 
-void S_Update( void )
-{
+void S_Update( void ) {
 	if(s_muted->integer)
 	{
 		if(!(s_muteWhenMinimized->integer && com_minimized->integer) &&
@@ -180,22 +167,19 @@ void S_Update( void )
 	}
 }
 
-void S_DisableSounds( void )
-{
+void S_DisableSounds( void ) {
 	if( si.DisableSounds ) {
 		si.DisableSounds( );
 	}
 }
 
-void S_BeginRegistration( void )
-{
+void S_BeginRegistration( void ) {
 	if( si.BeginRegistration ) {
 		si.BeginRegistration( );
 	}
 }
 
-sfxHandle_t	S_RegisterSound( const char *sample, qboolean compressed )
-{
+sfxHandle_t	S_RegisterSound( const char *sample, qboolean compressed ) {
 	if( si.RegisterSound ) {
 		return si.RegisterSound( sample, compressed );
 	} else {
@@ -203,22 +187,19 @@ sfxHandle_t	S_RegisterSound( const char *sample, qboolean compressed )
 	}
 }
 
-void S_ClearSoundBuffer( void )
-{
+void S_ClearSoundBuffer( void ) {
 	if( si.ClearSoundBuffer ) {
 		si.ClearSoundBuffer( );
 	}
 }
 
-void S_SoundInfo( void )
-{
+void S_SoundInfo( void ) {
 	if( si.SoundInfo ) {
 		si.SoundInfo( );
 	}
 }
 
-void S_SoundList( void )
-{
+void S_SoundList( void ) {
 	if( si.SoundList ) {
 		si.SoundList( );
 	}
@@ -226,37 +207,32 @@ void S_SoundList( void )
 
 
 #ifdef USE_VOIP
-void S_StartCapture( void )
-{
+void S_StartCapture( void ) {
 	if( si.StartCapture ) {
 		si.StartCapture( );
 	}
 }
 
-int S_AvailableCaptureSamples( void )
-{
+int S_AvailableCaptureSamples( void ) {
 	if( si.AvailableCaptureSamples ) {
 		return si.AvailableCaptureSamples( );
 	}
 	return 0;
 }
 
-void S_Capture( int samples, byte *data )
-{
+void S_Capture( int samples, byte *data ) {
 	if( si.Capture ) {
 		si.Capture( samples, data );
 	}
 }
 
-void S_StopCapture( void )
-{
+void S_StopCapture( void ) {
 	if( si.StopCapture ) {
 		si.StopCapture( );
 	}
 }
 
-void S_MasterGain( float gain )
-{
+void S_MasterGain( float gain ) {
 	if( si.MasterGain ) {
 		si.MasterGain( gain );
 	}
@@ -308,16 +284,14 @@ void S_Music_f( void ) {
 
 }
 
-void S_StopMusic_f( void )
-{
+void S_StopMusic_f( void ) {
 	if(!si.StopBackgroundTrack)
 		return;
 
 	si.StopBackgroundTrack();
 }
 
-void S_Init( void )
-{
+void S_Init( void ) {
 	cvar_t		*cv;
 	qboolean	started = qfalse;
 
@@ -372,8 +346,7 @@ void S_Init( void )
 	Com_Printf( "--------------------------------\n");
 }
 
-void S_Shutdown( void )
-{
+void S_Shutdown( void ) {
 	if( si.Shutdown ) {
 		si.Shutdown( );
 	}

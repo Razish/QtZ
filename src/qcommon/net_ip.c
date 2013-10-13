@@ -241,8 +241,7 @@ static void SockadrToNetadr( struct sockaddr *s, netadr_t *a ) {
 }
 
 
-static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t family)
-{
+static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t family) {
 	while(hints)
 	{
 		if(hints->ai_family == family)
@@ -254,8 +253,7 @@ static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t famil
 	return NULL;
 }
 
-static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, size_t sadr_len, sa_family_t family)
-{
+static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, size_t sadr_len, sa_family_t family) {
 	struct addrinfo hints;
 	struct addrinfo *res = NULL;
 	struct addrinfo *search = NULL;
@@ -318,8 +316,7 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, size_
 	return qfalse;
 }
 
-static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input)
-{
+static void Sys_SockaddrToString(char *dest, size_t destlen, struct sockaddr *input) {
 	socklen_t inputlen;
 
 	if (input->sa_family == AF_INET6)
@@ -327,7 +324,7 @@ static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input
 	else
 		inputlen = sizeof(struct sockaddr_in);
 
-	if(getnameinfo(input, inputlen, dest, destlen, NULL, 0, NI_NUMERICHOST) && destlen > 0)
+	if(getnameinfo(input, inputlen, dest, (DWORD)destlen, NULL, 0, NI_NUMERICHOST) && destlen > 0)
 		*dest = '\0';
 }
 
@@ -356,8 +353,7 @@ qboolean Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family ) {
 }
 
 // Compare without port, and up to the bit number given in netmask.
-qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
-{
+qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask) {
 	byte cmpmask, *addra, *addrb;
 	int curbyte;
 	
@@ -411,13 +407,11 @@ qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
 
 
 // Compares without the port
-qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
-{
+qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b) {
 	return NET_CompareBaseAdrMask(a, b, -1);
 }
 
-const char	*NET_AdrToString (netadr_t a)
-{
+const char	*NET_AdrToString (netadr_t a) {
 	static	char	s[NET_ADDRSTRMAXLEN];
 
 	if (a.type == NA_LOOPBACK)
@@ -436,8 +430,7 @@ const char	*NET_AdrToString (netadr_t a)
 	return s;
 }
 
-const char	*NET_AdrToStringwPort (netadr_t a)
-{
+const char	*NET_AdrToStringwPort (netadr_t a) {
 	static	char	s[NET_ADDRSTRMAXLEN];
 
 	if (a.type == NA_LOOPBACK)
@@ -453,8 +446,7 @@ const char	*NET_AdrToStringwPort (netadr_t a)
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
-{
+qboolean	NET_CompareAdr (netadr_t a, netadr_t b) {
 	if(!NET_CompareBaseAdr(a, b))
 		return qfalse;
 	
@@ -475,8 +467,7 @@ qboolean	NET_IsLocalAddress( netadr_t adr ) {
 }
 
 // Receive one packet
-qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
-{
+qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr) {
 	int 	ret;
 	struct sockaddr_storage from;
 	socklen_t	fromlen;
@@ -877,8 +868,7 @@ SOCKET NET_IP6Socket( char *net_interface, int port, struct sockaddr_in6 *bindto
 }
 
 // Set the current multicast group
-void NET_SetMulticast6( void )
-{
+void NET_SetMulticast6( void ) {
 	struct sockaddr_in6 addr;
 
 	if(!*net_mcast6addr->string || !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *) &addr, sizeof(addr), AF_INET6))
@@ -906,8 +896,7 @@ void NET_SetMulticast6( void )
 }
 
 // Join an ipv6 multicast group
-void NET_JoinMulticast6( void )
-{
+void NET_JoinMulticast6( void ) {
 	int err;
 	
 	if(ip6_socket == INVALID_SOCKET || multicast6_socket != INVALID_SOCKET || (net_enabled->integer & NET_DISABLEMCAST))
@@ -956,8 +945,7 @@ void NET_JoinMulticast6( void )
 	}
 }
 
-void NET_LeaveMulticast6( void )
-{
+void NET_LeaveMulticast6( void ) {
 	if(multicast6_socket != INVALID_SOCKET)
 	{
 		if(multicast6_socket != ip6_socket)
@@ -1052,25 +1040,24 @@ void NET_OpenSocks( int port ) {
 
 	// do username/password authentication if needed
 	if ( buf[1] == 2 ) {
-		int		ulen;
-		int		plen;
+		size_t	ulen, plen;
 
 		// build the request
 		ulen = strlen( net_socksUsername->string );
 		plen = strlen( net_socksPassword->string );
 
 		buf[0] = 1;		// username/password authentication version
-		buf[1] = ulen;
+		buf[1] = (byte)ulen;
 		if ( ulen ) {
 			memcpy( &buf[2], net_socksUsername->string, ulen );
 		}
-		buf[2 + ulen] = plen;
+		buf[2 + ulen] = (byte)plen;
 		if ( plen ) {
 			memcpy( &buf[3 + ulen], net_socksPassword->string, plen );
 		}
 
 		// send it
-		if ( send( socks_socket, (void *)buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR ) {
+		if ( send( socks_socket, (const char *)buf, (int)(3 + ulen + plen), 0 ) == SOCKET_ERROR ) {
 			Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 			return;
 		}
@@ -1130,8 +1117,7 @@ void NET_OpenSocks( int port ) {
 	usingSocks = qtrue;
 }
 
-static void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *netmask)
-{
+static void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *netmask) {
 	int addrlen;
 	sa_family_t family;
 	
@@ -1168,8 +1154,7 @@ static void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sock
 }
 
 #if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
-static void NET_GetLocalAddress( void )
-{
+static void NET_GetLocalAddress( void ) {
 	struct ifaddrs *ifap, *search;
 
 	numIP = 0;
@@ -1476,8 +1461,7 @@ void NET_Shutdown( void ) {
 }
 
 // Called from NET_Sleep which uses select() to determine which sockets have seen action.
-void NET_Event(fd_set *fdr)
-{
+void NET_Event(fd_set *fdr) {
 	byte bufData[MAX_MSGLEN + 1];
 	netadr_t from;
 	msg_t netmsg;
@@ -1506,8 +1490,7 @@ void NET_Event(fd_set *fdr)
 }
 
 // Sleeps msec or until something happens on the network
-void NET_Sleep(int msec)
-{
+void NET_Sleep(int msec) {
 	struct timeval timeout;
 	fd_set fdr;
 	int retval;
@@ -1544,7 +1527,7 @@ void NET_Sleep(int msec)
 	timeout.tv_sec = msec/1000;
 	timeout.tv_usec = (msec%1000)*1000;
 
-	retval = select(highestfd + 1, &fdr, NULL, NULL, &timeout);
+	retval = select((int)highestfd + 1, &fdr, NULL, NULL, &timeout);
 
 	if(retval == SOCKET_ERROR)
 		Com_Printf("Warning: select() syscall failed: %s\n", NET_ErrorString());
@@ -1552,7 +1535,6 @@ void NET_Sleep(int msec)
 		NET_Event(&fdr);
 }
 
-void NET_Restart_f( void )
-{
+void NET_Restart_f( void ) {
 	NET_Config(qtrue);
 }

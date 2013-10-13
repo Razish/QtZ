@@ -48,8 +48,7 @@ void CreateRotationMatrix(const vector3 *angles, matrix3 matrix) {
 	VectorInverse(&matrix[1]);
 }
 
-void CM_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vDir, vector3 *vProj )
-{
+void CM_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vDir, vector3 *vProj ) {
 	vector3 pVec;
 
 	VectorSubtract( point, vStart, &pVec );

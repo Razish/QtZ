@@ -31,15 +31,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static float s_noise_table[NOISE_SIZE];
 static int s_noise_perm[NOISE_SIZE];
 
-static float GetNoiseValue( int x, int y, int z, int t )
-{
+static float GetNoiseValue( int x, int y, int z, int t ) {
 	int index = INDEX( ( int ) x, ( int ) y, ( int ) z, ( int ) t );
 
 	return s_noise_table[index];
 }
 
-void R_NoiseInit( void )
-{
+void R_NoiseInit( void ) {
 	int i;
 
 	for ( i = 0; i < NOISE_SIZE; i++ )
@@ -49,8 +47,7 @@ void R_NoiseInit( void )
 	}
 }
 
-float R_NoiseGet4f( float x, float y, float z, float t )
-{
+float R_NoiseGet4f( float x, float y, float z, float t ) {
 	int i;
 	int ix, iy, iz, it;
 	float fx, fy, fz, ft;

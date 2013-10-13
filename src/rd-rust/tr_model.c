@@ -31,8 +31,7 @@ static qboolean R_LoadMD4(model_t *mod, void *buffer, const char *name );
 static qboolean R_LoadMDR(model_t *mod, void *buffer, int filesize, const char *name );
 #endif
 
-qhandle_t R_RegisterMD3(const char *name, model_t *mod)
-{
+qhandle_t R_RegisterMD3(const char *name, model_t *mod) {
 	union {
 		unsigned *u;
 		void *v;
@@ -112,8 +111,7 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 }
 
 #ifdef RAVENMD4
-qhandle_t R_RegisterMDR(const char *name, model_t *mod)
-{
+qhandle_t R_RegisterMDR(const char *name, model_t *mod) {
 	union {
 		unsigned *u;
 		void *v;
@@ -146,8 +144,7 @@ qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 }
 #endif
 
-qhandle_t R_RegisterIQM(const char *name, model_t *mod)
-{
+qhandle_t R_RegisterIQM(const char *name, model_t *mod) {
 	union {
 		unsigned *u;
 		void *v;
@@ -344,17 +341,18 @@ qhandle_t RE_RegisterModel( const char *name ) {
 }
 
 static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name ) {
-	int					i, j;
-	md3Header_t			*pinmodel;
-    md3Frame_t			*frame;
-	md3Surface_t		*surf;
-	md3Shader_t			*shader;
-	md3Triangle_t		*tri;
-	md3St_t				*st;
-	md3XyzNormal_t		*xyz;
-	md3Tag_t			*tag;
-	int					version;
-	int					size;
+	int				i;
+	size_t			j;
+	md3Header_t		*pinmodel;
+    md3Frame_t		*frame;
+	md3Surface_t	*surf;
+	md3Shader_t		*shader;
+	md3Triangle_t	*tri;
+	md3St_t			*st;
+	md3XyzNormal_t	*xyz;
+	md3Tag_t		*tag;
+	int				version;
+	int				size;
 
 	pinmodel = (md3Header_t *)buffer;
 
@@ -498,8 +496,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 
 #ifdef RAVENMD4
-static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char *mod_name ) 
-{
+static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char *mod_name )  {
 	int					i, j, k, l;
 	mdrHeader_t			*pinmodel, *mdr;
 	mdrFrame_t			*frame;
@@ -843,7 +840,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	int					version;
 	int					size;
 	shader_t			*sh;
-	int					frameSize;
+	size_t				frameSize;
 
 	pinmodel = (md4Header_t *)buffer;
 
@@ -1058,8 +1055,7 @@ static md3Tag_t *R_GetTag( md3Header_t *mod, int frame, const char *tagName ) {
 }
 
 #ifdef RAVENMD4
-void R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3Tag_t * dest) 
-{
+void R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3Tag_t * dest)  {
 	int				i, j, k;
 	int				frameSize;
 	mdrFrame_t		*frame;

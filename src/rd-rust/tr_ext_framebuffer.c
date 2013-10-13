@@ -18,8 +18,7 @@ static unsigned int renderbuffers[MAX_RENDERBUFFERS] = { 0 };
 static const framebuffer_t *currentReadFramebuffer	= NULL;
 static const framebuffer_t *currentWriteFramebuffer	= NULL;
 
-void CheckGLErrors( const char* filename, int line )
-{
+void CheckGLErrors( const char* filename, int line ) {
 	unsigned int error = glGetError();
 	if ( error != GL_NO_ERROR )
 	{
@@ -53,14 +52,12 @@ void CheckGLErrors( const char* filename, int line )
 }
 
 #if 0
-static bool IsPowerOfTwo( unsigned int value )
-{
+static bool IsPowerOfTwo( unsigned int value ) {
 	return !!(value && !(value & (value - 1)));
 }
 #endif
 
-static unsigned int R_EXT_GetGLInternalFormat ( internalFormat_t internalFormat )
-{
+static unsigned int R_EXT_GetGLInternalFormat ( internalFormat_t internalFormat ) {
     switch ( internalFormat )
     {
     default:
@@ -89,8 +86,7 @@ static unsigned int R_EXT_GetGLInternalFormat ( internalFormat_t internalFormat 
 
 
 
-static unsigned int R_EXT_GetGLFormat ( internalFormat_t internalFormat )
-{
+static unsigned int R_EXT_GetGLFormat ( internalFormat_t internalFormat ) {
     switch ( internalFormat )
     {
     default:
@@ -112,8 +108,7 @@ static unsigned int R_EXT_GetGLFormat ( internalFormat_t internalFormat )
 }
 
 
-unsigned int R_EXT_GetGLTextureTarget( textureTarget_t textureTarget )
-{
+unsigned int R_EXT_GetGLTextureTarget( textureTarget_t textureTarget ) {
 	switch ( textureTarget )
 	{
 	case TT_POT:
@@ -124,8 +119,7 @@ unsigned int R_EXT_GetGLTextureTarget( textureTarget_t textureTarget )
 	return 0;
 }
 
-static unsigned int R_EXT_GetDataTypeForFormat ( internalFormat_t internalFormat )
-{
+static unsigned int R_EXT_GetDataTypeForFormat ( internalFormat_t internalFormat ) {
     switch ( internalFormat )
     {
     default:
@@ -140,8 +134,7 @@ static unsigned int R_EXT_GetDataTypeForFormat ( internalFormat_t internalFormat
 }
 
 
-qboolean R_EXT_FramebufferInit( void )
-{
+qboolean R_EXT_FramebufferInit( void ) {
 	if ( !strstr( glConfig.extensions_string, "GL_EXT_framebuffer_object" ) ||
 		 !strstr( glConfig.extensions_string, "GL_EXT_framebuffer_blit" ) )
 	{
@@ -160,8 +153,7 @@ qboolean R_EXT_FramebufferInit( void )
 	return qtrue;
 }
 
-void R_EXT_FramebufferCleanup( void )
-{
+void R_EXT_FramebufferCleanup( void ) {
 	int				i			= 0;
 	framebuffer_t	*fbo		= framebuffers;
 	texture_t		*texture	= textures;
@@ -192,8 +184,7 @@ void R_EXT_FramebufferCleanup( void )
 	memset( renderbuffers, 0, sizeof( renderbuffers ) );
 }
 
-framebuffer_t *R_EXT_CreateFramebuffer( void )
-{
+framebuffer_t *R_EXT_CreateFramebuffer( void ) {
 	framebuffer_t *fbo = NULL;
 
 	if ( numFramebuffers >= MAX_FRAMEBUFFERS )
@@ -220,8 +211,7 @@ framebuffer_t *R_EXT_CreateFramebuffer( void )
 	return fbo;
 }
 
-void R_EXT_AttachColorTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture, unsigned int slot )
-{
+void R_EXT_AttachColorTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture, unsigned int slot ) {
 	if ( slot >= MAX_FBO_COLOR_TEXTURES )
 	{
 		Com_Printf( "Invalid slot number given (%d), valid range is 0 - %d.\n", slot, MAX_FBO_COLOR_TEXTURES - 1 );
@@ -235,8 +225,7 @@ void R_EXT_AttachColorTextureToFramebuffer( framebuffer_t *framebuffer, const te
 }
 
 #if 0 //BROKEN
-void R_EXT_AttachDepthRenderbufferToFramebuffer( framebuffer_t *framebuffer, unsigned int renderbufferId )
-{
+void R_EXT_AttachDepthRenderbufferToFramebuffer( framebuffer_t *framebuffer, unsigned int renderbufferId ) {
 	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbufferId );
 	framebuffer->depthTexture = renderbufferId;
 
@@ -244,16 +233,14 @@ void R_EXT_AttachDepthRenderbufferToFramebuffer( framebuffer_t *framebuffer, uns
 }
 #endif
 
-void R_EXT_AttachDepthTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture )
-{
+void R_EXT_AttachDepthTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture ) {
 	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, R_EXT_GetGLTextureTarget( texture->target ), texture->id, 0 );
 	framebuffer->depthTexture = texture;//texture->id;
 
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_AttachDepthStencilTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture )
-{
+void R_EXT_AttachDepthStencilTextureToFramebuffer( framebuffer_t *framebuffer, const texture_t *texture ) {
 	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, R_EXT_GetGLTextureTarget( texture->target ), texture->id, 0 );
 	framebuffer->depthTexture = texture;//texture->id;
 	framebuffer->stencilTexture = texture->id;
@@ -261,16 +248,14 @@ void R_EXT_AttachDepthStencilTextureToFramebuffer( framebuffer_t *framebuffer, c
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_AttachStencilRenderbufferToFramebuffer( framebuffer_t *framebuffer, unsigned int renderbufferId )
-{
+void R_EXT_AttachStencilRenderbufferToFramebuffer( framebuffer_t *framebuffer, unsigned int renderbufferId ) {
 	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbufferId );
 	framebuffer->stencilTexture = renderbufferId;
 
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_CheckFramebuffer( const framebuffer_t *framebuffer )
-{
+void R_EXT_CheckFramebuffer( const framebuffer_t *framebuffer ) {
 	unsigned int status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
 
 	switch ( status )
@@ -310,8 +295,7 @@ void R_EXT_CheckFramebuffer( const framebuffer_t *framebuffer )
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_BindDefaultFramebuffer( void )
-{
+void R_EXT_BindDefaultFramebuffer( void ) {
 	if ( currentReadFramebuffer || currentWriteFramebuffer )
 	{
 		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
@@ -322,8 +306,7 @@ void R_EXT_BindDefaultFramebuffer( void )
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_BindFramebuffer( const framebuffer_t *framebuffer )
-{
+void R_EXT_BindFramebuffer( const framebuffer_t *framebuffer ) {
 	if ( currentReadFramebuffer != framebuffer || currentWriteFramebuffer != framebuffer )
 	{
 		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, framebuffer->id );
@@ -334,13 +317,11 @@ void R_EXT_BindFramebuffer( const framebuffer_t *framebuffer )
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-const framebuffer_t *R_EXT_GetCurrentFramebuffer( void )
-{
+const framebuffer_t *R_EXT_GetCurrentFramebuffer( void ) {
 	return currentReadFramebuffer;
 }
 
-void R_EXT_BlitFramebuffer( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight, unsigned int bufferBits )
-{
+void R_EXT_BlitFramebuffer( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight, unsigned int bufferBits ) {
 	if ( currentReadFramebuffer != source )
 	{
 		glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, source ? source->id : 0 );
@@ -361,13 +342,11 @@ void R_EXT_BlitFramebuffer( const framebuffer_t *source, const framebuffer_t *de
 	CheckGLErrors( __FILE__, __LINE__ );
 }
 
-void R_EXT_BlitFramebufferColor( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight )
-{
+void R_EXT_BlitFramebufferColor( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight ) {
     R_EXT_BlitFramebuffer( source, destination, sourceWidth, sourceHeight, destWidth, destHeight, GL_COLOR_BUFFER_BIT);
 }
 
-void R_EXT_BlitFramebufferColorAndDepth( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight )
-{
+void R_EXT_BlitFramebufferColorAndDepth( const framebuffer_t *source, const framebuffer_t *destination, int sourceWidth, int sourceHeight, int destWidth, int destHeight ) {
     R_EXT_BlitFramebuffer( source, destination, sourceWidth, sourceHeight, destWidth, destHeight, GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
@@ -379,8 +358,7 @@ static GLint filterTable[] =
     GL_LINEAR_MIPMAP_LINEAR
 };
 
-texture_t *R_EXT_CreateTexture( unsigned int width, unsigned int height, internalFormat_t internalFormat, unsigned int minFilter, unsigned int magFilter )
-{
+texture_t *R_EXT_CreateTexture( unsigned int width, unsigned int height, internalFormat_t internalFormat, unsigned int minFilter, unsigned int magFilter ) {
 	unsigned int textureId = 0;
 	unsigned int glTexTarget = 0;
 	texture_t* texture = NULL;
@@ -428,8 +406,7 @@ texture_t *R_EXT_CreateTexture( unsigned int width, unsigned int height, interna
 	return texture;
 }
 
-texture_t *R_EXT_CreateBlankTexture( unsigned int width, unsigned int height, internalFormat_t internalFormat )
-{
+texture_t *R_EXT_CreateBlankTexture( unsigned int width, unsigned int height, internalFormat_t internalFormat ) {
 	unsigned int	textureId	= 0;
 	unsigned int	glTexTarget	= 0;
 	unsigned int	filterMode	= GL_LINEAR;
@@ -488,8 +465,7 @@ texture_t *R_EXT_CreateBlankTexture( unsigned int width, unsigned int height, in
 	return texture;
 }
 
-unsigned int R_EXT_CreateRenderbuffer( unsigned int width, unsigned int height, internalFormat_t internalFormat )
-{
+unsigned int R_EXT_CreateRenderbuffer( unsigned int width, unsigned int height, internalFormat_t internalFormat ) {
 	unsigned int renderbufferId = 0;
 
 	if ( numRenderbuffers >= MAX_RENDERBUFFERS )

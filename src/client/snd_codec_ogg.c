@@ -52,8 +52,7 @@ snd_codec_t ogg_codec =
 // callbacks for vobisfile
 
 // fread() replacement
-size_t S_OGG_Callback_read(void *ptr, size_t size, size_t nmemb, void *datasource)
-{
+size_t S_OGG_Callback_read(void *ptr, size_t size, size_t nmemb, void *datasource) {
 	snd_stream_t *stream;
 	int byteSize = 0;
 	int bytesRead = 0;
@@ -105,8 +104,7 @@ size_t S_OGG_Callback_read(void *ptr, size_t size, size_t nmemb, void *datasourc
 }
 
 // fseek() replacement
-int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence)
-{
+int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence) {
 	snd_stream_t *stream;
 	int retVal = 0;
 
@@ -190,15 +188,13 @@ int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence)
 }
 
 // fclose() replacement
-int S_OGG_Callback_close(void *datasource)
-{
+int S_OGG_Callback_close(void *datasource) {
 	// we do nothing here and close all things manually in S_OGG_CodecCloseStream()
 	return 0;
 }
 
 // ftell() replacement
-long S_OGG_Callback_tell(void *datasource)
-{
+long S_OGG_Callback_tell(void *datasource) {
 	snd_stream_t   *stream;
 
 	// check if input is valid
@@ -223,8 +219,7 @@ const ov_callbacks S_OGG_Callbacks =
  &S_OGG_Callback_tell
 };
 
-snd_stream_t *S_OGG_CodecOpenStream(const char *filename)
-{
+snd_stream_t *S_OGG_CodecOpenStream(const char *filename) {
 	snd_stream_t *stream;
 
 	// OGG codec control structure
@@ -323,8 +318,7 @@ snd_stream_t *S_OGG_CodecOpenStream(const char *filename)
 	return stream;
 }
 
-void S_OGG_CodecCloseStream(snd_stream_t *stream)
-{
+void S_OGG_CodecCloseStream(snd_stream_t *stream) {
 	// check if input is valid
 	if(!stream)
 	{
@@ -341,8 +335,7 @@ void S_OGG_CodecCloseStream(snd_stream_t *stream)
 	S_CodecUtilClose(&stream);
 }
 
-int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
-{
+int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer) {
 	// buffer handling
 	int bytesRead, bytesLeft, c;
 	char *bufPtr;
@@ -399,8 +392,7 @@ int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer)
 }
 
 // We handle S_OGG_CodecLoad as a special case of the streaming functions where we read the whole stream at once.
-void *S_OGG_CodecLoad(const char *filename, snd_info_t *info)
-{
+void *S_OGG_CodecLoad(const char *filename, snd_info_t *info) {
 	snd_stream_t *stream;
 	byte *buffer;
 	int bytesRead;

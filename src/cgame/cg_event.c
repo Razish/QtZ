@@ -27,8 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for the voice chats
 #include "../../build/qtz/ui/menudef.h"
 
-static void CG_Obituary( entityState_t *ent )
-{
+static void CG_Obituary( entityState_t *ent ) {
 	int				mod = ent->eventParm, target = ent->otherEntityNum, attacker = ent->otherEntityNum2;
 	const char		*targetInfo = NULL, *attackerInfo = NULL;
 	char			targetName[32] = {0}, attackerName[32] = {0};
@@ -142,8 +141,7 @@ static void CG_UseItem( centity_t *cent ) {
 }
 
 // A new item was picked up this frame
-static void CG_ItemPickup( int itemNum )
-{
+static void CG_ItemPickup( int itemNum ) {
 	//QTZTODO: Item pickup HUD
 #if 0
 	itemPickup_t *newItem = (itemPickup_t *)malloc( sizeof( itemPickup_t ) );

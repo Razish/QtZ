@@ -127,7 +127,7 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
 	if ( activator->client && ( ent->spawnflags & 4 ) ) {
-		trap->SV_GameSendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
+		trap->SV_GameSendServerCommand( ARRAY_INDEX( g_entities, activator ), va("cp \"%s\"", ent->message ));
 		return;
 	}
 
@@ -258,21 +258,18 @@ void target_laser_think (gentity_t *self) {
 	self->nextthink = level.time + sv_frametime->integer;
 }
 
-void target_laser_on (gentity_t *self)
-{
+void target_laser_on (gentity_t *self) {
 	if (!self->activator)
 		self->activator = self;
 	target_laser_think (self);
 }
 
-void target_laser_off (gentity_t *self)
-{
+void target_laser_off (gentity_t *self) {
 	trap->SV_UnlinkEntity( (sharedEntity_t *)self );
 	self->nextthink = 0;
 }
 
-void target_laser_use (gentity_t *self, gentity_t *other, gentity_t *activator)
-{
+void target_laser_use (gentity_t *self, gentity_t *other, gentity_t *activator) {
 	self->activator = activator;
 	if ( self->nextthink > 0 )
 		target_laser_off (self);
@@ -280,8 +277,7 @@ void target_laser_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 		target_laser_on (self);
 }
 
-void target_laser_start (gentity_t *self)
-{
+void target_laser_start (gentity_t *self) {
 	gentity_t *ent;
 
 	self->s.eType = ET_BEAM;
@@ -309,8 +305,7 @@ void target_laser_start (gentity_t *self)
 		target_laser_off (self);
 }
 
-void SP_target_laser (gentity_t *self)
-{
+void SP_target_laser (gentity_t *self) {
 	// let everything else get spawned before we start firing
 	self->think = target_laser_start;
 	self->nextthink = level.time + sv_frametime->integer;
@@ -388,8 +383,7 @@ void SP_target_position( gentity_t *self ){
 	G_SetOrigin( self, &self->s.origin );
 }
 
-static void target_location_linkup(gentity_t *ent)
-{
+static void target_location_linkup(gentity_t *ent) {
 	int i;
 	int n;
 

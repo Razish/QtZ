@@ -58,8 +58,7 @@ const char *(*qcurl_multi_strerror)(CURLMcode);
 
 static void *cURLLib = NULL;
 
-static void *GPA(char *str)
-{
+static void *GPA(char *str) {
 	void *rv;
 
 	rv = Sys_LoadFunction(cURLLib, str);
@@ -77,8 +76,7 @@ static void *GPA(char *str)
 }
 #endif /* USE_CURL_DLOPEN */
 
-qboolean CL_cURL_Init( void )
-{
+qboolean CL_cURL_Init( void ) {
 #ifdef USE_CURL_DLOPEN
 	if(cURLLib)
 		return qtrue;
@@ -131,8 +129,7 @@ qboolean CL_cURL_Init( void )
 #endif /* USE_CURL_DLOPEN */
 }
 
-void CL_cURL_Shutdown( void )
-{
+void CL_cURL_Shutdown( void ) {
 	CL_cURL_Cleanup();
 #ifdef USE_CURL_DLOPEN
 	if(cURLLib)
@@ -159,8 +156,7 @@ void CL_cURL_Shutdown( void )
 #endif /* USE_CURL_DLOPEN */
 }
 
-void CL_cURL_Cleanup( void )
-{
+void CL_cURL_Cleanup( void ) {
 	if(clc.downloadCURLM) {
 		if(clc.downloadCURL) {
 			qcurl_multi_remove_handle(clc.downloadCURLM,
@@ -190,12 +186,11 @@ static int CL_cURL_CallbackProgress( void *dummy, double dltotal, double dlnow,
 static size_t CL_cURL_CallbackWrite(void *buffer, size_t size, size_t nmemb,
 	void *stream)
 {
-	FS_Write( buffer, size*nmemb, ((fileHandle_t*)stream)[0] );
+	FS_Write( buffer, (int)(size*nmemb), ((fileHandle_t*)stream)[0] );
 	return size*nmemb;
 }
 
-void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
-{
+void CL_cURL_BeginDownload( const char *localName, const char *remoteURL ) {
 	clc.cURLUsed = qtrue;
 	Com_Printf("URL: %s\n", remoteURL);
 	Com_DPrintf("***** CL_cURL_BeginDownload *****\n"
@@ -269,8 +264,7 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 	}
 }
 
-void CL_cURL_PerformDownload( void )
-{
+void CL_cURL_PerformDownload( void ) {
 	CURLMcode res;
 	CURLMsg *msg;
 	int c;

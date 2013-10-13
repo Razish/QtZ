@@ -71,12 +71,12 @@ typedef struct cgameImport_s {
 	// cvar
 	cvar_t *		(*Cvar_Get)						( const char *name, const char *value, int flags, const char *description, void (*update)( void ) );
 	void			(*Cvar_Set)						( const char *name, const char *value );
-	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, int bufsize );
+	void			(*Cvar_VariableStringBuffer)	( const char *name, char *buffer, size_t bufsize );
 
 	// command
 	int				(*Cmd_Argc)						( void );
 	const char *	(*Cmd_Argv)						( int arg );
-	void			(*Cmd_Args)						( char *buffer, int bufferLength );
+	void			(*Cmd_Args)						( char *buffer, size_t bufferLength );
 	void			(*SendConsoleCommand)			( const char *text );
 	void			(*AddCommand)					( const char *cmd_name, void (*cmd)( void ), void (*complete)( char *args, int argNum ) );
 	void			(*RemoveCommand)				( const char *cmd_name );
@@ -123,7 +123,7 @@ typedef struct cgameImport_s {
 	void			(*R_ClearScene)					( void );
 	void			(*R_DrawStretchPic)				( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	void			(*R_DrawRotatedPic)				( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a, qboolean centered, qhandle_t hShader );
-	qboolean		(*R_GetEntityToken)				( char *buffer, int size );
+	qboolean		(*R_GetEntityToken)				( char *buffer, size_t size );
 	qboolean		(*R_inPVS)						( const vector3 *p1, const vector3 *p2 );
 	int				(*R_LerpTag)					( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
 	int				(*R_LightForPoint)				( vector3 *point, vector3 *ambientLight, vector3 *directedLight, vector3 *lightDir );
@@ -147,7 +147,7 @@ typedef struct cgameImport_s {
 	int				(*GetCurrentCmdNumber)			( void );
 	qboolean		(*GetUserCmd)					( int cmdNumber, usercmd_t *ucmd );
 	void			(*SetUserCmdValue)				( int userCmdValue, float sensitivityScale );
-	int				(*MemoryRemaining)				( void );
+	size_t			(*MemoryRemaining)				( void );
 	int				(*RealTime)						( qtime_t *qtime );
 
 	// keys
@@ -156,21 +156,15 @@ typedef struct cgameImport_s {
 	void			(*Key_SetCatcher)				( int catcher );
 	int				(*Key_GetKey)					( const char *binding );
 
-	void			(*Field_CharEvent)				( field_t *edit, int ch );
+	void			(*Field_CharEvent)				( field_t *edit, char ch );
 
 	// preprocessor, imported from botlib
-	int				(*PC_AddGlobalDefine)			( char *string );
+	int				(*PC_AddGlobalDefine)			( const char *string );
 	int				(*PC_LoadSourceHandle)			( const char *filename );
 	int				(*PC_FreeSourceHandle)			( int handle );
 	int				(*PC_ReadTokenHandle)			( int handle, pc_token_t *pc_token );
 	int				(*PC_SourceFileAndLine)			( int handle, char *filename, int *line );
 
-	// cinematic
-	int				(*CIN_PlayCinematic)			( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	cinState_t		(*CIN_StopCinematic)			( int handle );
-	cinState_t		(*CIN_RunCinematic)				( int handle );
-	void			(*CIN_DrawCinematic)			( int handle );
-	void			(*CIN_SetExtents)				( int handle, int x, int y, int w, int h );
 } cgameImport_t;
 
 typedef struct cgameExport_s {
