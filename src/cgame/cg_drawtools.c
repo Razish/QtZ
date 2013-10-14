@@ -28,7 +28,7 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 #if 0
 	// adjust for wide screens
 	if ( cgs.glconfig.vidWidth * SCREEN_HEIGHT > cgs.glconfig.vidHeight * SCREEN_WIDTH ) {
-		*x += 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
+		*x += 0.5f * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
 	}
 #endif
 	// scale for screen sizes

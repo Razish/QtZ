@@ -80,26 +80,26 @@ int G_GetHitLocation(gentity_t *target, vector3 *ppoint) {
 
 	// Get bottom to top (vertical) position index
 	udot = DotProduct( &up, &point_dir );
-		 if ( udot >  0.800 )	Vertical = 4;
-	else if ( udot >  0.400 )	Vertical = 3;
-	else if ( udot > -0.333 )	Vertical = 2;
-	else if ( udot > -0.666 )	Vertical = 1;
+		 if ( udot >  0.800f )	Vertical = 4;
+	else if ( udot >  0.400f )	Vertical = 3;
+	else if ( udot > -0.333f )	Vertical = 2;
+	else if ( udot > -0.666f )	Vertical = 1;
 	else						Vertical = 0;
 
 	// Get back to front (forward) position index.
 	fdot = DotProduct( &forward, &point_dir );
-		 if ( fdot >  0.666 )	Forward = 4;
-	else if ( fdot >  0.333 )	Forward = 3;
-	else if ( fdot > -0.333 )	Forward = 2;
-	else if ( fdot > -0.666 )	Forward = 1;
+		 if ( fdot >  0.666f )	Forward = 4;
+	else if ( fdot >  0.333f )	Forward = 3;
+	else if ( fdot > -0.333f )	Forward = 2;
+	else if ( fdot > -0.666f )	Forward = 1;
 	else						Forward = 0;
 
 	// Get left to right (lateral) position index.
 	rdot = DotProduct( &right, &point_dir );
-		 if ( rdot >  0.666 )	Lateral = 4;
-	else if ( rdot >  0.333 )	Lateral = 3;
-	else if ( rdot > -0.333 )	Lateral = 2;
-	else if ( rdot > -0.666 )	Lateral = 1;
+		 if ( rdot >  0.666f )	Lateral = 4;
+	else if ( rdot >  0.333f )	Lateral = 3;
+	else if ( rdot > -0.333f )	Lateral = 2;
+	else if ( rdot > -0.666f )	Lateral = 1;
 	else						Lateral = 0;
 
 	HitLoc = Vertical*25 + Forward*5 + Lateral;
@@ -854,41 +854,41 @@ qboolean CanDamage (gentity_t *targ, vector3 *origin) {
 	// use the midpoint of the bounds instead of the origin, because
 	// bmodels may have their origin is 0,0,0
 	VectorAdd (&targ->r.absmin, &targ->r.absmax, &midpoint);
-	VectorScale (&midpoint, 0.5, &midpoint);
+	VectorScale (&midpoint, 0.5f, &midpoint);
 
 	VectorCopy (&midpoint, &dest);
 	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+	if (tr.fraction == 1.0f || tr.entityNum == targ->s.number)
 		return qtrue;
 
 	// this should probably check in the plane of projection, 
 	// rather than in world coordinate, and also include Z
 	VectorCopy (&midpoint, &dest);
-	dest.x += 15.0;
-	dest.y += 15.0;
+	dest.x += 15.0f;
+	dest.y += 15.0f;
 	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0)
+	if (tr.fraction == 1.0f)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
-	dest.x += 15.0;
-	dest.y -= 15.0;
+	dest.x += 15.0f;
+	dest.y -= 15.0f;
 	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0)
+	if (tr.fraction == 1.0f)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
-	dest.x -= 15.0;
-	dest.y += 15.0;
+	dest.x -= 15.0f;
+	dest.y += 15.0f;
 	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0)
+	if (tr.fraction == 1.0f)
 		return qtrue;
 
 	VectorCopy (&midpoint, &dest);
-	dest.x -= 15.0;
-	dest.y -= 15.0;
+	dest.x -= 15.0f;
+	dest.y -= 15.0f;
 	trap->SV_Trace ( &tr, origin, &vec3_origin, &vec3_origin, &dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0)
+	if (tr.fraction == 1.0f)
 		return qtrue;
 
 

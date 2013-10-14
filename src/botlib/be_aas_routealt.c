@@ -142,12 +142,12 @@ int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, i
 		starttime = AAS_AreaTravelTimeToGoalArea(startareanum, start, i, travelflags);
 		if (!starttime) continue;
 		//if the travel time from the start to the area is greater than the shortest goal travel time
-		if (starttime > (float) 1.1 * goaltraveltime) continue;
+		if (starttime > (float) 1.1f * goaltraveltime) continue;
 		//travel time from the area to the goal area
 		goaltime = AAS_AreaTravelTimeToGoalArea(i, NULL, goalareanum, travelflags);
 		if (!goaltime) continue;
 		//if the travel time from the area to the goal is greater than the shortest goal travel time
-		if (goaltime > (float) 0.8 * goaltraveltime) continue;
+		if (goaltime > (float) 0.8f * goaltraveltime) continue;
 		//this is a mid range area
 		midrangeareas[i].valid = qtrue;
 		midrangeareas[i].starttime = starttime;

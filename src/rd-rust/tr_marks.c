@@ -155,7 +155,7 @@ void R_BoxSurfaces_r(mnode_t *node, vector3 *mins, vector3 *maxs, surfaceType_t 
 			s = BoxOnPlaneSide( mins, maxs, &(( srfSurfaceFace_t * ) surf->data)->plane );
 			if (s == 1 || s == 2) {
 				surf->viewCount = tr.viewCount;
-			} else if (DotProduct(&(( srfSurfaceFace_t * ) surf->data)->plane.normal, dir) > -0.5) {
+			} else if (DotProduct(&(( srfSurfaceFace_t * ) surf->data)->plane.normal, dir) > -0.5f) {
 			// don't add faces that make sharp angles with the projection direction
 				surf->viewCount = tr.viewCount;
 			}
@@ -186,7 +186,7 @@ void R_AddMarkFragments( int numClipPoints, vector3 clipPoints[2][MAX_VERTS_ON_P
 
 		R_ChopPolyBehindPlane( numClipPoints, clipPoints[pingPong],
 			&numClipPoints, clipPoints[!pingPong],
-			&normals[i], dists[i], 0.5 );
+			&normals[i], dists[i], 0.5f );
 		pingPong ^= 1;
 		if ( numClipPoints == 0 ) {
 			break;
@@ -206,8 +206,8 @@ void R_AddMarkFragments( int numClipPoints, vector3 clipPoints[2][MAX_VERTS_ON_P
 	for ( i = 0 ; i < numClipPoints ; i++ ) {
 		int j;
 		for ( j = 0 ; j < 3 ; j++ ) {
-			if (clipPoints[pingPong][i][j] < mins[j] - 0.5) break;
-			if (clipPoints[pingPong][i][j] > maxs[j] + 0.5) break;
+			if (clipPoints[pingPong][i][j] < mins[j] - 0.5f) break;
+			if (clipPoints[pingPong][i][j] > maxs[j] + 0.5f) break;
 		}
 		if (j < 3) break;
 	}
@@ -333,7 +333,7 @@ int R_MarkFragments( int numPoints, const vector3 *points, const vector3 *projec
 					VectorSubtract(&clipPoints[0][2], &clipPoints[0][1], &v2);
 					CrossProduct(&v1, &v2, &normal);
 					VectorNormalizeFast(&normal);
-					if (DotProduct(&normal, &projectionDir) < -0.1) {
+					if (DotProduct(&normal, &projectionDir) < -0.1f) {
 						// add the fragments of this triangle
 						R_AddMarkFragments(numClipPoints, clipPoints,
 										   numPlanes, normals, dists,
@@ -357,7 +357,7 @@ int R_MarkFragments( int numPoints, const vector3 *points, const vector3 *projec
 					VectorSubtract(&clipPoints[0][2], &clipPoints[0][1], &v2);
 					CrossProduct(&v1, &v2, &normal);
 					VectorNormalizeFast(&normal);
-					if (DotProduct(&normal, &projectionDir) < -0.05) {
+					if (DotProduct(&normal, &projectionDir) < -0.05f) {
 						// add the fragments of this triangle
 						R_AddMarkFragments(numClipPoints, clipPoints,
 										   numPlanes, normals, dists,
@@ -377,7 +377,7 @@ int R_MarkFragments( int numPoints, const vector3 *points, const vector3 *projec
 			srfSurfaceFace_t *surf = ( srfSurfaceFace_t * ) surfaces[i];
 
 			// check the normal of this face
-			if (DotProduct(&surf->plane.normal, &projectionDir) > -0.5) {
+			if (DotProduct(&surf->plane.normal, &projectionDir) > -0.5f) {
 				continue;
 			}
 

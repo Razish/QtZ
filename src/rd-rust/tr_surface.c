@@ -407,15 +407,15 @@ static void VectorArrayNormalize(vector3 *normals, unsigned int count) {
         
 #ifdef idppc
     {
-        register float half = 0.5;
-        register float one  = 1.0;
+        register float half = 0.5f;
+        register float one  = 1.0f;
         float *components = (float *)normals;
         
         // Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
         // runs *much* faster than calling sqrt().  We'll use a single Newton-Raphson
         // refinement step to get a little more precision.  This seems to yeild results
         // that are correct to 3 decimal places and usually correct to at least 4 (sometimes 5).
-        // (That is, for the given input range of about 0.6 to 2.0).
+        // (That is, for the given input range of about 0.6f to 2.0f).
         do {
             float x, y, z;
             float B, y0, y1;
@@ -470,8 +470,8 @@ static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp) {
 		+ (backEnd.currentEntity->e.frame * surf->numVerts * 4);
 	newNormals = newXyz + 3;
 
-	newXyzScale = MD3_XYZ_SCALE * (1.0 - backlerp);
-	newNormalScale = 1.0 - backlerp;
+	newXyzScale = MD3_XYZ_SCALE * (1.0f - backlerp);
+	newNormalScale = 1.0f - backlerp;
 
 	numVerts = surf->numVerts;
 

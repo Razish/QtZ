@@ -256,7 +256,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 	}
 }
 
-#define	POINT_EPSILON	0.1
+#define	POINT_EPSILON	0.1f
 static qboolean CM_ComparePoints( vector3 *a, vector3 *b ) {
 	float d;
 
@@ -730,7 +730,7 @@ void CM_AddFacetBevels( facet_t *facet ) {
 				for ( l = 0 ; l < w->numpoints ; l++ )
 				{
 					d = DotProduct (&w->p[l], (vector3 *)&plane) - plane.w;
-					if (d > 0.1)
+					if (d > POINT_EPSILON)
 						break;	// point in front
 				}
 				if ( l < w->numpoints )
@@ -1194,8 +1194,8 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 
 	facet = pc->facets;
 	for ( i = 0 ; i < pc->numFacets ; i++, facet++ ) {
-		enterFrac = -1.0;
-		leaveFrac = 1.0;
+		enterFrac = -1.0f;
+		leaveFrac = 1.0f;
 		hitnum = -1;
 		//
 		planes = &pc->planes[ facet->surfacePlane ];

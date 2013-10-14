@@ -561,7 +561,7 @@ void AAS_DrawArrow(vector3 *start, vector3 *end, int linecolor, int arrowcolor) 
 	VectorSubtract(end, start, &dir);
 	VectorNormalize(&dir);
 	dot = DotProduct(&dir, &up);
-	if (dot > 0.99 || dot < -0.99) VectorSet(&cross, 1, 0, 0);
+	if (dot > 0.99f || dot < -0.99f) VectorSet(&cross, 1, 0, 0);
 	else CrossProduct(&dir, &up, &cross);
 
 	VectorMA(end, -6, &dir, &p1);
@@ -674,7 +674,7 @@ void AAS_ShowReachableAreas(int areanum) {
 	//
 	if (index >= settings->numreachableareas) index = 0;
 	//
-	if (AAS_Time() - lasttime > 1.5)
+	if (AAS_Time() - lasttime > 1.5f)
 	{
 		memcpy(&reach, &aasworld.reachability[settings->firstreachablearea + index], sizeof(aas_reachability_t));
 		index++;

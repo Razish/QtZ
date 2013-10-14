@@ -50,7 +50,7 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 #if 0
 		// adjust for wide screens
 		if ( cls.glconfig.vidWidth * SCREEN_HEIGHT > cls.glconfig.vidHeight * SCREEN_WIDTH ) {
-			*x += 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
+			*x += 0.5f * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * SCREEN_WIDTH / SCREEN_HEIGHT ) );
 		}
 #endif
 

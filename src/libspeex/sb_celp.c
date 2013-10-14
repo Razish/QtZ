@@ -105,7 +105,7 @@ int sb_decoder_ctl(void *state, int request, void *ptr)
 
 
 #ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
+#define M_PI           3.14159265358979323846f  /* pi */
 #endif
 
 #define sqr(x) ((x)*(x))
@@ -488,7 +488,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
       } else {
          /* VAD only */
          int modeid;
-         if (st->relative_quality<2.0)
+         if (st->relative_quality<2.0f)
             modeid=1;
          else
             modeid=st->submodeSelect;
@@ -615,7 +615,7 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
             for (i=0;i<st->lpcSize;i++)
                mem[i]=st->mem_sp[i];
             iir_mem2(st->low_innov+offset, st->interp_qlpc, tmp_sig, st->subframeSize, st->lpcSize, mem);
-            g2 = compute_rms(sp, st->subframeSize)/(.01+compute_rms(tmp_sig, st->subframeSize));
+            g2 = compute_rms(sp, st->subframeSize)/(.01f+compute_rms(tmp_sig, st->subframeSize));
             /*fprintf (stderr, "gains: %f %f\n", g, g2);*/
             g = g2;
             stack = tmp_stack;

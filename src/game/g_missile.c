@@ -135,7 +135,7 @@ void G_BounceMissile_JA( gentity_t *ent, trace_t *trace ) {
 		ent->s.pos.trType = TR_GRAVITY;
 
 		// check for stop
-		if ( trace->plane.normal.z > 0.7f && ent->s.pos.trDelta.z < 40 ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7
+		if ( trace->plane.normal.z > 0.7f && ent->s.pos.trDelta.z < 40 ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7f
 		{
 			G_SetOrigin( ent, &trace->endpos );
 			ent->nextthink = level.time + 100;

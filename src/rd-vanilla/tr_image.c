@@ -210,8 +210,8 @@ static void ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *
 	}
 
 	for (i=0 ; i<outheight ; i++, out += outwidth) {
-		inrow = in + inwidth*(int)((i+0.25)*inheight/outheight);
-		inrow2 = in + inwidth*(int)((i+0.75)*inheight/outheight);
+		inrow = in + inwidth*(int)((i+0.25f)*inheight/outheight);
+		inrow2 = in + inwidth*(int)((i+0.75f)*inheight/outheight);
 		frac = fracstep >> 1;
 		for (j=0 ; j<outwidth ; j++) {
 			pix1 = (byte *)inrow + p1[j];
@@ -981,7 +981,7 @@ void R_InitFogTable( void ) {
 	float	d;
 	float	exp;
 	
-	exp = 0.5;
+	exp = 0.5f;
 
 	for ( i = 0 ; i < FOG_TABLE_SIZE ; i++ ) {
 		d = powf( (float)i/(FOG_TABLE_SIZE-1), exp );
@@ -995,22 +995,22 @@ void R_InitFogTable( void ) {
 float	R_FogFactor( float s, float t ) {
 	float	d;
 
-	s -= 1.0/512;
+	s -= 1.0f/512;
 	if ( s < 0 ) {
 		return 0;
 	}
-	if ( t < 1.0/32 ) {
+	if ( t < 1.0f/32 ) {
 		return 0;
 	}
-	if ( t < 31.0/32 ) {
+	if ( t < 31.0f/32 ) {
 		s *= (t - 1.0f/32.0f) / (30.0f/32.0f);
 	}
 
 	// we need to leave a lot of clamp range
 	s *= 8;
 
-	if ( s > 1.0 ) {
-		s = 1.0;
+	if ( s > 1.0f ) {
+		s = 1.0f;
 	}
 
 	d = tr.fogTable[ (int)(s * (FOG_TABLE_SIZE-1)) ];

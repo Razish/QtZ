@@ -709,7 +709,7 @@ void EvolveFuzzySeperator_r(fuzzyseperator_t *fs) {
 	else if (fs->type == WT_BALANCE)
 	{
 		//every once in a while an evolution leap occurs, mutation
-		if (random() < 0.01) fs->weight += crandom() * (fs->maxweight - fs->minweight);
+		if (random() < 0.01f) fs->weight += crandom() * (fs->maxweight - fs->minweight);
 		else fs->weight += crandom() * (fs->maxweight - fs->minweight) * 0.5f;
 		//modify bounds if necesary because of mutation
 		if (fs->weight < fs->minweight) fs->minweight = fs->weight;

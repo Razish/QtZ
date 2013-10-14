@@ -43,7 +43,7 @@
 #define sqr(x) ((x)*(x))
 
 #define MIN_ENERGY 6000
-#define NOISE_POW .3
+#define NOISE_POW .3f
 
 #ifndef DISABLE_VBR
 
@@ -153,10 +153,10 @@ float vbr_analysis(VBRState *vbr, spx_word16_t *sig, int len, int pitch, float p
    if (vbr->noise_accum_count<.06f && ener>MIN_ENERGY)
       vbr->noise_accum = .05f*pow_ener;
 
-   if ((voicing<.3 && non_st < .2 && pow_ener < 1.2*vbr->noise_level)
-       || (voicing<.3 && non_st < .05 && pow_ener < 1.5*vbr->noise_level)
-       || (voicing<.4 && non_st < .05 && pow_ener < 1.2*vbr->noise_level)
-       || (voicing<0 && non_st < .05))
+   if ((voicing<.3f && non_st < .2f && pow_ener < 1.2f*vbr->noise_level)
+       || (voicing<.3f && non_st < .05f && pow_ener < 1.5f*vbr->noise_level)
+       || (voicing<.4f && non_st < .05f && pow_ener < 1.2f*vbr->noise_level)
+       || (voicing<0 && non_st < .05f))
    {
       float tmp;
       //va = 0;

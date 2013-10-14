@@ -220,7 +220,7 @@ void spx_fft_float(void *table, float *in, float *out)
    spx_word16_t _out[MAX_FFT_SIZE];
 #endif
    for (i=0;i<N;i++)
-      _in[i] = (int)floor(.5+in[i]);
+      _in[i] = (int)floor(.5f+in[i]);
    spx_fft(table, _in, _out);
    for (i=0;i<N;i++)
       out[i] = _out[i];
@@ -256,7 +256,7 @@ void spx_ifft_float(void *table, float *in, float *out)
    spx_word16_t _out[MAX_FFT_SIZE];
 #endif
    for (i=0;i<N;i++)
-      _in[i] = (int)floor(.5+in[i]);
+      _in[i] = (int)floor(.5f+in[i]);
    spx_ifft(table, _in, _out);
    for (i=0;i<N;i++)
       out[i] = _out[i];

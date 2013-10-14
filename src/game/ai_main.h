@@ -200,8 +200,8 @@ typedef struct bot_state_s
 	float predictobstacles_time;					//last time the bot predicted obstacles
 	int predictobstacles_goalareanum;				//last goal areanum the bot predicted obstacles for
 	vector3 aimtarget;
-	vector3 enemyvelocity;							//enemy velocity 0.5 secs ago during battle
-	vector3 enemyorigin;								//enemy origin 0.5 secs ago during battle
+	vector3 enemyvelocity;							//enemy velocity 0.5f secs ago during battle
+	vector3 enemyorigin;								//enemy origin 0.5f secs ago during battle
 	//
 	int character;									//the bot character
 	int ms;											//move state of the bot

@@ -578,8 +578,8 @@ const spx_word16_t shift_filt[3][7] = {{-390,    1540,   -4993,   20123,   20123
 #else
 #if 0
 const float shift_filt[3][7] = {{-9.9369e-04, 3.1831e-02, -1.3889e-01, 6.0910e-01, 6.0910e-01, -1.3889e-01, 3.1831e-02},
-                          {-0.0029937, 0.0345613, -0.1350474, 0.8904793, 0.2714479, -0.0710304, 0.0135403},
-                          {0.0135403, -0.0710304, 0.2714479, 0.8904793, -0.1350474, 0.0345613,  -0.0029937}};
+                          {-0.0029937f, 0.0345613f, -0.1350474f, 0.8904793f, 0.2714479f, -0.0710304f, 0.0135403f},
+                          {0.0135403f, -0.0710304f, 0.2714479f, 0.8904793f, -0.1350474f, 0.0345613f,  -0.0029937f}};
 #else
 const float shift_filt[3][7] = {{-0.011915f, 0.046995f, -0.152373f, 0.614108f, 0.614108f, -0.152373f, 0.046995f},
                           {-0.0324855f, 0.0859768f, -0.2042986f, 0.9640297f, 0.2086420f, -0.0302054f, -0.0063646f},
@@ -692,7 +692,7 @@ char *stack
 #ifdef FIXED_POINT
       if ((nol_pitch_coef[i]>MULT16_16_Q15(nol_pitch_coef[0],19661)) && 
 #else
-      if ((nol_pitch_coef[i]>.6*nol_pitch_coef[0]) && 
+      if ((nol_pitch_coef[i]>.6f*nol_pitch_coef[0]) && 
 #endif
          (ABS(2*nol_pitch[i]-corr_pitch)<=2 || ABS(3*nol_pitch[i]-corr_pitch)<=3 || 
          ABS(4*nol_pitch[i]-corr_pitch)<=4 || ABS(5*nol_pitch[i]-corr_pitch)<=5))
@@ -761,8 +761,8 @@ char *stack
    if (comb_gain>0)
    {
 #ifdef FIXED_POINT
-      c1 = (MULT16_16_Q15(QCONST16(.4,15),comb_gain)+QCONST16(.07,15));
-      c2 = QCONST16(.5,15)+MULT16_16_Q14(QCONST16(1.72f,14),(c1-QCONST16(.07,15)));
+      c1 = (MULT16_16_Q15(QCONST16(.4f,15),comb_gain)+QCONST16(.07f,15));
+      c2 = QCONST16(.5f,15)+MULT16_16_Q14(QCONST16(1.72f,14),(c1-QCONST16(.07f,15)));
 #else
       c1 = .4f*comb_gain+.07f;
       c2 = .5f+1.72f*(c1-.07f);

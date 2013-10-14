@@ -646,7 +646,7 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 	else
 		origin.data[axis] = doorMax + 10;
 
-	TeleportPlayer(other, &origin, tv(10000000.0, 0, 0));
+	TeleportPlayer(other, &origin, tv(10000000.0f, 0, 0));
 }
 
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {

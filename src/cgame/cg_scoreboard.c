@@ -192,7 +192,7 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 			background	= { 0.75f, 0.75f, 0.75f, 1.0f },
 			blue		= { 0.6f, 0.6f, 1.0f, 1.0f };
 	int i = 0, count = playerCount, column = 0;
-	float endX = SCREEN_WIDTH/2.0, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
+	float endX = SCREEN_WIDTH/2.0f, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
 
 	white.a = fade;
 	background.a = 0.6f*fade;
@@ -329,7 +329,7 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 	vector4	*teamBackground	= &background,
 			*teamBorder		= &border;
 	int i = 0, count = 0, column = 0;
-	float endX = SCREEN_WIDTH/2.0, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
+	float endX = SCREEN_WIDTH/2.0f, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
 
 	white.a = border.a = borderRed.a = borderBlue.a = blue.a = fade;
 	background.a = teamRed.a = teamBlue.a = 0.6f * fade;
@@ -494,7 +494,7 @@ int ListPlayers_Flags( float fade, float x, float y, float fontScale, float line
 	vector4	*teamBackground	= &background,
 			*teamBorder		= &border;
 	int i = 0, count = 0, column = 0;
-	float endX = SCREEN_WIDTH/2.0, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
+	float endX = SCREEN_WIDTH/2.0f, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
 
 	white.a = border.a = borderRed.a = borderBlue.a = blue.a = fade;
 	background.a = teamRed.a = teamBlue.a = 0.6f*fade;

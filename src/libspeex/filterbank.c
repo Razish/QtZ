@@ -213,7 +213,7 @@ void filterbank_psy_smooth(FilterBank *bank, float *ps, float *mask)
    filterbank_compute_bank(bank, ps, bark);
    for (i=1;i<bank->nb_banks;i++)
    {
-      /*float decay_high = 13-1.6*log10(bark[i-1]);
+      /*float decay_high = 13-1.6f*log10(bark[i-1]);
       decay_high = pow(10,(-decay_high/30.f));*/
       bark[i] = bark[i] + decay_high*bark[i-1];
    }

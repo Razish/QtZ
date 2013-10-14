@@ -255,7 +255,7 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( &ent.axis[2], frac, &ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
 	} else {
-		frac = 1.0;
+		frac = 1.0f;
 	}
 
 	// items without glow textures need to keep a minimum light value
@@ -267,9 +267,9 @@ static void CG_Item( centity_t *cent ) {
 
 	// increase the size of the weapons when they are presented as items
 	if ( item->giType == IT_WEAPON ) {
-		VectorScale( &ent.axis[0], 1.5, &ent.axis[0] );
-		VectorScale( &ent.axis[1], 1.5, &ent.axis[1] );
-		VectorScale( &ent.axis[2], 1.5, &ent.axis[2] );
+		VectorScale( &ent.axis[0], 1.5f, &ent.axis[0] );
+		VectorScale( &ent.axis[1], 1.5f, &ent.axis[1] );
+		VectorScale( &ent.axis[2], 1.5f, &ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
 		trap->S_AddLoopingSound( cent->currentState.number, &cent->lerpOrigin, &vec3_origin, cgs.media.weaponHoverSound );
 	}
@@ -315,7 +315,7 @@ static void CG_Item( centity_t *cent ) {
 				AnglesToAxis( &spinAngles, ent.axis );
 				
 				// scale up if respawning
-				if ( frac != 1.0 ) {
+				if ( frac != 1.0f ) {
 					VectorScale( &ent.axis[0], frac, &ent.axis[0] );
 					VectorScale( &ent.axis[1], frac, &ent.axis[1] );
 					VectorScale( &ent.axis[2], frac, &ent.axis[2] );

@@ -609,7 +609,7 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 					chunk = sc->soundData;
 				}
 				samples = (byte *)chunk->sndChunk;
-				ooff = 0.0;
+				ooff = 0.0f;
 			}
 		}
 	}
@@ -656,7 +656,7 @@ void S_PaintChannels( int endtime ) {
 		// paint in the channels.
 		ch = s_channels;
 		for ( i = 0; i < MAX_CHANNELS ; i++, ch++ ) {		
-			if ( !ch->thesfx || (ch->leftvol<0.25 && ch->rightvol<0.25 )) {
+			if ( !ch->thesfx || (ch->leftvol<0.25f && ch->rightvol<0.25f )) {
 				continue;
 			}
 

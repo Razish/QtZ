@@ -88,13 +88,13 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 		// if not facing, no sound
 		AngleVectors( &client->ps.viewangles, &forward, NULL, NULL );
-		if ( DotProduct( &delta, &forward ) < 0.4 ) {
+		if ( DotProduct( &delta, &forward ) < 0.4f ) {
 			continue;
 		}
 
 		// if not line of sight, no sound
 		trap->SV_Trace( &tr, &client->ps.origin, NULL, NULL, &ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
-		if ( tr.fraction != 1.0 ) {
+		if ( tr.fraction != 1.0f ) {
 			continue;
 		}
 
@@ -583,7 +583,7 @@ void G_SpawnItem (gentity_t *ent, const gitem_t *item) {
 	ent->nextthink = level.time + sv_frametime->integer * 2;
 	ent->think = FinishSpawningItem;
 
-	ent->physicsBounce = 0.50;		// items are bouncy
+	ent->physicsBounce = 0.50f;		// items are bouncy
 
 	if ( item->giType == IT_POWERUP ) {
 		G_SoundIndex( "sound/items/poweruprespawn.wav" );
@@ -611,7 +611,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 
 	// check for stop
 	if ( trace->plane.normal.z > 0 && ent->s.pos.trDelta.z < 40 ) {
-		trace->endpos.z += 1.0;	// make sure it is off ground
+		trace->endpos.z += 1.0f;	// make sure it is off ground
 		VectorSnap( &trace->endpos );
 		G_SetOrigin( ent, &trace->endpos );
 		ent->s.groundEntityNum = trace->entityNum;

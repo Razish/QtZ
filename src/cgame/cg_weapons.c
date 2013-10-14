@@ -720,7 +720,7 @@ void CG_FireWeapon( centity_t *cent, int special ) {
 
 	if ( weap->fireFunc )
 	{
-		vector3 muzzle, start, end, mins={-0.5}, maxs={0.5};
+		vector3 muzzle, start, end, mins={-0.5f}, maxs={0.5f};
 		vector3 fwd,up,right;
 		trace_t tr;
 

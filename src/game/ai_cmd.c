@@ -381,7 +381,7 @@ int BotAddressedToBot(bot_state_t *bs, bot_match_t *match) {
 		if (!trap->ai->BotFindMatch(match->string, &tellmatch, MTCONTEXT_REPLYCHAT) ||
 				tellmatch.type != MSG_CHATTELL) {
 			//make sure not everyone reacts to this message
-			if (random() > (float ) 1.0 / (NumPlayersOnSameTeam(bs)-1)) return qfalse;
+			if (random() > (float ) 1.0f / (NumPlayersOnSameTeam(bs)-1)) return qfalse;
 		}
 	}
 	return qtrue;
@@ -526,7 +526,7 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match) {
 	else {
 		bs->ltgtype = LTG_TEAMACCOMPANY;
 		if (!bs->teamgoal_time) bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
-		bs->formation_dist = 3.5 * 32;		//3.5 meter
+		bs->formation_dist = 3.5f * 32;		//3.5f meter
 		bs->arrive_time = 0;
 		//
 		// remember last ordered task
@@ -988,7 +988,7 @@ void BotMatch_CheckPoint(bot_state_t *bs, bot_match_t *match) {
 	client = ClientFromName(netname);
 	//BotGPSToPosition(buf, position);
 	sscanf(buf, "%f %f %f", &position.x, &position.y, &position.z);
-	position.z += 0.5;
+	position.z += 0.5f;
 	areanum = BotPointAreaNum(&position);
 	if (!areanum) {
 		if (BotAddressedToBot(bs, match)) {
@@ -1185,7 +1185,7 @@ float BotNearestVisibleItem(bot_state_t *bs, const char *itemname, bot_goal_t *g
 		if (dist < bestdist) {
 			//trace from start to end
 			BotAI_Trace(&trace, &bs->eye, NULL, NULL, &tmpgoal.origin, bs->client, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-			if (trace.fraction >= 1.0) {
+			if (trace.fraction >= 1.0f) {
 				bestdist = dist;
 				memcpy(goal, &tmpgoal, sizeof(bot_goal_t));
 			}
@@ -1227,10 +1227,10 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 			) {
 			redtt = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
 			bluett = trap->aas->AAS_AreaTravelTimeToGoalArea(bs->areanum, &bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
-			if (redtt < (redtt + bluett) * 0.4) {
+			if (redtt < (redtt + bluett) * 0.4f) {
 				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "red", NULL);
 			}
-			else if (bluett < (redtt + bluett) * 0.4) {
+			else if (bluett < (redtt + bluett) * 0.4f) {
 				BotAI_BotInitialChat(bs, "teamlocation", nearbyitems[bestitem], "blue", NULL);
 			}
 			else {

@@ -69,7 +69,7 @@
 #include "os_support.h"
 
 #ifndef M_PI
-#define M_PI 3.14159263
+#define M_PI 3.14159263f
 #endif
 
 #define LOUDNESS_EXP 5.f
@@ -305,7 +305,7 @@ static inline spx_word32_t hypergeom_gain(spx_word32_t xx)
       if (ind<0)
          return Q15_ONE;
       if (ind>19)
-         return ADD32(EXTEND32(Q15_ONE),EXTEND32(DIV32_16(QCONST32(.1296,23), SHR32(xx,EXPIN_SHIFT-SNR_SHIFT))));
+         return ADD32(EXTEND32(Q15_ONE),EXTEND32(DIV32_16(QCONST32(.1296f,23), SHR32(xx,EXPIN_SHIFT-SNR_SHIFT))));
       frac = SHL32(xx-SHL32(ind,10),5);
       return SHL32(DIV32_16(PSHR32(MULT16_16(Q15_ONE-frac,table[ind]) + MULT16_16(frac,table[ind+1]),7),(spx_sqrt(SHL32(xx,15)+6711))),7);
 }
@@ -324,7 +324,7 @@ static void compute_gain_floor(int noise_suppress, int effective_echo_suppress, 
    if (noise_suppress > effective_echo_suppress)
    {
       spx_word16_t noise_gain, gain_ratio;
-      noise_gain = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(0.11513,11),noise_suppress)),1)));
+      noise_gain = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(0.11513f,11),noise_suppress)),1)));
       gain_ratio = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(.2302585f,11),effective_echo_suppress-noise_suppress)),1)));
 
       /* gain_floor = sqrt [ (noise*noise_floor + echo*echo_floor) / (noise+echo) ] */
@@ -334,7 +334,7 @@ static void compute_gain_floor(int noise_suppress, int effective_echo_suppress, 
                                              (1+PSHR32(noise[i],NOISE_SHIFT) + echo[i]) )),15)));
    } else {
       spx_word16_t echo_gain, gain_ratio;
-      echo_gain = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(0.11513,11),effective_echo_suppress)),1)));
+      echo_gain = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(0.11513f,11),effective_echo_suppress)),1)));
       gain_ratio = EXTRACT16(MIN32(Q15_ONE,SHR32(spx_exp(MULT16_16(QCONST16(.2302585f,11),noise_suppress-effective_echo_suppress)),1)));
 
       /* gain_floor = sqrt [ (noise*noise_floor + echo*echo_floor) / (noise+echo) ] */
@@ -595,7 +595,7 @@ static void speex_compute_agc(SpeexPreprocessState *st, spx_word16_t Pframe, spx
    
    target_gain = AMP_SCALE*st->agc_level*powf(st->loudness/(1e-4f+st->loudness_accum), -1.0f/LOUDNESS_EXP);
 
-   if ((Pframe>.5  && st->nb_adapt > 20) || target_gain < st->agc_gain)
+   if ((Pframe>.5f  && st->nb_adapt > 20) || target_gain < st->agc_gain)
    {
       if (target_gain > st->max_increase_step*st->agc_gain)
          target_gain = st->max_increase_step*st->agc_gain;

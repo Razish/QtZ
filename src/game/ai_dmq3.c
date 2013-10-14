@@ -373,7 +373,7 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					//get the team goal time
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
-					bs->formation_dist = 3.5f * 32;		//3.5 meter
+					bs->formation_dist = 3.5f * 32;		//3.5f meter
 					bs->owndecision_time = (int)(FloatTime() + 5);
 				}
 			}
@@ -448,7 +448,7 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					//get the team goal time
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
-					bs->formation_dist = 3.5 * 32;		//3.5 meter
+					bs->formation_dist = 3.5f * 32;		//3.5f meter
 					//
 					bs->owndecision_time = (int)(FloatTime() + 5);
 				}
@@ -625,7 +625,7 @@ void BotTrojanSeekGoals(bot_state_t *bs) {
 					//get the team goal time
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
-					bs->formation_dist = 3.5f * 32;		//3.5 meter
+					bs->formation_dist = 3.5f * 32;		//3.5f meter
 					bs->owndecision_time = (int)(FloatTime() + 5);
 					return;
 				}
@@ -1003,7 +1003,7 @@ void BotSetupForMovement(bot_state_t *bs) {
 	if (bs->cur_ps.pm_flags & PMF_DUCKED) initmove.presencetype = PRESENCE_CROUCH;
 	else initmove.presencetype = PRESENCE_NORMAL;
 	//
-	if (bs->walker > 0.5) initmove.or_moveflags |= MFL_WALK;
+	if (bs->walker > 0.5f) initmove.or_moveflags |= MFL_WALK;
 	//
 	VectorCopy(&bs->viewangles, &initmove.viewangles);
 	//
@@ -1302,7 +1302,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 		if (bs->inventory[INVENTORY_ARMOR] < 40) return qfalse;
 	}
 	rocketjumper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1);
-	if (rocketjumper < 0.5) return qfalse;
+	if (rocketjumper < 0.5f) return qfalse;
 	return qtrue;
 }
 
@@ -1341,7 +1341,7 @@ void BotGoCamp(bot_state_t *bs, bot_goal_t *goal) {
 	memcpy(&bs->teamgoal, goal, sizeof(bot_goal_t));
 	//get the team goal time
 	camper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
-	if (camper > 0.99) bs->teamgoal_time = FloatTime() + 99999;
+	if (camper > 0.99f) bs->teamgoal_time = FloatTime() + 99999;
 	else bs->teamgoal_time = FloatTime() + 120 + 180 * camper + random() * 15;
 	//set the last time the bot started camping
 	bs->camp_time = FloatTime();
@@ -1357,7 +1357,7 @@ int BotWantsToCamp(bot_state_t *bs) {
 	bot_goal_t goal, bestgoal;
 
 	camper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CAMPER, 0, 1);
-	if (camper < 0.1) return qfalse;
+	if (camper < 0.1f) return qfalse;
 	//if the bot has a team goal
 	if (bs->ltgtype == LTG_TEAMHELP ||
 			bs->ltgtype == LTG_TEAMACCOMPANY ||
@@ -1436,14 +1436,14 @@ void BotRoamGoal(bot_state_t *bs, vector3 *goal) {
 		//start at the bot origin
 		VectorCopy(&bs->origin, &bestorg);
 		rnd = random();
-		if (rnd > 0.25) {
+		if (rnd > 0.25f) {
 			//add a random value to the x-coordinate
-			if (random() < 0.5) bestorg.x -= 800 * random() + 100;
+			if (random() < 0.5f) bestorg.x -= 800 * random() + 100;
 			else bestorg.x += 800 * random() + 100;
 		}
-		if (rnd < 0.75) {
+		if (rnd < 0.75f) {
 			//add a random value to the y-coordinate
-			if (random() < 0.5) bestorg.y -= 800 * random() + 100;
+			if (random() < 0.5f) bestorg.y -= 800 * random() + 100;
 			else bestorg.y += 800 * random() + 100;
 		}
 		//add a random value to the z-coordinate (NOTE: 48 = maxjump?)
@@ -1508,7 +1508,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	jumper = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
 	croucher = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
 	//if the bot is really stupid
-	if (attack_skill < 0.2) return moveresult;
+	if (attack_skill < 0.2f) return moveresult;
 	//initialize the movement state
 	BotSetupForMovement(bs);
 	//get the enemy entity info
@@ -1546,7 +1546,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	attack_range = 40;
 
 	//if the bot is stupid
-	if (attack_skill <= 0.4) {
+	if (attack_skill <= 0.4f) {
 		//just walk to or away from the enemy
 		if (dist > attack_dist + attack_range) {
 			if (trap->ai->BotMoveInDirection(bs->ms, &forward, 400, movetype)) return moveresult;
@@ -1581,7 +1581,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		//reverse the vector depending on the strafe direction
 		if (bs->flags & BFL_STRAFERIGHT) VectorNegate(&sideward, &sideward);
 		//randomly go back a little
-		if (random() > 0.9) {
+		if (random() > 0.9f) {
 			VectorAdd(&sideward, &backward, &sideward);
 		}
 		else {
@@ -1631,16 +1631,16 @@ qboolean InFieldOfVision(vector3 *viewangles, float fov, vector3 *angles) {
 		angles->data[i] = AngleMod(angles->data[i]);
 		diff = angles->data[i] - angle;
 		if (angles->data[i] > angle) {
-			if (diff > 180.0) diff -= 360.0;
+			if (diff > 180.0f) diff -= 360.0f;
 		}
 		else {
-			if (diff < -180.0) diff += 360.0;
+			if (diff < -180.0f) diff += 360.0f;
 		}
 		if (diff > 0) {
-			if (diff > fov * 0.5) return qfalse;
+			if (diff > fov * 0.5f) return qfalse;
 		}
 		else {
-			if (diff < -fov * 0.5) return qfalse;
+			if (diff < -fov * 0.5f) return qfalse;
 		}
 	}
 	return qtrue;
@@ -1657,7 +1657,7 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 	//calculate middle of bounding box
 	BotEntityInfo(ent, &entinfo);
 	VectorAdd(&entinfo.mins, &entinfo.maxs, &middle);
-	VectorScale(&middle, 0.5, &middle);
+	VectorScale(&middle, 0.5f, &middle);
 	VectorAdd(&entinfo.origin, &middle, &middle);
 	//check if entity is within field of vision
 	VectorSubtract(&middle, eye, &dir);
@@ -1695,14 +1695,14 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 		//trace from start to end
 		BotAI_Trace(&trace, &start, NULL, NULL, &end, passent, contents_mask);
 		//if water was hit
-		waterfactor = 1.0;
+		waterfactor = 1.0f;
 		if (trace.contents & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) {
 			//if the water surface is translucent
 			if (1) {
 				//trace through the water
 				contents_mask &= ~(CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER);
 				BotAI_Trace(&trace, &trace.endpos, NULL, NULL, &end, passent, contents_mask);
-				waterfactor = 0.5;
+				waterfactor = 0.5f;
 			}
 		}
 		//if a full trace or the hitent was hit
@@ -1737,7 +1737,7 @@ float BotEntityVisible(int viewer, vector3 *eye, vector3 *viewangles, float fov,
 			//
 			if (vis > bestvis) bestvis = vis;
 			//if pretty much no fog
-			if (bestvis >= 0.95) return bestvis;
+			if (bestvis >= 0.95f) return bestvis;
 		}
 		//check bottom and top of bounding box as well
 		if (i == 0) middle.z += entinfo.mins.z;
@@ -1787,7 +1787,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			continue;
 		}
 		//if not an easy fragger don't shoot at chatting players
-		if (easyfragger < 0.5 && EntityIsChatting(&entinfo)) continue;
+		if (easyfragger < 0.5f && EntityIsChatting(&entinfo)) continue;
 		//
 		if (lastteleport_time > FloatTime() - 3) {
 			VectorSubtract(&entinfo.origin, &lastteleport_origin, &dir);
@@ -1803,7 +1803,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
 		} //end if
 		//if the bot has no
-		if (squaredist > Square(900.0 + alertness * 4000.0)) continue;
+		if (squaredist > Square(900.0f + alertness * 4000.0f)) continue;
 		//if on the same team
 		if (BotSameTeam(bs, i)) continue;
 		//if the bot's health decreased or the enemy is shooting
@@ -2030,7 +2030,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	//
 	VectorSubtract(&entinfo.origin, &entinfo.lastvisorigin, &enemyvelocity);
 	VectorScale(&enemyvelocity, 1 / entinfo.update_time, &enemyvelocity);
-	//enemy origin and velocity is remembered every 0.5 seconds
+	//enemy origin and velocity is remembered every 0.5f seconds
 	if (bs->enemyposition_time < FloatTime()) {
 		//
 		bs->enemyposition_time = FloatTime() + 0.5f;
@@ -2076,7 +2076,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			//if the enemy is NOT pretty far away and strafing just small steps left and right
 			if (!(dist > 100 && VectorLengthSquared(&dir) < Square(32))) {
 				//if skilled enough do exact prediction
-				if (aim_skill > 0.8 &&
+				if (aim_skill > 0.8f &&
 					//if the weapon is ready to fire
 					bs->cur_ps.weaponstate == WEAPON_READY) {
 						aas_clientmove_t move;
@@ -2103,7 +2103,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 						//BotAI_Print(PRT_MESSAGE, "%1.1f predicted speed = %f, frames = %f\n", FloatTime(), VectorLength(dir), dist * 10 / wi.speed);
 				}
 				//if not that skilled do linear prediction
-				else if (aim_skill > 0.4) {
+				else if (aim_skill > 0.4f) {
 					VectorSubtract(&entinfo.origin, &bs->origin, &dir);
 					//distance towards the enemy
 					dist = VectorLength(&dir);
@@ -2119,7 +2119,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			}
 		}
 		//if the projectile does radial damage
-		if (aim_skill > 0.6 && wi.proj.damagetype & DAMAGETYPE_RADIAL) {
+		if (aim_skill > 0.6f && wi.proj.damagetype & DAMAGETYPE_RADIAL) {
 			//if the enemy isn't standing significantly higher than the bot
 			if (entinfo.origin.z < bs->origin.z + 16) {
 				//try to aim at the ground in front of the enemy
@@ -2161,7 +2161,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		VectorCopy(&bs->lastenemyorigin, &bestorigin);
 		bestorigin.z += 8;
 		//if the bot is skilled enough
-		if (aim_skill > 0.5) {
+		if (aim_skill > 0.5f) {
 			//do prediction shots around corners
 			if ( wi.number == WP_MORTAR ) {
 				//create the chase goal
@@ -2200,7 +2200,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	f = 0.6f + dist / 150 * 0.4f;
 	aim_accuracy *= f;
 	//add some random stuff to the aim direction depending on the aim accuracy
-	if (aim_accuracy < 0.8) {
+	if (aim_accuracy < 0.8f) {
 		VectorNormalize(&dir);
 		for (i = 0; i < 3; i++)
 			dir.data[i] += 0.3f * crandom() * (1 - aim_accuracy);
@@ -2256,7 +2256,7 @@ void BotCheckAttack(bot_state_t *bs) {
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;
 	//if changing weapons
-	if (bs->weaponchange_time > FloatTime() - 0.1) return;
+	if (bs->weaponchange_time > FloatTime() - 0.1f) return;
 	//check fire throttle characteristic
 	if (bs->firethrottlewait_time > FloatTime()) return;
 	firethrottle = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
@@ -2486,7 +2486,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 	VectorSubtract(&maxs, &mins, &size);
 	//button origin
 	VectorAdd(&mins, &maxs, &origin);
-	VectorScale(&origin, 0.5, &origin);
+	VectorScale(&origin, 0.5f, &origin);
 	//touch distance of the button
 	dist = fabsf(movedir.x) * size.x + fabsf(movedir.y) * size.y + fabsf(movedir.z) * size.z;
 	dist *= 0.5f;
@@ -2502,7 +2502,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 		//
 		BotAI_Trace(&bsptrace, &bs->eye, NULL, NULL, &goalorigin, bs->entitynum, MASK_SHOT);
 		// if the button is visible from the current position
-		if (bsptrace.fraction >= 1.0 || bsptrace.ent == entitynum) {
+		if (bsptrace.fraction >= 1.0f || bsptrace.ent == entitynum) {
 			//
 			activategoal->goal.entitynum = entitynum; //NOTE: this is the entity number of the shootable button
 			activategoal->goal.number = 0;
@@ -2619,7 +2619,7 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 	entitynum = BotModelMinsMaxs(modelindex, ET_MOVER, 0, &mins, &maxs);
 	//door origin
 	VectorAdd(&mins, &maxs, &origin);
-	VectorScale(&origin, 0.5, &origin);
+	VectorScale(&origin, 0.5f, &origin);
 	VectorCopy(&origin, &activategoal->target);
 	activategoal->shoot = qtrue;
 	//
@@ -2652,7 +2652,7 @@ int BotTriggerMultipleActivateGoal(bot_state_t *bs, int bspent, bot_activategoal
 	entitynum = BotModelMinsMaxs(modelindex, 0, CONTENTS_TRIGGER, &mins, &maxs);
 	//trigger origin
 	VectorAdd(&mins, &maxs, &origin);
-	VectorScale(&origin, 0.5, &origin);
+	VectorScale(&origin, 0.5f, &origin);
 	VectorCopy(&origin, &goalorigin);
 	//
 	VectorCopy(&goalorigin, &start);
@@ -3063,7 +3063,7 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 	hordir.y = moveresult->movedir.y;
 	hordir.z = 0;
 	// if no direction just take a random direction
-	if (VectorNormalize(&hordir) < 0.1) {
+	if (VectorNormalize(&hordir) < 0.1f) {
 		VectorSet(&angles, 0, 360 * random(), 0);
 		AngleVectors(&angles, &hordir, NULL, NULL);
 	}
@@ -3099,7 +3099,7 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 		}
 	}
 	//
-	if (bs->notblocked_time < FloatTime() - 0.4) {
+	if (bs->notblocked_time < FloatTime() - 0.4f) {
 		// just reset goals and hope the bot will go into another direction?
 		// is this still needed??
 		if (bs->ainode == AINode_Seek_NBG) bs->nbg_time = 0;
@@ -3245,7 +3245,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 				//if at a valid chat position and not chatting already and not in teamplay
 				else if (bs->ainode != AINode_Stand && BotValidChatPosition(bs) && !TeamPlayIsOn()) {
 					chat_reply = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_REPLY, 0, 1);
-					if (random() < 1.5 / (NumBots()+1) && random() < chat_reply) {
+					if (random() < 1.5f / (NumBots()+1) && random() < chat_reply) {
 						//if bot replies with a chat message
 						if (trap->ai->BotReplyChat(bs->cs, message, context, CONTEXT_REPLY,
 																NULL, NULL,

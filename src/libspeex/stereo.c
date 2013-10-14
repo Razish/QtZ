@@ -237,8 +237,8 @@ void speex_decode_stereo(float *data, int frame_size, SpeexStereoState *_stereo)
    for (i=frame_size-1;i>=0;i--)
    {
       spx_word16_t tmp=data[i];
-      stereo->smooth_left = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_left, QCONST16(0.98, 15)), e_left, QCONST16(0.02, 15)), 15));
-      stereo->smooth_right = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_right, QCONST16(0.98, 15)), e_right, QCONST16(0.02, 15)), 15));
+      stereo->smooth_left = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_left, QCONST16(0.98f, 15)), e_left, QCONST16(0.02f, 15)), 15));
+      stereo->smooth_right = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_right, QCONST16(0.98f, 15)), e_right, QCONST16(0.02f, 15)), 15));
       data[2*i] = (float)MULT16_16_P14(stereo->smooth_left, tmp);
       data[2*i+1] = (float)MULT16_16_P14(stereo->smooth_right, tmp);
    }
@@ -264,8 +264,8 @@ void speex_decode_stereo_int(spx_int16_t *data, int frame_size, SpeexStereoState
    for (i=frame_size-1;i>=0;i--)
    {
       spx_int16_t tmp=data[i];
-      stereo->smooth_left = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_left, QCONST16(0.98, 15)), e_left, QCONST16(0.02, 15)), 15));
-      stereo->smooth_right = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_right, QCONST16(0.98, 15)), e_right, QCONST16(0.02, 15)), 15));
+      stereo->smooth_left = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_left, QCONST16(0.98f, 15)), e_left, QCONST16(0.02f, 15)), 15));
+      stereo->smooth_right = EXTRACT16(PSHR32(MAC16_16(MULT16_16(stereo->smooth_right, QCONST16(0.98f, 15)), e_right, QCONST16(0.02f, 15)), 15));
       data[2*i] = (spx_int16_t)MULT16_16_P14(stereo->smooth_left, tmp);
       data[2*i+1] = (spx_int16_t)MULT16_16_P14(stereo->smooth_right, tmp);
    }

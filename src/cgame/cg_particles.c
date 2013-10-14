@@ -338,9 +338,9 @@ void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha) {
 		vector3	rotate_ang;
 
 #ifdef WOLF_PARTICLES
-		VectorSet (&color, 1.0, 1.0, 1.0);
+		VectorSet (&color, 1.0f, 1.0f, 1.0f);
 #else
-		VectorSet (&color, 1.0, 1.0, 0.5);
+		VectorSet (&color, 1.0f, 1.0f, 0.5f);
 #endif
 		time = cg.time - p->time;
 		time2 = p->endtime - p->time;
@@ -740,7 +740,7 @@ void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha) {
 		height = p->height + ( ratio * ( p->endheight - p->height) );
 
 		// if we are "inside" this sprite, don't draw
-		if (Distance( &cg.snap->ps.origin, org ) < width/1.5) {
+		if (Distance( &cg.snap->ps.origin, org ) < width/1.5f) {
 			return;
 		}
 
@@ -824,7 +824,7 @@ void CG_AddParticleToScene (cparticle_t *p, vector3 *org, float alpha) {
 }
 
 // Ridah, made this static so it doesn't interfere with other files
-static float roll = 0.0;
+static float roll = 0.0f;
 
 void CG_AddParticles( void ) {
 	cparticle_t		*p, *next;
@@ -1152,7 +1152,7 @@ void CG_ParticleSmoke (qhandle_t pshader, centity_t *cent) {
 	p->startfade = (float)(cg.time + cent->currentState.time2);
 	
 	p->color = 0;
-	p->alpha = 1.0;
+	p->alpha = 1.0f;
 	p->alphavel = 0;
 	p->start = cent->currentState.origin.z;
 	p->end = cent->currentState.origin2.z;
@@ -1194,13 +1194,13 @@ void CG_ParticleBulletDebris (vector3 *org, vector3 *vel, int duration) {
 	p->startfade = (float)(cg.time + duration/2);
 	
 	p->color = EMISIVEFADE;
-	p->alpha = 1.0;
+	p->alpha = 1.0f;
 	p->alphavel = 0;
 
-	p->height = 0.5;
-	p->width = 0.5;
-	p->endheight = 0.5;
-	p->endwidth = 0.5;
+	p->height = 0.5f;
+	p->width = 0.5f;
+	p->endheight = 0.5f;
+	p->endwidth = 0.5f;
 
 	p->pshader = cgs.media.tracerShader;
 

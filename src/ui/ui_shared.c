@@ -464,7 +464,7 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 			*nextTime = DC->realTime + offsetTime;
 			if (*flags & WINDOW_FADINGOUT) {
 				*f -= fadeAmount;
-				if (bFlags && *f <= 0.0) {
+				if (bFlags && *f <= 0.0f) {
 					*flags &= ~(WINDOW_FADINGOUT | WINDOW_VISIBLE);
 				}
 			} else {
@@ -6717,8 +6717,8 @@ void Menu_PaintAll( void ) {
 
 	if (debugMode) {
 		vector4 v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .5, &v, va("fps: %f", DC->FPS), 0, 0, 0);
-		DC->drawText(5, 45, .5, &v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0);
+		DC->drawText(5, 25, .5f, &v, va("fps: %f", DC->FPS), 0, 0, 0);
+		DC->drawText(5, 45, .5f, &v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0);
 	}
 }
 

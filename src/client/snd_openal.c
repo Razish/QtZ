@@ -820,7 +820,7 @@ static srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int chan
 	int weakest = -1;
 	int weakest_time = Sys_Milliseconds();
 	int weakest_pri = 999;
-	float weakest_gain = 1000.0;
+	float weakest_gain = 1000.0f;
 	qboolean weakest_isplaying = qtrue;
 	int weakest_numloops = 0;
 	src_t *curSource;
@@ -1062,7 +1062,7 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vecto
 
 		sent->startLoopingSound = qtrue;
 
-		curSource->lastTimePos = -1.0;
+		curSource->lastTimePos = -1.0f;
 		curSource->lastSampleTime = Sys_Milliseconds();
 	}
 	else
@@ -1381,13 +1381,13 @@ static void S_AL_AllocateStreamChannel(int stream, int entityNum) {
         	srcList[cursrc].scaleGain = 0.0f;
 
         	// Set some streamSource parameters
-        	qalSourcei (alsrc, AL_BUFFER,          0            );
-        	qalSourcei (alsrc, AL_LOOPING,         AL_FALSE     );
-        	qalSource3f(alsrc, AL_POSITION,        0.0, 0.0, 0.0);
-        	qalSource3f(alsrc, AL_VELOCITY,        0.0, 0.0, 0.0);
-        	qalSource3f(alsrc, AL_DIRECTION,       0.0, 0.0, 0.0);
-        	qalSourcef (alsrc, AL_ROLLOFF_FACTOR,  0.0          );
-        	qalSourcei (alsrc, AL_SOURCE_RELATIVE, AL_TRUE      );
+        	qalSourcei (alsrc, AL_BUFFER,          0               );
+        	qalSourcei (alsrc, AL_LOOPING,         AL_FALSE        );
+        	qalSource3f(alsrc, AL_POSITION,        0.0f, 0.0f, 0.0f);
+        	qalSource3f(alsrc, AL_VELOCITY,        0.0f, 0.0f, 0.0f);
+        	qalSource3f(alsrc, AL_DIRECTION,       0.0f, 0.0f, 0.0f);
+        	qalSourcef (alsrc, AL_ROLLOFF_FACTOR,  0.0f            );
+        	qalSourcei (alsrc, AL_SOURCE_RELATIVE, AL_TRUE         );
         }
 
         streamSourceHandles[stream] = cursrc;
@@ -1534,11 +1534,11 @@ static void S_AL_MusicSourceGet( void ) {
 	srcList[musicSourceHandle].scaleGain = 0.0f;
 
 	// Set some musicSource parameters
-	qalSource3f(musicSource, AL_POSITION,        0.0, 0.0, 0.0);
-	qalSource3f(musicSource, AL_VELOCITY,        0.0, 0.0, 0.0);
-	qalSource3f(musicSource, AL_DIRECTION,       0.0, 0.0, 0.0);
-	qalSourcef (musicSource, AL_ROLLOFF_FACTOR,  0.0          );
-	qalSourcei (musicSource, AL_SOURCE_RELATIVE, AL_TRUE      );
+	qalSource3f(musicSource, AL_POSITION,        0.0f, 0.0f, 0.0f);
+	qalSource3f(musicSource, AL_VELOCITY,        0.0f, 0.0f, 0.0f);
+	qalSource3f(musicSource, AL_DIRECTION,       0.0f, 0.0f, 0.0f);
+	qalSourcef (musicSource, AL_ROLLOFF_FACTOR,  0.0f            );
+	qalSourcei (musicSource, AL_SOURCE_RELATIVE, AL_TRUE         );
 }
 
 static void S_AL_MusicSourceFree( void ) {

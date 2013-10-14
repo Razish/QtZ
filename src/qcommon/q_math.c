@@ -444,7 +444,7 @@ void AnglesSubtract( vector3 *v1, vector3 *v2, vector3 *v3 ) {
 
 
 float AngleMod(float a) {
-	a = (360.0f/65536) * ((int)(a*(65536/360.0)) & 65535);
+	a = (360.0f/65536) * ((int)(a*(65536/360.0f)) & 65535);
 	return a;
 }
 
@@ -456,8 +456,8 @@ float AngleNormalize360 ( float angle ) {
 // returns angle normalized to the range [-180 < angle <= 180]
 float AngleNormalize180 ( float angle ) {
 	angle = AngleNormalize360( angle );
-	if ( angle > 180.0 ) {
-		angle -= 360.0;
+	if ( angle > 180.0f ) {
+		angle -= 360.0f;
 	}
 	return angle;
 }
@@ -1113,7 +1113,7 @@ void Rand_Init(int seed) {
 	holdrand = seed;
 }
 
-// Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
+// Returns a float min <= x < max (exclusive; will get max - 0.00001f; but never max)
 
 float flrand(float min, float max) {
 	float	result;

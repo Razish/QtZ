@@ -217,11 +217,11 @@ float AngleDiff(float ang1, float ang2) {
 	diff = ang1 - ang2;
 	if (ang1 > ang2)
 	{
-		if (diff > 180.0) diff -= 360.0;
+		if (diff > 180.0f) diff -= 360.0f;
 	} //end if
 	else
 	{
-		if (diff < -180.0) diff += 360.0;
+		if (diff < -180.0f) diff += 360.0f;
 	} //end else
 	return diff;
 } //end of the function AngleDiff
@@ -1052,7 +1052,7 @@ int BotCheckBarrierJump(bot_movestate_t *ms, vector3 *dir, float speed) {
 	//if solid
 	if (trace.startsolid) return qfalse;
 	//if no obstacle at all
-	if (trace.fraction >= 1.0) return qfalse;
+	if (trace.fraction >= 1.0f) return qfalse;
 	//if less than the maximum step height
 	if (trace.endpos.z - ms->origin.z < sv_maxstep->value) return qfalse;
 	//
@@ -1133,7 +1133,7 @@ int BotWalkInDirection(bot_movestate_t *ms, vector3 *dir, float speed, int type)
 		//AAS_ClearShownDebugLines();
 		//
 		VectorCopy(&ms->origin, &origin);
-		origin.z += 0.5;
+		origin.z += 0.5f;
 		AAS_PredictClientMovement(&move, ms->entitynum, &origin, presencetype, qtrue,
 									&velocity, &cmdmove, cmdframes, maxframes, 0.1f,
 									stopevent, 0, qfalse);//qtrue);
@@ -1170,7 +1170,7 @@ int BotWalkInDirection(bot_movestate_t *ms, vector3 *dir, float speed, int type)
 		//
 		//AAS_DrawCross(move.endpos, 4, LINECOLOR_BLUE);
 		//the bot is blocked by something
-		if (VectorLength(&tmpdir) < speed * ms->thinktime * 0.5) return qfalse;
+		if (VectorLength(&tmpdir) < speed * ms->thinktime * 0.5f) return qfalse;
 		//perform the movement
 		if (type & MOVE_JUMP) EA_Jump(ms->client);
 		if (type & MOVE_CROUCH) EA_Crouch(ms->client);
@@ -1254,7 +1254,7 @@ void BotCheckBlocked(bot_movestate_t *ms, vector3 *dir, int checkbottom, bot_mov
 	//test for entities obstructing the bot's path
 	AAS_PresenceTypeBoundingBox(ms->presencetype, &mins, &maxs);
 	//
-	if (fabs(DotProduct(dir, &up)) < 0.7)
+	if (fabs(DotProduct(dir, &up)) < 0.7f)
 	{
 		mins.z += sv_maxstep->value; //if the bot can step on
 		maxs.z -= 10; //a little lower to avoid low ceiling
@@ -1777,7 +1777,7 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach) 
 	dir2[2] = 0;
 	dist2 = VectorNormalize(dir2);
 	//if just before the reachability start
-	if (DotProduct(dir1, dir2) < -0.8 || dist2 < 5)
+	if (DotProduct(dir1, dir2) < -0.8f || dist2 < 5)
 	{
 		//botimport.Print(PRT_MESSAGE, "between jump start and run to point\n");
 		hordir[0] = reach->end[0] - ms->origin[0];
@@ -1842,7 +1842,7 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach) 
 	dir2.z = 0;
 	dist2 = VectorNormalize(&dir2);
 	//if just before the reachability start
-	if (DotProduct(&dir1, &dir2) < -0.8 || dist2 < 5)
+	if (DotProduct(&dir1, &dir2) < -0.8f || dist2 < 5)
 	{
 //		botimport.Print(PRT_MESSAGE, "between jump start and run start point\n");
 		hordir.x = reach->end.x - ms->origin.x;
@@ -1896,7 +1896,7 @@ bot_moveresult_t BotFinishTravel_Jump(bot_movestate_t *ms, aas_reachability_t *r
 	hordir2.z = 0;
 	VectorNormalize(&hordir2);
 	//
-	if (DotProduct(&hordir, &hordir2) < -0.5 && dist < 24) return result;
+	if (DotProduct(&hordir, &hordir2) < -0.5f && dist < 24) return result;
 	//always use max speed when traveling through the air
 	speed = 800;
 	//
@@ -2186,7 +2186,7 @@ void BotFuncBobStartEnd(aas_reachability_t *reach, vector3 *start, vector3 *end,
 	} //end if
 	AAS_BSPModelMinsMaxsOrigin(modelnum, &angles, &mins, &maxs, NULL);
 	VectorAdd(&mins, &maxs, &mid);
-	VectorScale(&mid, 0.5, &mid);
+	VectorScale(&mid, 0.5f, &mid);
 	VectorCopy(&mid, start);
 	VectorCopy(&mid, end);
 	spawnflags = reach->facenum >> 16;
@@ -2551,7 +2551,7 @@ bot_moveresult_t BotTravel_Grapple(bot_movestate_t *ms, aas_reachability_t *reac
 		//isn't moving anymore
 		else if (!state || (state == 2 && dist > ms->lastgrappledist - 2))
 		{
-			if (ms->grapplevisible_time < AAS_Time() - 0.4)
+			if (ms->grapplevisible_time < AAS_Time() - 0.4f)
 			{
 #ifdef DEBUG_GRAPPLE
 				botimport.Print(PRT_ERROR, "grapple not visible\n");

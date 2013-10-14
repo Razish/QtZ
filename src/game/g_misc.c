@@ -78,7 +78,7 @@ void TeleportPlayer( gentity_t *player, vector3 *origin, vector3 *angles ) {
 	gentity_t	*tent;
 	qboolean noAngles;
 
-	noAngles = (angles->x > 999999.0);
+	noAngles = (angles->x > 999999.0f);
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -335,7 +335,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 	G_SetMovedir( &ent->s.angles, &ent->movedir );
 
 	if ( !ent->random ) {
-		ent->random = 1.0;
+		ent->random = 1.0f;
 	}
 	ent->random = sinf( M_PI * ent->random / 180 );
 	// target might be a moving object, so we can't set movedir for it

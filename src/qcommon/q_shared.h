@@ -855,7 +855,7 @@ typedef struct cplane_s {
 typedef struct trace_s {
 	qboolean	allsolid;	// if true, plane is not valid
 	qboolean	startsolid;	// if true, the initial point was in a solid area
-	float		fraction;	// time completed, 1.0 = didn't hit anything
+	float		fraction;	// time completed, 1.0f = didn't hit anything
 	vector3		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
 	int			surfaceFlags;	// surface hit

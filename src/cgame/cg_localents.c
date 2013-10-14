@@ -218,7 +218,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 	// trace a line from previous position to new position
 	CG_Trace( &trace, &le->refEntity.origin, NULL, NULL, &newOrigin, -1, CONTENTS_SOLID );
-	if ( trace.fraction == 1.0 ) {
+	if ( trace.fraction == 1.0f ) {
 		// still in free fall
 		VectorCopy( &newOrigin, &le->refEntity.origin );
 
@@ -472,7 +472,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 
 	c = ( le->endTime - cg.time ) / ( float ) ( le->endTime - le->startTime );
 	if ( c > 1 ) {
-		c = 1.0;	// can happen during connection problems
+		c = 1.0f;	// can happen during connection problems
 	}
 
 	re.shaderRGBA[0] = 0xff;
@@ -541,7 +541,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 		}
 
 	}
-	if (c < 0.25)
+	if (c < 0.25f)
 		re->shaderRGBA[3] = (byte)(0xff * 4 * c);
 	else
 		re->shaderRGBA[3] = 0xff;

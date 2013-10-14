@@ -1389,18 +1389,18 @@ qboolean CG_DeferMenuScript (char **args) {
 
 void CG_GetTeamColor(vector4 *color) {
 		 if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_RED)
-		VectorSet4( color, 1.0, 0.0, 0.0, 0.25f );
+		VectorSet4( color, 1.0f, 0.0f, 0.0f, 0.25f );
 	else if (cg.snap->ps.persistent[PERS_TEAM] == TEAM_BLUE)
-		VectorSet4( color, 0.0, 0.0, 1.0, 0.25f );
+		VectorSet4( color, 0.0f, 0.0f, 1.0f, 0.25f );
 	else
-		VectorSet4( color, 0.0, 0.17f, 0.0, 0.25f );
+		VectorSet4( color, 0.0f, 0.17f, 0.0f, 0.25f );
 }
 
 //QTZTODO: Item pickup HUD
 #if 0
 void CG_DrawPickupItem( void ) {
 	linkedList_t *node = NULL;
-	float x = ICON_SIZE*0.25f, y = SCREEN_HEIGHT-ICON_SIZE*0.25;
+	float x = ICON_SIZE*0.25f, y = SCREEN_HEIGHT-ICON_SIZE*0.25f;
 	int count = 0;
 
 	trap->R_SetColor( NULL );
@@ -1522,7 +1522,7 @@ void CG_DrawFlagCarrierName( void ) {
 	// fix is in modbase/ja++
 	CG_WorldCoordToScreenCoordFloat( worldPos, &screenPos[0], &screenPos[1] );
 
-	trap->R_Font_DrawString( screenPos[0] - trap->R_Font_StrLenPixels( text, fontHandle, fontScale )/2.0, screenPos[1], text, color, fontHandle|STYLE_DROPSHADOW, -1, fontScale );
+	trap->R_Font_DrawString( screenPos[0] - trap->R_Font_StrLenPixels( text, fontHandle, fontScale )/2.0f, screenPos[1], text, color, fontHandle|STYLE_DROPSHADOW, -1, fontScale );
 
 	//already drawn it this frame, reset ent num so we can scan again next frame
 	cg.q3p.flagCarrierEntityNum = ENTITYNUM_NONE;

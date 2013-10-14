@@ -45,7 +45,7 @@ static struct console_s {
 	float	xadjust;		// for wide aspect screens
 
 	float	displayFrac;	// aproaches finalFrac at scr_conspeed
-	float	finalFrac;		// 0.0 to 1.0 lines of console to display
+	float	finalFrac;		// 0.0f to 1.0f lines of console to display
 
 	int		vislines;		// in scanlines
 
@@ -511,7 +511,7 @@ void Con_DrawConsole( void ) {
 	// if disconnected, render console full screen
 	if ( clc.state == CA_DISCONNECTED ) {
 		if ( !( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME)) ) {
-			Con_DrawSolidConsole( 1.0 );
+			Con_DrawSolidConsole( 1.0f );
 			return;
 		}
 	}
@@ -530,7 +530,7 @@ void Con_DrawConsole( void ) {
 void Con_RunConsole( void ) {
 	// decide on the destination height of the console
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		con.finalFrac = 0.5;		// half screen
+		con.finalFrac = 0.5f;		// half screen
 	else
 		con.finalFrac = 0;				// none visible
 	

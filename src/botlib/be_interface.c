@@ -380,7 +380,7 @@ int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3) {
 	else
 	{
 		VectorCopy(parm2, origin);
-		origin[2] += 0.5;
+		origin[2] += 0.5f;
 		//newarea = AAS_PointAreaNum(origin);
 		newarea = BotFuzzyPointReachabilityArea(origin);
 	} //end else
@@ -619,7 +619,7 @@ int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3) {
 	bsptrace = AAS_Trace(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
 	if (!line[0]) line[0] = botimport.DebugLineCreate();
 	botimport.DebugLineShow(line[0], eye, bsptrace.endpos, LINECOLOR_YELLOW);
-	if (bsptrace.fraction < 1.0)
+	if (bsptrace.fraction < 1.0f)
 	{
 		face = AAS_TraceEndFace(&trace);
 		if (face)
@@ -640,7 +640,7 @@ int BotExportTest(int parm0, char *parm1, vector3 *parm2, vector3 *parm3) {
 	//bsptrace = AAS_Trace2(eye, NULL, NULL, end, 1, MASK_PLAYERSOLID);
 	bsptrace = AAS_Trace2(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
 	botimport.DebugLineShow(line[1], eye, bsptrace.endpos, LINECOLOR_BLUE);
-	if (bsptrace.fraction < 1.0)
+	if (bsptrace.fraction < 1.0f)
 	{
 		AAS_DrawPlaneCross(bsptrace.endpos,
 									bsptrace.plane.normal,

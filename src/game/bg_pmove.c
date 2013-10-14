@@ -866,7 +866,7 @@ static void PM_GroundTraceMissed( void ) {
 		point.z -= 64;
 
 		pm->trace (&trace, &pm->ps->origin, &pm->mins, &pm->maxs, &point, pm->ps->clientNum, pm->tracemask);
-		if ( trace.fraction == 1.0 ) {
+		if ( trace.fraction == 1.0f ) {
 			if ( pm->cmd.forwardmove >= 0 ) {
 				PM_ForceLegsAnim( LEGS_JUMP );
 				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
@@ -900,7 +900,7 @@ static void PM_GroundTrace( void ) {
 	}
 
 	// if the trace didn't hit anything, we are in free fall
-	if ( trace.fraction == 1.0 ) {
+	if ( trace.fraction == 1.0f ) {
 		PM_GroundTraceMissed();
 		pml.groundPlane = qfalse;
 		pml.walking = qfalse;
@@ -1088,7 +1088,7 @@ static void PM_Footsteps( void ) {
 	footstep = qfalse;
 
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		bobmove = 0.5;	// ducked characters bob much faster
+		bobmove = 0.5f;	// ducked characters bob much faster
 		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
 			PM_ContinueLegsAnim( LEGS_BACKCR );
 		}
@@ -1099,10 +1099,10 @@ static void PM_Footsteps( void ) {
 	/*
 	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
 		if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
-			bobmove = 0.4;	// faster speeds bob faster
+			bobmove = 0.4f;	// faster speeds bob faster
 			footstep = qtrue;
 		} else {
-			bobmove = 0.3;
+			bobmove = 0.3f;
 		}
 		PM_ContinueLegsAnim( LEGS_BACK );
 	*/

@@ -98,7 +98,7 @@ int speex_encode(void *state, float *in, SpeexBits *bits)
       else if (in[i]<-32768.f)
          short_in[i] = -32768;
       else
-         short_in[i] = (spx_int16_t)floor(.5+in[i]);
+         short_in[i] = (spx_int16_t)floor(.5f+in[i]);
    }
    return (*((SpeexMode**)state))->enc(state, short_in, bits);
 }
@@ -169,7 +169,7 @@ int speex_decode_int(void *state, SpeexBits *bits, spx_int16_t *out)
       else if (float_out[i]<-32768.f)
          out[i] = -32768;
       else
-         out[i] = (spx_int16_t)floor(.5+float_out[i]);
+         out[i] = (spx_int16_t)floor(.5f+float_out[i]);
    }
    return ret;
 }

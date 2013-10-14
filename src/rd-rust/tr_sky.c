@@ -560,8 +560,8 @@ void R_BuildCloudData( shaderCommands_t *input ) {
 
 	assert( shader->isSky );
 
-	sky_min = 1.0 / 256.0f;		// FIXME: not correct?
-	sky_max = 255.0 / 256.0f;
+	sky_min = 1.0f / 256.0f;		// FIXME: not correct?
+	sky_max = 255.0f / 256.0f;
 
 	// set up for drawing
 	tess.numIndexes = 0;

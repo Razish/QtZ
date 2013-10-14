@@ -395,8 +395,8 @@ static float UI_MovedirAdjustment( playerInfo_t *pi ) {
 
 	VectorSubtract( &pi->viewAngles, &pi->moveAngles, &relativeAngles );
 	AngleVectors( &relativeAngles, &moveVector, NULL, NULL );
-	if ( Q_fabs( moveVector.x ) < 0.01 )	moveVector.x = 0.0;
-	if ( Q_fabs( moveVector.y ) < 0.01 )	moveVector.y = 0.0;
+	if ( Q_fabs( moveVector.x ) < 0.01f )	moveVector.x = 0.0f;
+	if ( Q_fabs( moveVector.y ) < 0.01f )	moveVector.y = 0.0f;
 
 	if ( moveVector.y == 0 && moveVector.x >  0 )	return   0;
 	if ( moveVector.y <  0 && moveVector.x >  0 )	return  22;
@@ -694,12 +694,12 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	origin.x -= 100;	// + = behind, - = in front
 	origin.y += 100;	// + = left, - = right
 	origin.z += 100;	// + = above, - = below
-	trap->R_AddLightToScene( &origin, 500, 1.0, 1.0, 1.0 );
+	trap->R_AddLightToScene( &origin, 500, 1.0f, 1.0f, 1.0f );
 
 	origin.x -= 100;
 	origin.y -= 100;
 	origin.z -= 100;
-	trap->R_AddLightToScene( &origin, 500, 1.0, 0.0, 0.0 );
+	trap->R_AddLightToScene( &origin, 500, 1.0f, 0.0f, 0.0f );
 
 	trap->R_RenderScene( &refdef );
 }

@@ -77,7 +77,7 @@
 #include "os_support.h"
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846f
 #endif
 
 #ifdef FIXED_POINT
@@ -187,7 +187,7 @@ static inline void filter_dc_notch16(const spx_int16_t *in, spx_word16_t radius,
    int i;
    spx_word16_t den2;
 #ifdef FIXED_POINT
-   den2 = MULT16_16_Q15(radius,radius) + MULT16_16_Q15(QCONST16(.7,15),MULT16_16_Q15(32767-radius,32767-radius));
+   den2 = MULT16_16_Q15(radius,radius) + MULT16_16_Q15(QCONST16(.7f,15),MULT16_16_Q15(32767-radius,32767-radius));
 #else
    den2 = radius*radius + .7f*(1-radius)*(1-radius);
 #endif   
@@ -455,7 +455,7 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
    {
       spx_word32_t sum = 0;
       /* Ratio of ~10 between adaptation rate of first and last block */
-      spx_word16_t decay = SHR32(spx_exp(NEG16(DIV32_16(QCONST16(2.4,11),M))),1);
+      spx_word16_t decay = SHR32(spx_exp(NEG16(DIV32_16(QCONST16(2.4f,11),M))),1);
       st->prop[0] = QCONST16(.7f, 15);
       sum = EXTEND32(st->prop[0]);
       for (i=1;i<M;i++)
@@ -465,7 +465,7 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
       }
       for (i=M-1;i>=0;i--)
       {
-         st->prop[i] = DIV32(MULT16_16(QCONST16(.8,15), st->prop[i]),sum);
+         st->prop[i] = DIV32(MULT16_16(QCONST16(.8f,15), st->prop[i]),sum);
       }
    }
    
@@ -815,10 +815,10 @@ void speex_echo_cancellation(SpeexEchoState *st, const spx_int16_t *in, const sp
    st->Dvar2 = FLOAT_ADD(FLOAT_MULT(VAR2_SMOOTH, st->Dvar2), FLOAT_MUL32U(MULT16_32_Q15(QCONST16(.15f,15),Sff), MULT16_32_Q15(QCONST16(.15f,15),Dbf)));
    
    /* Equivalent float code:
-   st->Davg1 = .6*st->Davg1 + .4*(Sff-See);
-   st->Davg2 = .85*st->Davg2 + .15*(Sff-See);
-   st->Dvar1 = .36*st->Dvar1 + .16*Sff*Dbf;
-   st->Dvar2 = .7225*st->Dvar2 + .0225*Sff*Dbf;
+   st->Davg1 = .6f*st->Davg1 + .4*(Sff-See);
+   st->Davg2 = .85f*st->Davg2 + .15*(Sff-See);
+   st->Dvar1 = .36f*st->Dvar1 + .16*Sff*Dbf;
+   st->Dvar2 = .7225f*st->Dvar2 + .0225*Sff*Dbf;
    */
    
    update_foreground = 0;
@@ -1130,7 +1130,7 @@ void speex_echo_get_residual(SpeexEchoState *st, spx_word32_t *residual_echo, in
    else
       leak2 = SHL16(st->leak_estimate, 1);
 #else
-   if (st->leak_estimate>.5)
+   if (st->leak_estimate>.5f)
       leak2 = 1;
    else
       leak2 = 2*st->leak_estimate;

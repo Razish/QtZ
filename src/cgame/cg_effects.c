@@ -199,7 +199,7 @@ localEntity_t *CG_MakeExplosion( vector3 *origin, vector3 *dir,
 	VectorCopy( &newOrigin, &ex->refEntity.origin );
 	VectorCopy( &newOrigin, &ex->refEntity.oldorigin );
 
-	ex->color.r = ex->color.g = ex->color.b = 1.0;
+	ex->color.r = ex->color.g = ex->color.b = 1.0f;
 
 	return ex;
 }

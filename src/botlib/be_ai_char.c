@@ -359,7 +359,7 @@ int BotFindCachedCharacter(char *charfile, float skill) {
 	{
 		if ( !botcharacters[handle] ) continue;
 		if ( strcmp( botcharacters[handle]->filename, charfile ) == 0 &&
-			(skill < 0 || fabs(botcharacters[handle]->skill - skill) < 0.01) )
+			(skill < 0 || fabs(botcharacters[handle]->skill - skill) < 0.01f) )
 		{
 			return handle;
 		} //end if
@@ -398,7 +398,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload) {
 		} //end if
 	} //end else
 	//
-	intskill = (int) (skill + 0.5);
+	intskill = (int) (skill + 0.5f);
 	//try to load the character with the given skill
 	ch = BotLoadCharacterFromFile(charfile, intskill);
 	if (ch)
@@ -558,10 +558,10 @@ int BotLoadCharacter(char *charfile, float skill) {
 	int firstskill, secondskill, handle;
 
 	//make sure the skill is in the valid range
-	if (skill < 1.0) skill = 1.0;
-	else if (skill > 5.0) skill = 5.0;
+	if (skill < 1.0f) skill = 1.0f;
+	else if (skill > 5.0f) skill = 5.0f;
 	//skill 1, 4 and 5 should be available in the character files
-	if (skill == 1.0 || skill == 4.0 || skill == 5.0)
+	if (skill == 1.0f || skill == 4.0f || skill == 5.0f)
 	{
 		return BotLoadCharacterSkill(charfile, skill);
 	} //end if
@@ -572,7 +572,7 @@ int BotLoadCharacter(char *charfile, float skill) {
 		botimport.Print(PRT_MESSAGE, "loaded cached skill %f from %s\n", skill, charfile);
 		return handle;
 	} //end if
-	if (skill < 4.0)
+	if (skill < 4.0f)
 	{
 		//load skill 1 and 4
 		firstskill = BotLoadCharacterSkill(charfile, 1);

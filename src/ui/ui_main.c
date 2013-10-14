@@ -252,7 +252,7 @@ void Text_Paint(float x, float y, float scale, const vector4 *color, const char 
 						glyph->t2,
 						glyph->glyph);
 					trap->R_SetColor( &newColor );
-					colorBlack.a = 1.0;
+					colorBlack.a = 1.0f;
 				}
 				Text_PaintChar(x, y - yadj, 
 					(float)glyph->imageWidth,
@@ -326,7 +326,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vector4 *color, const c
 						glyph->s2,
 						glyph->t2,
 						glyph->glyph);
-					colorBlack.a = 1.0;
+					colorBlack.a = 1.0f;
 					trap->R_SetColor( &newColor );
 				}
 				Text_PaintChar(x, y - yadj, 

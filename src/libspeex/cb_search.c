@@ -374,7 +374,7 @@ int   update_target
 #ifdef FIXED_POINT
          tener = SHR32(tener,1);
 #else
-         tener *= .5;
+         tener *= .5f;
 #endif
          /*Find new n-best based on previous n-best j*/
          if (have_sign)

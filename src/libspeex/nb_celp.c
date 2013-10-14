@@ -55,7 +55,7 @@
 #endif
 
 #ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
+#define M_PI           3.14159265358979323846f  /* pi */
 #endif
 
 #ifndef NULL
@@ -376,7 +376,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
 #ifdef FIXED_POINT
             if ((nol_pitch_coef[i]>MULT16_16_Q15(nol_pitch_coef[0],27853)) && 
 #else
-            if ((nol_pitch_coef[i]>.85*nol_pitch_coef[0]) && 
+            if ((nol_pitch_coef[i]>.85f*nol_pitch_coef[0]) && 
 #endif
                 (ABS(2*nol_pitch[i]-ol_pitch)<=2 || ABS(3*nol_pitch[i]-ol_pitch)<=3 || 
                  ABS(4*nol_pitch[i]-ol_pitch)<=4 || ABS(5*nol_pitch[i]-ol_pitch)<=5))
@@ -403,8 +403,8 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
       {
          spx_word16_t g = compute_rms16(st->exc, st->frameSize);
          if (st->submodeID!=1 && ol_pitch>0)
-            ol_gain = MULT16_16(g, MULT16_16_Q14(QCONST16(1.1,14),
-                                spx_sqrt(QCONST32(1.,28)-MULT16_32_Q15(QCONST16(.8,15),SHL32(MULT16_16(ol_pitch_coef,ol_pitch_coef),16)))));
+            ol_gain = MULT16_16(g, MULT16_16_Q14(QCONST16(1.1f,14),
+                                spx_sqrt(QCONST32(1.f,28)-MULT16_32_Q15(QCONST16(.8f,15),SHL32(MULT16_16(ol_pitch_coef,ol_pitch_coef),16)))));
          else
             ol_gain = SHL32(EXTEND32(g),SIG_SHIFT);
       }
@@ -476,7 +476,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
          mode=choice;
          if (mode==0)
          {
-            if (st->dtx_count==0 || lsp_dist>.05 || !st->dtx_enabled || st->dtx_count>20)
+            if (st->dtx_count==0 || lsp_dist>.05f || !st->dtx_enabled || st->dtx_count>20)
             {
                mode=1;
                st->dtx_count=1;
@@ -506,7 +506,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
             speex_encoder_ctl(state, SPEEX_GET_BITRATE, &bitrate);
             st->abr_drift+=(bitrate-st->abr_enabled);
             st->abr_drift2 = .95f*st->abr_drift2 + .05f*(bitrate-st->abr_enabled);
-            st->abr_count += 1.0;
+            st->abr_count += 1.0f;
          }
 
       } else {
@@ -514,7 +514,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
          int mode;
          if (st->relative_quality<2)
          {
-            if (st->dtx_count==0 || lsp_dist>.05 || !st->dtx_enabled || st->dtx_count>20)
+            if (st->dtx_count==0 || lsp_dist>.05f || !st->dtx_enabled || st->dtx_count>20)
             {
                st->dtx_count=1;
                mode=1;
@@ -594,7 +594,7 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
 #ifdef FIXED_POINT
       quant = PSHR16(MULT16_16_16(15, ol_pitch_coef),GAIN_SHIFT);
 #else
-      quant = (int)floor(.5+15*ol_pitch_coef*GAIN_SCALING_1);
+      quant = (int)floor(.5f+15*ol_pitch_coef*GAIN_SCALING_1);
 #endif
       if (quant>15)
          quant=15;
@@ -609,18 +609,18 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
 #ifdef FIXED_POINT
    {
       int qe = scal_quant32(ol_gain, ol_gain_table, 32);
-      /*ol_gain = exp(qe/3.5)*SIG_SCALING;*/
+      /*ol_gain = exp(qe/3.5f)*SIG_SCALING;*/
       ol_gain = MULT16_32_Q15(28406,ol_gain_table[qe]);
       speex_bits_pack(bits, qe, 5);
    }
 #else
    {
-      int qe = (int)(floor(.5+3.5*log(ol_gain*1.0/SIG_SCALING)));
+      int qe = (int)(floor(.5f+3.5f*logf(ol_gain*1.0f/SIG_SCALING)));
       if (qe<0)
          qe=0;
       if (qe>31)
          qe=31;
-      ol_gain = expf(qe/3.5)*SIG_SCALING;
+      ol_gain = expf(qe/3.5f)*SIG_SCALING;
       speex_bits_pack(bits, qe, 5);
    }
 #endif
@@ -1365,8 +1365,8 @@ int nb_decode(void *state, SpeexBits *bits, void *vout)
 
          pitch_average += tmp;
          if ((tmp>best_pitch_gain&&ABS(2*best_pitch-pitch)>=3&&ABS(3*best_pitch-pitch)>=4&&ABS(4*best_pitch-pitch)>=5) 
-              || (tmp>MULT16_16_Q15(QCONST16(.6,15),best_pitch_gain)&&(ABS(best_pitch-2*pitch)<3||ABS(best_pitch-3*pitch)<4||ABS(best_pitch-4*pitch)<5)) 
-              || (MULT16_16_Q15(QCONST16(.67,15),tmp)>best_pitch_gain&&(ABS(2*best_pitch-pitch)<3||ABS(3*best_pitch-pitch)<4||ABS(4*best_pitch-pitch)<5)) )
+              || (tmp>MULT16_16_Q15(QCONST16(.6f,15),best_pitch_gain)&&(ABS(best_pitch-2*pitch)<3||ABS(best_pitch-3*pitch)<4||ABS(best_pitch-4*pitch)<5)) 
+              || (MULT16_16_Q15(QCONST16(.67f,15),tmp)>best_pitch_gain&&(ABS(2*best_pitch-pitch)<3||ABS(3*best_pitch-pitch)<4||ABS(4*best_pitch-pitch)<5)) )
          {
             best_pitch = pitch;
             if (tmp > best_pitch_gain)

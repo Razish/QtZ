@@ -192,7 +192,7 @@ int AAS_OnGround(vector3 *origin, int presencetype, int passent) {
 	//if in solid
 	if (trace.startsolid) return qfalse;
 	//if nothing hit at all
-	if (trace.fraction >= 1.0) return qfalse;
+	if (trace.fraction >= 1.0f) return qfalse;
 	//if too far from the hit plane
 	if (origin->z - trace.endpos.z > 10) return qfalse;
 	//check if the plane isn't too steep
@@ -523,7 +523,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 	memset(&trace, 0, sizeof(aas_trace_t));
 	//start at the current origin
 	VectorCopy(origin, &org);
-	org.z += 0.25;
+	org.z += 0.25f;
 	//velocity to test for the first frame
 	VectorScale(velocity, frametime, &frame_test_vel);
 	//
@@ -727,7 +727,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 			//move the entity to the trace end point
 			VectorCopy(&trace.endpos, &org);
 			//if there was a collision
-			if (trace.fraction < 1.0)
+			if (trace.fraction < 1.0f)
 			{
 				//get the plane the bounding box collided with
 				plane = AAS_PlaneFromNum(trace.planenum);
@@ -737,7 +737,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 					if (DotProduct(&plane->normal, &up) > phys_maxsteepness)
 					{
 						VectorCopy(&org, &start);
-						start.z += 0.5;
+						start.z += 0.5f;
 						if (AAS_PointAreaNum(&start) == stopareanum)
 						{
 							VectorCopy(&start, &move->endpos);
@@ -759,7 +759,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				if (plane->normal.z == 0 && (jump_frame < 0 || n - jump_frame > 2))
 				{
 					//check for a step
-					VectorMA(&org, -0.25, &plane->normal, &start);
+					VectorMA(&org, -0.25f, &plane->normal, &start);
 					VectorCopy(&start, &stepend);
 					start.z += phys_maxstep;
 					steptrace = AAS_TraceClientBBox(&start, &stepend, presencetype, entnum);
@@ -775,7 +775,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 //#ifdef AAS_MOVE_DEBUG
 							if (visualize)
 							{
-								if (steptrace.endpos.z - org.z > 0.125)
+								if (steptrace.endpos.z - org.z > 0.125f)
 								{
 									VectorCopy(&org, &start);
 									start.z = steptrace.endpos.z;
@@ -825,8 +825,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							// never take falling damage if completely underwater
 							/*
 							if (ent->waterlevel == 3) return;
-							if (ent->waterlevel == 2) delta *= 0.25;
-							if (ent->waterlevel == 1) delta *= 0.5;
+							if (ent->waterlevel == 2) delta *= 0.25f;
+							if (ent->waterlevel == 1) delta *= 0.5f;
 							*/
 							if (delta > 40)
 							{
@@ -848,7 +848,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 			//extra check to prevent endless loop
 			if (++j > 20) return qfalse;
 		//while there is a plane hit
-		} while(trace.fraction < 1.0);
+		} while(trace.fraction < 1.0f);
 		//if going down
 		if (frame_test_vel.z <= 10)
 		{

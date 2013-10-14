@@ -497,7 +497,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 		for (j = 0; j < 2; j++)
 		{
 			if (DotProduct(plane2->normal, aasworld.vertexes[edge->v[j]]) -
-							plane2->dist < -0.01) return qtrue;
+							plane2->dist < -0.01f) return qtrue;
 		} //end for
 	} //end for
 	for (i = 0; i < face2->numedges; i++)
@@ -507,7 +507,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 		for (j = 0; j < 2; j++)
 		{
 			if (DotProduct(plane1->normal, aasworld.vertexes[edge->v[j]]) -
-							plane1->dist < -0.01) return qtrue;
+							plane1->dist < -0.01f) return qtrue;
 		} //end for
 	} //end for
 
@@ -591,11 +591,11 @@ qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int
 
 	for (i = 0; i < 2; i++)
 	{
-		if (DotProduct(aasworld.vertexes[edge1->v[i]], normal2) - dist2 < -0.01) return qfalse;
+		if (DotProduct(aasworld.vertexes[edge1->v[i]], normal2) - dist2 < -0.01f) return qfalse;
 	} //end for
 	for (i = 0; i < 2; i++)
 	{
-		if (DotProduct(aasworld.vertexes[edge2->v[i]], normal1) - dist1 < -0.01) return qfalse;
+		if (DotProduct(aasworld.vertexes[edge2->v[i]], normal1) - dist1 < -0.01f) return qfalse;
 	} //end for
 	return qtrue;
 } //end of the function AAS_NonConvexEdges

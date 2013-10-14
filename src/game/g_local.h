@@ -118,7 +118,7 @@ struct gentity_s {
 	int			flags;				// FL_* variables
 	char		*model, *model2;	// non-player entities render this model
 	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges. all game items are physicsObjects.
-	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
+	float		physicsBounce;		// 1.0f = continuous bounce, 0.0f = no bounce
 	int			clipmask;			// brushes with this content value will be collided against when moving. items and corpses do not collide against players, for instance
 	char		*target, *targetname;
 	char		*team;

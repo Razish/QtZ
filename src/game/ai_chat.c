@@ -612,7 +612,7 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat->integer) {
-		if (random() > rnd * 0.5) return qfalse;
+		if (random() > rnd * 0.5f) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
 	//
@@ -647,7 +647,7 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat->integer) {
-		if (random() > rnd * 0.5) return qfalse;
+		if (random() > rnd * 0.5f) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
 	//
@@ -680,7 +680,7 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	if (gametype == GT_DUEL) return qfalse;
 	//if fast chat is off
 	if (!bot_fastchat->integer) {
-		if (random() > rnd * 0.5) return qfalse;
+		if (random() > rnd * 0.5f) return qfalse;
 	}
 	if (!BotValidChatPosition(bs)) return qfalse;
 	//
@@ -713,10 +713,10 @@ int BotChat_Random(bot_state_t *bs) {
 		bs->ltgtype == LTG_RUSHBASE) return qfalse;
 	//
 	rnd = trap->ai->Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_RANDOM, 0, 1);
-	if (random() > bs->thinktime * 0.1) return qfalse;
+	if (random() > bs->thinktime * 0.1f) return qfalse;
 	if (!bot_fastchat->integer) {
 		if (random() > rnd) return qfalse;
-		if (random() > 0.25) return qfalse;
+		if (random() > 0.25f) return qfalse;
 	}
 	if (BotNumActivePlayers() <= 1) return qfalse;
 	//

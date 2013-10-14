@@ -1099,7 +1099,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 		VectorNormalize( &dir );
 		d = DotProduct(&pole.axis[2], &dir);
 		// if there is enough movement orthogonal to the flag pole
-		if (fabs(d) < 0.9) {
+		if (fabs(d) < 0.9f) {
 			//
 			d = DotProduct(&pole.axis[0], &dir);
 			if (d > 1.0f) {
@@ -1193,7 +1193,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0, 0.2f, 0.2f );
+		trap->R_AddLightToScene( &cent->lerpOrigin, (float)(200 + (rand()&31)), 1.0f, 0.2f, 0.2f );
 	}
 
 	// blueflag
@@ -1314,7 +1314,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	trap->CM_Trace( &trace, &cent->lerpOrigin, &end, &mins, &maxs, 0, MASK_PLAYERSOLID, qfalse );
 
 	// no shadow if too high
-	if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
+	if ( trace.fraction == 1.0f || trace.startsolid || trace.allsolid ) {
 		return qfalse;
 	}
 
@@ -1371,7 +1371,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	// trace down to find the surface
 	trap->CM_Trace( &trace, &start, &end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
-	if ( trace.fraction == 1.0 ) {
+	if ( trace.fraction == 1.0f ) {
 		return;
 	}
 

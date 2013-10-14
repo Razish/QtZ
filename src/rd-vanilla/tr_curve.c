@@ -112,7 +112,7 @@ static	int	neighbors[8][2] = {
 	for ( i = 0 ; i < height ; i++ ) {
 		VectorSubtract( &ctrl[i][0].xyz, &ctrl[i][width-1].xyz, &delta );
 		len = VectorLengthSquared( &delta );
-		if ( len > 1.0 ) {
+		if ( len > 1.0f ) {
 			break;
 		}
 	}
@@ -124,7 +124,7 @@ static	int	neighbors[8][2] = {
 	for ( i = 0 ; i < width ; i++ ) {
 		VectorSubtract( &ctrl[0][i].xyz, &ctrl[height-1][i].xyz, &delta );
 		len = VectorLengthSquared( &delta );
-		if ( len > 1.0 ) {
+		if ( len > 1.0f ) {
 			break;
 		}
 	}

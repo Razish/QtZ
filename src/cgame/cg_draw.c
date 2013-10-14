@@ -176,7 +176,7 @@ void CG_Text_Paint(float x, float y, float scale, const vector4 *color, const ch
 						glyph->s2,
 						glyph->t2,
 						glyph->glyph);
-					colorBlack.a = 1.0;
+					colorBlack.a = 1.0f;
 					trap->R_SetColor( &newColor );
 				}
 				CG_Text_PaintChar(x, y - yadj, 
@@ -669,7 +669,7 @@ static void CG_DrawCenterString( void ) {
 		linebuffer[l] = 0;
 
 		w = CG_Text_Width(linebuffer, 0.5f, 0);
-		h = 26;//CG_Text_Height(linebuffer, 0.5, 0);
+		h = 26;//CG_Text_Height(linebuffer, 0.5f, 0);
 		x = ((int)SCREEN_WIDTH - w) / 2;
 		CG_Text_Paint((float)x, (float)(y + h), 0.5f, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		y += h + 6;
@@ -698,7 +698,7 @@ static void CG_DrawCenterString( void ) {
 static void CG_DrawCrosshair( void ) {
 	float		x = 0.0f, y = 0.0f, w = cg_crosshairSize->value, h = cg_crosshairSize->value, f = 0.0f;
 	int			i = 0;
-	vector4	finalColour = { 1.0 };
+	vector4	finalColour = { 1.0f };
 
 	if ( !cg_drawCrosshair->integer
 		|| cg.snap->ps.persistent[PERS_TEAM] == TEAM_SPECTATOR
@@ -773,8 +773,8 @@ static void CG_DrawCrosshair( void ) {
 		if ( cg_drawCrosshair->integer & (1<<i) )
 			trap->R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.crosshair.images[i] );
 	}
-//	trap->R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
-//		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
+//	trap->R_DrawStretchPic( x + cg.refdef.x + 0.5f * (cg.refdef.width - w), 
+//		y + cg.refdef.y + 0.5f * (cg.refdef.height - h), 
 //		w, h, 0, 0, 1, 1, hShader );
 }
 

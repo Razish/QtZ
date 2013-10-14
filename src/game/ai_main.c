@@ -574,10 +574,10 @@ float AngleDifference(float ang1, float ang2) {
 
 	diff = ang1 - ang2;
 	if (ang1 > ang2) {
-		if (diff > 180.0) diff -= 360.0;
+		if (diff > 180.0f) diff -= 360.0f;
 	}
 	else {
-		if (diff < -180.0) diff += 360.0;
+		if (diff < -180.0f) diff += 360.0f;
 	}
 	return diff;
 }
@@ -590,10 +590,10 @@ float BotChangeViewAngle(float angle, float ideal_angle, float speed) {
 	if (angle == ideal_angle) return angle;
 	move = ideal_angle - angle;
 	if (ideal_angle > angle) {
-		if (move > 180.0) move -= 360.0;
+		if (move > 180.0f) move -= 360.0f;
 	}
 	else {
-		if (move < -180.0) move += 360.0;
+		if (move < -180.0f) move += 360.0f;
 	}
 	if (move > 0) {
 		if (move > speed) move = speed;

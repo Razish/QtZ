@@ -1123,7 +1123,7 @@ void StripSingleQuotes(char *string) {
 //============================================================================
 float ReadSignedFloat(script_t *script) {
 	token_t token;
-	float sign = 1.0;
+	float sign = 1.0f;
 
 	PS_ExpectAnyToken(script, &token);
 	if (!strcmp(token.string, "-"))
@@ -1134,7 +1134,7 @@ float ReadSignedFloat(script_t *script) {
 			return 0;
 		}
 
-		sign = -1.0;
+		sign = -1.0f;
 	}
 	
 	if (token.type != TT_NUMBER)

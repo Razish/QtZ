@@ -269,7 +269,7 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode) {
 	bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 	//set the ltg type
 	bs->ltgtype = LTG_TEAMACCOMPANY;
-	bs->formation_dist = 3.5 * 32;		//3.5 meter
+	bs->formation_dist = 3.5f * 32;		//3.5f meter
 	bs->arrive_time = 0;
 	//
 	// remember last ordered task

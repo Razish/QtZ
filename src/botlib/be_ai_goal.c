@@ -1469,7 +1469,7 @@ int BotChooseNBGItem(int goalstate, vector3 *origin, int *inventory, int travelf
 			{
 				//if this item won't respawn before we get there
 				avoidtime = BotAvoidGoalTime(goalstate, li->number);
-				if (avoidtime - t * 0.009 > 0)
+				if (avoidtime - t * 0.009f > 0)
 					continue;
 				//
 				weight /= (float) t * TRAVELTIME_SCALE;
@@ -1572,7 +1572,7 @@ int BotItemGoalInVisButNotVisible(int viewer, vector3 *eye, vector3 *viewangles,
 	if (!(goal->flags & GFL_ITEM)) return qfalse;
 	//
 	VectorAdd(&goal->mins, &goal->mins, &middle);
-	VectorScale(&middle, 0.5, &middle);
+	VectorScale(&middle, 0.5f, &middle);
 	VectorAdd(&goal->origin, &middle, &middle);
 	//
 	trace = AAS_Trace(eye, NULL, NULL, &middle, viewer, CONTENTS_SOLID);
@@ -1589,7 +1589,7 @@ int BotItemGoalInVisButNotVisible(int viewer, vector3 *eye, vector3 *viewangles,
 		//NOTE: for some wacko reason entities are sometimes
 		// not updated
 		//if (!entinfo.valid) return qtrue;
-		if (entinfo.ltime < AAS_Time() - 0.5)
+		if (entinfo.ltime < AAS_Time() - 0.5f)
 			return qtrue;
 	} //end if
 	return qfalse;

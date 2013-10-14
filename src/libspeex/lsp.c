@@ -89,7 +89,7 @@ Heavily modified by Jean-Marc Valin (c) 2002-2006 (fixed-point,
 #include "math_approx.h"
 
 #ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
+#define M_PI           3.14159265358979323846f  /* pi */
 #endif
 
 #ifndef NULL
@@ -212,7 +212,7 @@ static float cheb_poly_eva(spx_word32_t *coef, spx_word16_t x, int m, char *stac
 #ifdef FIXED_POINT
 #define SIGN_CHANGE(a,b) (((a)&0x70000000)^((b)&0x70000000)||(b==0))
 #else
-#define SIGN_CHANGE(a,b) (((a)*(b))<0.0)
+#define SIGN_CHANGE(a,b) (((a)*(b))<0.0f)
 #endif
 
 
@@ -221,7 +221,7 @@ int lpc_to_lsp (spx_coef_t *a,int lpcrdr,spx_lsp_t *freq,int nb,spx_word16_t del
 /*  int lpcrdr			order of LPC coefficients (10) 		*/
 /*  float *freq 	      	LSP frequencies in the x domain       	*/
 /*  int nb			number of sub-intervals (4) 		*/
-/*  float delta			grid spacing interval (0.02) 		*/
+/*  float delta			grid spacing interval (0.02f) 		*/
 
 
 {
@@ -333,7 +333,7 @@ int lpc_to_lsp (spx_coef_t *a,int lpcrdr,spx_lsp_t *freq,int nb,spx_word16_t del
               dd = PSHR16(dd,1);
 #else
            dd=delta*(1-.9f*xl*xl);
-           if (fabs(psuml)<.2)
+           if (fabs(psuml)<.2f)
               dd *= .5f;
 #endif
            xr = SUB16(xl, dd);                        	/* interval spacing 	*/
@@ -539,14 +539,14 @@ void lsp_to_lpc(spx_lsp_t *freq,spx_coef_t *ak,int lpcrdr, char *stack)
     /* initialise contents of array */
 
     for(i=0;i<=4*m+1;i++){       	/* set contents of buffer to 0 */
-	*pw++ = 0.0;
+	*pw++ = 0.0f;
     }
 
     /* Set pointers up */
 
     pw = Wp;
-    xin1 = 1.0;
-    xin2 = 1.0;
+    xin1 = 1.0f;
+    xin2 = 1.0f;
 
     ALLOC(x_freq, lpcrdr, float);
     for (i=0;i<lpcrdr;i++)
@@ -579,8 +579,8 @@ void lsp_to_lpc(spx_lsp_t *freq,spx_coef_t *ak,int lpcrdr, char *stack)
 	*(n4+1) = xin1;
 	*(n4+2) = xin2;
 
-	xin1 = 0.0;
-	xin2 = 0.0;
+	xin1 = 0.0f;
+	xin2 = 0.0f;
     }
 
 }

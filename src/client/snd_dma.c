@@ -378,8 +378,8 @@ void S_SpatializeOrigin (vector3 *origin, int master_vol, int *left_vol, int *ri
 
 	if (dma.channels == 1)
 	{ // no attenuation = no spatialization
-		rscale = 1.0;
-		lscale = 1.0;
+		rscale = 1.0f;
+		lscale = 1.0f;
 	}
 	else
 	{
@@ -669,11 +669,11 @@ void S_Base_AddLoopingSound( int entityNum, const vector3 *origin, const vector3
 	loopSounds[entityNum].active = qtrue;
 	loopSounds[entityNum].kill = qtrue;
 	loopSounds[entityNum].doppler = qfalse;
-	loopSounds[entityNum].oldDopplerScale = 1.0;
-	loopSounds[entityNum].dopplerScale = 1.0;
+	loopSounds[entityNum].oldDopplerScale = 1.0f;
+	loopSounds[entityNum].dopplerScale = 1.0f;
 	loopSounds[entityNum].sfx = sfx;
 
-	if (s_doppler->integer && VectorLengthSquared(velocity)>0.0) {
+	if (s_doppler->integer && VectorLengthSquared(velocity)>0.0f) {
 		vector3	out;
 		float	lena, lenb;
 
@@ -682,12 +682,12 @@ void S_Base_AddLoopingSound( int entityNum, const vector3 *origin, const vector3
 		VectorAdd(&loopSounds[entityNum].origin, &loopSounds[entityNum].velocity, &out);
 		lenb = DistanceSquared(&loopSounds[listener_number].origin, &out);
 		if ((loopSounds[entityNum].framenum+1) != cls.framecount) {
-			loopSounds[entityNum].oldDopplerScale = 1.0;
+			loopSounds[entityNum].oldDopplerScale = 1.0f;
 		} else {
 			loopSounds[entityNum].oldDopplerScale = loopSounds[entityNum].dopplerScale;
 		}
 		loopSounds[entityNum].dopplerScale = lenb/(lena*100);
-		if (loopSounds[entityNum].dopplerScale<=1.0) {
+		if (loopSounds[entityNum].dopplerScale<=1.0f) {
 			loopSounds[entityNum].doppler = qfalse;			// don't bother doing the math
 		} else if (loopSounds[entityNum].dopplerScale>MAX_DOPPLER_SCALE) {
 			loopSounds[entityNum].dopplerScale = MAX_DOPPLER_SCALE;
@@ -863,7 +863,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 //Com_Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend[stream]);
 	if (s_channels == 2 && width == 2)
 	{
-		if (scale == 1.0)
+		if (scale == 1.0f)
 		{	// optimized case
 			for (i=0 ; i<samples ; i++)
 			{

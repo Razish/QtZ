@@ -399,8 +399,8 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 	vector3		startp;
 	vector3		endp;
 
-	enterFrac = -1.0;
-	leaveFrac = 1.0;
+	enterFrac = -1.0f;
+	leaveFrac = 1.0f;
 	clipplane = NULL;
 
 	if ( !brush->numsides ) {
@@ -1188,11 +1188,11 @@ void CM_Trace( trace_t *results, const vector3 *start, const vector3 *end, const
 	}
 
         // If allsolid is set (was entirely inside something solid), the plane is not valid.
-        // If fraction == 1.0, we never hit anything, and thus the plane is not valid.
+        // If fraction == 1.0f, we never hit anything, and thus the plane is not valid.
         // Otherwise, the normal on the plane should have unit length
         assert(tw.trace.allsolid ||
-               tw.trace.fraction == 1.0 ||
-               VectorLengthSquared(&tw.trace.plane.normal) > 0.9999);
+               tw.trace.fraction == 1.0f ||
+               VectorLengthSquared(&tw.trace.plane.normal) > 0.9999f);
 	*results = tw.trace;
 }
 
@@ -1275,7 +1275,7 @@ void CM_TransformedBoxTrace( trace_t *results, const vector3 *start, const vecto
 	CM_Trace( &trace, &start_l, &end_l, &symetricSize[0], &symetricSize[1], model, origin, brushmask, capsule, &sphere );
 
 	// if the bmodel was rotated and there was a collision
-	if ( rotated && trace.fraction != 1.0 ) {
+	if ( rotated && trace.fraction != 1.0f ) {
 		// rotation of bmodel collision plane
 		MatrixTranspose(matrix, transpose);
 		RotatePoint(&trace.plane.normal, transpose);
