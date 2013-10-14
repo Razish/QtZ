@@ -703,7 +703,7 @@ void BotTestAAS(vector3 *origin);
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
-#define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
+#define	FOFS(x) offsetof( gentity_t, x )
 
 //OSP: pause
 typedef enum matchPause_e {
