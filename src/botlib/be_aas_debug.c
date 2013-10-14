@@ -64,16 +64,16 @@ void AAS_ClearShownPolygons( void ) {
 	{
 		if (debugpolygons[i]) botimport.DebugPolygonDelete(debugpolygons[i]);
 		debugpolygons[i] = 0;
-	} //end for
+	}
 //*/
 /*
 	for (i = 0; i < MAX_DEBUGPOLYGONS; i++)
 	{
 		botimport.DebugPolygonDelete(i);
 		debugpolygons[i] = 0;
-	} //end for
+	}
 */
-} //end of the function AAS_ClearShownPolygons
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -89,9 +89,9 @@ void AAS_ShowPolygon(int color, int numpoints, vector3 *points) {
 		{
 			debugpolygons[i] = botimport.DebugPolygonCreate(color, numpoints, points);
 			break;
-		} //end if
-	} //end for
-} //end of the function AAS_ShowPolygon
+		}
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -110,9 +110,9 @@ void AAS_ClearShownDebugLines( void ) {
 			botimport.DebugLineDelete(debuglines[i]);
 			debuglines[i] = 0;
 			debuglinevisible[i] = qfalse;
-		} //end if
-	} //end for
-} //end of the function AAS_ClearShownDebugLines
+		}
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -129,15 +129,15 @@ void AAS_DebugLine(vector3 *start, vector3 *end, int color) {
 			debuglines[line] = botimport.DebugLineCreate();
 			debuglinevisible[line] = qfalse;
 			numdebuglines++;
-		} //end if
+		}
 		if (!debuglinevisible[line])
 		{
 			botimport.DebugLineShow(debuglines[line], start, end, color);
 			debuglinevisible[line] = qtrue;
 			return;
-		} //end else
-	} //end for
-} //end of the function AAS_DebugLine
+		}
+	}
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -149,7 +149,7 @@ void AAS_PermanentLine(vector3 *start, vector3 *end, int color) {
 
 	line = botimport.DebugLineCreate();
 	botimport.DebugLineShow(line, start, end, color);
-} //end of the function AAS_PermenentLine
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -169,8 +169,8 @@ void AAS_DrawPermanentCross(vector3 *origin, float size, int color) {
 		AAS_DebugLine(&start, &end, color);
 		debugline = botimport.DebugLineCreate();
 		botimport.DebugLineShow(debugline, &start, &end, color);
-	} //end for
-} //end of the function AAS_DrawPermanentCross
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -212,16 +212,16 @@ void AAS_DrawPlaneCross(vector3 *point, vector3 *normal, float dist, int type, i
 			lines[j++] = debuglines[line];
 			debuglinevisible[line] = qtrue;
 			numdebuglines++;
-		} //end if
+		}
 		else if (!debuglinevisible[line])
 		{
 			lines[j++] = debuglines[line];
 			debuglinevisible[line] = qtrue;
-		} //end else
-	} //end for
+		}
+	}
 	botimport.DebugLineShow(lines[0], &start1, &end1, color);
 	botimport.DebugLineShow(lines[1], &start2, &end2, color);
-} //end of the function AAS_DrawPlaneCross
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -264,21 +264,21 @@ void AAS_ShowBoundingBox(vector3 *origin, vector3 *mins, vector3 *maxs) {
 				lines[j++] = debuglines[line];
 				debuglinevisible[line] = qtrue;
 				numdebuglines++;
-			} //end if
+			}
 			else if (!debuglinevisible[line])
 			{
 				lines[j++] = debuglines[line];
 				debuglinevisible[line] = qtrue;
-			} //end else
-		} //end for
+			}
+		}
 		//top plane
 		botimport.DebugLineShow( lines[0], &bboxcorners[i],		&bboxcorners[(i+1)&3],		LINECOLOR_RED );
 		//bottom plane
 		botimport.DebugLineShow( lines[1], &bboxcorners[4+i],	&bboxcorners[4+((i+1)&3)],	LINECOLOR_RED );
 		//vertical lines
 		botimport.DebugLineShow( lines[2], &bboxcorners[i],		&bboxcorners[4+i],			LINECOLOR_RED );
-	} //end for
-} //end of the function AAS_ShowBoundingBox
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -297,7 +297,7 @@ void AAS_ShowFace(int facenum) {
 	if (facenum >= aasworld.numfaces)
 	{
 		botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
-	} //end if
+	}
 	face = &aasworld.faces[facenum];
 	//walk through the edges of the face
 	for (i = 0; i < face->numedges; i++)
@@ -308,21 +308,21 @@ void AAS_ShowFace(int facenum) {
 		if (edgenum >= aasworld.numedges)
 		{
 			botimport.Print(PRT_ERROR, "edgenum %d out of range\n", edgenum);
-		} //end if
+		}
 		edge = &aasworld.edges[edgenum];
 		if (color == LINECOLOR_RED) color = LINECOLOR_GREEN;
 		else if (color == LINECOLOR_GREEN) color = LINECOLOR_BLUE;
 		else if (color == LINECOLOR_BLUE) color = LINECOLOR_YELLOW;
 		else color = LINECOLOR_RED;
 		AAS_DebugLine(&aasworld.vertexes[edge->v[0]], &aasworld.vertexes[edge->v[1]], color);
-	} //end for
+	}
 	plane = &aasworld.planes[face->planenum];
 	edgenum = abs(aasworld.edgeindex[face->firstedge]);
 	edge = &aasworld.edges[edgenum];
 	VectorCopy(&aasworld.vertexes[edge->v[0]], &start);
 	VectorMA(&start, 20, &plane->normal, &end);
 	AAS_DebugLine(&start, &end, LINECOLOR_RED);
-} //end of the function AAS_ShowFace
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -339,7 +339,7 @@ void AAS_ShowFacePolygon(int facenum, int color, int flip) {
 	if (facenum >= aasworld.numfaces)
 	{
 		botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
-	} //end if
+	}
 	face = &aasworld.faces[facenum];
 	//walk through the edges of the face
 	numpoints = 0;
@@ -352,8 +352,8 @@ void AAS_ShowFacePolygon(int facenum, int color, int flip) {
 			edge = &aasworld.edges[abs(edgenum)];
 			VectorCopy(&aasworld.vertexes[edge->v[edgenum < 0]], &points[numpoints]);
 			numpoints++;
-		} //end for
-	} //end if
+		}
+	}
 	else
 	{
 		for (i = 0; i < face->numedges; i++)
@@ -363,10 +363,10 @@ void AAS_ShowFacePolygon(int facenum, int color, int flip) {
 			edge = &aasworld.edges[abs(edgenum)];
 			VectorCopy(&aasworld.vertexes[edge->v[edgenum < 0]], &points[numpoints]);
 			numpoints++;
-		} //end for
-	} //end else
+		}
+	}
 	AAS_ShowPolygon(color, numpoints, points);
-} //end of the function AAS_ShowFacePolygon
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -389,7 +389,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 		botimport.Print(PRT_ERROR, "area %d out of range [0, %d]\n",
 								areanum, aasworld.numareas);
 		return;
-	} //end if
+	}
 	//pointer to the convex area
 	area = &aasworld.areas[areanum];
 	//walk through the faces of the area
@@ -400,13 +400,13 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 		if (facenum >= aasworld.numfaces)
 		{
 			botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
-		} //end if
+		}
 		face = &aasworld.faces[facenum];
 		//ground faces only
 		if (groundfacesonly)
 		{
 			if (!(face->faceflags & (FACE_GROUND | FACE_LADDER))) continue;
-		} //end if
+		}
 		//walk through the edges of the face
 		for (j = 0; j < face->numedges; j++)
 		{
@@ -416,19 +416,19 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 			if (edgenum >= aasworld.numedges)
 			{
 				botimport.Print(PRT_ERROR, "edgenum %d out of range\n", edgenum);
-			} //end if
+			}
 			//check if the edge is stored already
 			for (n = 0; n < numareaedges; n++)
 			{
 				if (areaedges[n] == edgenum) break;
-			} //end for
+			}
 			if (n == numareaedges && numareaedges < MAX_DEBUGLINES)
 			{
 				areaedges[numareaedges++] = edgenum;
-			} //end if
-		} //end for
+			}
+		}
 		//AAS_ShowFace(facenum);
-	} //end for
+	}
 	//draw all the edges
 	for (n = 0; n < numareaedges; n++)
 	{
@@ -439,12 +439,12 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 				debuglines[line] = botimport.DebugLineCreate();
 				debuglinevisible[line] = qfalse;
 				numdebuglines++;
-			} //end if
+			}
 			if (!debuglinevisible[line])
 			{
 				break;
-			} //end else
-		} //end for
+			}
+		}
 		if (line >= MAX_DEBUGLINES) return;
 		edge = &aasworld.edges[areaedges[n]];
 		if (color == LINECOLOR_RED) color = LINECOLOR_BLUE;
@@ -456,8 +456,8 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 									&aasworld.vertexes[edge->v[1]],
 									color);
 		debuglinevisible[line] = qtrue;
-	} //end for*/
-} //end of the function AAS_ShowArea
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -475,7 +475,7 @@ void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly) {
 		botimport.Print(PRT_ERROR, "area %d out of range [0, %d]\n",
 								areanum, aasworld.numareas);
 		return;
-	} //end if
+	}
 	//pointer to the convex area
 	area = &aasworld.areas[areanum];
 	//walk through the faces of the area
@@ -486,16 +486,16 @@ void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly) {
 		if (facenum >= aasworld.numfaces)
 		{
 			botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
-		} //end if
+		}
 		face = &aasworld.faces[facenum];
 		//ground faces only
 		if (groundfacesonly)
 		{
 			if (!(face->faceflags & (FACE_GROUND | FACE_LADDER))) continue;
-		} //end if
+		}
 		AAS_ShowFacePolygon(facenum, color, face->frontarea != areanum);
-	} //end for
-} //end of the function AAS_ShowAreaPolygons
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -513,8 +513,8 @@ void AAS_DrawCross(vector3 *origin, float size, int color) {
 		VectorCopy(origin, &end);
 		end.data[i] -= size;
 		AAS_DebugLine(&start, &end, color);
-	} //end for
-} //end of the function AAS_DrawCross
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -547,7 +547,7 @@ void AAS_PrintTravelType(int traveltype) {
 	} //end switch
 	botimport.Print(PRT_MESSAGE, "%s", str);
 #endif
-} //end of the function AAS_PrintTravelType
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -572,7 +572,7 @@ void AAS_DrawArrow(vector3 *start, vector3 *end, int linecolor, int arrowcolor) 
 	AAS_DebugLine(start, end, linecolor);
 	AAS_DebugLine(&p1, end, arrowcolor);
 	AAS_DebugLine(&p2, end, arrowcolor);
-} //end of the function AAS_DrawArrow
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -611,8 +611,8 @@ void AAS_ShowReachability(aas_reachability_t *reach) {
 		{
 			AAS_JumpReachRunStart(reach, &dir);
 			AAS_DrawCross(&dir, 4, LINECOLOR_BLUE);
-		} //end if
-	} //end if
+		}
+	}
 	else if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_ROCKETJUMP)
 	{
 		zvel = AAS_RocketJumpZVelocity(&reach->start);
@@ -630,7 +630,7 @@ void AAS_ShowReachability(aas_reachability_t *reach) {
 									SE_ENTERWATER|SE_ENTERSLIME|
 									SE_ENTERLAVA|SE_HITGROUNDDAMAGE|
 									SE_TOUCHJUMPPAD|SE_HITGROUNDAREA, reach->areanum, qtrue);
-	} //end else if
+	}
 	else if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_JUMPPAD)
 	{
 		VectorSet(&cmdmove, 0, 0, 0);
@@ -649,8 +649,8 @@ void AAS_ShowReachability(aas_reachability_t *reach) {
 									SE_ENTERWATER|SE_ENTERSLIME|
 									SE_ENTERLAVA|SE_HITGROUNDDAMAGE|
 									SE_TOUCHJUMPPAD|SE_HITGROUNDAREA, reach->areanum, qtrue);
-	} //end else if
-} //end of the function AAS_ShowReachability
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -667,7 +667,7 @@ void AAS_ShowReachableAreas(int areanum) {
 	{
 		index = 0;
 		lastareanum = areanum;
-	} //end if
+	}
 	settings = &aasworld.areasettings[areanum];
 	//
 	if (!settings->numreachableareas) return;
@@ -681,9 +681,9 @@ void AAS_ShowReachableAreas(int areanum) {
 		lasttime = AAS_Time();
 		AAS_PrintTravelType(reach.traveltype & TRAVELTYPE_MASK);
 		botimport.Print(PRT_MESSAGE, "\n");
-	} //end if
+	}
 	AAS_ShowReachability(&reach);
-} //end of the function ShowReachableAreas
+}
 
 void AAS_FloodAreas_r(int areanum, int cluster, int *done) {
 	int nextareanum, i, facenum;
@@ -715,7 +715,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done) {
 		if (AAS_AreaCluster(nextareanum) != cluster)
 			continue;
 		AAS_FloodAreas_r(nextareanum, cluster, done);
-	} //end for
+	}
 	//
 	for (i = 0; i < settings->numreachableareas; i++)
 	{

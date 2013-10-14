@@ -765,7 +765,7 @@ void CM_AddFacetBevels( facet_t *facet ) {
 					{
 						VectorNegate((vector3 *)&newplane, (vector3 *)&newplane);
 						newplane.w = -newplane.w;
-					} //end if
+					}
 					ChopWindingInPlace( &w2, (vector3 *)&newplane, newplane.w, 0.1f );
 					if (!w2) {
 						Com_DPrintf("WARNING: CM_AddFacetBevels... invalid bevel\n");
@@ -1463,7 +1463,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 			{
 				if (plane.data[n] > 0) v1.data[n] = maxs.data[n];
 				else v1.data[n] = mins.data[n];
-			} //end for
+			}
 			VectorNegate((vector3 *)&plane, &v2);
 			plane.w += fabsf(DotProduct(&v1, &v2));
 			//*/
@@ -1495,7 +1495,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, vector3 *po
 				{
 					if (plane.data[n] > 0) v1.data[n] = maxs.data[n];
 					else v1.data[n] = mins.data[n];
-				} //end for
+				}
 				VectorNegate((vector3 *)&plane, &v2);
 				plane.w -= fabsf(DotProduct(&v1, &v2));
 

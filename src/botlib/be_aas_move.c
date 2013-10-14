@@ -63,7 +63,7 @@ int AAS_DropToFloor(vector3 *origin, vector3 *mins, vector3 *maxs) {
 	if (trace.startsolid) return qfalse;
 	VectorCopy(&trace.endpos, origin);
 	return qtrue;
-} //end of the function AAS_DropToFloor
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -110,7 +110,7 @@ void AAS_InitSettings( void ) {
 	aassettings.rs_falldamage10				= LibVarValue("rs_falldamage10", "500");
 	aassettings.rs_maxfallheight			= LibVarValue("rs_maxfallheight", "0");
 	aassettings.rs_maxjumpfallheight		= LibVarValue("rs_maxjumpfallheight", "450");
-} //end of the function AAS_InitSettings
+}
 //===========================================================================
 // returns qtrue if the bot is against a ladder
 //
@@ -143,10 +143,10 @@ int AAS_AgainstLadder(vector3 *origin) {
 				{
 					org.y -= 2;
 					areanum = AAS_PointAreaNum(&org);
-				} //end if
-			} //end if
-		} //end if
-	} //end if
+				}
+			}
+		}
+	}
 	//if in solid... wrrr shouldn't happen
 	if (!areanum) return qfalse;
 	//if not in a ladder area
@@ -168,10 +168,10 @@ int AAS_AgainstLadder(vector3 *origin) {
 		if (fabsf(DotProduct(&plane->normal, origin) - plane->dist) < 3)
 		{
 			if (AAS_PointInsideFace(abs(facenum), origin, 0.1f)) return qtrue;
-		} //end if
-	} //end for
+		}
+	}
 	return qfalse;
-} //end of the function AAS_AgainstLadder
+}
 //===========================================================================
 // returns qtrue if the bot is on the ground
 //
@@ -200,7 +200,7 @@ int AAS_OnGround(vector3 *origin, int presencetype, int passent) {
 	if (DotProduct(&plane->normal, &up) < aassettings.phys_maxsteepness) return qfalse;
 	//the bot is on the ground
 	return qtrue;
-} //end of the function AAS_OnGround
+}
 //===========================================================================
 // returns qtrue if a bot at the given position is swimming
 //
@@ -215,7 +215,7 @@ int AAS_Swimming(vector3 *origin) {
 	testorg.z -= 2;
 	if (AAS_PointContents(&testorg) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) return qtrue;
 	return qfalse;
-} //end of the function AAS_Swimming
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -231,16 +231,16 @@ void AAS_SetMovedir(vector3 *angles, vector3 *movedir) {
 	if (VectorCompare(angles, &VEC_UP))
 	{
 		VectorCopy(&MOVEDIR_UP, movedir);
-	} //end if
+	}
 	else if (VectorCompare(angles, &VEC_DOWN))
 	{
 		VectorCopy(&MOVEDIR_DOWN, movedir);
-	} //end else if
+	}
 	else
 	{
 		AngleVectors(angles, movedir, NULL, NULL);
-	} //end else
-} //end of the function AAS_SetMovedir
+	}
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -271,8 +271,8 @@ void AAS_JumpReachRunStart(aas_reachability_t *reach, vector3 *runstart) {
 	if (move.stopevent & (SE_ENTERSLIME|SE_ENTERLAVA|SE_HITGROUNDDAMAGE))
 	{
 		VectorCopy(&start, runstart);
-	} //end if
-} //end of the function AAS_JumpReachRunStart
+	}
+}
 //===========================================================================
 // returns the Z velocity when rocket jumping at the origin
 //
@@ -323,7 +323,7 @@ float AAS_WeaponJumpZVelocity(vector3 *origin, float radiusdamage) {
 	VectorScale(&dir, 1600.0f * (float)knockback / mass, &kvel);	//the rocket jump hack...
 	//rocket impact velocity + jump velocity
 	return kvel.z + aassettings.phys_jumpvel;
-} //end of the function AAS_WeaponJumpZVelocity
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -333,7 +333,7 @@ float AAS_WeaponJumpZVelocity(vector3 *origin, float radiusdamage) {
 float AAS_RocketJumpZVelocity(vector3 *origin) {
 	//rocket radius damage is 120 (p_weapon.c: Weapon_RocketLauncher_Fire)
 	return AAS_WeaponJumpZVelocity(origin, 120);
-} //end of the function AAS_RocketJumpZVelocity
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -343,7 +343,7 @@ float AAS_RocketJumpZVelocity(vector3 *origin) {
 float AAS_BFGJumpZVelocity(vector3 *origin) {
 	//bfg radius damage is 1000 (p_weapon.c: weapon_bfg_fire)
 	return AAS_WeaponJumpZVelocity(origin, 120);
-} //end of the function AAS_BFGJumpZVelocity
+}
 //===========================================================================
 // applies ground friction to the given velocity
 //
@@ -369,7 +369,7 @@ void AAS_Accelerate(vector3 *velocity, float frametime, vector3 *wishdir, float 
 	for (i=0 ; i<3 ; i++) {
 		velocity->data[i] += accelspeed*wishdir->data[i];	
 	}
-} //end of the function AAS_Accelerate
+}
 //===========================================================================
 // applies ground friction to the given velocity
 //
@@ -390,8 +390,8 @@ void AAS_ApplyFriction(vector3 *vel, float friction, float stopspeed, float fram
 		newspeed /= speed;
 		vel->x *= newspeed;
 		vel->y *= newspeed;
-	} //end if
-} //end of the function AAS_ApplyFriction
+	}
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -413,7 +413,7 @@ int AAS_ClipToBBox(aas_trace_t *trace, vector3 *start, vector3 *end, int presenc
 	{
 		if (start->data[i] < absmins.data[i] && end->data[i] < absmins.data[i]) return qfalse;
 		if (start->data[i] > absmaxs.data[i] && end->data[i] > absmaxs.data[i]) return qfalse;
-	} //end for
+	}
 	//check bounding box collision
 	VectorSubtract(end, start, &dir);
 	frac = 1;
@@ -440,9 +440,9 @@ int AAS_ClipToBBox(aas_trace_t *trace, vector3 *start, vector3 *end, int presenc
 			{
 				mid.data[i] = planedist;
 				break;
-			} //end if
-		} //end if
-	} //end for
+			}
+		}
+	}
 	//if there was a collision
 	if (i != 3)
 	{
@@ -455,9 +455,9 @@ int AAS_ClipToBBox(aas_trace_t *trace, vector3 *start, vector3 *end, int presenc
 		//trace endpos
 		VectorMA( start, frac, &dir, &trace->endpos );
 		return qtrue;
-	} //end if
+	}
 	return qfalse;
-} //end of the function AAS_ClipToBBox
+}
 //===========================================================================
 // predicts the movement
 // assumes regular bounding box sizes
@@ -544,7 +544,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 			VectorScale(&frame_test_vel, 1/frametime, &frame_test_vel);
 			AAS_ApplyFriction(&frame_test_vel, friction, phys_stopspeed, frametime);
 			VectorScale(&frame_test_vel, frametime, &frame_test_vel);
-		} //end if
+		}
 		crouch = qfalse;
 		//apply command movement
 		if (n < cmdframes)
@@ -559,7 +559,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				{
 					crouch = qtrue;
 					maxvel = phys_maxcrouchvelocity;
-				} //end if
+				}
 				//if not swimming and upmove is positive then jump
 				if (!swimming && cmdmove->z > 1)
 				{
@@ -568,23 +568,23 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 					jump_frame = n;
 					//jumping so air accelerate
 					accelerate = phys_airaccelerate;
-				} //end if
+				}
 				else
 				{
 					accelerate = phys_walkaccelerate;
-				} //end else
+				}
 				//ax = 2;
-			} //end if
+			}
 			if (swimming)
 			{
 				maxvel = phys_maxswimvelocity;
 				accelerate = phys_swimaccelerate;
 				//ax = 3;
-			} //end if
+			}
 			else
 			{
 				wishdir.z = 0;
-			} //end else
+			}
 			//
 			wishspeed = VectorNormalize(&wishdir);
 			if (wishspeed > maxvel) wishspeed = maxvel;
@@ -602,20 +602,20 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				if (frame_test_vel[i] <= maxvel && newvel > maxvel) frame_test_vel[i] = maxvel;
 				else if (frame_test_vel[i] >= -maxvel && newvel < -maxvel) frame_test_vel[i] = -maxvel;
 				else frame_test_vel[i] = newvel;
-			} //end for
+			}
 			*/
-		} //end if
+		}
 		if (crouch)
 		{
 			presencetype = PRESENCE_CROUCH;
-		} //end if
+		}
 		else if (presencetype == PRESENCE_CROUCH)
 		{
 			if (AAS_PointPresenceType(&org) & PRESENCE_NORMAL)
 			{
 				presencetype = PRESENCE_NORMAL;
-			} //end if
-		} //end else
+			}
+		}
 		//save the current origin
 		VectorCopy(&org, &lastorg);
 		//move linear during one frame
@@ -632,7 +632,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 			{
 				if (trace.startsolid) botimport.Print(PRT_MESSAGE, "PredictMovement: start solid\n");
 				AAS_DebugLine(&org, &trace.endpos, LINECOLOR_RED);
-			} //end if
+			}
 //#endif //AAS_MOVE_DEBUG
 			//
 			if (stopevent & (SE_ENTERAREA|SE_TOUCHJUMPPAD|SE_TOUCHTELEPORTER|SE_TOUCHCLUSTERPORTAL))
@@ -654,8 +654,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							move->time = n * frametime;
 							move->frames = n;
 							return qtrue;
-						} //end if
-					} //end if
+						}
+					}
 					//NOTE: if not the first frame
 					if ((stopevent & SE_TOUCHJUMPPAD) && n)
 					{
@@ -671,8 +671,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							move->time = n * frametime;
 							move->frames = n;
 							return qtrue;
-						} //end if
-					} //end if
+						}
+					}
 					if (stopevent & SE_TOUCHTELEPORTER)
 					{
 						if (aasworld.areasettings[areas[i]].contents & AREACONTENTS_TELEPORTER)
@@ -687,8 +687,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							move->time = n * frametime;
 							move->frames = n;
 							return qtrue;
-						} //end if
-					} //end if
+						}
+					}
 					if (stopevent & SE_TOUCHCLUSTERPORTAL)
 					{
 						if (aasworld.areasettings[areas[i]].contents & AREACONTENTS_CLUSTERPORTAL)
@@ -703,10 +703,10 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							move->time = n * frametime;
 							move->frames = n;
 							return qtrue;
-						} //end if
-					} //end if
-				} //end for
-			} //end if
+						}
+					}
+				}
+			}
 			//
 			if (stopevent & SE_HITBOUNDINGBOX)
 			{
@@ -722,8 +722,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 					move->time = n * frametime;
 					move->frames = n;
 					return qtrue;
-				} //end if
-			} //end if
+				}
+			}
 			//move the entity to the trace end point
 			VectorCopy(&trace.endpos, &org);
 			//if there was a collision
@@ -750,9 +750,9 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 							move->time = n * frametime;
 							move->frames = n;
 							return qtrue;
-						} //end if
-					} //end if
-				} //end if
+						}
+					}
+				}
 				//assume there's no step
 				step = qfalse;
 				//if it is a vertical plane and the bot didn't jump recently
@@ -780,14 +780,14 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 									VectorCopy(&org, &start);
 									start.z = steptrace.endpos.z;
 									AAS_DebugLine(&org, &start, LINECOLOR_BLUE);
-								} //end if
-							} //end if
+								}
+							}
 //#endif //AAS_MOVE_DEBUG
 							org.z = steptrace.endpos.z;
 							step = qtrue;
-						} //end if
-					} //end if
-				} //end if
+						}
+					}
+				}
 				//
 				if (!step)
 				{
@@ -803,7 +803,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 					if (DotProduct(&plane->normal, &up) > phys_maxsteepness)
 					{
 						onground = qtrue;
-					} //end if
+					}
 					if (stopevent & SE_HITGROUNDDAMAGE)
 					{
 						delta = 0;
@@ -812,11 +812,11 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 								!onground)
 						{
 							delta = old_frame_test_vel.z;
-						} //end if
+						}
 						else if (onground)
 						{
 							delta = frame_test_vel.z - old_frame_test_vel.z;
-						} //end else
+						}
 						if (delta)
 						{
 							delta = delta * 10;
@@ -840,11 +840,11 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 								move->time = n * frametime;
 								move->frames = n;
 								return qtrue;
-							} //end if
-						} //end if
-					} //end if
-				} //end if
-			} //end if
+							}
+						}
+					}
+				}
+			}
 			//extra check to prevent endless loop
 			if (++j > 20) return qfalse;
 		//while there is a plane hit
@@ -881,8 +881,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				move->time = n * frametime;
 				move->frames = n;
 				return qtrue;
-			} //end if
-		} //end if
+			}
+		}
 		//
 		onground = AAS_OnGround(&org, presencetype, entnum);
 		//if onground and on the ground for at least one whole frame
@@ -900,8 +900,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				move->time = n * frametime;
 				move->frames = n;
 				return qtrue;
-			} //end if
-		} //end if
+			}
+		}
 		else if (stopevent & SE_LEAVEGROUND)
 		{
 			VectorCopy(&org, &move->endpos);
@@ -914,7 +914,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 			move->time = n * frametime;
 			move->frames = n;
 			return qtrue;
-		} //end else if
+		}
 		else if (stopevent & SE_GAP)
 		{
 			aas_trace_t gaptrace;
@@ -941,11 +941,11 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 						move->time = n * frametime;
 						move->frames = n;
 						return qtrue;
-					} //end if
-				} //end if
-			} //end if
-		} //end else if
-	} //end for
+					}
+				}
+			}
+		}
+	}
 	//
 	VectorCopy(&org, &move->endpos);
 	move->endarea = AAS_PointAreaNum(&org);
@@ -957,7 +957,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 	move->frames = n;
 	//
 	return qtrue;
-} //end of the function AAS_ClientMovementPrediction
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -977,7 +977,7 @@ int AAS_PredictClientMovement(struct aas_clientmove_s *move,
 										velocity, cmdmove, cmdframes, maxframes,
 										frametime, stopevent, stopareanum,
 										&mins, &maxs, visualize);
-} //end of the function AAS_PredictClientMovement
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -996,7 +996,7 @@ int AAS_ClientMovementHitBBox(struct aas_clientmove_s *move,
 										velocity, cmdmove, cmdframes, maxframes,
 										frametime, SE_HITBOUNDINGBOX, 0,
 										mins, maxs, visualize);
-} //end of the function AAS_ClientMovementHitBBox
+}
 //===========================================================================
 //
 // Parameter:			-
@@ -1018,8 +1018,8 @@ void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir) {
 	if (move.stopevent & SE_LEAVEGROUND)
 	{
 		botimport.Print(PRT_MESSAGE, "leave ground\n");
-	} //end if
-} //end of the function TestMovementPrediction
+	}
+}
 //===========================================================================
 // calculates the horizontal velocity needed to perform a jump from start
 // to end
@@ -1050,7 +1050,7 @@ int AAS_HorizontalVelocityForJump(float zvel, vector3 *start, vector3 *end, floa
 	{
 		*velocity = phys_maxvelocity;
 		return 0;
-	} //end if
+	}
 	//time a player takes to fall the height
 	t = sqrtf(height2fall / (0.5f * phys_gravity));
   	//direction from start to end
@@ -1067,6 +1067,6 @@ int AAS_HorizontalVelocityForJump(float zvel, vector3 *start, vector3 *end, floa
 	{
 		*velocity = phys_maxvelocity;
 		return 0;
-	} //end if
+	}
 	return 1;
-} //end of the function AAS_HorizontalVelocityForJump
+}

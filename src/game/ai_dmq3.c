@@ -1801,7 +1801,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		{
 			//if this enemy is further away than the current one
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
-		} //end if
+		}
 		//if the bot has no
 		if (squaredist > Square(900.0f + alertness * 4000.0f)) continue;
 		//if on the same team
@@ -2550,7 +2550,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 				{
 					if ( movedir.data[i] < 0 )	activategoal->goal.maxs.data[i] += fabsf(movedir.data[i]) * fabsf(extramaxs.data[i]);
 					else						activategoal->goal.mins.data[i] += fabsf(movedir.data[i]) * fabsf(extramins.data[i]);
-				} //end for
+				}
 				//
 				activategoal->goal.entitynum = entitynum;
 				activategoal->goal.number = 0;
@@ -2592,7 +2592,7 @@ int BotFuncButtonActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *a
 			{
 				if ( movedir.data[i] < 0 )	activategoal->goal.maxs.data[i] += fabsf(movedir.data[i]) * fabsf(extramaxs.data[i]);
 				else						activategoal->goal.mins.data[i] += fabsf(movedir.data[i]) * fabsf(extramins.data[i]);
-			} //end for
+			}
 			//
 			activategoal->goal.entitynum = entitynum;
 			activategoal->goal.number = 0;

@@ -954,7 +954,7 @@ void BotMatch_LeaveSubteam(bot_state_t *bs, bot_match_t *match) {
 		trap->ai->BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 		client = ClientFromName(netname);
 		trap->ai->BotEnterChat(bs->cs, client, CHAT_TELL);
-	} //end if
+	}
 	strcpy(bs->subteam, "");
 }
 
