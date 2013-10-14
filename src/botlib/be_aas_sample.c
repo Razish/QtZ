@@ -792,12 +792,6 @@ int AAS_TraceAreas(vector3 *start, vector3 *end, int *areas, vector3 *points, in
 //	return numareas;
 }
 
-void AAS_OrthogonalToVectors( const vector3 *v1, const vector3 *v2, vector3 *res ) {
-	res->x = (v1->y * v2->z) - (v1->z * v2->y);
-	res->y = (v1->z * v2->x) - (v1->x * v2->z);
-	res->z = (v1->x * v2->y) - (v1->y * v2->x);
-}
-
 // tests if the given point is within the face boundaries
 // returns qtrue if the point is within the face boundaries
 //	face	face to test if the point is in it
@@ -838,7 +832,7 @@ qboolean AAS_InsideFace(aas_face_t *face, vector3 *pnormal, vector3 *point, floa
 		//this vector defines a plane through the origin (first vertex of
 		//edge) and through both the edge vector and the normal vector
 		//of the plane
-		AAS_OrthogonalToVectors(&edgevec, pnormal, &sepnormal);
+		CrossProduct(&edgevec, pnormal, &sepnormal);
 		//check on wich side of the above plane the point is
 		//this is done by checking the sign of the dot product of the
 		//vector orthogonal vector from above and the vector from the
