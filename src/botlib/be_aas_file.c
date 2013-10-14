@@ -45,12 +45,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define AASFILEDEBUG
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_SwapAASData( void ) {
 	int i, j;
 	//bounding boxes
@@ -172,13 +166,8 @@ void AAS_SwapAASData( void ) {
 		aasworld.clusters[i].firstportal = LittleLong(aasworld.clusters[i].firstportal);
 	}
 }
-//===========================================================================
+
 // dump the current loaded aas file
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_DumpAASData( void ) {
 	aasworld.numbboxes = 0;
 	if (aasworld.bboxes) FreeMemory(aasworld.bboxes);
@@ -228,12 +217,7 @@ void AAS_DumpAASData( void ) {
 	aasworld.initialized = qfalse;
 	aasworld.savefile = qfalse;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 #ifdef AASFILEDEBUG
 void AAS_FileInfo( void ) {
 	int i, n, optimized;
@@ -277,13 +261,8 @@ void AAS_FileInfo( void ) {
 	botimport.Print(PRT_MESSAGE, "optimzed size %d KB\n", optimized >> 10);
 }
 #endif //AASFILEDEBUG
-//===========================================================================
+
 // allocate memory and read a lump of an AAS file
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, size_t size) {
 	char *buf;
 	//
@@ -314,12 +293,7 @@ char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, 
 	}
 	return buf;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DData(unsigned char *data, size_t size) {
 	size_t i;
 
@@ -328,13 +302,8 @@ void AAS_DData(unsigned char *data, size_t size) {
 		data[i] ^= (unsigned char) i * 119;
 	}
 }
-//===========================================================================
+
 // load an aas file
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_LoadAASFile(char *filename) {
 	fileHandle_t fp;
 	aas_header_t header;
@@ -481,12 +450,7 @@ int AAS_LoadAASFile(char *filename) {
 	//
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 static int AAS_WriteAASLump_offset;
 
 int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, int length) {
@@ -506,13 +470,8 @@ int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, 
 
 	return qtrue;
 }
-//===========================================================================
+
 // aas data is useless after writing to file because it is byte swapped
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 qboolean AAS_WriteAASFile(char *filename) {
 	aas_header_t header;
 	fileHandle_t fp;

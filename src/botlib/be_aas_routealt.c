@@ -57,12 +57,6 @@ midrangearea_t *midrangeareas;
 int *clusterareas;
 int numclusterareas;
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_AltRoutingFloodCluster_r(int areanum) {
 	int i, otherareanum;
 	aas_area_t *area;
@@ -89,12 +83,7 @@ void AAS_AltRoutingFloodCluster_r(int areanum) {
 		AAS_AltRoutingFloodCluster_r(otherareanum);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, int goalareanum, int travelflags,
 										 aas_altroutegoal_t *altroutegoals, int maxaltroutegoals,
 										 int type)
@@ -206,12 +195,7 @@ int AAS_AlternativeRouteGoals(vector3 *start, int startareanum, vector3 *goal, i
 	return numaltroutegoals;
 #endif
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_InitAlternativeRouting( void ) {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);
@@ -220,12 +204,7 @@ void AAS_InitAlternativeRouting( void ) {
 	clusterareas = (int *) GetMemory(aasworld.numareas * sizeof(int));
 #endif
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShutdownAlternativeRouting( void ) {
 #ifdef ENABLE_ALTROUTING
 	if (midrangeareas) FreeMemory(midrangeareas);

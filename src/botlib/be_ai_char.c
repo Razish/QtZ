@@ -76,12 +76,6 @@ typedef struct bot_character_s
 
 bot_character_t *botcharacters[MAX_CLIENTS + 1];
 
-//========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//========================================================================
 bot_character_t *BotCharacterFromHandle(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
@@ -95,12 +89,7 @@ bot_character_t *BotCharacterFromHandle(int handle) {
 	}
 	return botcharacters[handle];
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void BotDumpCharacter(bot_character_t *ch) {
 	int i;
 
@@ -118,12 +107,7 @@ void BotDumpCharacter(bot_character_t *ch) {
 	}
 	Log_Write("}\n");
 }
-//========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//========================================================================
+
 void BotFreeCharacterStrings(bot_character_t *ch) {
 	int i;
 
@@ -135,12 +119,7 @@ void BotFreeCharacterStrings(bot_character_t *ch) {
 		}
 	}
 }
-//========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//========================================================================
+
 void BotFreeCharacter2(int handle) {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
@@ -156,22 +135,12 @@ void BotFreeCharacter2(int handle) {
 	FreeMemory(botcharacters[handle]);
 	botcharacters[handle] = NULL;
 }
-//========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//========================================================================
+
 void BotFreeCharacter(int handle) {
 	if (!LibVarGetValue("bot_reloadcharacters")) return;
 	BotFreeCharacter2(handle);
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch) {
 	int i;
 
@@ -197,12 +166,7 @@ void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch) 
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill) {
 	int indent, index, foundcharacter;
 	bot_character_t *ch;
@@ -346,12 +310,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill) {
 	}
 	return ch;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int BotFindCachedCharacter(char *charfile, float skill) {
 	int handle;
 
@@ -366,12 +325,7 @@ int BotFindCachedCharacter(char *charfile, float skill) {
 	}
 	return 0;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int BotLoadCachedCharacter(char *charfile, float skill, int reload) {
 	int handle, cachedhandle, intskill;
 	bot_character_t *ch = NULL;
@@ -478,12 +432,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload) {
 	//couldn't load any character
 	return 0;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int BotLoadCharacterSkill(char *charfile, float skill) {
 	int ch, defaultch;
 
@@ -497,12 +446,7 @@ int BotLoadCharacterSkill(char *charfile, float skill) {
 
 	return ch;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int BotInterpolateCharacters(int handle1, int handle2, float desiredskill) {
 	bot_character_t *ch1, *ch2, *out;
 	int i, handle;
@@ -548,12 +492,7 @@ int BotInterpolateCharacters(int handle1, int handle2, float desiredskill) {
 	}
 	return handle;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int BotLoadCharacter(char *charfile, float skill) {
 	int firstskill, secondskill, handle;
 
@@ -596,12 +535,7 @@ int BotLoadCharacter(char *charfile, float skill) {
 	//
 	return handle;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int CheckCharacteristicIndex(int character, int index) {
 	bot_character_t *ch;
 
@@ -619,12 +553,7 @@ int CheckCharacteristicIndex(int character, int index) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 float Characteristic_Float(int character, int index) {
 	bot_character_t *ch;
 
@@ -650,12 +579,7 @@ float Characteristic_Float(int character, int index) {
 	}
 //	return 0;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 float Characteristic_BFloat(int character, int index, float min, float max) {
 	float value;
 	bot_character_t *ch;
@@ -672,12 +596,7 @@ float Characteristic_BFloat(int character, int index, float min, float max) {
 	if (value > max) return max;
 	return value;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int Characteristic_Integer(int character, int index) {
 	bot_character_t *ch;
 
@@ -702,12 +621,7 @@ int Characteristic_Integer(int character, int index) {
 	}
 //	return 0;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int Characteristic_BInteger(int character, int index, int min, int max) {
 	int value;
 	bot_character_t *ch;
@@ -724,12 +638,7 @@ int Characteristic_BInteger(int character, int index, int min, int max) {
 	if (value > max) return max;
 	return value;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void Characteristic_String(int character, int index, char *buf, size_t size) {
 	bot_character_t *ch;
 
@@ -751,12 +660,7 @@ void Characteristic_String(int character, int index, char *buf, size_t size) {
 	}
 	return;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void BotShutdownCharacters( void ) {
 	int handle;
 

@@ -51,12 +51,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define qfalse	false
 #endif //BSPC
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 fielddef_t *FindField(fielddef_t *defs, char *name) {
 	int i;
 
@@ -66,12 +60,7 @@ fielddef_t *FindField(fielddef_t *defs, char *name) {
 	}
 	return NULL;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p) {
 	token_t token;
 	int negative = qfalse;
@@ -180,12 +169,7 @@ qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p) {
 	}
 	return 1;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ReadChar(source_t *source, fielddef_t *fd, void *p) {
 	token_t token;
 
@@ -204,12 +188,7 @@ qboolean ReadChar(source_t *source, fielddef_t *fd, void *p) {
 	}
 	return 1;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int ReadString(source_t *source, fielddef_t *fd, void *p) {
 	token_t token;
 
@@ -223,12 +202,7 @@ int ReadString(source_t *source, fielddef_t *fd, void *p) {
 	//
 	return 1;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int ReadStructure(source_t *source, structdef_t *def, char *structure) {
 	token_t token;
 	fielddef_t *fd;
@@ -316,12 +290,7 @@ int ReadStructure(source_t *source, structdef_t *def, char *structure) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteIndent(FILE *fp, int indent) {
 	while(indent-- > 0)
 	{
@@ -329,12 +298,7 @@ int WriteIndent(FILE *fp, int indent) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteFloat(FILE *fp, float value) {
 	char buf[128];
 	size_t l;
@@ -356,12 +320,7 @@ int WriteFloat(FILE *fp, float value) {
 	if (fprintf(fp, "%s", buf) < 0) return 0;
 	return 1;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int indent) {
 	int i, num;
 	void *p;
@@ -441,12 +400,7 @@ int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int inden
 	if (fprintf(fp, "}\r\n") < 0) return qfalse;
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteStructure(FILE *fp, structdef_t *def, char *structure) {
 	return WriteStructWithIndent(fp, def, structure, 0);
 }

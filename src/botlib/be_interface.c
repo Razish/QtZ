@@ -68,21 +68,10 @@ int botlibsetup = qfalse;
 //
 //===========================================================================
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int Sys_MilliSeconds( void ) {
 	return clock() * 1000 / CLOCKS_PER_SEC;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ValidClientNumber(int num, char *str) {
 	if (num < 0 || num > botlibglobals.maxclients)
 	{
@@ -93,12 +82,7 @@ qboolean ValidClientNumber(int num, char *str) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ValidEntityNumber(int num, char *str) {
 	if (num < 0 || num > botlibglobals.maxentities)
 	{
@@ -108,12 +92,7 @@ qboolean ValidEntityNumber(int num, char *str) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean BotLibSetup(char *str) {
 	if (!botlibglobals.botlibsetup)
 	{
@@ -123,12 +102,6 @@ qboolean BotLibSetup(char *str) {
 	return qtrue;
 }
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int Export_BotLibSetup( void ) {
 	int		errnum;
 	
@@ -184,12 +157,7 @@ int Export_BotLibSetup( void ) {
 
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibShutdown( void ) {
 	if (!BotLibSetup("BotLibShutdown")) return BLERR_LIBRARYNOTSETUP;
 #ifndef DEMO
@@ -226,22 +194,12 @@ int Export_BotLibShutdown( void ) {
 	//
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibVarSet(char *name, char *value) {
 	LibVarSet(name, value);
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibVarGet(char *name, char *value, size_t size) {
 	char *varvalue;
 
@@ -250,22 +208,12 @@ int Export_BotLibVarGet(char *name, char *value, size_t size) {
 	value[size-1] = '\0';
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibStartFrame(float time) {
 	if (!BotLibSetup("BotStartFrame")) return BLERR_LIBRARYNOTSETUP;
 	return AAS_StartFrame(time);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibLoadMap(const char *mapname) {
 #ifdef DEBUG
 	int starttime = Sys_MilliSeconds();
@@ -289,24 +237,14 @@ int Export_BotLibLoadMap(const char *mapname) {
 	//
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state) {
 	if (!BotLibSetup("BotUpdateEntity")) return BLERR_LIBRARYNOTSETUP;
 	if (!ValidEntityNumber(ent, "BotUpdateEntity")) return BLERR_INVALIDENTITYNUMBER;
 
 	return AAS_UpdateEntity(ent, state);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_TestMovementPrediction(int entnum, vector3 *origin, vector3 *dir);
 void ElevatorBottomCenter(aas_reachability_t *reach, vector3 *bottomcenter);
 int BotGetReachabilityToGoal(vector3 *origin, int areanum,

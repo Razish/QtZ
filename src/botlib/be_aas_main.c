@@ -48,12 +48,6 @@ aas_t aasworld;
 
 libvar_t *saveroutingcache;
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void QDECL AAS_Error(char *fmt, ...) {
 	char str[1024];
 	va_list arglist;
@@ -63,30 +57,15 @@ void QDECL AAS_Error(char *fmt, ...) {
 	va_end(arglist);
 	botimport.Print(PRT_FATAL, "%s", str);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_Loaded( void ) {
 	return aasworld.loaded;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_Initialized( void ) {
 	return aasworld.initialized;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_SetInitialized( void ) {
 	aasworld.initialized = qtrue;
 	botimport.Print(PRT_MESSAGE, "AAS initialized.\n");
@@ -97,12 +76,7 @@ void AAS_SetInitialized( void ) {
 	//AAS_RoutingInfo();
 #endif
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ContinueInit(float time) {
 	//if no AAS file loaded
 	if (!aasworld.loaded) return;
@@ -133,13 +107,8 @@ void AAS_ContinueInit(float time) {
 	//at this point AAS is initialized
 	AAS_SetInitialized();
 }
-//===========================================================================
+
 // called at the start of every frame
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_StartFrame(float time) {
 	aasworld.time = time;
 	//unlink all entities that were not updated last frame
@@ -179,21 +148,11 @@ int AAS_StartFrame(float time) {
 	aasworld.numframes++;
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 float AAS_Time( void ) {
 	return aasworld.time;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd, vector3 *vProj ) {
 	vector3 pVec, vec;
 
@@ -203,12 +162,7 @@ void AAS_ProjectPointOntoVector( vector3 *point, vector3 *vStart, vector3 *vEnd,
 	// project onto the directional vector for this segment
 	VectorMA( vStart, DotProduct( &pVec, &vec ), &vec, vProj );
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_LoadFiles(const char *mapname) {
 	int errnum;
 	char aasfile[MAX_PATH];
@@ -232,13 +186,8 @@ int AAS_LoadFiles(const char *mapname) {
 	strncpy(aasworld.filename, aasfile, MAX_PATH);
 	return BLERR_NOERROR;
 }
-//===========================================================================
+
 // called everytime a map changes
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_LoadMap(const char *mapname) {
 	int	errnum;
 
@@ -273,13 +222,8 @@ int AAS_LoadMap(const char *mapname) {
 	//everything went ok
 	return 0;
 }
-//===========================================================================
+
 // called when the library is first loaded
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Setup( void ) {
 	aasworld.maxclients = (int) LibVarValue("maxclients", "128");
 	aasworld.maxentities = (int) LibVarValue("maxentities", "1024");
@@ -296,12 +240,7 @@ int AAS_Setup( void ) {
 	aasworld.numframes = 0;
 	return BLERR_NOERROR;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_Shutdown( void ) {
 	AAS_ShutdownAlternativeRouting();
 	//

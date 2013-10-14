@@ -51,12 +51,6 @@ int numdebuglines;
 
 static int debugpolygons[MAX_DEBUGPOLYGONS];
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_ClearShownPolygons( void ) {
 	int i;
 //*
@@ -74,12 +68,7 @@ void AAS_ClearShownPolygons( void ) {
 	}
 */
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowPolygon(int color, int numpoints, vector3 *points) {
 	int i;
 
@@ -92,12 +81,7 @@ void AAS_ShowPolygon(int color, int numpoints, vector3 *points) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ClearShownDebugLines( void ) {
 	int i;
 
@@ -113,12 +97,7 @@ void AAS_ClearShownDebugLines( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DebugLine(vector3 *start, vector3 *end, int color) {
 	int line;
 
@@ -138,24 +117,14 @@ void AAS_DebugLine(vector3 *start, vector3 *end, int color) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_PermanentLine(vector3 *start, vector3 *end, int color) {
 	int line;
 
 	line = botimport.DebugLineCreate();
 	botimport.DebugLineShow(line, start, end, color);
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DrawPermanentCross(vector3 *origin, float size, int color) {
 	int i, debugline;
 	vector3 start, end;
@@ -171,12 +140,7 @@ void AAS_DrawPermanentCross(vector3 *origin, float size, int color) {
 		botimport.DebugLineShow(debugline, &start, &end, color);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DrawPlaneCross(vector3 *point, vector3 *normal, float dist, int type, int color) {
 	int n0, n1, n2, j, line, lines[2];
 	vector3 start1, end1, start2, end2;
@@ -222,12 +186,7 @@ void AAS_DrawPlaneCross(vector3 *point, vector3 *normal, float dist, int type, i
 	botimport.DebugLineShow(lines[0], &start1, &end1, color);
 	botimport.DebugLineShow(lines[1], &start2, &end2, color);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowBoundingBox(vector3 *origin, vector3 *mins, vector3 *maxs) {
 	vector3 bboxcorners[8];
 	int lines[3];
@@ -279,12 +238,7 @@ void AAS_ShowBoundingBox(vector3 *origin, vector3 *mins, vector3 *maxs) {
 		botimport.DebugLineShow( lines[2], &bboxcorners[i],		&bboxcorners[4+i],			LINECOLOR_RED );
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowFace(int facenum) {
 	int i, color, edgenum;
 	aas_edge_t *edge;
@@ -323,12 +277,7 @@ void AAS_ShowFace(int facenum) {
 	VectorMA(&start, 20, &plane->normal, &end);
 	AAS_DebugLine(&start, &end, LINECOLOR_RED);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowFacePolygon(int facenum, int color, int flip) {
 	int i, edgenum, numpoints;
 	vector3 points[128];
@@ -367,12 +316,7 @@ void AAS_ShowFacePolygon(int facenum, int color, int flip) {
 	}
 	AAS_ShowPolygon(color, numpoints, points);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowArea(int areanum, int groundfacesonly) {
 	int areaedges[MAX_DEBUGLINES];
 	int numareaedges, i, j, n, color = 0, line;
@@ -458,12 +402,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly) {
 		debuglinevisible[line] = qtrue;
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly) {
 	int i, facenum;
 	aas_area_t *area;
@@ -496,12 +435,7 @@ void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly) {
 		AAS_ShowFacePolygon(facenum, color, face->frontarea != areanum);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DrawCross(vector3 *origin, float size, int color) {
 	int i;
 	vector3 start, end;
@@ -515,12 +449,7 @@ void AAS_DrawCross(vector3 *origin, float size, int color) {
 		AAS_DebugLine(&start, &end, color);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_PrintTravelType(int traveltype) {
 #ifdef DEBUG
 	char *str;
@@ -548,12 +477,7 @@ void AAS_PrintTravelType(int traveltype) {
 	botimport.Print(PRT_MESSAGE, "%s", str);
 #endif
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_DrawArrow(vector3 *start, vector3 *end, int linecolor, int arrowcolor) {
 	vector3 dir, cross, p1, p2, up = {0, 0, 1};
 	float dot;
@@ -573,12 +497,7 @@ void AAS_DrawArrow(vector3 *start, vector3 *end, int linecolor, int arrowcolor) 
 	AAS_DebugLine(&p1, end, arrowcolor);
 	AAS_DebugLine(&p2, end, arrowcolor);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowReachability(aas_reachability_t *reach) {
 	vector3 dir, cmdmove, velocity;
 	float speed, zvel;
@@ -651,12 +570,7 @@ void AAS_ShowReachability(aas_reachability_t *reach) {
 									SE_TOUCHJUMPPAD|SE_HITGROUNDAREA, reach->areanum, qtrue);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShowReachableAreas(int areanum) {
 	aas_areasettings_t *settings;
 	static aas_reachability_t reach;

@@ -102,13 +102,7 @@ aas_lreachability_t *nextreachability;	//next free reachability from the heap
 aas_lreachability_t **areareachability;	//reachability links for every area
 int numlreachabilities;
 
-//===========================================================================
 // returns the surface area of the given face
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 float AAS_FaceArea(aas_face_t *face) {
 	int i, edgenum, side;
 	float total;
@@ -134,13 +128,8 @@ float AAS_FaceArea(aas_face_t *face) {
 	}
 	return total;
 }
-//===========================================================================
+
 // returns the volume of an area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 float AAS_AreaVolume(int areanum) {
 	int i, edgenum, facenum, side;
 	number d, a, volume;
@@ -174,12 +163,7 @@ float AAS_AreaVolume(int areanum) {
 	volume /= 3;
 	return volume;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_BestReachableLinkArea(aas_link_t *areas) {
 	aas_link_t *link;
 
@@ -201,12 +185,7 @@ int AAS_BestReachableLinkArea(aas_link_t *areas) {
 	}
 	return 0;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_GetJumpPadInfo(int ent, vector3 *areastart, vector3 *absmins, vector3 *absmaxs, vector3 *velocity) {
 	int modelnum, ent2;
 	float speed, height, gravity, time, dist, forward;
@@ -277,12 +256,7 @@ int AAS_GetJumpPadInfo(int ent, vector3 *areastart, vector3 *absmins, vector3 *a
 	velocity->z = time * gravity;
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_BestReachableFromJumpPadArea(vector3 *origin, vector3 *mins, vector3 *maxs) {
 	int ent, bot_visualizejumppads, bestareanum;
 	float volume, bestareavolume;
@@ -345,12 +319,7 @@ int AAS_BestReachableFromJumpPadArea(vector3 *origin, vector3 *mins, vector3 *ma
 	}
 	return 0;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_BestReachableArea(vector3 *origin, vector3 *mins, vector3 *maxs, vector3 *goalorigin) {
 	int areanum, i, j, k, l;
 	aas_link_t *areas;
@@ -440,12 +409,7 @@ int AAS_BestReachableArea(vector3 *origin, vector3 *mins, vector3 *maxs, vector3
 	//
 	return areanum;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_SetupReachabilityHeap( void ) {
 	int i;
 
@@ -459,23 +423,13 @@ void AAS_SetupReachabilityHeap( void ) {
 	nextreachability = reachabilityheap;
 	numlreachabilities = 0;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ShutDownReachabilityHeap( void ) {
 	FreeMemory(reachabilityheap);
 	numlreachabilities = 0;
 }
-//===========================================================================
+
 // returns a reachability link
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 aas_lreachability_t *AAS_AllocReachability( void ) {
 	aas_lreachability_t *r;
 
@@ -488,13 +442,8 @@ aas_lreachability_t *AAS_AllocReachability( void ) {
 	numlreachabilities++;
 	return r;
 }
-//===========================================================================
+
 // frees a reachability link
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_FreeReachability(aas_lreachability_t *lreach) {
 	memset(lreach, 0, sizeof(aas_lreachability_t));
 
@@ -502,13 +451,8 @@ void AAS_FreeReachability(aas_lreachability_t *lreach) {
 	nextreachability = lreach;
 	numlreachabilities--;
 }
-//===========================================================================
+
 // returns qtrue if the area has reachability links
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaReachability(int areanum) {
 	if (areanum < 0 || areanum >= aasworld.numareas)
 	{
@@ -517,13 +461,8 @@ int AAS_AreaReachability(int areanum) {
 	}
 	return aasworld.areasettings[areanum].numreachableareas;
 }
-//===========================================================================
+
 // returns the surface area of all ground faces together of the area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 float AAS_AreaGroundFaceArea(int areanum) {
 	int i;
 	float total;
@@ -541,13 +480,8 @@ float AAS_AreaGroundFaceArea(int areanum) {
 	}
 	return total;
 }
-//===========================================================================
+
 // returns the center of a face
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_FaceCenter(int facenum, vector3 *center) {
 	int i;
 	float scale;
@@ -566,14 +500,9 @@ void AAS_FaceCenter(int facenum, vector3 *center) {
 	scale = 0.5f / face->numedges;
 	VectorScale(center, scale, center);
 }
-//===========================================================================
+
 // returns the maximum distance a player can fall before being damaged
-// damage = deltavelocity*deltavelocity  * 0.0001
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+//	damage = deltavelocity*deltavelocity  * 0.0001
 int AAS_FallDamageDistance( void ) {
 	float maxzvelocity, gravity, t;
 
@@ -582,15 +511,10 @@ int AAS_FallDamageDistance( void ) {
 	t = maxzvelocity / gravity;
 	return (int)(0.5f * gravity * t * t);
 }
-//===========================================================================
+
 // distance = 0.5 * gravity * t * t
-// vel = t * gravity
-// damage = vel * vel * 0.0001
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+//	vel = t * gravity
+//	damage = vel * vel * 0.0001
 float AAS_FallDelta(float distance) {
 	float t, delta, gravity;
 
@@ -599,12 +523,7 @@ float AAS_FallDelta(float distance) {
 	delta = t * gravity;
 	return delta * delta * 0.0001f;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 float AAS_MaxJumpHeight(float phys_jumpvel) {
 	float phys_gravity;
 
@@ -612,13 +531,7 @@ float AAS_MaxJumpHeight(float phys_jumpvel) {
 	//maximum height a player can jump with the given initial z velocity
 	return 0.5f * phys_gravity * (phys_jumpvel / phys_gravity) * (phys_jumpvel / phys_gravity);
 }
-//===========================================================================
-// returns true if a player can only crouch in the area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 float AAS_MaxJumpDistance(float phys_jumpvel) {
 	float phys_gravity, phys_maxvelocity, t;
 
@@ -629,130 +542,65 @@ float AAS_MaxJumpDistance(float phys_jumpvel) {
    //maximum distance
 	return phys_maxvelocity * (t + phys_jumpvel / phys_gravity);
 }
-//===========================================================================
+
 // returns true if a player can only crouch in the area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaCrouch(int areanum) {
 	if (!(aasworld.areasettings[areanum].presencetype & PRESENCE_NORMAL)) return qtrue;
 	else return qfalse;
 }
-//===========================================================================
+
 // returns qtrue if it is possible to swim in the area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaSwim(int areanum) {
 	if (aasworld.areasettings[areanum].areaflags & AREA_LIQUID) return qtrue;
 	else return qfalse;
 }
-//===========================================================================
+
 // returns qtrue if the area contains a liquid
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaLiquid(int areanum) {
 	if (aasworld.areasettings[areanum].areaflags & AREA_LIQUID) return qtrue;
 	else return qfalse;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaLava(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_LAVA);
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaSlime(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_SLIME);
 }
-//===========================================================================
+
 // returns qtrue if the area contains ground faces
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaGrounded(int areanum) {
 	return (aasworld.areasettings[areanum].areaflags & AREA_GROUNDED);
 }
-//===========================================================================
+
 // returns true if the area contains ladder faces
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaLadder(int areanum) {
 	return (aasworld.areasettings[areanum].areaflags & AREA_LADDER);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaJumpPad(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_JUMPPAD);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaTeleporter(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_TELEPORTER);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaClusterPortal(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_CLUSTERPORTAL);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_AreaDoNotEnter(int areanum) {
 	return (aasworld.areasettings[areanum].contents & AREACONTENTS_DONOTENTER);
 }
-//===========================================================================
+
 // returns the time it takes perform a barrier jump
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 unsigned int AAS_BarrierJumpTravelTime( void ) {
 	return (unsigned int)(aassettings.phys_jumpvel / (aassettings.phys_gravity * 0.1f));
 } //end op the function AAS_BarrierJumpTravelTime
-//===========================================================================
+
 // returns true if there already exists a reachability from area1 to area2
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 qboolean AAS_ReachabilityExists(int area1num, int area2num) {
 	aas_lreachability_t *r;
 
@@ -762,14 +610,8 @@ qboolean AAS_ReachabilityExists(int area1num, int area2num) {
 	}
 	return qfalse;
 }
-//===========================================================================
-// returns true if there is a solid just after the end point when going
-// from start to end
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
+// returns true if there is a solid just after the end point when going from start to end
 int AAS_NearbySolidOrGap(vector3 *start, vector3 *end) {
 	vector3 dir, testpoint;
 	int areanum;
@@ -794,13 +636,8 @@ int AAS_NearbySolidOrGap(vector3 *start, vector3 *end) {
 	}
 	return qfalse;
 }
-//===========================================================================
+
 // searches for swim reachabilities between adjacent areas
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Reachability_Swim(int area1num, int area2num) {
 	int i, j, face1num, face2num, side1;
 	aas_area_t *area1, *area2;
@@ -867,14 +704,8 @@ int AAS_Reachability_Swim(int area1num, int area2num) {
 	}
 	return qfalse;
 }
-//===========================================================================
-// searches for reachabilities between adjacent areas with equal floor
-// heights
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
+// searches for reachabilities between adjacent areas with equal floor heights
 int AAS_Reachability_EqualFloorHeight(int area1num, int area2num) {
 	int i, j, edgenum, edgenum1, edgenum2, foundreach, side;
 	float height, bestheight, length, bestlength;
@@ -1013,13 +844,8 @@ int AAS_Reachability_EqualFloorHeight(int area1num, int area2num) {
 	}
 	return qfalse;
 }
-//===========================================================================
+
 // searches step, barrier, waterjump and walk off ledge reachabilities
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2num) {
 	int i, j, k, l, edge1num, edge2num, areas[10], numareas;
 	int ground_bestarea2groundedgenum, ground_foundreach;
@@ -1562,26 +1388,16 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
 	}
 	return qfalse;
 }
-//===========================================================================
+
 // returns the distance between the two vectors
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 float VectorDistance(vector3 *v1, vector3* v2) {
 	vector3 dir;
 
 	VectorSubtract(v2, v1, &dir);
 	return VectorLength(&dir);
 }
-//===========================================================================
+
 // returns true if the first vector is between the last two vectors
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int VectorBetweenVectors(vector3 *v, vector3 *v1, vector3 *v2) {
 	vector3 dir1, dir2;
 
@@ -1589,28 +1405,19 @@ int VectorBetweenVectors(vector3 *v, vector3 *v1, vector3 *v2) {
 	VectorSubtract(v, v2, &dir2);
 	return (DotProduct(&dir1, &dir2) <= 0);
 }
-//===========================================================================
+
 // returns the mid point between the two vectors
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void VectorMiddle(vector3 *v1, vector3 *v2, vector3 *middle) {
 	VectorAdd(v1, v2, middle);
 	VectorScale(middle, 0.5f, middle);
 }
-//===========================================================================
+
 // calculate a range of points closest to each other on both edges
-//
-// Parameter:			beststart1		start of the range of points on edge v1-v2
-//						beststart2		end of the range of points  on edge v1-v2
-//						bestend1		start of the range of points on edge v3-v4
-//						bestend2		end of the range of points  on edge v3-v4
-//						bestdist		best distance so far
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+//	beststart1		start of the range of points on edge v1-v2
+//	beststart2		end of the range of points  on edge v1-v2
+//	bestend1		start of the range of points on edge v3-v4
+//	bestend2		end of the range of points  on edge v3-v4
+//	bestdist		best distance so far
 /*
 float AAS_ClosestEdgePoints(vector3 *v1, vector3 *v2, vector3 *v3, vector3 *v4,
 							aas_plane_t *plane1, aas_plane_t *plane2,
@@ -2050,21 +1857,13 @@ float AAS_ClosestEdgePoints(vector3 *v1, vector3 *v2, vector3 *v3, vector3 *v4,
 	}
 	return bestdist;
 }
-//===========================================================================
+
 // creates possible jump reachabilities between the areas
-//
-// The two closest points on the ground of the areas are calculated
-// One of the points will be on an edge of a ground face of area1 and
-// one on an edge of a ground face of area2.
-// If there is a range of closest points the point in the middle of this range
-// is selected.
-// Between these two points there must be one or more gaps.
-// If the gaps exist a potential jump is predicted.
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+//	The two closest points on the ground of the areas are calculated
+//	One of the points will be on an edge of a ground face of area1 and one on an edge of a ground face of area2.
+//	If there is a range of closest points the point in the middle of this range is selected.
+//	Between these two points there must be one or more gaps.
+//	If the gaps exist a potential jump is predicted.
 int AAS_Reachability_Jump(int area1num, int area2num) {
 	int i, j, k, l, face1num, face2num, edge1num, edge2num, traveltype;
 	int stopevent, areas[10], numareas;
@@ -2328,13 +2127,8 @@ int AAS_Reachability_Jump(int area1num, int area2num) {
 	}
 	return qfalse;
 }
-//===========================================================================
+
 // create a possible ladder reachability from area1 to area2
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Reachability_Ladder(int area1num, int area2num) {
 	int i, j, k, l, edge1num, edge2num, sharededgenum = 0, lowestedgenum = 0;
 	int face1num, face2num, ladderface1num = 0, ladderface2num = 0;
@@ -2662,12 +2456,7 @@ int AAS_Reachability_Ladder(int area1num, int area2num) {
 	}
 	return qfalse;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_TravelFlagsForTeam(int ent) {
 	int notteam;
 
@@ -2679,7 +2468,7 @@ int AAS_TravelFlagsForTeam(int ent) {
 		return TRAVELFLAG_NOTTEAM2;
 	return 0;
 }
-//===========================================================================
+
 // create possible teleporter reachabilities
 // this is very game dependent.... :(
 //
@@ -2692,11 +2481,6 @@ int AAS_TravelFlagsForTeam(int ent) {
 //
 // classname = misc_teleporter_dest
 // targetname = "t2"
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_Reachability_Teleport( void ) {
 	int area1num, area2num;
 	char target[MAX_EPAIRKEY], targetname[MAX_EPAIRKEY];
@@ -2880,14 +2664,9 @@ void AAS_Reachability_Teleport( void ) {
 		AAS_UnlinkFromAreas(areas);
 	}
 }
-//===========================================================================
+
 // create possible elevator (func_plat) reachabilities
 // this is very game dependent.... :(
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_Reachability_Elevator( void ) {
 	int area1num, area2num, modelnum, i, j, k, l, n, p;
 	float lip, height, speed;
@@ -3099,12 +2878,7 @@ void AAS_Reachability_Elevator( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 aas_lreachability_t *AAS_FindFaceReachabilities(vector3 *facepoints, int numpoints, aas_plane_t *plane, int towardsface) {
 	int i, j, k, l;
 	int facenum, edgenum, bestfacenum;
@@ -3221,12 +2995,7 @@ aas_lreachability_t *AAS_FindFaceReachabilities(vector3 *facepoints, int numpoin
 	}
 	return lreachabilities;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_Reachability_FuncBobbing( void ) {
 	int ent, spawnflags, modelnum, axis;
 	int i, numareas, areas[10];
@@ -3432,12 +3201,7 @@ void AAS_Reachability_FuncBobbing( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_Reachability_JumpPad( void ) {
 	int face2num, i, ret, area2num, visualize, ent, bot_visualizejumppads;
 	//int modelnum, ent2;
@@ -3724,14 +3488,9 @@ void AAS_Reachability_JumpPad( void ) {
 		AAS_UnlinkFromAreas(areas);
 	}
 }
-//===========================================================================
+
 // never point at ground faces
 // always a higher and pretty far area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Reachability_Grapple(int area1num, int area2num) {
 	int face2num, i, j, areanum, numareas, areas[20];
 	float mingrappleangle, z, hordist;
@@ -3865,12 +3624,7 @@ int AAS_Reachability_Grapple(int area1num, int area2num) {
 	//
 	return qfalse;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_SetWeaponJumpAreaFlags( void ) {
 	int ent, i;
 	vector3 mins = {-15, -15, -15}, maxs = {15, 15, 15};
@@ -3931,17 +3685,11 @@ void AAS_SetWeaponJumpAreaFlags( void ) {
 	}
 	botimport.Print(PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas);
 }
-//===========================================================================
+
 // create a possible weapon jump reachability from area1 to area2
-//
-// check if there's a cool item in the second area
-// check if area1 is lower than area2
-// check if the bot can rocketjump from area1 to area2
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+//	check if there's a cool item in the second area
+//	check if area1 is lower than area2
+//	check if the bot can rocketjump from area1 to area2
 int AAS_Reachability_WeaponJump(int area1num, int area2num) {
 	int face2num, i, n, ret, visualize;
 	float speed, zvel;
@@ -4059,13 +3807,8 @@ int AAS_Reachability_WeaponJump(int area1num, int area2num) {
 	//
 	return qfalse;
 }
-//===========================================================================
+
 // calculates additional walk off ledge reachabilities for the given area
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_Reachability_WalkOffLedge(int areanum) {
 	int i, j, k, l, m, n, p, areas[10], numareas;
 	int face1num, face2num, face3num, edge1num, edge2num, edge3num;
@@ -4235,12 +3978,7 @@ void AAS_Reachability_WalkOffLedge(int areanum) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_StoreReachability( void ) {
 	int i;
 	aas_areasettings_t *areasettings;
@@ -4271,31 +4009,8 @@ void AAS_StoreReachability( void ) {
 		aasworld.reachabilitysize += areasettings->numreachableareas;
 	}
 }
-//===========================================================================
-//
-// TRAVEL_WALK					100%	equal floor height + steps
-// TRAVEL_CROUCH				100%
-// TRAVEL_BARRIERJUMP			100%
-// TRAVEL_JUMP					 80%
-// TRAVEL_LADDER				100%	+ fall down from ladder + jump up to ladder
-// TRAVEL_WALKOFFLEDGE			 90%	walk off very steep walls?
-// TRAVEL_SWIM					100%
-// TRAVEL_WATERJUMP				100%
-// TRAVEL_TELEPORT				100%
-// TRAVEL_ELEVATOR				100%
-// TRAVEL_GRAPPLEHOOK			100%
-// TRAVEL_DOUBLEJUMP			  0%
-// TRAVEL_RAMPJUMP				  0%
-// TRAVEL_STRAFEJUMP			  0%
-// TRAVEL_ROCKETJUMP			100%	(currently limited towards areas with items)
-// TRAVEL_BFGJUMP				  0%	(currently disabled)
-// TRAVEL_JUMPPAD				100%
-// TRAVEL_FUNCBOB				100%
-//
-// Parameter:			-
-// Returns:				true if NOT finished
-// Changes Globals:		-
-//===========================================================================
+
+// returns true if NOT finished
 int AAS_ContinueInitReachability(float time) {
 	int i, j, todo, start_time;
 	static float framereachability, reachability_delay;
@@ -4436,12 +4151,7 @@ int AAS_ContinueInitReachability(float time) {
 	//not yet finished
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_InitReachability( void ) {
 	if (!aasworld.loaded) return;
 

@@ -585,6 +585,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 //
 // entityState_t->eType
 //
+//NOTE: MUST match ET_ITEM in be_ai_goal.c
 typedef enum entityType_e {
 	ET_GENERAL,
 	ET_PLAYER,
@@ -599,9 +600,9 @@ typedef enum entityType_e {
 	ET_INVISIBLE,
 	ET_TEAM,
 
-	ET_EVENTS				// any of the EV_* events can be added freestanding
-							// by setting eType to ET_EVENTS + eventNum
-							// this avoids having to set eFlags and eventNum
+	ET_EVENTS	// any of the EV_* events can be added freestanding
+				// by setting eType to ET_EVENTS + eventNum
+				// this avoids having to set eFlags and eventNum
 } entityType_t;
 
 

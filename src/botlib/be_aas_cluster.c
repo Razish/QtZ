@@ -55,12 +55,6 @@ extern botlib_import_t botimport;
 // do not flood through area faces, only use reachabilities
 int nofaceflood = qtrue;
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_RemoveClusterAreas( void ) {
 	int i;
 
@@ -69,12 +63,7 @@ void AAS_RemoveClusterAreas( void ) {
 		aasworld.areasettings[i].cluster = 0;
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ClearCluster(int clusternum) {
 	int i;
 
@@ -86,12 +75,7 @@ void AAS_ClearCluster(int clusternum) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_RemovePortalsClusterReference(int clusternum) {
 	int portalnum;
 
@@ -107,12 +91,7 @@ void AAS_RemovePortalsClusterReference(int clusternum) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_UpdatePortal(int areanum, int clusternum) {
 	int portalnum;
 	aas_portal_t *portal;
@@ -165,12 +144,7 @@ int AAS_UpdatePortal(int areanum, int clusternum) {
 	cluster->numportals++;
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_FloodClusterAreas_r(int areanum, int clusternum) {
 	aas_area_t *area;
 	aas_face_t *face;
@@ -236,13 +210,8 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum) {
 	}
 	return qtrue;
 }
-//===========================================================================
+
 // try to flood from all areas without cluster into areas with a cluster set
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_FloodClusterAreasUsingReachabilities(int clusternum) {
 	int i, j, areanum;
 
@@ -274,12 +243,7 @@ int AAS_FloodClusterAreasUsingReachabilities(int clusternum) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_NumberClusterPortals(int clusternum) {
 	int i, portalnum;
 	aas_cluster_t *cluster;
@@ -300,12 +264,7 @@ void AAS_NumberClusterPortals(int clusternum) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_NumberClusterAreas(int clusternum) {
 	int i, portalnum;
 	aas_cluster_t *cluster;
@@ -373,12 +332,7 @@ void AAS_NumberClusterAreas(int clusternum) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_FindClusters( void ) {
 	int i;
 	aas_cluster_t *cluster;
@@ -422,12 +376,7 @@ int AAS_FindClusters( void ) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_CreatePortals( void ) {
 	int i;
 	aas_portal_t *portal;
@@ -450,13 +399,8 @@ void AAS_CreatePortals( void ) {
 		}
 	}
 }
+
 /*
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_MapContainsTeleporters( void ) {
 	bsp_entity_t *entities, *ent;
 	char *classname;
@@ -474,12 +418,7 @@ int AAS_MapContainsTeleporters( void ) {
 	}
 	return qfalse;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side2) {
 	int i, j, edgenum;
 	aas_plane_t *plane1, *plane2;
@@ -513,12 +452,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 
 	return qfalse;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean AAS_CanMergeAreas(int *areanums, int numareas) {
 	int i, j, s, face1num, face2num, side1, side2, fn1, fn2;
 	aas_face_t *face1, *face2;
@@ -566,12 +500,7 @@ qboolean AAS_CanMergeAreas(int *areanums, int numareas) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int side2, int planenum) {
 	int i;
 	vector3 edgevec1, edgevec2, normal1, normal2;
@@ -599,12 +528,7 @@ qboolean AAS_NonConvexEdges(aas_edge_t *edge1, aas_edge_t *edge2, int side1, int
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum) {
 	int i, j, s, edgenum1, edgenum2, side1, side2, en1, en2, ens;
 	aas_face_t *face1, *face2, *otherface;
@@ -664,12 +588,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum) {
 	}
 	return qtrue;
 }*/
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_ConnectedAreas_r(int *areanums, int numareas, int *connectedareas, int curarea) {
 	int i, j, otherareanum, facenum;
 	aas_area_t *area;
@@ -699,12 +618,7 @@ void AAS_ConnectedAreas_r(int *areanums, int numareas, int *connectedareas, int 
 		AAS_ConnectedAreas_r(areanums, numareas, connectedareas, j);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean AAS_ConnectedAreas(int *areanums, int numareas) {
 	int connectedareas[MAX_PORTALAREAS], i;
 
@@ -718,13 +632,8 @@ qboolean AAS_ConnectedAreas(int *areanums, int numareas) {
 	}
 	return qtrue;
 }
-//===========================================================================
+
 // gets adjacent areas with less presence types recursively
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int curareanum) {
 	int i, j, presencetype, otherpresencetype, otherareanum, facenum;
 	aas_area_t *area;
@@ -767,12 +676,7 @@ int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int
 	}
 	return numareas;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_CheckAreaForPossiblePortals(int areanum) {
 	int i, j, k, fen, ben, frontedgenum, backedgenum, facenum;
 	int areanums[MAX_PORTALAREAS], numareas, otherareanum;
@@ -893,12 +797,7 @@ int AAS_CheckAreaForPossiblePortals(int areanum) {
 	//
 	return numareas;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_FindPossiblePortals( void ) {
 	int i, numpossibleportals;
 
@@ -909,12 +808,7 @@ void AAS_FindPossiblePortals( void ) {
 	}
 	botimport.Print(PRT_MESSAGE, "\r%6d possible portal areas\n", numpossibleportals);
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_RemoveAllPortals( void ) {
 	int i;
 
@@ -925,12 +819,7 @@ void AAS_RemoveAllPortals( void ) {
 }
 
 #if 0
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_FloodCluster_r(int areanum, int clusternum) {
 	int i, otherareanum;
 	aas_face_t *face;
@@ -976,12 +865,7 @@ void AAS_FloodCluster_r(int areanum, int clusternum) {
 		AAS_FloodCluster_r(otherareanum, clusternum);
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_RemoveTeleporterPortals( void ) {
 	int i, j, areanum;
 
@@ -999,12 +883,7 @@ void AAS_RemoveTeleporterPortals( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_FloodClusterReachabilities(int clusternum) {
 	int i, j, areanum;
 
@@ -1032,12 +911,6 @@ void AAS_FloodClusterReachabilities(int clusternum) {
 	}
 }
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_RemoveNotClusterClosingPortals( void ) {
 	int i, j, k, facenum, otherareanum, nonclosingportals;
 	aas_area_t *area;
@@ -1104,13 +977,6 @@ void AAS_RemoveNotClusterClosingPortals( void ) {
 	botimport.Print(PRT_MESSAGE, "\r%6d non closing portals removed\n", nonclosingportals);
 }
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-
 void AAS_RemoveNotClusterClosingPortals( void ) {
 	int i, j, facenum, otherareanum, nonclosingportals, numseperatedclusters;
 	aas_area_t *area;
@@ -1176,13 +1042,6 @@ void AAS_RemoveNotClusterClosingPortals( void ) {
 	}
 	botimport.Print(PRT_MESSAGE, "\r%6d non closing portals removed\n", nonclosingportals);
 }
-
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 
 void AAS_AddTeleporterPortals( void ) {
 	int j, area2num, facenum, otherareanum;
@@ -1314,12 +1173,6 @@ void AAS_AddTeleporterPortals( void ) {
 	AAS_FreeBSPEntities(entities);
 }
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_AddTeleporterPortals( void ) {
 	int i, j, areanum;
 
@@ -1336,12 +1189,6 @@ void AAS_AddTeleporterPortals( void ) {
 
 #endif
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_TestPortals( void ) {
 	int i;
 	aas_portal_t *portal;
@@ -1364,12 +1211,7 @@ int AAS_TestPortals( void ) {
 	}
 	return qtrue;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_CountForcedClusterPortals( void ) {
 	int num, i;
 
@@ -1384,12 +1226,7 @@ void AAS_CountForcedClusterPortals( void ) {
 	}
 	botimport.Print(PRT_MESSAGE, "%6d forced portal areas\n", num);
 }
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_CreateViewPortals( void ) {
 	int i;
 
@@ -1401,12 +1238,7 @@ void AAS_CreateViewPortals( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_SetViewPortalsAsClusterPortals( void ) {
 	int i;
 
@@ -1418,12 +1250,7 @@ void AAS_SetViewPortalsAsClusterPortals( void ) {
 		}
 	}
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 void AAS_InitClustering( void ) {
 	int i, removedPortalAreas;
 	int n, total, numreachabilityareas;
