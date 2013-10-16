@@ -404,24 +404,49 @@ void Con_DrawNotify( void ) {
 		return;
 }
 
+static void Con_DrawScrollbar( float scrollbarLength, float scrollbarX, float scrollbarY, int rows ) {
+	vector4 color;
+	const float scrollbarWidth = 3;
+	const float scrollHandleLength		= con.totallines ? scrollbarLength * MIN( 1.0f, (float)rows / (float)con.totallines ) : 0.0f;
+	const float scrollbarLengthPerLine	= (scrollbarLength - scrollHandleLength) / (float)(con.totallines - rows);
+	const int relativeScrollLineIndex	= con.current - con.totallines + MIN( rows, con.totallines );
+	const float scrollHandlePosition	= scrollbarLengthPerLine * (con.display - relativeScrollLineIndex);
+
+	// scrollbar
+	VectorCopy4( QCOLOR(COLOR_GREY), &color );
+	SCR_FillRect( scrollbarX, scrollbarY, scrollbarWidth, scrollbarLength, &color );
+
+	// handle
+	if ( scrollHandlePosition >= 0 && scrollHandleLength > 0 ) {
+		VectorCopy4( QCOLOR(COLOR_WHITE), &color );
+		SCR_FillRect( scrollbarX, scrollbarY + scrollHandlePosition, scrollbarWidth, scrollHandleLength, &color );
+	}
+	else if ( con.totallines ) {
+		// this happens when line appending gets us over the top position in a roll-lock situation
+		VectorCopy4( QCOLOR(COLOR_CYAN), &color );
+		SCR_FillRect( scrollbarX, scrollbarY, scrollbarWidth, scrollHandleLength, &color );
+	}
+}
+
 // Draws the console with the solid background
 void Con_DrawSolidConsole( float frac ) {
 	int				i, x, y;
 	int				rows;
 	short			*text;
 	int				row;
-	int				lines;
+	int				yoffset = (int)(cls.glconfig.vidHeight * frac), lines;
 //	qhandle_t		conShader;
 	int				currentColor;
 	const vector4	*color = &g_color_table[ColorIndex(COLOR_ORANGE)], shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
 	char			version[] = CLIENT_WINDOW_TITLE;
 
-	lines = (int)(cls.glconfig.vidHeight * frac);
-	if (lines <= 0)
+	if (yoffset <= 0)
 		return;
 
-	if (lines > cls.glconfig.vidHeight )
-		lines = cls.glconfig.vidHeight;
+	if (yoffset > cls.glconfig.vidHeight )
+		yoffset = cls.glconfig.vidHeight;
+
+	lines = yoffset / SMALLCHAR_HEIGHT;
 
 	// on wide screens, we will center the text
 	con.xadjust = 0;
@@ -443,17 +468,17 @@ void Con_DrawSolidConsole( float frac ) {
 
 	re->SetColor( &shadowColour );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH)+1), (int)(lines - SMALLCHAR_HEIGHT*1.3f)+1, version[x], 1.0f );
+		SCR_DrawSmallChar2( (int)((cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH)+1), (int)(yoffset - SMALLCHAR_HEIGHT*1.3f)+1, version[x], 1.0f );
 	re->SetColor( color );
 	for ( x=0; x<i; x++ )
-		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH), (int)(lines - SMALLCHAR_HEIGHT*1.3f), version[x], 1.0f );
+		SCR_DrawSmallChar2( (int)(cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH), (int)(yoffset - SMALLCHAR_HEIGHT*1.3f), version[x], 1.0f );
 
 
 	// draw the text
-	con.vislines = lines;
-	rows = (lines-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;		// rows of text to draw
+	con.vislines = yoffset;
+	rows = (yoffset-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;		// rows of text to draw
 
-	y = lines - (SMALLCHAR_HEIGHT*3);
+	y = yoffset - (SMALLCHAR_HEIGHT*3);
 
 	// draw from the bottom up
 	if (con.display != con.current)
@@ -500,6 +525,9 @@ void Con_DrawSolidConsole( float frac ) {
 
 	// draw the input prompt, user text, and cursor if desired
 	Con_DrawInput();
+	
+	// draw the scrollbar
+	Con_DrawScrollbar( (frac * SCREEN_HEIGHT) - 5 - SMALLCHAR_HEIGHT, SCREEN_WIDTH - 5, 3, rows );
 
 	re->SetColor( NULL );
 }
