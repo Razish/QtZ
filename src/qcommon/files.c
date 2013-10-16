@@ -808,22 +808,15 @@ qboolean FS_IsExt(const char *filename, const char *ext, size_t namelen) {
 
 // Return qtrue if filename has a demo extension
 qboolean FS_IsDemoExt(const char *filename, size_t namelen) {
-	char *ext_test;
-	int index, protocol;
+	const char *ext_test;
+	int protocol;
 
-	ext_test = strrchr(filename, '.');
-	if(ext_test && !Q_stricmpn(ext_test + 1, DEMO_EXTENSION, ARRAY_LEN(DEMO_EXTENSION) - 1))
-	{
-		protocol = atoi(ext_test + ARRAY_LEN(DEMO_EXTENSION));
+	ext_test = strrchr( filename, '.' );
+	if ( ext_test && !Q_stricmpn( ext_test+1, DEMO_EXTENSION, ARRAY_LEN( DEMO_EXTENSION )-1 ) ) {
+		protocol = atoi( ext_test + ARRAY_LEN( DEMO_EXTENSION ) );
 
-		if(protocol == com_protocol->integer)
+		if ( protocol == com_protocol->integer )
 			return qtrue;
-
-		for(index = 0; demo_protocols[index]; index++)
-		{
-			if(demo_protocols[index] == protocol)
-			return qtrue;
-		}
 	}
 
 	return qfalse;

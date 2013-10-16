@@ -242,10 +242,6 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
 
 #define	PROTOCOL_VERSION 1
 
-// maintain a list of compatible protocols for demo playing
-// NOTE: that stuff only works with two digits protocols
-extern int demo_protocols[];
-
 #if !defined UPDATE_SERVER_NAME
 	#define	UPDATE_SERVER_NAME	"update.quantize.org"
 #endif

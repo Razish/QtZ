@@ -881,40 +881,20 @@ void CL_ReadDemoMessage( void ) {
 }
 
 //QTZFIXME: size_t nameLen
-static int CL_WalkDemoExt(const char *arg, char *name, int *demofile) {
-	int i = 0;
+static qboolean CL_WalkDemoExt(const char *arg, char *name, int *demofile) {
 	*demofile = 0;
 	
-	Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMO_EXTENSION, com_protocol->integer);
-	FS_FOpenFileRead(name, demofile, qtrue);
+	Com_sprintf( name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMO_EXTENSION, com_protocol->integer );
+	FS_FOpenFileRead( name, demofile, qtrue );
 
-	if (*demofile)
-	{
-		Com_Printf("Demo file: %s\n", name);
-		return com_protocol->integer;
+	if ( *demofile ) {
+		Com_Printf( "Demo file: %s\n", name );
+		return qtrue;
 	}
 
-	Com_Printf("Not found: %s\n", name);
+	Com_Printf( "Not found: %s\n", name );
 
-	while(demo_protocols[i])
-	{
-		if(demo_protocols[i] == com_protocol->integer)
-			continue;
-	
-		Com_sprintf (name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMO_EXTENSION, demo_protocols[i]);
-		FS_FOpenFileRead( name, demofile, qtrue );
-		if (*demofile)
-		{
-			Com_Printf("Demo file: %s\n", name);
-
-			return demo_protocols[i];
-		}
-		else
-			Com_Printf("Not found: %s\n", name);
-		i++;
-	}
-	
-	return -1;
+	return qfalse;
 }
 
 static void CL_CompleteDemoName( char *args, int argNum ) {
@@ -929,7 +909,7 @@ static void CL_CompleteDemoName( char *args, int argNum ) {
 void CL_PlayDemo_f( void ) {
 	char		name[MAX_OSPATH];
 	const char	*arg, *ext_test;
-	int			protocol, i;
+	int			protocol;
 	char		retry[MAX_OSPATH];
 
 	if (Cmd_Argc() != 2) {
@@ -953,37 +933,29 @@ void CL_PlayDemo_f( void ) {
 	{
 		protocol = atoi(ext_test + ARRAY_LEN(DEMO_EXTENSION));
 
-		for(i = 0; demo_protocols[i]; i++)
-		{
-			if(demo_protocols[i] == protocol)
-				break;
+		if ( protocol == com_protocol->integer ) {
+			Com_sprintf( name, sizeof( name ), "demos/%s", arg );
+			FS_FOpenFileRead( name, &clc.demofile, qtrue );
 		}
-
-		if(demo_protocols[i] || protocol == com_protocol->integer)
-		{
-			Com_sprintf(name, sizeof(name), "demos/%s", arg);
-			FS_FOpenFileRead(name, &clc.demofile, qtrue);
-		}
-		else
-		{
+		else {
 			size_t len;
 
-			Com_Printf("Protocol %d not supported for demos\n", protocol);
+			Com_Printf( "Protocol %d not supported for demos\n", protocol );
 			len = ext_test - arg;
 
-			if(len >= ARRAY_LEN(retry))
-				len = ARRAY_LEN(retry) - 1;
+			if ( len >= ARRAY_LEN( retry ) )
+				len = ARRAY_LEN( retry )-1;
 
-			Q_strncpyz(retry, arg, len + 1);
+			Q_strncpyz( retry, arg, len+1 );
 			retry[len] = '\0';
-			protocol = CL_WalkDemoExt(retry, name, &clc.demofile);
+			protocol = CL_WalkDemoExt( retry, name, &clc.demofile );
 		}
 	}
 	else
-		protocol = CL_WalkDemoExt(arg, name, &clc.demofile);
+		protocol = CL_WalkDemoExt( arg, name, &clc.demofile );
 	
-	if (!clc.demofile) {
-		Com_Error( ERR_DROP, "couldn't open %s", name);
+	if ( !clc.demofile ) {
+		Com_Error( ERR_DROP, "couldn't open %s", name );
 		return;
 	}
 	Q_strncpyz( clc.demoName, arg, sizeof( clc.demoName ) );
