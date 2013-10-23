@@ -206,7 +206,7 @@ void String_Report( void ) {
 	Com_Printf("Memory/String Pool Info\n");
 	Com_Printf("----------------\n");
 	f = ((float)strPoolIndex/STRING_POOL_SIZE) * 100;
-	Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE);
+	Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, (int)strPoolIndex, STRING_POOL_SIZE);
 	f = ((float)allocPoint/MEM_POOL_SIZE) * 100;
 	Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
 }
@@ -779,7 +779,7 @@ qboolean Script_SetColor ( itemDef_t *item, const char **args )
 	return qtrue;
 }
 
-qboolean Script_SetAsset(itemDef_t *item, char **args)  {
+qboolean Script_SetAsset(itemDef_t *item, const char **args)  {
 	const char *name;
 	// expecting name to set asset to
 	if (String_Parse(args, &name)) 
@@ -792,7 +792,7 @@ qboolean Script_SetAsset(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetBackground(itemDef_t *item, char **args) {
+qboolean Script_SetBackground(itemDef_t *item, const char **args) {
 	const char *name;
 	// expecting name to set asset to
 	if (String_Parse(args, &name)) {
@@ -801,12 +801,12 @@ qboolean Script_SetBackground(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)  {
+qboolean Script_SetItemRectCvar(itemDef_t *item, const char **args)  {
 	const char	*itemName;
 	const char	*cvarName;
 	char		cvarBuf[1024];
 	const char	*holdVal;
-	char		*holdBuf;
+	const char	*holdBuf;
 	itemDef_t	*item2=0;
 	menuDef_t	*menu;	
 
@@ -884,7 +884,7 @@ void Menu_SetItemBackground(const menuDef_t *menu,const char *itemName, const ch
 	}
 }
 
-qboolean Script_SetItemBackground(itemDef_t *item, char **args)  {
+qboolean Script_SetItemBackground(itemDef_t *item, const char **args)  {
 	const char *itemName;
 	const char *name;
 
@@ -945,7 +945,7 @@ void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *te
 	}
 }
 
-qboolean Script_SetItemText(itemDef_t *item, char **args)  {
+qboolean Script_SetItemText(itemDef_t *item, const char **args)  {
 	const char *itemName;
 	const char *text;
 
@@ -957,7 +957,7 @@ qboolean Script_SetItemText(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetTeamColor(itemDef_t *item, char **args)  {
+qboolean Script_SetTeamColor(itemDef_t *item, const char **args)  {
 	if (DC->getTeamColor) 
 	{
 		int i;
@@ -969,7 +969,7 @@ qboolean Script_SetTeamColor(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetItemColor(itemDef_t *item, char **args)  {
+qboolean Script_SetItemColor(itemDef_t *item, const char **args)  {
 	const char *itemname;
 	const char *name;
 	vector4 color;
@@ -1029,14 +1029,12 @@ qboolean Script_SetItemColor(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)  {
-	const char *itemname;
-	char	*colorCvarName,*holdBuf,*holdVal;
-	char cvarBuf[1024];
-	const char *name;
-	vector4 color;
-	int i;
-	vector4 *out;
+qboolean Script_SetItemColorCvar(itemDef_t *item, const char **args)  {
+	const char	*name, *itemname;
+	char		cvarBuf[1024], *colorCvarName;
+	const char	*holdBuf,*holdVal;
+	vector4		color, *out;
+	int			i;
 
 	// expecting type of color to set and 4 args for the color
 	if (String_Parse(args, &itemname) && String_Parse(args, &name)) 
@@ -1114,7 +1112,7 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetItemRect(itemDef_t *item, char **args)  {
+qboolean Script_SetItemRect(itemDef_t *item, const char **args)  {
 	const char *itemname;
 	rectDef_t *out;
 	rectDef_t rect;
@@ -1287,7 +1285,7 @@ void Menus_CloseAll( void )  {
 }
 
 
-qboolean Script_Show(itemDef_t *item, char **args)  {
+qboolean Script_Show(itemDef_t *item, const char **args)  {
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
@@ -1296,7 +1294,7 @@ qboolean Script_Show(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_Hide(itemDef_t *item, char **args)  {
+qboolean Script_Hide(itemDef_t *item, const char **args)  {
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
@@ -1305,7 +1303,7 @@ qboolean Script_Hide(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_FadeIn(itemDef_t *item, char **args)  {
+qboolean Script_FadeIn(itemDef_t *item, const char **args)  {
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
@@ -1315,7 +1313,7 @@ qboolean Script_FadeIn(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_FadeOut(itemDef_t *item, char **args)  {
+qboolean Script_FadeOut(itemDef_t *item, const char **args)  {
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
@@ -1326,7 +1324,7 @@ qboolean Script_FadeOut(itemDef_t *item, char **args)  {
 
 
 
-qboolean Script_Open(itemDef_t *item, char **args) {
+qboolean Script_Open(itemDef_t *item, const char **args) {
 	const char *name;
 	if (String_Parse(args, &name)) {
 		Menus_OpenByName(name);
@@ -1334,7 +1332,7 @@ qboolean Script_Open(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_ConditionalOpen(itemDef_t *item, char **args) {
+qboolean Script_ConditionalOpen(itemDef_t *item, const char **args) {
 	const char *cvar;
 	const char *name1;
 	const char *name2;
@@ -1351,7 +1349,7 @@ qboolean Script_ConditionalOpen(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_Close(itemDef_t *item, char **args)  {
+qboolean Script_Close(itemDef_t *item, const char **args)  {
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
@@ -1400,9 +1398,9 @@ itemDef_t*	ui_deferredScriptItem = NULL;
 
 // Defers the rest of the script based on the defer condition.
 //	The deferred portion of the script can later be run with the "rundeferred"
-qboolean Script_Defer ( itemDef_t* item, char **args ) {
+qboolean Script_Defer ( itemDef_t* item, const char **args ) {
 	// Should the script be deferred?
-	if ( DC->deferScript ( (char**)args ) )
+	if ( DC->deferScript ( args ) )
 	{
 		// Need the item the script was being run on
 		ui_deferredScriptItem = item;
@@ -1419,7 +1417,7 @@ qboolean Script_Defer ( itemDef_t* item, char **args ) {
 }
 
 // Runs the last deferred script, there can only be one script deferred at a time so be careful of recursion
-qboolean Script_RunDeferred ( itemDef_t* item, char **args ) {
+qboolean Script_RunDeferred ( itemDef_t* item, const char **args ) {
 	// Make sure there is something to run.
 	if ( !ui_deferredScript[0] || !ui_deferredScriptItem )
 	{
@@ -1432,7 +1430,7 @@ qboolean Script_RunDeferred ( itemDef_t* item, char **args ) {
 	return qtrue;
 }
 
-qboolean Script_Transition(itemDef_t *item, char **args)  {
+qboolean Script_Transition(itemDef_t *item, const char **args)  {
 	const char *name;
 	rectDef_t rectFrom, rectTo;
 	int time;
@@ -1486,7 +1484,7 @@ void Menu_ItemDisable(menuDef_t *menu, char *name,int disableFlag) {
 }
 
 // Set item disable flags
-qboolean Script_Disable(itemDef_t *item, char **args)  {
+qboolean Script_Disable(itemDef_t *item, const char **args)  {
 	char *name;
 	int	value;
 	menuDef_t *menu;
@@ -1515,7 +1513,7 @@ qboolean Script_Disable(itemDef_t *item, char **args)  {
 
 
 // Scale the given item instantly.
-qboolean Script_Scale(itemDef_t *item, char **args)  {
+qboolean Script_Scale(itemDef_t *item, const char **args)  {
 	const char *name;
 	float scale;
 	int	j,count;
@@ -1557,7 +1555,7 @@ qboolean Script_Scale(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_Orbit(itemDef_t *item, char **args)  {
+qboolean Script_Orbit(itemDef_t *item, const char **args)  {
 	const char *name;
 	float cx, cy, x, y;
 	int time;
@@ -1575,7 +1573,7 @@ qboolean Script_Orbit(itemDef_t *item, char **args)  {
 
 
 
-qboolean Script_SetFocus(itemDef_t *item, char **args)  {
+qboolean Script_SetFocus(itemDef_t *item, const char **args)  {
 	const char *name;
 	itemDef_t *focusItem;
 
@@ -1597,7 +1595,7 @@ qboolean Script_SetFocus(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetPlayerModel(itemDef_t *item, char **args) {
+qboolean Script_SetPlayerModel(itemDef_t *item, const char **args) {
 	const char *name;
 	if (String_Parse(args, &name)) {
 		DC->setCVar("cg_model", name);
@@ -1624,7 +1622,7 @@ qboolean ParseRect(const char **p, rectDef_t *r)  {
 
 // uses current origin instead of specifing a starting origin
 //	transition2 lfvscr 25 0 202 264 20 25
-qboolean Script_Transition2(itemDef_t *item, char **args)  {
+qboolean Script_Transition2(itemDef_t *item, const char **args)  {
 	const char *name;
 	rectDef_t rectTo;
 	int time;
@@ -1645,7 +1643,7 @@ qboolean Script_Transition2(itemDef_t *item, char **args)  {
 	return qtrue;
 }
 
-qboolean Script_SetCvar(itemDef_t *item, char **args) {
+qboolean Script_SetCvar(itemDef_t *item, const char **args) {
 	const char *cvar, *val;
 	if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
 		DC->setCVar(cvar, val);
@@ -1653,7 +1651,7 @@ qboolean Script_SetCvar(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_SetCvarToCvar(itemDef_t *item, char **args) {
+qboolean Script_SetCvarToCvar(itemDef_t *item, const char **args) {
 	const char *cvar, *val;
 	if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
 		char cvarBuf[1024];
@@ -1663,7 +1661,7 @@ qboolean Script_SetCvarToCvar(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_Exec(itemDef_t *item, char **args) {
+qboolean Script_Exec(itemDef_t *item, const char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->executeText(EXEC_APPEND, va("%s ; ", val));
@@ -1671,7 +1669,7 @@ qboolean Script_Exec(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_Play(itemDef_t *item, char **args) {
+qboolean Script_Play(itemDef_t *item, const char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->startLocalSound(DC->registerSound(val, qfalse), CHAN_LOCAL_SOUND);
@@ -1679,7 +1677,7 @@ qboolean Script_Play(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-qboolean Script_playLooped(itemDef_t *item, char **args) {
+qboolean Script_playLooped(itemDef_t *item, const char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->stopBackgroundTrack();
@@ -1726,7 +1724,8 @@ commandDef_t commandList[] =
 int scriptCommandCount = ARRAY_LEN(commandList);
 
 void Item_RunScript(itemDef_t *item, const char *s)  {
-	char script[2048], *p;
+	char script[2048];
+	const char *p;
 	int i;
 	qboolean bRan;
 
@@ -1778,7 +1777,8 @@ void Item_RunScript(itemDef_t *item, const char *s)  {
 
 
 qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
-	char script[1024], *p;
+	char script[1024];
+	const char *p;
 	memset(script, 0, sizeof(script));
 	if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
 		char buff[1024];
@@ -1943,11 +1943,7 @@ int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item )  {
 
 int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )  {
 	rectDef_t		r;
-	textScrollDef_t *scrollPtr;
 	int				thumbstart;
-
-	scrollPtr = (textScrollDef_t*)item->typeData;
-	count     = scrollPtr->iLineCount;
 
 	r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 	r.y = item->window.rect.y;
@@ -3499,10 +3495,8 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	int i;
 	itemDef_t *item = NULL;
 
-	inHandler = qtrue;
 	if (g_waitingForKey && down) {
 		Item_Bind_HandleKey(g_bindItem, key, down);
-		inHandler = qfalse;
 		return;
 	}
 
@@ -3512,7 +3506,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		{
 			g_editingField = qfalse;
 			g_editItem = NULL;
-			inHandler = qfalse;
 			return;
 		}
 		else if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3)
@@ -3530,7 +3523,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	}
 
 	if (menu == NULL) {
-		inHandler = qfalse;
 		return;
 	}
 
@@ -3541,7 +3533,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 			inHandleKey = qtrue;
 			Menus_HandleOOBClick(menu, key, down);
 			inHandleKey = qfalse;
-			inHandler = qfalse;
 			return;
 		}
 	}
@@ -3567,13 +3558,11 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 			{
 				Item_Action(item);
 			}
-			inHandler = qfalse;
 			return;
 		}
 	}
 
 	if (!down) {
-		inHandler = qfalse;
 		return;
 	}
 
@@ -3683,7 +3672,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		}
 		break;
 	}
-	inHandler = qfalse;
 }
 
 void ToWindowCoords(float *x, float *y, windowDef_t *window) {
@@ -6156,7 +6144,6 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item ) {
 	textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
 
 	scrollPtr->iLineCount = 0;
-	width = scrollPtr->maxLineChars;
 	lineStart = (char*)item->text;
 	lineEnd   = lineStart;
 	w		  = 0;

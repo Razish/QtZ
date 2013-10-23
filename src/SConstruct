@@ -461,7 +461,7 @@ else:
 # compiler options
 if env['PLATFORM'] == 'posix':
 	env['CPPDEFINES'] = []
-	env['CCFLAGS'] = [ '-march=k8', '-Wall', '-Wno-missing-braces' ]
+	env['CCFLAGS'] = [ '-march=k8', '-Wall', '-Wno-missing-braces', '-Wno-char-subscripts' ]
 else:
 	env['CPPDEFINES'] = []
 	env['CCFLAGS'] = [ '/W4' ]
@@ -543,7 +543,7 @@ if int(ARGUMENTS.get( 'cgame', 0 )):
 # UI
 if int(ARGUMENTS.get( 'ui', 0 )):
 	env['CPPPATH'] = [ '.' ]
-	env['CPPDEFINES'] += [ 'UI_EXPORTS', 'PROJECT_UI' ]
+	env['CPPDEFINES'] += [ 'PROJECT_UI' ]
 	env['LIBS'] = libs['ui']
 	env['LIBPREFIX'] = ''
 	env.SharedLibrary( 'ui'+arch, files['ui'] )

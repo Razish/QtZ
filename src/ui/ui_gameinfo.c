@@ -36,7 +36,7 @@ static char		*ui_botInfos[MAX_BOTS];
 static size_t	ui_numArenas;
 static char		*ui_arenaInfos[MAX_ARENAS];
 
-size_t UI_ParseInfos( char *buf, size_t max, char *infos[] ) {
+size_t UI_ParseInfos( const char *buf, size_t max, char *infos[] ) {
 	char	*token;
 	size_t	count;
 	char	key[MAX_TOKEN_CHARS];
@@ -242,20 +242,6 @@ static char *UI_GetBotInfoByNumber( size_t num ) {
 		return NULL;
 	}
 	return ui_botInfos[num];
-}
-
-static char *UI_GetBotInfoByName( const char *name ) {
-	int		n;
-	char	*value;
-
-	for ( n = 0; n < ui_numBots ; n++ ) {
-		value = Info_ValueForKey( ui_botInfos[n], "cl_name" );
-		if ( !Q_stricmp( value, name ) ) {
-			return ui_botInfos[n];
-		}
-	}
-
-	return NULL;
 }
 
 size_t UI_GetNumBots( void ) {

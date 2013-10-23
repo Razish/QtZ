@@ -807,13 +807,10 @@ static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 
 
 static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animations ) {
-	char		*text_p, *prev;
-	int			len;
-	int			i;
-	char		*token;
-	float		fps;
-	int			skip;
-	char		text[20000];
+	const char		*text_p, *prev;
+	int				len, i, skip;
+	char			text[20000], *token;
+	float			fps;
 	fileHandle_t	f;
 
 	memset( animations, 0, sizeof( animation_t ) * MAX_ANIMATIONS );

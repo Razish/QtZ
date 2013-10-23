@@ -158,7 +158,6 @@ void CG_DrawChatbox( void ) {
 	int i = MAX_CHATBOX_ENTRIES-MIN( cg_chatboxLineCount->integer, chatbox.numActiveLines );
 	int numLines = 0;
 	int done = 0;
-	chatEntry_t *last = NULL;
 
 	if ( CG_ChatboxActive() ) {
 		const char *pre = chat_team ? "Team: %s" : "Say: %s";
@@ -183,16 +182,12 @@ void CG_DrawChatbox( void ) {
 		chatEntry_t *chat = &chatbox.chatBuffer[i];
 		if ( chat->isUsed )
 		{
-			last = chat;
 			if ( chat->time >= cg.time-cg_chatboxMsgTime->integer || (chatbox.scrollAmount && CG_ChatboxActive()) || CG_ChatboxActive() ) {
 				CG_Text_Paint( CHATBOX_POS_X, CHATBOX_POS_Y + (CHATBOX_LINE_HEIGHT * numLines), CHATBOX_FONT_SCALE, &g_color_table[ColorIndex(COLOR_WHITE)], chat->message, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 				numLines++;
 			}
 		}
 	}
-
-//	if ( last->isUsed && last->time < cg.time-cg_chatBox.integer && !currentChatbox->scrollAmount && cg_chatBox.integer > 1 )
-//		CG_Text_Paint( cg_hudChatX.value, cg_hudChatY.value + (cg_chatLH.value * numLines), cg_hudChatS.value, colorWhite, va( "%s%s", (cg_chatTimeStamp.integer ? last->timeStamp : ""), last->message ), 0.0f, 0, ITEM_TEXTSTYLE_OUTLINED, JP_GetChatboxFont() );
 }
 
 void CG_ChatboxScroll( int direction ) {

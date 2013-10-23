@@ -355,8 +355,8 @@ typedef struct displayContextDef_s {
 	void			(*ownerDrawItem)		( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vector4 *color, qhandle_t shader, int textStyle );
 	float			(*getValue)				( int ownerDraw );
 	qboolean		(*ownerDrawVisible)		( int flags );
-	void			(*runScript)			( char **p );
-	qboolean		(*deferScript)			( char **p );
+	void			(*runScript)			( const char **args );
+	qboolean		(*deferScript)			( const char **args );
 	void			(*getTeamColor)			( vector4 *color );
 	void			(*getCVarString)		( const char *cvar, char *buffer, size_t bufsize );
 	float			(*getCVarValue)			( const char *cvar );

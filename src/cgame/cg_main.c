@@ -1220,23 +1220,6 @@ static float CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	return 0.0f;
 }
 
-static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return trap->CIN_PlayCinematic(name, (int)x, (int)y, (int)w, (int)h, CIN_loop);
-}
-
-static void CG_StopCinematic(int handle) {
-	trap->CIN_StopCinematic(handle);
-}
-
-static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
-	trap->CIN_SetExtents(handle, (int)x, (int)y, (int)w, (int)h);
-	trap->CIN_DrawCinematic(handle);
-}
-
-static void CG_RunCinematicFrame(int handle) {
-	trap->CIN_RunCinematic(handle);
-}
-
 void CG_LoadHudMenu( void ) {
 	char buff[MAX_CVAR_VALUE_STRING];
 	const char *hudSet;
@@ -1287,10 +1270,6 @@ void CG_LoadHudMenu( void ) {
 	cgDC.registerSound = trap->S_RegisterSound;
 	cgDC.startBackgroundTrack = trap->S_StartBackgroundTrack;
 	cgDC.stopBackgroundTrack = trap->S_StopBackgroundTrack;
-	cgDC.playCinematic = &CG_PlayCinematic;
-	cgDC.stopCinematic = &CG_StopCinematic;
-	cgDC.drawCinematic = &CG_DrawCinematic;
-	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 	
 	Init_Display(&cgDC);
 

@@ -674,20 +674,18 @@ static void UI_FeederSelection(float feederID, size_t index) {
 		}
 	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
 		size_t actual;
-		int map;
-		map = (feederID == FEEDER_ALLMAPS) ? ui_currentNetMap->integer : ui_currentMap->integer;
 		UI_SelectedMap(index, &actual);
-		trap->Cvar_Set("ui_mapIndex", va("%d", index));
+		trap->Cvar_Set("ui_mapIndex", va("%d", (int)index));
 		ui_mapIndex->integer = (int)index;
 
 		if (feederID == FEEDER_MAPS) {
 			ui_currentMap->integer = (int)actual;
-			trap->Cvar_Set("ui_currentMap", va("%d", actual));
+			trap->Cvar_Set("ui_currentMap", va("%d", (int)actual));
 			trap->Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap->integer].opponentName);
 			updateOpponentModel = qtrue;
 		} else {
 			ui_currentNetMap->integer = (int)actual;
-			trap->Cvar_Set("ui_currentNetMap", va("%d", actual));
+			trap->Cvar_Set("ui_currentNetMap", va("%d", (int)actual));
 		}
 
 	} else if (feederID == FEEDER_SERVERS) {
@@ -752,7 +750,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 		uiInfo.numFoundPlayerServers = 1;
 		Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
 			sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-			"searching %d...", uiInfo.pendingServerStatus.num);
+			"searching %d...", (int)uiInfo.pendingServerStatus.num);
 		numFound = 0;
 		numTimeOuts++;
 	}
@@ -793,7 +791,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 				}
 				Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
 					sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-					"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+					"searching %d/%d...", (int)uiInfo.pendingServerStatus.num, numFound);
 				// retrieved the server status so reuse this spot
 				uiInfo.pendingServerStatus.server[i].valid = qfalse;
 			}
@@ -820,7 +818,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 					uiInfo.pendingServerStatus.num++;
 					Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
 						sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-						"searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+						"searching %d/%d...", (int)uiInfo.pendingServerStatus.num, numFound);
 				}
 		}
 	}
@@ -840,7 +838,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 		}
 		else {
 			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]),
-				"%d server%s found with player %s", uiInfo.numFoundPlayerServers-1,
+				"%d server%s found with player %s", (int)(uiInfo.numFoundPlayerServers-1),
 				uiInfo.numFoundPlayerServers == 2 ? "":"s", uiInfo.findPlayerName);
 		}
 		uiInfo.nextFindPlayerRefresh = 0;
@@ -1033,10 +1031,10 @@ static void UI_StopServerRefresh( void ) {
 		return;
 
 	uiInfo.serverStatus.refreshActive = qfalse;
-	Com_Printf( "%d servers listed in browser with %d players.\n", uiInfo.serverStatus.numDisplayServers, uiInfo.serverStatus.numPlayersOnServers );
+	Com_Printf( "%d servers listed in browser with %d players.\n", (int)uiInfo.serverStatus.numDisplayServers, uiInfo.serverStatus.numPlayersOnServers );
 	count = trap->LAN_GetServerCount( UI_SourceForLAN() );
 	if ( count - uiInfo.serverStatus.numDisplayServers > 0 )
-		Com_Printf( "%d servers not listed due to packet loss or pings higher than %d\n", count - uiInfo.serverStatus.numDisplayServers, (int)trap->Cvar_VariableValue( "cl_maxPing" ) );
+		Com_Printf( "%d servers not listed due to packet loss or pings higher than %d\n", count - (int)uiInfo.serverStatus.numDisplayServers, (int)trap->Cvar_VariableValue( "cl_maxPing" ) );
 }
 
 static void UI_DoServerRefresh( void ) {
@@ -1605,45 +1603,6 @@ static void UI_DrawNetFilter(rectDef_t *rect, float scale, vector4 *color, int t
 	Text_Paint(rect->x, rect->y, scale, color, va("Filter: %s", serverFilters[ui_serverFilterType->integer].description), 0, 0, textStyle);
 }
 
-static const char *UI_EnglishMapName(const char *map) {
-	int i;
-	for (i = 0; i < uiInfo.mapCount; i++) {
-		if (Q_stricmp(map, uiInfo.mapList[i].mapLoadName) == 0) {
-			return uiInfo.mapList[i].mapName;
-		}
-	}
-	return "";
-}
-
-static void UI_DrawOpponent(rectDef_t *rect) {
-	static playerInfo_t info2;
-	char model[MAX_QPATH];
-	char headmodel[MAX_QPATH];
-	char team[256];
-	vector3	viewangles;
-	vector3	moveangles;
-
-	if (updateOpponentModel) {
-
-		strcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
-		strcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
-		team[0] = '\0';
-
-		memset( &info2, 0, sizeof(playerInfo_t) );
-		viewangles.yaw   = 180 - 10;
-		viewangles.pitch = 0;
-		viewangles.roll  = 0;
-		VectorClear( &moveangles );
-		UI_PlayerInfo_SetModel( &info2, model, headmodel, "");
-		UI_PlayerInfo_SetInfo( &info2, LEGS_IDLE, TORSO_STAND, &viewangles, &vec3_origin, WP_QUANTIZER, qfalse );
-		UI_RegisterClientModelname( &info2, model, headmodel, team);
-		updateOpponentModel = qfalse;
-	}
-
-	UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info2, uiInfo.uiDC.realTime / 2);
-
-}
-
 static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vector4 *color, int textStyle, qboolean net) {
 	int map = (net) ? ui_currentNetMap->integer : ui_currentMap->integer;
 	if (map >= 0 && map < uiInfo.mapCount) {
@@ -1807,7 +1766,7 @@ static void UI_BuildPlayerList( void ) {
 		}
 	}
 
-	trap->Cvar_Set("cg_selectedPlayer", va("%d", playerTeamNumber));
+	trap->Cvar_Set("cg_selectedPlayer", va("%d", (int)playerTeamNumber));
 
 	n = (int)trap->Cvar_VariableValue("cg_selectedPlayer");
 	if (n < 0 || n > uiInfo.myTeamCount) {
@@ -2727,11 +2686,11 @@ static void UI_Update(const char *name) {
 }
 
 // Return true if the menu script should be deferred for later
-static qboolean UI_DeferMenuScript ( char **args ) {
+static qboolean UI_DeferMenuScript ( const char **args ) {
 	const char* name;
 
 	// Whats the reason for being deferred?
-	if (!String_Parse( (char**)args, &name)) 
+	if (!String_Parse( args, &name)) 
 	{
 		return qfalse;
 	}
@@ -2743,7 +2702,7 @@ static qboolean UI_DeferMenuScript ( char **args ) {
 		qboolean	deferred;
 
 		// No warning menu specified
-		if ( !String_Parse( (char**)args, &warningMenuName) )
+		if ( !String_Parse( args, &warningMenuName) )
 		{
 			return qfalse;
 		}
@@ -2787,7 +2746,7 @@ static int UI_GetIndexFromSelection(int actual) {
 	return 0;
 }
 
-static void UI_RunMenuScript(char **args) {
+static void UI_RunMenuScript(const char **args) {
 	const char *name, *name2;
 	char buff[MAX_STRING_CHARS];
 
@@ -2978,9 +2937,9 @@ static void UI_RunMenuScript(char **args) {
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
 			if (trap->Cvar_VariableValue("sv_gametype") >= GT_TEAMBLOOD) {
-				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, (int)(uiInfo.skillIndex+1), (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			} else {
-				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+				trap->Cbuf_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), (int)(uiInfo.skillIndex+1), (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			}
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource->integer != UIAS_FAVORITES) {
@@ -3252,62 +3211,6 @@ static qhandle_t UI_FeederItemImage(float feederID, size_t index) {
 		}
 	}
 	return 0;
-}
-
-static qboolean Character_Parse(char **p) {
-	char *token;
-	const char *tempStr;
-
-	token = COM_ParseExt(p, qtrue);
-
-	if (token[0] != '{') {
-		return qfalse;
-	}
-
-
-	while ( 1 ) {
-		token = COM_ParseExt(p, qtrue);
-
-		if (Q_stricmp(token, "}") == 0) {
-			return qtrue;
-		}
-
-		if ( !token || token[0] == 0 ) {
-			return qfalse;
-		}
-
-		if (token[0] == '{') {
-			// two tokens per line, character name and sex
-			if (!String_Parse(p, &uiInfo.characterList[uiInfo.characterCount].name) || !String_Parse(p, &tempStr)) {
-				return qfalse;
-			}
-
-			uiInfo.characterList[uiInfo.characterCount].headImage = -1;
-			uiInfo.characterList[uiInfo.characterCount].imageName = String_Alloc(va("models/players/heads/%s/icon_default.tga", uiInfo.characterList[uiInfo.characterCount].name));
-
-			if (tempStr && (!Q_stricmp(tempStr, "female"))) {
-				uiInfo.characterList[uiInfo.characterCount].base = String_Alloc("Janet");
-			} else if (tempStr && (!Q_stricmp(tempStr, "male"))) {
-				uiInfo.characterList[uiInfo.characterCount].base = String_Alloc("James");
-			} else {
-				uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(tempStr);
-			}
-
-			Com_Printf("Loaded %s character %s.\n", uiInfo.characterList[uiInfo.characterCount].base, uiInfo.characterList[uiInfo.characterCount].name);
-			if (uiInfo.characterCount < MAX_HEADS) {
-				uiInfo.characterCount++;
-			} else {
-				Com_Printf("Too many characters, last character replaced!\n");
-			}
-
-			token = COM_ParseExt(p, qtrue);
-			if (token[0] != '}') {
-				return qfalse;
-			}
-		}
-	}
-
-	return qfalse;
 }
 
 static void UI_Pause(qboolean b) {
