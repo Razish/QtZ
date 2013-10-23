@@ -28,7 +28,6 @@ int G_GetHitLocation(gentity_t *target, vector3 *ppoint) {
 	vector3	point, point_dir;
 	vector3	forward, right, up;
 	vector3	tangles, tcenter;
-	float	tradius;
 	float	udot, fdot, rdot;
 	int		Vertical, Forward, Lateral;
 	int		HitLoc;
@@ -44,37 +43,12 @@ int G_GetHitLocation(gentity_t *target, vector3 *ppoint) {
 	VectorAdd( &target->r.absmin, &target->r.absmax, &tcenter );
 	VectorScale( &tcenter, 0.5f, &tcenter );
 
-	// Get radius width of target.
-	tradius = (	fabsf( target->r.maxs.x ) +
-				fabsf( target->r.maxs.y ) +
-				fabsf( target->r.mins.x ) +
-				fabsf( target->r.mins.y ) ) / 4.0f;
-
 	// Get impact point.
 	if ( ppoint && !VectorCompare( ppoint, &vec3_origin ) )
 		VectorCopy( ppoint, &point );
 	else
 		return HL_NONE;
 
-/*
-//get impact dir
-	if(pdir && !VectorCompare(pdir, vec3_origin))
-	{
-		VectorCopy(pdir, dir);
-	}
-	else
-	{
-		return;
-	}
-
-//put point at controlled distance from center
-	VectorSubtract(point, tcenter, tempvec);
-	tempvec[2] = 0;
-	hdist = VectorLength(tempvec);
-
-	VectorMA(point, hdist - tradius, dir, point);
-	//now a point on the surface of a cylinder with a radius of tradius
-*/	
 	VectorSubtract( &point, &tcenter, &point_dir );
 	VectorNormalize( &point_dir );
 

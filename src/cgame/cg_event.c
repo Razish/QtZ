@@ -31,11 +31,9 @@ static void CG_Obituary( entityState_t *ent ) {
 	int				mod = ent->eventParm, target = ent->otherEntityNum, attacker = ent->otherEntityNum2;
 	const char		*targetInfo = NULL, *attackerInfo = NULL;
 	char			targetName[32] = {0}, attackerName[32] = {0};
-	clientInfo_t	*ci = NULL;
 
 	if ( target < 0 || target >= MAX_CLIENTS )
 		trap->Error( ERR_DROP, "CG_Obituary: target out of range" );
-	ci = &cgs.clientinfo[target];
 
 	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
 		attacker = ENTITYNUM_WORLD;

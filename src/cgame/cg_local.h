@@ -1063,7 +1063,7 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const vector4 *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 //QtZ: Added from JA
-void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader, qboolean centered );
+void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qboolean centered, qhandle_t hShader );
 //~QtZ
 int CG_DrawStrlen( const char *str );
 vector4 *CG_FadeColor( int startMsec, int totalMsec );

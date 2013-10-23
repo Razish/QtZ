@@ -80,6 +80,7 @@ float CG_Text_Height(const char *text, float scale, int limit) {
 	int count;
 	float max, useScale;
 	glyphInfo_t *glyph;
+
 	// TTimo: FIXME
 	//	const unsigned char *s = text;
 	const char *s = text;
@@ -129,7 +130,6 @@ void CG_Text_Paint(float x, float y, float scale, const vector4 *color, const ch
 	glyphInfo_t *glyph;
 	float useScale;
 	fontInfo_t *font = &cgDC.Assets.textFont;
-
 	if (scale <= ui_smallFont->value) {
 		font = &cgDC.Assets.smallFont;
 	} else if (scale > ui_bigFont->value) {
@@ -725,7 +725,7 @@ static void CG_DrawCrosshair( void ) {
 
 			trap->R_SetColor( &colour );
 			if ( angle/360.0f < cdmax )
-				CG_DrawRotatePic( cx, cy, 8, 8, angle-90.0f, cgs.media.crosshair.cooldownTic, qtrue );
+				CG_DrawRotatePic( cx, cy, 8, 8, angle-90.0f, qtrue, cgs.media.crosshair.cooldownTic );
 		}
 		trap->R_SetColor( NULL );
 	}

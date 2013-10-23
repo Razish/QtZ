@@ -77,7 +77,6 @@ void BotDumpNodeSwitches(bot_state_t *bs) {
 	for (i = 0; i < numnodeswitches; i++) {
 		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[i]);
 	}
-	BotAI_Print(PRT_FATAL, "");
 }
 
 void BotRecordNodeSwitch(bot_state_t *bs, char *node, char *str, char *s) {

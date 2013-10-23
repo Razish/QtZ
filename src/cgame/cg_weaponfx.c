@@ -119,7 +119,7 @@ void FX_Splicer_Beam( centity_t *cent, vector3 *start, vector3 *end ) {
 void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon ) {
 	refEntity_t ent;
 	vector3 ang;
-	float vLen;
+//	float vLen;
 	float scale = 1.0f;
 	refdef_t *refdef = &cg.refdef;
 
@@ -128,7 +128,7 @@ void FX_Mortar_Missile( centity_t *cent, const struct weaponInfo_s *weapon ) {
 	VectorCopy( &cent->lerpOrigin, &ent.origin );
 
 	VectorSubtract( &ent.origin, &refdef->vieworg, &ent.axis[0] );
-	vLen = VectorLength( &ent.axis[0] );
+//	vLen = VectorLength( &ent.axis[0] );
 	if ( VectorNormalize( &ent.axis[0] ) <= 0.1f )
 		return;
 

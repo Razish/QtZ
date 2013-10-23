@@ -452,14 +452,6 @@ static void PM_WaterMove( void ) {
 	PM_SlideMove( qfalse );
 }
 
-// Only with the invulnerability powerup
-static void PM_InvulnerabilityMove( void ) {
-	pm->cmd.forwardmove = 0;
-	pm->cmd.rightmove = 0;
-	pm->cmd.upmove = 0;
-	VectorClear(&pm->ps->velocity);
-}
-
 // Only with the flight powerup
 static void PM_FlyMove( void ) {
 	int		i;

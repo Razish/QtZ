@@ -695,11 +695,11 @@ const char *CG_ConfigString( int index ) {
 }
 
 void CG_StartMusic( void ) {
-	char	*s;
+	const char *s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
-	s = (char *)CG_ConfigString( CS_MUSIC );
+	s = CG_ConfigString( CS_MUSIC );
 	Q_strncpyz( parm1, COM_Parse( &s ), sizeof( parm1 ) );
 	Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 
@@ -922,7 +922,7 @@ void CG_ParseMenu(const char *menuFile) {
 	trap->PC_FreeSourceHandle(handle);
 }
 
-qboolean CG_Load_Menu(char **p) {
+qboolean CG_Load_Menu(const char **p) {
 	char *token;
 
 	token = COM_ParseExt(p, qtrue);
@@ -952,7 +952,7 @@ qboolean CG_Load_Menu(char **p) {
 
 void CG_LoadMenus(const char *menuFile) {
 	char	*token;
-	char *p;
+	const char *p;
 	int	len, start;
 	fileHandle_t	f;
 	static char buf[MAX_MENUDEFFILE];
@@ -1220,6 +1220,23 @@ static float CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	return 0.0f;
 }
 
+static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
+	return trap->CIN_PlayCinematic(name, (int)x, (int)y, (int)w, (int)h, CIN_loop);
+}
+
+static void CG_StopCinematic(int handle) {
+	trap->CIN_StopCinematic(handle);
+}
+
+static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
+	trap->CIN_SetExtents(handle, (int)x, (int)y, (int)w, (int)h);
+	trap->CIN_DrawCinematic(handle);
+}
+
+static void CG_RunCinematicFrame(int handle) {
+	trap->CIN_RunCinematic(handle);
+}
+
 void CG_LoadHudMenu( void ) {
 	char buff[MAX_CVAR_VALUE_STRING];
 	const char *hudSet;
@@ -1270,6 +1287,10 @@ void CG_LoadHudMenu( void ) {
 	cgDC.registerSound = trap->S_RegisterSound;
 	cgDC.startBackgroundTrack = trap->S_StartBackgroundTrack;
 	cgDC.stopBackgroundTrack = trap->S_StopBackgroundTrack;
+	cgDC.playCinematic = &CG_PlayCinematic;
+	cgDC.stopCinematic = &CG_StopCinematic;
+	cgDC.drawCinematic = &CG_DrawCinematic;
+	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 	
 	Init_Display(&cgDC);
 

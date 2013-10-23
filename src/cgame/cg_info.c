@@ -129,7 +129,7 @@ void CG_DrawInformation( void ) {
 		trap->R_DrawStretchPic( 0.0f, 0.0f, (float)cgs.glconfig.vidWidth, (float)cgs.glconfig.vidHeight, 0, 0, 2.5f, 2, detail );
 
 	// draw the icons of things as they are loaded
-//	CG_DrawLoadingIcons();
+	CG_DrawLoadingIcons();
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into

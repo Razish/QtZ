@@ -259,7 +259,7 @@ void LerpColor(vector4 *a, vector4 *b, vector4 *c, float t) {
 	}
 }
 
-qboolean Float_Parse(char **p, float *f) {
+qboolean Float_Parse(const char **p, float *f) {
 	char	*token;
 	token = COM_ParseExt(p, qfalse);
 	if (token && token[0] != 0) {
@@ -292,7 +292,7 @@ qboolean PC_Float_Parse(int handle, float *f) {
 	return qtrue;
 }
 
-qboolean Color_Parse(char **p, vector4 *c) {
+qboolean Color_Parse(const char **p, vector4 *c) {
 	int i;
 	float f;
 
@@ -318,7 +318,7 @@ qboolean PC_Color_Parse(int handle, vector4 *c) {
 	return qtrue;
 }
 
-qboolean Int_Parse(char **p, int *i) {
+qboolean Int_Parse(const char **p, int *i) {
 	char	*token;
 	token = COM_ParseExt(p, qfalse);
 
@@ -351,7 +351,7 @@ qboolean PC_Int_Parse(int handle, int *i) {
 	return qtrue;
 }
 
-qboolean Rect_Parse(char **p, rectDef_t *r) {
+qboolean Rect_Parse(const char **p, rectDef_t *r) {
 	if (Float_Parse(p, &r->x)) {
 		if (Float_Parse(p, &r->y)) {
 			if (Float_Parse(p, &r->w)) {
@@ -377,7 +377,7 @@ qboolean PC_Rect_Parse(int handle, rectDef_t *r) {
 	return qfalse;
 }
 
-qboolean String_Parse(char **p, const char **out) {
+qboolean String_Parse(const char **p, const char **out) {
 	char *token;
 
 	token = COM_ParseExt(p, qfalse);
@@ -738,7 +738,8 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *
 
 
 
-qboolean Script_SetColor ( itemDef_t *item, char **args )  {
+qboolean Script_SetColor ( itemDef_t *item, const char **args ) 
+{
 	const char *name;
 	int i;
 	float f;
@@ -1944,7 +1945,6 @@ int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )  {
 	rectDef_t		r;
 	textScrollDef_t *scrollPtr;
 	int				thumbstart;
-	int				count;
 
 	scrollPtr = (textScrollDef_t*)item->typeData;
 	count     = scrollPtr->iLineCount;
@@ -3498,7 +3498,6 @@ static rectDef_t *Item_CorrectedTextRect(itemDef_t *item) {
 void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	int i;
 	itemDef_t *item = NULL;
-	qboolean inHandler = qfalse;
 
 	inHandler = qtrue;
 	if (g_waitingForKey && down) {
@@ -6149,7 +6148,6 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 static void Item_TextScroll_BuildLines ( itemDef_t* item ) {
 	// old version...
 	//
-	int				 width;
 	char*			 lineStart;
 	char*			 lineEnd;
 	float			 w;
@@ -6717,8 +6715,8 @@ void Menu_PaintAll( void ) {
 
 	if (debugMode) {
 		vector4 v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .5f, &v, va("fps: %f", DC->FPS), 0, 0, 0);
-		DC->drawText(5, 45, .5f, &v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0);
+		DC->drawText(5, 25, .5f, &v, va("fps: %0.3f", DC->FPS), 0, 0, 0);
+		DC->drawText(5, 45, .5f, &v, va("x: %.2f  y:%.2f", DC->cursorx,DC->cursory), 0, 0, 0);
 	}
 }
 

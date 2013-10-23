@@ -824,6 +824,7 @@ void CG_MissileHitPlayer( int weapon, vector3 *origin, vector3 *dir, int entityN
 	CG_Bleed( origin, entityNum );
 }
 
+#if 0
 static qboolean	CG_CalcMuzzlePoint( int entityNum, vector3 *muzzle ) {
 	vector3		forward;
 	centity_t	*cent;
@@ -857,3 +858,4 @@ static qboolean	CG_CalcMuzzlePoint( int entityNum, vector3 *muzzle ) {
 	return qtrue;
 
 }
+#endif

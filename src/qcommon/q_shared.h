@@ -612,7 +612,7 @@ void	COM_DefaultExtension( char *path, size_t maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
-char	*COM_Parse( char **data_p );
+char	*COM_Parse( const char **data_p );
 char	*COM_ParseExt( const char **data_p, qboolean allowLineBreaks );
 ptrdiff_t COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
@@ -644,14 +644,14 @@ typedef struct pc_token_s {
 
 // data is an in/out parm, returns a parsed out token
 
-void	COM_MatchToken( char**buf_p, char *match );
+void	COM_MatchToken( const char **buf_p, const char *match );
 
-qboolean SkipBracedSection( char **program, int depth );
+qboolean SkipBracedSection( const char **program, int depth );
 void SkipRestOfLine ( char **data );
 
-void Parse1DMatrix (char **buf_p, int x, float *m);
-void Parse2DMatrix (char **buf_p, int y, int x, float *m);
-void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
+void Parse1DMatrix (const char **buf_p, int x, float *m);
+void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
+void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 int Com_HexStrToInt( const char *str );
 
 size_t QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
@@ -698,7 +698,6 @@ void	Q_strcat( char *dest, size_t size, const char *src );
 void Q_strstrip( char *string, const char *strip, const char *repl );
 const char *Q_strchrs( const char *string, const char *search );
 char *Q_strrep( const char *string, const char *substr, const char *replacement );
-void Q_strrev( char *string );
 char *Q_CleanColorStr( char *string );
 
 // strlen that discounts Quake color sequences
@@ -721,7 +720,7 @@ typedef struct qint64_s {
 	byte	b7;
 } qint64_t;
 
-const char * QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+const char * QDECL va( const char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, size_t len, const char *s );

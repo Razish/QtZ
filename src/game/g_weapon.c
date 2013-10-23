@@ -253,8 +253,8 @@ qboolean G_CanDisruptify( gentity_t *ent ) {
 	return qfalse;
 }
 
-static void WP_Divergence_Fire( gentity_t *ent, int special ) {
-	qboolean render_impact = qtrue;
+static void WP_Divergence_Fire( gentity_t *ent, int special )
+{
 	vector3 start = { 0.0f }, end = { 0.0f }, mins = { -DIVERGENCE_SIZE }, maxs = { DIVERGENCE_SIZE };
 	trace_t tr = { 0 };
 	gentity_t *traceEnt = NULL, *tent = NULL;
@@ -289,15 +289,10 @@ static void WP_Divergence_Fire( gentity_t *ent, int special ) {
 		if ( traceEnt && traceEnt->client )
 		{
 			vector3 preAng = { 0.0f };
-			int preHealth = traceEnt->health, preLegs = 0, preTorso = 0;
-			int hitLoc = HL_NONE;
+			int preHealth = traceEnt->health;
 
 			if ( traceEnt->client )
-			{
-				preLegs = traceEnt->client->ps.legsAnim;
-				preTorso = traceEnt->client->ps.torsoAnim;
 				VectorCopy( &traceEnt->client->ps.viewangles, &preAng );
-			}
 
 			if ( LogAccuracyHit( traceEnt, ent ) )
 				ent->client->accuracy_hits++;
@@ -339,14 +334,10 @@ static void WP_Divergence_Fire( gentity_t *ent, int special ) {
 			memset( &tr, 0, sizeof( tr ) );
 			traces--;
 			headshotMulti = 1.0f;
-			hitLoc = HL_NONE;
 			continue;
 		}
 		break;
 	}
-
-	if ( tr.surfaceFlags & SURF_NOIMPACT ) 
-		render_impact = qfalse;
 
 	tent = G_TempEntity( &tr.endpos, EV_HITSCANTRAIL );
 	tent->s.clientNum = ent->s.number;

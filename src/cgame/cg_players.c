@@ -73,17 +73,12 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 // Read a configuration file containing animation counts and rates
 //	models/players/visor/animation.cfg, etc
 static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) {
-	char		*text_p, *prev;
-	int			len;
-	int			i;
-	char		*token;
-	float		fps;
-	int			skip;
-	char		text[20000];
+	const char		*text_p, *prev;
+	char			text[20000], *token;
+	int				i, len, skip;
+	float			fps;
 	fileHandle_t	f;
-	animation_t *animations;
-
-	animations = ci->animations;
+	animation_t		*animations = ci->animations;
 
 	// load the file
 	len = trap->FS_Open( filename, &f, FS_READ );

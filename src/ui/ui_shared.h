@@ -331,7 +331,7 @@ typedef struct cachedAssets_s {
 
 typedef struct commandDef_s {
 	const char *name;
-	qboolean (*handler) (itemDef_t *item, char** args);
+	qboolean (*handler) (itemDef_t *item, const char** args);
 } commandDef_t;
 
 typedef struct displayContextDef_s {
@@ -410,12 +410,11 @@ void					Menu_New					( int handle );
 void					Menu_PaintAll				( void );
 void					Menu_Reset					( void );
 
-qboolean				Float_Parse					( char **p, float *f );
-qboolean				Color_Parse					( char **p, vector4 *c );
-qboolean				Int_Parse					( char **p, int *i );
-qboolean				Rect_Parse					( char **p, rectDef_t *r );
-qboolean				String_Parse				( char **p, const char **out );
-qboolean				Script_Parse				( char **p, const char **out );
+qboolean				Float_Parse					( const char **p, float *f );
+qboolean				Color_Parse					( const char **p, vector4 *c );
+qboolean				Int_Parse					( const char **p, int *i );
+qboolean				Rect_Parse					( const char **p, rectDef_t *r );
+qboolean				String_Parse				( const char **p, const char **out );
 qboolean				PC_Float_Parse				( int handle, float *f );
 qboolean				PC_Color_Parse				( int handle, vector4 *c );
 qboolean				PC_Int_Parse				( int handle, int *i );

@@ -166,6 +166,8 @@ void DrawPlayerCount( float fade ) {
 	case GT_TROJAN:
 		DrawPlayerCount_Team( fade );
 		break;
+	default:
+		break;
 	}
 }
 
@@ -220,7 +222,7 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 
 	savedY = y;
 
-	// First pass, background + borders
+	// First pass, background
 	for ( i=startIndex; i<startIndex+playerCount; i++ ) {
 		score_t *score = &cg.scores[i];
 		clientInfo_t *ci = &cgs.clientinfo[score->client];
@@ -319,29 +321,21 @@ int ListPlayers_FFA( float fade, float x, float y, float fontScale, float lineHe
 int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHeight, team_t team ) {
 	const char *tmp = NULL;
 	vector4	white		= { 1.0f, 1.0f, 1.0f, 1.0f },
-			border		= { 0.6f, 0.6f, 0.6f, 1.0f },
-			borderRed	= { 1.0f, 0.8f, 0.8f, 1.0f },
-			borderBlue	= { 1.0f, 0.8f, 0.8f, 1.0f },
 			blue		= { 0.6f, 0.6f, 1.0f, 1.0f },
 			background	= { 0.75f, 0.75f, 0.75f, 1.0f },
 			teamRed		= { 0.7f, 0.4f, 0.4f, 1.0f },
 			teamBlue	= { 0.4f, 0.4f, 0.7f, 1.0f };
-	vector4	*teamBackground	= &background,
-			*teamBorder		= &border;
+	vector4	*teamBackground	= &background;
 	int i = 0, count = 0, column = 0;
 	float endX = SCREEN_WIDTH/2.0f, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
 
-	white.a = border.a = borderRed.a = borderBlue.a = blue.a = fade;
+	white.a = blue.a = fade;
 	background.a = teamRed.a = teamBlue.a = 0.6f * fade;
 
-	if ( team == TEAM_RED ) {
+	if ( team == TEAM_RED )
 		teamBackground = &teamRed;
-		teamBorder = &borderRed;
-	}
-	else if ( team == TEAM_BLUE ) {
+	else if ( team == TEAM_BLUE )
 		teamBackground = &teamBlue;
-		teamBorder = &borderBlue;
-	}
 
 	for ( i=0; i<cg.numScores; i++ ) {
 		if ( cgs.clientinfo[cg.scores[i].client].team == team )
@@ -379,7 +373,7 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 
 	savedY = y;
 
-	// First pass, background + borders
+	// First pass, background
 	for ( i=0; i<cg.numScores; i++ ) {
 		score_t *score = &cg.scores[i];
 		clientInfo_t *ci = &cgs.clientinfo[score->client];
@@ -484,29 +478,21 @@ int ListPlayers_TDM( float fade, float x, float y, float fontScale, float lineHe
 int ListPlayers_Flags( float fade, float x, float y, float fontScale, float lineHeight, team_t team ) {
 	const char *tmp = NULL;
 	vector4	white		= { 1.0f, 1.0f, 1.0f, 1.0f },
-			border		= { 0.6f, 0.6f, 0.6f, 1.0f },
-			borderRed	= { 1.0f, 0.8f, 0.8f, 1.0f },
-			borderBlue	= { 1.0f, 0.8f, 0.8f, 1.0f },
 			blue		= { 0.6f, 0.6f, 1.0f, 1.0f },
 			background	= { 0.75f, 0.75f, 0.75f, 1.0f },
 			teamRed		= { 0.7f, 0.4f, 0.4f, 1.0f },
 			teamBlue	= { 0.4f, 0.4f, 0.7f, 1.0f };
-	vector4	*teamBackground	= &background,
-			*teamBorder		= &border;
+	vector4	*teamBackground	= &background;
 	int i = 0, count = 0, column = 0;
 	float endX = SCREEN_WIDTH/2.0f, columnOffset[] = { /*name*/80.0f, /*score*/170.0f, /*capture*/195.0f, /*defend*/220.f, /*assist*/245.f, /*ping*/270.0f, /*time*/295.0f }, savedY=0.0f;
 
-	white.a = border.a = borderRed.a = borderBlue.a = blue.a = fade;
+	white.a = blue.a = fade;
 	background.a = teamRed.a = teamBlue.a = 0.6f*fade;
 
-	if ( team == TEAM_RED ) {
+	if ( team == TEAM_RED )
 		teamBackground = &teamRed;
-		teamBorder = &borderRed;
-	}
-	else if ( team == TEAM_BLUE ) {
+	else if ( team == TEAM_BLUE )
 		teamBackground = &teamBlue;
-		teamBorder = &borderBlue;
-	}
 
 	for ( i=0; i<cg.numScores; i++ ) {
 		if ( cgs.clientinfo[cg.scores[i].client].team == team )
@@ -544,7 +530,7 @@ int ListPlayers_Flags( float fade, float x, float y, float fontScale, float line
 
 	savedY = y;
 
-	// First pass, background + borders
+	// First pass, background
 	for ( i=0; i<cg.numScores; i++ ) {
 		score_t *score = &cg.scores[i];
 		clientInfo_t *ci = &cgs.clientinfo[score->client];
@@ -665,6 +651,9 @@ int ListPlayers_Free( float fade, float x, float y, float fontScale, float lineH
 	case GT_TROJAN:
 		trap->Error( ERR_DROP, "Tried to use non-team scoreboard on team gametype" );
 		break;
+
+	default:
+		break;
 	}
 
 	return -1;
@@ -681,11 +670,12 @@ int ListPlayers_Team( float fade, float x, float y, float fontScale, float lineH
 
 	case GT_TEAMBLOOD:
 		return ListPlayers_TDM( fade, x, y, fontScale, lineHeight, team );
-		break;
 	case GT_FLAGS:
 	case GT_TROJAN:
 		return ListPlayers_Flags( fade, x, y, fontScale, lineHeight, team );
-		break;
+
+	default:
+		return -1;
 	}
 
 	return -1;
@@ -750,6 +740,9 @@ void DrawPlayers( float fade ) {
 	case GT_FLAGS:
 	case GT_TROJAN:
 		DrawPlayers_Team( fade );
+		break;
+
+	default:
 		break;
 	}
 }

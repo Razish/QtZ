@@ -185,19 +185,6 @@ static void CG_TauntDeathInsult_f (void ) {
 	trap->SendConsoleCommand("cmd vsay death_insult\n");
 }
 
-static void CG_TaskSuicide_f (void ) {
-	int		clientNum;
-	char	command[128];
-
-	clientNum = CG_CrosshairPlayer();
-	if ( clientNum == -1 ) {
-		return;
-	}
-
-	Com_sprintf( command, 128, "tell %i suicide", clientNum );
-	trap->SendClientCommand( command );
-}
-
 typedef struct consoleCommand_s {
 	const char *name;
 	void (*function)( void );

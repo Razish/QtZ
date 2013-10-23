@@ -297,7 +297,8 @@ int COM_GetCurrentParseLine( void ) {
 	return com_lines;
 }
 
-char *COM_Parse( char **data_p ) {
+char *COM_Parse( const char **data_p )
+{
 	return COM_ParseExt( data_p, qtrue );
 }
 
@@ -574,7 +575,7 @@ qboolean COM_ParseVec4( const char **buffer, vector4 *c)  {
 	return qfalse;
 }
 
-void COM_MatchToken( char **buf_p, char *match ) {
+void COM_MatchToken( const char **buf_p, const char *match ) {
 	char	*token;
 
 	token = COM_Parse( buf_p );
@@ -587,7 +588,7 @@ void COM_MatchToken( char **buf_p, char *match ) {
 // The next token should be an open brace or set depth to 1 if already parsed it.
 //	Skips until a matching close brace is found.
 //	Internal brace depths are properly skipped.
-qboolean SkipBracedSection( char **program, int depth ) {
+qboolean SkipBracedSection( const char **program, int depth ) {
 	char *token;
 
 	do {
@@ -619,7 +620,7 @@ void SkipRestOfLine ( char **data ) {
 }
 
 
-void Parse1DMatrix (char **buf_p, int x, float *m) {
+void Parse1DMatrix( const char **buf_p, int x, float *m ) {
 	char	*token;
 	int		i;
 
@@ -633,7 +634,7 @@ void Parse1DMatrix (char **buf_p, int x, float *m) {
 	COM_MatchToken( buf_p, ")" );
 }
 
-void Parse2DMatrix (char **buf_p, int y, int x, float *m) {
+void Parse2DMatrix (const char **buf_p, int y, int x, float *m) {
 	int		i;
 
 	COM_MatchToken( buf_p, "(" );
@@ -645,7 +646,7 @@ void Parse2DMatrix (char **buf_p, int y, int x, float *m) {
 	COM_MatchToken( buf_p, ")" );
 }
 
-void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m) {
+void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m) {
 	int		i;
 
 	COM_MatchToken( buf_p, "(" );
@@ -1036,14 +1037,6 @@ char *Q_strrep( const char *string, const char *substr, const char *replacement 
 	return newstr;
 }
 
-void Q_strrev( char *string ) {
-	char *s, *d;
-	size_t len = strlen( string );
-
-	d = string;
-	s = string + len-1;
-}
-
 int Q_CountChar(const char *string, char tocount) {
 	int count;
 	
@@ -1064,7 +1057,7 @@ size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...) {
 	va_end (argptr);
 
 	if(len >= size)
-		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1);
+		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", (int)size, (int)(len + 1));
 	
 	return len;
 }
@@ -1073,7 +1066,7 @@ size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...) {
 #define VARARGS_MASK		(VARARGS_BUFFERS-1)
 
 // does a varargs printf into a temp buffer, so I don't need to have varargs versions of all text functions.
-const char *va( char *format, ... ) {
+const char *va( const char *format, ... ) {
 	static char buf[VARARGS_BUFFERS][32000]; // in case va is called by nested functions
 	static int	index = 0;
 	va_list		argptr;

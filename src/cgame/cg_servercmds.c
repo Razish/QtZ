@@ -371,7 +371,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	int	len, i;
 	fileHandle_t f;
 	char buf[MAX_VOICEFILESIZE];
-	char **p, *ptr;
+	const char **p, *ptr;
 	char *token;
 	voiceChat_t *voiceChats;
 	sfxHandle_t sound;
@@ -463,7 +463,7 @@ int CG_HeadModelVoiceChats( char *filename ) {
 	int	len, i;
 	fileHandle_t f;
 	char buf[MAX_VOICEFILESIZE];
-	char **p, *ptr;
+	const char **p, *ptr;
 	char *token;
 
 	len = trap->FS_Open( filename, &f, FS_READ );

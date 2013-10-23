@@ -429,26 +429,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 }
 
-static int StuckInOtherClient(gentity_t *ent) {
-	int i;
-	gentity_t	*ent2;
-
-	ent2 = &g_entities[0];
-	for ( i = 0; i < MAX_CLIENTS; i++, ent2++ ) {
-		if ( ent2 == ent || !ent2->inuse || !ent2->client || ent2->health <= 0 )
-			continue;
-		//
-		if ( ent2->r.absmin.x > ent->r.absmax.x )	continue;
-		if ( ent2->r.absmin.y > ent->r.absmax.y )	continue;
-		if ( ent2->r.absmin.z > ent->r.absmax.z )	continue;
-		if ( ent2->r.absmax.x < ent->r.absmin.x )	continue;
-		if ( ent2->r.absmax.y < ent->r.absmin.y )	continue;
-		if ( ent2->r.absmax.z < ent->r.absmin.z )	continue;
-		return qtrue;
-	}
-	return qfalse;
-}
-
 void BotTestSolid(vector3 *origin);
 
 void SendPendingPredictableEvents( playerState_t *ps ) {
