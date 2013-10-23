@@ -161,7 +161,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	CL_ConsolePrint( msg );
 #endif
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	OutputDebugString( msg );
 #endif
 
@@ -813,10 +813,10 @@ void *Z_TagMalloc( size_t size, int tag ) {
 			Z_LogHeap();
 
 			Com_Error(ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes from the %s zone: %s, line: %d (%s)",
-								size, zone == smallzone ? "small" : "main", file, line, label);
+								(int)size, zone == smallzone ? "small" : "main", file, line, label);
 #else
 			Com_Error(ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes from the %s zone",
-								size, zone == smallzone ? "small" : "main");
+								(int)size, zone == smallzone ? "small" : "main");
 #endif
 			return NULL;
 		}
@@ -943,7 +943,8 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 				}
 			}
 			dump[j] = '\0';
-			Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file, block->d.line, block->d.label, dump);
+			Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", (int)block->d.allocSize, block->d.file,
+				block->d.line, block->d.label, dump);
 			FS_Write(buf, (int)strlen(buf), logfile);
 			allocSize += block->d.allocSize;
 #endif
@@ -957,9 +958,9 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 #else
 	allocSize = numBlocks * sizeof(memblock_t); // + 32 bit alignment
 #endif
-	Com_sprintf(buf, sizeof(buf), "%d %s memory in %d blocks\r\n", size, name, numBlocks);
+	Com_sprintf(buf, sizeof(buf), "%d %s memory in %d blocks\r\n", (int)size, name, numBlocks);
 	FS_Write(buf, (int)strlen(buf), logfile);
-	Com_sprintf(buf, sizeof(buf), "%d %s memory overhead\r\n", size - allocSize, name);
+	Com_sprintf(buf, sizeof(buf), "%d %s memory overhead\r\n", (int)(size - allocSize), name);
 	FS_Write(buf, (int)strlen(buf), logfile);
 }
 
@@ -1084,7 +1085,7 @@ void Com_Meminfo_f( void ) {
 	for (block = mainzone->blocklist.next ; ; block = block->next) {
 		if ( Cmd_Argc() != 1 ) {
 			Com_Printf ("block:%p    size:%7i    tag:%3i\n",
-				(void *)block, block->size, block->tag);
+				(void *)block, (int)block->size, block->tag);
 		}
 		if ( block->tag ) {
 			zoneBytes += block->size;
@@ -1123,24 +1124,24 @@ void Com_Meminfo_f( void ) {
 		}
 	}
 
-	Com_Printf( "%8i bytes total hunk\n", s_hunkTotal );
-	Com_Printf( "%8i bytes total zone\n", s_zoneTotal );
+	Com_Printf( "%8i bytes total hunk\n", (int)s_hunkTotal );
+	Com_Printf( "%8i bytes total zone\n", (int)s_zoneTotal );
 	Com_Printf( "\n" );
-	Com_Printf( "%8i low mark\n", hunk_low.mark );
-	Com_Printf( "%8i low permanent\n", hunk_low.permanent );
+	Com_Printf( "%8i low mark\n", (int)hunk_low.mark );
+	Com_Printf( "%8i low permanent\n", (int)hunk_low.permanent );
 	if ( hunk_low.temp != hunk_low.permanent ) {
-		Com_Printf( "%8i low temp\n", hunk_low.temp );
+		Com_Printf( "%8i low temp\n", (int)hunk_low.temp );
 	}
-	Com_Printf( "%8i low tempHighwater\n", hunk_low.tempHighwater );
+	Com_Printf( "%8i low tempHighwater\n", (int)hunk_low.tempHighwater );
 	Com_Printf( "\n" );
-	Com_Printf( "%8i high mark\n", hunk_high.mark );
-	Com_Printf( "%8i high permanent\n", hunk_high.permanent );
+	Com_Printf( "%8i high mark\n", (int)hunk_high.mark );
+	Com_Printf( "%8i high permanent\n", (int)hunk_high.permanent );
 	if ( hunk_high.temp != hunk_high.permanent ) {
-		Com_Printf( "%8i high temp\n", hunk_high.temp );
+		Com_Printf( "%8i high temp\n", (int)hunk_high.temp );
 	}
-	Com_Printf( "%8i high tempHighwater\n", hunk_high.tempHighwater );
+	Com_Printf( "%8i high tempHighwater\n", (int)hunk_high.tempHighwater );
 	Com_Printf( "\n" );
-	Com_Printf( "%8i total hunk in use\n", hunk_low.permanent + hunk_high.permanent );
+	Com_Printf( "%8i total hunk in use\n", (int)(hunk_low.permanent + hunk_high.permanent) );
 	unused = 0;
 	if ( hunk_low.tempHighwater > hunk_low.permanent ) {
 		unused += hunk_low.tempHighwater - hunk_low.permanent;
@@ -1148,13 +1149,13 @@ void Com_Meminfo_f( void ) {
 	if ( hunk_high.tempHighwater > hunk_high.permanent ) {
 		unused += hunk_high.tempHighwater - hunk_high.permanent;
 	}
-	Com_Printf( "%8i unused highwater\n", unused );
+	Com_Printf( "%8i unused highwater\n", (int)unused );
 	Com_Printf( "\n" );
-	Com_Printf( "%8i bytes in %i zone blocks\n", zoneBytes, zoneBlocks	);
-	Com_Printf( "        %8i bytes in dynamic botlib\n", botlibBytes );
-	Com_Printf( "        %8i bytes in dynamic renderer\n", rendererBytes );
-	Com_Printf( "        %8i bytes in dynamic other\n", zoneBytes - ( botlibBytes + rendererBytes ) );
-	Com_Printf( "        %8i bytes in small Zone memory\n", smallZoneBytes );
+	Com_Printf( "%8i bytes in %i zone blocks\n", (int)zoneBytes, (int)zoneBlocks	);
+	Com_Printf( "        %8i bytes in dynamic botlib\n", (int)botlibBytes );
+	Com_Printf( "        %8i bytes in dynamic renderer\n", (int)rendererBytes );
+	Com_Printf( "        %8i bytes in dynamic other\n", (int)(zoneBytes - ( botlibBytes + rendererBytes )) );
+	Com_Printf( "        %8i bytes in small Zone memory\n", (int)smallZoneBytes );
 }
 
 // Touch all known used data to make sure it is paged in
@@ -1229,7 +1230,7 @@ void Com_InitZoneMemory( void ) {
 
 	mainzone = calloc( s_zoneTotal, 1 );
 	if ( !mainzone ) {
-		Com_Error( ERR_FATAL, "Zone data failed to allocate %i megs", s_zoneTotal / (1024*1024) );
+		Com_Error( ERR_FATAL, "Zone data failed to allocate %i megs", (int)(s_zoneTotal / (1024*1024)) );
 	}
 	Z_ClearZone( mainzone, s_zoneTotal );
 
@@ -1249,15 +1250,15 @@ void Hunk_Log( void) {
 	FS_Write(buf, (int)strlen(buf), logfile);
 	for (block = hunkblocks ; block; block = block->next) {
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label);
+		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", (int)block->size, block->file, block->line, block->label);
 		FS_Write(buf, (int)strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
-	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
+	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", (int)size);
 	FS_Write(buf, (int)strlen(buf), logfile);
-	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
+	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", (int)numBlocks);
 	FS_Write(buf, (int)strlen(buf), logfile);
 }
 
@@ -1293,13 +1294,13 @@ void Hunk_SmallLog( void) {
 			block2->printed = qtrue;
 		}
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label);
+		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", (int)locsize, block->file, block->line, block->label);
 		FS_Write(buf, (int)strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
-	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
+	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", (int)size);
 	FS_Write(buf, (int)strlen(buf), logfile);
 	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
 	FS_Write(buf, (int)strlen(buf), logfile);
@@ -1340,7 +1341,7 @@ void Com_InitHunkMemory( void ) {
 
 	s_hunkData = calloc( s_hunkTotal + 31, 1 );
 	if ( !s_hunkData ) {
-		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / (1024*1024) );
+		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", (int)(s_hunkTotal / (1024*1024)) );
 	}
 	// cacheline align
 	s_hunkData = (byte *) ( ( (intptr_t)s_hunkData + 31 ) & ~31 );
@@ -1468,9 +1469,9 @@ void *Hunk_Alloc( size_t size, hunkallocPref_t preference ) {
 		Hunk_Log();
 		Hunk_SmallLog();
 
-		Com_Error(ERR_DROP, "Hunk_Alloc failed on %i: %s, line: %d (%s)", size, file, line, label);
+		Com_Error(ERR_DROP, "Hunk_Alloc failed on %i: %s, line: %d (%s)", (int)size, file, line, label);
 #else
-		Com_Error(ERR_DROP, "Hunk_Alloc failed on %i", size);
+		Com_Error(ERR_DROP, "Hunk_Alloc failed on %i", (int)size);
 #endif
 	}
 
@@ -1524,7 +1525,7 @@ void *Hunk_AllocateTempMemory( size_t size ) {
 	size = PAD(size, sizeof(intptr_t)) + sizeof( hunkHeader_t );
 
 	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
-		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );
+		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", (int)size );
 	}
 
 	if ( hunk_temp == &hunk_low ) {
@@ -2703,12 +2704,6 @@ static void PrintKeyMatches( const char *s ) {
 	}
 }
 #endif
-
-static void PrintFileMatches( const char *s ) {
-	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
-		Com_Printf( S_COLOR_GREY"File "S_COLOR_WHITE"%s\n", s );
-	}
-}
 
 static void PrintCvarMatches( const char *s ) {
 	char value[TRUNCATE_LENGTH] = {0};

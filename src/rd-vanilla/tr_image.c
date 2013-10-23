@@ -755,13 +755,9 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 image_t *R_CreateBlankImage( const char *name, int width, int height, int glWrapClampMode ) {
 	image_t		*image;
 	long		hash;
-	qboolean	noTC = qfalse;
 
 	if (strlen(name) >= MAX_QPATH )
 		ri->Error (ERR_DROP, "R_CreateBlankImage: \"%s\" is too long", name);
-
-	if( !r_ext_compressed_textures->value || tr.allowCompression == qfalse )
-		noTC = qtrue;
 
 	if ( tr.numImages == MAX_DRAWIMAGES )
 		ri->Error( ERR_DROP, "R_CreateBlankImage: MAX_DRAWIMAGES hit");

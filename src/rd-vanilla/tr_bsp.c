@@ -1464,7 +1464,8 @@ void R_LoadLightGrid( lump_t *l ) {
 }
 
 void R_LoadEntities( lump_t *l ) {
-	char *p, *token;
+	const char *p;
+	char *token;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
 	world_t	*w;
@@ -1474,7 +1475,7 @@ void R_LoadEntities( lump_t *l ) {
 	w->lightGridSize.y = 64;
 	w->lightGridSize.z = 128;
 
-	p = (char *)(fileBase + l->fileofs);
+	p = (const char *)(fileBase + l->fileofs);
 
 	// store for reference by the cgame
 	w->entityString = (char *)ri->Hunk_Alloc( l->filelen + 1, PREF_LOW );

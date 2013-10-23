@@ -1189,8 +1189,9 @@ static size_t	consoleSaveBufferSize = 0;
 
 // Load the console history from cl_consoleHistory
 void CL_LoadConsoleHistory( void ) {
-	char					*token, *text_p;
-	int						i, numChars, numLines = 0;
+	char			*token;
+	const char		*text_p;
+	int				i, numChars, numLines = 0;
 	fileHandle_t	f;
 
 	consoleSaveBufferSize = FS_FOpenFileRead( CONSOLE_HISTORY_FILE, &f, qfalse );
@@ -1270,9 +1271,9 @@ void CL_SaveConsoleHistory( void ) {
 			{
 				Q_strcat( consoleSaveBuffer, MAX_CONSOLE_SAVE_BUFFER,
 						va( "%d %d %d %s ",
-						historyEditLines[ i ].cursor,
-						historyEditLines[ i ].scroll,
-						lineLength,
+						(int)historyEditLines[ i ].cursor,
+						(int)historyEditLines[ i ].scroll,
+						(int)lineLength,
 						historyEditLines[ i ].buffer ) );
 			}
 			else

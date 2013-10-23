@@ -852,4 +852,5 @@ void QDECL Com_Error( int level, const char *error, ... ) {
 	va_end( argptr );
 
 	botimport.Error( level, "%s", text );
+	exit(1); // shh compiler
 }

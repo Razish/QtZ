@@ -2159,7 +2159,7 @@ void FS_NewDir_f( void ) {
 		FS_ConvertPath(dirnames[i]);
 		Com_Printf( "%s\n", dirnames[i] );
 	}
-	Com_Printf( "%d files listed\n", ndirs );
+	Com_Printf( "%d files listed\n", (int)ndirs );
 	FS_FreeFileList( dirnames );
 }
 

@@ -312,12 +312,6 @@ void CL_ShutdownCGame( void ) {
 	cgame = NULL;
 }
 
-static int	FloatAsInt( float f ) {
-	floatint_t fi;
-	fi.f = f;
-	return fi.i;
-}
-
 // Should only be called by CL_StartHunkUsers
 
 void CL_InitCGame( void ) {

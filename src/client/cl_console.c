@@ -434,7 +434,7 @@ void Con_DrawSolidConsole( float frac ) {
 	int				rows;
 	short			*text;
 	int				row;
-	int				yoffset = (int)(cls.glconfig.vidHeight * frac), lines;
+	int				yoffset = (int)(cls.glconfig.vidHeight * frac);
 //	qhandle_t		conShader;
 	int				currentColor;
 	const vector4	*color = &g_color_table[ColorIndex(COLOR_ORANGE)], shadowColour = { 0.4f, 0.4f, 0.4f, 0.5f };
@@ -445,8 +445,6 @@ void Con_DrawSolidConsole( float frac ) {
 
 	if (yoffset > cls.glconfig.vidHeight )
 		yoffset = cls.glconfig.vidHeight;
-
-	lines = yoffset / SMALLCHAR_HEIGHT;
 
 	// on wide screens, we will center the text
 	con.xadjust = 0;

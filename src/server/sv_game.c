@@ -169,7 +169,7 @@ qboolean	SV_EntityContact( vector3 *mins, vector3 *maxs, const sharedEntity_t *g
 
 void SV_GetServerinfo( char *buffer, size_t bufferSize ) {
 	if ( bufferSize < 1 )
-		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
+		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", (int)bufferSize );
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
@@ -206,12 +206,6 @@ static void SV_GameClientThink( int clientNum, usercmd_t *cmd ) {
 
 static void SV_GameTrace( trace_t *results, const vector3 *start, const vector3 *mins, const vector3 *maxs, const vector3 *end, int passEntityNum, int contentmask ) {
 	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qfalse );
-}
-
-static int	FloatAsInt( float f ) {
-	floatint_t fi;
-	fi.f = f;
-	return fi.i;
 }
 
 // Called every time a map changes

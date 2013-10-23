@@ -522,12 +522,6 @@ static qboolean GetConfigString(int index, char *buf, size_t size) {
 	return qtrue;
 }
 
-static int FloatAsInt( float f ) {
-	floatint_t fi;
-	fi.f = f;
-	return fi.i;
-}
-
 void CL_ShutdownUI( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
 	cls.uiStarted = qfalse;

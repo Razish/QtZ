@@ -71,7 +71,7 @@ static glslShader_t* R_EXT_GLSL_CreateShader ( const char* shaderPath, int shade
 		return NULL;
 	}
 
-	glShaderSourceARB (shader->id, 1, (GLcharARB**)&shaderCode, NULL);
+	glShaderSourceARB (shader->id, 1, (const GLcharARB**)&shaderCode, NULL);
 	if ( glGetError() == GL_INVALID_OPERATION )
 	{
 		Com_Printf ("Invalid source code in shader\n");

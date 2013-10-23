@@ -106,9 +106,6 @@ static void *BotImport_HunkAlloc( size_t size ) {
 	return Hunk_Alloc( size, PREF_HIGH );
 }
 
-static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vector3 *points) {
-}
-
 static int BotImport_DebugLineCreate( void ) {
 	vector3 points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
@@ -121,11 +118,9 @@ static void BotImport_DebugLineShow(int line, vector3 *start, vector3 *end, int 
 }
 
 static void BotClientCommand( int client, const char *command ) {
-	const char *arg = NULL;
 	client_t *cl = &svs.clients[client];
 	
 	Cmd_TokenizeString( command );
-	arg = Cmd_Argv( 0 );
 
 	// pass unknown strings to the game
 	if ( sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED) ) {

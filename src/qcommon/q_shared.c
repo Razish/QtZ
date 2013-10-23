@@ -604,8 +604,8 @@ qboolean SkipBracedSection( const char **program, int depth ) {
 	return (depth == 0);
 }
 
-void SkipRestOfLine ( char **data ) {
-	char	*p;
+void SkipRestOfLine ( const char **data ) {
+	const char	*p;
 	int		c;
 
 	p = *data;

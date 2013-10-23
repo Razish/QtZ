@@ -1083,7 +1083,8 @@ static void SV_KillServer_f( void ) {
 static void SV_CompleteMapName( char *args, int argNum ) {
 	if ( argNum == 2 ) {
 		int i;
-		char *s=args, *token=s;
+		char *s=args;
+		const char *token=s;
 
 		for ( i=0; i<argNum; i++ )
 			s = COM_Parse( &token );

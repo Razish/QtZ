@@ -87,7 +87,7 @@ size_t routingcachesize, max_routingcachesize;
 void AAS_RoutingInfo( void ) {
 	botimport.Print(PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates);
 	botimport.Print(PRT_MESSAGE, "%d portal cache updates\n", numportalcacheupdates);
-	botimport.Print(PRT_MESSAGE, "%d bytes routing cache\n", routingcachesize);
+	botimport.Print(PRT_MESSAGE, "%d bytes routing cache\n", (int)routingcachesize);
 }
 #endif //ROUTING_DEBUG
 
@@ -839,7 +839,7 @@ void AAS_WriteRouteCache( void ) {
 	//
 	botimport.FS_FCloseFile(fp);
 	botimport.Print(PRT_MESSAGE, "\nroute cache written to %s\n", filename);
-	botimport.Print(PRT_MESSAGE, "written %d bytes of routing cache\n", totalsize);
+	botimport.Print(PRT_MESSAGE, "written %d bytes of routing cache\n", (int)totalsize);
 }
 
 aas_routingcache_t *AAS_ReadCache(fileHandle_t fp) {

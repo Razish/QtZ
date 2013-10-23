@@ -732,7 +732,7 @@ typedef struct world_s {
 	byte		*novis;			// clusterBytes of 0xff
 
 	char		*entityString;
-	char		*entityParsePoint;
+	const char	*entityParsePoint;
 } world_t;
 
 typedef enum modtype_e {
