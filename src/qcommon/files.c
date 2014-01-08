@@ -2012,9 +2012,7 @@ size_t FS_GetModList( char *listbuf, size_t bufsize ) {
 					file = FS_FileForHandle(descHandle);
 					memset( descPath, 0, sizeof( descPath ) );
 					nDescLen = fread(descPath, 1, 48, file);
-					if (nDescLen >= 0) {
-						descPath[nDescLen] = '\0';
-					}
+					descPath[nDescLen] = '\0';
 					FS_FCloseFile(descHandle);
 				} else {
 					strcpy(descPath, name);

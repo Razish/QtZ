@@ -133,16 +133,16 @@ typedef unsigned char byte;
 
 typedef enum qboolean_e { qfalse=0, qtrue } qboolean;
 
-typedef union floatint_u {
+// 32 bit field aliasing
+typedef union byteAlias_u {
 	float f;
-	int i;
-	unsigned int ui;
-} floatint_t;
+	int32_t i;
+	uint32_t ui;
+	byte b[4];
+	char c[4];
+} byteAlias_t;
 
-typedef int		qhandle_t;
-typedef int		sfxHandle_t;
-typedef int		fileHandle_t;
-typedef int		clipHandle_t;
+typedef int32_t qhandle_t, sfxHandle_t, fileHandle_t, clipHandle_t;
 
 #define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
 #define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))

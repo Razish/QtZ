@@ -2112,9 +2112,6 @@ size_t Item_ListBox_MaxScroll(itemDef_t *item) {
 	else {
 		max = count - (int)(item->window.rect.h / listPtr->elementHeight) + 1;
 	}
-	if (max < 0) {
-		return 0;
-	}
 	return max;
 }
 
@@ -2501,9 +2498,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			{
 				if (!listPtr->notselectable) {
 					listPtr->cursorPos--;
-					if (listPtr->cursorPos < 0) {
-						listPtr->cursorPos = 0;
-					}
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
 					}
@@ -2515,8 +2509,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 				}
 				else {
 					listPtr->startPos--;
-					if (listPtr->startPos < 0)
-						listPtr->startPos = 0;
 				}
 				return qtrue;
 			}
@@ -2550,9 +2542,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			{
 				if (!listPtr->notselectable) {
 					listPtr->cursorPos--;
-					if (listPtr->cursorPos < 0) {
-						listPtr->cursorPos = 0;
-					}
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
 					}
@@ -2564,8 +2553,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 				}
 				else {
 					listPtr->startPos--;
-					if (listPtr->startPos < 0)
-						listPtr->startPos = 0;
 				}
 				return qtrue;
 			}
@@ -2597,9 +2584,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 		if (key == K_MOUSE1 || key == K_MOUSE2) {
 			if (item->window.flags & WINDOW_LB_LEFTARROW) {
 				listPtr->startPos--;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
 			} else if (item->window.flags & WINDOW_LB_RIGHTARROW) {
 				// one down
 				listPtr->startPos++;
@@ -2609,9 +2593,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			} else if (item->window.flags & WINDOW_LB_PGUP) {
 				// page up
 				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
 			} else if (item->window.flags & WINDOW_LB_PGDN) {
 				// page down
 				listPtr->startPos += viewmax;
@@ -2647,9 +2628,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			// page up
 			if (!listPtr->notselectable) {
 				listPtr->cursorPos -= viewmax;
-				if (listPtr->cursorPos < 0) {
-					listPtr->cursorPos = 0;
-				}
 				if (listPtr->cursorPos < listPtr->startPos) {
 					listPtr->startPos = listPtr->cursorPos;
 				}
@@ -2661,9 +2639,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			}
 			else {
 				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
 			}
 			return qtrue;
 		}
@@ -3010,10 +2985,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		max = Item_ListBox_MaxScroll(si->item);
 		//
 		pos = (int)((DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE));
-		if (pos < 0) {
-			pos = 0;
-		}
-		else if (pos > max) {
+		if (pos > max) {
 			pos = max;
 		}
 		listPtr->startPos = pos;
@@ -3028,10 +3000,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		max = Item_ListBox_MaxScroll(si->item);
 		//
 		pos = (int)((DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE));
-		if (pos < 0) {
-			pos = 0;
-		}
-		else if (pos > max) {
+		if (pos > max) {
 			pos = max;
 		}
 		listPtr->startPos = pos;
@@ -5282,7 +5251,7 @@ typedef struct keywordHash_s
 } keywordHash_t;
 
 int KeywordHash_Key(char *keyword) {
-	int register hash, i;
+	register int hash, i;
 
 	hash = 0;
 	for (i = 0; keyword[i] != '\0'; i++) {

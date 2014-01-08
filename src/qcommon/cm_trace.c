@@ -84,7 +84,7 @@ float CM_VectorDistanceSquared(vector3 *p1, vector3 *p2) {
 }
 
 float SquareRootFloat(float number) {
-	floatint_t t;
+	byteAlias_t t;
 	float x, y;
 	const float f = 1.5F;
 

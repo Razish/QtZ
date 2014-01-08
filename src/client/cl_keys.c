@@ -309,9 +309,6 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	} else {
 		if ( edit->scroll + drawLen > len ) {
 			edit->scroll = len - drawLen;
-			if ( edit->scroll < 0 ) {
-				edit->scroll = 0;
-			}
 		}
 		prestep = edit->scroll;
 	}

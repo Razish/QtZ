@@ -262,7 +262,7 @@ qint64_t Long64NoSwap (qint64_t ll) {
 }
 
 float FloatSwap (const float *f) {
-	floatint_t out;
+	byteAlias_t out;
 
 	out.f = *f;
 	out.ui = LongSwap(out.ui);

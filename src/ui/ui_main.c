@@ -864,7 +864,7 @@ static void UI_RemoveServerFromDisplayList( int num ) {
 static void UI_InsertServerIntoDisplayList( int num, size_t position ) {
 	size_t i;
 
-	if ( position < 0 || position > uiInfo.serverStatus.numDisplayServers )
+	if ( position > uiInfo.serverStatus.numDisplayServers )
 		return;
 
 	uiInfo.serverStatus.numDisplayServers++;
@@ -1713,7 +1713,7 @@ static void UI_DrawBotName(rectDef_t *rect, float scale, vector4 *color, int tex
 }
 
 static void UI_DrawBotSkill(rectDef_t *rect, float scale, vector4 *color, int textStyle) {
-	if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
+	if (uiInfo.skillIndex < numSkillLevels) {
 		Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, textStyle);
 	}
 }
@@ -2310,14 +2310,10 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 		if (game >= GT_TEAMBLOOD) {
 			if (value >= uiInfo.characterCount + 2) {
 				value = 0;
-			} else if (value < 0) {
-				value = uiInfo.characterCount + 2 - 1;
 			}
 		} else {
 			if (value >= UI_GetNumBots() + 2) {
 				value = 0;
-			} else if (value < 0) {
-				value = UI_GetNumBots() + 2 - 1;
 			}
 		}
 		uiInfo.botIndex = value;
@@ -2335,8 +2331,6 @@ static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
 		}
 		if (uiInfo.skillIndex >= numSkillLevels) {
 			uiInfo.skillIndex = 0;
-		} else if (uiInfo.skillIndex < 0) {
-			uiInfo.skillIndex = numSkillLevels-1;
 		}
 		return qtrue;
 	}
@@ -2880,12 +2874,12 @@ static void UI_RunMenuScript(const char **args) {
 			uiInfo.serverStatusInfo.numLines = 0;
 			Menu_SetFeederSelection(NULL, FEEDER_FINDPLAYER, 0, NULL);
 		} else if (Q_stricmp(name, "JoinServer") == 0) {
-			if (uiInfo.serverStatus.currentServer >= 0 && uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers) {
+			if (uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers) {
 				trap->LAN_GetServerAddressString(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, 1024);
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va( "connect %s\n", buff ) );
 			}
 		} else if (Q_stricmp(name, "FoundPlayerJoinServer") == 0) {
-			if (uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
+			if (uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
 			}
 		} else if (Q_stricmp(name, "Quit") == 0) {
@@ -2932,7 +2926,7 @@ static void UI_RunMenuScript(const char **args) {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va("callvote gametype %i\n", ui_gametype->integer) );
 			}
 		} else if (Q_stricmp(name, "voteLeader") == 0) {
-			if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
+			if (uiInfo.teamIndex < uiInfo.myTeamCount) {
 				trap->Cbuf_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
@@ -3189,21 +3183,21 @@ static qhandle_t UI_FeederItemImage(float feederID, size_t index) {
 		size_t actual;
 		UI_SelectedHead(index, &actual);
 		index = actual;
-		if (index >= 0 && index < uiInfo.characterCount) {
+		if (index < uiInfo.characterCount) {
 			if (uiInfo.characterList[index].headImage == -1) {
 				uiInfo.characterList[index].headImage = trap->R_RegisterShader(uiInfo.characterList[index].imageName);
 			}
 			return uiInfo.characterList[index].headImage;
 		}
 	} else if (feederID == FEEDER_Q3HEADS) {
-		if (index >= 0 && index < uiInfo.q3HeadCount) {
+		if (index < uiInfo.q3HeadCount) {
 			return uiInfo.q3HeadIcons[index];
 		}
 	} else if (feederID == FEEDER_ALLMAPS || feederID == FEEDER_MAPS) {
 		size_t actual;
 		UI_SelectedMap(index, &actual);
 		index = actual;
-		if (index >= 0 && index < uiInfo.mapCount) {
+		if (index < uiInfo.mapCount) {
 			if (uiInfo.mapList[index].levelShot == -1) {
 				uiInfo.mapList[index].levelShot = trap->R_RegisterShader(uiInfo.mapList[index].imageName);
 			}

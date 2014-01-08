@@ -68,12 +68,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define QINLINE __inline
 		#define PATH_SEP '\\'
 
-		#if defined(__WIN64__)
-			#define ARCH_STRING "x64"
-		#elif defined(_M_ALPHA)
-			#define ARCH_STRING "AXP"
-		#endif
-
 		#define Q3_LITTLE_ENDIAN
 
 		#define DLL_EXT ".dll"
@@ -96,12 +90,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define QINLINE __inline
 		#define PATH_SEP '\\'
 
-		#if defined(_M_IX86) || defined(__i386__)
-			#define ARCH_STRING "x86"
-		#elif defined _M_ALPHA
-			#define ARCH_STRING "AXP"
-		#endif
-
 		#define Q3_LITTLE_ENDIAN
 
 		#define DLL_EXT ".dll"
@@ -119,14 +107,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define PATH_SEP '/'
 
 		#if defined(__ppc__)
-			#define ARCH_STRING "ppc"
 			#define Q3_BIG_ENDIAN
 		#elif defined(__i386__)
-			#define ARCH_STRING "x86"
 			#define Q3_LITTLE_ENDIAN
 		#elif defined(__x86_64__)
 			#define idx64
-			#define ARCH_STRING "x86_64"
 			#define Q3_LITTLE_ENDIAN
 		#endif
 
@@ -151,35 +136,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		#define PATH_SEP '/'
 
-		#if defined(__i386__)
-			#define ARCH_STRING "x86"
-		#elif defined(__x86_64__)
+		#if defined(__x86_64__)
 			#define idx64
-			#define ARCH_STRING "x86_64"
-		#elif defined(__powerpc64__)
-			#define ARCH_STRING "ppc64"
-		#elif defined(__powerpc__)
-			#define ARCH_STRING "ppc"
-		#elif defined(__s390__)
-			#define ARCH_STRING "s390"
-		#elif defined(__s390x__)
-			#define ARCH_STRING "s390x"
-		#elif defined(__ia64__)
-			#define ARCH_STRING "ia64"
-		#elif defined(__alpha__)
-			#define ARCH_STRING "alpha"
-		#elif defined(__sparc__)
-			#define ARCH_STRING "sparc"
-		#elif defined(__arm__)
-			#define ARCH_STRING "arm"
-		#elif defined(__cris__)
-			#define ARCH_STRING "cris"
-		#elif defined(__hppa__)
-			#define ARCH_STRING "hppa"
-		#elif defined(__mips__)
-			#define ARCH_STRING "mips"
-		#elif defined(__sh__)
-			#define ARCH_STRING "sh"
 		#endif
 
 		#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
@@ -199,7 +157,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#ifndef __BSD__
 			#define __BSD__
 		#endif
-		
+
 		#if defined(__FreeBSD__)
 			#define OS_STRING "freebsd"
 		#elif defined(__OpenBSD__)
@@ -207,17 +165,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#elif defined(__NetBSD__)
 			#define OS_STRING "netbsd"
 		#endif
-		
+
 		#define QINLINE inline
 		#define PATH_SEP '/'
-		
-		#if defined(__i386__)
-			#define ARCH_STRING "x86"
-		#elif defined(__amd64__)
+
+		#if defined(__amd64__)
 			#define idx64
-			#define ARCH_STRING "x86_64"
-		#elif defined(__axp__)
-			#define ARCH_STRING "alpha"
 		#endif
 		
 		#if BYTE_ORDER == BIG_ENDIAN
@@ -237,13 +190,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define OS_STRING "solaris"
 		#define QINLINE inline
 		#define PATH_SEP '/'
-		
-		#if defined(__i386__)
-			#define ARCH_STRING "x86"
-		#elif defined(__sparc)
-			#define ARCH_STRING "sparc"
-		#endif
-		
+
 		#if defined(_BIG_ENDIAN)
 			#define Q3_BIG_ENDIAN
 		#elif defined(_LITTLE_ENDIAN)
@@ -258,9 +205,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		#define OS_STRING "irix"
 		#define QINLINE __inline
 		#define PATH_SEP '/'
-	
-		#define ARCH_STRING "mips"
-	
+
 		#define Q3_BIG_ENDIAN // SGI's MIPS are always big endian
 	
 		#define DLL_EXT ".so"

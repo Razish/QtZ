@@ -251,11 +251,7 @@ void CG_ChatboxTabComplete( void ) {
 			drawLen = chatField.widthInChars - 1;
 			len = strlen( chatField.buffer );
 			if ( chatField.scroll + drawLen > len )
-			{
 				chatField.scroll = (int)(len - drawLen);
-				if ( chatField.scroll < 0 )
-					chatField.scroll = 0;
-			}
 		}
 		else if ( numMatches > 1 )
 		{

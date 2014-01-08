@@ -123,6 +123,7 @@ static void CG_GunAlignUpdate( void ) {
 static void CG_ViewVarsUpdate( void ) {
 	vector3	 *a = NULL;
 	number *n = NULL;
+	int tmpInt = 0;
 
 	// viewmodel bobbing (pitch, yaw, roll)
 	a = &cg.gunBob;
@@ -143,12 +144,14 @@ static void CG_ViewVarsUpdate( void ) {
 	}
 
 	// view bobbing (pitch, roll, up, fall)
-	if ( sscanf( cg_viewBob->string, "%f %f %f %i", &cg.viewBob.pitch, &cg.viewBob.roll, &cg.viewBob.up, &cg.viewBob.fall ) != 4 ) {
+	if ( sscanf( cg_viewBob->string, "%f %f %f %i", &cg.viewBob.pitch, &cg.viewBob.roll, &cg.viewBob.up, &tmpInt ) != 4 ) {
 		cg.viewBob.pitch	= 0.002f;
 		cg.viewBob.roll		= 0.002f;
 		cg.viewBob.up		= 0.005f;
 		cg.viewBob.fall		= qtrue;
 	}
+	else
+		cg.viewBob.fall = tmpInt;
 }
 
 

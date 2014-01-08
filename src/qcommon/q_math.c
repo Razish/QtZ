@@ -386,13 +386,13 @@ void VectorRotate( const vector3 *in, matrix3 matrix, vector3 *out ) {
 }
 
 #ifndef idppc
-float Q_rsqrt( float number ) {
-	floatint_t t;
+float Q_rsqrt( float f ) {
+	byteAlias_t t;
 	float x2, y;
 	const float threehalfs = 1.5F;
 
-	x2 = number * 0.5F;
-	t.f  = number;
+	x2 = f * 0.5F;
+	t.f  = f;
 	t.i  = 0x5f3759df - ( t.i >> 1 );               // what the fuck?
 	y  = t.f;
 	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
@@ -402,7 +402,7 @@ float Q_rsqrt( float number ) {
 }
 
 float Q_fabs( float f ) {
-	floatint_t fi;
+	byteAlias_t fi;
 	fi.f = f;
 	fi.i &= 0x7FFFFFFF;
 	return fi.f;
@@ -1075,7 +1075,7 @@ void PerpendicularVector( vector3 *dst, const vector3 *src ) {
 
 // Don't pass doubles to this
 int Q_isnan( float x ) {
-	floatint_t fi;
+	byteAlias_t fi;
 
 	fi.f = x;
 	fi.ui &= 0x7FFFFFFF;
